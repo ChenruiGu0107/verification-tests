@@ -40,35 +40,5 @@ check_generated_parameter_on_next_page:
       xpath: //span[text()='ADMIN_PASSWORD']
   - selector:
       xpath: //span[text()='MYSQL_USER']
-click_show_parameter_value:
-  elements:
-  - selector:
-      xpath: //a[contains(.,'Show parameter values')]
-    op: click
-check_parameter_value:
-  action: click_show_parameter_value
-  elements:
-  - selector:
-      xpath: //div[contains(@class,'key-value-editor-input')]/input
-  params:
-    env_var_key: ADMIN_PASSWORD
-  action: check_env_var_key
-  params:
-    env_var_key: MYSQL_USER
-  action: check_env_var_key
-check_env_var_key:
-  scripts:
-  - command: |
-        var key = "<env_var_key>",
-            rows = document.querySelectorAll('div[class~=key-value-editor-entry]'),
-            inputs = [];
-        for (var i =0; i< rows.length; i++) {
-          inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
-          if (inputs.length > 0 && inputs[0].value == key) {
-            return true;
-          }
-        }
-        return false;
-    expect_result: true
 check_help_and_sug_on_next_step_page:
   action: check_make_code_change_instruc_exist

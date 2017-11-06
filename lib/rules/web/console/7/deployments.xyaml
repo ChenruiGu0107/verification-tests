@@ -816,62 +816,6 @@ goto_edit_dc_page:
   element:
     selector:
       xpath: //h3[text()='Deployment Strategy']
-add_env_var_for_dc_container:
-  action: add_env_var_key_for_dc_container
-  action: add_env_var_value_for_dc_container
-add_env_var_key_for_dc_container:
-  elements:
-  - selector:
-      xpath: //div[h3[text()='Environment Variables']]/div[div/h4[contains(text(),'<container_name>')]]//a[text()='Add Environment Variable']
-    op: click
-  - selector:
-      xpath: //h4[contains(text(),'<container_name>')]/ancestor::div[@ng-repeat]//div[@ng-repeat='entry in entries'][last()]/div[1]//input
-    op: send_keys <env_var_key>
-add_env_var_value_for_dc_container:
-  elements:
-  - selector:
-      xpath: //h4[contains(text(),'<container_name>')]/ancestor::div[@ng-repeat]//div[@ng-repeat='entry in entries'][last()]/div[2]//input
-    op: send_keys <env_var_value>
-check_env_tab_for_dc_container:
-  scripts:
-    - command: |
-             var key = "<env_var_key>"
-             var value = "<env_var_value>"
-             var pattern = new RegExp("<container_name>")
-             var editors = document.querySelectorAll('key-value-editor')
-             for (var i =0; i< editors.length; i++) {
-               if (pattern.test(editors[i].previousElementSibling.innerHTML)) {
-                 var inputs = editors[i].querySelectorAll('div[class~=key-value-editor-input] input')
-                 for (var j=0;j<inputs.length;j=j+2) {
-                   if (inputs[j].value == key && inputs[j+1].value == value) {
-                   return true
-                   }
-                 }
-                 return false
-               }
-             }
-             return false
-      expect_result: true
-edit_env_var_key:
-  elements:
-  - selector: &env_var_key_field |
-        var id = null
-        var p = new RegExp("<env_var_value>");
-        var el = document.getElementsByTagName("input");
-        for (var i=0; i<el.length; i++) {
-          if (p.test(el[i].value)) {
-            id = el[i].id;
-            break;
-          }
-        }
-        if (id == null) return null;
-        id = id.replace(/value(?!.*value)/, 'key');
-        return document.getElementById(id);
-    type: js
-    op: clear
-  - selector: *env_var_key_field
-    type: js
-    op: send_keys <new_env_key>
 check_invalid_env_key_warning_message:
   action: click_somewhere_out_of_focus
   elements:

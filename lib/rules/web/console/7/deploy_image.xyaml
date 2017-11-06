@@ -29,14 +29,6 @@ deploy_from_image_stream_name_search_image:
   action: choose_image_name_method
   action: set_image_name
   action: click_to_search
-add_env_name_and_value_on_deploy_image_page:
-  elements:
-  - selector:
-      xpath: //osc-form-section[@header="Environment Variables"]/descendant::div//input[@placeholder="Name"]
-    op: send_keys <env_var_key>
-  - selector:
-      xpath: //osc-form-section[@header="Environment Variables"]/descendant::div//input[@placeholder="Value"]
-    op: send_keys <env_var_value>
 change_deploy_image_name_to_another:
   elements:
   - selector:

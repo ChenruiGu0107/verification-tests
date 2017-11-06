@@ -183,28 +183,6 @@ create_app_from_image_change_dc_config_trigger:
     selector:
       text: Deployment configuration changes
     op: click
-create_app_from_image_add_dc_env_vars:
-  elements:
-  - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Environment Variable']
-    op: click
-  - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
-    op: send_keys <dc_env_key>
-  - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[2]//input
-    op: send_keys <dc_env_value>
-create_app_from_image_add_bc_env_vars:
-  elements:
-  - selector:
-      xpath: //osc-form-section[@header="Build Configuration"]//a[normalize-space(text())='Add Environment Variable']
-    op: click
-  - selector:
-      xpath: //osc-form-section[@header="Build Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
-    op: send_keys <bc_env_key>
-  - selector:
-      xpath: //osc-form-section[@header="Build Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[2]//input
-    op: send_keys <bc_env_value>
 create_app_from_image_change_bc_webhook_trigger:
   element:
     selector:
