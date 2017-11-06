@@ -250,6 +250,7 @@ module CucuShift
       raise "#{__method__} method not implemented"
     end
 
+    # @return String local ip based on default route
     def get_local_ip
       return @local_ip if @local_ip
       return properties[:local_ip] if properties[:local_ip]
@@ -262,11 +263,12 @@ module CucuShift
       return @local_hostname = get_local_hostname_platform
     end
 
-    def get_local_hostname_platform
+    private def get_local_hostname_platform
       raise "#{__method__} method not implemented"
     end
 
-    def get_local_ip_platform
+    # see @get_local_ip
+    private def get_local_ip_platform
       raise "#{__method__} method not implemented"
     end
 
@@ -356,7 +358,7 @@ module CucuShift
   end
 
   class LinuxLikeHost < Host
-    def get_local_hostname_platform
+    private def get_local_hostname_platform
       res = exec_raw('hostname')
       if res[:success]
         return res[:response].strip
@@ -366,14 +368,37 @@ module CucuShift
       end
     end
 
-    def get_local_ip_platform
-      res = exec("ip route get 10.10.10.10 | sed -rn 's/^.*src (([0-9]+\.?){4})/\\1/p'")
+    private def get_src_ip(destination_ip)
+      res = exec("ip route get '#{destination_ip}' | sed -rn 's/^.*src (([0-9]+\.?){4})/\\1/p'")
       if res[:success]
         return res[:response].strip
       else
         logger(res[:response])
-        raise "cannot get local ip of broker"
+        raise "cannot get src ip for destination '#{destination_ip}'"
       end
+    end
+
+    # see @get_local_ip
+    private def get_local_ip_platform
+      get_src_ip("10.10.10.10")
+    end
+
+    # @return String empty if could not resolve
+    private def dns_resolve(host_or_ip)
+      res = exec("getent ahosts '#{host_or_ip}' | awk '{print $1; exit}'")
+      if res[:success]
+        return res[:response].strip
+      else
+        logger(res[:response])
+        raise "cannot get src ip for destination '#{host_or_ip}'"
+      end
+    end
+
+    def local_ip?(host_or_ip)
+      ip = dns_resolve host_or_ip
+      raise "unknown host '#{host_or_ip}'" if ip.empty?
+
+      return ip == get_src_ip(ip)
     end
 
     def commands_to_string(*commands)
