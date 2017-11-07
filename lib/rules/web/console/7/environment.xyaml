@@ -18,9 +18,6 @@ create_app_from_image_add_dc_env_vars:
       xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Value']
     op: click
   - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Value from Config Map or Secret']
-    op: click
-  - selector:
       xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
     op: send_keys <dc_env_key>
   - selector:
