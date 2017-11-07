@@ -150,8 +150,8 @@ Feature: Features about k8s replicasets
       | keyword | delete |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Successful delete |
-      | message | Deleted pod:      |
+      | reason  | Successful   |
+      | message | Deleted pod: |
     Then the step should succeed
 
     When I run the :scale_up_once_on_rs_page web console action
@@ -165,6 +165,6 @@ Feature: Features about k8s replicasets
       | keyword | create |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Successful create |
-      | message | Created pod:      |
+      | reason  | Successful   |
+      | message | Created pod: |
     Then the step should succeed
