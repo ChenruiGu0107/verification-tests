@@ -15,7 +15,10 @@ click_on_environment_tab:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Environment Variable']
+      xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Value']
+    op: click
+  - selector:
+      xpath: //osc-form-section[@header="Deployment Configuration"]//a[text()='Add Value from Config Map or Secret']
     op: click
   - selector:
       xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input

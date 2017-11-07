@@ -39,6 +39,7 @@ confirm_errors_with_invalid_env_var:
     tooltip_message: valid environment variable
   action: check_input_validation_error
 check_input_validation_error:
+  action: click_somewhere_out_of_focus
   elements:
   - selector:
       xpath: //span[span[contains(text(),'validation error') or contains(text(),'Validation error')]]//a
