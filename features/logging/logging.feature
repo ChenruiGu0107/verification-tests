@@ -259,3 +259,35 @@ Feature: logging related scenarios
     And the output should contain:
       | <%= project.name %>.<%= project.uid %> |
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11847
+  @admin
+  @destructive
+  Scenario: Check for packages inside fluentd pod to support journald log driver
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the system
+    And a pod becomes ready with labels:
+      |  component=fluentd |
+    And I execute on the pod:
+      | bash                                 |
+      | -c                                   |
+      | rpm -qa \| grep -e journal -e fluent |
+    And the output should contain:
+      | rubygem-systemd-journal                  |
+      | rubygem-fluent-plugin-systemd            |
+      | rubygem-fluent-plugin-rewrite-tag-filter |
+
+ # @author pruan@redhat.com
+  # @case_id OCP-11384
+  @admin
+  @destructive
+  Scenario: Aggregated logging diagnostics for a healthy logging system
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the system
+    And I switch to cluster admin pseudo user
+    # XXX calling the command from master due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1510212
+    And I run commands on the host:
+      | oc adm diagnostics AggregatedLogging |
+    Then the output should contain:
+      | Completed with no errors or warnings seen |
