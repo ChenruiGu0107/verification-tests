@@ -55,3 +55,28 @@ Feature: Regression testing cases
     # Counting nfs-server pod, should match 4 times
     Then the output should contain 4 times:
       | Running |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16485
+  @admin
+  Scenario: RWO volumes are exclusively mounted on different nodes
+    Given I have a project
+
+    Given I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | ds            |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi           |
+    And the "ds" PVC becomes :bound
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/damonset.json |
+      | n | <%= project.name %>                                                                                      |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod |
+    Then the output should contain:
+      | volume is already exclusively attached to another node |
+    """
