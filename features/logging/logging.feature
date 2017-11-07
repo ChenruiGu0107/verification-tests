@@ -289,5 +289,7 @@ Feature: logging related scenarios
     # XXX calling the command from master due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1510212
     And I run commands on the host:
       | oc adm diagnostics AggregatedLogging |
+    And the output should not contain:
+      | Skipping diagnostic: AggregatedLogging |
     Then the output should contain:
       | Completed with no errors or warnings seen |
