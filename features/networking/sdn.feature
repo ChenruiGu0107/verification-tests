@@ -746,3 +746,39 @@ Feature: SDN related networking scenarios
       | SDN healthcheck detected unhealthy OVS server |
       | full SDN setup required |
     """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15251
+  @admin
+  @destructive
+  Scenario: net.ipv4.ip_forward should be always enabled on node service startup
+    Given I select a random node's host
+    And the node service is verified
+    And the node network is verified
+    And system verification steps are used:
+    """
+    When I run commands on the host:
+      | sysctl net.ipv4.ip_forward |
+    Then the step should succeed
+    And the output should contain "net.ipv4.ip_forward = 1"
+    """
+    Given the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    When I run commands on the host:
+      | sysctl -w net.ipv4.ip_forward=1 |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | sysctl -w net.ipv4.ip_forward=0 |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl restart atomic-openshift-node |
+    Then the step should fail
+    And I wait up to 20 seconds for the steps to pass:
+    """    
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "2 min ago" \| grep network.go |
+    Then the step should succeed
+    And the output should contain "net/ipv4/ip_forward=0, it must be set to 1"
+    """
