@@ -50,7 +50,7 @@ Feature: check page info related
   # @case_id OCP-10605
   @smoke
   Scenario: Check Events page
-    Given I login via web console
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | nodejs                                     |

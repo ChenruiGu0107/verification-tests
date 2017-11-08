@@ -15,8 +15,6 @@ goto_create_from_image_next_page:
 check_make_code_change_instruc_exist:
   elements:
   - selector:
-      text: Next Steps
-  - selector:
       text: Making code changes
 check_complete_with_error_info_on_next_page:
   elements:
