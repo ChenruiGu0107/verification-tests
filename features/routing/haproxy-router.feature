@@ -3734,9 +3734,12 @@ Feature: Testing haproxy router
       | keyval       | router.openshift.io/cookie_name=unsecure-cookie_1 |
     Then the step should succeed
 
-    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "unsecure-cookie_1"}
+    """
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
 
     #access the route with cookies
@@ -3776,10 +3779,12 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     When I use the "service-unsecure" service
-    And I wait up to 20 seconds for a secure web server to become available via the "edge-route" route
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open secure web server via the "edge-route" route
+    Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "2-edge_cookie"}
+    """
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
 
     #access the route with cookies
@@ -3797,20 +3802,12 @@ Feature: Testing haproxy router
     Given the master version >= "3.7"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/two-caddy-with-serving-cert.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
-    Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route              |
-      | service    | service-secure          |
-      | destcacert | route_reencrypt_dest.ca |
+      | name    | reen-route     |
+      | service | service-secure |
     Then the step should succeed
 
     When I run the :annotate client command with:
@@ -3821,9 +3818,12 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     When I use the "service-unsecure" service
-    And I wait up to 20 seconds for a secure web server to become available via the "reen-route" route
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open secure web server via the "reen-route" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "_reen-cookie3"}
+    """
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
 
     #access the route with cookies
@@ -3858,7 +3858,7 @@ Feature: Testing haproxy router
     When I expose the "service-unsecure" service
     Then the step should succeed
 
-    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    When I wait up to 30 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "default-cookie"}
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
@@ -3877,9 +3877,9 @@ Feature: Testing haproxy router
       | overwrite    | true                                                |
       | keyval       | router.openshift.io/cookie_name=overridden-cookie_4 |
     Then the step should succeed
-    And I wait up to 20 seconds for the steps to pass:
+    Given I wait up to 30 seconds for the steps to pass:
     """
-    When I wait for a web server to become available via the "service-unsecure" route
+    When I open web server via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "overridden-cookie_4"}
     """
@@ -3913,7 +3913,7 @@ Feature: Testing haproxy router
     When I expose the "service-unsecure" service
     Then the step should succeed
 
-    When I wait for a web server to become available via the "service-unsecure" route
+    When I wait up to 30 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-default-cookie"}
     And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
