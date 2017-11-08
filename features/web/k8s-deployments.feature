@@ -264,7 +264,7 @@ Feature: Features about k8s deployments
     Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rs_name clipboard
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Scaling replica set                          |
+      | reason  | Scaling                                      |
       | message | Scaled up replica set <%= cb.rs_name %> to 4 |
     Then the step should succeed
     When I run the :goto_environment_tab web console action
@@ -284,7 +284,7 @@ Feature: Features about k8s deployments
     Then the step should succeed
     # https://bugzilla.redhat.com/show_bug.cgi?id=1423461
     When I perform the :check_event_message web console action with:
-      | reason  | Scaling replica set                            |
+      | reason  | Scaling                                        |
       | message | Scaled down replica set <%= cb.rs_name %> to 0 |
     Then the step should succeed
     When I run the :get client command with:
@@ -293,7 +293,7 @@ Feature: Features about k8s deployments
     Then the step succeeded
     Given evaluation of `@result[:parsed]['items'].find{ |rs| rs['metadata']['name'] != cb.rs_name }['metadata']['name']` is stored in the :rs_name_new clipboard
     When I perform the :check_event_message web console action with:
-      | reason  | Scaling replica set                              |
+      | reason  | Scaling                                          |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
@@ -301,11 +301,11 @@ Feature: Features about k8s deployments
       | keyword | <%= cb.rs_name %> |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Scaling replica set                          |
+      | reason  | Scaling                                      |
       | message | Scaled up replica set <%= cb.rs_name %> to 4 |
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
-      | reason  | Scaling replica set                              |
+      | reason  | Scaling                                          |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
@@ -313,11 +313,11 @@ Feature: Features about k8s deployments
       | keyword | <%= cb.rs_name_new %> |
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
-      | reason  | Scaling replica set                          |
+      | reason  | Scaling                                      |
       | message | Scaled up replica set <%= cb.rs_name %> to 4 |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Scaling replica set                              |
+      | reason  | Scaling                                          |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
