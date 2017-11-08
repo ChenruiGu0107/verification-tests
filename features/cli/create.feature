@@ -606,7 +606,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11707
   Scenario: update multiple existing resources with file
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json"
     Given I replace lines in "application-template-stibuild.json":
       | "name": "ruby-22-centos7:latest" | "name": "ruby:latest", "namespace": "openshift" |
     When I run the :new_app client command with:

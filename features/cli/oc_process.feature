@@ -224,7 +224,7 @@ Feature: oc_process.feature
     """
     #1
     When I run the :new_app client command with:
-      | app_repo   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo   | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
       | param_file | test1.env              |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
@@ -246,7 +246,7 @@ Feature: oc_process.feature
     Then the step should succeed
     #2
     When I run the :new_app client command with:
-      | app_repo   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo   | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
       | env_file   | test2.env              |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
@@ -268,7 +268,7 @@ Feature: oc_process.feature
     Then the step should succeed
     #3
     When I run the :new_app client command with:
-      | app_repo   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo   | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
       | param_file | test4.env                     |
       | env_file   | test1.env                     |
     Then the step should succeed
@@ -291,7 +291,7 @@ Feature: oc_process.feature
     Then the step should succeed
     #4
     When I run the :new_app client command with:
-      | app_repo   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo   | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json | 
       | param_file | test1.env                     |
       | env_file   | test2.env                     |
       | param      | MYSQL_DATABASE=APPLE          |
