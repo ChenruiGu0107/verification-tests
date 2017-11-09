@@ -17,7 +17,7 @@ Feature: oc logs related features
   Scenario: oc logs for a resource with miscellaneous options
     Given I have a project
     When I create a new application with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     When I run the :create client command with:
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
     Then the step should succeed

@@ -73,13 +73,10 @@ Feature: Check oc status cli
   # @case_id OCP-12383
   Scenario: [origin_runtime_613]Get project status from CLI
     Given I have a project
-    # And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
-      |"host": "www.example.com"|"host": "www.<%= rand_str(5, :dns) %>example.com"|
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
 
     When I create a new application with:
-      | file     | application-template-stibuild.json |
+      | file     | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     Given the "ruby-sample-build-1" build becomes :running

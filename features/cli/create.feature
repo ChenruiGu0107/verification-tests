@@ -191,7 +191,7 @@ Feature: creating 'apps' with CLI
   Scenario: create app from existing template via CLI with parameter passed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |

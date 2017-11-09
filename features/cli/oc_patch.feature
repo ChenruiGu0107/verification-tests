@@ -43,7 +43,7 @@ Feature: oc patch related scenarios
   Scenario: oc patch to update resource fields using JSON format
     Given I have a project
     And I create a new application with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:
@@ -123,7 +123,7 @@ Feature: oc patch related scenarios
   Scenario: oc patch to update resource fields using YAML format
     Given I have a project
     And I create a new application with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:

@@ -5,7 +5,7 @@ Feature: template related scenarios:
   Scenario: template with code explicitly attached should not be supported when creating app with template via cli
     Given I have a project
     And I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -30,10 +30,10 @@ Feature: template related scenarios:
     And the output should contain:
       | error                   |
       | I_do_no_exist |
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     # activate/install the template to the project
     And I run the :create client command with:
-      | filename | application-template-stibuild.json |
+      | filename | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample |

@@ -149,7 +149,7 @@ Feature: negative tests
       | oc expose -h                     |
 
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I run the :status client command with:
       | v     |                          |
