@@ -5,14 +5,19 @@ module CucuShift
   class DaemonSet < PodReplicator
     RESOURCE = "daemonsets"
     REPLICA_COUNTERS = {
-      desired: %w[spec replicas].freeze,
-      current: %w[status replicas].freeze,
-      ready:   %w[status readyReplicas].freeze,
+      desired: %w[status desiredNumberScheduled].freeze,
+      current: %w[status currentNumberScheduled].freeze,
+      ready:   %w[status numberReady].freeze,
+      updated_scheduled: %w[status updatedNumberScheduled].freeze,
+      misscheduled: %w[status numberMisscheduled].freeze,
+      available: %w[status numberAvailable].freeze,
     }.freeze
 
     # cache some usualy immutable properties for later fast use; do not cache
     # things that can change at any time like status and spec
     def update_from_api_object(hash)
+      super
+
       m = hash["metadata"]
       s = hash["spec"]
       props[:uid] = m["uid"]
