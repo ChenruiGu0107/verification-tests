@@ -824,7 +824,7 @@ Feature: build related feature on web console
       | build_status_name | Failed                              |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
+      | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist |
     Then the step should succeed
 
   # @author xxia@redhat.com
