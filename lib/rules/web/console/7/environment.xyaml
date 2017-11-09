@@ -59,7 +59,7 @@ add_env_var_for_dc_container:
 add_env_var_key_for_dc_container:
   elements:
   - selector:
-      xpath: //div[h3[text()='Environment Variables']]/div[div/h4[contains(text(),'<container_name>')]]//a[text()='Add Environment Variable']
+      xpath: //div[h3[text()='Environment Variables']]/div[div/h4[contains(text(),'<container_name>')]]//a[text()='Add Value']
     op: click
   - selector:
       xpath: //h4[contains(text(),'<container_name>')]/ancestor::div[@ng-repeat]//div[@ng-repeat='entry in entries'][last()]/div[1]//input
