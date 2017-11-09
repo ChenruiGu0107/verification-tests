@@ -1,5 +1,5 @@
 *.sw[a-p]
-/private*/
+/private*
 /junit-report/
 /Gemfile.lock
 /tools/Gemfile.lock
