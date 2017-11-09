@@ -165,7 +165,7 @@ Feature: scenarios related to catalog page
       | "tags": "database,mongodb", |
     Then the step should succeed
     And I replace lines in "mongodb-persistent-template.json":
-      | "openshift.io/display-name": "MongoDB (Persistent)", | "openshift.io/display-name": "chali", |
+      | "openshift.io/display-name": "MongoDB", | "openshift.io/display-name": "chali", |
     When I run the :create client command with:
       | f | mongodb-persistent-template.json |
     Then the step should succeed
