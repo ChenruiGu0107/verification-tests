@@ -1,4 +1,4 @@
-# next step page info relative
+#--- next step page info relative---
 create_from_template_complete_info_on_next_page:
   action: goto_create_from_template_next_page
   action: check_make_code_change_instruc_exist

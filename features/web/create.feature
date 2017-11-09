@@ -590,7 +590,7 @@ Feature: create app on web console related
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                                       |
-      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
+      | file_path        | <%= localhost.absolutize("application-template-stibuild-without-customize-route.json") %> |
     And I wait for the steps to pass:
     """
     When I run the :click_create_button web console action
