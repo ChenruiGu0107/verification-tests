@@ -449,7 +449,7 @@ Feature: build 'apps' with CLI
   Scenario: Order builds according to creation timestamps
     Given I have a project
     And I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
     Given the "ruby-22-centos7" image stream was created
     And the "ruby-22-centos7" image stream becomes ready
     And I run the :start_build client command with:

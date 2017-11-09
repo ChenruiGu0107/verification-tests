@@ -62,7 +62,7 @@ Feature: jenkins.feature
   # @case_id OCP-10884 OCP-10979
   Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have an persistent jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
     Then the step should succeed
@@ -989,7 +989,7 @@ Feature: jenkins.feature
     When I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completes
@@ -1391,7 +1391,7 @@ Feature: jenkins.feature
     And evaluation of `project.name` is stored in the :proj2 clipboard
     And I use the "<%= cb.proj2 %>" project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json | 
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     When I run the :policy_add_role_to_user client command with:
