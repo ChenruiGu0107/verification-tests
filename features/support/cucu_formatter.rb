@@ -95,15 +95,26 @@ class CucuFormatter
       # before we handled previous scenario log here, now we process log at
       #   better time by calling it from TestCaseManagerFilter
       #process_scenario_log
-
+    end
       # Create a new scenario
       @scenario = { :name => @scenario_outline_name ? @scenario_outline_name : name,
                     :status => :failed,
                     :steps => [],
                     :arg => @scenario_outline_name ? name : nil,
-                    :file_colon_line => file_colon_line
+                    :file_colon_line => file_colon_line,
+                    :before => [],
+                    :after => []
                   }
-    end
+  end
+
+  def before_steps(steps)
+    @scenario[:before] = @step_messages.clone
+    @step_messages.clear
+  end
+
+  def after_feature_element(feature_element)
+    @scenario[:after] = @step_messages.clone
+    @step_messages.clear
   end
 
   def after_step_result(keyword, step_match, multiline_arg, status, exception, source_indent, background, file_colon_line)
@@ -308,7 +319,18 @@ class CucuFormatter
       multiline_args = nil
     end
     # step messages
-    step_lines = step_hash[:messages].map do |step_line|
+    step_lines = build_step_text_lines(step_hash[:messages])
+    # backtrace
+    if step_hash[:backtrace]
+      backtrace = to_utf8 %Q[<div class="step_backtrace">#{step_hash[:backtrace].join('<br />')}</div>\n]
+    else
+      backtrace = nil
+    end
+    return %Q[<div class="step_container">#{step_hash[:name]}\n#{multiline_args}#{step_lines}#{backtrace}</div>]
+  end
+
+  def build_step_text_lines(message_array)
+    step_lines = message_array.map do |step_line|
       if step_line.respond_to?(:html_safe?) && step_line.html_safe?
         step_line
       else
@@ -320,18 +342,15 @@ class CucuFormatter
     else
       step_lines = %Q[<div class="step_message_container">#{step_lines.join}</div>\n]
     end
-    # backtrace
-    if step_hash[:backtrace]
-      backtrace = to_utf8 %Q[<div class="step_backtrace">#{step_hash[:backtrace].join('<br />')}</div>\n]
-    else
-      backtrace = nil
-    end
-    return %Q[<div class="step_container">#{step_hash[:name]}\n#{multiline_args}#{step_lines}#{backtrace}</div>]
   end
 
   def build_scenario(scenario_hash, feature_name)
     scenario_hash[:name] = scenario_hash[:name].lines.to_a.join('<br />')
     feature_name = feature_name.lines.to_a.join('<br />')
+
+    before_scenario = build_step_text_lines(scenario_hash[:before])
+    after_scenario = build_step_text_lines(scenario_hash[:after])
+
     steps = scenario_hash[:steps].map {|step| self.build_step(step)}.join("\n")
 
     # css
@@ -353,7 +372,7 @@ class CucuFormatter
       build_url = "http://#{build_url}" unless build_url.slice(/[\w+]+:\/\//)
       scenario_name = %Q[<div class="scenario_name scenario_name_#{status}">Jenkins build URL: <a href="#{build_url}">#{build_url}</a></div>] + scenario_name
     end
-    return %Q[<div class="feature_container">#{feature_name}\n<div class="scenario_container">#{scenario_name}\n#{steps}</div></div>\n]
+    return %Q[<div class="feature_container">#{feature_name}\n<div class="scenario_container">#{scenario_name}\n#{before_scenario}\n#{steps}\n#{after_scenario}</div></div>\n]
   end
 
   def html_filename(scenario_hash)
