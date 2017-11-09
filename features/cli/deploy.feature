@@ -2425,3 +2425,32 @@ Feature: deployment related features
     And the output should match "alpha.image.policy.openshift.io/resolve-names"
     Given status becomes :running of 1 pods labeled:
       | run=app |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-14211
+  Scenario: Mock a hash collision
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-oso.yaml |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | app=hello-openshift |
+    And current replica set name of "hello-openshift" deployment stored into :rs1 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 2 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 2 | 
+    When I run the :patch client command with:
+      | resource      | rs                                                                   |
+      | resource_name | <%= cb.rs1 %>                                                        |
+      | p             | {"spec":{"template":{"spec":{"terminationGracePeriodSeconds": 35}}}} |
+    Then the step should succeed   
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 2 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 2 |
+    And the expression should be true> deployment.collision_count == 1
