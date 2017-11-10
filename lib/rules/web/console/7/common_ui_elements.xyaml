@@ -119,7 +119,7 @@ click_show_annotations:
 check_annotation:
   element:
     selector:
-      xpath: //div[@ng-if="annotations"]//tr[td[contains(@class,"key") and text()="<key>"] and td[contains(@class,"value") and contains(.,"<value>")]]
+      xpath: //div[contains(@ng-if,'annotations')]//tr[td[contains(@class,'key') and text()='<key>'] and td[contains(@class,'value') and contains(.,'<value>')]]
 click_edit:
   element:
     selector:

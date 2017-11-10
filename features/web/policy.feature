@@ -281,7 +281,7 @@ Feature:policy related features on web console
     And I wait for the steps to pass:
     """
     When I get the visible text on web html page
-    Then the output should contain "example.com"
+    Then the output should contain "route-edge"
     And the output should not match:
       | [Cc]reate [Rr]oute  |
     """

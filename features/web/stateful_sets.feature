@@ -120,42 +120,42 @@ Feature: Stateful Set related feature on web console
     When I run the :click_on_events_tab web console action
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Successful create |
-      | message | world-1           |
+      | reason  | Successful |
+      | message | world-1    |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Successful create |
-      | message | world-0           |
+      | reason  | reate   |
+      | message | world-0 |
     Then the step should succeed
 
     When I perform the :sort_by web console action with:
       | sort_field | Message |
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
-      | first_reason   | Successful create |
-      | first_message  | world-0           |
-      | second_reason  | Successful create |
-      | second_message | world-1           |
+      | first_reason   | Successful |
+      | first_message  | world-0    |
+      | second_reason  | reate      |
+      | second_message | world-1    |
     Then the step should succeed
     When I run the :change_sort_direction web console action
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
-      | first_reason   | Successful create |
-      | first_message  | world-1           |
-      | second_reason  | Successful create |
-      | second_message | world-0           |
+      | first_reason   | Successful |
+      | first_message  | world-1    |
+      | second_reason  | reate      |
+      | second_message | world-0    |
     Then the step should succeed
 
     When I perform the :filter_by_keyword web console action with:
       | keyword | world-0 |
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
-      | reason  | Successful create |
-      | message | world-1           |
+      | reason  | Successful |
+      | message | world-1    |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason  | Successful create |
-      | message | world-0           |
+      | reason  | reate   |
+      | message | world-0 |
     Then the step should succeed
 
     When I run the :click_to_goto_edit_YAML_page web console action

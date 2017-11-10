@@ -16,7 +16,7 @@ click_to_goto_one_stateful_set_page_on_stateful_sets_page:
 check_no_stateful_sets:
   element:
     selector:
-      text: No stateful sets to show
+      text: !ruby/regexp /No stateful sets/
 check_stateful_set_entry_on_stateful_sets_page:
   action: goto_stateful_sets_page
   action: check_stateful_set_entry

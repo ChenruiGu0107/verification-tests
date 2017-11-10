@@ -144,7 +144,7 @@ Feature: ConfigMap related features
     Then the step should succeed
     When I perform the :add_values_from_configmap_as_volume_with_specific_keys_and_paths web console action with:
       | target_config_map | special-config  |
-      | config_mount_path | /data/configmap |
+      | config_mount_path | /test/configmap |
     Then the step should succeed
     When I perform the :pick_key_and_set_path web console action with:
       | specified_key     | special.how     |
@@ -174,7 +174,7 @@ Feature: ConfigMap related features
     When I run the :exec client command with:
       | pod              | <%= pod.name %>          |
       | exec_command     | ls                       |
-      | exec_command_arg | /data/configmap/prop     |
+      | exec_command_arg | /test/configmap/prop     |
     Then the step should succeed
     And the output should contain:
       | configmap.how  |
@@ -182,14 +182,14 @@ Feature: ConfigMap related features
     When I run the :exec client command with:
       | pod              | <%= pod.name %>                    |
       | exec_command     | cat                                |
-      | exec_command_arg | /data/configmap/prop/configmap.how |
+      | exec_command_arg | /test/configmap/prop/configmap.how |
     Then the step should succeed
     And the output should contain:
       | very |
     When I run the :exec client command with:
       | pod              | <%= pod.name %>                     |
       | exec_command     | cat                                 |
-      | exec_command_arg | /data/configmap/prop/configmap.type |
+      | exec_command_arg | /test/configmap/prop/configmap.type |
     Then the step should succeed
     And the output should contain:
       | charm |

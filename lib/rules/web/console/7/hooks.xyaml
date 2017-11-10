@@ -64,7 +64,7 @@ check_dc_hook_missing_from_dc_page:
 check_dc_hook_part_missing_from_dc_page:
   element:
     selector:
-      xpath: //h3[contains(.,'Hooks')]/parent::div//div[contains(.,'none') or contains(.,'None')]
+      xpath: //h3[contains(.,'Hooks')]/parent::div//p[contains(.,'none') or contains(.,'None')]
 check_dc_recreate_strategy_default_settings:
   elements:
   - selector:
