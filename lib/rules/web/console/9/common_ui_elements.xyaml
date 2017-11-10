@@ -247,6 +247,11 @@ click_ok:
     selector:
       text: OK
     op: click
+click_user_dropdown:
+  element:
+    selector:
+      id: user-dropdown
+    op: click
 close_all_toast_notifications:
   scripts:
   - command: |
