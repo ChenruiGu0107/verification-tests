@@ -185,7 +185,7 @@ end
 Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} project)?( after scenario)?$/ do |by, name, type, project_name, after|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
-  _seconds = 60
+  _seconds = 300
   p = proc {
     @result = _resource.ensure_deleted(user: _user, wait: _seconds)
   }

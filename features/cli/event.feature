@@ -75,7 +75,6 @@ Feature: Event related scenarios
     When I get project events
     Then the output should match:
       | hello-openshift-invalid.*Normal\\s+Scheduled   |
-      | hello-openshift-invalid.*Warning\\s+FailedSync |
       | hello-openshift-invalid.*Normal\\s+BackOff     |
       | hello-openshift-invalid.*Warning\\s+Failed     |
     """
@@ -84,7 +83,6 @@ Feature: Event related scenarios
       | name      | hello-openshift-invalid |
     Then the output should match:
       | Normal\\s+Scheduled   |
-      | Warning\\s+FailedSync |
       | Normal\\s+BackOff     |
       | Warning\\s+Failed     |
 
@@ -172,7 +170,7 @@ Feature: Event related scenarios
       | resource | pod       |
       | name     | hello-pod |
     Then the output should match:
-      | Unhealthy\tReadiness probe failed:.*exec failed.*\/bin\/hello: no such file or directory |
+      | Unhealthy\\s+Readiness probe failed:.*exec failed.*\\/bin\\/hello: no such file or directory |
     """
 
   # @author chezhang@redhat.com
