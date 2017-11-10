@@ -6,7 +6,7 @@ Feature: Add pvc to pod from web related
   Scenario: Attach pvc to pod with multiple containers from web console
     Given I have a project
     And I have a NFS service in the project
-
+    And default storage class is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
@@ -211,7 +211,7 @@ Feature: Add pvc to pod from web related
   Scenario: Display and attach PVC to pod from web console - 3.3
     Given I have a project
     And I have a NFS service in the project
-
+    And default storage class is deleted
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-<%= project.name %>         |
