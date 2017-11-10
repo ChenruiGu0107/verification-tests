@@ -295,8 +295,8 @@ Feature: filter on create page
       | filter_action | in ...  |
     Then the step should succeed
     When I get the html of the web page
-    Then the output should contain:
-      | The active filters are hiding all |
+    Then the output should match:
+      | The.*filter.*hiding all |
 
     #Clear one filter
     When I perform the :clear_one_filter web console action with:
@@ -307,8 +307,8 @@ Feature: filter on create page
     When I get the html of the web page
     Then the output should contain:
       | python-sample |
-    And the output should not contain:
-      | The active filters are hiding all |
+    And the output should not match:
+      | The.*filter.*hiding all |
     """
 
     When I perform the :filter_resources_with_non_existing_label web console action with:
@@ -318,8 +318,8 @@ Feature: filter on create page
       | filter_action | in ...  |
     Then the step should succeed
     When I get the html of the web page
-    Then the output should contain:
-      | The active filters are hiding all |
+    Then the output should match:
+      | The.*filter.*hiding all |
 
     #Clear all filters
     When I run the :clear_all_filters web console action
