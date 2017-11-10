@@ -9,7 +9,7 @@ check_empty_storage_page:
   action: goto_storage_page
   elements:
   - selector:
-      text: !ruby/regexp '/No persistent volume claims$/'
+      text: !ruby/regexp '/No persistent volume claims/'
 check_pvcs_on_storage_page:
   action: goto_storage_page
   elements:

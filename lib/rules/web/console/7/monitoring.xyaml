@@ -12,7 +12,7 @@ expand_resource_logs:
 expand_resource_logs_by_image:
   element:
     selector:
-      xpath: //div[h2[text()="<resource_type>"]]/div/div[div//image-names//span[text()="<image_name>"]]
+      xpath: //h2[text()="<resource_type>"]/following::image-names//span[normalize-space() = "<image_name>"]
     op: click
 click_on_hide_older_resources_on_monitoring:
   action: goto_monitoring_page
@@ -33,7 +33,7 @@ check_resource_type_on_monitoring:
 check_image_name_on_monitoring:
   element:
     selector:
-      xpath: //div[h2[text()="<resource_type>"]]//image-names/span[text()="<image_name>"]
+      xpath: //h2[text()="<resource_type>"]/following::image-names//span[normalize-space() = "<image_name>"]
 filter_by_name_on_monitoring:
   action: goto_monitoring_page
   element:
