@@ -36,9 +36,7 @@ check_missing_key_value_pairs_on_configmap_page:
 check_no_configmap_to_show_warnings:
   elements:
   - selector:
-      xpath: //div[contains(@class,'alert')]//span[contains(.,'The active filters are hiding all config maps')]
-  - selector:
-      xpath: //tr//td[contains(.,'No config maps to show')]
+      text: !ruby/regexp /The filter is hiding all config maps/
 check_volume_type_is_configmap:
   element:
     selector:
