@@ -80,13 +80,10 @@ Feature: projects related features via web
       | display_name | :null |
       | description  ||
     Then the step should succeed
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>   |
-      | image_name   | php                   |
-      | image_tag    | 5.5                   |
-      | namespace    | openshift             |
-      | app_name     | php-sample            |
-      | source_url   | https://github.com/openshift/cakephp-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/php:latest                    |
+      | code         | https://github.com/openshift/cakephp-ex |
+      | name         | php-sample                              |
     Then the step should succeed
     Given the "php-sample-1" build was created
     When I perform the :cancel_delete_project web console action with:

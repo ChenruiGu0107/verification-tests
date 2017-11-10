@@ -4,13 +4,11 @@ Feature: Delete the resources via web console
   # @case_id OCP-10742
   Scenario: Delete app resources on web console as admin user
     Given I have a project
-    Given I wait for the :create_app_from_image web console action to succeed with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | latest                                     |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
+    Then the step should succeed
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
     And I wait until the status of deployment "nodejs-sample" becomes :complete
@@ -46,13 +44,10 @@ Feature: Delete the resources via web console
   # @case_id OCP-11541
   Scenario: The viewer can not delete app resources on web console
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | latest                                     |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
@@ -77,13 +72,10 @@ Feature: Delete the resources via web console
   # @case_id OCP-11212
   Scenario: The editor can delete app resources on web console
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | latest                                     |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
 

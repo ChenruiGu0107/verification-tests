@@ -4,13 +4,10 @@ Feature: build related feature on web console
   # @case_id OCP-10627
   Scenario: Check the build information from web console
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | python                                     |
-      | image_tag    | 3.3                                        |
-      | namespace    | openshift                                  |
-      | app_name     | python-sample                              |
-      | source_url   | https://github.com/openshift/django-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                    |
+      | code         | https://github.com/openshift/django-ex.git |
+      | name         | python-sample                              |
     Then the step should succeed
     When I perform the :check_one_buildconfig_page_with_build_op web console action with:
       | project_name            | <%= project.name %>                        |
@@ -72,13 +69,10 @@ Feature: build related feature on web console
       | project_name | <%= project.name %> |
     Then the step should succeed
     # Make build failed by design
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | ruby                |
-      | image_tag    | 2.2                 |
-      | namespace    | openshift           |
-      | app_name     | ruby-sample-another |
-      | source_url   | https://github.com/openshift/fakerepo.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                     |
+      | code         | https://github.com/openshift/fakerepo.git |
+      | name         | ruby-sample-another                       |
     Then the step should succeed
     Given the "ruby-sample-another-1" build failed
     When I perform the :check_one_build_inside_bc_page web console action with:
@@ -538,13 +532,10 @@ Feature: build related feature on web console
   # @case_id OCP-12058
   Scenario: Modify buildconfig settings for source strategy
     Given I create a new project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | ruby                |
-      | image_tag    | 2.2                 |
-      | namespace    | openshift           |
-      | app_name     | ruby-sample         |
-      | source_url   | https://github.com/openshift/ruby-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                    |
+      | code         | https://github.com/openshift/ruby-ex.git |
+      | name         | ruby-sample                              |
     Then the step should succeed
     When I run the :describe client command with:
       | resource      | bc/ruby-sample |
@@ -936,13 +927,10 @@ Feature: build related feature on web console
   # @case_id OCP-10253
   Scenario: Check Build,Deployment,Pod logs and Events on Monitoring
     Given I have a project
-    Given I perform the :create_app_from_image web console action with:
-      | project_name    | <%= project.name %> |
-      | image_name      | nodejs              |
-      | image_tag       | latest              |
-      | namespace       | openshift           |
-      | app_name        | nodejs-app          |
-      | try_sample_repo | true                |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-app                             |
     Then the step should succeed
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name | <%= project.name %> |

@@ -40,19 +40,15 @@ Feature: AutoScaler relative cases
   # @case_id OCP-11961
   Scenario: Show the warning when metrics not configured and CPU request not set
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>   |
-      | image_name   | nodejs                |
-      | image_tag    | 0.10                  |
-      | namespace    | openshift             |
-      | app_name     | nodejs-sample         |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :check_warning_info_when_create_hpa_without_metrics_and_cpu_request web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | nodejs-sample       |
     Then the step should succeed
-
     When I perform the :add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | nodejs-sample       |

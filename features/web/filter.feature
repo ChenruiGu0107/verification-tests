@@ -360,13 +360,10 @@ Feature: filter on create page
   # @case_id OCP-11698
   Scenario: Display existing labels in label suggestion list according to different resources
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | python                                     |
-      | image_tag    | latest                                     |
-      | namespace    | openshift                                  |
-      | app_name     | python-sample                              |
-      | source_url   | https://github.com/openshift/django-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                |
+      | code         | https://github.com/openshift/django-ex |
+      | name         | python-sample                          |
     Then the step should succeed
     Given the "python-sample-1" build was created
 

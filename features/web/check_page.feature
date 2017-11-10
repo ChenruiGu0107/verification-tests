@@ -51,13 +51,10 @@ Feature: check page info related
   @smoke
   Scenario: Check Events page
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | 0.10                                       |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :create_from_image_complete_info_on_next_page web console action with:
       | project_name | <%= project.name %> |
@@ -181,14 +178,11 @@ Feature: check page info related
   # @case_id OCP-10601
   Scenario: Check Overview details for project
     Given the master version <= "3.2"
-    Given I create a new project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | nodejs              |
-      | image_tag    | 0.10                |
-      | namespace    | openshift           |
-      | app_name     | nodejs-sample       |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
@@ -323,13 +317,10 @@ Feature: check page info related
     Then the step should succeed
     # Generated IS
     Given the "php" image stream becomes ready
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                         |
-      | image_name   | php                                         |
-      | image_tag    | 5.6                                         |
-      | namespace    | <%= project.name %>                         |
-      | app_name     | php56                                       |
-      | source_url   | https://github.com/openshift/cakephp-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | <%= project.name %>/php:5.6                  |
+      | code         | https://github.com/openshift/cakephp-ex.git  |
+      | name         | php56                                        |
     Then the step should succeed
     Given the "php56-1" build completed
     Given I wait for the "php56" service to become ready
