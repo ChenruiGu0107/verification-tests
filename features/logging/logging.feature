@@ -293,3 +293,55 @@ Feature: logging related scenarios
       | Skipping diagnostic: AggregatedLogging |
     Then the output should contain:
       | Completed with no errors or warnings seen |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12229
+  @admin
+  @destructive
+  Scenario: Aggregated logging diagnostics for services-endpoints
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the system using:
+      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12229/inventory   |
+      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml |
+    And I switch to cluster admin pseudo user
+    # make sure we have a good starting point
+    And I run commands on the host:
+      | oc adm diagnostics AggregatedLogging |
+    And the output should not contain:
+      | Skipping diagnostic: AggregatedLogging |
+    Then the output should contain:
+      | Completed with no errors or warnings seen |
+    # delete endpoints of kibana
+    And I use the "<%= project.name %>" project
+    And I run the :delete client command with:
+      | object_type       | endpoints      |
+      | object_name_or_id | logging-kibana |
+    Then the step should succeed
+    And I run the :delete client command with:
+      | object_type       | endpoints          |
+      | object_name_or_id | logging-kibana-ops |
+    Then the step should succeed
+    And I run commands on the host:
+      | oc adm diagnostics AggregatedLogging |
+    And the output should not contain:
+      | Skipping diagnostic: AggregatedLogging |
+    And the output should contain:
+      | endpoints "logging-kibana" not found     |
+      | endpoints "logging-kibana-ops" not found |
+    # delete the service of kibana
+    And I run the :delete client command with:
+      | object_type       | svc            |
+      | object_name_or_id | logging-kibana |
+    Then the step should succeed
+    And I run the :delete client command with:
+      | object_type       | svc                |
+      | object_name_or_id | logging-kibana-ops |
+    Then the step should succeed
+    And I run commands on the host:
+      | oc adm diagnostics AggregatedLogging |
+    And the output should not contain:
+      | Skipping diagnostic: AggregatedLogging |
+    And the output should contain:
+      | Expected to find 'logging-kibana' among the logging services for the project but did not       |
+      | Looked for 'logging-kibana-ops' among the logging services for the project but did not find it |
+
