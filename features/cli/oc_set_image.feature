@@ -71,78 +71,35 @@ Feature: oc set image related tests
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
-    When I run the :tag client command with:
-      | source      | docker.io/openshift/origin-pod        |
-      | dest        | <%= project.name %>/op:latest         |
-    Then the step should succeed
-    When I run the :tag client command with:
-      | source      | docker.io/openshift/hello-openshift   |
-      | dest        | <%= project.name %>/ho:latest         |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I get project istag
-    Then the output should contain:
-      | ho:latest   |
-      | op:latest   |
-    """
-    ## 2. Update image for container(s) for dc
+    ## 2. oc set image with --source=imagestreamtag
     When I run the :set_image client command with:
       | type_name       | dc/dctest                         |
-      | container_image | dctest-1=<%= project.name %>/op:latest     |
-      | container_image | dctest-2=<%= project.name %>/ho:latest     |
-    Then the step should succeed   
-    ## 3. Check container image(s) for dc, pods
+      | container_image | dctest-1=openshift/httpd:latest   |
+      | source          | imagestreamtag                    |
+    Then the step should succeed
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
     Then the step should succeed
-    And the output should match:
-      | dctest-1:\n.*[Ii]mage.*openshift/origin-pod         |
-      | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
-    Given a pod becomes ready with labels:
-      | deployment=dctest-2 |
-    When I run the :describe client command with:
-      | resource        | pod                               |
-    Then the step should succeed
-    And the output should match:
-      | dctest-1:\n.*\n.*[Ii]mage.*openshift/origin-pod     |
-      | dctest-2:\n.*\n.*[Ii]mage.*openshift/hello-openshift|
-    ## 4. oc set image with --source
+    And the output should match "[Ii]mage.*httpd"
+    ## 3. oc set image with --source=docker
     When I run the :set_image client command with:
       | type_name       | dc/dctest                         |
-      | container_image | dctest-1=xiaocwan/hello-openshift:latest    |
-    Then the step should fail
-    And the output should match:
-      | [Ee]rror.*dctest-1      |
-    When I run the :set_image client command with:
-      | type_name       | dc/dctest                         |
-      | container_image | dctest-1=xiaocwan/hello-openshift:latest    |
+      | container_image | dctest-1=openshift/python:latest  |
       | source          | docker                            |
     Then the step should succeed
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
     Then the step should succeed
-    And the output should match:
-      | dctest-1:\n.*[Ii]mage.*xiaocwan/hello-openshift     |
-    ## 5. Negative test
+    And the output should match "[Ii]mage.*python"
+    ## 4. Negative test
     When I run the :set_image client command with:
       | type_name       | dc/dctest                         |
-      | container_image | inexistent=xiaocwan/hello-openshift:latest |  
+      | container_image | dctest-1=openshift/python:latest  |
+      | source          | notexistsource                    |
     Then the step should fail
-    And the output should match:
-      | [Ee]rror.*unable to find container.*inexistent      |
-    When I run the :set_image client command with:
-      | type_name       | dc/dctest                         |
-      | container_image | dctest-1=xiaocwan/hello-openshift:latest   |
-      | container_image | dctest-2=xiaocwan/busybox:latest  |      
-      | container_image | dctest-3=xiaocwan/test:latest     |      
-      | source          | docker                            |
-    Then the step should fail
-    And the output should match:
-      | deploymentconfig.*dctest.*image updated             |
-      | [Ee]rror.*unable to find container.*dctest-3        |
+    And the output should match "notexistsource"
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10308
