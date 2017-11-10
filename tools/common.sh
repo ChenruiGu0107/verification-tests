@@ -27,21 +27,22 @@ function install_rvm_if_ruby_is_outdated()
 # Prints operating system
 function os_type()
 {
-    if [ -f /etc/os-release ]; then
-       if cat /etc/os-release | grep -iq 'ID=fedora'; then
-          version=`sed -rn 's/^VERSION_ID=([0-9]+)$/\1/p' < /etc/os-release`
-          if [ $version -ge 22 ]; then
-            echo fedora_dnf; return 0
-          else
-            echo fedora ; return 0
-          fi
+    fileName='/etc/os-release'
+    if [ -f "${fileName}" ]; then
+        if grep -iq 'ID=fedora' "${fileName}" ; then
+            version=`sed -rn 's/^VERSION_ID=([0-9]+)$/\1/p' < "${fileName}"`
+            if [ $version -ge 22 ]; then
+                echo fedora_dnf; return 0
+            else
+                echo fedora ; return 0
+            fi
         fi
-        cat /etc/os-release | grep -i -q 'debian' && { echo "debian"; return 0; }
-        cat /etc/os-release | grep -i -q 'ubuntu' && { echo "ubuntu"; return 0; }
-        cat /etc/os-release | grep -i -q "CentOS .* 7" && { echo "centos7"; return 0; }
-        cat /etc/os-release | grep -i -q "Red Hat .* 7" && { echo "rhel7"; return 0; }
-        cat /etc/os-release | grep -i -q "Red Hat .* 6" && { echo "rhel6"; return 0; }
-        cat /etc/os-release | grep -i -q 'mint' && { echo "mint"; return 0; }
+        grep -i -q "CentOS .* 7"  "${fileName}" && { echo "centos7"; return 0; }
+        grep -i -q 'debian'       "${fileName}" && { echo "debian"; return 0; }
+        grep -i -q 'mint'         "${fileName}" && { echo "mint"; return 0; }
+        grep -i -q "Red Hat .* 6" "${fileName}" && { echo "rhel6"; return 0; }
+        grep -i -q "Red Hat .* 7" "${fileName}" && { echo "rhel7"; return 0; }
+        grep -i -q 'ubuntu'       "${fileName}" && { echo "ubuntu"; return 0; }
     elif [ -f /usr/bin/sw_vers ]; then
         sw_vers | grep 'ProductName:' | awk '{ print substr($0, index($0,$2)) }'
         return 0;
@@ -50,30 +51,25 @@ function os_type()
     return 1
 }
 
-# Will return the method of installing system packages: DEB/YUM
+# Will return the method of installing system packages: DNF/DEB/YUM
 function os_pkg_method()
 {
-  if [ "$(os_type)" == "fedora_dnf" ]; then
-    echo DNF
-  elif [ "$(os_type)" == "fedora" ] || [[ "$(os_type)" =~ "rhel" ]] || [[ "$(os_type)" =~ "centos" ]]; then
-    echo "YUM"
-  elif [ "$(os_type)" == "ubuntu" ] || [ "$(os_type)" == "debian" ] || [ "$(os_type)" == "mint" ]; then
-    echo "DEB"
-  else
-    echo "TAR"
-  fi
+    case "$(os_type)" in
+        fedora_dnf ) echo "DNF" ;;
+        fedora | rhel* | centos* ) echo "YUM" ;;
+        ubuntu | debian | mint ) echo "DEB" ;;
+        * ) echo "TAR" ;;
+    esac
 }
 
 # Return 'sudo' if the user's not root
 function need_sudo()
 {
-    if [ `id -u` == "0" ]; then
-        echo ''
-    elif [ "$(os_type)" == "Mac OS X" ]; then
-        # for Mac, brew prohibits user to run it as sudo
-        echo ''
-    else
+    # for Mac, brew prohibits user to run it as sudo
+    if [ `id -u` != "0" -a "$(os_type)" != "Mac OS X"]; then
         echo 'sudo'
+    else
+        echo ''
     fi
 }
 
@@ -98,14 +94,14 @@ root    ALL=(ALL)       ALL
 END
 }
 
-function random_email()
-{
-    echo "cucushift+$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 10)@redhat.com"
-}
-
 function get_random_str()
 {
     LEN=10
     [ -n "$1" ] && LEN=$1
     echo "$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c $LEN)"
+}
+
+function random_email()
+{
+    echo "cucushift+$(get_random_str)@redhat.com"
 }
