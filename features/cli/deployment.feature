@@ -1070,7 +1070,7 @@ Feature: deployment related steps
     And the output should match:
       | .*[iI]mage.*openshift/nonexist1.* |  
 
-  # @author geliu@redhat.com
+  # @author geliu@redhat.com 
   # @case_id OCP-11966
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
     Given I have a project
