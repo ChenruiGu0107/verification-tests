@@ -393,12 +393,12 @@ Feature: nodeAffinity
   Scenario Outline: pod prefers to be scheduled to the nodes which matches affinity rules
     Given environment has at least 2 schedulable nodes
     Given I run commands on all masters:
-      |curl -o /tmp/<scheduler_file> https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/<scheduler_file> |
+      |curl -o /etc/origin/master/<scheduler_file> https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/<scheduler_file> |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
     kubernetesMasterConfig:
-      schedulerConfigFile: /tmp/<scheduler_file>
+      schedulerConfigFile: /etc/origin/master/<scheduler_file>
     """
     Then the step should succeed
     And the master service is restarted on all master nodes
