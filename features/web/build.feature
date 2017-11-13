@@ -543,7 +543,8 @@ Feature: build related feature on web console
     And the output should match:
       | Strategy.*Source  |
       | URL.*https://github.com/openshift/ruby-ex.git |
-      | Triggered by.*ImageChange.*Config |
+      | Triggered by.*Config      |
+      | Triggered by.*ImageChange |
       | Webhook GitHub  |
       | Webhook Generic |
     When I run the :tag client command with:
