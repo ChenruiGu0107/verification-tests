@@ -40,7 +40,7 @@ choose_resource_type:
 click_actions_button:
   elements:
   - selector:
-      text: Actions
+      text: !ruby/regexp '/Actions/'
     type: button
     op: click
 click_add:
