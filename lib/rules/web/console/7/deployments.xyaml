@@ -632,6 +632,10 @@ delete_autoscaler_from_dc_page:
 delete_autoscaler:
   action: click_remove_autoscaler_link
   action: click_delete
+check_env_from_configmap_or_secret_on_dc_page:
+  action: goto_one_dc_page
+  action: click_on_environment_tab
+  action: check_env_from_configmap_or_secret
 check_redirection_to_dc_page:
   params:
     resource: Deployments
