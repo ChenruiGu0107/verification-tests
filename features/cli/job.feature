@@ -179,14 +179,15 @@ Feature: job.feature
     When I get project job
     Then the output should match:
       | pi-runonce\\s+2\\s+0 |
-    Given 50 seconds have passed
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | job        |
       | name     | pi-runonce |
     Then the output should contain:
       | DeadlineExceeded                              |
       | Job was active longer than specified deadline |
-
+    """
 
   # @author qwang@redhat.com
   # @case_id OCP-9952
