@@ -127,7 +127,7 @@ check_route_type_doc_link_on_create_route_page:
   action: show_options_for_secure_route
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.7/architecture/core_concepts/routes.html#route-types") and contains(.,'Learn More')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.7/architecture/networking/routes.html#route-types") and contains(.,'Learn More')]
 check_route_type_doc_link_on_create_route_page_online:
   url: /console/project/<project_name>/create-route
   action: show_options_for_secure_route
@@ -205,7 +205,7 @@ check_routes_learn_more_link:
   action: goto_routes_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.7/architecture/core_concepts/routes.html") and contains(.,'Learn More')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.7/architecture/networking/routes.html") and contains(.,'Learn More')]
 check_builds_learn_more_link:
   action: goto_builds_page
   elements:
