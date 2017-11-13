@@ -326,8 +326,11 @@ change_env_vars_on_buildconfig_edit_page:
 delete_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: delete_env_var
-
-# Triggers
+add_webhook_type_on_bc_edit_page:
+  action: click_to_goto_edit_bc_page
+  action: click_to_show_advanced_options
+  action: add_webhook_type
+  action: click_save_button
 check_bc_github_webhook_trigger_on_bc_edit_page:
   action: goto_buildconfig_edit_page
   action: click_to_show_advanced_options
@@ -336,6 +339,10 @@ check_bc_generic_webhook_trigger_on_bc_edit_page:
   action: goto_buildconfig_edit_page
   action: click_to_show_advanced_options
   action: check_generic_webhook_trigger
+check_bc_webhook_trigger_on_bc_edit_page:
+  action: goto_buildconfig_edit_page
+  action: click_to_show_advanced_options
+  action: check_bc_webhook_trigger
 toggle_config_change_trigger_on_bc_edit_page:
   action: click_to_show_advanced_options
   action: change_bc_run_policy_to_parallel
@@ -349,6 +356,17 @@ toggle_bc_image_change:
 toggle_bc_cache:
   action: check_buildconfig_edit_page_loaded_completely
   action: toggle_cache_on_bc_edit_page
+add_webhook_type:
+  elements:
+  - selector:
+       xpath: //span[text()="Select a webhook type"]
+    op: click
+  - selector:
+       xpath: //ul[contains(@class,'ui-select-choices')]//span[contains(text(),"<webhook_type>")]
+    op: click
+  - selector:
+       xpath: //div[@class="add-webhook"]//a[@role="button" and contains(text(),"Add")]
+    op: click
 enable_webhook_build_trigger:
   action: check_buildconfig_edit_page_loaded_completely
   elements:

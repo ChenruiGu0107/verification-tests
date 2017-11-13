@@ -468,6 +468,33 @@ check_generic_webhook_trigger:
   element:
     selector:
       xpath: //input[contains(@value,'<generic_webhook_trigger>') and @readonly]
+check_bc_webhook_trigger:
+  elements:
+  - selector:
+      xpath: //input[contains(@value,'<webhook_trigger>') and @readonly]
+add_webhook_type:
+  elements:
+  - selector:
+       xpath: //span[text()="Select a webhook type"]
+    op: click
+  - selector:
+       xpath: //ul[contains(@class,'ui-select-choices')]//span[contains(text(),"<webhook_type>")]
+    op: click
+  - selector:
+       xpath: //div[@class="add-webhook"]//a[@role="button" and contains(text(),"Add")]
+    op: click
+add_webhook_type_on_bc_edit_page:
+  action: click_to_goto_edit_bc_page
+  action: click_to_show_advanced_options
+  action: add_webhook_type
+  action: click_save_button
+check_bc_webhook_trigger_in_configuration:
+  action: goto_buildconfig_configuration_tab
+  action: check_bc_webhook_trigger
+check_bc_webhook_trigger_on_bc_edit_page:
+  action: goto_buildconfig_edit_page
+  action: click_to_show_advanced_options
+  action: check_bc_webhook_trigger
 check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   action: check_github_webhook_trigger

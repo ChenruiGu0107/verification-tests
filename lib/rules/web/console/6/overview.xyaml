@@ -358,4 +358,51 @@ check_view_log_link:
   element:
     selector: 
       xpath: .//ul//a[@href="project/<project_name>/browse/<viewlog_type>/<log_name>?tab=logs"]
-
+filter_by_text_on_overview_page:
+  action: goto_overview_page
+  element:
+    selector:
+      xpath: //div[label[text()="Filter by name"]]/input
+    op: send_keys <filter_text>
+check_filtered_entries_by_text_on_overview_page:
+  elements:
+  - selector:
+      xpath: //body[count(//div[div[contains(@class,'app-heading') and .//span[contains(text(),'<filter_text>')]] or div[@class='list-pf']//div[@class='list-pf-container' and div//h3[contains(.,'<filter_text>')]]]//overview-list-row)=count(//overview-list-row)]
+  - selector: &check_number_of_filtered_entries
+      xpath: //div[contains(@class, 'filter-status') and contains(.,'Showing <num_of_entries> of')]
+check_filtered_entries_by_text_missing_on_overview_page:
+  elements:
+  - selector:
+      xpath: //body[count(//div[div[not(contains(@class,'app-heading') and .//span[contains(text(),'<filter_text>')])]]//div[@class='list-pf-container' and not(div//h3[contains(.,'<filter_text>')])])=count(//overview-list-row)]
+  - selector: *check_number_of_filtered_entries
+filter_by_label_on_overview_page:
+  elements:
+  - selector:
+      xpath: //div[@ng-model="overview.filterBy"]/div/span
+    op: click
+  - selector:
+      xpath: //div[contains(@class,'ui-select-choices-row') and .//span[contains(text(),'Label')]]
+    op: click
+  action: filter_resources
+check_filtered_app_entries_on_overview_page:
+  elements:
+  - selector:
+      xpath: //body[count(//div[div[contains(@class,'app-heading') and .//div[contains(@class,'component-label') and text()='Application']]]//overview-list-row)=count(//overview-list-row)]
+  - selector: *check_number_of_filtered_entries
+check_filtered_app_entries_missing_on_overview_page:
+  elements:
+  - selector:
+      xpath: //body[count(//div[@ng-repeat='app in overview.apps' and not(div[contains(@class,'app-heading')])]//overview-list-row)=count(//overview-list-row)]
+  - selector: *check_number_of_filtered_entries
+list_by_type_on_overview_page:
+  elements:
+  - selector:
+      xpath: //div[span[text()='List by']]//span[contains(@class,'ui-select-toggle')]
+    op: click
+  - selector:
+      xpath: //div[contains(@class,'ui-select-choices-row')]//span[contains(text(),'<type>')]
+    op: click
+check_resources_order_on_overview_page:
+  element:
+    selector:
+      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<first_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<first_type>']]/following::div[@class='list-pf-container' and div//h3[contains(.,'<second_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<second_type>']]

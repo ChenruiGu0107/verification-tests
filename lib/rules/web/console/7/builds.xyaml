@@ -236,6 +236,13 @@ check_generic_webhook_trigger:
   element:
     selector:
       xpath: //input[contains(@value,'<generic_webhook_trigger>') and @readonly]
+check_bc_webhook_trigger:
+  elements:
+  - selector:
+      xpath: //input[contains(@value,'<webhook_trigger>') and @readonly]
+check_bc_webhook_trigger_in_configuration:
+  action: goto_buildconfig_configuration_tab
+  action: check_bc_webhook_trigger
 check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   action: check_github_webhook_trigger

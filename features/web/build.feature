@@ -1453,3 +1453,50 @@ Feature: build related feature on web console
     When I perform the :check_ace_editor_content_has web console action with:
       | content | Promote to production |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-14629
+  Scenario: Check Gitlab and Bitbucket webhooks in the BC editor
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :new_build client command with:
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image        | openshift/ruby:latest                         |
+    Then the step should succeed
+    Given I wait for the :add_webhook_type_on_bc_edit_page web console action to succeed with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | ruby-hello-world    |
+      | webhook_type  | GitLab              |
+    When I run the :describe client command with:
+      | resource | bc/ruby-hello-world |
+    Then the step should succeed
+    And evaluation of `@result[:response].scan(/https.*gitlab$/)` is stored in the :gitlab_webhook clipboard
+    Given I wait for the :add_webhook_type_on_bc_edit_page web console action to succeed with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | ruby-hello-world    |
+      | webhook_type  | Bitbucket           |
+    When I run the :describe client command with:
+      | resource | bc/ruby-hello-world |
+    Then the step should succeed
+    And evaluation of `@result[:response].scan(/https.*bitbucket$/)` is stored in the :bitbucket_webhook clipboard
+    # Check GitLab and Bitbucket webhook on web
+    When I perform the :check_bc_webhook_trigger_in_configuration web console action with:
+      | project_name    | <%= project.name %>                              |
+      | bc_name         | ruby-hello-world                                 |
+      | webhook_trigger | <%= cb.bitbucket_webhook[0].scan(/oapi.*/)[0] %> |
+    Then the step should succeed
+    When I perform the :check_bc_webhook_trigger_in_configuration web console action with:
+      | project_name    | <%= project.name %>                            |
+      | bc_name         | ruby-hello-world                               |
+      | webhook_trigger | <%= cb.gitlab_webhook[0].scan(/oapi.*/)[0] %>  |
+    Then the step should succeed
+    When I perform the :check_bc_webhook_trigger_on_bc_edit_page web console action with:
+      | project_name    | <%= project.name %>                              |
+      | bc_name         | ruby-hello-world                                 |
+      | webhook_trigger | <%= cb.bitbucket_webhook[0].scan(/oapi.*/)[0] %> |
+    Then the step should succeed
+    When I perform the :check_bc_webhook_trigger_on_bc_edit_page web console action with:
+      | project_name    | <%= project.name %>                            |
+      | bc_name         | ruby-hello-world                               |
+      | webhook_trigger | <%= cb.gitlab_webhook[0].scan(/oapi.*/)[0] %>  |
+    Then the step should succeed
