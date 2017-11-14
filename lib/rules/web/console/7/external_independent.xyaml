@@ -45,3 +45,4 @@ choose_one_project:
   action: click_project_dropdown_list
   action: click_existing_project
   action: click_next_button
+  action: click_somewhere_out_of_focus
