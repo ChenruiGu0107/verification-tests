@@ -123,7 +123,7 @@ Feature: dc hooks related
     Given the master version > "3.4"
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/5ffd95f/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/pre-post-hook-snippets.yaml"
     When I run the :patch client command with:
