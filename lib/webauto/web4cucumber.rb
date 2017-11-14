@@ -45,7 +45,8 @@ require "base64"
         logger: SimpleLogger.new,
         browser_type: :firefox,
         browser: nil,
-        scroll_strategy: nil
+        scroll_strategy: nil,
+        hooks: nil
       )
       @browser_type = browser_type
       @rules = Web4Cucumber.load_rules [rules]
@@ -54,6 +55,7 @@ require "base64"
       @browser = browser
       @logger = logger
       @scroll_strategy = scroll_strategy
+      set_hooks(hooks)
     end
 
     def started?
@@ -540,7 +542,7 @@ require "base64"
         case op
       when "click", "hover"
           if val.empty?
-            element.send(op.to_sym)
+            with_hook(:click) { element.send(op.to_sym) }
           else
             # click an element with several modifier keys pressed
             # op: "click - :control\n- :shift"
@@ -742,6 +744,35 @@ require "base64"
       return result[:success], result[:list]
     end
     alias wait_for_element wait_for_elements
+
+    # @param hooks [Hash] a Hash structure containing the hooks
+    # @see #set_hook
+    def set_hooks(hooks)
+      hooks.each { |h| set_hook *h } if hooks
+    end
+
+    # hooks are procs that would wrap operations when provided by user
+    # To see available hooks, check where [#with_hook] method is called
+    def set_hook(hook, code_str=nil, &block)
+      @hooks ||= {}
+      if block
+        @hooks[hook] = block
+      elsif code_str
+        # instantiate from string ruby code
+        @hooks[hook] = eval code_str
+      else
+        raise "can't create hook from #{code_str.inspect}"
+      end
+    end
+
+    # execute some code block wrapped by a hook if provided by user
+    def with_hook(hook, &block)
+      if @hooks&.fetch(hook, false)
+        @hooks[hook].call(block)
+      else
+        block.call
+      end
+    end
 
     # parse CucuShift webauto single rules file; that is a YAML file with the
     #   only difference that duplicate keys on the second level are allowed;
