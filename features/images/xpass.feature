@@ -27,7 +27,7 @@ Feature: xpass.feature
   Scenario Outline: jbosseap template
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
+      | f | <secretfile>       |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
@@ -38,13 +38,14 @@ Feature: xpass.feature
       |application=eap-app|
 
     Examples: OS Type
-      | template             | podno |
-      | eap64-amq-s2i        | 2     | # @case_id OCP-9586
-      | eap64-basic-s2i      | 1     | # @case_id OCP-9745
-      | eap64-https-s2i      | 1     | # @case_id OCP-9746
-      | eap64-mongodb-s2i    | 2     | # @case_id OCP-12429
-      | eap64-mysql-s2i      | 2     | # @case_id OCP-12414
-      | eap64-postgresql-s2i | 2     | # @case_id OCP-12524
+      | secretfile                                                                                                 | template             | podno |
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-amq-s2i        | 2     | # @case_id OCP-9586
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-basic-s2i      | 1     | # @case_id OCP-9745
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-basic-s2i      | 1     | # @case_id OCP-16543
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-https-s2i      | 1     | # @case_id OCP-9746
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mongodb-s2i    | 2     | # @case_id OCP-12429
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mysql-s2i      | 2     | # @case_id OCP-12414
+      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-postgresql-s2i | 2     | # @case_id OCP-12524
   # @author haowang@redhat.com
   # @case_id OCP-9749
   Scenario: Create amq application from template in web console - amq62-ssl
@@ -247,7 +248,7 @@ Feature: xpass.feature
   Scenario Outline: jbosseap templates with pv
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
+      | f | <secretfile>       |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
@@ -264,11 +265,14 @@ Feature: xpass.feature
       |application=eap-app|
 
     Examples: OS Type
-      | template                        | podno | pvc                      |
-      | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        | # @case_id OCP-9585
-      | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    | # @case_id OCP-9743
-      | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      | # @case_id OCP-9740
-      | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-9744
+     |secretfile | template                        | podno | pvc                      |
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        | # @case_id OCP-9585
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    | # @case_id OCP-9743
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    | # @case_id OCP-16545
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      | # @case_id OCP-9740
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      | # @case_id OCP-16546
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-9744
+     | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-16526
   # @author haowang@redhat.com
   # @case_id OCP-9739
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
