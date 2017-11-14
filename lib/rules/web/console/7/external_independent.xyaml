@@ -3,6 +3,8 @@ goto_create_from_template_external_page:
   url: /console/create?template=<template_name>&templateParamsMap=<paramsmap>
 goto_create_from_image_external_page:
   url: /console/create?tab=fromCatalog&<params>
+goto_serviceclass_panel:
+  url: /console/?serviceExternalName=<name>
 check_create_project_page_without_project:
   elements:
   - selector:
