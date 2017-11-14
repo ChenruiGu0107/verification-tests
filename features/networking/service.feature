@@ -319,6 +319,9 @@ Feature: Service related networking scenarios
   # @case_id OCP-15032
   @admin
   Scenario: The openflow list will be cleaned after delete the services
+    Given the env is using one of the listed network plugins:
+      | subnet      |
+      | multitenant |		
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |

@@ -986,7 +986,7 @@ Feature: Testing abrouting
     Then the step should succeed      
     Given I run the steps 10 times:
     """
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    When I open web server via the "service-unsecure" route
     And the output should contain "Hello-OpenShift-1"
     And the output should not contain "Hello-OpenShift-2"
     """
@@ -996,3 +996,341 @@ Feature: Testing abrouting
       | service   | service-unsecure-2=0  |
     Then the step should fail
     And the output should contain "weight must be an integer between 0 and 256"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15910
+  Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - unsecure route
+    # Create pods and services	    
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod3.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod4.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+    Given I wait for the "service-unsecure-3" service to become ready
+    Given I wait for the "service-unsecure-4" service to become ready
+    # Create route and set route backends
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure      |
+      | service   | service-unsecure=20   |
+      | service   | service-unsecure-2=10 |
+      | service   | service-unsecure-3=30 |
+      | service   | service-unsecure-4=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure  |
+    Then the step should succeed
+    Then the output should contain:
+      | 20% |
+      | 10% |
+      | 30% |
+      | 40% |
+    # Scale pods
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-1              |
+      | replicas | 2                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-2              |
+      | replicas | 4                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-3              |
+      | replicas | 3                      |
+    Then the step should succeed
+    And all pods in the project are ready
+    # Access the route
+    Given I run the steps 20 times:
+    """
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-4").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (6..10).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-3").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (4..8).include? cb.accesslength3
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (1..3).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (2..6).include? cb.accesslength1
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15993
+  Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - edge route
+    # Create pods and services      
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod3.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod4.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+    Given I wait for the "service-unsecure-3" service to become ready
+    Given I wait for the "service-unsecure-4" service to become ready
+    # Create route and set route backends
+    When I run the :create_route_edge client command with:
+      | name    | route-edge       |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge            |
+      | service   | service-unsecure=20   |
+      | service   | service-unsecure-2=10 |
+      | service   | service-unsecure-3=30 |
+      | service   | service-unsecure-4=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge            |
+    Then the step should succeed
+    Then the output should contain:
+      | 20% |
+      | 10% |
+      | 30% |
+      | 40% |    
+    # Scale pods
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-1              |
+      | replicas | 2                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-2              |
+      | replicas | 4                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-3              |
+      | replicas | 3                      |
+    Then the step should succeed
+    And all pods in the project are ready
+    # Access the route
+    When I use the "service-unsecure" service
+    Given I run the steps 20 times:
+    """
+    When I open secure web server via the "route-edge" route
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-4").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (6..10).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-3").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (4..8).include? cb.accesslength3
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (1..3).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (2..6).include? cb.accesslength1    
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15994
+  Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - passthrough route
+    # Create pods and services      
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod3.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod4.json |
+    Then the step should succeed		
+    Given I wait for the "service-secure" service to become ready
+    Given I wait for the "service-secure-2" service to become ready
+    Given I wait for the "service-secure-3" service to become ready
+    Given I wait for the "service-secure-4" service to become ready
+    # Create route and set route backends
+    When I run the :create_route_passthrough client command with:
+      | name    | route-pass     |
+      | service | service-secure |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-pass            |
+      | service   | service-secure=20   |
+      | service   | service-secure-2=10 |
+      | service   | service-secure-3=30 |
+      | service   | service-secure-4=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-pass            |
+    Then the step should succeed
+    Then the output should contain:
+      | 20% |
+      | 10% |
+      | 30% |
+      | 40% |    
+    # Scale pods
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-1              |
+      | replicas | 2                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-2              |
+      | replicas | 4                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-3              |
+      | replicas | 3                      |
+    Then the step should succeed
+    And all pods in the project are ready
+    # Access the route
+    When I use the "service-secure" service
+    Given I run the steps 20 times:
+    """
+    When I open secure web server via the "route-pass" route
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-4").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (6..10).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-3").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (4..8).include? cb.accesslength3
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (1..3).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (2..6).include? cb.accesslength1
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15995
+  Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - reencrypt route
+    # Create pods and services      
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod3.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod4.json |
+    Then the step should succeed
+    Given I wait for the "service-secure" service to become ready
+    Given I wait for the "service-secure-2" service to become ready
+    Given I wait for the "service-secure-3" service to become ready
+    Given I wait for the "service-secure-4" service to become ready
+    # Create route and set route backends
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | route-reen              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-reen          |
+      | service   | service-secure=20   |
+      | service   | service-secure-2=10 |
+      | service   | service-secure-3=30 |
+      | service   | service-secure-4=40 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-reen            |
+    Then the step should succeed
+    Then the output should contain:
+      | 20% |
+      | 10% |
+      | 30% |
+      | 40% |
+    # Scale pods
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-1              |
+      | replicas | 2                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-2              |
+      | replicas | 4                      |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-3              |
+      | replicas | 3                      |
+    Then the step should succeed
+    And all pods in the project are ready
+    # Access the route
+    When I use the "service-secure" service
+    Given I run the steps 20 times:
+    """
+    When I open secure web server via the "route-reen" route
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-4").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (6..10).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-3").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (4..8).include? cb.accesslength3
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (1..3).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (2..6).include? cb.accesslength1
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15902
+  @admin
+  Scenario: Endpoint will end up weight 1 when scaled weight per endpoint is less than 1
+    # Create pods and services      
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
+    Then the step should succeed
+    Given I wait for the "service-secure" service to become ready
+    Given I wait for the "service-secure-2" service to become ready
+    # Create route and set route backends
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure      |
+      | service   | service-unsecure=1    |
+      | service   | service-unsecure-2=99 |
+    Then the step should succeed
+    # Scale pods
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | test-rc-1              |
+      | replicas | 3                      |
+    Then the step should succeed
+    And all pods in the project are ready
+    # Check the weight in haproxy.config
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep                             |
+      | <%= cb.proj1 %>:service-unsecure |
+      | -A                               |
+      | 18                               |
+      | haproxy.config                   |
+    Then the output should contain 3 times:
+      | weight 1 |
+    """
+    # Access the route
+    Given I run the steps 20 times:
+    """
+    When I open web server via the "service-unsecure" route
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (19..20).include? cb.accesslength2
