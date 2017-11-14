@@ -127,3 +127,121 @@ Feature: podpreset
       | podpreset.admission.kubernetes.io/.*allow-database |
       | DB_PORT:\\s+6379                                   |
       | /cache from cache-volume                           |
+
+  # @author wjiang@redhat.com
+  # @case_id OCP-15054
+  @admin
+  @destructive
+  Scenario: PodPreset should not modify pod in other project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
+    Then the step should succeed
+    And I create a new project
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    Then I run the :get client command with:
+      | resource      | pod       |
+      | resource_name | hello-pod |
+      | o             | yaml      |
+    And the output should not contain:
+      | cache-volume |
+
+
+  # @author wjiang@redhat.com
+  # @case_id OCP-14702
+  @admin
+  @destructive
+  Scenario: Pod spec is not modified by PodPreset when conflict
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/pod-volume.yaml |
+    Then the step should succeed
+    Given the pod named "pod-volume" becomes ready
+    And I run the :describe client command with:
+      | resource  | pod         |
+      | name      | pod-volume  |
+    And the output should match:
+      | Duplicate mountPath   |
+
+
+  # @author wjiang@redhat.com
+  # @case_id OCP-14701
+  @admin
+  @destructive
+  Scenario: Pod spec can be modified by multiple PodPresets
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset2.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I run the :get client command with:
+      | resource      | pod       |
+      | resource_name | hello-pod |
+      | o             | yaml      |
+    Then the output should match:
+      | proxy-volume          |
+      | cache-volume          |
