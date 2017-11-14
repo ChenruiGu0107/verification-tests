@@ -65,3 +65,15 @@ Feature: ansible install related feature
     And the output should contain:
       | Status: Red                                                   |
       | Unable to connect to Elasticsearch at https://logging-es:9200 |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11687
+  @admin
+  @destructive
+  Scenario: Deploy logging via Ansible: clean install with custom cert
+    Given the master version >= "3.5"
+    Given I have a project
+    And logging service is installed in the project with ansible using:
+      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11687/inventory |
+      | copy_custom_cert | true                                                                                                   |
+    And I login to kibana logging web console
