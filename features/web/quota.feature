@@ -728,5 +728,3 @@ Feature: functions about resourcequotas
     When I perform the :check_quota_warning_on_storage_page web console action with:
       | project_name   | <%= project.name %>    |
     Then the step should succeed
-
-      
