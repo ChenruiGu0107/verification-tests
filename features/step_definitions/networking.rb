@@ -182,7 +182,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "PREROUTING -m comment --comment \".*\" -j KUBE-SERVICES",
       "OUTPUT -m comment --comment \"kubernetes service portals\" -j KUBE-SERVICES",
       "POSTROUTING -m comment --comment \"rules for masquerading OpenShift traffic\" -j OPENSHIFT-MASQUERADE",
-      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade .* traffic\" -j MASQUERADE",
+      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade .* traffic\" -j OPENSHIFT-MASQUERADE-2",
       "OPENSHIFT-MASQUERADE-2 -d #{subnet} -m comment --comment \"masquerade pod-to-external traffic\" -j RETURN",
       "OPENSHIFT-MASQUERADE-2 -j MASQUERADE"
     ]
