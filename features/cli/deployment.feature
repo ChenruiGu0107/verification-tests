@@ -1068,8 +1068,8 @@ Feature: deployment related steps
       | revision      | 3               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*openshift/nonexist1.* |
-   
+      | .*[iI]mage.*openshift/nonexist1.* |  
+
   # @author geliu@redhat.com
   # @case_id OCP-11966
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
@@ -1141,4 +1141,70 @@ Feature: deployment related steps
       | current | 20 |
     Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
       | current | 0 |
+
+  # @author: geliu@redhat.com
+  # @case_id: OCP-12266
+  Scenario: Proportionally scale - Special value test for proportional scaling
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
+    Then the step should succeed
+    Given 10 pods become ready with labels:
+      | app=hello-openshift |
+    And current replica set name of "hello-openshift" deployment stored into :rs1 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 10 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 10 |
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                              |
+      | resource_name | hello-openshift                                                                                         | 
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 13 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 8 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 5 |
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output should match:
+      | .*image.*openshift/nonexist.* |
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output by order should match:
+      | .*[Pp]aused.*:.*true |
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | -10             |
+    Then the step should fail
+    Then the output should match:
+      | .*[Ee]rror.*replicas.*is required.* |
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | test            |
+    Then the step should fail
+    Then the output should match:
+      | .*[Ee]rror.*invalid argument.*test.* |
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should fail
+    Then the output should match:
+      | .*[Ee]rror.*deployments.*hello-openshift.* |
 
