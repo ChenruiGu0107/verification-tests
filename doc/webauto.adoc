@@ -434,6 +434,26 @@ directory. Rules will be taken from appropriate version folder, depending on
 the environment version. Make sure to create new web rules for each version
 automated test case could run on.
 
+== Browser initialization options
+
+WebconsoleExecutor automatically checks for a `browser_opts.yml` within the
+version directory. If this file exists, it is parsed and merged with browser
+initialization parameters when creating the object.
+
+== Browser Hooks
+
+Hooks are useful to wrap around different operations and take actions - for
+example, to correct errors. Presently one use case is to workaround an issue
+where a secondary navigation menu is expanded on page load and covers some
+elements. Clicking on these elements results in a webdriver error.
+
+Check `lib/rules/web/console/7/browser_opts.yml` for the `:click` hook. Also
+check `web4cucumber.rb` where `#with_hook` is called to see existing hooks.
+Hooks will be added wherever we need to workaround some issue that makes
+testing unreliable. For example, if some version of console fails often on
+some particular operation, we can add a hook to detect that error and retry the
+operation.
+
 == XYAML vs YAML
 
 XYAML format allows us to use multiple rules in a single action with the same
