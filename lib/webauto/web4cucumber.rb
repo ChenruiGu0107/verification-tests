@@ -112,6 +112,9 @@ require "base64"
         if Integer === @scroll_strategy
           chrome_caps[:element_scroll_behavior] = @scroll_strategy
         end
+        if self.class.container?
+          chrome_switches.concat %w[--no-sandbox --disable-setuid-sandbox --disable-gpu --disable-infobars]
+        end
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_caps, switches: chrome_switches
       else
         raise "Not implemented yet"
@@ -123,8 +126,7 @@ require "base64"
     #   that means no windows, no mac, and no DISPLAY env variable;
     #   if you want to force headless on linux, just `unset DISPLAY` prior run
     def headless
-      if !Gem.win_platform? &&
-          /darwin/ !~ RUBY_PLATFORM &&
+      if self.class.linux?
           !ENV["DISPLAY"] &&
           !@@headless
         require 'headless'
@@ -889,6 +891,23 @@ require "base64"
         raise "The script does not contain the keyword return"
       end
       browser.execute_script(script)
+    end
+
+    def self.linux?
+      !Gem.win_platform? && /darwin/ !~ RUBY_PLATFORM
+    end
+
+    def self.container?
+      return @@container if defined?(@@container)
+
+      if File.exists? '/proc/1/cgroup'
+        cgroups = File.read '/proc/1/cgroup'
+        @@container = %w[kube docker lxc].any? { |pattern|
+          cgroups.include? pattern
+        }
+      else
+        @@container = false
+      end
     end
 
     class SimpleLogger

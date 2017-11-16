@@ -32,12 +32,16 @@ RUN [ -d $HOME/cucushift/private/config/ca ] && \
     update-ca-trust extract || \
     exit 1 ) || :
 
-RUN SCL_BASE_PKGS="centos-release-scl scl-utils-build" && \
+RUN set -x && \
+    SCL_BASE_PKGS="centos-release-scl scl-utils-build" && \
     INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel rh-git29 bsdtar" && \
+    yum -y update && \
     yum install -y --enablerepo=centosplus $SCL_BASE_PKGS && \
     yum install -y --enablerepo=centosplus $INSTALL_PKGS && \
     yum install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
-    curl -L https://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip  | bsdtar -xvf - -C /usr/local/bin && \
+    CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com" && \
+    CHROMEDRIVER_VERSION=`curl -sSL "$CHROMEDRIVER_URL/LATEST_RELEASE"` && \
+    curl -sSL "$CHROMEDRIVER_URL/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"  | bsdtar xvf - -C /usr/local/bin && \
     chmod +x /usr/local/bin/chromedriver && \
     rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
     yum clean all -y && \
