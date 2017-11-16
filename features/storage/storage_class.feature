@@ -500,7 +500,7 @@ Feature: storageClass related feature
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                      |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
