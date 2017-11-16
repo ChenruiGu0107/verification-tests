@@ -9,9 +9,10 @@ click_create_anyway:
       text: Create Anyway
     op: click
 check_quota_warning_on_overview_page:
+  action: click_notification_drawer
   elements:
   - selector:
-      xpath: //span[contains(text(),'Quota limit has been reached')]
+      xpath: //span[contains(text(),'Your project is at quota')]
 check_quota_warning_for_scaling_on_overview_page:
   action: goto_overview_page
   action: expand_resource_entry
