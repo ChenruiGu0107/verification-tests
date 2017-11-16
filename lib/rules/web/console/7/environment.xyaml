@@ -39,9 +39,27 @@ add_env_vars:
   action: add_env_var_key
   action: add_env_var_value
 add_new_env_var:
+  action:
+    if_element:
+      selector:
+        text: Add Value
+      type: a
+    ref: click_add_value
+  action:
+    if_element:
+      selector:
+        text: Add Environment Variable
+      type: a
+    ref: click_add_environment_variable
+click_add_value:
   element:
     selector:
       xpath: //a[normalize-space(text())='Add Value']
+    op: click
+click_add_environment_variable:
+  element:
+    selector:
+      xpath: //a[normalize-space(text())='Add Environment Variable']
     op: click
 add_env_var_key:
   element:
