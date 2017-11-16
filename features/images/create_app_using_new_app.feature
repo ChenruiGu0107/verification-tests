@@ -174,3 +174,27 @@ Feature:Create apps using new_app cmd feature
     When I use the "passenger-container" service
     Then I wait for a web server to become available via the "passenger-container" route
     Then the output should contain "Hello world"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-15349
+  Scenario: Dotnet-example quickstart test on web console with dotnet-2.0
+    Given I have a project
+    When I run the :new_app client command with:
+      | template    | dotnet-runtime-example|
+    Then the step should succeed
+    And the "dotnet-runtime-example-build-1" build was created
+    And the "dotnet-runtime-example-build-1" build completed
+    Then the "dotnet-runtime-example-runtime-2" build was created
+    And the "dotnet-runtime-example-runtime-2" build completed
+    When I expose the "s2i-dotnetcore-ex" service
+    Then I wait for a web server to become available via the "dotnet-runtime-example" route
+    And the output should contain "Sample pages using ASP.NET Core MVC"
+   
+    # Manually start chain build
+    When I run the :start_build client command with:
+      | buildconfig | dotnet-runtime-example-build |
+    Then the step should succeed
+    And the "dotnet-runtime-example-build-2" build was created
+    And the "dotnet-runtime-example-build-2" build completed
+    Then the "dotnet-runtime-example-runtime-3" build was created
+    And the "dotnet-runtime-example-runtime-3" build completed
