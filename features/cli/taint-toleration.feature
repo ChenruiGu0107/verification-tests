@@ -501,3 +501,96 @@ Feature: taint toleration related scenarios
     Given the pod named "tolerationseconds-1" becomes ready
     Given 20 seconds have passed
     And the project should be empty
+
+  # @author xiuli@redhat.com
+  # @case_id OCP-13542
+  @admin
+  @destructive
+  Scenario: User can customize the projectrequestlimit admission controller configuration
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        DefaultTolerationSeconds:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/hpa/hello-pod.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | hello-pod |
+    Then the step should succeed
+    And the output should match:
+      | Tolerations:.*300s |
+   
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/defaultTolerationSeconds-override.yaml |
+    Then the step should succeed
+    Given the pod named "mytoleration" becomes ready
+    When I run the :describe client command with:
+      | resource | pod          |
+      | name     | mytoleration |
+    Then the step should succeed
+    And the output should match:
+      | Tolerations:.*60s |  
+    
+    Given admin ensures "hello-pod" pod is deleted from the project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        DefaultTolerationSeconds:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: true
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/hpa/hello-pod.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | hello-pod |
+    Then the step should succeed
+    And the output should not contain ":Exists:NoExecute"
+  
+  # @author xiuli@redhat.com
+  # @case_id OCP-13543
+  @admin
+  @destructive
+  Scenario: User can customize the projectrequestlimit admission controller configuration
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        DefaultTolerationSeconds:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """   
+    When I run the :describe admin command with:
+      | resource | pod             |
+      | name     | hello-daemonset |
+    Then the step should succeed
+    And the output should match:
+      | :Exists:NoExecute |
+    """
