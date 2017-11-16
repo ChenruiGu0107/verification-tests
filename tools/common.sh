@@ -66,7 +66,7 @@ function os_pkg_method()
 function need_sudo()
 {
     # for Mac, brew prohibits user to run it as sudo
-    if [ `id -u` != "0" -a "$(os_type)" != "Mac OS X"]; then
+    if [ `id -u` != "0" -a "$(os_type)" != "Mac OS X" ]; then
         echo 'sudo'
     else
         echo ''
