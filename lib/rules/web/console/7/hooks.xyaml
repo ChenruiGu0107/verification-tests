@@ -17,7 +17,7 @@ check_dc_hook_with_execnewpod_action_from_dc_page:
 check_dc_hook_volume_from_dc_page:
   element:
     selector:
-      xpath: //lifecycle-hook[@type='<hook_type>']//div[contains(@ng-repeat,'volume') and contains(.,'<volume_name>')]
+      xpath: //lifecycle-hook[@type='<hook_type>']//dt[contains(text(),'Volumes')]/following-sibling::dd/div[contains(.,'<volume_name>')]
 check_dc_hook_with_tagimage_action_from_dc_page:
   element:
     selector:
@@ -46,7 +46,7 @@ check_dc_hook_env_var_from_dc_page:
         var el = document.querySelectorAll('dd div[ng-repeat~=env] div[title]');
         for (var i=0; i < values.length; i++) {
           for (var j=0; j < el.length; j++) {
-            if(el[j].textContent == values[i]) {
+            if(el[j].textContent.trim() == values[i]) {
              match = true;
              break;
             } else {
