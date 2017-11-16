@@ -82,7 +82,10 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given the "sample-pipeline-1" build was created
+    Given I wait up to 120 seconds for the steps to pass:
+    """
     And the "sample-pipeline-1" build completes
+    """
     Given I get project builds
     Then the output should contain:
       | ruby-sample-build-1 |
@@ -96,7 +99,10 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given the "sample-pipeline-2" build was created
+    Given I wait up to 120 seconds for the steps to pass:
+    """
     And the "sample-pipeline-2" build completes
+    """
     When I run the :patch client command with:
       | resource      | bc                                                                                                  |
       | resource_name | sample-pipeline                                                                                   |
@@ -106,7 +112,10 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given the "sample-pipeline-3" build was created
+    Given I wait up to 120 seconds for the steps to pass:
+    """
     And the "sample-pipeline-3" build completes
+    """
     When I run the :patch client command with:
       | resource      | bc                                                                                                  |
       | resource_name | sample-pipeline                                                                                   |
@@ -116,7 +125,10 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given the "sample-pipeline-4" build was created
+    Given I wait up to 120 seconds for the steps to pass:
+    """
     And the "sample-pipeline-4" build completes
+    """
     Examples:
       | ver |
       | 1   |
