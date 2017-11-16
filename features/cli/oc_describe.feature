@@ -152,7 +152,7 @@ Feature: Return description with cli
     Given I log the message>  this scenario is only for oc 3.4+
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/b1983988/examples/jenkins/jenkins-ephemeral-template.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | event    |

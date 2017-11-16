@@ -903,8 +903,13 @@ Feature: build related feature on web console
   # @case_id OCP-11269
   Scenario: Check settings for Source strategy build with no inputs
     Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json"
+    Then the step should succeed
+    And I replace lines in "application-template-stibuild.json":
+      | "host": "www.tc525738example.com", |      |
+    Then the step should succeed
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json |
+      | file | application-template-stibuild.json |
     Then the step should succeed
     When I perform the :check_build_strategy web console action with:
       | project_name   | <%= project.name %>  |
