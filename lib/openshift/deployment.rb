@@ -83,5 +83,9 @@ module CucuShift
       get_cached_prop(options).dig(*MATCH_LABELS_DIG_PATH)
     end
 
+    def collision_count(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: true, quiet: quiet).dig("status", "collisionCount")
+    end
+
   end
 end
