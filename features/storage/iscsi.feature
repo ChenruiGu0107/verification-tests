@@ -231,3 +231,35 @@ Feature: ISCSI volume plugin testing
     When I execute on the pod:
       | touch | /mnt/iscsi/testfile |
     Then the step should succeed
+
+  # @author piqin@redhat.com
+  # @case_id OCP-13395
+  @admin
+  @destructive
+  Scenario: Two Pod reference the same iscsi volume with different accessmode RO and RW
+    Given I have a iSCSI setup in the environment
+    Given I create a second iSCSI path
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                                |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+    Then the step should succeed
+    And the pod named "iscsi-1-<%= project.name %>" becomes ready
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                                |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod                         |
+      | name     | iscsi-2-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | FailedScheduling |
+      | NoDiskConflict   |

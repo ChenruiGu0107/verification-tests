@@ -524,7 +524,7 @@ Given /^I create a second iSCSI path$/ do
   path = @result[:abs_path].rpartition(".")[0] + ".yaml"
   service_content["metadata"]["name"] = "iscsi-target-2"
   File.write(path, service_content.to_yaml)
-  @result = admin.cli_exec(:create, f: path)
+  @result = admin.cli_exec(:create, f: path, namespace: _project.name)
   raise "could not create iSCSI service" unless @result[:success]
   _service_2 = service("iscsi-target-2", _project)
   cb.iscsi_ip_2 = _service_2.ip(user: admin)
