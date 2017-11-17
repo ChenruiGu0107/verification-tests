@@ -44,8 +44,8 @@ Feature: Features about k8s deployments
   Scenario: Pause and Resume k8s deployment
     Given the master version >= "3.4"
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
+      | ["spec"]["replicas"] | 1 |
     Then the step should succeed
 
     And I wait for the steps to pass:
@@ -90,7 +90,7 @@ Feature: Features about k8s deployments
     Then the step should succeed
 
     When I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 4 |
+      | scaled_number | 1 |
     Then the step should succeed
     When I perform the :check_latest_k8s_deployment_version web console action with:
       | project_name                  | <%= project.name %> |
