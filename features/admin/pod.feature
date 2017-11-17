@@ -41,7 +41,7 @@ Feature: pod related features
     Then I wait for the "test-service" endpoint to appear up to 5 seconds
 
   # @author xiuli@redhat.com
-  #   # @case_id OCP-12971
+  # @case_id OCP-12971
   Scenario: Pods creation is ordered in StatefulSet
     Given I have a project
     When I run the :create client command with:
