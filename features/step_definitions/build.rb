@@ -8,8 +8,9 @@ Given /^the #{QUOTED} build was created(?: within #{NUMBER} seconds)?$/ do |buil
 end
 
 # success when build finish regardless of completion status
-Given /^the #{QUOTED} build finishe(?:d|s)$/ do |build_name|
-  @result = build(build_name).wait_till_finished(user, 60*15)
+Given /^the #{QUOTED} build finishe(?:d|s)(?: within #{NUMBER} seconds)?$/ do |build_name, timeout|
+  wait_timeout = timeout ? Integer(timeout) : 60*15
+  @result = build(build_name).wait_till_finished(user, wait_timeout)
 
   unless @result[:success]
     raise "build #{build_name} never finished"
@@ -17,8 +18,9 @@ Given /^the #{QUOTED} build finishe(?:d|s)$/ do |build_name|
 end
 
 # success if build completed successfully
-Given /^the #{QUOTED} build complete(?:d|s)$/ do |build_name|
-  @result = build(build_name).wait_till_completed(user, 60*15)
+Given /^the #{QUOTED} build complete(?:d|s)(?: within #{NUMBER} seconds)?$/ do |build_name, timeout|
+  wait_timeout = timeout ? Integer(timeout) : 60*15
+  @result = build(build_name).wait_till_completed(user, wait_timeout)
 
   unless @result[:success]
     if [:failed, :error].include? @result[:matched_status]
@@ -30,8 +32,9 @@ Given /^the #{QUOTED} build complete(?:d|s)$/ do |build_name|
 end
 
 # success if build completed with a failure
-Given /^the #{QUOTED} build fail(?:ed|s)$/ do |build_name|
-  @result = build(build_name).wait_till_failed(user, 60*15)
+Given /^the #{QUOTED} build fail(?:ed|s)(?: within #{NUMBER} seconds)?$/ do |build_name, timeout|
+  wait_timeout = timeout ? Integer(timeout) : 60*15
+  @result = build(build_name).wait_till_failed(user, wait_timeout)
 
   unless @result[:success]
     raise "build #{build_name} completed with success or never finished"
@@ -39,17 +42,18 @@ Given /^the #{QUOTED} build fail(?:ed|s)$/ do |build_name|
 end
 
 # success if build was cancelled
-Given /^the #{QUOTED} build was cancelled$/ do |build_name|
-  @result = build(build_name).wait_till_cancelled(user, 60*15)
+Given /^the #{QUOTED} build was cancelled(?: within #{NUMBER} seconds)?$/ do |build_name, timeout|
+  wait_timeout = timeout ? Integer(timeout) : 60*15
+  @result = build(build_name).wait_till_cancelled(user, wait_timeout)
 
   unless @result[:success]
     raise "build #{build_name} was not canceled"
   end
 end
 
-Given /^the #{QUOTED} build (becomes|is) #{SYM}$/ do |build_name, mode, status|
+Given /^the #{QUOTED} build (becomes|is) #{SYM}(?: within #{NUMBER} seconds)?$/ do |build_name, mode, status, timeout|
   if mode == "becomes"
-    wait_time_out = 10 * 60
+    wait_time_out = timeout ? Integer(timeout) : 60*10
     @result = build(build_name).wait_till_status(status.to_sym, user, wait_time_out)
     unless @result[:success]
       raise "build #{build_name} never became #{status}"
