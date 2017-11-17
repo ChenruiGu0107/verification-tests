@@ -80,17 +80,6 @@ Feature: oc run related scenarios
     And the output should contain:
       | replicas: 2   |
 
-    When I run the :run client command with:
-      | name         | webapp4               |
-      | image        | training/webapp       |
-      | attach       | true                  |
-      | restart      | Never                 |
-      | _timeout     | 15                    |
-      | limits       | memory=256Mi          |
-    Then the step should have timed out
-    And the output should match:
-      | [Ww]aiting for pod .*webapp4 to be running       |
-
   # @author pruan@redhat.com
   # @case_id OCP-11199
   Scenario: oc run can create dc, standalone rc, standalone pod
