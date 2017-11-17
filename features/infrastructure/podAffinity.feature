@@ -185,3 +185,35 @@ Feature: podAffinity
       # below examples not implemented yet, maybe will be available in v3.8
       | team4         | pod-pod-team4.yaml    | pod-affinity-lt-5         | pod-pod-affinity-lt-5.yaml          | =         | # @case_id OCP-14694
       | team4         | pod-pod-team4.yaml    | pod-affinity-gt-3         | pod-pod-affinity-gt-3.yaml          | =         | # @case_id OCP-14693
+
+
+  # @author wjiang@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: pod prefers to be scheduled to the nodes which matches affinity rules
+    Given environment has at least 2 schedulable nodes
+    Given I run commands on all masters:
+      |curl -o /etc/origin/master/<scheduler_file> https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<scheduler_file> |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    kubernetesMasterConfig:
+      schedulerConfigFile: /etc/origin/master/<scheduler_file>
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<pod-affinity-dst-pod-file> |
+    Then the step should succeed
+    Given the pod named "<dst-pod-name>" status becomes :running within 300 seconds
+    And evaluation of `pod("<dst-pod-name>").node_name` is stored in the :pod_node clipboard
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<pod-affinity-src-pod-file> |
+    Then the step should succeed
+    And the pod named "<src-pod-name>" status becomes :running within 300 seconds
+    Then the expression should be true> pod.node_name <equality> cb.pod_node
+    Examples:
+      | scheduler_file                              | dst-pod-name  | pod-affinity-dst-pod-file | src-pod-name                      | pod-affinity-src-pod-file                   | equality  |
+      | scheduler_interpodaffinitypriority_10.json  | security-s1   | pod-s1.yaml               | pod-affinity-in-s1-preferred      | pod-pod-affinity-in-s1-preferred.yaml       | ==        | # @case_id OCP-14699
+      | scheduler_interpodaffinitypriority_10.json  | security-s1   | pod-s1.yaml               | pod-anti-affinity-in-s1-preferred | pod-pod-anti-affinity-in-s1-preferred.yaml  | !=        | # @case_id OCP-14700
