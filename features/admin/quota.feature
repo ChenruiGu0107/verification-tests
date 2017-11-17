@@ -379,8 +379,8 @@ Feature: Quota related scenarios
     Then the step should succeed
     And the output should match:
       | uildconfig\\s+"ruby-sample-build"\\s+created |
-    Given the pod named "database-1-deploy" is present
-    And the pod named "ruby-sample-build-2-build" is present
+    Given the pod named "database-1-deploy" becomes present
+    And the pod named "ruby-sample-build-2-build" becomes present
     When I get project pod as YAML
     Then the output should match:
       |   cpu:\\s+20m     |

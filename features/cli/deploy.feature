@@ -949,7 +949,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
     Then the step should succeed
-    When the pod named "<pod_name>" is present
+    When the pod named "<pod_name>" becomes present
     And I wait up to 300 seconds for the steps to pass:
 
     """
@@ -1235,7 +1235,7 @@ Feature: deployment related features
       | deployment_config | hooks |
       | latest            | true  |
     Then the step should succeed
-    Given the pod named "hooks-2-deploy" is present
+    Given the pod named "hooks-2-deploy" becomes present
     When I run the :patch client command with:
       | resource      | pod                                   |
       | resource_name | hooks-2-deploy                        |

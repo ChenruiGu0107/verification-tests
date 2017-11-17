@@ -484,7 +484,7 @@ Feature: build 'apps' with CLI
     And I run the :start_build background client command with:
       | buildconfig | sample-build |
       | wait        | true         |
-    Given the pod named "sample-build-3-build" is present
+    Given the pod named "sample-build-3-build" becomes present
     And I run the :cancel_build client command with:
       | build_name | sample-build-3 |
     And the output should contain:
@@ -582,7 +582,7 @@ Feature: build 'apps' with CLI
       | from_dir    | nodejs-ex |
     Given I wait for the steps to pass:
     """
-    Given the pod named "nodejs-ex-2-build" is present
+    Given the pod named "nodejs-ex-2-build" becomes present
     """
     Given the pod named "nodejs-ex-2-build" status becomes :succeeded
     Given the "tmp/test/testfile" file is created with the following lines:

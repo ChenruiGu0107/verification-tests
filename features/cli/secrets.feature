@@ -524,7 +524,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     Given the "build-secret-1" build was created
     And the "build-secret-1" build completed
-    Given the pod named "build-secret-1-hook-pre" is present
+    Given the pod named "build-secret-1-hook-pre" becomes present
     Given the pod named "build-secret-1-hook-pre" status becomes :running
     When I run the :exec client command with:
       | pod | build-secret-1-hook-pre |

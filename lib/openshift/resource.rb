@@ -38,6 +38,7 @@ module CucuShift
       raise "need to be implemented by subclass"
     end
 
+    # @return [Boolean]
     def visible?(user: nil, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]

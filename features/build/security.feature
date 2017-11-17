@@ -8,7 +8,7 @@ Feature: security.feature
       | app_repo | openshift/ruby:2.2~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
-    And the pod named "ruby-hello-world-1-build" is present
+    And the pod named "ruby-hello-world-1-build" becomes present
     When I run the :patch client command with:
       | resource      | pod                      |
       | resource_name | ruby-hello-world-1-build |

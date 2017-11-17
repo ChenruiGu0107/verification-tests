@@ -1,4 +1,63 @@
 Feature: pod related features
+  # @author xiuli@redhat.com
+  # @case_id OCP-13540
+  Scenario: TolerationSeconds can only combine with NoExecute effect
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/tolerationSeconds.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/tolerationSeconds-invalid1.yaml |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/tolerationSeconds-invalid2.yaml |
+    Then the step should fail
+    And the output should contain "Invalid value"
+
+  # @author xiuli@redhat.com
+  # @case_id OCP-10475
+  Scenario: 'net.ipv4.tcp_max_syn_backlog' shouldn't in whitelist
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/sysctl-tcp_max_syn_backlog.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | po   |
+    Then the output should contain "SysctlForbidden"
+    When I run the :describe client command with:
+      | resource | po   |
+    Then the output should contain "forbidden sysctl: "net.ipv4.tcp_max_syn_backlog" not whitelisted"
+
+  # @author xiuli@redhat.com
+  # @case_id OCP-15808
+  Scenario: Endpoints should update in time and no delay
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | name=test-pods|
+    Then I wait for the "test-service" endpoint to appear up to 5 seconds
+
+  # @author xiuli@redhat.com
+  #   # @case_id OCP-12971
+  Scenario: Pods creation is ordered in StatefulSet
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset-60sec-ready.yaml |
+    Then the step should succeed
+
+    Given the pod named "hello-statefulset-0" becomes present
+    And the pod status becomes :running
+    When 30 seconds have passed
+    Then the pod named "hello-statefulset-1" does not exist
+
+    When the pod named "hello-statefulset-1" becomes present
+    Then the pod named "hello-statefulset-0" is ready
+
+    Given the pod named "hello-statefulset-1" becomes ready
+
   # @author pruan@redhat.com
   # @case_id OCP-12432
   @admin
@@ -996,7 +1055,7 @@ Feature: pod related features
       | "level": "s0:c25,c968" |
       | "role": "unconfined_r" |
       | "user": "unconfined_u" |
-      | "securityContext"      | 
+      | "securityContext"      |
       | "seLinuxOptions"       |
       |"level": "s0:c25,c968"  |
       | "role": "unconfined_r" |

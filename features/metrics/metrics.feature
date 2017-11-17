@@ -320,7 +320,7 @@ Feature: metrics related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
     Then the step should succeed
-    And the pod named "hello-openshift" is present
+    And the pod named "hello-openshift" becomes present
     Given I login via web console
     When I perform the :check_pod_metrics_tab web action with:
       | project_name | <%= project.name %> |

@@ -30,6 +30,14 @@ Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
   end
 end
 
+Given /^the pod(?: named "(.+)")? is ready$/ do |name|
+  @result = pod(name).ready?(user: user, cached: false)
+
+  unless @result[:success]
+    raise "#{pod.name} pod is not ready"
+  end
+end
+
 Given /^the pod(?: named "(.+)")? becomes terminating$/ do |name|
   ready_timeout = 30
   @result = pod(name).wait_till_terminating(user, ready_timeout)
@@ -40,7 +48,7 @@ Given /^the pod(?: named "(.+)")? becomes terminating$/ do |name|
 end
 
 
-Given /^the pod(?: named "(.+)")? is present$/ do |name|
+Given /^the pod(?: named "(.+)")? becomes present$/ do |name|
   present_timeout = 5 * 60
   @result = pod(name).wait_to_appear(user, present_timeout)
 

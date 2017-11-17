@@ -594,7 +594,7 @@ Feature: resouces related scenarios
       | buildconfig | ruby-sample-build |
     Then the step should succeed
 
-    Given the pod named "ruby-sample-build-2-build" is present
+    Given the pod named "ruby-sample-build-2-build" becomes present
     When I run the :get client command with:
       | resource      | pod |
       | resource_name | ruby-sample-build-2-build |

@@ -325,6 +325,10 @@ module CucuShift
       project_resource(HorizontalPodAutoscaler, name, project)
     end
 
+		def endpoint(name = nil, project = nil)
+      project_resource(Endpoint, name, project)
+    end
+
     # @return rc (ReplicationController) by name from scenario cache;
     #   with no params given, returns last requested rc;
     #   otherwise creates a [ReplicationController] object

@@ -444,7 +444,7 @@ Feature: pods related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/sysctls/net_ipv4_tcp_syncookies.yaml  |
     Then the step should succeed
-    Given the pod named "hello-pod" is present
+    Given the pod named "hello-pod" becomes present
     When I run the :describe client command with:
       | resource | pods      |
       | name     | hello-pod |

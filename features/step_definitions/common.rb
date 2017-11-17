@@ -156,6 +156,16 @@ Given /^the output is parsed as (YAML|JSON)$/ do |format|
   end
 end
 
+Given /^the( admin)? (\w+) named #{QUOTED} does not exist(?: in the#{OPT_QUOTED} project)?$/ do |who, resource_type, resource_name, project_name|
+  _user = who ? admin : user
+  _resource = resource(resource_name, resource_type, project_name: project_name)
+  _seconds = 60
+
+  if _resource.exists?(user: _user)
+    raise "#{resource_type} names #{resource_name} exists"
+  end
+end
+
 # When applying "oc delete" on one resource, the resource may take some time to
 # terminate, so use this step to wait for its dispapearing.
 Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+) seconds)?$/ do |resource_type, resource_name, timeout|

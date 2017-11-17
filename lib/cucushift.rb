@@ -25,6 +25,7 @@ module CucuShift
   autoload :ImageStream, "openshift/image_stream"
   autoload :Project, "openshift/project"
   autoload :ClusterRoleBinding, "openshift/cluster_role_binding"
+  autoload :Endpoint, "openshift/endpoint"
   autoload :DaemonSet, "openshift/daemon_set"
 
   HOME = File.expand_path(__FILE__ + "/../..")
