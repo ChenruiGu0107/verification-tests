@@ -90,6 +90,17 @@ environments:
     cli: SharedLocalCliExecutor
     admin_cli: false
     api_port: 443
+  dsaas_stg:
+    hosts: api.dsaas-stg.openshift.com:etcd:master:node
+    web_console_url: https://console.dsaas-stg.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    #set OPENSHIFT_ENV_DSAAS_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+    api_port: 443
   free_int:
     hosts: api.free-int.openshift.com:etcd:master:node
     web_console_url: https://console.free-int.openshift.com
