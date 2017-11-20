@@ -506,7 +506,7 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13542
   @admin
   @destructive
-  Scenario: User can customize the projectrequestlimit admission controller configuration
+  Scenario: Add default tolerations to pod when enable DefaultTolerationSecond
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -568,7 +568,7 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13543
   @admin
   @destructive
-  Scenario: User can customize the projectrequestlimit admission controller configuration
+  Scenario: DaemonSet pods are created with defaultToleration but no tolerationSeconds
     Given master config is merged with the following hash:
     """
     admissionConfig:
