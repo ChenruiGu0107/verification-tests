@@ -189,3 +189,11 @@ close_all_toast_notifications:
     selector:
       xpath: //toast-notifications//div[contains(@class,'toast-pf')]
     missing: true
+check_instructions_on_home_page:
+  elements:
+  - selector:
+      text: !ruby/regexp /Welcome/
+  - selector:
+      text: !ruby/regexp /Create a project/
+  - selector:
+      text: !ruby/regexp /OpenShift helps you quickly/

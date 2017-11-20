@@ -175,3 +175,11 @@ click_ok:
     selector:
       text: OK
     op: click
+check_instructions_on_home_page:
+  elements:
+  - selector:
+      text: !ruby/regexp /Welcome/
+  - selector:
+      text: !ruby/regexp /Create a project/
+  - selector:
+      text: !ruby/regexp /OpenShift helps you quickly/
