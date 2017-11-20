@@ -670,33 +670,24 @@ Feature: deployment related steps
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
-    When I run the :get client command with:
-      | resource | deployment      |
-      | o        | yaml            |
-    Then the output should match:
-      | .*replicas:.*10.* |
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output should match:
-      |  hello-openshift-.*10.*|
-    Then the step should succeed
+    And current replica set name of "hello-openshift" deployment stored into :rs1 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 10 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 10 |
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
       | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should not match:
-      | .*hello-openshift.*ContainerCreating.* |
-    """
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output by order should match:
-      |  hello-openshift-.*8.*|
-      |  hello-openshift-.*5.*|
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 13 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 8 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 5 |
     When I run the :scale client command with:
       | resource | deployment      |
       | name     | hello-openshift |
@@ -707,19 +698,16 @@ Feature: deployment related steps
       | resource_name | hello-openshift                                                                                          |
       | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should not match:
-      | .*hello-openshift.*ContainerCreating.* |
-    """
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output should match:
-      | .*hello-openshift-.*9.* |
-      | .*hello-openshift-.*9.* |
-      | .*hello-openshift-.*5.* |
+    Given replica set "<%= cb.rs2 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs3 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 23 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 9 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 9 |
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 5 |
     When I run the :rollout_pause client command with:
       | resource | deployment      |
       | name     | hello-openshift |
@@ -739,37 +727,30 @@ Feature: deployment related steps
       | name     | hello-openshift |
       | replicas | 50              |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should not match:
-      | .*hello-openshift.*ContainerCreating.* |
-    """
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output should match:
-      | .*hello-openshift-.*21.* |
-      | .*hello-openshift-.*21.* |
-      | .*hello-openshift-.*11.* |
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 53 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 21 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 21 |
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 11 |
     When I run the :rollout_resume client command with:
       | resource | deployment      |
       | name     | hello-openshift |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should not match:
-      | .*hello-openshift.*ContainerCreating.*|
-    """
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output should match:
-      | .*hello-openshift-.*21.* |
-      | .*hello-openshift-.*16.* |
-      | .*hello-openshift-.*11.* |
-      | .*hello-openshift-.*5.*  |
+    Given replica set "<%= cb.rs3 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs4 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 53 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 16 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 21 |
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 11 |
+    Given number of replicas of "<%= cb.rs4 %>" replica set becomes:
+      | current | 5 |
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |
@@ -780,20 +761,20 @@ Feature: deployment related steps
       | name     | hello-openshift |
       | replicas | 8               |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should not match:
-      | .*hello-openshift.*ContainerCreating.* |
-    """
-    When I run the :get client command with:
-      | resource | rs   |
-    Then the output should match:
-      | .*hello-openshift-.*0.* |
-      | .*hello-openshift-.*0.* |
-      | .*hello-openshift-.*0.* |
-      | .*hello-openshift-.*8.* |
+    Given replica set "<%= cb.rs4 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs5 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 8 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs4 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs5 %>" replica set becomes:
+      | current | 8 |
     When I run the :rollout_history client command with:
       | resource      | deployment      |
       | resource_name | hello-openshift |
@@ -801,7 +782,6 @@ Feature: deployment related steps
     Then the step should succeed
     And the output should match:
       | .*nonexist2.* |
-
 
   # @author: geliu@redhat.com
   # @case_id OCP-12161
@@ -1070,7 +1050,7 @@ Feature: deployment related steps
     And the output should match:
       | .*[iI]mage.*openshift/nonexist1.* |  
 
-  # @author geliu@redhat.com
+  # @author geliu@redhat.com 
   # @case_id OCP-11966
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
     Given I have a project
@@ -1207,4 +1187,60 @@ Feature: deployment related steps
     Then the step should fail
     Then the output should match:
       | .*[Ee]rror.*deployments.*hello-openshift.* |
+
+  # @author: geliu@redhat.com
+  # @case_id OCP-14348
+  Scenario: Proportionally scale - [OSO]deployment of scaling and rollout
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-oso.yaml |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | app=hello-openshift |
+    And current replica set name of "hello-openshift" deployment stored into :rs1 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 2 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 2 |
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 1               |
+    Then the step should succeed
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 1 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 1 |
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                               |
+      | resource_name | hello-openshift                                                                                          |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 1 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 1 |
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
+    And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 1 |
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 1 |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 2               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*openshift/nonexist1.* |
 
