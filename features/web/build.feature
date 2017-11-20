@@ -1197,45 +1197,47 @@ Feature: build related feature on web console
   # @case_id OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/build-postcommit.json"
+    And I replace lines in "build-postcommit.json":
+       | Parallel | <runpolicy> |
     Then the step should succeed
-    And I replace lines in "bc.json":
-      | Parallel | <runpolicy> |
-    # trigger builds and check the runPolicy from web console
     When I run the :create client command with:
-      | f | bc.json   |
+      | f | build-postcommit.json |
     Then the step should succeed
     When I perform the :check_bc_runpolicy web console action with:
       | project_name  | <%= project.name %>     |
       | bc_name       | ruby-ex                 |
       | run_policy    | <display_run_policy>    |
     Then the step should succeed
-    # build #1 may be finished already, so start build #2 and #3, check start button
     When I perform the :goto_one_build_page web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | ruby-ex             |
     Then the step should succeed
+    
+    ## need to trigger 2 new builds VERY VERY quickly! 
+    ## cli is slower than clicking button because of parsing response, so trigger from console first
     When I run the :click_start_build_button web console action
-    Then the step should succeed
-    When I run the :check_start_build_button_not_disabled web console action
+    And I run the :start_build client command with:
+      | buildconfig | ruby-ex |
     Then the step should succeed
 
-    When I run the :click_start_build_button web console action
+    # check build #1 and #2 together as soon as builds start up
+    When I perform the :check_one_build_status web console action with:
+      | number | 1                   |
+      | status | <build1_status>     |
     Then the step should succeed
-    When I run the :check_start_build_button_not_disabled web console action
-    Then the step should succeed
-
-    # check build #2 and #3 together as soon as builds start up
     When I perform the :check_one_build_status web console action with:
       | number | 2                   |
       | status | <build2_status>     |
     Then the step should succeed
-    When I perform the :check_one_build_status web console action with:
-      | number | 3                   |
-      | status | <build3_status>     |
+    # check button enabled
+    When I run the :click_start_build_button web console action
     Then the step should succeed
+    When I run the :check_start_build_button_not_disabled web console action
+    Then the step should succeed
+
     Examples:
-      | runpolicy         | display_run_policy | build2_status   | build3_status |
+      | runpolicy         | display_run_policy | build1_status   | build2_status |
       | Serial            | Serial             | Running         | New           |
       | Parallel          | Parallel           | Running         | Running       |
       | SerialLatestOnly  | Serial latest only | Cancelled       | Running       |
