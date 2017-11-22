@@ -365,6 +365,10 @@ Feature: filter on create page
       | code         | https://github.com/openshift/django-ex |
       | name         | python-sample                          |
     Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service       |
+      | resource_name | python-sample |
+    Then the step should succeed
     Given the "python-sample-1" build was created
 
     # Check suggested labels on overview page.
