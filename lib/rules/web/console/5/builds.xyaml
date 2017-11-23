@@ -534,6 +534,17 @@ check_environment_variables_order:
 check_bc_environment_variables_order:
   action: goto_buildconfig_environment_tab
   action: check_environment_variables_order
+check_build_failure_reason_on_bc_page:
+  action: goto_one_buildconfig_page
+  action: check_build_failure_reason
+check_build_failure_reason_on_one_build_page:
+  action: goto_one_build_page
+  action: check_build_failure_reason
+check_build_failure_reason:
+  elements:
+  - selector:
+      text: !ruby/regexp /<build_failure_reason>/
+    type: span
 save_updated_env_value: {}
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely

@@ -22,6 +22,9 @@ click_on_hide_older_resources:
     selector:
       xpath: //label[contains(., "Hide older resources")]/input
     op: click
+check_build_failure_reason_on_monitoring:
+  action: goto_monitoring_page
+  action: check_build_failure_reason
 check_resource_on_monitoring:
   element:
     selector:
