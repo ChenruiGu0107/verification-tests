@@ -22,6 +22,22 @@ module CucuShift
         end
         return username
       end
+
+      def iaas_by_service(service_name)
+        case conf[:services, service_name, :cloud_type]
+        when "aws"
+          raise "TODO service choice" unless service_name == :AWS
+          Amz_EC2.new
+        when "azure"
+          CucuShift::Azure.new(service_name: service_name)
+        when "openstack"
+          CucuShift::OpenStack.instance(service_name: service_name)
+        when "gce"
+          CucuShift::GCE.new(service_name: service_name)
+        else
+          raise "unknown service type #{service_type} for cloud #{service_name}"
+        end
+      end
     end
   end
 end

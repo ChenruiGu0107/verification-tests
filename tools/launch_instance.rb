@@ -15,10 +15,13 @@ require 'collections'
 require 'common'
 require 'http'
 
+require 'launchers/cloud_helper'
+
 module CucuShift
   class EnvLauncherCli
     include Commander::Methods
     include Common::Helper
+    include Common::CloudHelper
 
     def initialize
       always_trace!
@@ -308,35 +311,30 @@ module CucuShift
       end
       launch_opts.delete(:user_data)
 
-      service_type = conf[:services, service_name, :cloud_type]
-      launched = case service_type
-      when "aws"
-        raise "TODO service choice" unless service_name == :AWS
-        amz = Amz_EC2.new
+      iaas = iaas_by_service(service_name)
+      launched = case iaas
+      when CucuShift::Amz_EC2
         launch_opts[:user_data] = Base64.encode64(user_data_string)
-        res = amz.launch_instances(tag_name: host_names,
-                                   image: launch_opts.delete(:image),
-                                   create_opts: launch_opts)
-      when "azure"
+        res = iaas.launch_instances(tag_name: host_names,
+                                    image: launch_opts.delete(:image),
+                                    create_opts: launch_opts)
+      when CucuShift::Azure
         unless user_data_string.empty?
           raise "RHEL does not support user-data in Azure yet"
         end
-        azure = CucuShift::Azure.new
-        res = azure.create_instances(host_names, **launch_opts)
-      when "openstack"
-        ostack = CucuShift::OpenStack.instance(service_name: service_name)
+        res = iaas.create_instances(host_names, **launch_opts)
+      when CucuShift::OpenStack, CucuShift::OpenStack4, CucuShift::OpenStack10
         create_opts = {}
-        res = ostack.launch_instances(
+        res = iaas.launch_instances(
           names: host_names,
           user_data: Base64.encode64(user_data_string),
           **launch_opts
         )
-      when "gce"
-        gce = CucuShift::GCE.new
-        res = gce.create_instances(host_names, user_data: user_data_string,
-                                   **launch_opts )
+      when CucuShift::GCE
+        res = iaas.create_instances(host_names, user_data: user_data_string,
+                                    **launch_opts )
       else
-        raise "unknown service type #{service_type} for cloud #{service_name}"
+        raise "Unknown IaaS class #{iaas.class}."
       end
 
       # set hostnames if cloud has broken defaults
