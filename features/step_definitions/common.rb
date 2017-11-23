@@ -231,3 +231,18 @@ Given(/^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the#{OPT_QUOTED}
   resource.get_checked
   cache_resources resource
 end
+
+Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project)?$/ do |who, resource_type, namespace|
+  _user = who == "admin" ? admin : user
+
+  clazz = resource_class(resource_type)
+  if CucuShift::ProjectResource > clazz
+    list = clazz.list(user: _user, project: project("namespace"))
+  else
+    list = clazz.list(user: _user)
+  end
+
+  unless list.empty?
+    raise "found resources: #{list.map(&:name).join(', ')}"
+  end
+end

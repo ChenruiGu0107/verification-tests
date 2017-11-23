@@ -21,6 +21,7 @@ require 'openshift/replicaset'
 require 'openshift/deployment'
 require 'openshift/cluster_role'
 require 'openshift/cluster_role_binding'
+require 'openshift/role_binding_restriction'
 require 'openshift/storage_class'
 require 'openshift/security_context_constraint'
 require 'openshift/host_subnet'
@@ -337,6 +338,10 @@ module CucuShift
       project_resource(ReplicationController, name, project)
     end
 
+    def role_binding_restriction(name = nil, env = nil)
+      project_resource(RoleBindingRestriction, name, env)
+    end
+
     # @return rs (ReplicaSets) by name from scenario cache;
     #   with no params given, returns last requested rs;
     #   otherwise creates a [ReplicaSet] object
@@ -627,6 +632,21 @@ module CucuShift
     # tries to create resource off string name and type as used in REST API
     # e.g. resource("hello-openshift", "pod")
     def resource(name, type, project_name: nil)
+      clazz = resource_class(type)
+
+      subclass_of = proc {|parent, child| parent >= child}
+      return case clazz
+      when subclass_of.curry[ProjectResource]
+        clazz.new(name: name, project: project(project_name))
+      when subclass_of.curry[ClusterResource]
+        clazz.new(name: name, env: env)
+      else
+        raise "unhandled class #{clazz}"
+      end
+    end
+
+    # convert from resource cli string to CucuShift class
+    def resource_class(cli_string)
       shorthands = {
         is: "imagestreams",
         dc: "deploymentconfigs",
@@ -646,23 +666,14 @@ module CucuShift
         netns: "netnamespaces",
         ds: "daemonsets"
       }
-      type = shorthands[type.to_sym] if shorthands[type.to_sym]
+      type = shorthands[cli_string.to_sym] || cli_string
 
       classes = ObjectSpace.each_object(CucuShift::Resource.singleton_class)
       clazz = classes.find do |c|
         defined?(c::RESOURCE) && [type, type + "s"].include?(c::RESOURCE)
       end
       raise "cannot find class for type #{type}" unless clazz
-
-      subclass_of = proc {|parent, child| parent >= child}
-      return case clazz
-      when subclass_of.curry[ProjectResource]
-        clazz.new(name: name, project: project(project_name))
-      when subclass_of.curry[ClusterResource]
-        clazz.new(name: name, env: env)
-      else
-        raise "unhandled class #{clazz}"
-      end
+      return clazz
     end
 
     # @param procs [Proc] a proc or lambda to add to teardown
