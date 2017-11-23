@@ -262,3 +262,27 @@ Feature: Features of seccomp
     Then the step should fail
     And the output should contain:
       | localhost/profile2.json is not a valid seccomp profile |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-10493
+  @admin
+  @destructive
+  Scenario: Seccomp profile default directory should exist
+    Given scc policy "restricted" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | scc                     |
+      | resource_name | restricted              |
+      | p             | seccompProfiles:\n- '*' |
+    Then the step should succeed
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/seccomp/pod-sec-pod-prof1.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod                   |
+      | name     | pod-seccomp-prof1-pod |
+    And the output should match:
+      | Warning\\s+FailedSync\\s+Error syncing pod |
+    """
