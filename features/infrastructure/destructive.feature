@@ -114,12 +114,9 @@ Feature: relate with destructive features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/max-dead-containers.yaml |
     Then the step should succeed
-    And I wait up to 300 seconds for the steps to pass:
-    """
     Given status becomes :succeeded of exactly 5 pods labeled:
       | app=pi   |
     Then the step should succeed
-    """
     Given 60 seconds have passed
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
