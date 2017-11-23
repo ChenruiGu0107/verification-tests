@@ -232,3 +232,33 @@ Feature: AWS specific scenarios
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-15015
+  @admin
+  @destructive
+  Scenario: Pod with ebs volumes is running after restart controller service
+    Given I have a project
+    And I run the steps 10 times:
+    """
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
+      | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i} |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                 |
+
+    Then the step should succeed
+    And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i}   |
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift |
+      | ["metadata"]["name"]                                         | mypod#{cb.i}          |
+    Then the step should succeed
+    And the pod named "mypod#{cb.i}" becomes ready
+    """
+
+    And I run the steps 3 times:
+    """
+    Given the master service is restarted on all master nodes
+    Given 10 pods become ready with labels:
+      | name=frontendhttp|
+    """
