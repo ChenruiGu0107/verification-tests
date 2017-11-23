@@ -344,6 +344,8 @@ module CucuShift
       launched = launched.map(&:last)
       launched.each do |host|
         host[:fix_hostnames] = fix_hostnames
+        host[:cloud_service_name] = service_name
+        host[:cloud_launch_opts] = launch_opts
         host.roles.concat host_group[:roles]
       end
 
@@ -492,6 +494,7 @@ module CucuShift
     # @param config [String] an YAML file to read variables from
     # @param launched_instances_name_prefix [String]
     def launch_template(config:, launched_instances_name_prefix:)
+      hosts = []
       vars = YAML.load(readfile(config))
       if ENV["LAUNCHER_VARS"] && !ENV["LAUNCHER_VARS"].strip.empty?
         launcher_vars = YAML.load ENV["LAUNCHER_VARS"]
@@ -508,7 +511,6 @@ module CucuShift
       # this can be a URL or a PATH
       config_dir = File.dirname config
       config_dir = nil if config_dir == "."
-      hosts = []
       erb_binding = Common::BaseHelper.binding_from_hash(launcher_binding,
                                                          hosts: hosts, **vars)
       template = ERB.new(readfile(vars[:template], config_dir))
@@ -544,7 +546,30 @@ module CucuShift
         begin
           File.write(host_spec_out, hosts_spec)
         rescue => e
-          logger.error("could not save host specification: #{e}")
+          logger.error("could not save host specification: #{e.inspect}")
+        end
+      end
+    ensure
+      # create a file with launched instances information
+      vminfo_out = ENV["CUCUSHIFT_VMINFO_YAML"] || "vminfo.yml"
+      unless vminfo_out.empty?
+        vminfo = hosts.
+          group_by { |h| h[:cloud_service_name] }.
+          map { |service_name, hosts|
+            [
+              service_name, hosts.map { |h|
+                {
+                  name: h[:cloud_instance_name],
+                  launch_opts: h[:cloud_launch_opts]
+                }
+              }
+            ]
+          }.
+          to_h
+        begin
+          File.write(vminfo_out, vminfo.to_yaml)
+        rescue => e
+          logger.error("could not save vminfo YAML: #{e.inspect}")
         end
       end
     end
