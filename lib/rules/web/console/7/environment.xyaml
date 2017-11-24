@@ -353,3 +353,7 @@ check_env_var_missing:
             }
             return true;
       expect_result: true
+check_env_from_configmap_or_secret:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),'<resource_name>')]/small[contains(text(),'<resource_type>')]
