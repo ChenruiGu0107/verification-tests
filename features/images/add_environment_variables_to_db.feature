@@ -167,7 +167,7 @@ Feature: Add env variables to image feature
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | cat | /etc/my.cnf.d/tuning.cnf |
+      | cat | <file> |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 400M |
@@ -188,15 +188,15 @@ Feature: Add env variables to image feature
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | cat | /etc/my.cnf.d/tuning.cnf |
+      | cat | <file> |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 200M |
     """
     Examples:
-      | image                                                      |
-      | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest | # @case_id OCP-10847
-      | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      | # @case_id OCP-11280
+      | image                                                      | file                                         |
+      | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |# @case_id OCP-10847
+      | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      | /etc/my.cnf.d/50-my-tuning.cnf               |# @case_id OCP-11280
 
   # @author cryan@redhat.com
   Scenario Outline: mem based auto-tuning mariadb
