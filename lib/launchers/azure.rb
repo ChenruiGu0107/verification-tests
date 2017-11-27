@@ -174,18 +174,9 @@ module CucuShift
       vmnames = fqdn_names ? names.map {|n| fqdn_of(n, location)} : names
 
       ## best effort delete any existing instances with same name
-      del = vmnames.map do |name|
-        compute_client.virtual_machines.delete_async(resource_group, name)
-      end
-      del.each_with_index do |op, index|
-        op.wait!
-        if op&.value&.body&.status == "Succeeded"
-          logger.warn "deleting stale instance '#{vmnames[index]}'"
-        else
-          # when instance not found, body is nil, other errors should raise
-          #   during `wait!`
-        end
-      end
+      delete_many_instances(
+        vmnames.map { |name| {name: name, resource_group: resource_group} }
+      )
 
       # instance create settings
       host_opts = azure_config[:host_connect_opts].merge host_opts
@@ -212,6 +203,7 @@ module CucuShift
           params
         )
       end
+
       return requests.map.with_index do |create_op, index|
         logger.info "waiting for instance '#{vmnames[index]}'.."
         result = create_op.value!
@@ -240,6 +232,7 @@ module CucuShift
 
     alias create_instances create_instance
 
+    # @return [Object] undefined
     def delete_instance(vmname, resource_group=azure_config[:resource_group])
       if compute_client.virtual_machines.delete(resource_group, vmname)
         logger.info "deleted instance '#{vmname}'"
@@ -247,6 +240,42 @@ module CucuShift
         logger.info "instance '#{resource_group}/#{vmname}' not found"
       end
     end
+
+    # @param list [Array<Hash>] where Hash is like `{name: "..", resource_group: ".."}`
+    #   and `resource_group` is optional
+    # @return [Object] undefined
+    def delete_many_instances(list)
+      del = list.map do |instance|
+        name = instance[:name]
+        resource_group = instance[:resource_group] || azure_config[:resource_group]
+        compute_client.virtual_machines.delete_async(resource_group, name)
+      end
+      del.each_with_index do |op, index|
+        op.wait!
+        if op&.value&.body&.status == "Succeeded"
+          logger.warn "deleting instance '#{list[index][:name]}'"
+        else
+          # when instance not found, body is nil, other errors should raise
+          #   during `wait!`
+        end
+      end
+    end
+
+    # @param [Array<Hash>] launch_opts where each element is in the format
+    #   `{name: "some-name", launch_opts: {...}}`; launch opts should match options for
+    #   [#create_instance]
+    # @return [Object] undefined
+    def delete_by_launch_opts(launch_opts)
+      delete_many_instances(
+        launch_opts.map do |instance_opts|
+          {
+            name: instance_opts[:name],
+            resource_group: instance_opts.dig(:launch_opts, :resource_group)
+          }
+        end
+      )
+    end
+    alias terminate_by_launch_opts delete_by_launch_opts
 
     private def fqdn_of(name, location)
       if name.include? "."
