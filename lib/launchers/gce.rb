@@ -166,7 +166,7 @@ module CucuShift
       del.each_with_index do |op, index|
         if op
           logger.warn "deleting stale instance #{names[index]}"
-          wait_status(op, "DONE")
+          wait_status(op, "DONE", timeout: 240)
         end
       end
 
@@ -432,6 +432,36 @@ module CucuShift
       # until issue is better understood.
       # return [instance, Host.from_ip(ip, host_opts)]
       return [instance, Host.from_hostname(ip, host_opts)]
+    end
+
+    # @param [Array<Hash>] launch_opts where each element is in the format
+    #   `{name: "some-name", launch_opts: {...}}`; launch opts should match options for
+    #   [#create_instance]
+    # @return [Object] undefined
+    def terminate_by_launch_opts(launch_opts)
+      del = []
+      launch_opts.each do |instance_opts|
+        name = instance_opts[:name]
+        zone = instance_opts.dig(:launch_opts, :zone) || config[:zone]
+        project = instance_opts.dig(:launch_opts, :project) || config[:project]
+
+        logger.info "Trying to terminate GCE instance: #{name}"
+        begin
+          del << compute.delete_instance(project, zone, name)
+        rescue Google::Apis::ClientError => e
+          if e.message.include? "notFound"
+            del << nil
+          else
+            raise
+          end
+        end
+      end
+      del.each_with_index do |op, index|
+        if op
+          logger.info "waiting delete operation for #{launch_opts[index][:name]}"
+          wait_status(op, "DONE", timeout: 240)
+        end
+      end
     end
 
     # @param cls [Class] target class to instantiate
