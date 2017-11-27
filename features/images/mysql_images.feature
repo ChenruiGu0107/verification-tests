@@ -454,7 +454,7 @@ Feature: mysql_images.feature
     Examples:
       | image                     | file                                         |
       | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-11955
-      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     | # @case_id OCP-12067
+      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/50-my-tuning.cnf               | # @case_id OCP-12067
 
   # @author wzheng@redhat.com
   Scenario Outline: Use customized values for memory limits env vars
@@ -478,7 +478,7 @@ Feature: mysql_images.feature
     Examples:
       | image                      | file                                         |
       | openshift3/mysql-55-rhel7  | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-11585
-      | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     | # @case_id OCP-11789
+      | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/50-my-tuning.cnf               | # @case_id OCP-11789
 
   # @author yantan@redhat.com
   # @case_id OCP-11513

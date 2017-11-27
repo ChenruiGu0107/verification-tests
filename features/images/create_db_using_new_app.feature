@@ -89,7 +89,7 @@ Feature:Create db using new_app cmd feature
       | run=mysql |
     When I execute on the pod:
       | cat                      | 
-      | /etc/my.cnf.d/tuning.cnf |
+      | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 8M          |
       | read_buffer_size = 8M         |
@@ -115,7 +115,7 @@ Feature:Create db using new_app cmd feature
       | run=mysql |
     When I execute on the pod:
       | cat                      |
-      | /etc/my.cnf.d/tuning.cnf |
+      | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 8M          |
       | read_buffer_size = 8M         |
@@ -137,7 +137,7 @@ Feature:Create db using new_app cmd feature
       | run=mysql |
     When I execute on the pod:
       | cat                      | 
-      | /etc/my.cnf.d/tuning.cnf |
+      | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 51M          |
       | read_buffer_size = 25M         |
