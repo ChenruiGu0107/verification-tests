@@ -15,6 +15,7 @@ module CucuShift
 
     def initialize(ext_aws_cred = nil)
       @config = conf[:services, :AWS]
+      @can_terminate = true
 
       if ext_aws_cred and ext_aws_cred.count == 2
         awscred = {}
@@ -179,6 +180,10 @@ module CucuShift
     # @return [String] ami-id
     def get_latest_stable_v2_ami
       return get_latest_ami(config[:ami_types][:devenv_stable_v2])
+    end
+
+    def can_terminate?
+      !!@can_terminate
     end
 
     # @param [String] ec2_tag the EC2 'Name' tag value
@@ -347,13 +352,27 @@ module CucuShift
       return host
     end
 
+    # @return [Object] undefined
     def terminate_instance(instance)
       # we don't really have root permission to terminate, we'll just label it
       # 'teminate-qe' and let charlie takes care of it.
       name = instance.tags.find{|t| t.key == "Name"}&.value || "qe"
       logger.info("Terminating instance #{name} #{instance.public_dns_name}")
-      instance.stop({force: true})
-      add_name_tag(instance, "terminate-#{name}")
+
+      terminated = false
+      if can_terminate?
+        begin
+          terminated = !! instance.terminate
+        rescue Aws::EC2::Errors::UnauthorizedOperation => e
+          @can_terminate = false
+        end
+      end
+
+      unless terminated
+        logger.warn("not permitted to terminate, stopping and renaming to terminate-#{name}")
+        instance.stop({force: true})
+        add_name_tag(instance, "terminate-#{name}")
+      end
     end
 
     # @param [Array<Hash>] launch_opts where each element is in the format
