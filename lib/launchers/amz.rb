@@ -229,9 +229,21 @@ module CucuShift
         ]
       }).to_a[0]
     end
+
+    # @return [Array<Instance>]
+    def get_instances_by_name(*instance_names)
+      res = @ec2.instances({
+        filters: [
+          {
+            name: "tag:Name",
+            values: instance_names
+          }
+        ]
+      }).to_a
+    end
+
     # @param [String] ami_id the EC2 AMI-ID
     # @return [Array<String>, Array<Object>] the array of IP address with array of instances object
-    #
     def get_instance_ip_by_ami_id(ami_id)
       instances = @ec2.instances({
         filters: [
@@ -338,9 +350,40 @@ module CucuShift
     def terminate_instance(instance)
       # we don't really have root permission to terminate, we'll just label it
       # 'teminate-qe' and let charlie takes care of it.
-      logger.info("Terminating instance #{instance.public_dns_name}")
-      instance.stop
-      add_name_tag(instance, 'terminate-qe')
+      name = instance.tags.find{|t| t.key == "Name"}&.value || "qe"
+      logger.info("Terminating instance #{name} #{instance.public_dns_name}")
+      instance.stop({force: true})
+      add_name_tag(instance, "terminate-#{name}")
+    end
+
+    # @param [Array<Hash>] launch_opts where each element is in the format
+    #   `{name: "some-name", launch_opts: {...}}`
+    # @return [Object] undefined
+    def terminate_by_launch_opts(launch_opts)
+      names = launch_opts.map {|o| o[:name]}.sort
+
+      if names.any? { |n| !n.kind_of?(String) || n.empty? }
+        raise "all instance names must be non-empty strings: #{names}"
+      end
+
+      if names != names.uniq
+        raise "instances to delete must have unique names: #{names.join(" ,")}"
+      end
+
+      instances = get_instances_by_name(*names)
+      found_names = instances.
+        map {|i| i.tags.find{|t| t.key == "Name"}&.value}.
+        sort
+
+      if found_names != found_names.uniq
+        raise "found instances should have unique names: #{found_names}"
+      end
+
+      unless (found_names - names).empty?
+        raise "filtered for #{names} but found: #{found_names}"
+      end
+
+      instances.each { |i| terminate_instance(i) }
     end
 
     # Launch an EC2 instance either based on particular AMI or with the latest one.
