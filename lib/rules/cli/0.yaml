@@ -726,6 +726,10 @@
   :cmd: oc secrets link serviceaccount/<sa_name> secrets/<secret_name>
   :options:
     :for: --for=<value>
+:secret_new:
+  :cmd: oc secrets new <secret_name>
+  :options:
+    :source: <value>
 :secret_unlink:
   :cmd: oc secrets unlink serviceaccount/<sa_name> secrets/<secret_name>
 :serviceaccounts_get_token:
