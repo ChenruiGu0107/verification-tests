@@ -413,11 +413,7 @@ Feature: jenkins.feature
   @smoke
   Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
-    When I run the :new_app client command with:
-      | file         | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-persistent-template.json |
-      | env          | JENKINS_PASSWORD=test                                                                                       |
-      | env          | OPENSHIFT_ENABLE_OAUTH=false                                                                                |
-    Then the step should succeed
+    And I have a persistent jenkins v<ver> application
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
       | resource_name | jenkins                                                                         |
