@@ -41,8 +41,4 @@ filter_by_name_on_monitoring:
       xpath: //div[label[text()="Filter by name"]]/input
     op: send_keys <filter_name>
 view_details_on_monitoring:
-  element:
-    selector:
-      text: View Details
-    type: a
-    op: click
+  action: click_view_details

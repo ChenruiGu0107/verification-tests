@@ -64,6 +64,11 @@ click_cancel:
     selector:
       text: Cancel
     op: click
+click_close:
+  element:
+    selector:
+      text: Close
+    op: click
 click_on_configuration_tab:
   element: &configuration_tab_link
     selector:
@@ -156,6 +161,24 @@ click_save_button:
   elements:
   - selector:
       xpath: //button[contains(text(),'Save') and not(@disabled)]
+    op: click
+click_view_details:
+  element:
+    selector:
+      text: View Details
+    type: a
+    op: click
+click_reveal:
+  element:
+    selector:
+      text: !ruby/regexp '/Reveal/'
+    type: a
+    op: click
+click_hide:
+  element:
+    selector:
+      text: !ruby/regexp '/Hide/'
+    type: a
     op: click
 click_to_goto_edit_YAML_page:
   action: click_actions_button
