@@ -248,6 +248,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                                |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
     Then the step should succeed
     And the pod named "iscsi-1-<%= project.name %>" becomes ready
 
@@ -255,6 +256,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                                |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | false                                                      |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                         |
@@ -263,3 +265,126 @@ Feature: ISCSI volume plugin testing
     And the output should contain:
       | FailedScheduling |
       | NoDiskConflict   |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-13394
+  @admin
+  @destructive
+  Scenario: Two Pod reference the same iscsi volume (ROX)
+    Given I have a iSCSI setup in the environment
+    Given I create a second iSCSI path
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                                |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+    Then the step should succeed
+    And the pod named "iscsi-1-<%= project.name %>" becomes ready
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                                |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+    Then the step should succeed
+    And the pod named "iscsi-2-<%= project.name %>" becomes ready
+
+    When I execute on the "iscsi-1-<%= project.name %>" pod:
+      | df | -T |
+    Then the output should contain:
+      | ext4       |
+      | /mnt/iscsi |
+    When I execute on the "iscsi-2-<%= project.name %>" pod:
+      | df | -T |
+    Then the output should contain:
+      | ext4       |
+      | /mnt/iscsi |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-13398
+  @admin
+  @destructive
+  Scenario: A pod with multiple containers reference the same iscsi volume (ROX and ROW)
+    Given I have a iSCSI setup in the environment
+    Given I create a second iSCSI path
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-with-multicontainer.yaml" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | false                                                      |
+    Then the step should succeed
+
+    And I wait up to 120 seconds for the steps to pass:
+    """
+
+    When I run the :rsh client command with:
+      | c        | iscsipd-ro                |
+      | pod      | iscsi-<%= project.name %> |
+      | command  | mount                     |
+      | _timeout | 20                        |
+    Then the step should succeed
+    And the output should contain:
+      | ext4         |
+      | /mnt/iscsipd |
+    """
+    When I run the :rsh client command with:
+      | c        | iscsipd-rw                |
+      | pod      | iscsi-<%= project.name %> |
+      | command  | mount                     |
+      | _timeout | 20                        |
+    Then the step should fail
+
+  # @author piqin@redhat.com
+  # @case_id OCP-13397
+  @admin
+  @destructive
+  Scenario: A pod with multiple containers reference the same iscsi volume (ROX)
+    Given I have a iSCSI setup in the environment
+    Given I create a second iSCSI path
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-with-multicontainer.yaml" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
+      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
+      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | true                                                       |
+    Then the step should succeed
+    And the pod named "iscsi-<%= project.name %>" becomes ready
+
+    When I run the :rsh client command with:
+      | c        | iscsipd-ro                |
+      | pod      | iscsi-<%= project.name %> |
+      | command  | mount                     |
+      | _timeout | 20                        |
+    Then the step should succeed
+    And the output should contain:
+      | ext4         |
+      | /mnt/iscsipd |
+    When I run the :rsh client command with:
+      | c        | iscsipd-rw                |
+      | pod      | iscsi-<%= project.name %> |
+      | command  | mount                     |
+      | _timeout | 20                        |
+    Then the step should succeed
+    And the output should contain:
+      | ext4         |
+      | /mnt/iscsipd |
