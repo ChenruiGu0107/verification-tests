@@ -127,11 +127,11 @@ require "base64"
     #   if you want to force headless on linux, just `unset DISPLAY` prior run
     def headless
       if self.class.linux?
-          !ENV["DISPLAY"] &&
-          !@@headless
-        require 'headless'
-        @@headless = Headless.new
-        @@headless.start
+        if !ENV["DISPLAY"] && !@@headless
+          require 'headless'
+          @@headless = Headless.new
+          @@headless.start
+        end
       end
     end
 
