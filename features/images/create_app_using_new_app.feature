@@ -198,3 +198,16 @@ Feature:Create apps using new_app cmd feature
     And the "dotnet-runtime-example-build-2" build completed
     Then the "dotnet-runtime-example-runtime-3" build was created
     And the "dotnet-runtime-example-runtime-3" build completed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-16887
+  Scenario: Validate dotnet imagestream works well in online env
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/redhat-developer/s2i-dotnetcore/master/templates/dotnet-example.json |
+    Then the step should succeed
+    And the "dotnet-example-1" build was created
+    And the "dotnet-example-1" build completed
+    When I expose the "dotnet-example" service
+    Then I wait for a web server to become available via the "dotnet-example" route
+    And the output should contain "Sample pages using ASP.NET Core MVC"
