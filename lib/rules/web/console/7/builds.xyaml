@@ -269,6 +269,17 @@ check_bc_config_change_trigger_value:
 check_bc_environment_variables_order:
   action: goto_buildconfig_environment_tab
   action: check_environment_variables_order
+check_build_failure_reason_on_bc_page:
+  action: goto_one_buildconfig_page
+  action: check_build_failure_reason
+check_build_failure_reason_on_one_build_page:
+  action: goto_one_build_page
+  action: check_build_failure_reason
+check_build_failure_reason:
+  elements:
+  - selector:
+      text: !ruby/regexp /<build_failure_reason>/
+    type: span
 check_bc_source_ref:
   action: goto_buildconfig_configuration_tab
   elements:

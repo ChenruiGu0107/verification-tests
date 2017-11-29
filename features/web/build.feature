@@ -1507,3 +1507,49 @@ Feature: build related feature on web console
       | bc_name         | ruby-hello-world                               |
       | webhook_trigger | <%= cb.gitlab_webhook[0].scan(/oapi.*/)[0] %>  |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-11417
+  Scenario: Show build failure reason in build status for s2i build
+    Given the master version >= "3.5"
+    Given I have a project
+    # Check failure reason for wrong source repo
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11417/ruby22rhel7-template-sti-wrong-source.json |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build finishes
+    When I perform the :check_build_failure_reason_on_bc_page web console action with:
+      | project_name         | <%= project.name %> |
+      | bc_name              | ruby22-sample-build |
+      | build_failure_reason | Fetch source failed |
+    Then the step should succeed
+    When I perform the :check_build_failure_reason_on_one_build_page web console action with:
+      | project_name         | <%= project.name %>                       |
+      | bc_and_build_name    | ruby22-sample-build/ruby22-sample-build-1 |
+      | build_failure_reason | Failed to fetch the input source          |
+    Then the step should succeed
+
+    # Check failure reason for wrong scripts
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11417/test-buildconfig-wrong-scripts.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build finishes
+    When I perform the :check_build_failure_reason_on_monitoring web console action with:
+      | project_name         | <%= project.name %>  |
+      | build_failure_reason | Fetch scripts failed |
+    Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-11041
+  Scenario: Show build failure reason in build status for docker build
+    Given the master version >= "3.5"
+    Given I have a project
+    # Check failure reason for wrong post commit hooks
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11417/ruby22rhel7-template-docker-wrong-post-commit.json |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build finishes
+    When I perform the :check_build_failure_reason_on_monitoring web console action with:
+      | project_name         | <%= project.name %>     |
+      | build_failure_reason | Post commit hook failed |
+    Then the step should succeed

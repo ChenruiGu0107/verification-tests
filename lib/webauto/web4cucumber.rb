@@ -23,10 +23,11 @@ require "base64"
       :a => :as,
       :button => :button,
       :element => :elements,
-      :input => :input,
-      :div => :div,
+      :input => :inputs,
+      :div => :divs,
       :js => :execute_script,
-      :iframe => :iframe
+      :iframe => :iframe,
+      :span => :spans
     }
 
     ELEMENT_TIMEOUT = 10
