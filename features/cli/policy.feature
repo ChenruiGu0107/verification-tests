@@ -545,11 +545,10 @@ Feature: change the policy of user/service account
       | yes |
     Given I switch to the first user
     When I run the :describe client command with:
-      | resource | policybinding |
-      | name | :default |
+      | resource | rolebinding |
     Then the step should succeed
     And the output should match:
-      | Role:\\s+registry-admin |
+      | Role:\\s+/registry-admin |
       | Users:\\s+<%= user(1, switch: false).name %> |
 
   # @author pruan@redhat.com
