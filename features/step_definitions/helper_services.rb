@@ -134,16 +134,24 @@ end
 
 #The following helper step will create a squid proxy, and
 #save the service ip of the proxy pod for later use in the scenario.
-Given /^I have a proxy configured in the project$/ do
-  step %Q/I run the :new_app client command with:/, table(%{
-    | docker_image | aosqe/squid-proxy |
-    })
+Given /^I have a(n authenticated)? proxy configured in the project$/ do |use_auth|
+  if use_auth
+    step %Q/I run the :new_app client command with:/, table(%{
+      | docker_image | aosqe/squid-proxy  |
+      | env          | USE_AUTH=1         |
+      })
+  else
+    step %Q/I run the :new_app client command with:/, table(%{
+      | docker_image | aosqe/squid-proxy  |
+      })
+  end
   step %Q/the step should succeed/
   step %Q/a pod becomes ready with labels:/, table(%{
     | app=squid-proxy |
     })
   step %Q/I wait for the "squid-proxy" service to become ready/
   step %Q/evaluation of `service.ip` is stored in the :proxy_ip clipboard/
+  step %Q/evaluation of `pod` is stored in the :proxy_pod clipboard/
 end
 
 Given /^I have LDAP service in my project$/ do

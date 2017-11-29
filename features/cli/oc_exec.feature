@@ -149,3 +149,60 @@ Feature: containers related features
       | env \| grep KUBERNETES |
     Then the output should contain:
       | KUBERNETES_PORT |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-11564
+  Scenario: oc exec, rsh and port-forward should work behind authenticated proxy
+    Given I have a project
+    And I have an authenticated proxy configured in the project
+    And evaluation of `rand(5000..7999)` is stored in the :port1 clipboard
+    When I run the :port_forward background client command with:
+      | pod       | <%= cb[:proxy_pod].name %>  |
+      | port_spec | <%= cb[:port1] %>:3128      |
+    Then the step should succeed
+
+    # Prepare pod for following CLI executions behind proxy
+    When I run the :run client command with:
+      | name      | mypod                  |
+      | image     | aosqe/hello-openshift  |
+      | restart   | Never                  |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+
+    # CLI executions behind proxy
+    When I run the :exec client command with:
+      | pod              | mypod                                                 |
+      | exec_command     | ls                                                    |
+      | exec_command_arg | /etc                                                  |
+      | _env             | https_proxy=tester:redhat@127.0.0.1:<%= cb[:port1] %> |
+    Then the step should succeed
+    And the output should contain "hosts"
+
+    When I run the :rsh client command with:
+      | pod     | mypod                                                 |
+      | command | ls                                                    |
+      | command | /etc                                                  |
+      | _env    | https_proxy=tester:redhat@127.0.0.1:<%= cb[:port1] %> |
+    Then the step should succeed
+
+    Given evaluation of `rand(5000..7999)` is stored in the :port2 clipboard
+    When I run the :port_forward background client command with:
+      | pod       | mypod                                                 |
+      | port_spec | <%= cb[:port2] %>:8081                                |
+      | _env      | https_proxy=tester:redhat@127.0.0.1:<%= cb[:port1] %> |
+    Then the step should succeed
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I open web server via the "127.0.0.1:<%= cb[:port2] %>" url
+    Then the step should succeed
+    And the output should contain "Hello OpenShift"
+    """
+    Then I terminate last background process
+
+    # CLI executions with wrong authentication behind proxy
+    When I run the :rsh client command with:
+      | pod     | mypod                                                |
+      | command | ls                                                   |
+      | command | /etc                                                 |
+      | _env    | https_proxy=tester:wrong@127.0.0.1:<%= cb[:port1] %> |
+    Then the step should fail
