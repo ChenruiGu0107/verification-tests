@@ -906,6 +906,8 @@
     :wait: --wait=<value>
     :commit: --commit=<value>
     :o: --output=<value>
+    :no-cache: --no-cache=<value>
+    :incremental: --incremental=<value>
 :status:
   :cmd: oc status
   :options:

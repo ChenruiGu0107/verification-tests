@@ -250,3 +250,84 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should contain:
       | BUILD_LOGLEVEL=8 |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15458
+  Scenario:Allow incremental to be specified on s2i build request
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | incremental | true             |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build completed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-hello-world |
+    Then the step should succeed
+    And the output should contain:
+      | save-artifacts: No such file or directory|
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | incremental | false            |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-3 |
+    Then the output should not contain:
+      | save-artifacts: No such file or directory |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15464
+  Scenario:Override incremental setting using --incremental flag when s2i build request
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I run the :patch client command with:
+      | resource      | bc                                                            |
+      | resource_name | ruby-hello-world                                              |
+      | p             | {"spec":{"strategy":{"sourceStrategy":{"incremental":true}}}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildconfig      |
+      | name     | ruby-hello-world |
+    Then the step should succeed
+    Then the output should match "Incremental Build:\s+yes"
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | incremental | true             |
+      Then the step should succeed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-hello-world |
+    Then the output should contain:
+      | save-artifacts: No such file or directory|
+     When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | incremental | false            |
+      Then the step should succeed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-hello-world |
+    Then the output should not contain:
+      | save-artifacts: No such file or directory|
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15481
+  Scenario: Setting incremental with wrong info on s2i build request
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | incremental | abc              |
+    Then the step should fail
+    Then the output should contain:
+      | Error: invalid argument "abc"  |
