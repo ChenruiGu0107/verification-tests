@@ -36,8 +36,8 @@ gem 'pry'
 gem 'byebug'
 gem 'jira-ruby'
 ### XXX 0.1.7 is breaking things need to investigate further, patch this for now
-gem 'configparser', '0.1.6'
-
+#gem 'configparser', '0.1.6'
+gem 'parseconfig'
 gem 'nokogiri' # needed here to make tools/hack_bundle.rb work correctly
 # oga is a replacemen for nokogiri without system deps; we wrongly thought
 #  that we can live without nokogiry but couldn't because of other gem deps

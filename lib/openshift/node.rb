@@ -21,14 +21,6 @@ module CucuShift
       return self
     end
 
-    # @note assuming admin here should be safe as working with nodes
-    #   usually means that we work with admin
-    def labels(user: :admin)
-      return props[:labels] if props[:labels]
-      reload(user: user)
-      props[:labels]
-    end
-
     # @return [CucuShift:Host] underlying this node
     # @note may raise depending on proper OPENSHIFT_ENV_<NAME>_HOSTS
     # @note will return acorrding to:

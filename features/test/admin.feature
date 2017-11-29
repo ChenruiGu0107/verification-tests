@@ -65,3 +65,9 @@ Feature: Testing Admin Scenarios
     Given I save the rpm name for "openshift-ansible" package from puddle to the :playbook_rpm_name clipboard
     And I download a file from "<%= cb.puddle_url + "/Packages/" + cb.playbook_rpm_name.first %>"
     Then the step should succeed
+
+  @admin
+  Scenario: test ParseConfig gem to parse ini files
+    Given I save installation inventory from master to the clipboard
+    And evaluation of `cb[:installation_inventory]['OSEv3:vars']` is stored in the :vars clipboard
+    Then the expression should be true> cb[:installation_inventory]['OSEv3:vars'].keys == cb.vars.keys

@@ -9,3 +9,4 @@
 junit-report/
 .byebug_history
 /tmp
+*.iml

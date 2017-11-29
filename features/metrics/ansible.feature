@@ -148,3 +148,107 @@ Feature: ansible install related feature
       | path         | /metrics/gauges     |
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
+
+  # # @author pruan@redhat.com
+  # # @case_id OCP-15527
+  # @admin
+  # @destructive
+  # Scenario: Deploy Prometheus via ansible with default values
+  #   Given the master version >= "3.7"
+  #   Given I create a project with non-leading digit name
+  #   And metrics service is installed in the project with ansible using:
+  #     | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15533
+  @admin
+  @destructive
+  Scenario: Undeploy Prometheus via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+    And I remove metrics service installed in the project using ansible
+    And I switch to cluster admin pseudo user
+    # verify the project is gone
+    And I wait for the resource "project" named "openshift-metrics" to disappear within 60 seconds
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15534
+  @admin
+  @destructive
+  Scenario: Update Prometheus via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+    And I switch to cluster admin pseudo user
+    And I run the :delete admin command with:
+      | object_type       | svc    |
+      | object_name_or_id | alerts |
+    Then the step should succeed
+    And I wait for the resource "svc" named "alerts" to disappear within 60 seconds
+    # rerun the ansible install again
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+    # check the service is brought back to life
+    Then the expression should be true> service('alerts').name == 'alerts'
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15538
+  @admin
+  @destructive
+  Scenario: Deploy Prometheus with node selector via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    # inventory file expect cb.node_label to be set
+    And evaluation of `"ocp15538"` is stored in the :node_label clipboard
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15538/inventory |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15544
+  @admin
+  @destructive
+  Scenario: Deploy Prometheus via ansible to non-default namespace
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15544/inventory |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15529
+  @admin
+  @destructive
+  Scenario: Deploy Prometheus with container resources limit via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15529/inventory |
+    And I switch to cluster admin pseudo user
+    And a pod becomes ready with labels:
+      | app=prometheus |
+    And evaluation of `pod.containers(user: user)` is stored in the :containers clipboard
+    # check the parameter for the 5 pods
+    #  ["prom-proxy", "prometheus", "alerts-proxy", "alert-buffer", "alertmanager"]
+    # check prometheus pod
+    And the expression should be true> cb.containers['prometheus'].spec.cpu_limit_raw == '400m'
+    And the expression should be true> cb.containers['prometheus'].spec.memory_limit_raw == '512Mi'
+    And the expression should be true> cb.containers['prometheus'].spec.cpu_request_raw == '200m'
+    And the expression should be true> cb.containers['prometheus'].spec.memory_request_raw == '256Mi'
+    # check alertmanager pod
+    And the expression should be true> cb.containers['alertmanager'].spec.cpu_limit_raw == '500m'
+    And the expression should be true> cb.containers['alertmanager'].spec.memory_limit_raw == '1Gi'
+    And the expression should be true> cb.containers['alertmanager'].spec.cpu_request_raw == '256m'
+    And the expression should be true> cb.containers['alertmanager'].spec.memory_request_raw == '512Mi'
+    # check alertbuffer pod
+    And the expression should be true> cb.containers['alert-buffer'].spec.cpu_limit_raw == '400m'
+    And the expression should be true> cb.containers['alert-buffer'].spec.memory_limit_raw == '1Gi'
+    And the expression should be true> cb.containers['alert-buffer'].spec.cpu_request_raw == '256m'
+    And the expression should be true> cb.containers['alert-buffer'].spec.memory_request_raw == '512Mi'
+    # check oauth_proxy pod
+    And the expression should be true> cb.containers['prom-proxy'].spec.cpu_limit_raw == '200m'
+    And the expression should be true> cb.containers['prom-proxy'].spec.memory_limit_raw == '500Mi'
+    And the expression should be true> cb.containers['prom-proxy'].spec.cpu_request_raw == '200m'
+    And the expression should be true> cb.containers['prom-proxy'].spec.memory_request_raw == '500Mi'
+

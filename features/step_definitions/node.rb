@@ -198,7 +198,7 @@ Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name
   label_clean = {key_val:  label_key + "-"}
 
   if _node.labels.has_key?(label_key)
-    step %Q/the "#{node_name}" node labels are restored after scenario/
+    step %Q/the "#{_node.name}" node labels are restored after scenario/
   else
     teardown_add {
       @result = _admin.cli_exec(:label, **_opts, **label_clean)

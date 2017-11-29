@@ -1,6 +1,6 @@
 # helper step for logging and metrics scenarios
-require 'configparser'
 require 'oga'
+require 'parseconfig'
 
 # since the logging and metrics module can be deployed and used in any namespace, this step is used to determine
 # under what namespace the logging/metrics module is deployed under by getting all of the projects as admin and
@@ -47,8 +47,13 @@ end
 # short-hand for the generic uninstall step if we are just using the generic install
 Given /^I remove (logging|metrics) service installed in the#{OPT_QUOTED} project using ansible$/ do | svc_type, proj_name|
   proj_name = project.name if proj_name.nil?
+  if cb.install_prometheus
+    uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_uninstall_prometheus"
+  else
+    uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory"
+  end
   step %Q/#{svc_type} service is uninstalled from the "#{proj_name}" project with ansible using:/, table(%{
-    | inventory| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory |
+    | inventory| #{uninstall_inventory} |
   })
 end
 
@@ -206,8 +211,15 @@ end
 
 # we force all metrics pods to be installed under the project 'openshift-infra'
 Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  if cb.install_prometheus
+    step %Q/all prometheus related pods are running in the project/
+  else
+    step %Q/all hawkular related pods are running in the project/
+  end
+end
 
-  target_proj = proj_name.nil? ? project.name : proj_name
+Given /^all hawkular related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  target_proj = proj_name.nil? ? "openshift-infra" : proj_name
   raise ("Metrics must be installed into the 'openshift-infra") if target_proj != 'openshift-infra'
 
   org_proj_name = project.name
@@ -224,6 +236,28 @@ Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
     project(org_proj_name)
   end
 end
+
+# unlike Hawkular metrics, Prometheus can be installed under any project (like
+# for logging).  It's default to 'project_metrics'
+Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  ensure_destructive_tagged
+  target_proj = proj_name.nil? ? "openshift-metrics" : proj_name
+
+  org_proj_name = project.name
+  org_user = user
+  step %Q/I switch to cluster admin pseudo user/
+  project(target_proj)
+  begin
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | app=prometheus |
+      })
+    #step %Q/the pod named "prometheus-0" becomes ready/
+  ensure
+    @user = org_user
+    project(org_proj_name)
+  end
+end
+
 # Parameters in the inventory that need to be replaced should be in ERB format
 # if no project name is given, then we assume will use the project mapping of
 # logging ==> current_project_name , metrics ==> 'openshift-infra'
@@ -231,21 +265,75 @@ end
 Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
   ensure_destructive_tagged
 
+  # check tht logging/metric is not installed in the target cluster already.
+  ansible_opts = opts_array_to_hash(table.raw)
+
+  # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
+  # specified, we assume we are dealing with non-Prometheus metrics installation
+  if ansible_opts.has_key? :inventory
+    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>"/
+  end
+
+  if cb.ini_style_config
+    params = cb.ini_style_config.params["OSEv3:vars"]
+    if params.keys.include? 'openshift_prometheus_state'
+      prometheus_state = params['openshift_prometheus_state']
+      install_prometheus = prometheus_state
+    end
+    # check where user want to install Prometheus service and save it to the
+    # clipboard which the post installation verification will need
+    if params.keys.include? 'openshift_prometheus_namespace'
+      cb.prometheus_namespace = params['openshift_prometheus_namespace']
+    else
+      cb.prometheus_namespace = 'openshift-metrics'
+    end
+
+    if params.keys.include? 'openshift_prometheus_node_selector'
+      # parameter is in the form of "{\"region\" : \"region=ocp15538\"}" due to earlier ERB translation.
+      # need to translate it back to ruby readable Hash
+      node_selector_hash = YAML.load(params['openshift_prometheus_node_selector'])
+      node_key = node_selector_hash.keys[0]
+
+      node_selector = "#{node_key}=#{node_selector_hash[node_key]}"
+    else
+      # default hardcoded node selector
+      node_selector = "region=infra"
+    end
+
+    # save it for other steps to use as a reference
+    cb.install_prometheus = install_prometheus
+    if cb.install_prometheus and prometheus_state == 'present'
+      # for prometheus installation, we need to label the target node
+      step %Q/I select a random node's host/
+      step %Q/label "#{node_selector}" is added to the node/
+    end
+  end
+
   if op == 'installed'
     step %Q/there should be 0 #{svc_type} service installed/
   end
 
-  # check tht logging/metric is not installed in the target cluster already.
-  ansible_opts = opts_array_to_hash(table.raw)
-
   target_proj = proj.nil? ? project.name : proj
-  # we are enforcing that metrics to be installed into 'openshift-infra'
-  target_proj = 'openshift-infra' if svc_type == 'metrics'
+  # we are enforcing that metrics to be installed into 'openshift-infra' for
+  # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
+  # value)
+  if svc_type == 'metrics'
+    if cb.install_prometheus
+      target_proj = 'openshift-metrics'
+    else
+      target_proj = 'openshift-infra'
+    end
+  end
+
   cb.metrics_route_prefix = "metrics"
   cb.logging_route_prefix = "logs"
 
-  if svc_type == 'metrics' and target_proj != 'openshift-infra'
-    raise ("Metrics must be installed into the 'openshift-infra")
+  unless cb.install_prometheus
+    # for hawkular metrics installation, we enforce pods be installed under
+    # 'openshift-infra'
+    if svc_type == 'metrics' and target_proj != 'openshift-infra'
+      raise ("Metrics must be installed into the 'openshift-infra")
+    end
   end
 
   step %Q/I save installation inventory from master to the clipboard/
@@ -326,12 +414,17 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     if svc_type == 'logging'
       ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
     else
-      ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
+      if install_prometheus
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-prometheus.yml"
+      else
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
+      end
     end
     step %Q/I execute on the pod:/, table(%{
       | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
-    step %Q/the step should succeed/
+    # XXX: skip the check for now due to https://bugzilla.redhat.com/show_bug.cgi?id=1512723
+    # step %Q/the step should succeed/
 
     # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
     step %Q/the master is operational/
@@ -349,7 +442,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       if svc_type == 'logging'
         step %Q/there should be 0 logging service installed/
       else
-        step %Q/there should be 0 metrics service installed/
+        # we only enforce that no existing metrics service if it's not
+        # Prometheus
+        if cb.install_prometheus
+          step %Q/I wait for the resource "project" named "openshift-metrics" to disappear within 60 seconds/
+        else
+          # for hawkular
+          step %Q/there should be 0 metrics service installed/
+        end
       end
     end
   ensure
@@ -357,14 +457,17 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   end
 end
 
-# download the deployer config file and translate the ERB and store the result
-# into the clipboard index :deployer_config
-Given /^I parse the INI file #{QUOTED}$/ do |deployer_config_file|
+# download any ini style config file and translate the ERB and store the result
+# into the clipboard index :ini_style_config
+Given /^I parse the INI file #{QUOTED}$/ do |ini_style_config |
   # use ruby instead of step to bypass user restriction
-  step %Q/I download a file from "<%= "#{deployer_config_file}" %>"/
+  step %Q/I download a file from "<%= "#{ini_style_config}" %>"/
   step %Q/the step should succeed/
-  config = ConfigParser.new(@result[:file_name])
-  cb.deployer_config = config
+  # convert ERB elements in they exist
+  loaded = ERB.new(File.read(@result[:file_name])).result binding
+  File.write(@result[:file_name], loaded)
+  config = ParseConfig.new(@result[:file_name])
+  cb.ini_style_config = config
 end
 
 Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:$/ do |proj, table|
@@ -647,11 +750,10 @@ Given /^I save installation inventory from master to the#{OPT_SYM} clipboard$/ d
   cb_name ||= :installation_inventory
   host = env.master_hosts.first
   qe_inventory_file = 'qe-inventory-host-file'
-  @result = host.exec("cat /tmp/#{qe_inventory_file}")
-  if @result[:success]
-    config = ConfigParser.new
-    config.parse(@result[:response].each_line)
-    cb[cb_name] = config
+  host.copy_from("/tmp/#{qe_inventory_file}", "")
+  if File.exist? qe_inventory_file
+    config = ParseConfig.new(qe_inventory_file)
+    cb[cb_name] = config.params
   else
     raise "'#{qe_inventory_file}' does not exists"
   end
@@ -668,8 +770,8 @@ Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipbo
 
   cb_name ||= :rpm_names
   step %Q/I save installation inventory from master to the clipboard/ unless cb.installation_inventory
-  rpm_repos_key = cb[:installation_inventory].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
-  puddle_url = eval(cb[:installation_inventory][rpm_repos_key])[0][:baseurl]
+  rpm_repos_key = cb[:installation_inventory]['OSEv3:vars'].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
+  puddle_url = eval(cb[:installation_inventory]['OSEv3:vars'][rpm_repos_key])[0][:baseurl]
   cb.puddle_url = puddle_url
   @result = CucuShift::Http.get(url: puddle_url + "/Packages")
 
@@ -730,11 +832,21 @@ Given /^the metrics service status in the metrics web console is #{QUOTED}$/ do 
   raise "Expected #{status}, got #{metrics_service_status}" unless matched
 end
 
+Given /^I verify metrics service is functioning$/ do
+  if cb.install_prometheus
+    step %Q/I verify Prometheus metrics service is functioning/
+  else
+    # assume the other is Hawkular
+    step %Q/I verify Hawkular metrics service is functioning/
+  end
+end
+
 # do a quick sanity check using oadm diagnostics MetricsApiProxy
 # XXX: only seems to be supported by OCP >= 3.3
 # https://docs.openshift.com/container-platform/3.3/install_config/cluster_metrics.html
 # https://docs.openshift.com/container-platform/3.6/install_config/cluster_metrics.html
-Given /^I verify metrics service is functioning$/ do
+
+Given /^I verify Hawkular metrics service is functioning$/ do
   ensure_admin_tagged
   @result = admin.cli_exec(:oadm_diagnostics, diagnostics_name: "MetricsApiProxy")
 
@@ -744,3 +856,29 @@ Given /^I verify metrics service is functioning$/ do
     raise "Failed diagnostic, output: #{@result[:response]}"
   end
 end
+
+# for Prometheus installation, we do the following checks to verify ansible
+# installation of the service is successful
+# 1. oc rsh ${prometheus_pod}; curl localhost:9090/metrics
+# 2. oc rsh ${prometheus_pod}
+# 3. curl localhost:9093/api/v1/alerts
+Given /^I verify Prometheus metrics service is functioning$/ do
+  ensure_admin_tagged
+  # make sure we are talking to the right project and pod
+  prometheus_namespace = cb.prometheus_namespace ? cb.prometheus_namespace : "openshift-metrics"
+  project(prometheus_namespace)
+  step %Q/a pod becomes ready with labels:/, table(%{
+     | app=prometheus |
+   })
+  metrics_check_cmd = "curl localhost:9090/metrics"
+  @result = pod.exec("bash", "-c", metrics_check_cmd, as: user)
+  step %Q/the step should succeed/
+  expected_metrics_pattern = "prometheus_evaluator_iterations_missed_total counter"
+  raise "Did not find expected metrics pattern '#{expected_metrics_pattern}', got #{@result[:response]}" unless @result[:response].include? expected_metrics_pattern
+  alerts_check_cmd = "curl localhost:9093/api/v1/alerts"
+  @result = pod.exec("bash", "-c", alerts_check_cmd, as: user)
+  step %Q/the step should succeed/
+  expected_alerts_pattern = '"status":"success"'
+  raise "Did not find expected alerts pattern '#{expected_alerts_pattern}', got #{@result[:response]}" unless @result[:response].include? expected_alerts_pattern
+end
+

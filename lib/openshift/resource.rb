@@ -241,6 +241,11 @@ module CucuShift
       return status_raw(user: user, cached: cached, quiet: quiet)["phase"].downcase.to_sym
     end
 
+    def labels(user: nil, cached: false, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('metadata', 'labels')
+    end
+
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [ResultHash]
     def status?(user: nil, status:, quiet: false, cached: false)
