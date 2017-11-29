@@ -19,9 +19,9 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "WebSocket connection opened"
 
     Examples:
-      | jws_image                                            |
-      | openshift/jboss-webserver30-tomcat7-openshift:latest | # @case_id OCP-9657
-      | openshift/jboss-webserver30-tomcat8-openshift:latest | # @case_id OCP-9658
+      | jws_image                                         |
+      | openshift/jboss-webserver30-tomcat7-openshift:1.3 | # @case_id OCP-9657
+      | openshift/jboss-webserver30-tomcat8-openshift:1.3 | # @case_id OCP-9658
 
   # @author xiuwang@redhat.com
   # @case_id OCP-10595
