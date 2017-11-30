@@ -490,6 +490,7 @@
 :observe:
   :cmd: oc observe <resource> <global_options> <options>
   :options:
+    :a: -a=<value>
     :command: <value>
     :delete: --delete=<value>
     :maximum_errors: --maximum-errors=<value>

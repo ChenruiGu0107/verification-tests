@@ -109,3 +109,68 @@ Feature: oc observe related tests
     Then the output should match 3 times:
       | ync.*./add_to_inventory.sh <%= project.name %> database |
       | ync.*./add_to_inventory.sh <%= project.name %> frontend |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-10288
+  @unix
+  Scenario: Use oc observe to watch resource and execute corresponding action upon resource change
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+    Then the step should succeed
+
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_observe_scripts/known_resources.sh"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_observe_scripts/add_to_inventory.sh"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_observe_scripts/remove_from_inventory.sh"
+    And the "known_resources.sh" file is made executable
+    And the "add_to_inventory.sh" file is made executable
+    And the "remove_from_inventory.sh" file is made executable
+    When I run the :observe background client command with:
+      | resource      | service                    |
+      | a             | {.spec.clusterIP}          |
+      | names         | ./known_resources.sh       |
+      | delete        | ./remove_from_inventory.sh |
+      | oc_opts_end   |                            |
+      | command       | ./add_to_inventory.sh      |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | service    |
+      | name     | database   |
+      | key_val  | lab=any    |
+    Then the step should succeed
+    Given evaluation of `service("database").ip(user: user)` is stored in the :database_ip clipboard
+    And evaluation of `service("frontend").ip(user: user)` is stored in the :frontend_ip clipboard
+    When I run the :delete client command with:
+      | object_type       | service  |
+      | object_name_or_id | database |
+    Then the step should succeed
+    # Stop oc observe
+    When I terminate last background process
+    Then the output by order should match:
+      | Sync.*add_to_inventory.sh <%= project.name %> database <%= cb.database_ip %>     |
+      | Sync.*add_to_inventory.sh <%= project.name %> frontend <%= cb.frontend_ip %>     |
+      | Updated.*add_to_inventory.sh <%= project.name %> database <%= cb.database_ip %>  |
+      | Deleted.*remove_from_inventory.sh <%= project.name %> database                   |
+
+    # Resource change occurs when oc observe is stopped 
+    When I run the :delete client command with:
+      | object_type       | service  |
+      | object_name_or_id | frontend |
+    Then the step should succeed
+    # Run oc observe again
+    When I run the :observe background client command with:
+      | resource      | service                    |
+      | a             | {.spec.clusterIP}          |
+      | names         | ./known_resources.sh       |
+      | delete        | ./remove_from_inventory.sh |
+      | oc_opts_end   |                            |
+      | command       | ./add_to_inventory.sh      |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json  |
+    Then the step should succeed
+    And I wait for the "multi-portsvc" service to appear
+    When I terminate last background process
+    Then the output by order should match:
+      | Deleted.*remove_from_inventory.sh <%= project.name %> frontend  |
+      | Added.*add_to_inventory.sh <%= project.name %> multi-portsvc    |
