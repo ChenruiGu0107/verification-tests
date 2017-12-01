@@ -882,3 +882,28 @@ Given /^I verify Prometheus metrics service is functioning$/ do
   raise "Did not find expected alerts pattern '#{expected_alerts_pattern}', got #{@result[:response]}" unless @result[:response].include? expected_alerts_pattern
 end
 
+
+Given /^event logs can be found in the ES pod(?: in the#{OPT_QUOTED} project)?/ do |proj_name|
+  project(proj_name) if proj_name   # change project context if necessary
+
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | component=es,logging-infra=elasticsearch,provider=openshift |
+  })
+  check_es_pod_cmd = "curl -XGET --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key 'https://localhost:9200/_search?pretty&size=5000&q=kubernetes.event.verb:*' --insecure | python -c \"import sys, json; print json.load(sys.stdin)['hits']['total']\""
+
+  seconds = 5 * 60
+  total_hits_regexp = /^(\d+)$/
+  success = wait_for(seconds) {
+    @result = pod.exec("bash", "-c", check_es_pod_cmd, as: user)
+    if @result[:success]
+      # now check we get a total hits > 0
+      total_hits_match = total_hits_regexp.match(@result[:response])
+      if total_hits_match
+        total_hits_match[1].to_i > 0
+      end
+    else
+      raise 'Failed to retrive data from eventrouter pod'
+    end
+  }
+  raise "ES pod '#{pod.name}' did not see any hits within #{seconds} seconds" unless success
+end
