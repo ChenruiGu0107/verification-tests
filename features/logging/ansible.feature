@@ -103,3 +103,19 @@ Feature: ansible install related feature
     And I switch to cluster admin pseudo user
     And I use the "default" project
     And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
+
+  # @author pruan@redhat.com
+  # @case_id OCP-10104
+  @admin
+  @destructive
+  Scenario: deploy logging with dynamic volume
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10104/inventory |
+    And I run the :volume client command with:
+      | resource | dc           |
+      | selector | component=es |
+    Then the output should contain:
+      | pvc/logging-es-0         |
+      | as elasticsearch-storage |
