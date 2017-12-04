@@ -47,3 +47,7 @@ check_input_validation_error:
     op: click
   - selector:
       xpath: //div[contains(@class,'tooltip')]/div[contains(text(), '<tooltip_message>')]
+check_system_status_issues_warning:
+  elements:
+  - selector:
+      xpath: //a[@href="http://status.openshift.com/"]//span[contains(.,"open issue")]
