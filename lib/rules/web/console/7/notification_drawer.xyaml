@@ -45,3 +45,49 @@ click_dont_show_me_again:
   - selector:
       xpath: .//a[contains(.,"Don't Show Me Again")]
     op: click
+check_drawer_info_when_no_events:
+  action: click_clear_all
+  action: check_drawer_info_for_empty_notifications
+open_notification_drawer_for_one_project:
+  action: open_notification_drawer_on_overview
+  action: check_project_name_in_drawer
+click_clear_all:
+  elements:
+  - selector:
+      text: !ruby/regexp /Clear All/
+    type: span
+    op: click
+check_drawer_info_for_empty_notifications:
+  elements:
+  - selector:
+      text: !ruby/regexp /There are no notifications to display/
+check_project_name_in_drawer:
+  elements:
+  - selector:
+      text: !ruby/regexp /<project_name>/
+    type: div
+check_drawer_notification_content:
+  action:
+    if_param: event_resource_type
+    ref: check_event_resource_type_in_drawer
+  elements:
+  - selector:
+      xpath: //span[@ng-if='notification.event.reason' and contains(.,'<event_reason>')]/parent::div/span[@ng-if='notification.event.involvedObject' and contains(.,'<event_object>')]
+check_event_resource_type_in_drawer:
+  elements:
+  - selector:
+      xpath: //span[@ng-if='notification.event.reason']/span[@ng-if='notification.event.involvedObject' and contains(.,'<event_resource_type>')]
+check_zero_unread_in_drawer:
+  action: click_mark_all_read
+  action: check_unread_notification_num
+click_mark_all_read:
+  elements:
+  - selector:
+      text: !ruby/regexp /Mark All Read/
+    type: button
+    op: click
+check_unread_notification_num:
+  elements:
+  - selector:
+      text: !ruby/regexp /<unread_num> Unread/i
+    type: div
