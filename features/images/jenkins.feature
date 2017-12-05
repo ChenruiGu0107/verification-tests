@@ -1195,68 +1195,64 @@ Feature: jenkins.feature
 
   # @author cryan@redhat.com
   # @case_id OCP-10896
-  Scenario: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
+  Scenario Outline: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
     Given I have a project
+    Given I have an ephemeral jenkins v<version> application
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | bc                                                                                                                                                                                                                                                                                         |
-      | resource_name | sample-pipeline                                                                                                                                                                                                                                                                            |
-      | p             | {"spec" : {"strategy": {"jenkinsPipelineStrategy": {"jenkinsfile": "node('maven') {\\nstage 'build'\\nopenshiftBuild(buildConfig: 'ruby-sample-build', showBuildLogs: 'true')\\nstage 'deploy'\\nopenshiftDeploy(deploymentConfig: 'frontend')\\nstage 'Check mvn version'\\nsh 'mvn -v'\\n}"}}}} |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
-        | name=jenkins         |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
+    Given I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | openshift/jenkins-slave-maven-centos7                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7 |
-    Then the step should succeed
-    When I perform the :jenkins_check_pipeline_script web action with:
-      | job_name  | sample-pipeline |
-      | checktext | 'mvn -v'        |
+      | currentimgval | registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7 |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7  |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | sample-pipeline |
+      | buildconfig | openshift-jee-sample |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | jenkins=slave |
-    Given the "sample-pipeline-1" build completes
-    When I perform the :jenkins_verify_job_text web action with:
-      | job_name   | sample-pipeline |
-      | job_number | 1               |
-      | checktext  | Apache Maven    |
-      | time_out   | 300             |
+      | jenkins/maven=true |
+    Given the "openshift-jee-sample-1" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace|<%= project.name %>                      |
+      | job_name| <%= project.name %>-openshift-jee-sample |
+      | job_num | 1                                        |
     Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | Building SampleApp 1.0 |
+      | BUILD SUCCESS          |
     When I run the :patch client command with:
-      | resource      | bc                                                                                                                                                                                                                                                                                         |
-      | resource_name | sample-pipeline                                                                                                                                                                                                                                                                            |
-      | p             | {"spec" : {"strategy": {"jenkinsPipelineStrategy": {"jenkinsfile": "node('unexist') {\\nstage 'build'\\nopenshiftBuild(buildConfig: 'ruby-sample-build', showBuildLogs: 'true')\\nstage 'deploy'\\nopenshiftDeploy(deploymentConfig: 'frontend')\\nstage 'Check mvn version'\\nsh 'mvn -v'\\n}"}}}} |
+      | resource      | bc                                                                                                                                       |
+      | resource_name | openshift-jee-sample                                                                                                                     |
+      | p             | {"spec" : {"strategy": {"jenkinsPipelineStrategy": {"jenkinsfile": "node('unexist') {\\nstage 'Check mvn version'\\nsh 'mvn -v'\\n}"}}}} |
     Then the step should succeed
     When I perform the :jenkins_add_pod_template web action with:
-      | podname  | unexist        |
-      | podlabel | unexist        |
-      | podimage | unexist:latest |
+      | slave_name  | unexist        |
+      | slave_label | unexist        |
+      | slave_image | unexist:latest |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | sample-pipeline |
+      | buildconfig | openshift-jee-sample |
     Then the step should succeed
     When I perform the :jenkins_verify_job_text web action with:
-      | job_name   | sample-pipeline |
-      | job_number | 2               |
-      | checktext  | is offline      |
+      | namespace  | <%= project.name %>                      |
+      | job_name   | <%= project.name %>-openshift-jee-sample |
+      | checktext  | unexist         |
+      | job_num    | 2               |
       | time_out   | 300             |
     Then the step should succeed
+
+    Examples:
+      | version |
+      | 1       |
+      | 2       |
 
   # @author cryan@redhat.com
   # @case_id 529770
