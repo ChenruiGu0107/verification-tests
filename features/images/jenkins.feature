@@ -1903,3 +1903,142 @@ Feature: jenkins.feature
       | object_type       | buildConfig         |
       | object_name_or_id | nodejs-ex-pipeline7 |
     Then the step should succeed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-13109
+  Scenario Outline: Add/override env vars to pipeline buildconfigs when start-build pipeline build with -e
+    Given I have a project
+    And I have an persistent jenkins v<version> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-13259/samplepipeline.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR1                                |
+      | env_value| value1                              |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+      | env         | VAR1=newvalue   |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR1                                |
+      | env_value| value1                              |
+    Then the step should succeed
+    And the "sample-pipeline-1" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | job_name| <%= project.name %>-sample-pipeline |
+      | job_num | 1                                   |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | VAR1 = newvalue|
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+      | env         | VAR2=value2     |
+      | env         | VAR3=value3     |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR2                                |
+      | env_value|                                     |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR3                                |
+      | env_value|                                     |
+    Then the step should succeed
+    And the "sample-pipeline-2" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | job_name| <%= project.name %>-sample-pipeline |
+      | job_num | 2                                   |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | VAR1 = value1|
+      | VAR2 = value2|
+      | VAR3 = value3|
+
+    Examples:
+      | version |
+      | 1       |
+      | 2       |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-13259
+  Scenario Outline: Add/update env vars to pipeline buildconfigs using jenkinsfile field
+    Given I have a project
+    And I have an persistent jenkins v<version> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-13259/samplepipeline.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    And the "sample-pipeline-1" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | job_name| <%= project.name %>-sample-pipeline |
+      | job_num | 1                                   |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | VAR1 = value1|
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                                                  |
+      | resource_name | sample-pipeline                                                                                                                     |
+      | p             | {"spec":{"strategy":{"jenkinsPipelineStrategy":{"env":[{"name": "VAR1","value": "newvalue1"},{"name": "VAR2","value": "value2"}]}}}}|
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR1                                |
+      | env_value| newvalue1                           |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR2                                |
+      | env_value| value2                              |
+    Then the step should succeed
+    And the "sample-pipeline-2" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | job_name| <%= project.name %>-sample-pipeline |
+      | job_num | 2                                   |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | VAR1 = newvalue1|
+      | VAR2 = value2|
+    When I run the :patch client command with:
+      | resource      | bc                                                                                             |
+      | resource_name | sample-pipeline                                                                                |
+      | p             | {"spec":{"strategy":{"jenkinsPipelineStrategy":{"env":[{"name": "VAR2","value": "value2"}]}}}} |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_string_parameter web action with:
+      | job_name | <%= project.name %>-sample-pipeline |
+      | env_name | VAR1                                |
+      | env_value| newvalue1                           |
+    Then the step should fail
+
+    Examples:
+      | version |
+      | 1       |
+      | 2       |

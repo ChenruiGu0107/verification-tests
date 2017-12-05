@@ -21,6 +21,20 @@ jenkins_add_build_string_parameter:
     op: send_keys <string_parameter>
   action: jenkins_click_save_button
 
+jenkins_check_build_string_parameter:
+  action: goto_configure_page
+  elements:
+  - selector:
+      class: setting-input
+      name: parameter.name
+      value: <env_name>
+    type: input
+  - selector:
+      class: setting-input
+      name: parameter.defaultValue
+      value: <env_value>
+    type: input
+
 jenkins_add_pod_template:
   url: /configure
   elements:
@@ -981,3 +995,5 @@ go_to_installed_plugin_manage_page:
   url: /pluginManager/installed
 go_to_updates_plugin_manage_page:
   url: /pluginManager
+goto_jenkins_buildlog_page:
+  url: /job/<job_name>/<job_num>/console
