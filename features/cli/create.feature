@@ -66,62 +66,6 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     And the project is deleted
 
-    ## create app with labels
-    And I have a project
-    When I create a new application with:
-      | image_stream | openshift/ruby:latest                         |
-      | image_stream | openshift/mysql:latest                        |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | l            | app=hi                                        |
-      | env          | MYSQL_USER=test                               |
-      | env          | MYSQL_PASSWORD=test                           |
-      | env          | MYSQL_DATABASE=test                           |
-    Then the step should succeed
-
-    # check MySQL pod
-    Given a pod becomes ready with labels:
-      | deployment=mysql-1 |
-    And I wait for the steps to pass:
-    """
-    When I execute on the pod:
-      | bash                                                  |
-      | -c                                                    |
-      | mysql -h $HOSTNAME -utest -ptest -e 'show databases;' |
-    Then the step should succeed
-    And the output should contain "test"
-    """
-
-    # access mysql through the service
-    Given I use the "mysql" service
-    And I reload the service
-    And I wait for the steps to pass:
-    """
-    When I execute on the pod:
-      | bash                                                           |
-      | -c                                                             |
-      | mysql -h <%= service.ip %> -utest -ptest -e 'show databases;'  |
-    Then the step should succeed
-    And the output should contain "test"
-    """
-
-    # access web app through the service
-    Given the "ruby-hello-world-1" build was created
-    Given the "ruby-hello-world-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
-    And I wait for the steps to pass:
-    """
-    When I execute on the pod:
-      | curl | -ksS | <%= service.url %> |
-    Then the step should succeed
-    And the output should contain "Demo App"
-    """
-
-    # delete resources by label
-    When I delete all resources by labels:
-      | app=hi |
-    Then the step should succeed
-    And the project should be empty
-
   # @author xxing@redhat.com
   # @case_id OCP-11880
   Scenario: Create application from template via cli
