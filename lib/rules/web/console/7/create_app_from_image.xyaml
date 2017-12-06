@@ -355,3 +355,4 @@ create_app_from_image_try_sample_repo:
       #xpath: //a[contains(text(), 'Try It')]
       text: Try It
     op: click
+

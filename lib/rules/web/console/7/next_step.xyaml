@@ -40,3 +40,7 @@ check_generated_parameter_on_next_page:
       xpath: //span[text()='MYSQL_USER']
 check_help_and_sug_on_next_step_page:
   action: check_make_code_change_instruc_exist
+check_successful_result_info_on_next_step_page:
+  element:
+    selector:
+      text: !ruby/regexp /has been created/
