@@ -78,5 +78,5 @@ Feature: Regression testing cases
     When I run the :describe client command with:
       | resource | pod |
     Then the output should contain:
-      | volume is already exclusively attached |
+      | already exclusively attached |
     """
