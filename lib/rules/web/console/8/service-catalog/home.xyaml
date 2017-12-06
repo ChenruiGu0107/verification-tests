@@ -1,0 +1,11 @@
+--- # catalog page related
+check_instructions_on_home_page:
+  elements:
+  - selector:
+      text: !ruby/regexp /Home Page Tour/
+  - selector:
+      text: !ruby/regexp /Documentation/
+  - selector:
+      text: !ruby/regexp /Learning/
+  - selector:
+      text: !ruby/regexp /Development/
