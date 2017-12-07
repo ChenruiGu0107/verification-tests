@@ -514,3 +514,33 @@ Feature: configMap
       | number_of_members=1    |
       | second_cmap_key=test   | 
       | test=jfjjf/*j!         |
+
+ # @author xiuli@redhat.com
+ # @case_id OCP-16721
+  Scenario: Changes to ConfigMap should be auto-updated into container	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume3.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-test-pod-1" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/config/special.how |
+    Then the step should succeed
+    And the output should contain:
+      | very |
+    When I run the :patch client command with:
+      | resource      | configmap                       |
+      | resource_name | special-config                  |
+      | p             | {"data":{"special.how":"well"}} |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat | /etc/config/special.how |
+    Then the output should contain:
+      | well |
+    """
+    Then the step should succeed
