@@ -282,3 +282,16 @@ pick_key_and_set_path:
 pick_another_key_and_set_another_path:
   action: click_to_add_item
   action: pick_key_and_set_path
+add_configmap_to_application_as_env:
+  action: goto_one_configmap_page
+  action: click_add_to_application
+  action: choose_application
+  action: choose_add_as_env
+  action: click_save_button
+add_configmap_to_application_as_volume:
+  action: goto_one_configmap_page
+  action: click_add_to_application
+  action: choose_application
+  action: choose_add_as_volume
+  action: click_save_button
+

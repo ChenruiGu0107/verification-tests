@@ -223,3 +223,13 @@ close_second_level_navigation:
     selector:
       class: nav-pf-secondary-nav
     missing: true
+click_cancel_button:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Cancel")]
+    op: click
+check_successful_info_for_adding:
+  element:
+    selector:
+      xpath: //span[contains(.,"Successfully added")]
+
