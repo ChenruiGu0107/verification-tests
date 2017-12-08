@@ -276,3 +276,87 @@ Feature: Check overview page
       | log_name      | <%= cb.openshift_pod%>|
     Then the step should succeed
 
+
+  # @author hasha@redhat.com
+  # @case_id OCP-13649
+  Scenario: Check standalone resources on overview page	
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :run client command with:
+      | name      | myrun                     |
+      | image     | openshift/hello-openshift |
+      | limits    | cpu=200m,memory=250Mi     |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name%>|
+      | resource_name | myrun             |
+      | viewlog_type  | rc                |
+      | log_name      | myrun-1           |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | myrun-rc               |
+      | image     | aosqe/hello-openshift  |
+      | generator | run-controller/v1      |
+      | limits    | cpu=300m,memory=250Mi  |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=myrun-rc |
+    Then evaluation of `pod.name` is stored in the :myrunrc_pod clipboard
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | resource_name | myrun-rc              |
+      | project_name  | <%= project.name%>    |
+      | edityaml_type | ReplicationController |
+      | yaml_name     | myrun-rc              |
+      | group         ||
+      | viewlog_type  | pods                  |
+      | log_name      | <%= cb.myrunrc_pod%>  |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | myrun-pod             |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+      | limits    | cpu=300m,memory=250Mi |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | resource_name | myrun-pod          |
+      | project_name  | <%= project.name%> |
+      | edityaml_type | Pod                |
+      | yaml_name     | myrun-pod          |
+      | group         ||
+      | viewlog_type  | pods               |
+      | log_name      | myrun-pod          |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | myrun-pod-warning              |
+      | image     | aosqe/hello-openshift-nonexist |
+      | generator | run-pod/v1                     |
+      | limits    | cpu=300m,memory=250Mi          |
+    Then the step should succeed
+    When I perform the :check_pod_stuck_warning_message web console action with:
+      | resource_type | pod               |
+      | resource_name | myrun-pod-warning |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web console action with:
+      | text | service-unsecure |
+    Then the step should succeed
+    When I perform the :check_service_list_page web console action with:
+      | project_name  | <%= project.name%> |
+      | service_name  | service-unsecure   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json | 
+      | n | <%= project.name %>                                                                            |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web console action with:
+      | text | ruby-sample-build | 
+    Then the step should succeed
+    When I perform the :check_bc_exists_in_list web console action with:
+      | project_name | <%= project.name%> |
+      | bc_name   | ruby-sample-build  |
+    Then the step should succeed

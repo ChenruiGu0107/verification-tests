@@ -10,6 +10,12 @@ check_buildconfig_list_page:
   element:
     selector:
       xpath: //table[descendant::th[text()="Name"]]
+check_bc_exists_in_list:
+  action: goto_builds_page
+  elements:
+  - selector:
+      text: <bc_name>
+    type: a
 check_build_log_content:
   element:
     selector:

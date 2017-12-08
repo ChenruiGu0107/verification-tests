@@ -297,6 +297,7 @@ operate_in_kebab_drop_down_list_on_overview:
     - manually_deploy_in_kebab_on_overview
     - click_kebab_drop_down_list_on_overview
     - edit_yaml_in_kebab_on_overview
+    - click_kebab_drop_down_list_on_overview
 click_kebab_drop_down_list_on_overview:
   elements:
   - selector:
@@ -420,3 +421,10 @@ select_project_in_project_list:
   - selector:
       xpath: //span[@class='text' and normalize-space()='<target_project>']
     op: click
+check_pod_stuck_warning_message:
+  action: expand_resource_entry 
+  element:
+    selector:
+      xpath: //span[contains(.,'pending state for more than five minutes')]
+    timeout: 500
+
