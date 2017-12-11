@@ -14,10 +14,13 @@ gem 'aws-sdk', '~> 2'
 gem 'google-api-client', '~>0.9.2'
 
 gem 'azure-storage'
-gem 'azure_mgmt_storage'
-gem 'azure_mgmt_compute'
-gem 'azure_mgmt_resources'
-gem 'azure_mgmt_network'
+# for upgrading to 0.15.x see according to changelog
+# https://github.com/Azure/azure-sdk-for-ruby/pull/1090
+# https://github.com/Azure/azure-sdk-for-ruby/pull/1092
+gem 'azure_mgmt_storage', '~>0.11.0'
+gem 'azure_mgmt_compute', '~>0.11.0'
+gem 'azure_mgmt_resources', '~>0.11.0'
+gem 'azure_mgmt_network', '~>0.11.0'
 
 # gem 'timers'
 ## Logging
