@@ -33,9 +33,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "django-example-1" build was created
     And the "django-example-1" build completed
-    And 1 pods become ready with labels:
-      | app=django-example |
-    When I use the "django-example" service
+    And I wait for the "django-example" service to become ready
     Then I wait for a web server to become available via the "django-example" route
     Then the output should contain "Django"
 
