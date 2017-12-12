@@ -551,6 +551,17 @@ module CucuShift
       end
     end
 
+    # @param [Array<Hash>] launch_opts where each element is in the format
+    #   `{name: "some-name", launch_opts: {...}}`; launch opts should match options for
+    #   [#create_instance]
+    # @return [Object] undefined
+    def delete_by_launch_opts(launch_opts)
+      launch_opts.each do |instance_opts|
+        delete_instance instance_opts[:name]
+      end
+    end
+    alias terminate_by_launch_opts delete_by_launch_opts
+
     def assign_ip(instance)
       assigning_ip = nil
       params = {}

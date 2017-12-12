@@ -15,6 +15,7 @@ require 'host'
 require 'http'
 require 'net'
 
+# Will be deleted, obsolete code
 module CucuShift
   # works with OSP4 and OSP7
   class OpenStack4
