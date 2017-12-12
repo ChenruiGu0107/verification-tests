@@ -498,10 +498,60 @@ Feature: check page info related
       | project_name | <%= project.name %>                |
       | creator      | <%= user(0, switch: false).name %> |
     Then the step should succeed
-     When I perform the :goto_membership_page web console action with:
+    When I perform the :goto_membership_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :check_permission_error_on_membership web console action
     Then the step should succeed
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-15067
+  Scenario: Check Masthead - Project Selection and navigation
+    Given the master version >= "3.7"
+    Given I have a project
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :go_to_project_list_by_view_all web console action with:
+      | current_project | <%= project.name %> |
+    Then the step should succeed
+    And the expression should be true> browser.url.end_with? "/console/projects"
+    ## check no masthead on project list page
+    When I run the :check_missing_masthead web console action
+    Then the step should succeed
+    ## check no masthead on About page
+    When I run the :goto_about_page web console action
+    Then the step should succeed
+    When I run the :check_missing_masthead web console action
+    Then the step should succeed
 
+    ## check navigation menus in the left sidebar
+    When I perform the :goto_deployments_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_navitator_menus web console action
+    Then the step should succeed
+    
+    ## check navigator exist with hightlight item on dc edit page
+    When I run the :run client command with:
+      | name      | myrun                     |
+      | image     | openshift/hello-openshift |
+    Then the step should succeed
+    When I perform the :goto_one_dc_edit_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+    When I perform the :check_navigator_item_active web console action with:
+      | menu_name       | Applications |
+      | hightlight_item | Deployments  |
+    Then the step should succeed
+
+    ## check collapse/expand menu
+    When I run the :click_expand_collapse_navigator_button web console action
+    Then the step should succeed
+    When I run the :check_navigator_collapse web console action
+    Then the step should succeed
+    When I run the :click_expand_collapse_navigator_button web console action
+    Then the step should succeed
+    When I run the :check_navigator_expand web console action
+    Then the step should succeed   

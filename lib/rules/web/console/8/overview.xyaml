@@ -410,12 +410,6 @@ check_resources_order_on_overview_page:
 switch_project_in_project_lists:
   action: click_project_dropdown_button
   action: select_project_in_project_list
-click_project_dropdown_button:
-  elements:
-  - selector:
-      title: <current_project>
-    type: button
-    op: click
 select_project_in_project_list:
   elements:
   - selector:
