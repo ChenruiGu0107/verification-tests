@@ -31,6 +31,8 @@ require 'openshift/stateful_set'
 require 'openshift/net_namespace'
 require 'openshift/daemon_set'
 require 'openshift/identity'
+require 'openshift/config_map'
+require 'openshift/service_instance'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -330,6 +332,13 @@ module CucuShift
       project_resource(Endpoint, name, project)
     end
 
+    def configmap(name = nil, project = nil)
+      project_resource(ConfigMap, name, project)
+    end
+
+    def service_instance(name = nil, project = nil)
+      project_resource(ServiceInstance, name, project)
+    end
     # @return rc (ReplicationController) by name from scenario cache;
     #   with no params given, returns last requested rc;
     #   otherwise creates a [ReplicationController] object
