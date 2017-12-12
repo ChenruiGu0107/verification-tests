@@ -276,3 +276,19 @@ Feature: quickstarts.feature
     When I use the "dotnet-example" service
     Then I wait for a web server to become available via the "dotnet-example" route
     Then the output should contain "ASP.NET"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-14712
+  Scenario: Httpd-example with 2.4 quick start test
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | httpd-example |
+    Then the step should succeed
+    And the "httpd-example-1" build was created
+    And the "httpd-example-1" build completed
+    And a pod becomes ready with labels:
+      | app=httpd-example |
+    When I use the "httpd-example" service
+    Then I wait for a web server to become available via the "httpd-example" route
+    Then the output should contain "httpd application"
+
