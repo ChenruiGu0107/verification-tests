@@ -1579,3 +1579,130 @@ Feature: test master config related steps
       """
     Given admin ensures identity "anypassword:12146_user" is deleted
     Then the step should succeed
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-16448
+  @admin
+  @destructive
+  Scenario: Apply env var in the config file for 3.7
+    Given the master version >= "3.7"
+    Given the user has all owned resources cleaned
+    And I use the first master host
+    Given I have a project
+    Given I have LDAP service in my project
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "my idp #2?"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "uid=user,ou=people,ou=rfc2307,dc=example,dc=com"
+          bindPassword:
+            env: BIND_PASSWORD_ENV_VAR_NAME
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://<%= cb.ldap_pod.ip %>/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
+    And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
+    When I run commands on the host:
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-api         |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-controllers |
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | user                        |
+      | password | password                    |
+      | skip_tls_verify | true                 |
+    Then the step should succeed
+    Given I use the first master host
+    When I run commands on the host:
+      | oc get users |
+    And the output should contain:
+      | NAME       | user                                   |
+      | FULL NAME  | openshift user                         |
+      | IDENTITIES | my idp #2?:uid=user,dc=example,dc=com  |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-16450
+  @admin
+  @destructive
+  Scenario: Could only specify one env and file in the OpenShift config for 3.7
+    Given the master version >= "3.7"
+    Given the user has all owned resources cleaned
+    And I use the first master host
+    Given I have a project
+    Given I have LDAP service in my project
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "my idp #2?"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "uid=user,ou=people,ou=rfc2307,dc=example,dc=com"
+          bindPassword:
+            env: BIND_PASSWORD_ENV_VAR_NAME
+            env: BIND_PASSWORD_ENV_VAR_NAME1
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://<%= cb.ldap_pod.ip %>/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
+    And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
+    When I run commands on the host:
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-api           |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/sysconfig/atomic-openshift-master-api         |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-controllers   |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/sysconfig/atomic-openshift-master-controllers |
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | newton                      |
+      | password | password                    |
+      | skip_tls_verify | true                 |
+    Then the step should fail
+
