@@ -83,33 +83,29 @@ Feature: stibuild.feature
       | Build configuration change |
 
   # @author xiuwang@redhat.com
-  @admin
   Scenario Outline: Trigger s2i/docker/custom build using additional imagestream
     Given I have a project
     And I run the :new_app client command with:
       | file | <template> |
     Then the step should succeed
     And the "sample-build-1" build was created
-    # must run this step prior to calling the step 'I run commands on the host'
-    And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    When I run commands on the host:
-      | docker login -u <%= user.name %> -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    When I run the :cancel_build client command with:
+      | build_name | sample-build-1                  |
     Then the step should succeed
-    When I run commands on the host:
-      | docker pull docker.io/docker:latest |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker tag docker.io/docker <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage|
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage|
+    When I run the :import_image client command with:
+      | image_name | myimage               |
+      | from       | aosqe/ruby-22-centos7 |
+      | confirm    | true                  |
     Then the step should succeed
     And the "sample-build-2" build was created
-    When I get project bc named "sample-build" as YAML
+    When I run the :describe client command with:
+      | resource | builds         |
+      | name     | sample-build-2 |
     Then the step should succeed
     And the output should contain:
-      |lastTriggeredImageID: <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage|
+      |Build trigger cause:	Image change          |
+      |Image ID:		aosqe/ruby-22-centos7 |
+      |Image Name/Kind:	myimage:latest                |
     When I run the :start_build client command with:
       | buildconfig | sample-build |
     Then the step should succeed
