@@ -1,10 +1,11 @@
 Feature: Postgresql images test
 
   # @author wewang@redhat.com
-  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql92 and psql94
+  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql
     Given I have a project
     When I run the :new_app client command with:
-      | file | <file_name> |
+      | template | postgresql-ephemeral         |
+      | p        | POSTGRESQL_VERSION=<version> |
     Then the step should succeed
     And a pod becomes ready with labels:
       |name=postgresql|
@@ -50,11 +51,12 @@ Feature: Postgresql images test
     """
     And the output should contain:
       | relation "tbl" does not exist |
+ 
     Examples:
-      | file_name                     |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-ephemeral-template.json  | # @case_id OCP-11916
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-94-ephemeral-template.json  | # @case_id OCP-12520
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-95-ephemeral-template.json  | # @case_id OCP-11799
+      | version |
+      | 9.2     |  # @case_id OCP-11916 
+      | 9.4     |  # @case_id OCP-12520 
+      | 9.5     |  # @case_id OCP-11799 
 
   # @author wewang@redhat.com
   # @case_id 501057  508089
@@ -172,15 +174,12 @@ Feature: Postgresql images test
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  |                |                | postgresql_replica.json | # @case_id OCP-12446
 
   # wewang@redhat.com
-  # @case_id 508092  519475
   @smoke
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage
     Given I have a project
-    And I download a file from "<file>"
-    And I replace lines in "postgresql-persistent-template.json":
-      | <image> | <new_image> |
-    And I run the :new_app client command with:
-      | file     | <template>                   |
+    When I run the :new_app client command with:
+      | template | postgresql-persistent        |
+      | p        | POSTGRESQL_VERSION=<version> |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
@@ -235,48 +234,9 @@ Feature: Postgresql images test
     And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
-
+    
     Examples:
-      | file | image| new_image | template|
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | 9.5 | 9.4 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | 9.5 | 9.2 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  |     |     | postgresql-persistent-template.json | # @case_id OCP-12070
-
-  #wewang@redhat.com
-  # @case_id 511969
-  Scenario: Create postgresql resources via installed persistent template for postgresql-94-rhel7 images
-    Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json"
-    And I replace lines in "postgresql-persistent-template.json":
-      | postgresql:latest | postgresql:9.4 |
-    And I run the :new_app client command with:
-      | file     | postgresql-persistent-template.json |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | postgresql                                                                      |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    And the "postgresql" PVC becomes :bound within 300 seconds
-    And a pod becomes ready with labels:
-      |name=postgresql|
-      |deployment=postgresql-1|
-    Given I wait for the steps to pass:
-    """
-    When I execute on the pod:
-      | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
-    Then the step should succeed
-    """
-    And the output should contain:
-      | CREATE TABLE |
-    When I execute on the pod:
-      | bash | -c | psql -U $POSTGRESQL_USER -c "INSERT INTO tbl (col1,col2) VALUES ('foo1', 'bar1');" -d $POSTGRESQL_DATABASE |
-    Then the step should succeed
-    And the output should contain:
-      | INSERT 0 1 |
-    When I execute on the pod:
-      | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
-    Then the step should succeed
-    And the output should contain:
-      | col1 | col2 |
-      | foo1 | bar1 |
+      | version |
+      | 9.5     |   # @case_id OCP-12070 
+      | 9.4     |   # @case_id OCP-12509
+      | 9.2     |   # @case_id OCP-11514
