@@ -171,7 +171,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       Given a pod becomes ready with labels:
         | deployment=mariadb-1 |
       When I execute on the pod:
-        | cat | /etc/my.cnf.d/tuning.cnf |
+        | cat | /etc/my.cnf.d/50-my-tuning.cnf |
       Then the output should contain:
         | key_buffer_size = 51M          |
         | read_buffer_size = 25M         |
@@ -194,13 +194,13 @@ Feature: ONLY ONLINE Images related scripts in this file
       And a pod becomes ready with labels:
         | deployment=mariadb-2 |
       When I execute on the pod:
-        | cat | /etc/my.cnf.d/tuning.cnf |
+        | cat | /etc/my.cnf.d/50-my-tuning.cnf |
       Then the output should contain:
         | key_buffer_size = 40M          |
         | read_buffer_size = 20M         |
         | innodb_buffer_pool_size = 200M |
-        | innodb_log_file_size = 60M    |
-        | innodb_log_buffer_size = 60M  |
+        | innodb_log_file_size = 60M     |
+        | innodb_log_buffer_size = 60M   |
 
   # @author etrott@redhat.com
   # @case_id OCP-12373
