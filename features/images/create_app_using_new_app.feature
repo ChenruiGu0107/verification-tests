@@ -106,7 +106,10 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=jenkins |
-    When I expose the "jenkins" service
+    When I run the :expose client command with:
+      | resource      | service |
+      | resource_name | jenkins | 
+      | port          | 8080    | 
     Then the step should succeed
     #Checking for 'ready to work' to disappear; this shows that
     #jenkins is ready to accept user/pass
