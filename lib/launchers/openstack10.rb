@@ -20,7 +20,7 @@ module CucuShift
   class OpenStack10
     include Common::Helper
 
-    attr_reader :os_tenant_id, :os_tenant_name, :os_service_catalog
+    attr_reader :os_domain, :os_tenant_id, :os_tenant_name, :os_service_catalog
     attr_reader :os_user, :os_passwd, :os_url, :opts, :os_volumes_url
     attr_accessor :os_token, :os_image, :os_flavor
 
@@ -43,6 +43,18 @@ module CucuShift
       unless @os_passwd
         STDERR.puts "OpenStack Password: "
         @os_passwd = STDIN.noecho(&:gets).chomp
+      end
+
+      #domain needed for v3 auth
+      case
+      when options[:domain]
+        @os_domain = options[:domain]
+      when opts[:domain]
+        @os_domain = opts[:domain]
+      when ENV['OPENSTACK_DOMAIN_ID']
+        @os_domain = {id: ENV['OPENSTACK_DOMAIN_ID']}
+      when ENV['OPENSTACK_DOMAIN_NAME']
+        @os_domain = {name: ENV['OPENSTACK_DOMAIN_NAME']}
       end
 
       @os_tenant_id = options[:tenant_id] || ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
@@ -103,22 +115,7 @@ module CucuShift
 
     # Basic token validity check. So we dont generate a new session when we call get_token()
     def token_valid?()
-      if monotonic_seconds - @token_verified_at > 900
-        params = {:auth => {"tenantName" => self.os_tenant_name, "token" => {"id" => self.os_token}}}
-
-        res = self.rest_run(self.os_url, "POST", params, self.os_token)
-        if res[:success] && res[:exitstatus] == 200
-          logger.info "token found. Using already existing token."
-          @token_verified_at = monotonic_seconds
-          return true
-        elsif res[:exitstatus] == 404 || res[:exitstatus] == 401
-          return false
-        else
-          raise "#{res[:error]}"
-        end
-      else
-        return true
-      end
+      return @token_expires_at - monotonic_seconds > 60
     end
 
     def get_token()
@@ -128,31 +125,78 @@ module CucuShift
       if self.os_token && self.token_valid?
         return @os_token
       else
-        auth_opts = {:passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}
-        if @os_tenant_id
-          auth_opts[:tenantId] = self.os_tenant_id
-        else
-          auth_opts[:tenantName] = self.os_tenant_name
-        end
-        params = {:auth => auth_opts}
-        res = self.rest_run(self.os_url, "POST", params) do |result|
-          parsed = result[:parsed] || next
-          @os_token = parsed['access']['token']['id']
-          if parsed['access']['token']["tenant"]
-            @os_tenant_name ||= parsed['access']['token']["tenant"]["name"]
-            @os_tenant_id ||= parsed['access']['token']["tenant"]["id"]
-            logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}"
-          else
-            raise "no tenant found in reply: #{result[:response]}"
-          end
-          @os_service_catalog = parsed['access']['serviceCatalog']
-        end
+        params = self.os_url.include?("/v3/") ? auth_payload_v3 : auth_payload_v2
         unless @os_token
           logger.error res.to_yaml
           raise "Could not obtain proper token"
         end
-        @token_verified_at = monotonic_seconds
         return @os_token
+      end
+    end
+
+    def auth_payload_v2
+      auth_opts = {:passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}
+      if @os_tenant_id
+        auth_opts[:tenantId] = self.os_tenant_id
+      else
+        auth_opts[:tenantName] = self.os_tenant_name
+      end
+      params = {:auth => auth_opts}
+      res = self.rest_run(self.os_url, "POST", params) do |result|
+        parsed = result[:parsed] || next
+        @os_token = parsed['access']['token']['id']
+        if parsed['access']['token']["tenant"]
+          @os_tenant_name ||= parsed['access']['token']["tenant"]["name"]
+          @os_tenant_id ||= parsed['access']['token']["tenant"]["id"]
+          logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}"
+        else
+          raise "no tenant found in reply: #{result[:response]}"
+        end
+        @os_service_catalog = parsed['access']['serviceCatalog']
+        # try to account for time skew when setting token expiry time
+        expires = Time.parse(parsed.dig("access","token", "expires"))
+        issued = Time.parse(parsed.dig("access","token", "issued_at"))
+        @token_expires_at = monotonic_seconds + (expires - issued)
+      end
+    end
+
+    def auth_payload_v3
+      if @os_tenant_id
+        project = { id: self.os_tenant_id }
+      else
+        project = { name: self.os_tenant_name, domain: self.os_domain }
+      end
+      auth_opts = {
+        auth: {
+          identity: {
+            methods: ["password"],
+            password: {
+              user: {
+                name: self.os_user,
+                password: self.os_passwd,
+                domain: self.os_domain
+              }
+            }
+          },
+          scope: {project: project}
+        }
+      }
+
+      res = self.rest_run(self.os_url, "POST", auth_opts) do |result|
+        parsed = result[:parsed] || next
+        @os_token = result.dig(:headers, "x-subject-token", 0);
+        if parsed.dig("token", "project")
+          @os_tenant_name ||= parsed.dig("token", "project", "name")
+          @os_tenant_id ||= parsed.dig("token", "project", "id")
+          logger.info "logged in to tenant: #{parsed.dig("token", "project").to_json}"
+        else
+          raise "no project found in reply: #{result[:response]}"
+        end
+        @os_service_catalog = parsed.dig("token", "catalog")
+        # try to account for time skew when setting token expiry time
+        expires = Time.parse(parsed.dig("token", "expires_at"))
+        issued = Time.parse(parsed.dig("token", "issued_at"))
+        @token_expires_at = monotonic_seconds + (expires - issued)
       end
     end
 
@@ -167,8 +211,7 @@ module CucuShift
       for service in os_service_catalog
         if service['name'].start_with?("nova") &&
             service['type'].start_with?("compute") &&
-            service['endpoints'] && !service['endpoints'].empty? &&
-            service['endpoints'][0]['publicURL']
+            service['endpoints'] && !service['endpoints'].empty?
           @os_compute_service = service
           type = service['type']
           if service['type'] == "computev3"
@@ -186,7 +229,8 @@ module CucuShift
 
     def os_compute_url
       # select region?
-      os_compute_service['endpoints'][0]['publicURL']
+      os_compute_service['endpoints'][0]['publicURL'] ||
+        os_compute_service['endpoints'][0]['url']
     end
 
     def os_region
@@ -198,7 +242,8 @@ module CucuShift
       return @os_volumes_url if @os_volumes_url
       for service in os_service_catalog
         if service['type'] == "volumev2"
-          @os_volumes_url = service['endpoints'][0]['publicURL']
+          @os_volumes_url = service['endpoints'][0]['publicURL'] ||
+            service['endpoints'][0]['url']
           return @os_volumes_url
         end
       end
@@ -218,7 +263,8 @@ module CucuShift
 
     def os_network_url
       # select region?
-      os_network_service['endpoints'][0]['publicURL']
+      os_network_service['endpoints'][0]['publicURL'] ||
+        os_network_service['endpoints'][0]['url']
     end
 
     # @return object URL or raises an error
@@ -518,6 +564,7 @@ module CucuShift
         # on first iteration and on instance launch failure we retry
         if !server || server.status == "ERROR"
           logger.info("** attempting to create an instance..")
+
           res = create_instance_api_call(instance_name, **create_opts)
           server = Instance.new(spec: res["server"], client: self) rescue next
           sleep 15
@@ -780,7 +827,9 @@ if __FILE__ == $0
   extend CucuShift::Common::Helper
   test_res = {}
   conf[:services].each do |name, service|
-    if service[:cloud_type] == 'openstack' && name.to_s.end_with?("_bj2") && service[:password]
+    if service[:cloud_type] == 'openstack' &&
+        name.to_s.end_with?("_snvl2") &&
+        service[:password]
       os = CucuShift::OpenStack10.new(service_name: name)
       res = true
       test_res[name] = res
@@ -798,6 +847,5 @@ if __FILE__ == $0
     puts "OpenStack instance #{name} failed: #{res}"
   end
 
-  require 'pry'
-  binding.pry
+  require 'pry'; binding.pry
 end
