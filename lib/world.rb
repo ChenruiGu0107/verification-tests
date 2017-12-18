@@ -34,6 +34,10 @@ require 'openshift/daemon_set'
 require 'openshift/identity'
 require 'openshift/config_map'
 require 'openshift/service_instance'
+require 'openshift/service_binding'
+require 'openshift/cluster_service_broker'
+require 'openshift/cluster_service_class'
+require 'openshift/cluster_service_plan'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -60,6 +64,9 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
+      @clusterservicebrokers = []
+      @clusterserviceclasses = []
+      @clusterserviceplans = []
       @hostsubnets = []
       @networkpolicies = []
       @clusterresourcequotas = []
@@ -333,7 +340,7 @@ module CucuShift
       project_resource(HorizontalPodAutoscaler, name, project)
     end
 
-		def endpoint(name = nil, project = nil)
+    def endpoint(name = nil, project = nil)
       project_resource(Endpoint, name, project)
     end
 
@@ -344,6 +351,23 @@ module CucuShift
     def service_instance(name = nil, project = nil)
       project_resource(ServiceInstance, name, project)
     end
+
+    def service_binding(name = nil, project = nil)
+      project_resource(ServiceBinding, name, project)
+    end
+
+    def cluster_service_broker(name = nil, env = nil)
+      project_resource(ClusterServiceBroker, name, env)
+    end
+
+    def cluster_service_class(name = nil, env = nil)
+      project_resource(ClusterServiceClass, name, env)
+    end
+
+    def cluster_service_plan(name = nil, env = nil)
+      project_resource(ClusterServicePlan, name, env)
+    end
+
     # @return rc (ReplicationController) by name from scenario cache;
     #   with no params given, returns last requested rc;
     #   otherwise creates a [ReplicationController] object
@@ -669,6 +693,9 @@ module CucuShift
         pv: "persistentvolumes",
         svc: "service",
         pvc: "persistentvolumeclaims",
+        cluster_service_broker: "clusterservicebrokers",
+        cluster_service_class: "clusterserviceclasses",
+        cluster_service_plan: "clusterserviceplans",
         cluster_role: "clusterroles",
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
