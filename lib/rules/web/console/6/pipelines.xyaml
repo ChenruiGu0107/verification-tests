@@ -3,6 +3,8 @@ goto_pipelines_page:
   url: /console/project/<project_name>/browse/pipelines
 goto_one_pipeline_page:
   url: /console/project/<project_name>/browse/pipelines/<pipeline_name>
+goto_one_pipeline_build_page:
+  url: /console/project/<project_name>/browse/pipelines/<pipeline_name>/<pipeline_name>-<build_number>
 goto_pipeline_configuration_tab:
   action: goto_one_pipeline_page
   action: click_on_configuration_tab
@@ -52,3 +54,8 @@ check_pipline_no_permission_page:
   element:
     selector:
       xpath: //h1[contains(.,"Pipelines")]
+check_pipeline_stage_appear:
+  elements:
+  - selector:
+      xpath: //div[@title='<stage_name>']
+    timeout: 120
