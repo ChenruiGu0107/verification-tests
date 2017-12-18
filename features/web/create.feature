@@ -494,14 +494,11 @@ Feature: create app on web console related
       | label_value           | my-hello-openshift  |
     Then the step should succeed
     And I wait until the status of deployment "hello-openshift" becomes :complete
-    When I run the :get client command with:
-      | resource | all |
-    Then the step should succeed
-    And the output should contain:
-      | is/hello-openshift  |
-      | dc/hello-openshift  |
-      | svc/hello-openshift |
-      | po/hello-openshift  |
+    And I wait for the "hello-openshift" is to appear
+    And I wait for the "hello-openshift" dc to appear
+    And I wait for the "hello-openshift" svc to appear
+    And a pod is present with labels:
+      | mylabel=my-hello-openshift |
     When I run the :env client command with:
       | resource | dc/hello-openshift |
       | list     | true               |

@@ -134,6 +134,7 @@ Feature: oc global options (oc options) related scenarios
   Scenario: Check the secure/insecure connection option for oc command - negative
     Given I have a project
     # Get master ca.crt
+    # Note, the purpose is not to test image origin-base. It is only used to get master ca.crt
     When I run the :run client command with:
       | name      | mypod         |
       | image     | <%= project_docker_repo %>openshift/origin-base        |
