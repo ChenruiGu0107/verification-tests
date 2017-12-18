@@ -217,5 +217,16 @@ Feature: ONLY ONLINE Images related scripts in this file
     When I run the :logs client command with:
       | resource_name    | <%= pod.name %> |
     Then the output should contain:
-      | * Min threads: 0, max threads: 16 |
-      | * Process workers: 4              |
+      | * Process workers: 1 |
+    When I run the :patch client command with:
+      | resource      | deploymentconfig                                                                                              |
+      | resource_name | rails-ex                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"rails-ex","resources":{"limits":{"memory":"700Mi"}}}]}}}} |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | app=rails-ex          |
+      | deployment=rails-ex-2 |
+    When I run the :logs client command with:
+      | resource_name    | <%= pod.name %> |
+    Then the output should contain:
+      | * Process workers: 2 |
