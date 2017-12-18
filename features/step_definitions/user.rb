@@ -49,3 +49,14 @@ Given /^I restore user's context after scenario$/ do
     _user.cli_exec(:config_use_context, name: _current_context)
   }
 end
+
+Given /^I save kube config in file #{QUOTED}$/ do |path|
+  view_opts = { output: "yaml", minify: true, flatten: true }
+  @result = user.cli_exec(:config_view, **view_opts, _quiet: true)
+  unless @result[:success]
+    raise "Failed to save kube config in file #{path}"
+  end
+  FileUtils::mkdir_p File::dirname(path.strip)
+  File.write(path.strip, @result[:response])
+end
+
