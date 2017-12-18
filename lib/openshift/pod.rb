@@ -15,6 +15,8 @@ module CucuShift
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
     def update_from_api_object(pod_hash)
+      super
+
       m = pod_hash["metadata"]
       props[:uid] = m["uid"]
       props[:generateName] = m["generateName"]
