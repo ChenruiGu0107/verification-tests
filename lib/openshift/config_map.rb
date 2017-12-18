@@ -31,5 +31,9 @@ module CucuShift
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig('metadata', 'creationTimestamp')
     end
+
+    def value_of(key, user: nil, cached: true, quiet: false)
+      self.data(user: user, cached: cached, quiet: quiet).dig(key)
+    end
   end
 end
