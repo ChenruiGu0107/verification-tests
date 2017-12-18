@@ -20,13 +20,14 @@ module CucuShift
 
     def annotation(annotation_name, user: nil, cached: true, quiet: false)
       options = {
-        prop:   :annotations,
         user:   user,
         quiet:  quiet,
         cached: cached,
       }.freeze
 
-      get_cached_prop(options)&.fetch(annotation_name, nil)
+      return raw_resource(**options).
+        dig("metadata", "annotations")&.
+        fetch(annotation_name, nil)
     end
 
     def created_at(user: nil, cached: true, quiet: false)

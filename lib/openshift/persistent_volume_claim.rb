@@ -9,6 +9,8 @@ module CucuShift
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
     def update_from_api_object(dc_hash)
+      super
+
       props[:metadata] = m = dc_hash["metadata"]
       s = dc_hash["spec"]
       props[:labels] = m["labels"]
