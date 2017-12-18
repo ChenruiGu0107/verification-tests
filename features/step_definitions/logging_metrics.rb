@@ -907,3 +907,47 @@ Given /^event logs can be found in the ES pod(?: in the#{OPT_QUOTED} project)?/ 
   }
   raise "ES pod '#{pod.name}' did not see any hits within #{seconds} seconds" unless success
 end
+
+When /^I wait for the #{QUOTED} index to appear in the ES pod(?: in the#{OPT_QUOTED} project)?$/ do |index_name, proj_name|
+  project(proj_name)
+  seconds = 5 * 60
+  index_data = nil
+  success = wait_for(seconds) {
+    step %Q/I perform the HTTP request on the ES pod in the project:/, table(%{
+      | relative_url | _cat/indices?format=JSON |
+      | op           | GET                      |
+    })
+    res = @result[:parsed].find {|e| e['index'].start_with? index_name}
+    if res
+      index_data = res
+      # exit only health is 'green' and index is 'open'
+      res['health'] == 'green' and res['status'] == 'open'
+    end
+  }
+  raise "Index '#{index_name}' failed to appear in #{seconds} seconds" unless success
+  cb.index_data = index_data
+end
+
+# just do the query, check result outside of the step.
+# @relative_url: relative url of the query
+# @op: operation we want to perform (GET, POST, DELETE, and etc)
+Given /^I perform the HTTP request on the ES pod(?: in the#{OPT_QUOTED} project)?:$/ do |proj_name, table|
+  # make sure we are in the right project
+  project(proj_name)
+  opts = opts_array_to_hash(table.raw)
+  # sanity check
+  required_params = [:op, :relative_url]
+  required_params.each do |param|
+    raise "Missing parameter '#{param}'" unless opts[param]
+  end
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | component=es |
+  })
+  query_cmd = "curl -s -X#{opts[:op]} --insecure --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key 'https://localhost:9200/#{opts[:relative_url]}'"
+  @result = pod.exec("bash", "-c", query_cmd, as: user, container: 'elasticsearch')
+  if @result[:success]
+    @result[:parsed] = YAML.load(@result[:response])
+  else
+    raise "HTTP operation failed with error, #{@result[:response]}"
+  end
+end

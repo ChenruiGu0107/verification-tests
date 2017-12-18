@@ -192,3 +192,45 @@ Feature: ansible install related feature
     Given status becomes :running of exactly 2 pods labeled:
       | component=kibana-ops |
 
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16688
+  @admin
+  @destructive
+  Scenario: The journald log can be retrived from elasticsearch
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And I run commands on the host:
+      | logger --tag deadbeef[123] deadbeef-message-OCP16688 |
+    Then the step should succeed
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    And I perform the HTTP request on the ES pod in the project:
+      | relative_url | _search?pretty&size=5&q=message:deadbeef-message-OCP16688 |
+      | op           | GET                                                       |
+    And the output should contain:
+      | deadbeef-message-OCP16688 |
+    """
+    And evaluation of `@result[:parsed]['hits']['hits'][0]['_source']` is stored in the :query_res clipboard
+    Then the expression should be true> (["hostname", "@timestamp"] - cb.query_res.keys).empty?
+    And the expression should be true> cb.query_res['message'] == "deadbeef-message-OCP16688"
+    # check for SYSLOG, SYSLOG_IDENTIFIER
+    Then the expression should be true> (["SYSLOG_FACILITY", "SYSLOG_IDENTIFIER", "SYSLOG_PID"] - cb.query_res['systemd']['u'].keys).empty?
+    And the expression should be true> cb.query_res['systemd']['u']['SYSLOG_IDENTIFIER'] == 'deadbeef'
+    And the expression should be true> cb.query_res['systemd']['u']['SYSLOG_PID'] == '123'
+
+  # @author pruan@redhat.com
+  # @case_id OCP-13700
+  @admin
+  @destructive
+  Scenario: Make sure the searchguard index that is created upon pod start worked fine
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    When I wait for the ".searchguard." index to appear in the ES pod
+    # need to check with anli about the byte count
+    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 100
+    # chcek operation and project.install-test.xxx index
+    When I wait for the ".operations." index to appear in the ES pod
+    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
+    When I wait for the "project.install-test." index to appear in the ES pod
+    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10

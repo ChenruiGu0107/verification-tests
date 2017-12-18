@@ -240,7 +240,7 @@ module CucuShift
     end
 
     # executes command on pod
-    def exec(command, *args, as:, stdin: nil)
+    def exec(command, *args, as:, container:nil, stdin: nil)
       #opts = []
       #opts << [:pod, name]
       #opts << [:cmd_opts_end, true]
@@ -249,7 +249,7 @@ module CucuShift
       #
       #env.cli_executor.exec(as, :exec, opts)
 
-      cli_exec(as: as, key: :exec, pod: name, n: project.name,
+      cli_exec(as: as, key: :exec, pod: name, n: project.name, container: container,
                oc_opts_end: true,
                exec_command: command,
                exec_command_arg: args,

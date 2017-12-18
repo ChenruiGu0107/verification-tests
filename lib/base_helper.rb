@@ -246,27 +246,26 @@ module CucuShift
         end
       end
 
-
-      def convert_to_bytes(mem_str)
-        parsed = mem_str.match(/\A(\d+)([a-zA-Z]*)\z/)
+      def convert_to_bytes(raw_str)
+        parsed = raw_str.match(/(\d+)(\.)?(\d+)([a-zA-Z]*)/)
         number = Integer(parsed[1])
-        unit = parsed[2]
+        unit = parsed[4]
         case unit
-        when ""
+        when "", "b"
           return number
-        when "Ki", "K"
+        when "Ki", "K", "kb"
           return number * 1024
-        when "Mi", "M"
+        when "Mi", "M", "mb"
           return number * 1024 * 1204
-        when "Gi", "G"
+        when "Gi", "G", "gb"
           return number * 1024 * 1204 * 1024
         else
           raise "unknown memory unit '#{unit}'"
         end
       end
 
-      def convert_cpu(cpu_str)
-        parsed = cpu_str.match(/\A(\d+)([a-zA-Z]*)\z/)
+      def convert_cpu(raw_str)
+        parsed = raw_str.match(/\A(\d+)([a-zA-Z]*)\z/)
         number = Integer(parsed[1])
         unit = parsed[2]
         case unit
