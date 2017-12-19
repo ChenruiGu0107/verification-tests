@@ -3931,6 +3931,7 @@ Feature: Testing haproxy router
     And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-route-cookie"}
     And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
 
+
   # @author zzhao@redhat.com
   # @case_id OCP-15457
   @admin
@@ -3983,3 +3984,102 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I wait up to 10 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
+
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-16870
+  @admin
+  Scenario: No health check when there is only one endpoint for a route
+    Given I have a project
+    Then evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given evaluation of `"test-rc"` is stored in the :rc_name clipboard
+    # create route
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+ 
+    Given I switch to cluster admin pseudo user 
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """  
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain "<%=cb.pod_ip %>"
+    And the output should not contain "check inter"
+    """
+
+    Given I switch to the first user 
+    And I use the "<%= cb.proj_name %>" project
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | <%= cb.rc_name %>      |    
+      | replicas | 2                      |
+    And I wait until number of replicas match "2" for replicationController "<%= cb.rc_name %>"
+    And all pods in the project are ready
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | -C | 1 | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain "<%=cb.pod_ip %>"
+    And the output should contain 2 times:
+      | check inter |
+    """
+
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-16872
+  @admin
+  Scenario: Health check when there are multi service and each service has one backend
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=caddy-docker |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure      |
+      | service   | service-unsecure=20   |
+      | service   | service-unsecure-2=80 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | -C | 1 | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain "<%=cb.pod_ip %>"
+    And the output should contain 2 times:
+      | check inter |
+    """
+
