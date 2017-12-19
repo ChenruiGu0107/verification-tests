@@ -352,6 +352,16 @@ module CucuShift
       return host
     end
 
+    # @return [String]
+    def access_key
+      @ec2.client.config.credentials.access_key_id
+    end
+
+    # @return [String]
+    def secret_key
+      @ec2.client.config.credentials.secret_access_key
+    end
+
     # @return [Object] undefined
     def terminate_instance(instance)
       # we don't really have root permission to terminate, we'll just label it
