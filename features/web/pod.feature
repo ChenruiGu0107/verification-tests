@@ -168,6 +168,42 @@ Feature: Pod related features on web console
     Given evaluation of `@result[:parsed]['metadata']['labels']` is stored in the :label_from_cli clipboard
     Then the expression should be true> cb.label_from_ui == cb.label_from_cli
 
+  # @author cryan@redhat.com
+  # @case_id OCP-10822
+  Scenario: Debug crashing pods on web console
+    Given I have a project
+
+    When I run the :run client command with:
+      | name    | run-once-pod     |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | ls               |
+      | cmd     | /abcd            |
+      | restart | Never            |
+    Then the step should succeed
+
+    When I perform the :goto_debug_in_terminal_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | run-once-pod        |
+    Then the step should succeed
+    Given the pod named "run-once-pod-debug" becomes ready
+
+    When I run the :close_debug_in_terminal_page web console action
+    Then the step should succeed
+    Given I wait for the pod named "run-once-pod-debug" to die regardless of current status
+
+    When I perform the :goto_debug_in_terminal_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | run-once-pod        |
+    Then the step should succeed
+    Given the pod named "run-once-pod-debug" becomes ready
+
+    When I perform the :goto_debug_in_terminal_page_in_new_tab web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | run-once-pod        |
+    Then the step should succeed
+    When I run the :check_debug_pod_exists_error web console action
+    Then the step should succeed
 
   # @author etrott@redhat.com
   # @case_id OCP-14311
