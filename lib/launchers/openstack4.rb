@@ -18,6 +18,7 @@ require 'net'
 # Will be deleted, obsolete code
 module CucuShift
   # works with OSP4 and OSP7
+  # @deprecated Please do not use
   class OpenStack4
     include Common::Helper
 
