@@ -31,33 +31,6 @@ check_deployed_log_context:
   - selector:
       xpath: //table//td[contains(text(),'mysql')]
     timeout: 180
-check_log_expand_link_exists:
-  element:
-    selector:
-      text: Expand
-    type: a
-check_external_log_link:
-  params:
-    display_name: See <resource_name> Extension Logging
-    link: https://extension-point.example.com
-  element:
-    selector:
-      xpath: //a[contains(@href,'<link>') and contains(.,'<display_name>')]
-  action:
-    if_param: check_expand
-    ref: check_log_expand_link_exists
-check_external_log_link_on_pod_page:
-  params:
-    pod_name: <resource_name>
-  action: goto_one_pod_page
-  action: click_on_logs_tab
-  action: check_external_log_link
-check_external_log_link_on_rc_page:
-  params:
-    rc_name: <resource_name>
-  action: goto_one_rc_page
-  action: click_on_logs_tab
-  action: check_external_log_link
 check_no_log_info:
   elements:
   - selector:
