@@ -31,7 +31,7 @@ check_deployed_log_context:
   - selector:
       xpath: //table//td[contains(text(),'mysql')]
     timeout: 180
-check_log_expand_link:
+check_log_expand_link_exists:
   element:
     selector:
       text: Expand
@@ -45,7 +45,7 @@ check_external_log_link:
       xpath: //a[contains(@href,'<link>') and contains(.,'<display_name>')]
   action:
     if_param: check_expand
-    ref: check_log_expand_link
+    ref: check_log_expand_link_exists
 check_external_log_link_on_pod_page:
   params:
     pod_name: <resource_name>
