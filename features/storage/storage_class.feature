@@ -58,6 +58,12 @@ Feature: storageClass related feature
     And the output should contain:
       | Invalid value: "@test@" |
 
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-noProvisioner.yaml |
+    Then the step should fail
+    And the output should contain:
+      | provisioner: Required value |
+
   # @author lxia@redhat.com
   @admin
   @destructive
