@@ -23,7 +23,7 @@ check_complete_with_error_info_on_next_page:
 check_error_alert_message_on_next_page:
   element:
     selector:
-      text: !ruby/regexp /.*<message>.*/
+      visible_text: !ruby/regexp /.*<message>.*/
 check_template_message_on_next_page:
   elements:
   - selector:
@@ -43,4 +43,4 @@ check_help_and_sug_on_next_step_page:
 check_successful_result_info_on_next_step_page:
   element:
     selector:
-      text: !ruby/regexp /has been created/
+      visible_text: !ruby/regexp /has been created/

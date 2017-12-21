@@ -79,7 +79,7 @@ try_sample_repo_in_wizard:
 check_advanced_options_link_in_wizard:
   elements:
   - selector:
-      text: !ruby/regexp /private Git repository or need to change application defaults/
+      visible_text: !ruby/regexp /private Git repository or need to change application defaults/
   - selector:
       xpath: //a[text()='advanced options']
     op: click

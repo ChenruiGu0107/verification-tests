@@ -3,7 +3,7 @@ check_empty_routes_page:
   action: goto_routes_page
   elements:
   - selector:
-      text: !ruby/regexp /.*No routes*/
+      visible_text: !ruby/regexp /.*No routes*/
 check_response_string:
   elements:
   - selector:

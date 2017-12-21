@@ -54,17 +54,17 @@ open_notification_drawer_for_one_project:
 click_clear_all:
   elements:
   - selector:
-      text: !ruby/regexp /Clear All/
+      visible_text: !ruby/regexp /Clear All/
     type: span
     op: click
 check_drawer_info_for_empty_notifications:
   elements:
   - selector:
-      text: !ruby/regexp /There are no notifications to display/
+      visible_text: !ruby/regexp /There are no notifications to display/
 check_project_name_in_drawer:
   elements:
   - selector:
-      text: !ruby/regexp /<project_name>/
+      visible_text: !ruby/regexp /<project_name>/
     type: div
 check_drawer_notification_content:
   action:
@@ -83,11 +83,11 @@ check_zero_unread_in_drawer:
 click_mark_all_read:
   elements:
   - selector:
-      text: !ruby/regexp /Mark All Read/
+      visible_text: !ruby/regexp /Mark All Read/
     type: button
     op: click
 check_unread_notification_num:
   elements:
   - selector:
-      text: !ruby/regexp /<unread_num> Unread/i
+      visible_text: !ruby/regexp /<unread_num> Unread/i
     type: div

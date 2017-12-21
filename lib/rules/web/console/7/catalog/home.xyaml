@@ -2,10 +2,10 @@
 check_instructions_on_home_page:
   elements:
   - selector:
-      text: !ruby/regexp /Home Page Tour/
+      visible_text: !ruby/regexp /Home Page Tour/
   - selector:
-      text: !ruby/regexp /Documentation/
+      visible_text: !ruby/regexp /Documentation/
   - selector:
-      text: !ruby/regexp /Learning/
+      visible_text: !ruby/regexp /Learning/
   - selector:
-      text: !ruby/regexp /Development/
+      visible_text: !ruby/regexp /Development/

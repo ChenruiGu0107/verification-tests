@@ -284,7 +284,7 @@ check_build_failure_reason_on_one_build_page:
 check_build_failure_reason:
   elements:
   - selector:
-      text: !ruby/regexp /<build_failure_reason>/
+      visible_text: !ruby/regexp /<build_failure_reason>/
     type: span
 check_bc_source_ref:
   action: goto_buildconfig_configuration_tab

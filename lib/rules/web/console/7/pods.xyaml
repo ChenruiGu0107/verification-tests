@@ -3,7 +3,7 @@ check_pod_list_with_no_pod:
   action: goto_pods_page
   elements:
   - selector:
-      text: !ruby/regexp /.*No pods*/
+      visible_text: !ruby/regexp /.*No pods*/
 goto_one_pod_page:
   url: /console/project/<project_name>/browse/pods/<pod_name>
   elements:

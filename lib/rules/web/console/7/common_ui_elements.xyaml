@@ -40,7 +40,7 @@ choose_resource_type:
 click_actions_button:
   elements:
   - selector:
-      text: !ruby/regexp '/Actions/'
+      visible_text: !ruby/regexp '/Actions/'
     type: button
     op: click
 click_add:
@@ -138,12 +138,12 @@ click_edit_YAML:
 check_page_contain_text:
   element:
     selector:
-      text: !ruby/regexp /<text>/
+      visible_text: !ruby/regexp /<text>/
     timeout: 30
 check_page_not_contain_text:
   element:
     selector:
-      text: !ruby/regexp /<text>/
+      visible_text: !ruby/regexp /<text>/
     missing: true
     timeout: 20
 click_remove_button:
@@ -171,13 +171,13 @@ click_view_details:
 click_reveal:
   element:
     selector:
-      text: !ruby/regexp '/Reveal/'
+      visible_text: !ruby/regexp '/Reveal/'
     type: a
     op: click
 click_hide:
   element:
     selector:
-      text: !ruby/regexp '/Hide/'
+      visible_text: !ruby/regexp '/Hide/'
     type: a
     op: click
 click_to_goto_edit_YAML_page:
