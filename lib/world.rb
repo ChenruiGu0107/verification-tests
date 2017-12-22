@@ -26,6 +26,7 @@ require 'openshift/storage_class'
 require 'openshift/security_context_constraint'
 require 'openshift/host_subnet'
 require 'openshift/network_policy'
+require 'openshift/applied_cluster_resource_quota'
 require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
 require 'openshift/net_namespace'
@@ -322,6 +323,10 @@ module CucuShift
       else
         return @builds.last
       end
+    end
+
+    def applied_cluster_resource_quota(name = nil, env = nil)
+      project_resource(AppliedClusterResourceQuota, name, env)
     end
 
     def hpa(name = nil, project = nil)
@@ -668,6 +673,7 @@ module CucuShift
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
         network_policy: "networkpolicies",
+        applied_cluster_resource_quota: "appliedclusterresourcequotas",
         cluster_resource_quota: "clusterresourcequotas",
         stateful_set: "statefulsets",
         storage_class: "storageclasses",
