@@ -246,10 +246,11 @@ module CucuShift
         end
       end
 
-      def convert_to_bytes(raw_str)
-        parsed = raw_str.match(/(\d+)(\.)?(\d+)([a-zA-Z]*)/)
+
+      def convert_to_bytes(mem_str)
+        parsed = mem_str.match(/\A(\d+)([a-zA-Z]*)\z/)
         number = Integer(parsed[1])
-        unit = parsed[4]
+        unit = parsed[2]
         case unit
         when "", "b"
           return number
@@ -264,8 +265,8 @@ module CucuShift
         end
       end
 
-      def convert_cpu(raw_str)
-        parsed = raw_str.match(/\A(\d+)([a-zA-Z]*)\z/)
+      def convert_cpu(cpu_str)
+        parsed = cpu_str.match(/\A(\d+)([a-zA-Z]*)\z/)
         number = Integer(parsed[1])
         unit = parsed[2]
         case unit

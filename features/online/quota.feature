@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Quota related scripts in this file
 
   # @author zhaliu@redhat.com
-  Scenario Outline: Request/limit would be overridden based on container's memory limit when master provides override ratio 
+  Scenario Outline: Request/limit would be overridden based on container's memory limit when master provides override ratio
     Given I have a project
     When I run the :get client command with:
       | resource | limitrange |
@@ -49,12 +49,12 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | but request is 600Mi                    |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
-    Then the step should succeed 
+    Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-over.yaml |
     Then the step should fail
-    And the output should match: 
+    And the output should match:
       | persistentvolumeclaims.*is forbidden:   |
       | maximum .* PersistentVolumeClaim is 1Gi |
       | but request is 5Gi                      |
@@ -71,7 +71,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And the expression should be true> @result[:parsed]["spec"]["hard"]["persistentvolumeclaims"] == "1"
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
-    Then the step should succeed 
+    Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml" replacing paths:
       | ["metadata"]["name"] | claim-equal-limit1 |
@@ -134,7 +134,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | resource | quota   |
       | name     | quota   |
     Then the step should succeed
-    And the output should match:  
+    And the output should match:
       | cpu\s*80m\s*4                   |
       | memory\s*409Mi\s*8Gi            |
       | persistentvolumeclaims\s*1\s*10 |
@@ -150,3 +150,91 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the step should succeed
     And the output should contain:
       | resourcequota "quota" deleted |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-12982
+  Scenario: Normal pods with restartPolicy=Always can't occupy the run-once clusterResourceQuota
+    Given I have a project
+    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "512Mi"
+    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit == 0
+
+  # @author bingli@redhat.com
+  # @case_id OCP-12698
+  Scenario: User's ClusterResourceQuota should identify all this user's projects
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard
+    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-noncompute')}` is stored in the :storage_crq clipboard
+
+    When I run the :new_app client command with:
+      | template | dancer-mysql-persistent |
+    Then the step should succeed
+    And the pod named "dancer-mysql-persistent-1-build" status becomes :running
+    And the pod named "database-1-deploy" status becomes :running
+
+    Given I create a new project
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
+    Then the pod named "mysql-1-deploy" status becomes :running
+
+    Given I check that the "cb.memory_terminate_crq.name" applied_cluster_resource_quota exists
+    Then the expression should be true> applied_cluster_resource_quota.total_used.memory_limit_raw == "1536Mi"
+
+    Given the "mysql" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | deployment=mysql-1 |
+    And I use the "<%= cb.project1 %>" project
+    And the "database" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | deployment=database-1 |
+    And a pod becomes ready with labels:
+      | deployment=dancer-mysql-persistent-1 |
+    Then the expression should be true> cb.memory_crq.total_user(cached: false).memory_limit_raw == "1536Mi"
+    And the expression should be true> cb.storage_crq.total_user(cached: false).storage_requests_raw == "2Gi"
+
+  # @author bingli@redhat.com
+  # @case_id OCP-10293
+  Scenario: User can share another user's resourcequota after granted the privilege
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard
+    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-noncompute')}` is stored in the :storage_crq clipboard
+
+    When I run the :policy_add_role_to_user client command with:
+      | role       | edit                               |
+      | user_name  | <%= user(1, switch: false).uid %> |
+      | n          | <%= cb.project1 %>                 |
+    Then the step should succeed
+
+    Given I switch to second user
+    And I use the "<%=cb.project1 %>" project
+    Then I run the :new_app client command with:
+      | template | mongodb-persistent |
+    Then the step should succeed
+    Given I switch to first user
+    Given the pod named "mongodb-1-deploy" status becomes :running
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
+    Then the step should succeed
+    And the pod named "mysql-1-deploy" status becomes :running
+    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == 1Gi
+
+    Given a pod becomes ready with labels:
+      | deployment=mysql-1 |
+    And a pod becomes ready with labels:
+      | deployment=mongodb-1 |
+    And the "mongodb" PVC becomes :bound
+    And the "mysql" PVC becomes :bound
+    Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == 1Gi
+    And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == 2Gi

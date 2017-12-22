@@ -34,20 +34,28 @@ module CucuShift
 
     # TODO: add support for users by certificate
     def name
-      return @name if @name
-
-      ## obtain username by the token
-      unless cached_tokens[0]
+      if @name
+        return @name
+      elsif cached_tokens[0]
+        return @name = uid
+      else
         raise "somehow user has no name and no token defined"
       end
+    end
+
+    # this is the string identifying the user inside the cluster and does not
+    # necessarily match the username used to login on the web console; usually
+    # when using multiple identity providers, virtual clusters, etc.
+    def uid
+      return @uid if @uid
 
       res = get_self
-
       if res[:success] && res[:props] && res[:props][:name]
-        @name = res[:props][:name]
-        return @name
+        @uid = res[:props][:name]
+        return @uid
       else
-        raise "could not obtain username with token #{cached_tokens[0]}: #{res[:response]}"
+        clarify = cached_tokens[0] ? " with token #{cached_tokens[0]}" : nil
+        raise "could not obtain username#{clarify}: #{res[:response]}"
       end
     end
 
