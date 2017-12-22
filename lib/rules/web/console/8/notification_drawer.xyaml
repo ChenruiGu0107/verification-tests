@@ -73,10 +73,12 @@ check_drawer_notification_content:
   elements:
   - selector:
       xpath: //span[@ng-if='notification.event.reason' and contains(.,'<event_reason>')]/parent::div/span[@ng-if='notification.event.involvedObject' and contains(.,'<event_object>')]
+    timeout: 60  
 check_event_resource_type_in_drawer:
   elements:
   - selector:
       xpath: //span[@ng-if='notification.event.reason']/span[@ng-if='notification.event.involvedObject' and contains(.,'<event_resource_type>')]
+    timeout: 60  
 check_zero_unread_in_drawer:
   action: click_mark_all_read
   action: check_unread_notification_num

@@ -416,6 +416,8 @@ select_project_in_project_list:
       xpath: //span[@class='text' and normalize-space()='<target_project>']
     op: click
 check_pod_stuck_warning_message:
+  params:
+    resource_type: pod
   action: expand_resource_entry 
   element:
     selector:

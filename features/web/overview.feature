@@ -336,7 +336,6 @@ Feature: Check overview page
       | limits    | cpu=300m,memory=250Mi          |
     Then the step should succeed
     When I perform the :check_pod_stuck_warning_message web console action with:
-      | resource_type | pod               |
       | resource_name | myrun-pod-warning |
     Then the step should succeed
     When I run the :create client command with:

@@ -641,6 +641,8 @@
     :output: --output=<value>
     :template: --template=<value>
     :to_version: --to-version=<value>
+:rollout_cancel:
+  :cmd: oc rollout cancel <resource> <resource_name>
 :rollout_history:
   :cmd: oc rollout history <resource>
   :options:
