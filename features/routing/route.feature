@@ -1808,20 +1808,14 @@ Feature: Testing route
   Scenario: The reencrypt route should support HSTS
     Given the master version >= "3.7"
     And I have a project
-    And I store default router IPs in the :router_ip clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml" replacing paths:
+      | ["metadata"]["annotations"]["haproxy.router.openshift.io/hsts_header"] | "max-age=100;includeSubDomains;preload" |
     Then the step should succeed
     And all pods in the project are ready
     
-    #Add hsts by annotate
-    When I run the :annotate client command with:
-      | resource     | route                                                         |
-      | resourcename | route-reencrypt                                               |
-      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=100;includeSubDomains;preload |
-    Then the step should succeed
     Given I use the "service-secure" service    
-    And I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route    
+    And I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route
+    Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:headers]["strict-transport-security"] == ["max-age=100;includeSubDomains;preload"]
 
 
