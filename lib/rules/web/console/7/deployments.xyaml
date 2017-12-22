@@ -890,3 +890,57 @@ add_env_var_value_for_dc_custom_strategy:
   - selector:
       xpath: //key-value-editor[contains(@entries,'custom')]//div[@ng-repeat='entry in entries'][last()]/div[2]//input
     op: send_keys <env_var_value>
+keep_parameters_in_dc_dialog:
+  elements:
+  - selector:
+      xpath: //h1[contains(.,"Keep parameters?")]
+  - selector:
+      text: !ruby/regexp /Yes/
+    type: button
+    op: click
+check_learn_more_link_for_rolling_strategy:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'rolling-strategy') and contains(normalize-space(),'Learn More')]
+check_detail_info_on_configuration_tab:
+  element: &detail_tab_info
+    selector:
+      xpath: //dt[contains(.,"<field>")]/..//dd[contains(.,"<value>")]
+check_detail_on_configuration_tab_for_rolling:
+  action: goto_one_dc_page
+  action: click_on_configuration_tab
+  action: check_timeout_on_detail_tab
+  action: check_update_period_on_detail_tab
+  action: check_interval_on_detail_tab
+  action: check_max_unavailable_on_detail_tab
+  action: check_max_surge_on_detail_tab
+check_timeout_on_detail_tab:
+  params:
+    field: Timeout
+    value: <timeout_v>
+  element:
+    <<: *detail_tab_info
+check_update_period_on_detail_tab:
+  params:
+    field: Update Period
+    value: <updateperiod_v>
+  element:
+    <<: *detail_tab_info
+check_interval_on_detail_tab:
+  params:
+    field: Interval
+    value: <interval_v>
+  element:
+    <<: *detail_tab_info
+check_max_unavailable_on_detail_tab:
+  params:
+    field: Max Unavailable
+    value: <maxunavailable_v>
+  element:
+    <<: *detail_tab_info
+check_max_surge_on_detail_tab:
+  params:
+    field: Max Surge
+    value: <maxsurge_v>
+  element:
+    <<: *detail_tab_info

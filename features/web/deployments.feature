@@ -741,3 +741,44 @@ Feature: Check deployments function
       | Image:\s+aosqe/hello-openshift |
       | Environment:\s+env1=value1     |
       | Command:\s+echo "hello"        |
+
+  # @author hasha@redhat.com
+  # @case_id OCP-11381
+  Scenario: Change Deployment Stategy from Recreate to Rolling and keep some paramaters on web console
+    Given I have a project
+    # Since importance of the case is low, no related rules for v3.4/3.5/3.6
+    Given the master version >= "3.4"
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/rails-ex/master/openshift/templates/rails-postgresql.json |
+    Then the step should succeed
+    When I perform the :goto_edit_dc_page web console action with:
+      | project_name | <%= project.name %>      |
+      | dc_name      | rails-postgresql-example |
+    Then the step should succeed
+    When I perform the :select_dc_strategy_type web console action with:
+      | strategy_type | Rolling |
+    Then the step should succeed
+    When I run the :keep_parameters_in_dc_dialog web console action
+    Then the step should succeed
+    When I run the :check_learn_more_link_for_rolling_strategy web console action
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_detail_on_configuration_tab_for_rolling web console action with:
+      | project_name     | <%= project.name %>      | 
+      | dc_name          | rails-postgresql-example |
+      | timeout_v        | 600 sec                  |
+      | updateperiod_v   | 1 sec                    |
+      | interval_v       | 1 sec                    |
+      | maxunavailable_v | 25%                      |
+      | maxsurge_v       | 25%                      |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | dc                       |
+      | name     | rails-postgresql-example |
+    Then the output should match:
+      | Strategy:\\s+Rolling                       |
+      | \\s+Pre-deployment\\s+hook.*               |
+      | \\s+Container:\\s+rails-postgresql-example |
+      | \\s+Command:\\s+./migrate-database.sh      |
+
