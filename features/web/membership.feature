@@ -325,3 +325,35 @@ Feature: memberships related features via web
       | resource | rolebinding |
     Then the output should not contain 2 times:
       | bob |
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-11380
+  Scenario: Check warning modal in some membership edit situations
+    #have no related rules for v3.4&v3.5
+    Given the master version >= "3.4"
+    Given I have a project
+    When I perform the :click_to_goto_membership_tab web console action with:
+      | project_name | <%= project.name %> |
+      | tab_name     | Service Accounts    |
+    Then the step should succeed
+    When I run the :edit_membership web console action
+    Then the step should succeed
+    When I perform the :click_on_delete_role_on_membership web console action with:
+      | name         | deployer                      |
+      | role         | system:deployer               |
+      | danger_alert | may cause unexpected behavior |
+    Then the step should succeed
+    When I perform the :click_to_goto_membership_tab web console action with:
+      | project_name | <%= project.name %> |
+      | tab_name     | Users               |
+    Then the step should succeed
+    When I run the :edit_membership web console action
+    Then the step should succeed
+    When I perform the :click_on_delete_role_on_membership web console action with:
+      | name              | <%= user.name %>                        |
+      | role              | admin                                  |
+      | danger_alert      | remove your ability to see this project |
+      | operation_confirm | Cancel                                  |
+    Then the step should succeed
+
