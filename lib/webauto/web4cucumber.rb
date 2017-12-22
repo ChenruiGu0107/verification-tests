@@ -47,6 +47,7 @@ require "base64"
         browser_type: :firefox,
         browser: nil,
         scroll_strategy: nil,
+        size: nil,
         hooks: nil
       )
       @browser_type = browser_type
@@ -56,6 +57,7 @@ require "base64"
       @browser = browser
       @logger = logger
       @scroll_strategy = scroll_strategy
+      @size = size
       set_hooks(hooks)
     end
 
@@ -108,6 +110,9 @@ require "base64"
         end
         driver = Selenium::WebDriver.for :firefox, desired_capabilities: caps, http_client: client
         @browser = Watir::Browser.new driver
+        if @size
+          browser.window.resize_to(*@size)
+        end
       elsif @browser_type == :chrome
         logger.info "Launching Chrome"
         if Integer === @scroll_strategy
