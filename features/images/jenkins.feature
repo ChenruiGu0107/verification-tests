@@ -1309,7 +1309,7 @@ Feature: jenkins.feature
   # @case_id OCP-12425 OCP-12426
   Scenario Outline: Show annotation when deployment triggered by jenkins pipeline
     Given I have a project
-    Given I have an ephemeral jenkins v<ver> application
+    Given I have a persistent jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
