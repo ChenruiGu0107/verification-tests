@@ -345,3 +345,19 @@ Feature: logging related scenarios
       | Expected to find 'logging-kibana' among the logging services for the project but did not       |
       | Looked for 'logging-kibana-ops' among the logging services for the project but did not find it |
 
+
+  # @author pruan@redhat.com
+  # @case_id OCP-10995
+  @admin
+  @destructive
+  Scenario: Check fluentd changes for common data model and index naming
+    Given I create a project with non-leading digit name
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
+    And logging service is installed in the system
+    When I wait for the "project.<%= project.name %>" index to appear in the ES pod
+    And the expression should be true> cb.index_data['index'] == "project.#{project.name}.#{project.uid}.#{Time.now.year}.#{Time.now.month}.#{Time.now.day}"
+    And I wait for the ".operations" index to appear in the ES pod
+    And the expression should be true> cb.index_data['index'] == ".operations.#{Time.now.year}.#{Time.now.month}.#{Time.now.day}"
+

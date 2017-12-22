@@ -913,11 +913,8 @@ When /^I wait for the #{QUOTED} index to appear in the ES pod(?: in the#{OPT_QUO
   seconds = 5 * 60
   index_data = nil
   success = wait_for(seconds) {
-    step %Q/I perform the HTTP request on the ES pod in the project:/, table(%{
-      | relative_url | _cat/indices?format=JSON |
-      | op           | GET                      |
-    })
-    res = @result[:parsed].find {|e| e['index'].start_with? index_name}
+    step %Q/I get the "#{index_name}" logging index information/
+    res = cb.index_data
     if res
       index_data = res
       # exit only health is 'green' and index is 'open'
@@ -925,7 +922,16 @@ When /^I wait for the #{QUOTED} index to appear in the ES pod(?: in the#{OPT_QUO
     end
   }
   raise "Index '#{index_name}' failed to appear in #{seconds} seconds" unless success
-  cb.index_data = index_data
+end
+
+# @return stored data into cb.index_data
+When /^I get the #{QUOTED} logging index information$/ do | index_name |
+  step %Q/I perform the HTTP request on the ES pod in the project:/, table(%{
+    | relative_url | _cat/indices?format=JSON |
+    | op           | GET                      |
+  })
+  res = @result[:parsed].find {|e| e['index'].start_with? index_name}
+  cb.index_data = res
 end
 
 # just do the query, check result outside of the step.

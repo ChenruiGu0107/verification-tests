@@ -225,12 +225,72 @@ Feature: ansible install related feature
   @destructive
   Scenario: Make sure the searchguard index that is created upon pod start worked fine
     Given I create a project with non-leading digit name
-    And logging service is installed in the system
-    When I wait for the ".searchguard." index to appear in the ES pod
-    # need to check with anli about the byte count
-    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 100
-    # chcek operation and project.install-test.xxx index
+    Given logging service is installed in the system
+    And a deploymentConfig becomes ready with labels:
+      | component=es |
+    And I wait up to 240 seconds for the steps to pass:
+    """"
+    When I get the ".searchguard.<%= dc.name %>" logging index information
+    Then the expression should be true> cb.index_data['docs.count'] == "5"
+    """
+    And the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 159
+    # check operation and project.install-test.xxx index
     When I wait for the ".operations." index to appear in the ES pod
     Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
     When I wait for the "project.install-test." index to appear in the ES pod
     Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12868
+  @admin
+  @destructive
+  Scenario: Check Fluentd should write times/timestamps in UTC when logdriver=journald
+    Given the master version >= "3.5"
+    Given I have a project
+    Given logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
+    When I wait for the ".operation" index to appear in the ES pod
+    Then I perform the HTTP request on the ES pod in the project:
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
+      | op           | GET                                                 |
+    And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
+    Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
+    # query the user project
+    When I wait for the "project.<%= project.name %>" index to appear in the ES pod
+    Then I perform the HTTP request on the ES pod in the project:
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
+      | op           | GET                                                 |
+    And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
+    Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11869
+  @admin
+  @destructive
+  Scenario: Deploy logging via Ansible - clean install with jounal log driver, not read logs from head
+    Given the master version >= "3.5"
+    Given a 7 character random string is stored into the :rand_msg clipboard
+    Given I have a project
+    And I select a random node's host
+    And I run commands on the host:
+      | logger -i message-before-<%= cb.rand_msg %> |
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    Given logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11869/inventory |
+    When I wait for the ".operations" index to appear in the ES pod
+    And I run commands on the host:
+      | logger -i message-after-<%= cb.rand_msg %> |
+    Then I perform the HTTP request on the ES pod in the project:
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-before-<%= cb.rand_msg %> |
+      | op           | GET                                                                                      |
+    And the expression should be true> @result.dig(:parsed, 'hits', 'total') == 0
+    # check message is logged after installation of kibana is registered with they system
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then I perform the HTTP request on the ES pod in the project:
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-after-<%= cb.rand_msg %> |
+      | op           | GET                                                                                     |
+    And the expression should be true> @result.dig(:parsed, 'hits', 'total') > 0
+    """
