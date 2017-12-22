@@ -52,5 +52,27 @@ Feature: create app on web console related
     When I run the :check_successful_result_info_on_next_step_page web console action
     Then the step should succeed
 
-
-
+  # @author hasha@redhat.com
+  # @case_id OCP-13996
+  Scenario: Check ordering process for builder image
+    # since it's 3.6 tech preview, no scripts for 3.6
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :goto_home_page web console action
+    Then the step should succeed
+    When I perform the :select_service_to_order_from_catalog web console action with:
+      | primary_catagory | Languages |
+      | sub_catagory     | Ruby      |
+      | service_item     | Ruby      |
+    Then the step should succeed
+    When I run the :click_next_button web console action
+    Then the step should succeed
+    When I perform the :set_app_name_in_wizard web console action with:
+      | app_name | a@@  |
+    Then the step should succeed
+    When I run the :click_somewhere_out_of_focus_for_wizard web console action
+    Then the step should succeed
+    When I run the :check_app_name_pattern_error_from_catalog web console action
+    Then the step should succeed
+    When I run the :check_create_button_disabled web console action
+    Then the step should succeed

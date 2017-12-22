@@ -99,3 +99,7 @@ check_wizard_information:
   - selector:
       xpath: //span[contains(.,"Information")]
     timeout: 30
+check_app_name_pattern_error_from_catalog:
+  element:
+    selector:
+      text: !ruby/regexp /Application name consists of lower-case letters, numbers, and dashes. It must start with a letter and can't end/ 
