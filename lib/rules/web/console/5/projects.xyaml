@@ -77,7 +77,6 @@ check_project_deleted_message:
   elements:
   - selector:
       xpath: //span[contains(.,"'<project_name>' was marked for deletion")]
-    type: a
 check_project_search_box:
   action: goto_projects_page
   elements:
