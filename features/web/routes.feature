@@ -13,6 +13,10 @@ Feature: Routes related features on web console
       | code         | https://github.com/openshift/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service       |
+      | resource_name | nodejs-sample |
+    Then the step should succeed
     Given the "nodejs-sample-1" build was created
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
