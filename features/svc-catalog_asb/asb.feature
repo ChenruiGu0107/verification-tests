@@ -111,14 +111,14 @@ Feature: Ansible-service-broker related scenarios
       | object_name_or_id | <%= cb.prefix %>-mediawiki-apb    |
       | n                 | <%= project.name %>               |
     Then the step should succeed
-    Given I wait for the resource "serviceinstance" named "<db_name>" to disappear within 300 seconds
-      And I wait for the resource "serviceinstance" named "<%= cb.prefix %>-mediawiki-apb" to disappear within 300 seconds
-      # And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
-      # And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
-
-    When I run the :get client command with:
-      | resource          | all                               |
-    Then the output should contain "No resources found"
+    When I wait for the resource "serviceinstance" named "<db_name>" to disappear within 300 seconds
+    And I wait for the resource "serviceinstance" named "<%= cb.prefix %>-mediawiki-apb" to disappear within 300 seconds
+    # And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
+    # And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
+    Then I check that there are no pods
+    And I check that there are no dc
+    And I check that there are no services
+    And I check that there are no routes
 
     Examples:
       | db_name                         | db_credentials                             | db_plan | db_secret_name                             | db_parameters                                                                        | db_label              |
