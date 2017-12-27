@@ -1,7 +1,7 @@
 Feature: oc logs related features
   # @author wzheng@redhat.com
   # @case_id OCP-12017
-  Scenario: Get buildlogs with invalid parameters
+  Scenario Outline: Get buildlogs with invalid parameters
     Given I have a project
     When I run the :logs client command with:
       | resource_name | 123 |
@@ -10,7 +10,12 @@ Feature: oc logs related features
     When I run the :logs client command with:
       | resource_name |   |
     Then the step should fail
-    And the output should contain "resource name may not be empty"
+    And the output should contain "<warning>"
+
+    Examples:
+      | warning                                                        |
+      | resource name may not be empty                                 | # @case_id: OCP-12017 
+      | You must provide one or more resources by argument or filename | # @case_id: OCP-17383
 
   # @author xxia@redhat.com
   # @case_id OCP-10740
