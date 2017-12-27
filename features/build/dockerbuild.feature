@@ -30,8 +30,8 @@ Feature: dockerbuild.feature
 
     Examples:
       | warning                                      |
-      | Invalid git source url: 123                  |
-      | '123' does not appear to be a git repository |
+      | Invalid git source url: 123                  |  # @case_id: OCP-11444
+      | '123' does not appear to be a git repository |  # @case_id: OCP-17382
 
   # @author wzheng@redhat.com
   # @case_id OCP-12115
