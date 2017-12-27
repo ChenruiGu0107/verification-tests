@@ -14,7 +14,7 @@ Feature: dockerbuild.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-11444
-  Scenario: Push build with invalid github repo
+  Scenario Outline: Push build with invalid github repo
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti-invalidrepo.json |
@@ -26,7 +26,12 @@ Feature: dockerbuild.feature
     And the "ruby22-sample-build-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/ruby22-sample-build |
-    Then the output should contain "Invalid git source url: 123"
+    Then the output should contain "<warning>"
+
+    Examples:
+      | warning                                      |
+      | Invalid git source url: 123                  |
+      | '123' does not appear to be a git repository |
 
   # @author wzheng@redhat.com
   # @case_id OCP-12115

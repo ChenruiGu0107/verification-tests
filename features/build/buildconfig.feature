@@ -161,7 +161,7 @@ Feature: buildconfig.feature
     When I run the :create client command with:
       | f | sourcebuildconfig.json |
     Then the step should fail
-    And the output should contain "char"
+    And the output should contain "invalid"
 
   # @author cryan@redhat.com
   # @case_id OCP-10606
