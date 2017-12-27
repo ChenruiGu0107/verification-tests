@@ -434,6 +434,7 @@ module CucuShift
     def image_stream_tag(name = nil, project = nil)
       project_resource(ImageStreamTag, name, project)
     end
+    alias istag image_stream_tag
 
     # @return [PersistentVolumeClaim] last used PVC from scenario cache;
     #   with no params given, returns last requested is;
@@ -663,6 +664,7 @@ module CucuShift
     def resource_class(cli_string)
       shorthands = {
         is: "imagestreams",
+        istag: "imagestreamtags",
         dc: "deploymentconfigs",
         hpa: "horizontalpodautoscalers",
         rc: "replicationcontrollers",

@@ -8,6 +8,7 @@ module CucuShift
     # cache some usually immutable properties for later fast use; do not cache
     # things that can change at any time
     def update_from_api_object(istag_hash)
+      super
 
       props[:metadata] = m = istag_hash["metadata"]
       props[:image] = i = istag_hash["image"]
@@ -26,6 +27,10 @@ module CucuShift
 
     def annotations(user:, cached: true, quiet: false)
       return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("metadata", "annotations")
+    end
+
+    def from(user:, cached: false, quiet: false)
+      return raw_resource(user: user, cached: cached, quiet: quiet).dig("tag", "from", "name")
     end
 
     def labels(user:, cached: true, quiet: false)
