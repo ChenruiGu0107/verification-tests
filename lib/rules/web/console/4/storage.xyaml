@@ -47,6 +47,9 @@ create_pvc_from_storage_page:
   action: set_storage_size
   action: set_storage_unit
   action: click_create_button
+  element:
+    selector:
+      xpath: //td[@data-title='Name']/a[text()='<pvc_name>']
 check_pvc_info:
   action: check_one_pvc_detail
   action: check_pvc_set_info
