@@ -948,7 +948,6 @@ Feature: build related feature on web console
       | resource_type | All                 |
     Then the step should succeed
     When I perform the :expand_resource_logs web console action with:
-      | project_name  | <%= project.name %> |
       | resource_type | Builds              |
       | resource_name | nodejs-app-1        |
     Then the step should succeed
