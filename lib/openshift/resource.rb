@@ -88,14 +88,16 @@ module CucuShift
     end
     alias reload get
 
-    def default_user(user=nil)
+    # @param optional [Boolean] if true, then method will not raise for missing
+    #   default user
+    def default_user(user=nil, optional: false)
       if user
         user = env.admin if user == :admin
-        default_user = user unless @default_user
+        self.default_user = user unless @default_user
         return user
       elsif @default_user
         return @default_user
-      else
+      elsif !optional
         raise("must specify user for the operation")
       end
     end

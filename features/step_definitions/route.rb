@@ -3,8 +3,15 @@ require 'openshift/service'
 
 # e.g I expose the "myapp" service
 When /^I expose(?: the)?(?: "(.+?)")? service$/ do |service_name|
-  r = route(service_name, service(service_name))
-  @result = r.create(by: user)
+  cache_resources service(service_name).expose(user: user)
+
+  # for backward compatibility return a successrul ResultHash
+  @result = {
+    success: true,
+    instruction: "expose service by creating a route",
+    response: "",
+    exitstatus: 0
+  }
 end
 
 # get the route information given a project name

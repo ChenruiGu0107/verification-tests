@@ -59,9 +59,7 @@ module CucuShift
       @bg_rulesresults = []
       # some arrays to store cached objects
       @projects = []
-      @services = []
       @service_accounts = []
-      @routes = []
       @builds = []
       @pods = []
       @hostsubnets = []
@@ -229,27 +227,7 @@ module CucuShift
     #   returns last requested service; otherwise creates a service object
     # @note you need the project already created
     def service(name = nil, project = nil)
-      project ||= self.project
-
-      if name
-        s = @services.find {|s| s.name == name && s.project == project}
-        if s && @services.last == s
-          return s
-        elsif s
-          @services << @services.delete(s)
-          return s
-        else
-          # create new CucuShift::Service object with specified name
-          @services << Service.new(name: name, project: project)
-          return @services.last
-        end
-      elsif @services.empty?
-        # we do not create a random service like with projects because that
-        #   would rarely make sense
-        raise "what service are you talking about?"
-      else
-        return @services.last
-      end
+      project_resource(Service, name, project)
     end
 
     # @return PV by name from scenario cache; with no params given,
@@ -278,28 +256,21 @@ module CucuShift
       end
     end
 
-    def route(name = nil, service = nil)
-      service ||= self.service
-
-      if name
-        r = @routes.find {|r| r.name == name && r.service == service}
-        if r && @routes.last == r
-          return r
-        elsif r
-          @routes << @routes.delete(r)
-          return r
-        else
-          # create new CucuShift::Route object with specified name
-          @routes << CucuShift::Route.new(name: name, service: service)
-          return @routes.last
-        end
-      elsif @routes.empty?
-        # we do not create a random route like with projects because that
-        #   would rarely make sense
-        raise "what route are you talking about?"
+    # try to stay compatible with legacy Route code
+    def route(name = nil, service_or_project = nil)
+      case service_or_project
+      when nil
+        project = self.project
+      when Project
+        project = service_or_project
+      when Service
+        service = service_or_project
+        project = service.project
       else
-        return @routes.last
+        raise "identify route by project or service"
       end
+
+      return project_resource(Route, name, project)
     end
 
     # @return build by name from scenario cache; with no params given,
@@ -329,8 +300,8 @@ module CucuShift
       end
     end
 
-    def applied_cluster_resource_quota(name = nil, env = nil)
-      project_resource(AppliedClusterResourceQuota, name, env)
+    def applied_cluster_resource_quota(name = nil, project = nil)
+      project_resource(AppliedClusterResourceQuota, name, project)
     end
 
     def hpa(name = nil, project = nil)

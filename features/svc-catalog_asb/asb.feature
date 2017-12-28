@@ -115,11 +115,11 @@ Feature: Ansible-service-broker related scenarios
     And I wait for the resource "serviceinstance" named "<%= cb.prefix %>-mediawiki-apb" to disappear within 300 seconds
     # And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
     # And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
-    Then I check that there are no pods in the "<%= project.name %>" project
-    And I check that there are no dc in the "<%= project.name %>" project
-    And I check that there are no rc in the "<%= project.name %>" project
-    And I check that there are no services in the "<%= project.name %>" project
-    And I check that there are no routes in the "<%= project.name %>" project
+    Then I check that there are no pods in the project
+    And I check that there are no dc in the project
+    And I check that there are no rc in the project
+    And I check that there are no services in the project
+    And I check that there are no routes in the project
 
     Examples:
       | db_name                         | db_credentials                             | db_plan | db_secret_name                             | db_parameters                                                                        | db_label              |
