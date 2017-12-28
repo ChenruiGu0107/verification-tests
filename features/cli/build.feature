@@ -251,27 +251,21 @@ Feature: build 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Given the "ruby" image stream was created
     And the "ruby" image stream becomes ready
-    Given the "mysql" image stream was created
-    And the "mysql" image stream becomes ready
     Given the "postgresql" image stream was created
     And the "postgresql" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream      | openshift/ruby                                                                                                                                   |
       | image_stream      | <%= project.name %>/ruby:2.2                                                                                                                     |
       | docker_image      | <%= product_docker_repo %>rhscl/ruby-22-rhel7                                                                                                    |
-      | image_stream      | openshift/mysql                                                                                                                                  |
-      | image_stream      | <%= project.name %>/mysql:5.6                                                                                                                    |
-      | docker_image      | <%= product_docker_repo %>rhscl/mysql-56-rhel7                                                                                                   |
       | image_stream      | openshift/postgresql                                                                                                                             |
       | image_stream      | <%= project.name %>/postgresql:9.4                                                                                                               |
       | docker_image      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7                                                                                              |
-      | group             | openshift/ruby+openshift/mysql+openshift/postgresql                                                                                              |
-      | group             | <%= project.name %>/ruby:2.2+<%= project.name %>/mysql:5.6+<%= project.name %>/postgresql:9.4                                                    |
-      | group             | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | group             | openshift/ruby+openshift/postgresql                                                                                                              |
+      | group             | <%= project.name %>/ruby:2.2+<%= project.name %>/postgresql:9.4       |
+      | group             | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
       | code              | https://github.com/openshift/ruby-hello-world                                                                                                    |
       | env               | POSTGRESQL_USER=user                                                                                                                             |
       | env               | POSTGRESQL_DATABASE=db                                                                                                                           |
-      | env               | MYSQL_ROOT_PASSWORD=test                                                                                                                         |
       | env               | POSTGRESQL_PASSWORD=test                                                                                                                         |
       | l                 | app=testapps                                                                                                                                     |
       | insecure_registry | true                                                                                                                                             |
