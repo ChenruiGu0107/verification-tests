@@ -9,3 +9,29 @@ Feature: pvc protection specific scenarios
     And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc.finalizers(user: user).include? "kubernetes.io/pvc-protection"
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
+
+  # @author lxia@redhat.com
+  # @case_id OCP-17254
+  Scenario: Delete pvc which is in active use by pod should postpone deletion
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc
+/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod                   |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I run the :delete client command with:
+      | object_type       | pvc                     |
+      | object_name_or_id | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :terminating within 30 seconds
+    When I execute on the pod:
+      | touch | /mnt/ocp_pv/testfile |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC status is :terminating
+    Given I ensure "mypod" pod is deleted
+    And I wait for the resource "pvc" named "pvc-<%= project.name %>" to disappear within 30 seconds
