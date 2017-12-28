@@ -288,8 +288,7 @@ create_app_from_image_check_cpu_default_request:
 create_app_from_image_set_cpu_resource_request:
   element:
     selector:
-      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input
-    type: input
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input[@name='amount']
     op: send_keys <cpu_request>
 create_app_from_image_check_cpu_default_limit:
   element:
@@ -299,8 +298,7 @@ create_app_from_image_check_cpu_default_limit:
 create_app_from_image_set_cpu_resource_limit:
   element:
     selector:
-      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input
-    type: input
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input[@name='amount']
     op: send_keys <cpu_limit>
 create_app_from_image_check_memory_limit_range:
   element:
@@ -314,8 +312,7 @@ create_app_from_image_check_memory_default_request:
 create_app_from_image_set_memory_resource_request:
   element:
     selector:
-      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input
-    type: input
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input[@name='amount']
     op: send_keys <memory_request>
 create_app_from_image_check_memory_default_limit:
   element:
@@ -325,8 +322,7 @@ create_app_from_image_check_memory_default_limit:
 create_app_from_image_set_memory_resource_limit:
   element:
     selector:
-      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input
-    type: input
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input[@name='amount']
     op: send_keys <memory_limit>
 create_app_from_image_submit:
   action: click_create_button

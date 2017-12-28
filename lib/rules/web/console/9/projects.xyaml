@@ -19,7 +19,7 @@ check_policy_command: {}
 click_delete_project:
   elements:
   - selector:
-      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//a[contains(@class,'actions-dropdown-kebab')]
+      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//button[contains(@class,'dropdown-toggle')]
     op: click
   - selector:
       xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//a[normalize-space(text())='Delete Project']
