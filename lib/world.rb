@@ -689,6 +689,7 @@ module CucuShift
         rc: "replicationcontrollers",
         pv: "persistentvolumes",
         svc: "service",
+        routes: "routes",
         pvc: "persistentvolumeclaims",
         cluster_service_broker: "clusterservicebrokers",
         cluster_service_class: "clusterserviceclasses",

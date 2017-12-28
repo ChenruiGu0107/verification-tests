@@ -1,11 +1,12 @@
 require 'yaml'
-
+require 'openshift/project_resource'
 require 'common'
 
 module CucuShift
   # @note represents an OpenShift route to a service
   #   https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/routes.html
-  class Route
+  class Route < ProjectResource
+    RESOURCE = "routes"
     include Common::Helper
     include Common::UserObjectHelper
 
