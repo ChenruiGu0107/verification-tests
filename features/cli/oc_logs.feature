@@ -1,6 +1,5 @@
 Feature: oc logs related features
   # @author wzheng@redhat.com
-  # @case_id OCP-12017
   Scenario Outline: Get buildlogs with invalid parameters
     Given I have a project
     When I run the :logs client command with:
