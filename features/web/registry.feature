@@ -77,7 +77,7 @@ Feature: Testing registry
       | image_name   | testisnew           |
     Then the step should succeed
     When I perform the :check_image_info_in_iframe_on_one_image_page web action with:
-      | pull_repository | docker.io/openshift/hello-openshift |
+      | pull_repository | <%= project.name %>/testisnew |
     Then the step should succeed
     When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
       | project_name | <%= project.name %> |
@@ -145,4 +145,64 @@ Feature: Testing registry
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
       | tag_label    | user1001            |
+    Then the step should succeed
+
+  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @case_id OCP-9895
+  Scenario: Create ImageStream which sync all tags from remote repository on atomic-registry console
+    Given I have a project
+    And I open registry console in a browser
+    When I run the :click_images_link_in_iframe web action
+    Then the step should succeed
+    When I perform the :create_new_image_stream_in_iframe web action with:
+      | is_name      | test-busybox-is                              |
+      | project_name | <%= project.name %>                          |
+      | populate     | Sync all tags from a remote image repository |
+      | pull_from    | docker.io/aosqe/busybox-multytags            |
+    Then the step should succeed
+
+    Given I wait for the "test-busybox-is" imagestreams to appear
+    When I perform the :click_to_goto_one_image_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | tag_label    | latest              |
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | tag_label    | v1.2-5              |
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | tag_label    | v1.3-2              |
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | tag_label    | v1.3-3              |
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | tag_label    | v1.3-4              |
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+    Then the step should succeed
+
+    When I perform the :check_info_on_one_image_tag_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | test-busybox-is     |
+      | tag_label    | latest              |
+    Then the step should succeed
+
+    When I perform the :click_a_link_in_iframe web action with:
+      | link_text     | Show all images                    |
+      | url_ends_with | <%= project.name %>/test-busybox-is|
+    Then the step should succeed
+    When I perform the :click_a_link_in_iframe web action with:
+      | link_text     | Show all image streams     |
+      | url_ends_with | images/<%= project.name %> |
     Then the step should succeed
