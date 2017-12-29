@@ -13,7 +13,6 @@ Feature: dockerbuild.feature
     Then the output should match "spec.source.git.uri: [Rr]equired value"
 
   # @author wzheng@redhat.com
-  # @case_id OCP-11444
   Scenario Outline: Push build with invalid github repo
     Given I have a project
     When I run the :create client command with:
