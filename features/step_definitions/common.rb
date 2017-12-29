@@ -237,7 +237,7 @@ Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project
 
   clazz = resource_class(resource_type)
   if CucuShift::ProjectResource > clazz
-    list = clazz.list(user: _user, project: project("namespace"))
+    list = clazz.list(user: _user, project: project(namespace))
   else
     list = clazz.list(user: _user)
   end

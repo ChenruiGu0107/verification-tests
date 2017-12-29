@@ -34,6 +34,10 @@ require 'openshift/daemon_set'
 require 'openshift/identity'
 require 'openshift/config_map'
 require 'openshift/service_instance'
+require 'openshift/service_binding'
+require 'openshift/cluster_service_broker'
+require 'openshift/cluster_service_class'
+require 'openshift/cluster_service_plan'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -55,9 +59,7 @@ module CucuShift
       @bg_rulesresults = []
       # some arrays to store cached objects
       @projects = []
-      @services = []
       @service_accounts = []
-      @routes = []
       @builds = []
       @pods = []
       @hostsubnets = []
@@ -225,27 +227,7 @@ module CucuShift
     #   returns last requested service; otherwise creates a service object
     # @note you need the project already created
     def service(name = nil, project = nil)
-      project ||= self.project
-
-      if name
-        s = @services.find {|s| s.name == name && s.project == project}
-        if s && @services.last == s
-          return s
-        elsif s
-          @services << @services.delete(s)
-          return s
-        else
-          # create new CucuShift::Service object with specified name
-          @services << Service.new(name: name, project: project)
-          return @services.last
-        end
-      elsif @services.empty?
-        # we do not create a random service like with projects because that
-        #   would rarely make sense
-        raise "what service are you talking about?"
-      else
-        return @services.last
-      end
+      project_resource(Service, name, project)
     end
 
     # @return PV by name from scenario cache; with no params given,
@@ -274,28 +256,21 @@ module CucuShift
       end
     end
 
-    def route(name = nil, service = nil)
-      service ||= self.service
-
-      if name
-        r = @routes.find {|r| r.name == name && r.service == service}
-        if r && @routes.last == r
-          return r
-        elsif r
-          @routes << @routes.delete(r)
-          return r
-        else
-          # create new CucuShift::Route object with specified name
-          @routes << CucuShift::Route.new(name: name, service: service)
-          return @routes.last
-        end
-      elsif @routes.empty?
-        # we do not create a random route like with projects because that
-        #   would rarely make sense
-        raise "what route are you talking about?"
+    # try to stay compatible with legacy Route code
+    def route(name = nil, service_or_project = nil)
+      case service_or_project
+      when nil
+        project = self.project
+      when Project
+        project = service_or_project
+      when Service
+        service = service_or_project
+        project = service.project
       else
-        return @routes.last
+        raise "identify route by project or service"
       end
+
+      return project_resource(Route, name, project)
     end
 
     # @return build by name from scenario cache; with no params given,
@@ -325,15 +300,15 @@ module CucuShift
       end
     end
 
-    def applied_cluster_resource_quota(name = nil, env = nil)
-      project_resource(AppliedClusterResourceQuota, name, env)
+    def applied_cluster_resource_quota(name = nil, project = nil)
+      project_resource(AppliedClusterResourceQuota, name, project)
     end
 
     def hpa(name = nil, project = nil)
       project_resource(HorizontalPodAutoscaler, name, project)
     end
 
-		def endpoint(name = nil, project = nil)
+    def endpoint(name = nil, project = nil)
       project_resource(Endpoint, name, project)
     end
 
@@ -344,6 +319,23 @@ module CucuShift
     def service_instance(name = nil, project = nil)
       project_resource(ServiceInstance, name, project)
     end
+
+    def service_binding(name = nil, project = nil)
+      project_resource(ServiceBinding, name, project)
+    end
+
+    def cluster_service_broker(name = nil, env = nil)
+      project_resource(ClusterServiceBroker, name, env)
+    end
+
+    def cluster_service_class(name = nil, env = nil)
+      project_resource(ClusterServiceClass, name, env)
+    end
+
+    def cluster_service_plan(name = nil, env = nil)
+      project_resource(ClusterServicePlan, name, env)
+    end
+
     # @return rc (ReplicationController) by name from scenario cache;
     #   with no params given, returns last requested rc;
     #   otherwise creates a [ReplicationController] object
@@ -670,7 +662,11 @@ module CucuShift
         rc: "replicationcontrollers",
         pv: "persistentvolumes",
         svc: "service",
+        routes: "routes",
         pvc: "persistentvolumeclaims",
+        cluster_service_broker: "clusterservicebrokers",
+        cluster_service_class: "clusterserviceclasses",
+        cluster_service_plan: "clusterserviceplans",
         cluster_role: "clusterroles",
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",

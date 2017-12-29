@@ -267,9 +267,7 @@ module CucuShift
       service = service_res[:resource]
 
       ## create a dummy route
-      route = CucuShift::Route.new(name: "selector-service", service: service)
-      route_res = route.create(by: user)
-      raise "cannot create route" unless route_res[:success]
+      route = service.expose(user: user)
 
       fqdn = route.dns(by: user)
       opts[:router_subdomain] = fqdn.split('.',2)[1]

@@ -1,5 +1,9 @@
-require 'openshift/pod'
+require 'yaml'
+
 require 'openshift/project_resource'
+
+require 'openshift/pod'
+require 'openshift/route'
 
 module CucuShift
   # represents OpenShift v3 Service concept
@@ -47,7 +51,24 @@ module CucuShift
       return res
     end
 
-    # @note call without user only when props are loaded; get object to refresh
+    # @param by [CucuShift::User] the user to create route with
+    def expose(user: nil)
+      res = cli_exec(as: user, key: :expose, output: :yaml,
+                     resource: :service,
+                     resource_name: name,
+                     namespace: project.name)
+
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+        route = Route.from_api_object(project, res[:parsed])
+        route.service = self
+        return route
+      else
+        raise "could not expose service: #{res[:response]}"
+      end
+    end
+
+   # @note call without user only when props are loaded; get object to refresh
     def selector(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :selector, user: user, cached: cached, quiet: quiet)
     end
