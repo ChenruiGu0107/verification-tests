@@ -29,8 +29,8 @@ Feature: dockerbuild.feature
 
     Examples:
       | warning                                      |
-      | Invalid git source url: 123                  |  # @case_id: OCP-11444
-      | '123' does not appear to be a git repository |  # @case_id: OCP-17382
+      | Invalid git source url: 123                  |  # @case_id OCP-11444
+      | '123' does not appear to be a git repository |  # @case_id OCP-17382
 
   # @author wzheng@redhat.com
   # @case_id OCP-12115
@@ -231,7 +231,7 @@ Feature: dockerbuild.feature
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the "ruby22-sample-build-2" build was created
- 
+
     Given I switch to the second user
     Given I have a project
     When I run the :new_app client command with:
@@ -337,7 +337,7 @@ Feature: dockerbuild.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-12762
-  Scenario: Docker build with invalid context dir	
+  Scenario: Docker build with invalid context dir
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
@@ -512,7 +512,7 @@ Feature: dockerbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15461
-  Scenario: Allow nocache to be specified on docker build request 	
+  Scenario: Allow nocache to be specified on docker build request
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
@@ -545,7 +545,7 @@ Feature: dockerbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15462
-  Scenario: Override nocache setting using --no-cache flag when docker build request 	 
+  Scenario: Override nocache setting using --no-cache flag when docker build request
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
@@ -561,7 +561,7 @@ Feature: dockerbuild.feature
       | resource | buildconfig                    |
       | name     | ruby-sample-build              |
     Then the step should succeed
-    Then the output should match "No Cache:\s+true" 
+    Then the output should match "No Cache:\s+true"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build           |
       | no-cache    | false                       |
@@ -574,14 +574,14 @@ Feature: dockerbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15479
-  Scenario:  Setting nocache with wrong info when docker build request 	   
+  Scenario:  Setting nocache with wrong info when docker build request
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
-    When I run the :start_build client command with: 
+    When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
       | no-cache    | abc               |
     Then the step should fail
