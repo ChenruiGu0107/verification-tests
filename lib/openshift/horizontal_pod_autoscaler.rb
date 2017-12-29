@@ -17,20 +17,9 @@ module CucuShift
     end
 
     def current_cpu_utilization_percentage(user: nil, cached: true, quiet: false)
-      obj = raw_resource(user: user, cached: cached, quiet: quiet)
-      return obj.dig('status', 'currentCPUUtilizationPercentage')
-    end
-
-    def current_replicas(user: nil, cached: true, quiet: false)
-      replica_counters(user: user, cached: cached, quiet: quiet)[:current]
-    end
-
-    def max_replicas(user: nil, cached: true, quiet: false)
-      replica_counters(user: user, cached: cached, quiet: quiet)[:max]
-    end
-
-    def min_replicas(user: nil, cached: true, quiet: false)
-      replica_counters(user: user, cached: cached, quiet: quiet)[:min]
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig('status', 'currentCPUUtilizationPercentage').
+        to_i # it can be nil when zero thus using #to_i
     end
   end
 end

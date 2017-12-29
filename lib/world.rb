@@ -17,7 +17,7 @@ require 'openshift/persistent_volume'
 require 'openshift/persistent_volume_claim'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
-require 'openshift/replicaset'
+require 'openshift/replica_set'
 require 'openshift/deployment'
 require 'openshift/cluster_role'
 require 'openshift/cluster_role_binding'
@@ -71,7 +71,6 @@ module CucuShift
       @deployments = []
       @image_streams = []
       @image_stream_tags = []
-      @rss = []  # replicasets
       # used to store host the user wants to run commands on
       @host = nil
       # used to store nodes in the cluster
@@ -677,7 +676,8 @@ module CucuShift
         storage_class: "storageclasses",
         scc: "securitycontextconstraints",
         netns: "netnamespaces",
-        ds: "daemonsets"
+        ds: "daemonsets",
+        rs: "replicasets"
       }
       type = shorthands[cli_string.to_sym] || cli_string
 

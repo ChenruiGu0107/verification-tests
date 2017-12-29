@@ -6,23 +6,11 @@ module CucuShift
   # represents an OpenShift ReplicationController (rc for short) used for scaling pods
   class ReplicationController < PodReplicator
     RESOURCE = "replicationcontrollers"
-
-    # cache some usualy immutable properties for later fast use; do not cache
-    #   things that can change at any time like status and spec
-    def update_from_api_object(rc_hash)
-      super
-      m = rc_hash["metadata"]
-      s = rc_hash["spec"]
-      props[:uid] = m["uid"]
-      props[:labels] = m["labels"]
-      props[:annotations] = m["annotations"] # may change, use with care
-      props[:created] = m["creationTimestamp"] # already [Time]
-      props[:spec] = s
-      props[:status] = rc_hash["status"] # may change, use with care
-      props[:selector] = s["selector"]
-
-      return self # mainly to help ::from_api_object
-    end
+    REPLICA_COUNTERS = {
+      desired: %w[spec replicas].freeze,
+      current: %w[status replicas].freeze,
+      ready:   %w[status readyReplicas].freeze,
+    }.freeze
 
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
@@ -53,18 +41,14 @@ module CucuShift
     # end
 
     def selector(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec["selector"]
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "selector")
     end
 
-    def expected_replicas(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec["replicas"]
-    end
-
-    def current_replicas(user: nil, cached: true, quiet: false)
-      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      return status["replicas"]
+    # we define this in method_missing so alias can't fly
+    # alias expected_replicas desired_replicas
+    def expected_replicas(*args, &block)
+      desired_replicas(*args, &block)
     end
 
     ### if we look at the output below, a rc is ready only when the READY column
@@ -80,55 +64,51 @@ module CucuShift
     # NOTE, the readyReplicas key is not there if the READY column is 0
     # return: Integer (number of replicas that are in the ready state)
     def ready_replicas(user: nil, cached: true, quiet: false)
-      replicas = 0
-      user = default_user(user)
-      res = raw_resource(user: user, cached: cached, quiet: quiet)
       if env.version_ge("3.4", user: user)
-        # use the readyReplicas count
-        replicas = res["status"]['readyReplicas'].to_i
+        return super(user: user, cached: cached, quiet: quiet).to_i
       else
-        labels = selector(user: user)
-        # use cached if applies
-        if cached && props[:ready_replicas]
-          replicas = props[:ready_replicas]
-        else
-          pods = Pod.get_matching(user: user, project: project, get_opts: {l: selector_to_label_arr(*labels)}) { |p, p_hash| p.ready?(user: user, cached: true) }
-          replicas = props[:ready_replicas] = pods.size
-        end
+        return props[:ready_replicas] if cached && props[:ready_replicas]
+        # get ready pods by selector
+        labels = selector(user: user) # selector never changes so use cached
+        # if we are here, then we don't have the value cached on env <= v3.3
+        pods = Pod.get_matching(
+          user: user,
+          project: project,
+          get_opts: {l: selector_to_label_arr(*labels)}
+        ) { |p, p_hash| p.ready?(user: user, cached: true) }
+        return props[:ready_replicas] = pods.size
       end
-      return replicas
     end
 
-    # @return [CucuShift::ResultHash] with :success depending on
-    #   status['replicas'] == spec['replicas']
-    # @note we also need to check that the spec.replicas is > 0
-    def ready?(user:, quiet: false, cached: false)
-      if cached && props[:status] && props[:annotations] && props[:spec]
-        cache = {
-          "status" => props[:status],
-          "spec" => props[:spec],
-          "metadata" => {"annotations" => props[:annotations]}
-        }
+    def deployment_phase(user: nil, quiet: false, cached: true)
+      annotation("openshift.io/deployment.phase",
+                user: user,
+                cached: cached,
+                quiet: quiet)
+    end
 
+    # @return [CucuShift::ResultHash] with :success when ready and desired
+    #   replicas match and are more than zero
+    # @note the complicated logic t oconstruct a result hash is to keep
+    #   backward compatibility
+    def ready?(user: nil, quiet: false, cached: false)
+      if cached && self.cached?
+        resource = raw_resource(user: user, cached: true, quiet: quiet)
         res = {
           success: true,
           instruction: "get rc #{name} cached ready status",
-          response: cache.to_yaml,
-          parsed: cache
+          response: resource.to_yaml,
+          parsed: resource
         }
-        current_replicas = props[:status]["replicas"]
-        expected_replicas = props[:spec]["replicas"]
-        deployment_phase = props[:annotations]["openshift.io/deployment.phase"]
       else
         res = get(user: user, quiet: quiet)
         return res unless res[:success]
-        current_replicas = res[:parsed]["status"]["replicas"]
-        expected_replicas = res[:parsed]["spec"]["replicas"]
-        deployment_phase = res[:parsed].dig('metadata', 'annotations', "openshift.io/deployment.phase")
       end
+
+      # TODO: this doesn't make much sense to me atm
       res[:success] = expected_replicas.to_i > 0 &&
-                     current_replicas == ready_replicas(user: user) &&
-                     (deployment_phase == 'Complete' || deployment_phase.nil?)
+        current_replicas == ready_replicas(user: user) &&
+        (deployment_phase == 'Complete' || deployment_phase.nil?)
 
       return res
     end

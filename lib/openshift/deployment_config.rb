@@ -13,20 +13,8 @@ module CucuShift
     REPLICA_COUNTERS = {
       desired: %w[spec replicas].freeze,
       current: %w[status replicas].freeze,
+      available: %w[status availableReplicas].freeze
     }.freeze
-
-    # cache some usualy immutable properties for later fast use; do not cache
-    #   things that can change at any time like status and spec
-    def update_from_api_object(dc_hash)
-      m = dc_hash["metadata"]
-      props[:spec] = dc_hash["spec"]
-      props[:status] = dc_hash["status"]
-      props[:uid] = m["uid"]
-      props[:labels] = m["labels"]
-      props[:created] = m["creationTimestamp"] # already [Time]
-
-      super(dc_hash)
-    end
 
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
@@ -76,22 +64,16 @@ module CucuShift
       return res
     end
 
-    # @return [Integer] desired number of replicas
-    def replicas(user:, cached: false, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user,
-                             cached: cached, quiet: quiet)
-      return spec["replicas"]
+    # we define this in method_missing so alias can't fly
+    # alias replicas desired_replicas
+    def replicas(*args, &block)
+      desired_replicas(*args, &block)
     end
 
     def available_replicas(user:, cached: false, quiet: false)
-      status = get_cached_prop(prop: :status, user: user,
-                             cached: cached, quiet: quiet)
-
-      if status["availableReplicas"]
-        # OCP 3.3 and later
-        return status["availableReplicas"]
+      if env.version_ge("3.3", user: user)
+        return super(user: user, cached: cached, quiet: quiet)
       else
-        # OCP 3.2 and earlier
         res = describe(user, quiet: quiet)
         raise "cannot describe dc #{name}" unless res[:success]
         return res[:parsed][:replicas_status][:current].to_i
@@ -99,10 +81,8 @@ module CucuShift
     end
 
     def latest_version(user:, cached: false, quiet: false)
-      status = get_cached_prop(prop: :status, user: user,
-                             cached: cached, quiet: quiet)
-
-      return status["latestVersion"]
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("status", "latestVersion")
     end
 
     # @return [CucuShift::ReplicationController[
@@ -120,29 +100,25 @@ module CucuShift
 
     # availablity check only exists in 3.3, and oc describe doesn't have that
     # information prior, so we can't use the same logic to check for that info
+    # @note only works with v3.3+
     def unavailable_replicas(user:, cached: false, quiet: false)
-      status = get_cached_prop(prop: :status, user: user,
-                             cached: cached, quiet: quiet)
-
-      if status["unavailableReplicas"]
-        # OCP 3.3 and later
-        return status["unavailableReplicas"]
-      end
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("status", "unavailableReplicas")
     end
 
     def strategy(user:, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['strategy']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "strategy")
     end
 
     def selector(user:, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['selector']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "selector")
     end
 
     def triggers(user:, cached: false, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['triggers']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "triggers")
     end
 
     # return specific trigger matched by type, please note cached is default to false
@@ -169,11 +145,6 @@ module CucuShift
       return  trigger_params(user:user, type: "ImageChange")['lastTriggeredImage']
     end
 
-    # def template(user:, cached: true, quiet: false)
-    #   spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-    #   return spec['template']
-    # end
-
     # # translate template containers into a Hash key by name instead of just
     # # Array to make it easier to lookup container information
     # def containers_spec(user: nil, cached: true, quiet: false)
@@ -185,14 +156,5 @@ module CucuShift
     #   end
     #   return containers
     # end
-
-    # def memory_limits(user: nil, name:, cached: true, quiet: false)
-    #   user ||= default_user
-    #   mem = containers_spec(user: user).dig(name).resources.dig('limits', 'memory')
-    #   parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
-    #   number = Integer(parsed[1])
-    #   return number
-    # end
-
   end
 end

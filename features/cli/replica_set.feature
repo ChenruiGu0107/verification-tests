@@ -7,13 +7,13 @@ Feature: replicaSet related tests
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc533162/rs_endpoints.yaml |
     Then the step should succeed
-    And the expression should be true> rs('frontend').replicas(user: user) == 3
+    And I wait until number of replicas match "3" for replicaSet "frontend"
     When I run the :patch client command with:
       | resource      | rs                      |
       | resource_name | frontend                |
       | p             | {"spec":{"replicas":4}} |
     Then the step should succeed
-    And the expression should be true> rs('frontend').replicas(user: user) == 4
+    And I wait until number of replicas match "4" for replicaSet "frontend"
     When I run the :delete client command with:
       | object_type       | rs       |
       | object_name_or_id | frontend |

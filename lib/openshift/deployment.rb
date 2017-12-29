@@ -2,7 +2,7 @@
 
 require 'openshift/pod_replicator'
 
-# TODO: DRY together with replicaset.rb
+# TODO: DRY together with replica_set.rb
 
 module CucuShift
 
@@ -17,24 +17,10 @@ module CucuShift
       available: %w[status availableReplicas].freeze,
     }.freeze
 
-    # cache some usualy immutable properties for later fast use
-    # do not cache things that can change at any time like status and spec
-    def update_from_api_object(d_hash)
-      m = d_hash["metadata"]
-
-      props[:uid]         = m["uid"]
-      props[:labels]      = m["labels"]
-      props[:annotations] = m["annotations"] # may change, use with care
-      props[:created]     = m["creationTimestamp"] # already [Time]
-      props[:spec]        = d_hash["spec"]
-      props[:status]      = d_hash["status"] # may change, use with care
-
-      super(d_hash)
-    end
-
-    def replica_count(user:, cached: false, quiet: false)
-      res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      return res['replicas']
+    # we define this in method_missing so alias can't fly
+    # alias replica_count current_replicas
+    def replica_count(*args, &block)
+      current_replicas(*args, &block)
     end
     alias replicas replica_count
 
@@ -70,22 +56,16 @@ module CucuShift
         .max_by { |item| item.created_at(**shared_options) }
     end
 
-    MATCH_LABELS_DIG_PATH = %w[selector matchLabels].freeze
+    MATCH_LABELS_DIG_PATH = %w[spec selector matchLabels].freeze
     private_constant :MATCH_LABELS_DIG_PATH
 
-    def match_labels(user:, cached: true, quiet: false)
-      options = {
-        prop:   :spec,
-        user:   user,
-        quiet:  quiet,
-        cached: cached,
-      }.freeze
-      get_cached_prop(options).dig(*MATCH_LABELS_DIG_PATH)
+    def match_labels(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig(*MATCH_LABELS_DIG_PATH)
     end
 
     def collision_count(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: true, quiet: quiet).dig("status", "collisionCount")
     end
-
   end
 end
