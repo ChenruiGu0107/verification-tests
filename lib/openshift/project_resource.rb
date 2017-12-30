@@ -58,11 +58,15 @@ module CucuShift
         end
       end
       name = spec["metadata"]["name"]
-      # TODO: verify resource type!
+      # TODO: verify resource type and metadata/namespace!
 
-      res = by.cli_exec(:create, n: project.name, f: '-',
-                        _stdin: spec.to_json, **opts)
+      res = by.cli_exec(:create,
+                        n: project.name,
+                        f: '-',
+                        _stdin: self.struct_iso8601_time(spec).to_json,
+                        **opts)
       res[:resource] = self.new(name: name, project: project)
+      res[:resource].default_user = by
 
       return res
     end
