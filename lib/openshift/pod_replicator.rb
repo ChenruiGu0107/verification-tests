@@ -12,6 +12,28 @@ module CucuShift
     #   counter_name: %w[path to dig].freeze,
     # }.freeze
 
+    # for eval vs define_method check:
+    #   http://graysoftinc.com/ruby-tutorials/eval-isnt-quite-pure-evil
+    def method_missing(meth, *args, &block)
+      meths = meth.to_s
+      if meths.end_with?("_replicas") &&
+          self.class::REPLICA_COUNTERS.keys.include?(meths[0...-9].to_sym)
+        self.class::REPLICA_COUNTERS.keys.each do |counter|
+          self.class.class_eval do
+            eval <<-END_COUNTERS
+              def #{counter}_replicas(user: nil, cached: true, quiet: false)
+                replica_counters(user: user, cached: cached, quiet: quiet).
+                  fetch(:#{counter}, 0)
+              end
+            END_COUNTERS
+          end
+        end
+        return send(meth, *args, &block)
+      else
+        super
+      end
+    end
+
     def replica_counters(user:, cached: true, quiet: false, res: nil)
       resource = raw_resource(user: user, quiet: quiet, res: res, cached: cached)
       self.class::REPLICA_COUNTERS.map do |counter, path|
@@ -52,8 +74,8 @@ module CucuShift
 
     ################### container spec related methods ####################
     def template(user:, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['template']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "template")
     end
 
     # translate template containers into ContainerSpec object

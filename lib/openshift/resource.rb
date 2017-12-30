@@ -2,6 +2,7 @@
 
 require 'yaml'
 require 'common'
+require 'openshift/resource_not_found_error'
 
 module CucuShift
   # @note represents a Resource / OpenShift API Object
@@ -19,19 +20,13 @@ module CucuShift
     attr_writer :default_user
 
     def annotation(annotation_name, user: nil, cached: true, quiet: false)
-      options = {
-        user:   user,
-        quiet:  quiet,
-        cached: cached,
-      }.freeze
-
-      return raw_resource(**options).
-        dig("metadata", "annotations")&.
-        fetch(annotation_name, nil)
+      raw_resource(user: user, quiet: quiet, cached: cached).
+        dig("metadata", "annotations", annotation_name)
     end
 
     def created_at(user: nil, cached: true, quiet: false)
-      get_cached_prop(prop: :created, user: user, cached: cached, quiet: quiet)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("metadata", "creationTimestamp")
     end
     alias created created_at
 
@@ -54,12 +49,13 @@ module CucuShift
     alias exists? visible?
 
     def get_checked(user: nil, quiet: false)
-      res = get(user: user, quiet: quiet)
-      unless res[:success]
-        logger.error(res[:response])
-        raise "could not get self.class::RESOURCE"
+      res = {}
+      if visible?(user: user, quiet: quiet, result: res)
+        return res
+      else
+        raise CucuShift::ResourceNotFoundError,
+          "#{self.class::RESOURCE} '#{name}' not found"
       end
-      return res
     end
 
     def get(user: nil, quiet: false)
@@ -130,6 +126,10 @@ module CucuShift
 
     def raw_resource(user: nil, cached: true, quiet: false, res: nil)
       get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet, res: res)
+    end
+
+    def cached?
+      !!props[:raw]
     end
 
     def update_from_api_object(hash)
@@ -223,21 +223,11 @@ module CucuShift
 
     # @return [Hash] the raw status of resource as returned by API
     def status_raw(user: nil, cached: false, quiet: false)
-      if cached && props[:status]
-        return props[:status]
-      else
-        res = get(user: user, quiet: quiet)
-        if cached && !props[:status]
-          raise "#{self.class}} does not cache status"
-        end
-        if res[:success]
-          return props[:status]
-        elsif res[:response].include?('not found')
-          return props[:status] = {"phase" => "Missing"}
-        else
-          raise "cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}"
-        end
-      end
+      raw_resource(user: user, quiet: quiet, cached: cached)["status"]
+    rescue ResourceNotFoundError => e
+      # a probably misplaced hack to help with some Pod (and other's?) methods
+      props[:raw] ||= {}
+      return props[:raw]["status"] = {"phase" => "Missing"}
     end
 
     def phase(user: nil, cached: false, quiet: false)

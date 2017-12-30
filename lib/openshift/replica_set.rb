@@ -16,26 +16,10 @@ module CucuShift
       ready:   %w[status readyReplicas].freeze,
     }.freeze
 
-    # cache some usualy immutable properties for later fast use; do not cache
-    #   things that can change at any time like status and spec
-    def update_from_api_object(rs_hash)
-      m = rs_hash["metadata"]
-      s = rs_hash["spec"]
-
-      props[:uid]         = m["uid"]
-      props[:labels]      = m["labels"]
-      props[:annotations] = m["annotations"] # may change, use with care
-      props[:created]     = m["creationTimestamp"] # already [Time]
-      props[:spec]        = s
-      props[:status]      = rs_hash["status"] # may change, use with care
-
-      super(rs_hash)
-    end
-
-    # Not a dynamic property, so don't cache
-    def replica_count(user:, cached: false, quiet: false)
-      res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      return res['replicas']
+    # we define this in method_missing so alias can't fly
+    # alias replica_count current_replicas
+    def replica_count(*args, &block)
+      current_replicas(*args, &block)
     end
     alias replicas replica_count
 
@@ -59,6 +43,5 @@ module CucuShift
       logger.info res[:response]
       return res
     end
-
   end
 end
