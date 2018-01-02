@@ -61,12 +61,14 @@ Feature: oc_login.feature
     Then the step should succeed
     And the output should not contain "token"
     # Need wait a moment for server side processing
-    Given 30 seconds have passed
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | project          |
       | token    | <%= cb.token %>  |
       | config   | dummy.kubeconfig |
     Then the step should fail
+    """
 
   # @author pruan@redhat.com
   # @case_id OCP-11709
