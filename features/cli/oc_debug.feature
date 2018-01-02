@@ -103,9 +103,12 @@ Feature: oc debug related scenarios
   # @author cryan@redhat.com
   # @case_id OCP-10220
   Scenario: oc debug with or without init container for pod
+    Given I log the message> Script uses initContainer.yaml in which spec.initContainers is only supported since 3.6
+    And I log the message> Because case is non-critical importance, no scripts for less than 3.6
+    And the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/init-containers-success.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/initContainer.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-pod |
@@ -121,8 +124,10 @@ Feature: oc debug related scenarios
     Then the step should succeed
     And the output should contain:
       | Init Containers: |
-      | success          |
-      | /bin/true        |
+      | Command:         |
+      | /bin/sh          |
+      | -c               |
+      | sleep 30         |
     """
     Given I ensure "hello-pod-debug" pod is deleted
     When I run the :debug background client command with:

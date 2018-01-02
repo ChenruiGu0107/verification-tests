@@ -256,14 +256,14 @@ Feature: projects related features via cli
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-12026
-  Scenario: [origin_platformexp_387][origin_runtime_664] User should be notified if the set project does not exist anymore
+  Scenario: User should be notified if the set project does not exist anymore
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.proj_name %> |
     Then the step should succeed
 
-    When I run the :oadm_add_role_to_user client command with:
-      | role_name | admin             |
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                               |
       | user_name | <%= user(1, switch: false).name %>  |
     Then the step should succeed
 
@@ -272,9 +272,9 @@ Feature: projects related features via cli
     Then the step should succeed
 
     When I create a new application with:
-      | image_stream | ruby         |
+      | name         | myapp                                         |
+      | image_stream | ruby                                          |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
     Then the step should succeed
 
     When I delete the project
