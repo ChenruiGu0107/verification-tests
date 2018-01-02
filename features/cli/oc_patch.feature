@@ -315,4 +315,4 @@ Feature: oc patch related scenarios
       | p             | spec:\n  ports:\n  -\n    targetPort: 446 |
     Then the step should fail
     And the output should match:
-      | does not contain declared merge key |
+      | (does not contain declared merge key\|is invalid.*spec.ports.*equired) |

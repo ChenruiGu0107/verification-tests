@@ -155,8 +155,8 @@ Feature: oc_set_resources.feature
       | limits       | cpu=100m,memory=256Mi |
       | requests     | cpu=200m,memory=512Mi |
     Then the step should fail
-    And the output should contain:
-      | must be greater than or equal to cpu request |
+    And the output should match:
+      | must be (greater than or equal to cpu request\|less than or equal to cpu limit) |
     # Set limited for non-allowed resource
     When I run the :set_resources client command with:
       | resource     | pod                   |
