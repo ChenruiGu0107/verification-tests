@@ -34,20 +34,20 @@ Feature: oc_login.feature
   Scenario: Logout of the active session by clearing saved tokens
     Given I log the message> this scenario can pass only when user accounts have a known password
     When I run the :login client command with:
-      | server   | <%= env.api_endpoint_url %> |
-      | u | <%= user.name %>     |
-      | p | <%= user.password %> |
-      | config   | dummy.kubeconfig |
-      | skip_tls_verify | true   |
+      | server          | <%= env.api_endpoint_url %> |
+      | u               | <%= user.name %>            |
+      | p               | <%= user.password %>        |
+      | config          | dummy.kubeconfig            |
+      | skip_tls_verify | true                        |
     Then the step should succeed
     When I run the :config client command with:
-      | subcommand | view |
-      | config   | dummy.kubeconfig |
+      | subcommand | view             |
+      | config     | dummy.kubeconfig |
     Then the step should succeed
     And the output should contain "token"
     And evaluation of `@result[:response].split("token: ")[1].strip()` is stored in the :token clipboard
     When I run the :get client command with:
-      | resource | project |
+      | resource | project          |
       | token    | <%= cb.token %>  |
       | config   | dummy.kubeconfig |
     Then the step should succeed
@@ -56,12 +56,14 @@ Feature: oc_login.feature
       | config   | dummy.kubeconfig |
     Then the step should succeed
     When I run the :config client command with:
-      | subcommand | view |
-      | config   | dummy.kubeconfig |
+      | subcommand | view             |
+      | config     | dummy.kubeconfig |
     Then the step should succeed
     And the output should not contain "token"
+    # Need wait a moment for server side processing
+    Given 30 seconds have passed
     When I run the :get client command with:
-      | resource | project |
+      | resource | project          |
       | token    | <%= cb.token %>  |
       | config   | dummy.kubeconfig |
     Then the step should fail
