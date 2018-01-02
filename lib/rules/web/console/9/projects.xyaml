@@ -101,8 +101,8 @@ check_project_creator:
   action: goto_projects_page
   elements:
   - selector:
-      xpath:  //a[contains(.,'<project_name>')]/parent::h2[contains(@class,'h1')]/following::small[1]/span[contains(.,'by <creator>')]
-    timeout: 300
+      xpath:  //a[contains(.,'<project_name>')]/parent::h2[contains(@class,'h3')]/following::small[1]/span[contains(.,'by <creator>')]
+    timeout: 10
 click_project_membership:
   elements:
   - selector:
