@@ -38,7 +38,7 @@ Feature: MariaDB images test
     And 1 pods become ready with labels:
       | deployment=mysql-1 |
     When I execute on the pod:
-      | cat | /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the step should succeed
     And the output should contain:
       | innodb_log_file_size = 16M           |
@@ -47,8 +47,9 @@ Feature: MariaDB images test
       | sort_buffer_size = 128K              |
       | read_buffer_size = 16M               |
       | innodb_buffer_pool_size = 16M        |
-      | innodb_additional_mem_pool_size = 2M |
-
+      | innodb_log_buffer_size = 16M         |
+      | innodb_log_file_size = 16M           |
+      | myisam_sort_buffer_size = 2M         |
     Examples:
       | file                                                                                                                | template                      |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-100-env-var-test.json | mariadb-100-env-var-test.json | # @case_id OCP-10868
