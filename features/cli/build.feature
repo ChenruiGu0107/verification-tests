@@ -2540,7 +2540,7 @@ Feature: build 'apps' with CLI
       | resource_name | |
     Then the step should fail
     And the output should contain:
-      | resource name may not be empty |
+      | error         |
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
     Then the step should succeed
