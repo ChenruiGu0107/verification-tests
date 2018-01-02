@@ -2031,7 +2031,6 @@ Feature: build 'apps' with CLI
       | resource | build                 |
       | name     | ruby22-sample-build-1 |
     Then the step should succeed
-    And the output should contain "Build configuration change"
     When I run the :start_build client command with:
       | from_build | ruby22-sample-build-1 |
     Then the step should succeed
