@@ -244,7 +244,7 @@ Feature: creating 'apps' with CLI
     """
     When I run the :exec client command with:
       | pod              | <%= pod.name %>                       |
-      | c                | mysql                                 |
+      | c                | sti-python-1                          |
       | oc_opts_end      |                                       |
       | exec_command     | /opt/rh/rh-mysql56/root/usr/bin/mysql |
       | exec_command_arg | -h<%= service.ip %>                   |
