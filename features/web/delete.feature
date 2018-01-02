@@ -9,6 +9,10 @@ Feature: Delete the resources via web console
       | code         | https://github.com/openshift/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service       |
+      | resource_name | nodejs-sample |
+    Then the step should succeed
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
     And I wait until the status of deployment "nodejs-sample" becomes :complete
@@ -49,6 +53,10 @@ Feature: Delete the resources via web console
       | code         | https://github.com/openshift/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service       |
+      | resource_name | nodejs-sample |
+    Then the step should succeed
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
     When I run the :policy_add_role_to_user client command with:
@@ -76,6 +84,10 @@ Feature: Delete the resources via web console
       | image_stream | openshift/nodejs:latest                |
       | code         | https://github.com/openshift/nodejs-ex |
       | name         | nodejs-sample                          |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service       |
+      | resource_name | nodejs-sample |
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
 
