@@ -2541,7 +2541,7 @@ Feature: build 'apps' with CLI
       | resource_name | |
     Then the step should fail
     And the output should contain:
-      | error |
+      | error         |
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
     Then the step should succeed
@@ -2550,13 +2550,13 @@ Feature: build 'apps' with CLI
       | resource_name | build\/|
     Then the step should fail
     And the output should contain:
-      | error: arguments in resource/name form must have a single resource and name |
+      | arguments in resource/name form must have a single resource and name |
     When I run the :logs client command with:
       | resource_name | build\/ |
       | n             | default |
     Then the step should fail
     And the output should contain:
-      | error: arguments in resource/name form must have a single resource and name  |
+      | arguments in resource/name form must have a single resource and name |
 
   # @author pruan@redhat.com
   # @case_id OCP-10944
