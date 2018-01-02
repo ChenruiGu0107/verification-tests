@@ -246,3 +246,29 @@ Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project
     raise "found resources: #{list.map(&:name).join(', ')}"
   end
 end
+
+Given /^the #{QUOTED} (\w+) is recreated( by admin)? in the#{OPT_QUOTED} project after scenario$/ do |resource_name, resource_type, by_admin, project_name|
+  if by_admin
+    ensure_admin_tagged
+    _user = admin
+  else
+    _user = user
+  end
+  _resource = resource(resource_name, resource_type, project_name: project_name)
+  unless CucuShift::ProjectResource > _resource.class
+    raise "step only supports project resources, but #{_resource.class} is not"
+  end
+
+  _raw_resource = _resource.raw_resource(user: _user)
+  teardown_add {
+    _resource.ensure_deleted(user: _user)
+    res = _resource.class.create(by: _user,
+                                 project: _resource.project,
+                                 spec: _raw_resource)
+    if res[:success]
+      cache_resources res[:resource]
+    else
+      raise "failed to create #{_resource.class}: #{res[:response]}"
+    end
+  }
+end

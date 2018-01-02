@@ -334,6 +334,22 @@ module CucuShift
       self.class.shortclass
     end
 
+    def self.struct_iso8601_time(struct)
+      Collections.deep_map_hash(struct) do |k, v|
+        case v
+        when Time
+          [k, v.iso8601]
+        when Array
+          [
+            k,
+            v.map {|v| self.struct_iso8601_time(v)}
+          ]
+        else
+          [k, v]
+        end
+      end
+    end
+
     ############### take care of object comparison ###############
     def ==(resource)
       raise "need to be implemented by subclass"
