@@ -1924,3 +1924,30 @@ Feature: Testing route
     And the expression should be true> @result[:cookies].any? {|c| c.name == "edge-with-invalid-hsts-preload"}
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
     """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-16732
+  @admin
+  Scenario: Check haproxy.config when overwriting 'timeout server' which was already specified
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I expose the "test-service" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                     |
+      | resourcename | test-service                              |
+      | keyval       | haproxy.router.openshift.io/timeout=5s    |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I execute on the "<%=cb.router_pod %>" pod:
+      | grep | -A | 12 | <%= cb.proj_name %>:test-service | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain 1 times:
+      | timeout server  5s |
