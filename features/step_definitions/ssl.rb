@@ -22,7 +22,11 @@ Given /^the custom certs are generated with:$/ do |table|
   # remove the old tls certificates files if exists
   @result = _host.exec_admin("rm -f #{opts[:key]} #{opts[:crt]}")
   step %Q/the step should succeed/
-  create_custom_cert_cmd = "oadm ca create-server-cert --signer-cert=#{opts[:signer_cert]} --signer-key=#{opts[:signer_key]} --signer-serial=#{opts[:signer_serial]} --hostnames=#{opts[:hostnames]} --cert=#{opts[:cert]} --key=#{opts[:key]}"
+  _oadm_command = "oc adm"
+  if env.version_lt("3.3", user: user)
+    _oadm_command = "oadm"
+  end
+  create_custom_cert_cmd = _oadm_command + " ca create-server-cert --signer-cert=#{opts[:signer_cert]} --signer-key=#{opts[:signer_key]} --signer-serial=#{opts[:signer_serial]} --hostnames=#{opts[:hostnames]} --cert=#{opts[:cert]} --key=#{opts[:key]}"
   @result = _host.exec_admin(create_custom_cert_cmd)
   step %Q/the step should succeed/
 

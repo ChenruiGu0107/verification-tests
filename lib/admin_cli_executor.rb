@@ -22,21 +22,21 @@ module CucuShift
       # this method needs to be overriden per executor to find out version
     end
 
-    # @param [String, :admin, nil] user user to execute oadm command as
+    # @param [String, :admin, nil] user user to execute oc adm command as
     private def version_on_host(user, host)
       # return user requested version if specified
       return version if version
 
       fake_config = Tempfile.new("oadm_kubeconfig")
       fake_config.close
-      res = host.exec_as(user, "oadm version --config=#{fake_config.path}")
+      res = host.exec_as(user, "oc version --config=#{fake_config.path}")
       fake_config.unlink
 
       unless res[:success]
         logger.error(res[:response])
         raise "cannot execute on host #{host.hostname} as admin"
       end
-      return opts[:admin_cli_version] = res[:response].match(/^oadm v(.+)$/).captures[0]
+      return opts[:admin_cli_version] = res[:response].match(/^oc v(.+)$/).captures[0]
     end
 
     private def rules_version(str_version)

@@ -853,7 +853,7 @@ Given /^I verify metrics service is functioning$/ do
   end
 end
 
-# do a quick sanity check using oadm diagnostics MetricsApiProxy
+# do a quick sanity check using oc adm diagnostics MetricsApiProxy
 # XXX: only seems to be supported by OCP >= 3.3
 # https://docs.openshift.com/container-platform/3.3/install_config/cluster_metrics.html
 # https://docs.openshift.com/container-platform/3.6/install_config/cluster_metrics.html
