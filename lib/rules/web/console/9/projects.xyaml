@@ -17,12 +17,10 @@ check_help_info_when_user_have_no_permission:
       xpath: //code[contains(.,'oc adm new-project <projectname> --admin=<user_name>')]
 check_policy_command: {}
 click_delete_project:
+  action: click_one_project_kebab_in_project_list
   elements:
   - selector:
-      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//button[contains(@class,'dropdown-toggle')]
-    op: click
-  - selector:
-      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//a[normalize-space(text())='Delete Project']
+      xpath: //a[normalize-space(text())='Delete Project']
     op: click
 confirm_error_for_invalid_project_name:
   element:
@@ -56,6 +54,8 @@ get_disabled_project_submit_button:
       disabled: disabled
     type: button
 goto_projects_page:
+  url: /console/projects
+goto_project_list_page:
   url: /console/projects
 type_project_delete_string:
   action: check_project_list
@@ -109,3 +109,13 @@ click_project_membership:
       xpath:  //a[contains(@ng-href,'project/<project_name>/membership')]
     op: click
     timeout: 300
+create_project_on_project_list_page:
+  action: create_project_on_homepage
+edit_save_for_project_in_project_list_kebab:
+  action: click_one_project_kebab_in_project_list
+  action: edit_project
+click_one_project_kebab_in_project_list:
+  elements:
+  - selector:
+      xpath: //div[@class="list-pf-container" and //span[contains(.,'<project_name>')]]//button
+    op: click
