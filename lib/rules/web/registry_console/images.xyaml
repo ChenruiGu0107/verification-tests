@@ -68,7 +68,7 @@ check_image_tag_on_one_image_page:
   # TODO extend this action with more image tag checks
   elements:
   - selector:
-      xpath: //td[./following-sibling::td[contains(.,'<tag_label>')]]
+      xpath: //th/a[text()='<tag_label>']
     op: click
   - selector:
       xpath: //dt[span[text()='Tags']]/following-sibling::dd[span[text()='<project_name>/<image_name>:<tag_label>']]

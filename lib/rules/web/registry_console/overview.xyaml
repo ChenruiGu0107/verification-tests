@@ -95,15 +95,18 @@ set_populate:
   action:
     if_param:
       populate: Pull specific tags from another image repository
-    ref:
-    - set_pull_from
-    - set_tags
-    - set_remote_unsecure_registry
+    ref: set_pull_specific_tags
 set_pull_from:
   element:
     selector:
       id: imagestream-modify-pull
     op: send_keys <pull_from>
+set_pull_specific_tags:
+  action: set_pull_from
+  action: set_tags
+  action:
+    if_param: unsecure_registry
+    ref: set_remote_unsecure_registry
 set_tags:
   element:
     selector:
@@ -113,5 +116,5 @@ set_remote_unsecure_registry:
   element:
     selector:
       xpath: //label[.//span[text()='Remote registry is insecure']]/input
-  type: checkbox
-  op: set <unsecure_registry>
+    type: checkbox
+    op: set <unsecure_registry>

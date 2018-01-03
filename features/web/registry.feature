@@ -109,3 +109,40 @@ Feature: Testing registry
     When I perform the :check_project_in_iframe_on_overview_page web action with:
       | project_name | test |
     Then the step should succeed
+
+  # @author cryan@redhat.com xxia@redhat.com
+  # @case_id OCP-9896
+  Scenario: Create ImageStream pull specific tags from remote repository on atomic-registry console
+    Given I have a project
+    And I open registry console in a browser
+    When I perform the :create_new_image_stream_in_iframe web action with:
+      | is_name           | testisnew                                        |
+      | project_name      | <%= project.name %>                              |
+      | populate          | Pull specific tags from another image repository |
+      | pull_from         | docker.io/aosqe/ruby-20-centos7                  |
+      | tags              | user0,user1001                                   |
+    Then the step should succeed
+    When I perform the :goto_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+    Then the step should succeed
+    # Bug 1373332
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | latest              |
+    Then the step should fail
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | user0               |
+    Then the step should succeed
+    When I perform the :goto_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+    Then the step should succeed
+    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | user1001            |
+    Then the step should succeed
