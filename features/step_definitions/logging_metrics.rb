@@ -412,12 +412,24 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       step %Q/the step should succeed/
     end
     if svc_type == 'logging'
-      ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
-    else
-      if install_prometheus
-        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-prometheus.yml"
+      if cb.master_version < "3.8"
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
       else
-        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-logging/config.yml"
+      end
+    else
+      if cb.master_version < "3.8"
+        if install_prometheus
+          ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-prometheus.yml"
+        else
+          ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
+        end
+      else
+        if install_prometheus
+          ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-prometheus/config.yml"
+        else
+          ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-metrics/config.yml"
+        end
       end
     end
     step %Q/I execute on the pod:/, table(%{
