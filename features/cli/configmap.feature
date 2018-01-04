@@ -460,7 +460,6 @@ Feature: configMap
       | resource | pod                |
       | name     | config-env-example |
     Then the output should match:
-      | Error syncing pod      |
       | "env-config" not found |
     """
     When I run the :create client command with:

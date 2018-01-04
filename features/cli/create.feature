@@ -887,7 +887,7 @@ Feature: creating 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid5.yaml |
     Then the step should fail
     And the output should contain:
-      | must be greater than or equal to |
+      | must be less than or equal to |
 
   # @author wmeng@redhat.com
   # @case_id OCP-12014
