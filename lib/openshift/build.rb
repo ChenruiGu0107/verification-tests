@@ -9,34 +9,6 @@ module CucuShift
     STATUSES = [:complete, :running, :pending, :new, :failed, :error, :cancelled]
     TERMINAL_STATUSES = [:complete, :failed, :cancelled, :error]
 
-    # creates new Build object from an OpenShift API Pod object
-    def self.from_api_object(project, build_hash)
-      self.new(project: project, name: build_hash["metadata"]["name"]).
-                                update_from_api_object(build_hash)
-    end
-
-    # cache some usualy immutable properties for later fast use; do not cache
-    #   things that can change at any time like status and spec
-    def update_from_api_object(build_hash)
-      m = build_hash["metadata"]
-      s = build_hash["spec"]
-
-      if name != m["name"]
-        raise "looks like a hash from another account: #{name} vs #{m["name"]}"
-      end
-      if m['namespace'] != project.name
-        raise "looks like account from another project: #{project.name} vs #{m['namespace']}"
-      end
-
-      props[:uid] = m["uid"]
-      props[:labels] = m["labels"]
-      props[:created] = m["creationTimestamp"] # already [Time]
-
-      props[:spec] = s
-      props[:status] = build_hash['status']
-      return self # mainly to help ::from_api_object
-    end
-
     # @return [CucuShift::ResultHash] :success if build completes regardless of
     #   completion status
     def finished?(user:, quiet: false)
