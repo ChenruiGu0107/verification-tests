@@ -338,13 +338,9 @@ Feature: job.feature
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_string_activeDeadlineSeconds.yaml  |
     Then the step should fail
-    And the output should contain:
-      | got first char |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_float_activeDeadlineSeconds.yaml |
     Then the step should fail
-    And the output should contain:
-      | fractional integer |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_lessthan_runtime_activeDeadlineSeconds.yaml |
     Then the step should succeed
