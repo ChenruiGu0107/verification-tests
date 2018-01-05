@@ -548,7 +548,7 @@ Feature: mysql_images.feature
   # @case_id OCP-11647
   Scenario: Verify clustered mysql can be connected after password changed - mysql-57-rhel7
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift/mysql/master/5.7/examples/replica/mysql_replica.json"
+    Given I download a file from "https://raw.githubusercontent.com/sclorg/mysql-container/master/examples/replica/mysql_replica.json"
     Given I replace lines in "mysql_replica.json":
       | centos/mysql-57-centos7   |  <%= product_docker_repo %>rhscl/mysql-57-rhel7 |
     And I run the :new_app client command with:
