@@ -27,19 +27,19 @@ module CucuShift
     end
 
     def volume_name(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['volumeName']
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('spec', 'volumeName')
     end
 
     def capacity(user: nil, cached: true, quiet: false)
-      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
       # I guess would be nil when not bound
-      return status.dig('capacity', 'storage')
+      rr.dig('status', 'capacity', 'storage')
     end
 
     def access_modes(user: nil, cached: true, quiet: false)
-      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      return status['accessModes']
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('status', 'accessModes')
     end
 
     def storage_class(user: nil, cached: true, quiet: false)

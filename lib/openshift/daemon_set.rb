@@ -17,6 +17,5 @@ module CucuShift
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("status", "desiredNumberScheduled")
     end
-
   end
 end

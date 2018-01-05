@@ -7,20 +7,17 @@ module CucuShift
 
     def ip(user: nil, cached: true, quiet: true)
       raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
-
-      return raw["hostIP"]
+      raw['hostIP']
     end
 
     def host(user: nil, cached: true, quiet: true)
       raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
-
-      return raw["host"]
+      raw['host']
     end
 
     def subnet(user: nil, cached: true, quiet: true)
       raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
-
-      return raw["subnet"]
+      raw['subnet']
     end
   end
 end

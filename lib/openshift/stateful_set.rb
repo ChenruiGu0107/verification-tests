@@ -5,30 +5,15 @@ module CucuShift
   class StatefulSet < ProjectResource
     RESOURCE = "statefulsets"
 
-    # cache some usualy immutable properties for later fast use; do not cache
-    # things that can change at any time like status and spec
-    def update_from_api_object(rs_hash)
-      m = rs_hash["metadata"]
-      s = rs_hash["spec"]
-      props[:uid] = m["uid"]
-      props[:labels] = m["labels"]
-      props[:annotations] = m["annotations"] # may change, use with care
-      props[:created] = m["creationTimestamp"] # already [Time]
-      props[:spec] = s
-      props[:status] = rs_hash["status"] # may change, use with care
-
-      return self # mainly to help ::from_api_object
-    end
-
     # Not a dynmaic property, so don't cache
-    def replica_count(user:, cached: false, quiet: false)
-      res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      return res['replicas']
+    def replica_count(user: nil, cached: false, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('status', 'replicas')
     end
 
     # @return [Boolean] true if we've eventually
     # get the number of reclicas to match the desired number
-    def wait_till_replica_count_match(user:, seconds:, replica_count:)
+    def wait_till_replica_count_match(user: nil, seconds:, replica_count:)
       stats = {}
       res = {
         instruction: "wait till replicaset #{name} reach matching count",

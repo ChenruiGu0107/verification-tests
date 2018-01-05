@@ -5,60 +5,58 @@ module CucuShift
   class ImageStreamTag < ProjectResource
     RESOURCE = "imagestreamtags"
 
-    # cache some usually immutable properties for later fast use; do not cache
-    # things that can change at any time
-    def update_from_api_object(istag_hash)
-      super
-
-      props[:metadata] = m = istag_hash["metadata"]
-      props[:image] = i = istag_hash["image"]
-      props[:docker_image_metadata] = i["dockerImageMetadata"]
-
-      return self # mainly to help ::from_api_object
+    def digest(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'metadata', 'name')
     end
 
-    def digest(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("metadata", "name")
+    def docker_version(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'DockerVersion')
     end
 
-    def docker_version(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("DockerVersion")
+    def annotations(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'metadata', 'annotations')
     end
 
-    def annotations(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("metadata", "annotations")
+    def labels(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'Labels')
     end
 
     def from(user:, cached: false, quiet: false)
       return raw_resource(user: user, cached: cached, quiet: quiet).dig("tag", "from", "name")
     end
 
-    def labels(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "Labels")
+    def config_user(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'User')
     end
 
-    def config_user(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "User")
+    def config_env(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'Env')
     end
 
-    def config_env(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "Env")
+    def config_cmd(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'Cmd')
     end
 
-    def config_cmd(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "Cmd")
+    def workingdir(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'WorkingDir')
     end
 
-    def workingdir(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "WorkingDir")
+    def exposed_ports(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageMetadata', 'Config', 'ExposedPorts')
     end
 
-    def exposed_ports(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("Config", "ExposedPorts")
-    end
-
-    def image_layers(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("dockerImageLayers")
+    def image_layers(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('image', 'dockerImageLayers')
     end
   end
 end

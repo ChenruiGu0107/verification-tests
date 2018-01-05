@@ -10,12 +10,12 @@ module CucuShift
     # see #raw_resource
     def type(user: nil, cached: true, quiet: false)
       obj = raw_resource(user: user, cached: cached, quiet: quiet)
-      return obj["type"]
+      return obj['type']
     end
 
     # @param user [CucuShift::User] the user to run cli commands with if needed
     def bearer_token?(user: nil, cached: true, quiet: false)
-      type(user: user, cached: cached, quiet: quiet).include?('service-account-token') && raw_resource.dig("data", "token")
+      type(user: user, cached: cached, quiet: quiet).include?('service-account-token') && raw_resource.dig('data', 'token')
     end
 
     # @param user [CucuShift::User] the user to run cli commands with if needed

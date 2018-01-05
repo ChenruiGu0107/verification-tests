@@ -65,7 +65,7 @@ module CucuShift
     end
 
     def collision_count(user: nil, cached: true, quiet: false)
-      raw_resource(user: user, cached: true, quiet: quiet).dig("status", "collisionCount")
+      raw_resource(user: user, cached: true, quiet: quiet).dig('status', 'collisionCount')
     end
   end
 end
