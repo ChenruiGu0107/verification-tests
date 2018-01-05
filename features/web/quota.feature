@@ -728,3 +728,79 @@ Feature: functions about resourcequotas
     When I perform the :check_quota_warning_on_storage_page web console action with:
       | project_name   | <%= project.name %>    |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-13487
+  @admin
+  Scenario: Check warning/error info when import template with special resource from json/yaml
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota             |
+      | hard | pods=1,services=1   |
+      | n    | <%= project.name %> |
+    Then the step should succeed
+
+    #check 2 kinds of warning info
+    When I run the :run client command with:
+      | name      | mypod                  |
+      | image     | aosqe/hello-openshift  |
+      | limits    | cpu=50m,memory=80Mi    |
+      | generator | run-pod/v1             |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-13487/test-template.json"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                             |
+      | file_path        | <%= localhost.absolutize("test-template.json") %> |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :process_and_save_template web console action with:
+      | process_template | true  |
+      | save_template    | false |
+    Then the step should succeed
+
+    When I run the :click_create_button web console action
+    Then the step should succeed
+
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will create resources that may have security or project behavior implications |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for pods |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    #check 1 warning info and 1 error info
+    When I run the :delete client command with:
+      | object_type       | pod   |
+      | object_name_or_id | mypod |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                             |
+      | file_path        | <%= localhost.absolutize("test-template.json") %> |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :process_and_save_template web console action with:
+      | process_template | true  |
+      | save_template    | false |
+    Then the step should succeed
+
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will create resources that may have security or project behavior implications |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 1 service in this project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed

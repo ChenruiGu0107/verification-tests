@@ -197,3 +197,12 @@ check_instructions_on_home_page:
       text: !ruby/regexp /Create a project/
   - selector:
       text: !ruby/regexp /OpenShift helps you quickly/
+close_second_level_navigation:
+  element:
+    selector:
+      id: help-dropdown
+    op: hover
+  element:
+    selector:
+      class: nav-pf-secondary-nav
+    missing: true

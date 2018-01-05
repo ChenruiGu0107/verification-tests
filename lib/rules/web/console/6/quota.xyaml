@@ -3,6 +3,7 @@ check_quota_warning_info_when_submit_create:
   elements:
   - selector:
       xpath: //span[contains(text(),'<prompt_info>')]
+    timeout: 30
 click_create_anyway:
   elements:
   - selector:
