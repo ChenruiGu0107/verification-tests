@@ -7,7 +7,7 @@ Feature: Ansible-service-broker related scenarios
     # Provision mediawiki apb
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    And evaluation of `YAML.load(configmap('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
+    And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
     # need to swtich back to normal user mode
     And I switch to the first user
     And I use the "<%= cb.org_proj_name %>" project

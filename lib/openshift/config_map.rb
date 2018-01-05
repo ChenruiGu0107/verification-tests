@@ -35,5 +35,33 @@ module CucuShift
     def value_of(key, user: nil, cached: true, quiet: false)
       self.data(user: user, cached: cached, quiet: quiet).dig(key)
     end
+
+    # @param key [String] the key to set in the config map, make sure it is
+    #   valid
+    # @param value [String, Numeric, Boolean, nil] the value to set
+    def set_value(key, value, user: nil, cached: true, quiet: false)
+      unless key.class <= String
+        raise "key must be string but it is #{key.inspect}"
+      end
+
+      case value
+      when String, Numeric, TrueClass, FalseClass, nil
+        # all is ok
+      else
+        raise "value must be String, Numeric, Boolean or nil"
+      end
+
+      res = default_user(user).cli_exec(
+        :patch,
+        resource: RESOURCE,
+        resource_name: self.name,
+        p: %@{"data": {#{key.to_json}: #{value.to_json}}}@
+      )
+
+      unless res[:success]
+        detail = quiet ? res[:response] : "see log"
+        raise "failed to patch config map: #{detail}"
+      end
+    end
   end
 end

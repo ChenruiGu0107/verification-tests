@@ -138,21 +138,9 @@ module CucuShift
       # @note usually invoked by managed objects like projects, routes, etc.
       #   that could have same operations executed by admin or user; this method
       #   simplifies such calls; requires `#env` method defined
+      # @deprecated, just use `default_user(as).cli_exec` wherever needed
       def cli_exec(as:, key:, **opts)
-        user = as
-
-        if user == :admin
-          if env.admin?
-            return env.admin.cli_exec(key, **opts)
-          else
-            raise "user not specified and we don't have admin in this environment, what on earth do you expect?"
-          end
-        elsif user.respond_to?(:env) && user.respond_to?(:cli_exec)
-          raise "user #{user} and self.env '#{env}' do not match, likely a logical issue in test scenario" if user.env != env
-          user.cli_exec(key, **opts)
-        else
-          raise "unknown user specification for the operation: '#{user.inspect}'"
-        end
+        default_user(as).cli_exec(key, **opts)
       end
 
       def webconsole_exec(as:, action:, **opts)
