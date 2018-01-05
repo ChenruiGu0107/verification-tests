@@ -9,3 +9,8 @@ check_instructions_on_home_page:
       visible_text: !ruby/regexp /Learning/
   - selector:
       visible_text: !ruby/regexp /Development/
+click_helper_icon_on_home_page:
+  element:
+    selector:
+      xpath: //span[@title="Help"]
+    op: click

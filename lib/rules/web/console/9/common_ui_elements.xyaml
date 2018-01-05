@@ -69,6 +69,15 @@ click_close:
     selector:
       text: Close
     op: click
+check_close_x:
+  element: &close_x
+    selector:
+      text: x
+    type: button
+click_close_x:
+  element:
+    <<: *close_x
+    op: click
 click_on_configuration_tab:
   element: &configuration_tab_link
     selector:
@@ -162,6 +171,38 @@ click_continue_button:
       text: Continue
     op: click
     type: button
+check_before_button:
+  element: &before_button
+    selector:
+      xpath: //button[contains(.,"Back") and not(@disabled)]
+check_before_button_missing:
+  element:
+    <<: *before_button
+    missing: true
+click_before_button:
+  element: 
+    <<: *before_button
+    op: click
+    timeout: 300
+check_next_button:
+  element: &next_button
+    selector:
+      xpath: //button[contains(.,"Next") and not(@disabled)]
+    timeout: 300
+check_next_button_missing:
+  element:
+    <<: *next_button
+    missing: true
+click_next_button:
+  element: 
+    <<: *next_button
+    op: click
+    timeout: 300
+click_done_button:
+  element: 
+    selector:
+      xpath: //button[contains(.,"Done") and not(@disabled)]
+    op: click
 click_save_button:
   elements:
   - selector:

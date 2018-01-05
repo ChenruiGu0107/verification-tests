@@ -25,19 +25,12 @@ click_existing_project:
       xpath: //span[@class="ng-binding ng-scope"][contains(., "<project_name>")]
     op: click
     timeout: 300
-click_next_button:
-  elements:
-  - selector:
-      xpath: //button[contains(.,"Next") and not(@disabled)]
-    op: click
-    timeout: 300
 click_project_dropdown_list:
   elements:
   - selector:
       xpath: //span[@class="ui-select-placeholder text-muted ng-binding"][contains(.,"Project name")]
     op: click
     timeout: 300
-
 check_template_page_with_project:
   action: check_tag_choose_existing_project
   action: check_tag_create_project
