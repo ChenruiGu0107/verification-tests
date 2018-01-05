@@ -40,22 +40,35 @@ module CucuShift
     #   valid
     # @param value [String, Numeric, Boolean, nil] the value to set
     def set_value(key, value, user: nil, cached: true, quiet: false)
-      unless key.class <= String
-        raise "key must be string but it is #{key.inspect}"
+      set_values({key => value}, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @param hash [Hash] the key/value pairs to set, see [#set_value] for type
+    #   requirements
+    def set_values(hash, user: nil, cached: true, quiet: false)
+      unless Hash >= hash.class
+        raise "method accepts a hash parameter but this is: #{hash.inspect}"
       end
 
-      case value
-      when String, Numeric, TrueClass, FalseClass, nil
-        # all is ok
-      else
-        raise "value must be String, Numeric, Boolean or nil"
+      hash.each do |key, value|
+        unless key.class <= String || key.class <= Symbol
+          raise "key must be string or symbol but it is #{key.inspect}"
+        end
+
+        case value
+        when String, Symbol, Numeric, TrueClass, FalseClass, nil
+          # all is ok
+        else
+          raise "values must be String, Numeric, Boolean or nil, but it is: " \
+            "#{value.inspect}"
+        end
       end
 
       res = default_user(user).cli_exec(
         :patch,
         resource: RESOURCE,
         resource_name: self.name,
-        p: %@{"data": {#{key.to_json}: #{value.to_json}}}@
+        p: %{{"data": #{hash.to_json}}}
       )
 
       unless res[:success]
