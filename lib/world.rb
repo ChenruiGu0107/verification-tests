@@ -311,7 +311,7 @@ module CucuShift
       project_resource(Endpoint, name, project)
     end
 
-    def configmap(name = nil, project = nil)
+    def config_map(name = nil, project = nil)
       project_resource(ConfigMap, name, project)
     end
 
