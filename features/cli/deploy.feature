@@ -854,6 +854,7 @@ Feature: deployment related features
       | resource | deploymentconfig |
       | name     | ab-example-a     |
       | replicas | 0                |
+    Then the step should succeed
     Given I wait until number of replicas match "0" for replicationController "ab-example-a-1"
     When I use the "ab-example" service
     Then I wait for a web server to become available via the "ab-example" route
@@ -862,10 +863,12 @@ Feature: deployment related features
       | resource | deploymentconfig |
       | name     | ab-example-b     |
       | replicas | 0                |
+    Then the step should succeed
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | ab-example-a     |
       | replicas | 1                |
+    Then the step should succeed
     Given I wait until number of replicas match "0" for replicationController "ab-example-b-1"
     When I use the "ab-example" service
     Then I wait for a web server to become available via the "ab-example" route
