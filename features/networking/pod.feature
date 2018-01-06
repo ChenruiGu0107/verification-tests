@@ -136,3 +136,56 @@ Feature: Pod related networking scenarios
       | link/ether 0a:58<%= cb.pod_mac %> |
       | inet <%= cb.pod_ip %> |
 
+  # @author yadu@redhat.com
+  # @case_id OCP-16729
+  @admin
+  @destructive
+  Scenario: KUBE-HOSTPORTS chain rules won't be flushing when there is no pod with hostPort
+    Given I have a project
+    And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I select a random node's host
+    # Add a fake rule
+    Given I register clean-up steps:
+    """
+    When I run commands on the host:
+      | iptables -t nat -D KUBE-HOSTPORTS -p tcp --dport 110 -j ACCEPT |
+    """
+    When I run commands on the host:
+      | iptables -t nat -A KUBE-HOSTPORTS -p tcp --dport 110 -j ACCEPT |
+    Then the step should succeed
+    When I run commands on the host:
+      | iptables-save \| grep HOSTPORT |
+    Then the step should succeed
+    And the output should contain:
+      | -A PREROUTING -m comment --comment "kube hostport portals" -m addrtype --dst-type LOCAL -j KUBE-HOSTPORTS |
+      | -A OUTPUT -m comment --comment "kube hostport portals" -m addrtype --dst-type LOCAL -j KUBE-HOSTPORTS     |
+      | -A KUBE-HOSTPORTS -p tcp -m tcp --dport 110 -j ACCEPT |
+    #Create a normal pod without hostport
+    Given I switch to the first user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= node.name %> |
+    Then the step should succeed
+    And all pods in the project are ready
+    Given 30 seconds have passed
+    When I run commands on the host:
+      | iptables-save \| grep HOSTPORT |
+    Then the step should succeed
+    #The rule won't be flushing when there is no pod with hostport
+    And the output should contain:
+      | -A PREROUTING -m comment --comment "kube hostport portals" -m addrtype --dst-type LOCAL -j KUBE-HOSTPORTS |
+      | -A OUTPUT -m comment --comment "kube hostport portals" -m addrtype --dst-type LOCAL -j KUBE-HOSTPORTS     |
+      | -A KUBE-HOSTPORTS -p tcp -m tcp --dport 110 -j ACCEPT |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/nodeport_pod.json" replacing paths:
+      | ["spec"]["template"]["spec"]["nodeName"] | <%= node.name %> |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run commands on the host:
+      | iptables-save \| grep HOSTPORT |
+    Then the step should succeed
+    And the output should contain:
+      | hostport 6061" -m tcp --dport 6061 |
+    # The fake rule disappeared after creating a pod with hostport
+    And the output should not contain:
+      | -A KUBE-HOSTPORTS -p tcp --dport 110 -j ACCEPT |
