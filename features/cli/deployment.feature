@@ -537,15 +537,11 @@ Feature: deployment related steps
     Then I run the :create client command with:
       | f | deployment-perme-failed-2.yaml |
     And the step should fail
-    And the output should match:
-      | cannot be handled as a Deployment.*decNum: got first char 'a' |
     When I replace lines in "deployment-perme-failed-2.yaml":
       | progressDeadlineSeconds: ab | progressDeadlineSeconds: 0.5 |
     Then I run the :create client command with:
       | f | deployment-perme-failed-2.yaml |
     And the step should fail
-    And the output should match:
-      | cannot be handled as a Deployment.*fractional integer |
 
   # @author: geliu@redhat.com
   # @case_id OCP-11599
