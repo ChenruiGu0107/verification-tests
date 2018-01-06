@@ -163,6 +163,8 @@ check_build_strategy:
       xpath: //dt[contains(.,'Build Strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]
 check_build_trigger:
   action: goto_one_build_page
+  action: check_build_trigger_info
+check_build_trigger_info:
   elements:
   - selector:
       xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd[contains(normalize-space(),'<trigger_info>')]
