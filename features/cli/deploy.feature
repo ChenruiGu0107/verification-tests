@@ -1228,12 +1228,12 @@ Feature: deployment related features
       | resource | deploymentconfig |
       | name     | hooks            |
       | replicas | 2                |
-    Given I wait until number of replicas match "2" for replicationController "hooks"
+    Given I wait until number of replicas match "2" for replicationController "hooks-1"
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | hooks            |
       | replicas | 1                |
-    Given I wait until number of replicas match "1" for replicationController "hooks"
+    Given I wait until number of replicas match "1" for replicationController "hooks-1"
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
