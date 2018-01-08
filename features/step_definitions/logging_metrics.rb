@@ -432,6 +432,9 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
         end
       end
     end
+    ### print out the inventory file
+    logger.info("***** using the following user inventory *****")
+    pod.exec("cat", "/tmp/#{new_path}", as: user)
     step %Q/I execute on the pod:/, table(%{
       | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
@@ -496,7 +499,11 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
 
   unless cb.deployer_config
     step %Q/I download a file from "<%= "#{deployer_opts[:deployer_config]}" %>"/
+    logger.info("***** using the following deployer config *****")
+    logger.info(@result[:response])
     cb.deployer_config = YAML.load(ERB.new(File.read(@result[:abs_path])).result binding)
+    logger.info("***** interpreted deployer config *****")
+    logger.info(cb.deployer_config.to_yaml)
   end
   step %Q/I register clean-up steps:/, table(%{
     | I remove logging service installed in the project using deployer |
