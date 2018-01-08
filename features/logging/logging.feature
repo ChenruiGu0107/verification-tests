@@ -357,7 +357,8 @@ Feature: logging related scenarios
     Then the step should succeed
     And logging service is installed in the system
     When I wait for the "project.<%= project.name %>" index to appear in the ES pod
-    And the expression should be true> cb.index_data['index'] == "project.#{project.name}.#{project.uid}.#{Time.now.year}.#{Time.now.month}.#{Time.now.day}"
+    And the expression should be true> cb.index_data['index'] == "project.#{project.name}.#{project.uid}.#{Time.new.strftime('%Y.%m.%d')}"
     And I wait for the ".operations" index to appear in the ES pod
-    And the expression should be true> cb.index_data['index'] == ".operations.#{Time.now.year}.#{Time.now.month}.#{Time.now.day}"
+    And the expression should be true> cb.index_data['index'] == ".operations.#{Time.new.strftime('%Y.%m.%d')}"
+
 
