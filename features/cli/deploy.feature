@@ -2347,19 +2347,29 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | example:latest                  |
     Then the step should succeed
+    And status becomes :running of 1 pods labeled:
+      | app=deployment-example |
+    And current replica set name of "deployment-example" deployment stored into :rs1 clipboard
     When I run the :set_triggers client command with:
       | resource   | deploy/deployment-example |
       | from_image | example:latest            |
       | containers | web                       |
     Then the step should succeed
-    Given status becomes :running of 1 pods labeled:
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "deployment-example" deployment
+    And number of replicas of the current replica set for the deployment becomes:
+      | ready | 1 |
+    And status becomes :running of 1 pods labeled:
       | app=deployment-example |
     And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    And current replica set name of "deployment-example" deployment stored into :rs2 clipboard
     When I run the :tag client command with:
       | source_type | docker                          |
       | source      | openshift/deployment-example:v2 |
       | dest        | example:latest                  |
     Then the step should succeed
+    Given replica set "<%= cb.rs2 %>" becomes non-current for the "deployment-example" deployment
+    And number of replicas of the current replica set for the deployment becomes:
+      | ready | 1 |
     Given status becomes :running of 1 pods labeled:
       | app=deployment-example |
     And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
