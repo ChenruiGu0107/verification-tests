@@ -224,14 +224,12 @@ module CucuShift
     # @return [Hash] the raw status of resource as returned by API
     def status_raw(user: nil, cached: false, quiet: false)
       raw_resource(user: user, quiet: quiet, cached: cached)["status"]
-    rescue ResourceNotFoundError => e
-      # a probably misplaced hack to help with some Pod (and other's?) methods
-      props[:raw] ||= {}
-      return props[:raw]["status"] = {"phase" => "Missing"}
     end
 
     def phase(user: nil, cached: false, quiet: false)
       return status_raw(user: user, cached: cached, quiet: quiet)["phase"].downcase.to_sym
+    rescue ResourceNotFoundError => e
+      return :missing
     end
 
     def labels(user: nil, cached: false, quiet: false)
