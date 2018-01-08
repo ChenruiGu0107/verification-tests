@@ -1333,7 +1333,7 @@ Feature: deployment related features
   # @case_id OCP-11586
   Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
     Given I have a project
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11384/application-template-stibuild.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait until the status of deployment "frontend" becomes :complete
