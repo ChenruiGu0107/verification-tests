@@ -766,10 +766,9 @@ Feature: pod related features
       | overwrite | true     |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
-    Given a pod becomes ready with labels:
+    Given 6 pods become ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
@@ -792,10 +791,9 @@ Feature: pod related features
       | key_val   | foo8=bar |
       | overwrite | true     |
     Then the step should succeed
-    Given a pod becomes ready with labels:
+    Given 5 pods become ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod1 clipboard
-    And all pods in the project are ready
     And I replace lines in "Eviction.json":
       | "name": "<%= cb.pod %>",|"name": "<%= cb.pod1 %>",|
     When I perform the :create_pod_eviction rest request with:
@@ -809,10 +807,9 @@ Feature: pod related features
       | replicas | 3                  |
     Then the step should succeed
     Given I wait until number of replicas match "3" for replicationController "deployment-example-1"
-    Given a pod becomes ready with labels:
+    Given 3 pods become ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod2 clipboard
-    And all pods in the project are ready
     And I replace lines in "Eviction.json":
       | "name": "<%= cb.pod1 %>",|"name": "<%= cb.pod2 %>",|
     When I perform the :create_pod_eviction rest request with:
