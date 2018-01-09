@@ -353,7 +353,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And I save the output to file>openshift-resource-limits.yaml
     Given I replace lines in "openshift-resource-limits.yaml":
-      | storage: 65Mi | storage: 70Mi |
+      | storage: 65Mi | storage: 1Gi |
     When I run the :replace admin command with:
       | f             | openshift-resource-limits.yaml  |
       | n             | <%= project.name %>             |
