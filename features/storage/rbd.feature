@@ -44,23 +44,20 @@ Feature: Storage of Ceph plugin testing
   # @author jhou@redhat.com
   # @case_id OCP-9701
   @admin
-  @destructive
   Scenario: Ceph rbd security testing
-    # Prepare Ceph rbd server
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+
     Given I have a project
-    And I have a Ceph pod in the project
 
-    # Prepare PV/PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pv-rwo.json" where:
-      | ["metadata"]["name"]           | pv-rbd-server-<%= project.name %>            |
-      | ["spec"]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pvc-rwo.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-rbd-<%= project.name %>       |
-      | ["spec"]["volumeName"] | pv-rbd-server-<%= project.name %> |
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-rbd-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner          |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                         |
     Then the step should succeed
-    And the "pvc-rbd-<%= project.name %>" PVC becomes bound to the "pv-rbd-server-<%= project.name %>" PV
+    And the "pvc-rbd-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    # Create tester pod
+    # Switch to admin to bypass scc
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/auto/pod.json" replacing paths:
@@ -108,23 +105,48 @@ Feature: Storage of Ceph plugin testing
   # @author jhou@redhat.com
   # @case_id OCP-9635
   @admin
-  @destructive
   Scenario: Create Ceph rbd pod which reference the rbd server directly from pod template
-    Given I have a project
-    And I have a Ceph pod in the project
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
 
-    Given I switch to cluster admin pseudo user
+    Given I have a project
+
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound within 120 seconds
+
+    # Copy secret to user namespace
+    Given I run the :get admin command with:
+      | resource      | secret         |
+      | resource_name | cephrbd-secret |
+      | namespace     | default        |
+      | o             | yaml           |
+    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["data"]["key"] | <%= cb.secret_key %> |
+    Then the step should succeed
+
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+    # Switch to admin to bypass scc
+    And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
-      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pod-inline.json" replacing paths:
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["volumes"][0]["rbd"]["image"]       | <%= cb.image %>                                     |
     Then the step should succeed
     And the pod named "rbd" becomes ready
 
   # @author lxia@redhat.com
   # @case_id OCP-9693
   @admin
-  @destructive
   Scenario: [storage_201] Only one pod with rbd volume can be scheduled when NoDiskConflicts policy is enabled
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
       | project_name  | <%= cb.proj_name %>                   |
@@ -137,15 +159,41 @@ Feature: Storage of Ceph plugin testing
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
-    And I have a Ceph pod in the project
+
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound within 120 seconds
+
+    # Copy secret to user namespace
+    Given I run the :get admin command with:
+      | resource      | secret         |
+      | resource_name | cephrbd-secret |
+      | namespace     | default        |
+      | o             | yaml           |
+    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["data"]["key"] | <%= cb.secret_key %> |
+    Then the step should succeed
+
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+    # Switch to admin to bypass scc
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pod-inline.json" replacing paths:
+      | ["metadata"]["name"]                         | rbd-pod1-<%= project.name %>                        |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["volumes"][0]["rbd"]["image"]       | <%= cb.image %>                                     |
+    Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                         | rbd-pod1-<%= project.name %>                 |
-      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
-    Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                         | rbd-pod2-<%= project.name %>                 |
-      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
+      | ["metadata"]["name"]                         | rbd-pod2-<%= project.name %>                        |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["volumes"][0]["rbd"]["image"]       | <%= cb.image %>                                     |
     Then the step should succeed
 
     When I run the :describe client command with:
@@ -156,6 +204,7 @@ Feature: Storage of Ceph plugin testing
       | Pending          |
       | FailedScheduling |
       | NoDiskConflict   |
+
     When I get project events
     Then the step should succeed
     And the output should contain:
@@ -167,7 +216,8 @@ Feature: Storage of Ceph plugin testing
   @admin
   Scenario: Dynamically provision Ceph RBD volumes
     Given I have a StorageClass named "cephrbdprovisioner"
-    # The "cephrbd-secret" is "default" namespace is used for volume provision
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+
     And I run the :get admin command with:
       | resource      | secret         |
       | resource_name | cephrbd-secret |
@@ -256,18 +306,35 @@ Feature: Storage of Ceph plugin testing
   # @case_id OCP-13621
   @admin
   Scenario: rbd volumes should be accessible by multiple pods with readonly permission
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+
     Given admin creates a project with a random schedulable node selector
-    And I have a Ceph pod in the project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound within 120 seconds
+    And I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+
+    Given I run the :get admin command with:
+      | resource      | secret         |
+      | resource_name | cephrbd-secret |
+      | namespace     | default        |
+      | o             | yaml           |
+    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["data"]["key"] | <%= cb.secret_key %> |
+    Then the step should succeed
 
     Given I run the steps 2 times:
     """
-    #Create pod with readonly access to rbd volume
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                                 | rbd-pod#{cb.i}-<%= project.name %>           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["name"] | rbdpd#{cb.i}-<%= project.name %>             |
-      | ["spec"]["volumes"][0]["name"]                       | rbdpd#{cb.i}-<%= project.name %>             |
-      | ["spec"]["volumes"][0]["rbd"]["monitors"][0]         | <%= pod("rbd-server").ip(user: user) %>:6789 |
-      | ["spec"]["volumes"][0]["rbd"]["readOnly"]            | true                                         |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pod-inline.json" replacing paths:
+      | ["metadata"]["name"]                                 | rbd-pod#{cb.i}-<%= project.name %>                  |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0]         | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["volumes"][0]["rbd"]["image"]               | <%= cb.image %>                                     |
+      | ["spec"]["volumes"][0]["rbd"]["readOnly"]            | true                                                |
     Then the step should succeed
     And the pod named "rbd-pod#{cb.i}-<%= project.name %>" becomes ready
     """

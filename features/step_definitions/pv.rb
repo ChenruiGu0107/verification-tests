@@ -23,6 +23,8 @@ Given /^I save volume id from PV named "([^"]*)" in the#{OPT_SYM} clipboard$/ do
     cb[cbname] = @result[:parsed]['spec']['azureDisk']['diskURI']
   when @result[:parsed]['spec']['vsphereVolume']
     cb[cbname] = @result[:parsed]['spec']['vsphereVolume']['volumePath']
+  when @result[:parsed]['spec']['rbd']
+    cb[cbname] = @result[:parsed]['spec']['rbd']['image']
   else
     raise "Unknown persistent volume type."
   end
