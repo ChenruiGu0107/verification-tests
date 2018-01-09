@@ -70,7 +70,7 @@ module CucuShift
       desired_replicas(*args, &block)
     end
 
-    def available_replicas(user:, cached: false, quiet: false)
+    def available_replicas(user: nil, cached: false, quiet: false)
       if env.version_ge("3.3", user: user)
         return super(user: user, cached: cached, quiet: quiet)
       else
@@ -80,7 +80,7 @@ module CucuShift
       end
     end
 
-    def latest_version(user:, cached: false, quiet: false)
+    def latest_version(user: nil, cached: false, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("status", "latestVersion")
     end
@@ -101,28 +101,28 @@ module CucuShift
     # availablity check only exists in 3.3, and oc describe doesn't have that
     # information prior, so we can't use the same logic to check for that info
     # @note only works with v3.3+
-    def unavailable_replicas(user:, cached: false, quiet: false)
+    def unavailable_replicas(user: nil, cached: false, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("status", "unavailableReplicas")
     end
 
-    def strategy(user:, cached: true, quiet: false)
+    def strategy(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", "strategy")
     end
 
-    def selector(user:, cached: true, quiet: false)
+    def selector(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", "selector")
     end
 
-    def triggers(user:, cached: false, quiet: false)
+    def triggers(user: nil, cached: false, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", "triggers")
     end
 
     # return specific trigger matched by type, please note cached is default to false
-    def trigger_params(user:, type:, cached: false, quiet: false)
+    def trigger_params(user: nil, type:, cached: false, quiet: false)
       triggers = self.triggers(user: user, cached: cached, quiet: quiet)
       trigger = triggers.find {|t| t["type"] == type}
       case trigger["type"]
@@ -141,10 +141,14 @@ module CucuShift
     end
 
     # return the last triggered image
-    def last_image_for_trigger(user:, type:, cached: false, quiet: false)
+    def last_image_for_trigger(user: nil, type:, cached: false, quiet: false)
       return  trigger_params(user:user, type: "ImageChange")['lastTriggeredImage']
     end
 
+    def revision_history_limit(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "revisionHistoryLimit")
+    end
     # # translate template containers into a Hash key by name instead of just
     # # Array to make it easier to lookup container information
     # def containers_spec(user: nil, cached: true, quiet: false)
