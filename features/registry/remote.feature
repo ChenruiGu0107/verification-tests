@@ -548,8 +548,6 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream2:latest |
     Then the step should fail
-    And the output should contain:
-      | denied |
     Given I create a new project
     When I run the :tag client command with:
       | source_type  | docker                           |
