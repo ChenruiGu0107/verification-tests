@@ -370,3 +370,16 @@ Feature: logging related scenarios
     And logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17445/inventory |
     Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data['logging.yml'])['rootLogger'] == "${es.logger.level}, file"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17307
+  @admin
+  @destructive
+  Scenario: DC rollback behaviors are disabled for logging project DCs
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17307/inventory |
+    And a deploymentConfig becomes ready with labels:
+      | component=es |
+    And the expression should be true> dc.revision_history_limit == 0
