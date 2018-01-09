@@ -2393,6 +2393,7 @@ Feature: deployment related features
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | run=app |
+    And current replica set name of "deployment-example" deployment stored into :rs1 clipboard
     And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
     When I run the :tag client command with:
       | source_type | docker                          |
@@ -2404,6 +2405,9 @@ Feature: deployment related features
       | type_name | deploy/app |
       | keyval    | app=app:v2 |
     Then the step should succeed
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "deployment-example" deployment
+    And number of replicas of the current replica set for the deployment becomes:
+      | ready | 1 |
     Given status becomes :running of 1 pods labeled:
       | run=app |
     And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
