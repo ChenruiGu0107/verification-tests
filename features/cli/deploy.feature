@@ -2456,12 +2456,12 @@ Feature: deployment related features
     Given number of replicas of "hello-openshift" deployment becomes:
       | current | 2 |
     Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
-      | current | 2 | 
+      | current | 2 |
     When I run the :patch client command with:
       | resource      | rs                                                                   |
       | resource_name | <%= cb.rs1 %>                                                        |
       | p             | {"spec":{"template":{"spec":{"terminationGracePeriodSeconds": 35}}}} |
-    Then the step should succeed   
+    Then the step should succeed
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
     And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
     Given number of replicas of "hello-openshift" deployment becomes:
@@ -2471,3 +2471,19 @@ Feature: deployment related features
     Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
       | current | 2 |
     And the expression should be true> deployment.collision_count == 1
+
+  # @author haowang@redhat.com
+  # @case_id OCP-16443
+  Scenario: Trigger info is retained for deployment caused by image changes 37 new feature
+    Given the master version >= "3.7"
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    Given I wait until the status of deployment "frontend" becomes :complete
+    When I get project dc named "frontend" as YAML
+    Then the output by order should match:
+      | causes:                |
+      | - type: ConfigChange   |
+      | message: config change |
