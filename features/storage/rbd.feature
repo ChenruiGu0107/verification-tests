@@ -408,3 +408,33 @@ Feature: Storage of Ceph plugin testing
     Examples:
       | fstype |
       | xfs    | # @case_id OCP-16123
+
+  # @author jhou@redhat.com
+  # @case_id OCP-17275
+  @admin
+  Scenario: Configure 'Retain' reclaim policy for CephRBD
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_retain.yaml" where:
+      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["reclaimPolicy"]          | Retain                                              |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Retain"
+    And evaluation of `pvc.volume_name(user: user)` is stored in the :pv_name clipboard
+
+    When I ensure "pvc-<%= project.name %>" pvc is deleted
+    Given I run the :get admin command with:
+      | resource      | pv                |
+      | resource_name | <%= cb.pv_name %> |
+    Then the output should contain:
+      | Released |
+    And admin ensures "<%= cb.pv_name %>" pv is deleted after scenario
