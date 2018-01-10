@@ -20,13 +20,16 @@ Feature: Testing timeout route
       | overwrite        | true                                   |
       | keyval           | haproxy.router.openshift.io/timeout=3s |
     Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I open web server via the "http://<%= route.dns(by: user) %>/delay/1" url
     Then the step should succeed
-    Then the output should contain:
+    And the output should contain:
       | "X-Forwarded-Host": "service-unsecure |
       | delay/1                               |
     When I open web server via the "http://<%= route.dns(by: user) %>/delay/5" url
     Then the output should contain "504 Gateway"
+    """    
 
   # @author yadu@redhat.com
   # @case_id OCP-11347
@@ -112,7 +115,7 @@ Feature: Testing timeout route
       | https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/delay/4            |
       | -k                                                                                         |
     Then the step should fail
-    Then the output should contain "curl: (56)"
+    Then the output should contain "Empty reply from server"
 
   # @author yadu@redhat.com
   # @case_id OCP-11826
