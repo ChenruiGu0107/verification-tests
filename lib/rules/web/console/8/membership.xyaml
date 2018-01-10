@@ -28,7 +28,7 @@ click_to_goto_membership_tab:
 edit_membership:
   element:
     selector:
-      xpath: //a[span[contains(text(),"Edit Membership")]]
+      xpath: //a[span[contains(.,"Edit Membership")]]
     op: click
 done_membership_editing:
   action: close_all_toast_notifications
@@ -72,15 +72,35 @@ type_service_account_name_on_membership:
       xpath: //div[contains(@class,'service-account-name')]//div[contains(@id,'ui-select-choices-row')]//div[normalize-space()='<name>']
     op: click
 click_on_delete_role_on_membership:
+  params:
+    operation_confirm: 'Remove'
   elements:
   - selector:
       xpath: //div[div//strong[normalize-space(text())="<name>"]]//span[a[normalize-space(text())="<role>"]]/a[2]
     op: click
   - selector:
-      text: Remove
-    op: click
+      text: !ruby/regexp /Are you sure you want to remove/
+  action:
+    if_param: danger_alert
+    ref: check_remove_danger_alert
+  elements:
   - selector:
+      text: <operation_confirm>
+    op: click
+  action:
+    if_element:
+      selector:
+        text: !ruby/regexp /removed from/
+    ref:
+    - check_successful_message_of_roles_deleting
+check_successful_message_of_roles_deleting:
+  element:
+    selector:
       text: The role "<role>" was removed from "<name>".
+check_remove_danger_alert:
+  element:
+    selector:
+      text: !ruby/regexp /<danger_alert>/
 click_on_delete_role_on_membership_with_namespace:
   elements:
   - selector:

@@ -350,10 +350,4 @@ Feature: memberships related features via web
     Then the step should succeed
     When I run the :edit_membership web console action
     Then the step should succeed
-    When I perform the :click_on_delete_role_on_membership web console action with:
-      | name              | <%= user.name %>                        |
-      | role              | admin                                  |
-      | danger_alert      | remove your ability to see this project |
-      | operation_confirm | Cancel                                  |
-    Then the step should succeed
 
