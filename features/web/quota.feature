@@ -804,3 +804,78 @@ Feature: functions about resourcequotas
     Then the step should succeed
     And I run the :click_cancel web console action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-13464
+  @admin
+  Scenario: Check warning info when create special resources from json/yaml
+    Given the master version >= "3.6"
+    Given I have a project
+
+    #check warning info when create pv
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-default.json"
+      | file_path        | <%= localhost.absolutize("nfs-default.json") %> |
+    Then the step should succeed
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will create resources outside of the project, which might impact all users of the cluster |
+    Then the step should succeed
+
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    #check warning info when create quota
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                         |
+      | file_path        | <%= localhost.absolutize("myquota.yaml") %> |
+    Then the step should succeed
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will create resources that may have security or project behavior implications |
+    Then the step should succeed
+    And I run the :click_create_anyway web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | Unable to create the resource quota |
+    Then the step should succeed
+
+    #check warning info when create role
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/OCP-12989/role.json"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                      |
+      | file_path        | <%= localhost.absolutize("role.json") %> |
+    Then the step should succeed
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will create additional membership roles within the project |
+    Then the step should succeed
+    And I run the :click_create_anyway web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource   | role |
+    And the output should contain:
+      | deleteservices |
+
+    #check warning info when create rolebinding
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/OCP-12989/rolebinding.yaml"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                             |
+      | file_path        | <%= localhost.absolutize("rolebinding.yaml") %> |
+    Then the step should succeed
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | This will grant permissions to your project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
