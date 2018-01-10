@@ -319,7 +319,7 @@ Feature: template related scenarios:
   Scenario: Show user getting start info after new-app a template with message defined
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/application-template-stibuild.json | 
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | template                  |
