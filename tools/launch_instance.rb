@@ -198,7 +198,16 @@ module CucuShift
           )
         else
           with_base = File.join(basepath, path)
-          return (readfile(with_base) rescue readfile(path))
+          # remove any `..` and `.` path elements
+          with_base.gsub!(%r{/\./}, "/")
+          while with_base.gsub!(%r{/[^/]+/\.\./}, "/") do end
+          begin
+            return readfile(with_base)
+          rescue => e
+            logger.warn "last effort to read relative path because " \
+                        "'#{with_base}'  falied to be loaded: #{e.inspect}"
+            return readfile(path)
+          end
         end
       end
     end
@@ -225,7 +234,16 @@ module CucuShift
           return expand_private_path(path, public_safe: true)
         else
           with_base = File.join(basepath, path)
-          return (localize(with_base) rescue localize(path))
+          # remove any `..` and `.` path elements
+          with_base.gsub!(%r{/\./}, "/")
+          while with_base.gsub!(%r{/[^/]+/\.\./}, "/") do end
+          begin
+            return localize(with_base)
+          rescue => e
+            logger.warn "last effort to localize relative path because " \
+                        "'#{with_base}'  falied to be loaded: #{e.inspect}"
+            localize(path)
+          end
         end
       end
     end
