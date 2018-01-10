@@ -3,7 +3,7 @@ Feature: Testing the isolation during build scenarios
   # @author zzhao@redhat.com
   # @case_id OCP-15741,OCP-15734
   # @bug_id 1487652
-  Scenario Outline: Docker build-container is constrained to access other projects pod for multitenant plugin
+  Scenario Outline: Build-container is constrained to access other projects pod for multitenant plugin
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
@@ -50,7 +50,7 @@ Feature: Testing the isolation during build scenarios
   # @case_id OCP-15714,OCP-15715
   # @bug_id 1487652
   @admin
-  Scenario Outline: EgressNetworkPolicy constrained docker build process to extranet for multitenant plugin
+  Scenario Outline: EgressNetworkPolicy constrained build process to extranet for multitenant plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
@@ -79,7 +79,7 @@ Feature: Testing the isolation during build scenarios
   # @author zzhao@redhat.com
   # @case_id OCP-15742,OCP-15743
   # @bug_id 1487652
-  Scenario Outline: Docker build-container is able to access other projects pod for subnet plugin
+  Scenario Outline: Build-container is able to access other projects pod for subnet plugin
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
@@ -124,7 +124,7 @@ Feature: Testing the isolation during build scenarios
   # @author zzhao@redhat.com
   # @case_id OCP-15731,OCP-15744
   # @bug_id 1487652
-  Scenario Outline: Docker build-container is constrained to access other projects pod for networkpolicy plugin
+  Scenario Outline: Build-container is constrained to access other projects pod for networkpolicy plugin
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
