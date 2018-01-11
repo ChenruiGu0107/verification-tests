@@ -31,5 +31,5 @@ Feature: pipeline related
     When I perform the :check_build_trigger web console action with:
       | project_name      | <%= project.name %>                             |
       | bc_and_build_name | nodejs-mongodb-example/nodejs-mongodb-example-1 |
-      | trigger_info      | Jenkins job: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/job/<%= project.name %>-sample-pipeline/1/ |
+      | trigger_info      | Jenkins job: https://<%= route("jenkins", service("jenkins")).dns %>/job/<%= project.name %>-sample-pipeline/1/ |
     Then the step should succeed

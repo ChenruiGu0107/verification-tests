@@ -120,7 +120,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |
       | pod_name     | pod-dapi-volume     |
     Then the step should succeed
-    Given evaluation of `service_account("default").get_secret_names(by: user).select{|a| a.include?("default-token")}[0]` is stored in the :sname clipboard
+    Given evaluation of `service_account("default").get_secret_names.select{|a| a.include?("default-token")}[0]` is stored in the :sname clipboard
     When I get the visible text on web html page
     Then the output should match:
       | ^podinfo$                                           |

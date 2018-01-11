@@ -185,11 +185,11 @@ Feature: Routes related features on web console
     Then the step should succeed
     # check route is accessible
     When I execute on the pod:
-      | curl                                                                                               |
-      | -k                                                                                                 |
-      | --resolve                                                                                          |
-      | <%= route("service-secure", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("service-secure", service("service-secure")).dns(by: user) %>/                   |
+      | curl                                                                                     |
+      | -k                                                                                       |
+      | --resolve                                                                                |
+      | <%= route("service-secure", service("service-secure")).dns %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("service-secure", service("service-secure")).dns %>/                   |
     Then the output should contain "Hello-OpenShift"
 
   # @author yapei@redhat.com
@@ -221,17 +221,17 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
-    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/test/" url in the web browser
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns %>/test/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Hello-OpenShift-Path-Test |
     Then the step should succeed
-    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/" url in the web browser
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns %>/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Application is not available |
     Then the step should succeed
-    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/none" url in the web browser
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns %>/none" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Application is not available |
@@ -267,7 +267,7 @@ Feature: Routes related features on web console
     # check route function
     Given I use the "service-unsecure" service
     Given I wait for a web server to become available via the "edgerouteredirect" route
-    When I access the "http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/" url in the web browser
+    When I access the "http://<%= route("edgerouteredirect", service("service-unsecure")).dns %>/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Hello-OpenShift |
@@ -304,12 +304,12 @@ Feature: Routes related features on web console
     # check route function
     Given I use the "service-unsecure" service
     Given I wait for a web server to become available via the "edgerouteallow" route
-    When I access the "http://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/" url in the web browser
+    When I access the "http://<%= route("edgerouteallow", service("service-unsecure")).dns %>/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Hello-OpenShift |
     Then the step should succeed
-    When I access the "https://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/" url in the web browser
+    When I access the "https://<%= route("edgerouteallow", service("service-unsecure")).dns %>/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
       | response_string | Hello-OpenShift |
@@ -557,7 +557,7 @@ Feature: Routes related features on web console
       | app=hello |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
 
-    When I open web server via the "http://not-exist-<%= route("hello").dns(by: user) %>/" url
+    When I open web server via the "http://not-exist-<%= route("hello").dns %>/" url
     Then the output should contain:
       | Application is not available |
       | Possible reasons             |
