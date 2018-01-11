@@ -66,7 +66,7 @@ Feature: Check overview page
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
       | route_name | service-ruby-ex |
     Then the step should succeed
-    And evaluation of `route("service-ruby-ex", service("service-ruby-ex")).dns(by: user)` is stored in the :route_hostname clipboard
+    And evaluation of `route("service-ruby-ex", service("service-ruby-ex")).dns` is stored in the :route_hostname clipboard
     When I perform the :check_route_link_on_overview web console action with:
       | route_host_name | <%= cb.route_hostname %> |
     When I run the :delete client command with:
@@ -194,14 +194,14 @@ Feature: Check overview page
       | app_name | ruby-ex |
     Then the step should succeed
     When I perform the :check_application_block_info_on_overview web console action with:
-      | resource_name        | ruby-ex                                      |
-      | resource_type        | deployment                                   |
-      | project_name         | <%= project.name %>                          |
-      | build_num            | 1                                            |
-      | build_status         | complete                                     |
-      | route_url            | http://<%= route("ruby-ex").dns(by: user) %> |
-      | route_port_info      | 8080-tcp                                     |
-      | service_port_mapping | 8080/TCP (8080-tcp) 8080                     |
+      | resource_name        | ruby-ex                            |
+      | resource_type        | deployment                         |
+      | project_name         | <%= project.name %>                |
+      | build_num            | 1                                  |
+      | build_status         | complete                           |
+      | route_url            | http://<%= route("ruby-ex").dns %> |
+      | route_port_info      | 8080-tcp                           |
+      | service_port_mapping | 8080/TCP (8080-tcp) 8080           |
     Then the step should succeed
     When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
       | project_name  | <%= project.name %> |
