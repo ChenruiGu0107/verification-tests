@@ -540,12 +540,6 @@
     :resource_name: <value>
     :p: -p <value>
     :type: --type=<value>
-:plugin:
-  :cmd: oc plugin
-  :options:
-    :cmd_name: <value>
-    :cmd_flag: <value>
-    :cmd_flag_val: <value>
 :policy_add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
   :options:
