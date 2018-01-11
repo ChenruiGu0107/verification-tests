@@ -46,3 +46,53 @@ Feature: Ansible-service-broker related scenarios
     Given status becomes :running of 1 pods labeled:
       | deployment=mediawiki123-2 |
 
+
+  # @author zitang@redhat.com
+  # @case_id OCP-15395
+  @admin
+  Scenario: Check the ASB with bearer token authn
+    #Get asb route and ansible service broker  client secret
+    Given I have a project
+    And evaluation of `project.name` is stored in the :projectName clipboard
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And evaluation of `secret('asb-client').token` is stored in the :token clipboard
+    And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
+
+    #Access the ASB api with valid token
+    Given I switch to the first user
+    And I use the "<%= cb.projectName %>" project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer <%= cb.token %>                      |
+      | -sk                                                        |
+      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+    Then the output should match:
+      | services      |
+      | name.*apb     |
+      | description   |
+    #Access the ASB api with invalid token
+     When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer XXXXXXXXXXXX                         |
+      | -sk                                                        |
+      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+    Then the output should contain "Unauthorized"
+
+  @admin
+  Scenario: Test cluster_service_class methods
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['rh-mediawiki-apb'].dependencies` is stored in the :media_wiki_dep clipboard
+    And evaluation of `cb.csc['rh-mysql-apb'].dependencies` is stored in the :mysql_dep clipboard
+    And evaluation of `cb.csc['rh-postgresql-apb'].dependencies` is stored in the :postgresql_dep clipboard
+    And evaluation of `cb.csc['rh-mariadb-apb'].dependencies` is stored in the :mariadb_dep clipboard
+
+   Then the expression should be true>  cb.mysql_dep.select { |e| e.start_with? 'registry.access.redhat.com/rhscl/mysql' }.count == 2
+   Then the expression should be true>  cb.mariadb_dep.select { |e| e.start_with? 'registry.access.redhat.com/rhscl/mariadb' }.count == 2
+   Then the expression should be true>  cb.postgresql_dep.select { |e| e.start_with? 'registry.access.redhat.com/rhscl/postgresql' }.count == 2
+   Then the expression should be true>  cb.media_wiki_dep.select { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' }.count == 1

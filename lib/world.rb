@@ -324,15 +324,15 @@ module CucuShift
     end
 
     def cluster_service_broker(name = nil, env = nil)
-      project_resource(ClusterServiceBroker, name, env)
+      cluster_resource(ClusterServiceBroker, name, env)
     end
 
     def cluster_service_class(name = nil, env = nil)
-      project_resource(ClusterServiceClass, name, env)
+      cluster_resource(ClusterServiceClass, name, env)
     end
 
     def cluster_service_plan(name = nil, env = nil)
-      project_resource(ClusterServicePlan, name, env)
+      cluster_resource(ClusterServicePlan, name, env)
     end
 
     # @return rc (ReplicationController) by name from scenario cache;
