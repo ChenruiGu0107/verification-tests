@@ -11,7 +11,7 @@ Feature: services related feature on web console
       | project_name | <%= project.name %> |
       | service_name | hello-service       |
     Then the step should succeed
-    Given evaluation of `route("hello-route").dns(by: user)` is stored in the :dns1 clipboard
+    Given evaluation of `route("hello-route").dns` is stored in the :dns1 clipboard
     When I perform the :check_one_service_page web console action with:
       | project_name | <%= project.name %>             |
       | service_name | hello-service                   |
@@ -34,7 +34,7 @@ Feature: services related feature on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc477695/new_route.json |
     Then the step should succeed
-    Given evaluation of `route("hello-route1").dns(by: user)` is stored in the :dns2 clipboard
+    Given evaluation of `route("hello-route1").dns` is stored in the :dns2 clipboard
     When I perform the :check_one_service_page web console action with:
       | project_name | <%= project.name %>        |
       | service_name | hello-service              |
