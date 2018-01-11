@@ -11,10 +11,10 @@ module CucuShift
     # because this is a User and a User managed type at the same time, we have
     #   interference between #cli_exec methods in User and UserObjectHelper;
     #   lets workaround that
-    alias user_cli_exec cli_exec
-    include Common::UserObjectHelper
-    alias _cli_exec cli_exec
-    alias cli_exec user_cli_exec
+    # alias user_cli_exec cli_exec
+    # include Common::UserObjectHelper
+    # alias _cli_exec cli_exec
+    # alias cli_exec user_cli_exec
 
     attr_reader :project, :props, :shortname
 
@@ -59,12 +59,12 @@ module CucuShift
       Tempfile.create(['payload','.json']) do |f|
         f.write(p.to_json)
         f.close
-        return _cli_exec(as: by, key: :create, f: f.path, n: project.name)
+        return by.cli_exec(:create, f: f.path, n: project.name)
       end
     end
 
     def get(user:)
-      res = _cli_exec(as: user, key: :get, n: project.name,
+      res = user.cli_exec(:get, n: project.name,
                 resource_name: shortname,
                 resource: "serviceaccount",
                 output: "yaml")
