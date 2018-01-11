@@ -53,8 +53,8 @@ module CucuShift
     end
 
     def finalizers(user: nil, cached: true, quiet: false)
-      rr = raw_resources(user: user, cached: cached, quiet: quiet)
-      rr['finalizers']
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('metadata', 'finalizers')
     end
   end
 end
