@@ -428,13 +428,12 @@ Feature: Storage of Ceph plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Retain"
-    And evaluation of `pvc.volume_name(user: user)` is stored in the :pv_name clipboard
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
 
     When I ensure "pvc-<%= project.name %>" pvc is deleted
     Given I run the :get admin command with:
-      | resource      | pv                |
-      | resource_name | <%= cb.pv_name %> |
+      | resource      | pv             |
+      | resource_name | <%= pv.name %> |
     Then the output should contain:
       | Released |
-    And admin ensures "<%= cb.pv_name %>" pv is deleted after scenario
+    And admin ensures "<%= pv.name %>" pv is deleted
