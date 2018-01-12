@@ -5,6 +5,7 @@ wait_cancel:
     timeout: 60
 check_close_button:
   element: &close_button
+    selector:
       text: Close
     type: button
 click_close_button:
