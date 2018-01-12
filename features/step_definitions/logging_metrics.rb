@@ -365,6 +365,17 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   cb.master_version = cb.master_version[0..2]
+  # Need to construct the cert information if needed BEFORE inventory is processed
+  if ansible_opts[:copy_custom_cert]
+    key_name = "cucushift_custom.key"
+    cert_name = "cucushift_custom.crt"
+
+    # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
+    base_path = "/tmp/#{File.basename(host.workdir)}/"
+    cb.key_path = "#{base_path}/#{key_name}"
+    cb.cert_path = "#{base_path}/#{cert_name}"
+    cb.ca_crt_path = "#{base_path}/ca.crt"
+  end
   # get the qe-inventory-file early
   loaded = ERB.new(File.read(@result[:abs_path])).result binding
   File.write(new_path, loaded)
@@ -381,16 +392,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     service_url = "#{cb.metrics_route_prefix}.#{cb.subdomain}"
   else
     service_url = "#{cb.logging_route_prefix}.#{cb.subdomain}"
-  end
-  if ansible_opts[:copy_custom_cert]
-    key_name = "cucushift_custom.key"
-    cert_name = "cucushift_custom.crt"
-
-    # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
-    base_path = "/tmp/#{File.basename(host.workdir)}/"
-    cb.key_path = "#{base_path}/#{key_name}"
-    cb.cert_path = "#{base_path}/#{cert_name}"
-    cb.ca_crt_path = "#{base_path}/ca.crt"
   end
 
   begin

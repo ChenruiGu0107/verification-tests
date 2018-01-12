@@ -77,6 +77,14 @@ Feature: ansible install related feature
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11687/inventory |
       | copy_custom_cert | true                                                                                                   |
     And I login to kibana logging web console
+    # execute the curl command in a pod to avoid possiblity that the client
+    # platform does not have 'curl'
+    And a pod becomes ready with labels:
+      | component=kibana, logging-infra=kibana |
+    And I execute on the pod:
+      | curl | -k | <%= env.logging_console_url %> | -vv |
+    Then the expression should be true> @result[:response].include? "Server certificate"
+    Then the expression should be true> @result[:response].include? "subject: CN=#{cb.logging_route_prefix}.#{cb.subdomain}"
 
   # @author pruan@redhat.com
   # @case_id OCP-15988
