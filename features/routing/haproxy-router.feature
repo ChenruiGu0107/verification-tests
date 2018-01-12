@@ -4083,3 +4083,60 @@ Feature: Testing haproxy router
       | check inter |
     """
 
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-10881
+  @admin
+  @destructive
+  Scenario: HAProxy config can be overwritten with a configMap
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the pod:
+      | cat     |  haproxy-config.template  |
+    Then the step should succeed
+    And I save the output to file>haproxy-config-custom.template
+    And I replace lines in "haproxy-config-custom.template":
+      | /(timeout http-request ).*"10s".*/ | \\11s |
+    Then the step should succeed
+    Given admin ensures "customrouter" configmap is deleted after scenario    
+    And I run the :create_configmap client command with:
+      | name      | customrouter                   |
+      | from_file | haproxy-config-custom.template |
+    Then the step should succeed
+    Given default router deployment config is restored after scenario
+    #make the router pause deploy
+    When I run the :rollout_pause client command with:
+      | resource | dc      |
+      | name     | router  |
+    When I run the :env client command with:
+      | resource | dc/router                                                                 |
+      | e        | TEMPLATE_FILE=/var/lib/haproxy/conf/custom/haproxy-config-custom.template |
+    Then the step should succeed
+    Then I run the :set_volume client command with:
+      | resource       | dc                           |
+      | resource_name  | router                       |
+      | action         | --add                        |
+      | configmap-name | customrouter                 |
+      | mount-path     | /var/lib/haproxy/conf/custom |
+    Then the step should succeed
+    #after above change, begin to deploy router
+    When I run the :rollout_resume client command with:
+      | resource | dc      |
+      | name     | router  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    #Check the http request will be timetout in 7 seconds > 6s ( timeout connect 5s + timeout http-request 1s )
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | oc_opts_end      |                 |
+      | exec_command     | nc              |
+      | exec_command_arg | -i7             |
+      | exec_command_arg | 127.0.0.1       |
+      | exec_command_arg | 80              |
+      | _stdin           | :empty          |
+    Then the output should contain "408 Request Time-out"
