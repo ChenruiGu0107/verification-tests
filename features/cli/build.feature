@@ -1800,8 +1800,8 @@ Feature: build 'apps' with CLI
     When I get project pods
     Then the output should contain "php"
     When I run the :delete client command with:
-      | object_type | build|
-      | object_name_or_id | php-sample-build-2 |
+      | object_type | builds|
+      | all | true |
     Then the step should succeed
     And I wait for the steps to pass:
     """
