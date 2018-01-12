@@ -1803,7 +1803,7 @@ Feature: build 'apps' with CLI
       | object_type | builds|
       | all | true |
     Then the step should succeed
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I get project pods
     Then the step should succeed
