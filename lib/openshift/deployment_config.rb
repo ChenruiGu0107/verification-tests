@@ -92,7 +92,7 @@ module CucuShift
       if @rc&.name&.end_with?("-#{version}")
         return @rc
       else
-        rc_name = name + version
+        rc_name = "#{name}-#{version}"
         return @rc = ReplicationController.new(name: rc_name, project: project)
       end
     end
@@ -149,16 +149,18 @@ module CucuShift
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", "revisionHistoryLimit")
     end
-    # # translate template containers into a Hash key by name instead of just
-    # # Array to make it easier to lookup container information
-    # def containers_spec(user: nil, cached: true, quiet: false)
-    #   containers = {}
-    #   spec = template(user: user)['spec']['containers']
-    #   spec.each do | container |
-    #     cname = container['name']
-    #     containers[cname] = ContainerSpec.new container
-    #   end
-    #   return containers
-    # end
+
+    # @return undefined
+    # @raise on error
+    def rollout_latest(user: nil, quiet: false)
+      res = default_user(user).cli_exec(:rollout_latest,
+                                              resource: "dc/#{name}",
+                                              _quiet: quiet
+                                             )
+      unless res[:success]
+        raise "could not redeploy dc #{name}" +
+          quiet ? ":\n#{res[:response]}" : ", see log"
+      end
+    end
   end
 end
