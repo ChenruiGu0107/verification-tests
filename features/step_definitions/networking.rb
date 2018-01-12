@@ -209,8 +209,8 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   elsif env.version_eq("3.6", user: user)
     filter_matches = [
       'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
-      'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
       'INPUT -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-ALLOW',
+      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
       'FORWARD -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-FORWARD',
       'FORWARD -i tun0 ! -o tun0 -m comment --comment "administrator overrides" -j OPENSHIFT-ADMIN-OUTPUT-RULES',
       'OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT',
