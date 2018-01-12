@@ -49,7 +49,7 @@ Given /^I wait until the latest rc of internal registry is ready$/ do
     "docker-registry",
     user: admin,
     project: project("default", switch: false)
-  ).max_by {|rc| rc.props[:created]}
+  ).max_by {|rc| rc.created_at}
   raise "no matching registry rcs found" unless _rc
   @result = _rc.wait_till_ready(admin, 900)
   raise "#{rc_name} didn't become ready" unless @result[:success]

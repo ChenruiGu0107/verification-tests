@@ -43,10 +43,10 @@ Given /^default (router|docker-registry) deployment config is restored after sce
     resource,
     user: _admin,
     project: _project
-  ).max_by {|rc| rc.props[:created]}
+  ).max_by {|rc| rc.created_at}
 
   raise "no matching rcs found" unless _rc
-  version = _rc.props[:annotations]["openshift.io/deployment-config.latest-version"]
+  version = _rc.annotation("openshift.io/deployment-config.latest-version")
   unless _rc.ready?(user: admin, cached: true)
     raise "latest rc version #{version} is bad"
   end
@@ -111,4 +111,33 @@ Given /^number of replicas of#{OPT_QUOTED} deployment config becomes:$/ do |name
   matched = dc(name).wait_till_replica_counters_match(**options)
 
   raise 'expected deployment config replica counters not reached within timeout' unless matched[:success]
+end
+
+Given /^(I|admin) redeploys? #{QUOTED} dc( after scenario)?$/ do |who, dc_name, at_teardown|
+  _user = who == "admin" ? admin : user
+  _dc = dc(dc_name)
+
+  p = proc {
+    original_version = _dc.latest_version(user: _user)
+    _dc.rollout_latest(user: _user)
+    updated = wait_for(180) {
+      _dc.latest_version(user: _user) != original_version
+    }
+
+    unless updated
+      raise "dc didn't update version, still on: #{original_version}"
+    end
+
+    @result = _dc.rc(user: _user).wait_till_ready(_user, 180)
+
+    unless @result[:success]
+      raise "dc didn't become ready in time, see log"
+    end
+  }
+
+  if at_teardown
+    teardown_add p
+  else
+    p.call
+  end
 end
