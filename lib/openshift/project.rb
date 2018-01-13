@@ -94,8 +94,6 @@ module CucuShift
       props[:scc_mcs] = h["annotations"]["openshift.io/sa.scc.mcs"]
       props[:scc_supplemental_groups] = h["annotations"]["openshift.io/sa.scc.supplemental-groups"]
       props[:status] = project_hash["status"]
-
-      super(project_hash)
     end
 
     def active?(user:, cached: false)

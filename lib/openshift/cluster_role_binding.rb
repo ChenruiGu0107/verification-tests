@@ -6,6 +6,8 @@ module CucuShift
     RESOURCE = 'clusterrolebindings'
 
     def update_from_api_object(hash)
+      super
+
       m = hash["metadata"]
 
       unless hash["kind"] == shortclass
