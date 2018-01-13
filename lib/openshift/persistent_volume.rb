@@ -6,24 +6,6 @@ module CucuShift
     STATUSES = [:available, :bound, :pending, :released, :failed]
     RESOURCE = 'persistentvolumes'
 
-    def update_from_api_object(pv_hash)
-      m = pv_hash["metadata"]
-
-      unless pv_hash["kind"] == "PersistentVolume"
-        raise "hash not from a PV: #{pv_hash["kind"]}"
-      end
-      unless name == m["name"]
-        raise "hash from a different PV: #{name} vs #{m["name"]}"
-      end
-
-      props[:uid] = m["uid"]
-      props[:spec] = pv_hash["spec"]
-      # status should be retrieved on demand but we cache it for the brave
-      props[:status] = pv_hash["status"]
-
-      return self # mainly to help ::from_api_object
-    end
-
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
     #   status can change to
@@ -35,13 +17,18 @@ module CucuShift
     end
 
     def reclaim_policy(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['persistentVolumeReclaimPolicy']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", 'persistentVolumeReclaimPolicy')
     end
 
     def storage_class_name(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['storageClassName']
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", 'storageClassName')
+    end
+
+    def uid(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("metadata", "uid")
     end
   end
 end

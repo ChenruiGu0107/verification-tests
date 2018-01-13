@@ -13,6 +13,8 @@ module CucuShift
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
     def update_from_api_object(service_hash)
+      super
+
       m = service_hash["metadata"]
       s = service_hash["spec"]
 
