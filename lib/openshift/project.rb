@@ -13,8 +13,6 @@ module CucuShift
                         "management-infra".freeze,
                         "openshift".freeze ]
 
-    attr_reader :props, :name, :env
-
     # @override
     def visible?(user:, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
@@ -82,18 +80,6 @@ module CucuShift
         res[:project] = res[:resource]
       end
       return res
-    end
-
-    def update_from_api_object(project_hash)
-      super
-      h = project_hash["metadata"]
-      props[:uid] = h["uid"]
-      props[:description] = h["annotations"]["openshift.io/description"]
-      props[:display_name] = h["annotations"]["openshift.io/display-name"]
-      props[:scc_uid_range] = h["annotations"]["openshift.io/sa.scc.uid-range"]
-      props[:scc_mcs] = h["annotations"]["openshift.io/sa.scc.mcs"]
-      props[:scc_supplemental_groups] = h["annotations"]["openshift.io/sa.scc.supplemental-groups"]
-      props[:status] = project_hash["status"]
     end
 
     def active?(user:, cached: false)
