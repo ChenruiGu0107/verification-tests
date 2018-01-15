@@ -825,7 +825,7 @@ Feature: storageClass related feature
     And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == nil
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-18273
+  # @case_id OCP-12873
   @admin
   Scenario: Check storageclass info pv and pvc requested when pvc is using beta annotation
     Given I have a project
