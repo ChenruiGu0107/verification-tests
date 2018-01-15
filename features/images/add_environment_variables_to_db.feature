@@ -212,7 +212,7 @@ Feature: Add env variables to image feature
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | cat | /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 32M         |
       | read_buffer_size = 8M         |
@@ -241,7 +241,7 @@ Feature: Add env variables to image feature
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | cat | /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 51M          |
       | read_buffer_size = 25M         |
