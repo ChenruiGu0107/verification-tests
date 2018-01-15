@@ -91,9 +91,11 @@ Feature: Postgresql images test
   Scenario Outline: Use default values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:
-      | name   | psql                                                                         |
-      | image  | <%= product_docker_repo %><image>                                            |
-      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb |
+      | name   | psql                              |
+      | image  | <%= product_docker_repo %><image> |
+      | env    | POSTGRESQL_USER=user              |
+      | env    | POSTGRESQL_PASSWORD=redhat        |
+      | env    | POSTGRESQL_DATABASE=sampledb      |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=psql-1 |
