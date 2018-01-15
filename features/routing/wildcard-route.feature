@@ -732,8 +732,8 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | invalid                                   |
     Then the step should fail
-    And the output should contain:
-      | Unsupported value: "invalid": supported values: None, Subdomain |
+    And the output should match:
+      | Unsupported value: "invalid": supported values.*None.*Subdomain |
 
     #Test 'oc create route passthrough' with invalid wildcardpolicy
     When I run the :create_route_passthrough client command with:
@@ -742,8 +742,8 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | invalid                                   |
     Then the step should fail
-    And the output should contain: 
-      | Unsupported value: "invalid": supported values: None, Subdomain |
+    And the output should match: 
+      | Unsupported value: "invalid": supported values.*None.*Subdomain |
 
     #Test 'oc create route reencrypt' with invalid wildcardpolicy
     When I run the :create_route_reencrypt client command with:
@@ -752,8 +752,8 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | invalid                                   |
     Then the step should fail
-    And the output should contain:
-      | Unsupported value: "invalid": supported values: None, Subdomain |
+    And the output should match:
+      | Unsupported value: "invalid": supported values.*None.*Subdomain |
 
   # @author zzhao@redhat.com
   # @case_id OCP-11067
