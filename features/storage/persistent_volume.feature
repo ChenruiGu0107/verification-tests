@@ -503,3 +503,91 @@ Feature: Persistent Volume Claim binding policies
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
+
+  # @author wehe@redhat.com
+  # @case_id OCP-16531
+  @admin
+  Scenario: Two pods work well on different node with access mode ReadWriteMany
+    Given I have a project
+    And environment has at least 2 schedulable nodes
+    And I have a NFS service in the project
+    Given I store the schedulable nodes in the clipboard
+    And label "accessmodes=rwx1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "accessmodes=rwx2" is added to the "<%= cb.nodes[1].name %>" node
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | <%= pv.name %> |
+    Then the step should succeed
+    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["metadata"]["name"]               | mypod1                |
+      | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
+      | ["spec"]["nodeSelector"]           | accessmodes: rwx1     |
+    Then the step should succeed
+    Given the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/mypod1 |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["metadata"]["name"]               | mypod2                |
+      | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
+      | ["spec"]["nodeSelector"]           | accessmodes: rwx2     |
+    Then the step should succeed
+    Given the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/mypod2 |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/ |
+    Then the output should contain:
+      | mypod1 |
+      | mypod2 |
+    Given I ensure "mypod1" pod is deleted
+    Given I ensure "mypod2" pod is deleted
+
+  # @author wehe@redhat.com
+  # @case_id OCP-16607
+  @admin
+  Scenario: Two pods compete the same ReadWriteOnce volume 
+    Given I have a project
+    And environment has at least 2 schedulable nodes
+    Given I store the schedulable nodes in the clipboard
+    And label "accessmodes=rwo1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "accessmodes=rwo2" is added to the "<%= cb.nodes[1].name %>" node
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | nfsc |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["metadata"]["name"]               | mypod1                |
+      | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
+      | ["spec"]["nodeSelector"]           | accessmodes: rwo1     |
+    Then the step should succeed
+    Given the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/mypod1 |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["metadata"]["name"]               | mypod2                |
+      | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
+      | ["spec"]["nodeSelector"]           | accessmodes: rwo2     |
+    Then the step should succeed
+    Given the pod named "mypod2" status becomes :pending 
+    When I run the :describe client command with:
+      | resource | pod    |
+      | name     | mypod2 |
+    Then the output should contain:
+      | Multi-Attach error for volume |
+    Given I ensure "mypod1" pod is deleted
+    And the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/mypod2 |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/ |
+    Then the output should contain:
+      | mypod1 |
+      | mypod2 |
