@@ -82,7 +82,7 @@ Feature:Create db using new_app cmd feature
     Given I have a project
     When I run the :run client command with:
       | name  | mysql                                          |
-      | image | <%= project_docker_repo %>rhscl/mysql-57-rhel7 |
+      | image | <%= product_docker_repo %>rhscl/mysql-57-rhel7 |
       | env   | MYSQL_ROOT_PASSWORD=test                       |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -103,7 +103,7 @@ Feature:Create db using new_app cmd feature
     Given I have a project
     When I run the :run client command with:
       | name  | mysql                                          |
-      | image | <%= project_docker_repo %>rhscl/mysql-57-rhel7 |
+      | image | <%= product_docker_repo %>rhscl/mysql-57-rhel7 |
       | env   | MYSQL_ROOT_PASSWORD=test                       |
       | env   | MYSQL_KEY_BUFFER_SIZE=8M                       |
       | env   | MYSQL_READ_BUFFER_SIZE=8M                      |
@@ -129,7 +129,7 @@ Feature:Create db using new_app cmd feature
     Given I have a project
     When I run the :run client command with:
       | name   | mysql                                          |
-      | image  | <%= project_docker_repo %>rhscl/mysql-57-rhel7 |
+      | image  | <%= product_docker_repo %>rhscl/mysql-57-rhel7 |
       | env    | MYSQL_ROOT_PASSWORD=test                       |
       | limits | memory=512Mi                                   |
     Then the step should succeed
