@@ -83,8 +83,8 @@ Feature: Quota related scenarios
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509095/pod-request-limit-invalid-2.yaml
     Then the step should fail
     And the output should match:
-      | spec.containers\[0\].resources.limits(\[cpu\])?: Invalid value: "500m": must be greater than or equal to( cpu)? request  |
-      | spec.containers\[0\].resources.limits(\[memory\])?: Invalid value: "256Mi": must be greater than or equal to( memory)? request |
+      | Invalid value: "(5\|6)00m": must be (greater\|less) than or equal to( cpu)? (request\|limit)  |
+      | Invalid value: "(256\|512)Mi": must be (greater\|less) than or equal to( memory)? (request\|limit) |
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
