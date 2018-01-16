@@ -604,16 +604,16 @@ Feature: storageClass related feature
     Then the step should succeed
     And the output by order should match:
       | sc1-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sNo                                    |
+      | IsDefaultClass:\s+No                                   |
       | storageclass.beta.kubernetes.io/is-default-class=false |
       | sc2-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sYes                                   |
+      | IsDefaultClass:\s+Yes                                  |
       | storageclass.beta.kubernetes.io/is-default-class=true  |
       | sc3-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sNo                                    |
+      | IsDefaultClass:\s+No                                   |
       | storageclass.kubernetes.io/is-default-class=false      |
       | sc4-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sYes                                   |
+      | IsDefaultClass:\s+Yes                                  |
       | storageclass.kubernetes.io/is-default-class=true       |
 
     Examples:
@@ -645,9 +645,9 @@ Feature: storageClass related feature
     Then the step should succeed
     And the output by order should match:
       | sc1-<%= cb.sc_name %> |
-      | IsDefaultClass:\sNo   |
+      | IsDefaultClass:\s+No  |
       | sc2-<%= cb.sc_name %> |
-      | IsDefaultClass:\sNo   |
+      | IsDefaultClass:\s+No  |
 
   # @author lxia@redhat.com
   # @case_id OCP-13665
@@ -694,19 +694,19 @@ Feature: storageClass related feature
     Then the step should succeed
     And the output by order should match:
       | sc1-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sNo                                    |
+      | IsDefaultClass:\s+No                                   |
       | storageclass.beta.kubernetes.io/is-default-class=false |
       | storageclass.kubernetes.io/is-default-class=false      |
       | sc2-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sYes                                   |
+      | IsDefaultClass:\s+Yes                                  |
       | storageclass.beta.kubernetes.io/is-default-class=true  |
       | storageclass.kubernetes.io/is-default-class=true       |
       | sc3-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sYes                                   |
+      | IsDefaultClass:\s+Yes                                  |
       | storageclass.beta.kubernetes.io/is-default-class=false |
       | storageclass.kubernetes.io/is-default-class=true       |
       | sc4-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\sYes                                   |
+      | IsDefaultClass:\s+Yes                                  |
       | storageclass.beta.kubernetes.io/is-default-class=true  |
       | storageclass.kubernetes.io/is-default-class=false      |
 

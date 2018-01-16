@@ -26,9 +26,9 @@ Feature: ResourceQuata for storage
 
     # Try to exceed the 12Gi storage
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                    | pvc-<% project.name %> |
-      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                    |
-      | ["spec"]["resources"]["requests"]["storage"]                            | 4Gi                    |
+      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                     |
+      | ["spec"]["resources"]["requests"]["storage"]                            | 4Gi                     |
     Then the step should fail
     And the output should contain:
       | exceeded quota                 |
@@ -48,9 +48,9 @@ Feature: ResourceQuata for storage
     """
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                    | pvc-<% project.name %> |
-      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                    |
-      | ["spec"]["resources"]["requests"]["storage"]                            | 1Gi                    |
+      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                     |
+      | ["spec"]["resources"]["requests"]["storage"]                            | 1Gi                     |
     Then the step should fail
     And the output should contain:
       | exceeded quota                      |
@@ -87,7 +87,7 @@ Feature: ResourceQuata for storage
 
     # Try to exceed the 10Mi storage
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<% project.name %>              |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
     Then the step should fail
