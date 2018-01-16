@@ -217,8 +217,8 @@ Feature: job.feature
     When I process and create:
       | f | job-restartpolicy.yaml |
     Then the step should fail
-    And the output should contain:
-      | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
+    And the output should match:
+      | Unsupported value:\s+"Always":\s+supported values:\s+"?OnFailure"?,\s+"?Never"? |
     # Create job with restartPolicy=Never
     Given I replace lines in "job-restartpolicy.yaml":
       | from: null | from: Never |
@@ -293,7 +293,7 @@ Feature: job.feature
     """
     When I get project pods
     Then the output should match:
-      | CrashLoopBackOff\\s+[1-9][0-9]*? |
+      | (CrashLoopBackOff\|RunContainerError) |
     """
     When I get project job
     Then the output should match:
@@ -310,8 +310,8 @@ Feature: job.feature
     When I process and create:
       | f | job-restartpolicy.yaml |
     Then the step should fail
-    And the output should contain:
-      | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
+    And the output should match:
+      | Unsupported value:\s+"Always":\s+supported values:\s+"?OnFailure"?,\s+"?Never"? |
 
 
   # @author yinzhou@redhat.com

@@ -170,7 +170,7 @@ Feature: Event related scenarios
       | resource | pod       |
       | name     | hello-pod |
     Then the output should match:
-      | Unhealthy\\s+Readiness probe failed:.*exec failed.*\\/bin\\/hello: no such file or directory |
+      | Unhealthy.*Readiness probe failed:.*exec failed.*\\/bin\\/hello:\\s+no such file or directory |
     """
 
   # @author chezhang@redhat.com
@@ -197,7 +197,7 @@ Feature: Event related scenarios
       | resource | node                    |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should match:
-      | Normal\\s+NodeNotSchedulable\\s+Node <%= cb.nodes[0].name %> status is now: NodeNotSchedulable |
+      | Normal\\s+NodeNotSchedulable.*Node <%= cb.nodes[0].name %> status is now: NodeNotSchedulable |
     """
     When I run the :oadm_manage_node admin command with:
       | node_name   | <%= cb.nodes[0].name %> |
@@ -209,5 +209,5 @@ Feature: Event related scenarios
       | resource | node                    |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should match:
-      | Normal\\s+NodeSchedulable\\s+Node <%= cb.nodes[0].name %> status is now: NodeSchedulable |
+      | Normal\\s+NodeSchedulable.*Node <%= cb.nodes[0].name %> status is now: NodeSchedulable |
     """

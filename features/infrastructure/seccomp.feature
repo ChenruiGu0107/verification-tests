@@ -221,7 +221,7 @@ Feature: Features of seccomp
       | resource | pod              |
       | name     | pod-sec-two-cont |
     And the output should match:
-      | Warning\\s+FailedSync\\s+Error syncing pod |
+      | Warning\\s+(FailedSync\|FailedCreatePodSandBox) |
     """
 
   # @author chezhang@redhat.com
@@ -284,5 +284,5 @@ Feature: Features of seccomp
       | resource | pod                   |
       | name     | pod-seccomp-prof1-pod |
     And the output should match:
-      | Warning\\s+FailedSync\\s+Error syncing pod |
+      | Warning\\s+(FailedSync\|FailedCreatePodSandBox) |
     """

@@ -822,10 +822,10 @@ Feature: Quota related scenarios
       | resource | event               |
       | n        | <%= project.name %> |
     Then the step should succeed
-    And the output should contain:
+    And the output should match:
       | pods "database-1-hook-mid" is forbidden: exceeded quota |
       | pods "database-1-hook-pre" is forbidden: exceeded quota |
-      | pods "database-1-" is forbidden: exceeded quota         |
+      | pods "database-1-.{5}" is forbidden: exceeded quota         |
     And the output should not contain 3 times:
       | pods "database-1-hook-mid" is forbidden: exceeded quota |
       | pods "database-1-hook-pre" is forbidden: exceeded quota |

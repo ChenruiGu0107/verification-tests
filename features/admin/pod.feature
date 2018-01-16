@@ -489,11 +489,11 @@ Feature: pod related features
       | resource | pod             |
       | name     | hello-openshift |
     Then the output should match:
-      | FailedScheduling.*no nodes available to schedule pods |
+      | FailedScheduling.*(no nodes available to schedule pods\|0/[\d] nodes are available) |
     """
     When I get project events
     Then the output should match:
-      | hello-openshift.*no nodes available to schedule pods |
+      | hello-openshift.*(no nodes available to schedule pods\|0/[\d] nodes are available) |
 
   # @author chezhang@redhat.com
   # @case_id OCP-11466
