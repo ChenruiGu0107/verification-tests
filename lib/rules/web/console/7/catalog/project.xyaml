@@ -73,6 +73,6 @@ delete_project_on_homepage:
       xpath: .//ul//a[contains(text(),'Delete Project')]
     op: click
   action: send_delete_string
-  action: confirm_delete_for_project_deletion
+  action: confirm_resource_deletion
   action: check_project_deleted_message
 

@@ -183,3 +183,16 @@ check_instructions_on_home_page:
       text: !ruby/regexp /Create a project/
   - selector:
       text: !ruby/regexp /OpenShift helps you quickly/
+confirm_resource_deletion:
+  elements:
+  - selector:
+      text: Delete
+    type: button
+    op: click
+cancel_resource_deletion:
+  elements:
+  - selector:
+      text: Cancel
+    type: button
+    op: click
+

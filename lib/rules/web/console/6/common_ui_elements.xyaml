@@ -254,3 +254,15 @@ close_second_level_navigation:
     selector:
       class: nav-pf-secondary-nav
     missing: true
+confirm_resource_deletion:
+  elements:
+  - selector:
+      text: Delete
+    type: button
+    op: click
+cancel_resource_deletion:
+  elements:
+  - selector:
+      text: Cancel
+    type: button
+    op: click

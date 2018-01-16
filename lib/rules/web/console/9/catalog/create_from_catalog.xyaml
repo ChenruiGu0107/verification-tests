@@ -102,4 +102,24 @@ check_wizard_information:
 check_app_name_pattern_error_from_catalog:
   element:
     selector:
-      text: !ruby/regexp /Application name consists of lower-case letters, numbers, and dashes. It must start with a letter and can't end/ 
+      text: !ruby/regexp /Application name consists of lower-case letters, numbers, and dashes. It must start with a letter and can't end/
+
+provision_serviceclass_without_binding_on_homepage:
+  action: select_service_to_order_from_catalog
+  action: click_next_button
+  action: click_next_button
+  action: click_create_button
+  action: click_close
+provision_serviceclass_with_binding_on_homepage:
+  action: select_service_to_order_from_catalog
+  action: click_next_button
+  action: click_next_button
+  action: choose_create_binding_for_provision
+  action: click_create_button
+  action: click_close
+choose_create_binding_for_provision:
+  element:
+    selector:
+      xpath: //label[contains(.,'Create a secret')]
+    op: click
+ 

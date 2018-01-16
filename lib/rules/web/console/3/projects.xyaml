@@ -38,12 +38,12 @@ delete_project:
   action: check_project_list
   action: click_project_display_name
   action: send_delete_string
-  action: confirm_delete_for_project_deletion
+  action: confirm_resource_deletion
   action: check_project_deleted_message
 cancel_delete_project:
   action: check_project_list
   action: click_project_display_name
-  action: confirm_cancel_for_project_deletion
+  action: cancel_resource_deletion
   elements:
   - selector:
       xpath: //a[contains(.,'<project_name>')]
@@ -64,18 +64,6 @@ check_delete_button_for_project_deletion:
   elements:
   - selector:
       xpath: //button[text()='Delete' and not(@disabled)]
-confirm_delete_for_project_deletion:
-  elements:
-  - selector:
-      text: Delete
-    type: button
-    op: click
-confirm_cancel_for_project_deletion:
-  elements:
-  - selector:
-      text: Cancel
-    type: button
-    op: click
 check_project_deleted_message:
   elements:
   - selector:

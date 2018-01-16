@@ -1,14 +1,16 @@
 --- # Notification drawer related rules
-
 open_notification_drawer_on_overview:
   action: goto_overview_page
   action: click_notification_drawer
+  action: check_view_all_in_drawer
 click_notification_drawer:
   elements:
   - selector:
       xpath: //span[@class="fa fa-bell"]
     op: click
-  - selector:
+check_view_all_in_drawer:
+  element:
+    selector:
       text: View All Events
     type: a
     timeout: 5

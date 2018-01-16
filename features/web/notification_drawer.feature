@@ -261,3 +261,49 @@
       | event_resource_type   | Pod             |
       | event_object          | hello-openshift |
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-15746
+  Scenario: Check events for service provision in notification drawer
+    Given I have a project
+    Given the master version >= "3.7"
+    When I run the :goto_home_page web console action
+    Then the step should succeed
+    When I perform the :provision_serviceclass_without_binding_on_homepage web console action with:
+      | primary_catagory | Middleware                      |
+      | sub_catagory     | Integration                     |
+      | service_item     | Single Sign-On 7.1 + PostgreSQL |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance |
+    Then the step should succeed
+    And the output should match:
+      | Message:\\s+The instance was provisioned successfully |
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance |
+    Then the step should succeed
+    And evaluation of `@result[:response].split("sso71-postgresql-")[1].split(" ")[0]` is stored in the :name clipboard
+    When I perform the :open_notification_drawer_for_one_project web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_drawer_notification_content web console action with:
+      | event_reason | Provisioning   |
+      | event_object | <%= cb.name %> |
+    Then the step should succeed
+    When I run the :click_notification_drawer web console action
+    Then the step should succeed
+    When I perform the :delete_serviceinstance_on_overview_page web console action with:
+      | resource_name | Single Sign-On 7.1 + PostgreSQL |
+    Then the step should succeed
+    When I perform the :open_notification_drawer_for_one_project web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_drawer_notification_content web console action with:
+      | event_reason | Deprovisioning   |
+      | event_object | <%= cb.name %> |
+    Then the step should succeed
+
+

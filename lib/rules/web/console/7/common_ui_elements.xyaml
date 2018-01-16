@@ -278,4 +278,15 @@ check_successful_info_for_adding:
   element:
     selector:
       xpath: //span[contains(.,"Successfully added")]
+confirm_resource_deletion:
+  elements:
+  - selector:
+      xpath: //button[text()='Delete']
+    op: click
+cancel_resource_deletion:
+  elements:
+  - selector:
+      text: Cancel
+    type: button
+    op: click
 

@@ -226,7 +226,7 @@ check_application_block_info_on_overview:
   action: expand_resource_entry
   action:
     context: &tile_context
-      xpath: //span[text()='<resource_name>']/ancestor::div[contains(@class,'list-pf-item')]
+      xpath: //div[contains(.,'<resource_name>')]/ancestor::div[contains(@class,'list-pf-item')]
     ref:
     - check_container_info_on_overview
     - check_networking_info_on_overview
@@ -423,4 +423,10 @@ check_pod_stuck_warning_message:
     selector:
       xpath: //span[contains(.,'pending state for more than five minutes')]
     timeout: 500
-
+delete_serviceinstance_on_overview_page:
+  action:
+    context: *tile_context
+    ref:
+    - click_kebab_drop_down_list_on_overview
+    - click_delete
+    - confirm_resource_deletion

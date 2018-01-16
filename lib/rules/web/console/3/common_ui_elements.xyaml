@@ -66,3 +66,15 @@ delete_resource:
   action: click_actions_button
   action: click_delete
   action: click_delete
+confirm_resource_deletion:
+  elements:
+  - selector:
+      text: Delete
+    type: button
+    op: click
+cancel_resource_deletion:
+  elements:
+  - selector:
+      text: Cancel
+    type: button
+    op: click
