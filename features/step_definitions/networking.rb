@@ -160,11 +160,12 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   cb.clusternetwork = subnet
 
   @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default")
-  unless @result[:success]
+  if @result[:success]
     plugin_type = @result[:response]
   end
 
-  if env.version_ge("3.7", user: user) && plugin_type =~ /openshift-ovs-networkpolicy/
+  if env.version_ge("3.7", user: user) && plugin_type.include?("openshift-ovs-networkpolicy")
+    puts "OpenShift version >= 3.7 and uses networkpolicy plugin."
     filter_matches = [
       'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
       'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
@@ -187,6 +188,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "OPENSHIFT-MASQUERADE-2 -j MASQUERADE"
     ]
   elsif env.version_ge("3.7", user: user)
+    puts "OpenShift version >= 3.7 and uses multitenant or subnet plugin."
     filter_matches = [
       'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
       'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
@@ -207,6 +209,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade .* traffic\" -j MASQUERADE",
     ]
   elsif env.version_eq("3.6", user: user)
+    puts "OpenShift version is 3.6"
     filter_matches = [
       'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
       'INPUT -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-ALLOW',
@@ -233,6 +236,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "OPENSHIFT-MASQUERADE -s #{subnet} .*--comment \"masquerade .*pod-to-external traffic\" -j MASQUERADE"
     ]
   else
+    puts "OpenShift version < 3.6"
     filter_matches = [
       'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
       'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
