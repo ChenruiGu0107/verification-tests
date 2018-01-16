@@ -6,7 +6,7 @@ logout:
       tag_name: a
     op: click
   - selector:
-      text: Log Out
+      visible_text: !ruby/regexp /Log Out/i
     type: a
     op: click
   - selector:
