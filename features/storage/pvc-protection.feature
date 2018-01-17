@@ -27,11 +27,18 @@ Feature: pvc protection specific scenarios
       | object_type       | pvc                     |
       | object_name_or_id | pvc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :terminating within 30 seconds
+    And the "pvc-<%= project.name %>" PVC becomes terminating
     When I execute on the pod:
       | touch | /mnt/ocp_pv/testfile |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC status is :terminating
+    When I get project pvc named "pvc-<%= project.name %>"
+    Then the step should succeed
+    And the output should contain "Terminating"
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should match "Terminating\s+\(since"
     Given I ensure "mypod" pod is deleted
     And I wait for the resource "pvc" named "pvc-<%= project.name %>" to disappear within 30 seconds
 
@@ -52,7 +59,7 @@ Feature: pvc protection specific scenarios
       | object_type       | pvc                     |
       | object_name_or_id | pvc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :terminating within 30 seconds
+    And the "pvc-<%= project.name %>" PVC becomes terminating
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should fail
