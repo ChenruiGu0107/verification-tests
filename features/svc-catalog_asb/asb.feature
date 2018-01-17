@@ -130,3 +130,89 @@ Feature: Ansible-service-broker related scenarios
       | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.0","mysql_root_password":"test","mysql_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-15350
       | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.0","mysql_root_password":"test","mysql_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-17362
 
+  # @author zitang@redhat.com
+  # @case_id OCP-15354
+  @admin
+  Scenario: Check multiple broker support for service catalog 
+    Given admin checks that the "ansible-service-broker" cluster_service_broker exists
+    And admin checks that the "template-service-broker" cluster_service_broker exists
+
+    #Check ansible-service-broker  and template-service-broker run successfully
+    When I switch to cluster admin pseudo user
+    And I run the :describe client command with:
+      | resource | clusterservicebroker/ansible-service-broker   |
+    Then the output should match "Message:\s+Successfully fetched catalog entries from broker"
+    When I run the :describe client command with:
+      | resource | clusterservicebroker/template-service-broker  |
+    Then the output should match "Message:\s+Successfully fetched catalog entries from broker"
+
+  # @author zitang@redhat.com
+  # @case_id OCP-15395
+  @admin
+  Scenario: Check the ASB with bearer token authn
+    #Get asb route and ansible service broker  client secret 
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And evaluation of `secret('asb-client').token` is stored in the :token clipboard
+    And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
+
+    #Access the ASB api with valid token
+    Given I switch to the first user
+    And I have a project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl                                                       | 
+      | -H                                                         | 
+      | Authorization: Bearer <%= cb.token %>                      |
+      | -sk                                                        |
+      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+    Then the output should match:
+      | services      | 
+      | name.*apb     |
+      | description   |
+    #Access the ASB api with invalid token
+     When I execute on the pod:
+      | curl                                                       | 
+      | -H                                                         | 
+      | Authorization: Bearer XXXXXXXXXXXX                         |
+      | -sk                                                        |
+      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+    Then the output should contain "Unauthorized"
+
+  # @author zitang@redhat.com
+  # @case_id OCP-15972
+  @admin
+  Scenario: Support for APB dependencies and providerDisplayName
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
+
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb']` is stored in the :media_wiki clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mysql-apb']` is stored in the :mysql clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-postgresql-apb']` is stored in the :postgresql clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mariadb-apb']` is stored in the :mariadb clipboard
+
+    Then the expression should be true>  cb.mysql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mysql' } == 2
+    Then the expression should be true>  cb.mariadb.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mariadb' } >= 2
+    Then the expression should be true>  cb.postgresql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/postgresql' } >= 2
+    Then the expression should be true>  cb.media_wiki.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' } == 1
+    #check provider 
+    Then the expression should be true> cb.media_wiki.provider_display_name  == "Red Hat, Inc."
+    Then the expression should be true> cb.mysql.provider_display_name  == "Red Hat, Inc."
+    Then the expression should be true> cb.postgresql.provider_display_name  == "Red Hat, Inc."
+    Then the expression should be true> cb.mariadb.provider_display_name  == "Red Hat, Inc."
+ 
+    #Check dependencies and providerDisplayName in oc describe client classId
+    When I run the :describe client command with:
+      | resource  | clusterserviceclass           |
+      | name        | <%= cb.media_wiki.name%>    | 
+      | name        | <%= cb.mysql.name%>         |
+      | name        | <%= cb.postgresql.name%>    |
+      | name        | <%= cb.mariadb.name%>       |
+    Then the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/mysql').length == 2
+    And the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/mariadb').length >= 2
+    And the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/postgresql').length >= 2
+    And the expression should be true> @result[:response].scan('registry.access.redhat.com/openshift3/mediawiki').length == 1
+    And the output should match 4 times:
+      |Provider\s*Display\s*Name:\s*Red Hat, Inc.     |

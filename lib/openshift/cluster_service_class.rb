@@ -29,5 +29,11 @@ module CucuShift
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       return rr.dig('spec', 'externalMetadata', 'dependencies')
     end
+
+    def provider_display_name(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('spec', 'externalMetadata', 'providerDisplayName')
+    end
+
   end  # end of class
 end
