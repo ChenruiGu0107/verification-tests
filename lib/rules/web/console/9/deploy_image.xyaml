@@ -105,7 +105,7 @@ select_image_stream_tag:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Tag")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Tag")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<image_stream_tag>']
+      xpath: //div[contains(@class,'ui-select-choices-row')][count(//div[contains(@class,'ui-select-choices-row')])]
     op: click
 set_image_name:
   elements:

@@ -170,7 +170,7 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Daemon Set |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=DaemonSet&group=extensions"
+    Given the expression should be true> browser.url.include? "/other?kind=DaemonSet"
     """
 
     And I wait for the steps to pass:
@@ -178,7 +178,7 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Template |
     Then the step should succeed
-    Given the expression should be true> browser.url.include? "/other?kind=Template&group="
+    Given the expression should be true> browser.url.include? "/other?kind=Template"
     """
 
     And I wait for the steps to pass:
@@ -186,7 +186,7 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Endpoints |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=Endpoints&group="
+    Given the expression should be true> browser.url.include? "/other?kind=Endpoints"
     """
 
     And I wait for the steps to pass:
@@ -194,7 +194,7 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Horizontal Pod Autoscaler |
     Then the step should succeed
-    Given the expression should be true> browser.url.include? "/other?kind=HorizontalPodAutoscaler&group="
+    Given the expression should be true> browser.url.include? "/other?kind=HorizontalPodAutoscaler"
     """
 
     And I wait for the steps to pass:
@@ -202,7 +202,7 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Job |
     Then the step should succeed
-    Given the expression should be true> browser.url.include? "/other?kind=Job&group="
+    Given the expression should be true> browser.url.include? "/other?kind=Job"
     """
 
     And I wait for the steps to pass:
@@ -210,5 +210,5 @@ Feature: persist page state
     When I perform the :choose_resource_type web console action with:
       | resource_type | Service Account |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=ServiceAccount&group="
+    Given the expression should be true> browser.url.include? "/other?kind=ServiceAccount"
     """

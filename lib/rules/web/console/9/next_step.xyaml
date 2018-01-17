@@ -23,7 +23,7 @@ check_complete_with_error_info_on_next_page:
 check_error_alert_message_on_next_page:
   element:
     selector:
-      visible_text: !ruby/regexp /.*<message>.*/
+      xpath: //div[contains(.,'<message>')]
 check_template_message_on_next_page:
   elements:
   - selector:
