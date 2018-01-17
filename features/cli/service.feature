@@ -174,7 +174,7 @@ Feature: service related scenarios
     Then the step should succeed
     Given evaluation of `@result[:response].strip` is stored in the :address clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/wjiangjay/v3-testfiles/patch-1/services/ExternalSvc.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | endpoints |
