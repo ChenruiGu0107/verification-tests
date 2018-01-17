@@ -2,43 +2,6 @@ require 'ostruct'
 require 'common'
 require 'collections'
 
-require 'openshift/project'
-require 'openshift/group'
-require 'openshift/job'
-require 'openshift/image_stream'
-require 'openshift/image_stream_tag'
-require 'openshift/horizontal_pod_autoscaler'
-require 'openshift/service'
-require 'openshift/service_account'
-require 'openshift/route'
-require 'openshift/build'
-require 'openshift/pod'
-require 'openshift/persistent_volume'
-require 'openshift/persistent_volume_claim'
-require 'openshift/replication_controller'
-require 'openshift/deployment_config'
-require 'openshift/replica_set'
-require 'openshift/deployment'
-require 'openshift/cluster_role'
-require 'openshift/cluster_role_binding'
-require 'openshift/role_binding_restriction'
-require 'openshift/storage_class'
-require 'openshift/security_context_constraint'
-require 'openshift/host_subnet'
-require 'openshift/network_policy'
-require 'openshift/applied_cluster_resource_quota'
-require 'openshift/cluster_resource_quota'
-require 'openshift/stateful_set'
-require 'openshift/net_namespace'
-require 'openshift/daemon_set'
-require 'openshift/identity'
-require 'openshift/config_map'
-require 'openshift/service_instance'
-require 'openshift/service_binding'
-require 'openshift/cluster_service_broker'
-require 'openshift/cluster_service_class'
-require 'openshift/cluster_service_plan'
-
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -57,24 +20,10 @@ module CucuShift
       @browsers = []
       @bg_processes = []
       @bg_rulesresults = []
-      # some arrays to store cached objects
+      # some arrays to store cached projects as they have a custom getter
       @projects = []
-      @service_accounts = []
-      @builds = []
-      @pods = []
-      @hostsubnets = []
-      @networkpolicies = []
-      @clusterresourcequotas = []
-      @storageclasses = []
-      @pvs = []
-      @pvcs = []
-      @deployments = []
-      @image_streams = []
-      @image_stream_tags = []
       # used to store host the user wants to run commands on
       @host = nil
-      # used to store nodes in the cluster
-      @nodes = []
       # procs and lambdas to call on clean-up
       @teardown = []
     end
@@ -138,38 +87,6 @@ module CucuShift
       end
     end
 
-    # @note call like `user(0)` or simply `user` for current user
-    def user(num=nil, switch: true)
-      return @user if num.nil? && @user
-      num = 0 unless num
-      @user = env.users[num] if switch
-      return env.users[num]
-    end
-
-    def service_account(name=nil, project: nil, project_name: nil, switch: true)
-      return @service_accounts.last if name.nil? && !@service_accounts.empty?
-
-      if project && project_name && project.name != project_name
-        raise "project names inconsistent: #{project.name} vs #{project_name}"
-      end
-      project ||= self.project(project_name, generate: false)
-
-      if name.nil?
-        raise "requesting service account for the first time with no name"
-      end
-
-      sa = @service_accounts.find { |s|
-        [ s.name, s.shortname ].include?(name) &&
-        s.project == project
-      }
-      unless sa
-        sa = ServiceAccount.new(name: name, project: project)
-        @service_accounts << sa
-      end
-      @service_accounts << @service_accounts.delete(sa) if switch
-      return sa
-    end
-
     # @note call like `env(:key)` or simply `env` for current environment
     def env(key=nil)
       return @env if key.nil? && @env
@@ -186,11 +103,55 @@ module CucuShift
       return @host
     end
 
+    ## generate Resource getters
+    # @return openshift resource by name from scenario cache; with no params given,
+    #   returns last requested resource of this type; otherwise creates a new resource object
+    # @see #project_resource
+    # @see #cluster_resource
+    # @note you need the project already created
+    RESOURCES.each do |clazz, snake_case|
+      if clazz < ProjectResource
+        eval <<-"END_EVAL", binding, __FILE__, __LINE__ + 1
+          def #{snake_case}(*args, &block)
+            project_resource(#{clazz}, *args, &block)
+          end
+        END_EVAL
+      elsif clazz < ClusterResource
+        eval <<-"END_EVAL", binding, __FILE__, __LINE__ + 1
+          def #{snake_case}(*args, &block)
+            cluster_resource(#{clazz}, *args, &block)
+          end
+        END_EVAL
+      else
+        raise "don't know how to create getter for #{clazz.name}"
+      end
+    end
+
+    alias pv persistent_volume
+    alias hpa horizontal_pod_autoscaler
+    alias rc replication_controller
+    alias rs replica_set
+    alias dc deployment_config
+    alias istag image_stream_tag
+    alias pvc persistent_volume_claim
+    alias netns net_namespace
+    alias scc security_context_constraints
+
+    # @note call like `user(0)` or simply `user` for current user
+    def user(num=nil, switch: true)
+      return @user if num.nil? && @user
+      num = 0 unless num
+      @user = env.users[num] if switch
+      return env.users[num]
+    end
+
     # @return project from cached projects for this scenario
     #   note that you need to have default `#env` set already;
     #   if no name is spefified, returns the last requested project;
     #   otherwise a CucuShift::Project object is created (but not created in
     #   the actual OpenShift environment)
+    # @note we use a custom getter instead of auto-generated resource getters
+    #   to allow generating project names; maybe that can be refactored some day
     def project(name = nil, env: nil, generate: true, switch: true)
       env ||= self.env
       if name.kind_of? Integer
@@ -222,40 +183,7 @@ module CucuShift
       end
     end
 
-    # @return service by name from scenario cache; with no params given,
-    #   returns last requested service; otherwise creates a service object
-    # @note you need the project already created
-    def service(name = nil, project = nil)
-      project_resource(Service, name, project)
-    end
-
-    # @return PV by name from scenario cache; with no params given,
-    #   returns last requested PV; otherwise creates a PV object
-    def pv(name = nil, env = nil, switch: true)
-      env ||= self.env
-
-      if name
-        pv = @pvs.find {|pv| pv.name == name && pv.env == env}
-        if pv && @pvs.last == pv
-          return pv
-        elsif pv
-          @pvs << @pvs.delete(pv) if switch
-          return pv
-        else
-          # create new CucuShift::PV object with specified name
-          @pvs << PersistentVolume.new(name: name, env: env)
-          return @pvs.last
-        end
-      elsif @pvs.empty?
-        # we do not create a random PV like with projects because that
-        #   would rarely make sense
-        raise "what PersistentVolume are you talking about?"
-      else
-        return @pvs.last
-      end
-    end
-
-    # try to stay compatible with legacy Route code
+    # override to stay compatible with legacy Route code
     def route(name = nil, service_or_project = nil)
       case service_or_project
       when nil
@@ -270,189 +198,6 @@ module CucuShift
       end
 
       return project_resource(Route, name, project)
-    end
-
-    # @return build by name from scenario cache; with no params given,
-    #   returns last requested build; otherwise creates a [Build] object
-    # @note you need the project already created
-    def build(name = nil, project = nil)
-      project ||= self.project(generate: false)
-
-      if name
-        b = @builds.find {|b| b.name == name && b.project == project}
-        if b && @builds.last == b
-          return b
-        elsif b
-          @builds << @builds.delete(b)
-          return b
-        else
-          # create new CucuShift::Build object with specified name
-          @builds << Build.new(name: name, project: project)
-          return @builds.last
-        end
-      elsif @builds.empty?
-        # we do not create a random build like with projects because that
-        #   would rarely make sense
-        raise "what build are you talking about?"
-      else
-        return @builds.last
-      end
-    end
-
-    def applied_cluster_resource_quota(name = nil, project = nil)
-      project_resource(AppliedClusterResourceQuota, name, project)
-    end
-
-    def hpa(name = nil, project = nil)
-      project_resource(HorizontalPodAutoscaler, name, project)
-    end
-
-    def endpoint(name = nil, project = nil)
-      project_resource(Endpoint, name, project)
-    end
-
-    def config_map(name = nil, project = nil)
-      project_resource(ConfigMap, name, project)
-    end
-
-    def service_instance(name = nil, project = nil)
-      project_resource(ServiceInstance, name, project)
-    end
-
-    def service_binding(name = nil, project = nil)
-      project_resource(ServiceBinding, name, project)
-    end
-
-    def cluster_service_broker(name = nil, env = nil)
-      cluster_resource(ClusterServiceBroker, name, env)
-    end
-
-    def cluster_service_class(name = nil, env = nil)
-      cluster_resource(ClusterServiceClass, name, env)
-    end
-
-    def cluster_service_plan(name = nil, env = nil)
-      cluster_resource(ClusterServicePlan, name, env)
-    end
-
-    # @return rc (ReplicationController) by name from scenario cache;
-    #   with no params given, returns last requested rc;
-    #   otherwise creates a [ReplicationController] object
-    # @note you need the project already created
-    def rc(name = nil, project = nil)
-      project_resource(ReplicationController, name, project)
-    end
-
-    def role_binding_restriction(name = nil, env = nil)
-      project_resource(RoleBindingRestriction, name, env)
-    end
-
-    # @return rs (ReplicaSets) by name from scenario cache;
-    #   with no params given, returns last requested rs;
-    #   otherwise creates a [ReplicaSet] object
-    # @note you need the project already created
-    def rs(name = nil, project = nil)
-      project_resource(ReplicaSet, name, project)
-    end
-
-    #  @return StatefulSets by name from scenario cache;
-    #   with no params given, returns last requested ss;
-    #   otherwise creates a [StatefulSet] object
-    # @note you need the project already created
-    def stateful_set(name = nil, project = nil)
-      project_resource(StatefulSet, name, project)
-    end
-
-    #  @return DaemonSet by name from scenario cache;
-    #   with no params given, returns last requested ds;
-    #   otherwise creates a [DaemonSet] object
-    # @note you need the project already created
-    def daemon_set(name = nil, project = nil)
-      project_resource(DaemonSet, name, project)
-    end
-
-    #  @return Secret by name from scenario cache;
-    #   with no params given, returns last requested Secret;
-    #   otherwise creates a [Secret] object
-    # @note you need the project already created
-    def secret(name = nil, project = nil)
-      project_resource(Secret, name, project)
-    end
-
-    # @return dc (DeploymentConfig) by name from scenario cache;
-    #   with no params given, returns last requested dc;
-    #   otherwise creates a [DeploymentConfig] object
-    # @note you need the project already created
-    def dc(name = nil, project = nil)
-      project_resource(DeploymentConfig, name, project)
-    end
-
-    # @return Deployment by name from scenario cache;
-    #   with no params given, returns last requested deployment;
-    #   otherwise creates a [Deployment] object
-    # @note you need the project already created
-    def deployment(name = nil, project = nil)
-      project_resource(Deployment, name, project)
-    end
-
-    # @return [ImageStream] is by name from scenario cache; with no params given,
-    #   returns last requested is; otherwise creates an [ImageStream] object
-    # @note you need the project already created
-    def image_stream(name = nil, project = nil)
-      project ||= self.project(generate: false)
-
-      if name
-        is = @image_streams.find {|s| s.name == name && s.project == project}
-        if is && @image_streams.last == is
-          return is
-        elsif is
-          @image_streams << @image_streams.delete(is)
-          return is
-        else
-          # create new CucuShift::ImageStream object with specified name
-          @image_streams << ImageStream.new(name: name, project: project)
-          return @image_streams.last
-        end
-      elsif @image_streams.empty?
-        # we do not create a random is like with projects because that
-        #   would rarely make sense
-        raise "what is are you talking about?"
-      else
-        return @image_streams.last
-      end
-    end
-
-    def image_stream_tag(name = nil, project = nil)
-      project_resource(ImageStreamTag, name, project)
-    end
-    alias istag image_stream_tag
-
-    # @return [PersistentVolumeClaim] last used PVC from scenario cache;
-    #   with no params given, returns last requested is;
-    #   otherwise creates an [PersistentVolumeClaim] object with the given name
-    # @note you need the project already created
-    def pvc(name = nil, project = nil)
-      project ||= self.project(generate: false)
-
-      if name
-        pvc = @pvcs.find {|s| s.name == name && s.project == project}
-        if pvc && @pvcs.last == pvc
-          return pvc
-        elsif pvc
-          @pvcs << @pvcs.delete(pvc)
-          return pvc
-        else
-          # create new object with specified name
-          @pvcs << PersistentVolumeClaim.new(name: name, project: project)
-          return @pvcs.last
-        end
-      elsif @pvcs.empty?
-        # we do not create a random pvc like with projects because that
-        #   would rarely make sense
-        raise "what PVC are you talking about?"
-      else
-        return @pvcs.last
-      end
     end
 
     # @return web4cucumber object from scenario cache
@@ -474,14 +219,6 @@ module CucuShift
     def cache_browser(browser)
       @browsers.delete(browser)
       @browsers << browser
-    end
-
-    def pod(name = nil, project = nil)
-      project_resource(Pod, name, project)
-    end
-
-    def job(name = nil, project = nil)
-      project_resource(Job, name, project)
     end
 
     # returns the cache array for the given resource class
@@ -565,42 +302,6 @@ module CucuShift
       end
     end
 
-    def identity(name = nil, env = nil)
-      cluster_resource(Identity, name, env)
-    end
-
-    def netns(name=nil, env=nil)
-      cluster_resource(NetNamespace, name, env)
-    end
-
-    def cluster_role(name = nil, env = nil)
-      cluster_resource(ClusterRole, name, env)
-    end
-
-    def cluster_role_binding(name = nil, env = nil)
-      cluster_resource(ClusterRoleBinding, name, env)
-    end
-
-    def host_subnet(name = nil, env = nil)
-      cluster_resource(HostSubnet, name, env)
-    end
-
-    def network_policy(name = nil, env = nil)
-      cluster_resource(NetworkPolicy, name, env)
-    end
-
-    def cluster_resource_quota(name = nil, env = nil)
-      cluster_resource(ClusterResourceQuota, name, env)
-    end
-
-    def storage_class(name = nil, env = nil)
-      cluster_resource(StorageClass, name, env)
-    end
-
-    def security_context_constraints(name = nil, env = nil)
-      cluster_resource(SecurityContextConstraints, name, env)
-    end
-
     def cache_resources(*resources)
       resources.each do |res|
         cache = resource_cache(res.class)
@@ -609,31 +310,6 @@ module CucuShift
       end
     end
     alias cache_pods cache_resources
-
-    # @return node by name
-    def node(name = nil)
-      if Integer === name
-        return @nodes[name] || raise("no node with index #{name}")
-      elsif name
-        n = @nodes.find {|n| n.name == name }
-        if n && @nodes.last == n
-          return n
-        elsif n
-          @nodes << @nodes.delete(n)
-          return n
-        else
-          # create new CucuShift::Node object with specified name
-          @nodes << Node.new(name: name, env: env)
-          return @nodes.last
-        end
-      elsif @nodes.empty?
-        # we do not create a random node like with projects because that
-        #   would rarely make sense
-        raise "what node are you talking about?"
-      else
-        return @nodes.last
-      end
-    end
 
     # tries to create resource off string name and type as used in REST API
     # e.g. resource("hello-openshift", "pod")
@@ -653,36 +329,29 @@ module CucuShift
 
     # convert from resource cli string to CucuShift class
     def resource_class(cli_string)
-      shorthands = {
-        is: "imagestreams",
-        istag: "imagestreamtags",
-        dc: "deploymentconfigs",
-        hpa: "horizontalpodautoscalers",
-        rc: "replicationcontrollers",
-        pv: "persistentvolumes",
-        svc: "service",
-        routes: "routes",
-        pvc: "persistentvolumeclaims",
-        cluster_service_broker: "clusterservicebrokers",
-        cluster_service_class: "clusterserviceclasses",
-        cluster_service_plan: "clusterserviceplans",
-        cluster_role: "clusterroles",
-        cluster_role_binding: "clusterrolebindings",
-        host_subnet: "hostsubnets",
-        network_policy: "networkpolicies",
-        applied_cluster_resource_quota: "appliedclusterresourcequotas",
-        cluster_resource_quota: "clusterresourcequotas",
-        stateful_set: "statefulsets",
-        storage_class: "storageclasses",
-        scc: "securitycontextconstraints",
-        netns: "netnamespaces",
-        ds: "daemonsets",
-        rs: "replicasets"
-      }
-      type = shorthands[cli_string.to_sym] || cli_string
+      unless @shorthands
+        @shorthands = {
+          is: "imagestreams",
+          istag: "imagestreamtags",
+          dc: "deploymentconfigs",
+          hpa: "horizontalpodautoscalers",
+          rc: "replicationcontrollers",
+          pv: "persistentvolumes",
+          svc: "service",
+          pvc: "persistentvolumeclaims",
+          scc: "securitycontextconstraints",
+          netns: "netnamespaces",
+          ds: "daemonsets",
+          rs: "replicasets"
+        }
+        @shorthands.merge!(RESOURCES.map {|clazz, snake_case| [snake_case, clazz::RESOURCE]}.to_h)
+      end
 
-      classes = ObjectSpace.each_object(CucuShift::Resource.singleton_class)
-      clazz = classes.find do |c|
+      type = @shorthands[cli_string.to_sym] || cli_string
+
+      # classes = ObjectSpace.each_object(CucuShift::Resource.singleton_class)
+      # clazz = classes.find do |c|
+      clazz = RESOURCES.keys.find do |c|
         defined?(c::RESOURCE) && [type, type + "s"].include?(c::RESOURCE)
       end
       raise "cannot find class for type #{type}" unless clazz

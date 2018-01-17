@@ -3,7 +3,7 @@ When /^I give project (.+?) role to the(?: (.+?))? (user|service account)$/ do |
   when "user"
     user_name=user(word_to_num(user_name), switch: false).name
   when "service account"
-    user_name=service_account(user_name, switch: false).name
+    user_name=service_account(user_name).name
   else
     raise "unknown user type: #{user_type}"
   end
@@ -21,7 +21,7 @@ When /^I remove project (.+?) role from the(?: (.+))? (user|service account)$/ d
   when "user"
     user_name=user(word_to_num(user_name), switch: false).name
   when "service account"
-    user_name=service_account(user_name, switch: false).name
+    user_name=service_account(user_name).name
   else
     raise "unknown user type: #{user_type}"
   end
@@ -52,7 +52,7 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
     if type == "user"
       _user_name = user(word_to_num(which), switch: false).name
     else
-      _user_name = service_account(which, switch: false).name
+      _user_name = service_account(which).name
     end
 
     _add_command = :oadm_add_cluster_role_to_user

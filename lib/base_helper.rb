@@ -235,6 +235,17 @@ module CucuShift
           downcase
       end
 
+      def snake_to_camel_case(str, mode: :class)
+        case mode
+        when :class
+          str.split('_').map(&:capitalize).join
+        when :method
+          str.split('_').inject { |m, p| m + p.capitalize }
+        else
+          raise "unknown mode #{mode.inspect}"
+        end
+      end
+
       def to_utf8(str)
         # error occurs only when combining string of different character sets
         # when characters in one are invalid within the other, e.g.
@@ -278,7 +289,10 @@ module CucuShift
           raise "unknown cpu unit '#{unit}'"
         end
       end
+    end
 
+    module BaseHelperStatic
+      extend BaseHelper
     end
   end
 end

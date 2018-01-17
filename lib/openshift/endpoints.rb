@@ -1,5 +1,5 @@
 module CucuShift
-  class Endpoint < ProjectResource
+  class Endpoints < ProjectResource
     RESOURCE = "endpoints"
   end
 end
