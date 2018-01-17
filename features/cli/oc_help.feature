@@ -331,7 +331,6 @@ Feature: oc related features
       | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | --schema-cache-dir=  |
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
@@ -351,7 +350,6 @@ Feature: oc related features
       | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | --schema-cache-dir=  |
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
@@ -373,7 +371,6 @@ Feature: oc related features
       | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | --schema-cache-dir=  |
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
@@ -394,7 +391,6 @@ Feature: oc related features
       | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | --schema-cache-dir=  |
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
