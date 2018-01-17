@@ -1,6 +1,6 @@
 Given /^the #{QUOTED} cluster service broker is recreated$/ do |name|
   _admin = admin
-  _csb = cluster_service_broker("name")
+  _csb = cluster_service_broker(name)
   cb.cluster_resource_to_recreate = _csb
 
   teardown_add {
