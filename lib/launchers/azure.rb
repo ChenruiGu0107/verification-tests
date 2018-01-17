@@ -445,6 +445,9 @@ module CucuShift
         "#{vmname}-0",
         NetworkModels::NetworkInterface.new.tap do |interface|
           interface.location = location
+          interface.dns_settings = NetworkModels::NetworkInterfaceDnsSettings.new.tap do |dns|
+            dns.internal_dns_name_label = vmname
+          end
           interface.ip_configurations = [
             NetworkModels::NetworkInterfaceIPConfiguration.new.tap do |conf|
               conf.name = "#{vmname}-0"
