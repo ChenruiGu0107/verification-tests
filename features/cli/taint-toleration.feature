@@ -21,10 +21,10 @@ Feature: taint toleration related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/taint-toleration/pod-toleration-fail-operator.yaml |
     Then the step should fail
-    And the output should contain:
+    And the output should match:
       | The Pod "toleration-fail-operator" is invalid |
       | Unsupported value: "Bigger"                   |
-      | supported values: Equal, Exists               |
+      | supported values:\s+"?Equal"?,\s+"?Exists"?   |
     When I run the :get client command with:
       | resource      | pod                      |
       | resource_name | toleration-fail-operator |
@@ -69,10 +69,10 @@ Feature: taint toleration related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/taint-toleration/pod-toleration-fail-effect.yaml |
     Then the step should fail
-    And the output should contain:
+    And the output should match:
       | The Pod "toleration-fail-effect" is invalid               |
       | Unsupported value: "Run"                                  |
-      | supported values: NoSchedule, PreferNoSchedule, NoExecute |
+      | supported values: "?NoSchedule"?,\s+"?PreferNoSchedule"?,\s+"?NoExecute"? |
     When I run the :get client command with:
       | resource      | pod                    |
       | resource_name | toleration-fail-effect |

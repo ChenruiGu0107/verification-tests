@@ -170,7 +170,7 @@ Feature: service related scenarios
     When I execute on the pod:
       | sh |
       | -c |
-      | ping -c 1 www.baidu.com 2>/dev/null \| head -1 \| cut -d \( -f2 \| cut -d \) -f1 |
+      | ping -c 1 www.example.com 2>/dev/null \| head -1 \| cut -d \( -f2 \| cut -d \) -f1 |
     Then the step should succeed
     Given evaluation of `@result[:response].strip` is stored in the :address clipboard
     When I run the :create client command with:
@@ -182,7 +182,7 @@ Feature: service related scenarios
     When I run the :get client command with:
       | resource | svc |
     Then the step should succeed
-    And the output should match "my-svc.*www.baidu.com"
+    And the output should match "my-svc.*www.example.com"
     When I run the :describe client command with:
       | resource | svc    |
       | name     | my-svc |
@@ -190,18 +190,18 @@ Feature: service related scenarios
       | Name:\\s+my-svc                 |
       | Selector:\\s+<none>             |
       | Type:\\s+ExternalName           |
-      | External Name:\\s+www.baidu.com |
+      | External Name:\\s+www.example.com |
     When I run the :get client command with:
       | resource | svc  |
       | o        | yaml |
     Then the output by order should match:
       | name: my-svc                |
-      | externalName: www.baidu.com |
+      | externalName: www.example.com |
       | type: ExternalName          |
     When I execute on the pod:
       | sh |
       | -c |
-      | nslookup my-svc.<%= project.name %> \| tail -1 \| cut -d ' ' -f3 |
+      | nslookup my-svc.<%= project.name %> |
     Then the step should succeed
     And the output should match "<%= cb.address %>"
 

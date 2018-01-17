@@ -70,9 +70,9 @@ Feature: oc_secrets.feature
     When I run the :describe client command with:
       | resource | secret        |
       | name     | second-secret |
-    Then the output should contain:
-      | password:	16 bytes |
-      | username:	16 bytes |
+    Then the output should match:
+      | password:\s+16 bytes |
+      | username:\s+16 bytes |
     # 3.1 Update a secret with a invalid namespace
     When I run the :patch client command with:
       | resource      | secret                                    |
@@ -103,9 +103,9 @@ Feature: oc_secrets.feature
     When I run the :describe client command with:
       | resource | secret        |
       | name     | second-secret |
-    Then the output should contain:
-      | password:	4 bytes |
-      | username:	16 bytes |
+    Then the output should match:
+      | password:\s+4 bytes |
+      | username:\s+16 bytes |
     # 4. Delete a secret
     When I run the :delete client command with:
       | object_type       | secret   |

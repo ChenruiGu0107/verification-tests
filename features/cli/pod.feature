@@ -407,7 +407,7 @@ Feature: pods related scenarios
       | resource | po        |
       | name     | hello-pod |
     Then the output should match:
-      | Warning\\s+SysctlForbidden\\s+forbidden sysctl: "invalid" not whitelisted |
+      | Warning\\s+SysctlForbidden.*forbidden sysctl: "invalid" not whitelisted |
     """
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
