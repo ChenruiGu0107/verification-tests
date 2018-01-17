@@ -30,8 +30,8 @@ Feature: Cgroup related scenario
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "10 sec ago" \| grep "Cgroup" |
     Then the step should succeed
-    And the output should contain:
-      | failed to run Kubelet: Node Allocatable enforcement is not supported unless Cgroups Per QOS feature is turned on |
+    And the output should match:
+      | [Ff]ailed to run Kubelet:\s+(Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS( \(--cgroups-per-qos\))? feature is turned on |
     # Set cgroups-per-qos to false and enforce-node-allocatable with values
     When node config is merged with the following hash:
     """
@@ -49,8 +49,8 @@ Feature: Cgroup related scenario
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "10 sec ago" \| grep "Cgroup" |
     Then the step should succeed 
-    And the output should contain:
-      | failed to run Kubelet: Node Allocatable enforcement is not supported unless Cgroups Per QOS feature is turned on |
+    And the output should match:
+      | [Ff]ailed to run Kubelet:\s+(Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS( \(--cgroups-per-qos\))? feature is turned on |
     # Set cgroups-per-qos to false and enforce-node-allocatable without values
     When node config is merged with the following hash:
     """
