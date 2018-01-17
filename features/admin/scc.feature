@@ -111,10 +111,6 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
     Then the step should fail
-    And the output should contain:
-      |does not match required user|
-      |does not match required role|
-      |does not match required level|
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json|
     Then the step should succeed
@@ -253,10 +249,7 @@ Feature: SCC policy related scenarios
     And the output should contain:
       | CrashLoopBackOff |
     """
-    When I run the :delete client command with:
-      | object_type | pod                     |
-      | l           | name=hello-nginx-docker |
-    Then the step should succeed
+    Given I ensure "hello-nginx-docker" pod is deleted
     When SCC "privileged" is added to the "default" user
     Then the step should succeed
     When I run the :create client command with:
@@ -286,8 +279,6 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
     Then the step should fail
-    And the output should contain:
-      | securityContext.runAsUser: Invalid value: 1000: UID on container pod-uid-outrange does not match required range. |
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid_inrange clipboard
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_inrange.json
     Then the step should succeed
@@ -372,9 +363,6 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495030/pod1.json |
       | n | <%= project.name %>                                                                                     |
     Then the step should fail
-    And the output should contain:
-      | UID on container test-pod does not match required range        |
-      | seLinuxOptions.level on test-pod does not match required level |
 
   # @author pruan@redhat.com
   # @case_id OCP-12060
