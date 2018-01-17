@@ -50,7 +50,7 @@ Feature: podAffinity
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/podAffinity/pod-pod-affinity-invalid-topologykey-empty.yaml |
     Then the step should fail
     And the output should match:
-      | [Rr]equired value.*can only be empty for PreferredDuringScheduling pod anti affinity |
+      | ([Rr]equired value.*can only be empty for PreferredDuringScheduling pod anti affinity\|[Rr]equired value:\s+can not be empty) |
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
