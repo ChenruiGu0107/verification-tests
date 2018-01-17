@@ -186,7 +186,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | template | mysql-persistent |
     Then the pod named "mysql-1-deploy" status becomes :running
 
-    Given I check that the "cb.memory_terminate_crq.name" applied_cluster_resource_quota exists
+    Given I check that the "<%= cb.memory_terminate_crq.name %>" applied_cluster_resource_quota exists
     Then the expression should be true> applied_cluster_resource_quota.total_used.memory_limit_raw == "1536Mi"
 
     Given the "mysql" PVC becomes :bound
@@ -198,8 +198,8 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | deployment=database-1 |
     And a pod becomes ready with labels:
       | deployment=dancer-mysql-persistent-1 |
-    Then the expression should be true> cb.memory_crq.total_user(cached: false).memory_limit_raw == "1536Mi"
-    And the expression should be true> cb.storage_crq.total_user(cached: false).storage_requests_raw == "2Gi"
+    Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1536Mi"
+    And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == "2Gi"
 
   # @author bingli@redhat.com
   # @case_id OCP-10293
@@ -228,7 +228,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | template | mysql-persistent |
     Then the step should succeed
     And the pod named "mysql-1-deploy" status becomes :running
-    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == 1Gi
+    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == "1Gi"
 
     Given a pod becomes ready with labels:
       | deployment=mysql-1 |
@@ -236,5 +236,5 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | deployment=mongodb-1 |
     And the "mongodb" PVC becomes :bound
     And the "mysql" PVC becomes :bound
-    Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == 1Gi
-    And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == 2Gi
+    Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1Gi"
+    And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == "2Gi"
