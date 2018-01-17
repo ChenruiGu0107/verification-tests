@@ -711,8 +711,6 @@ Feature: SDN related networking scenarios
   Scenario: SDN will detect the version and plugin type mismatch in openflow and restart node automatically
     Given the master version >= "3.7"
     And I select a random node's host
-    And the node service is verified
-    And the node network is verified
     Given the cluster network plugin type and version and stored in the clipboard
     And system verification steps are used:
     """
@@ -720,6 +718,8 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     Then the output should contain "<%= cb.net_plugin[:type] %>.<%= cb.net_plugin[:version] %>"
     """
+    And the node service is verified
+    And the node network is verified
 
     When I run the ovs commands on the host:
       | ovs-ofctl -O openflow13 mod-flows br0 "table=253, actions=note:<%= cb.net_plugin[:type] %>.ff" |
@@ -727,7 +727,7 @@ Feature: SDN related networking scenarios
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "10s ago" \| grep SDN |
+      | journalctl -l -u atomic-openshift-node --since "30s ago" \| grep SDN |
     Then the step should succeed
     And the output should contain:
       | SDN healthcheck detected unhealthy OVS server |
@@ -740,7 +740,7 @@ Feature: SDN related networking scenarios
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "10s ago" \| grep SDN |
+      | journalctl -l -u atomic-openshift-node --since "30s ago" \| grep SDN |
     Then the step should succeed
     And the output should contain:
       | SDN healthcheck detected unhealthy OVS server |
