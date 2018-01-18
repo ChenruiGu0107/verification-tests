@@ -1048,11 +1048,6 @@ Feature: pod related features
     Then the step should succeed
     And the output by order should contain:
       | "securityContext"      |
-      | "privileged": false    |
-      | "level": "s0:c25,c968" |
-      | "role": "unconfined_r" |
-      | "user": "unconfined_u" |
-      | "securityContext"      |
       | "seLinuxOptions"       |
       |"level": "s0:c25,c968"  |
       | "role": "unconfined_r" |
