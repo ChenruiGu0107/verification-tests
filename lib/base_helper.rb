@@ -257,11 +257,11 @@ module CucuShift
         end
       end
 
-
-      def convert_to_bytes(mem_str)
-        parsed = mem_str.match(/\A(\d+)([a-zA-Z]*)\z/)
-        number = Integer(parsed[1])
-        unit = parsed[2]
+      # handles floating point string input
+      def convert_to_bytes(raw_str)
+        parsed = raw_str.match(/\A((?:\d*)(\.)?(?:\d+))([a-zA-Z]*)\z/)
+        number = parsed[2].nil? ? Integer(parsed[1]) : Float(parsed[1])
+        unit = parsed[3]
         case unit
         when "", "b"
           return number

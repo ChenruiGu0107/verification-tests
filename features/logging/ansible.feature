@@ -213,7 +213,7 @@ Feature: ansible install related feature
     Then the step should succeed
     And I wait up to 600 seconds for the steps to pass:
     """
-    And I perform the HTTP request on the ES pod in the project:
+    And I perform the HTTP request on the ES pod:
       | relative_url | _search?pretty&size=5&q=message:deadbeef-message-OCP16688 |
       | op           | GET                                                       |
     And the output should contain:
@@ -238,7 +238,7 @@ Feature: ansible install related feature
       | component=es |
     And I wait up to 240 seconds for the steps to pass:
     """"
-    When I get the ".searchguard.<%= dc.name %>" logging index information
+    When I get the ".searchguard.<%= dc.name %>" logging index information from a pod with labels "component=es"
     Then the expression should be true> cb.index_data['docs.count'] == "5"
     """
     And the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 159
@@ -257,15 +257,15 @@ Feature: ansible install related feature
     Given I have a project
     Given logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
-    When I wait for the ".operation" index to appear in the ES pod
-    Then I perform the HTTP request on the ES pod in the project:
+    When I wait for the ".operation" index to appear in the ES pod with labels "component=es"
+    Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
       | op           | GET                                                 |
     And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
     Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
     # query the user project
     When I wait for the "project.<%= project.name %>" index to appear in the ES pod
-    Then I perform the HTTP request on the ES pod in the project:
+    Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
       | op           | GET                                                 |
     And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
@@ -287,18 +287,78 @@ Feature: ansible install related feature
     Then the step should succeed
     Given logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11869/inventory |
-    When I wait for the ".operations" index to appear in the ES pod
+    When I wait for the ".operations" index to appear in the ES pod with labels "component=es"
     And I run commands on the host:
       | logger -i message-after-<%= cb.rand_msg %> |
-    Then I perform the HTTP request on the ES pod in the project:
+    Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-before-<%= cb.rand_msg %> |
       | op           | GET                                                                                      |
     And the expression should be true> @result.dig(:parsed, 'hits', 'total') == 0
     # check message is logged after installation of kibana is registered with they system
     And I wait up to 600 seconds for the steps to pass:
     """
-    Then I perform the HTTP request on the ES pod in the project:
+    Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-after-<%= cb.rand_msg %> |
       | op           | GET                                                                                     |
     And the expression should be true> @result.dig(:parsed, 'hits', 'total') > 0
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12013
+  @admin
+  @destructive
+  Scenario: Deploy logging via Ansible: clean install with journal log driver reading logs from head
+    Given the master version >= "3.5"
+    Given a 7 character random string is stored into the :rand_msg clipboard
+    Given I have a project
+    And I select a random node's host
+    And I run commands on the host:
+      | logger -i message-before-<%= cb.rand_msg %> |
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    Given logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12013/inventory |
+    When I wait for the ".operations" index to appear in the ES pod with labels "component=es"
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then I perform the HTTP request on the ES pod:
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-before-<%= cb.rand_msg %> |
+      | op           | GET                                                                                      |
+    And the expression should be true> @result.dig(:parsed, 'hits', 'total') > 0
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17424
+  @admin
+  @destructive
+  Scenario: fluentd ops feature checking
+    Given the master version >= "3.6"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17424/inventory |
+    # check fluentd pod
+    Given a pod becomes ready with labels:
+      | component=fluentd |
+    And I execute on the "<%= pod.name %>" pod:
+      | env |
+    Then the step should succeed
+    And the output should contain "OPS_HOST=logging-es-ops"
+    And I execute on the "<%= pod.name %>" pod:
+      | ls | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
+    Then the step should succeed
+    And the output should contain "/etc/fluent/configs.d/filter-post-z-retag-two.conf"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17424/exepected_conf"
+    And evaluation of `@result[:response]` is stored in the :expected clipboard
+    And I execute on the "<%= pod.name %>" pod:
+      | cat | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
+    Then the expression should be true> @result[:response].include? cb.expected
+    # check non-ops es pod
+    And I get the ".operation" logging index information from a pod with labels "component=es"
+    Then the expression should be true> cb.index_data.nil?
+    # check ops es pod, .operation index can take a few minutes to appear
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    And I get the ".operation" logging index information from a pod with labels "component=es-ops"
+    Then the expression should be true> cb.index_data and cb.index_data.count > 0
     """

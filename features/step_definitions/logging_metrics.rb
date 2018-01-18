@@ -928,8 +928,15 @@ Given /^event logs can be found in the ES pod(?: in the#{OPT_QUOTED} project)?/ 
   raise "ES pod '#{pod.name}' did not see any hits within #{seconds} seconds" unless success
 end
 
-When /^I wait for the #{QUOTED} index to appear in the ES pod(?: in the#{OPT_QUOTED} project)?$/ do |index_name, proj_name|
-  project(proj_name)
+When /^I wait for the #{QUOTED} index to appear in the ES pod(?: with labels #{QUOTED})?$/ do |index_name, pod_labels|
+  # pod type check for safeguard
+  if pod_labels
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | #{pod_labels} |
+    })
+  else
+    raise 'Current pod must be of type ES' unless pod.labels.key? 'component' and pod.labels['component'].start_with? 'es'
+  end
   seconds = 5 * 60
   index_data = nil
   success = wait_for(seconds) {
@@ -944,9 +951,19 @@ When /^I wait for the #{QUOTED} index to appear in the ES pod(?: in the#{OPT_QUO
   raise "Index '#{index_name}' failed to appear in #{seconds} seconds" unless success
 end
 
+# must execute in the es-xxx pod
 # @return stored data into cb.index_data
-When /^I get the #{QUOTED} logging index information$/ do | index_name |
-  step %Q/I perform the HTTP request on the ES pod in the project:/, table(%{
+When /^I get the #{QUOTED} logging index information(?: from a pod with labels #{QUOTED})?$/ do | index_name, pod_labels |
+  # pod type check for safeguard
+  if pod_labels
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | #{pod_labels} |
+    })
+  else
+    raise 'Current pod must be of type ES' unless pod.labels.key? 'component' and pod.labels['component'].start_with? 'es'
+  end
+
+  step %Q/I perform the HTTP request on the ES pod:/, table(%{
     | relative_url | _cat/indices?format=JSON |
     | op           | GET                      |
   })
@@ -957,18 +974,21 @@ end
 # just do the query, check result outside of the step.
 # @relative_url: relative url of the query
 # @op: operation we want to perform (GET, POST, DELETE, and etc)
-Given /^I perform the HTTP request on the ES pod(?: in the#{OPT_QUOTED} project)?:$/ do |proj_name, table|
-  # make sure we are in the right project
-  project(proj_name)
+Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ do |pod_labels, table|
+  # pod type check for safeguard
+  if pod_labels
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | #{pod_labels} |
+    })
+  else
+    raise 'Current pod must be of type ES' unless pod.labels.key? 'component' and pod.labels['component'].start_with? 'es'
+  end
   opts = opts_array_to_hash(table.raw)
   # sanity check
   required_params = [:op, :relative_url]
   required_params.each do |param|
     raise "Missing parameter '#{param}'" unless opts[param]
   end
-  step %Q/a pod becomes ready with labels:/, table(%{
-    | component=es |
-  })
   query_cmd = "curl -s -X#{opts[:op]} --insecure --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key 'https://localhost:9200/#{opts[:relative_url]}'"
   @result = pod.exec("bash", "-c", query_cmd, as: user, container: 'elasticsearch')
   if @result[:success]
