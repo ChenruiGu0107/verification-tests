@@ -562,7 +562,7 @@ Feature: taint toleration related scenarios
       | resource | pod       |
       | name     | hello-pod |
     Then the step should succeed
-    And the output should not contain ":Exists:NoExecute"
+    And the output should not contain "NoExecute"
   
   # @author xiuli@redhat.com
   # @case_id OCP-13543
@@ -584,13 +584,14 @@ Feature: taint toleration related scenarios
     Given I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+      | n | <%= project.name %>                                                                      |
     Then the step should succeed
     Given I wait for the steps to pass:
     """   
-    When I run the :describe admin command with:
-      | resource | pod             |
-      | name     | hello-daemonset |
+    When I run the :get client command with:
+      | resource | pod  |
+      | o        | yaml |
     Then the step should succeed
-    And the output should match:
-      | :Exists:NoExecute |
+    And the output should not contain:
+      | tolerationSeconds |
     """
