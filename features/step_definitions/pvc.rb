@@ -42,8 +42,7 @@ Given /^([0-9]+) PVCs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do 
     pvc.status?(user: user, status: status, cached: true)[:success]
   end
 
-  @pvcs.reject! { |pvc| @result[:matching].include? pvc }
-  @pvcs.concat @result[:matching]
+  cache_resources *@result[:matching]
 
   if !@result[:success] || @result[:matching].size != num
     logger.error("Wanted #{num} but got '#{@result[:matching].size}' PVCs labeled: #{labels.join(",")}")

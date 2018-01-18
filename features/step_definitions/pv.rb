@@ -61,7 +61,7 @@ end
 
 #This is new step to obtain an volume id from storage class dynamic provision
 Given /^I have a(?: (\d+) GB)? volume from provisioner "([^"]*)" and save volume id in the#{OPT_SYM} clipboard$/ do |size, provisioner, cbname|
-  timeout = 120 
+  timeout = 120
   size = size ? size.to_i : 1
   cbname = 'volume_id' unless cbname
   ensure_admin_tagged
@@ -106,8 +106,7 @@ Given /^([0-9]+) PVs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |
     pv.status?(user: admin, status: status, cached: true)[:success]
   end
 
-  @pvs.reject! { |pv| @result[:matching].include? pv }
-  @pvs.concat @result[:matching]
+  cache_resources *@result[:matching]
 
   if !@result[:success] || @result[:matching].size != num
     logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
@@ -152,7 +151,7 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
   @result = CucuShift::PersistentVolume.create(by: admin, spec: pv_hash)
 
   if @result[:success]
-    @pvs << @result[:resource]
+    cache_resources *@result[:resource]
 
     # register mandatory clean-up
     _pv = @result[:resource]
