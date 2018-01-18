@@ -387,11 +387,14 @@ Given /^I have a skopeo pod in the(?: "([^ ]+?)")? project$/ do |project_name|
     raise "project #{project_name} does not exist"
   end
 
-  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/imagestream/skopeo.json")
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/skopeo-deployment.json")
   raise "could not create a skopeo" unless @result[:success]
 
-  @result = pod("skopeo").wait_till_ready(user, 300)
-  raise "skopeo pod did not become ready in time" unless @result[:success]
+  step %Q/a pod becomes ready with labels:/, table(%{
+        | name=skopeo |
+    }) 
+   
+  cb.skopeo_pod = pod
 
 end
 
