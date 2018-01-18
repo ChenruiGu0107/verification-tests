@@ -189,7 +189,6 @@ Feature:Create apps using new_app cmd feature
     And the "dotnet-runtime-example-build-1" build completed
     Then the "dotnet-runtime-example-runtime-2" build was created
     And the "dotnet-runtime-example-runtime-2" build completed
-    When I expose the "s2i-dotnetcore-ex" service
     Then I wait for a web server to become available via the "dotnet-runtime-example" route
     And the output should contain "Sample pages using ASP.NET Core MVC"
    
@@ -211,6 +210,5 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
     And the "dotnet-example-1" build was created
     And the "dotnet-example-1" build completed
-    When I expose the "dotnet-example" service
     Then I wait for a web server to become available via the "dotnet-example" route
     And the output should contain "Sample pages using ASP.NET Core MVC"
