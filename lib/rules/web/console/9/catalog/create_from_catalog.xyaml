@@ -4,6 +4,15 @@ select_service_to_order_from_catalog:
   action: click_primary_category_from_catalog
   action: click_sub_category_from_catalog
   action: click_service_item_from_catalog
+create_app_from_image_with_advanced_options:
+  action: goto_home_page
+  action: click_primary_category_from_catalog
+  action: click_sub_category_from_catalog
+  action: click_service_item_from_catalog
+  action: click_next_button
+  action: check_advanced_options_link_in_wizard
+  action: create_app_from_image_set_app_name
+  action: create_app_from_image_try_sample_repo
 click_primary_category_from_catalog:
   element:
     selector:
@@ -84,7 +93,7 @@ check_advanced_options_link_in_wizard:
       xpath: //a[text()='advanced options']
     op: click
   - selector:
-      xpath: //h1[text()='<service_item>'] 
+      xpath: //h1[contains(.,'<service_item>')]
 check_successful_result_info_in_wizard:
   element:
     selector:

@@ -1551,3 +1551,94 @@ Feature: build related feature on web console
       | project_name         | <%= project.name %>     |
       | build_failure_reason | Post commit hook failed |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-17073
+  Scenario: Support add ConfigMap/Secret as build env on web console
+    Given the master version >= "3.9"
+    Given I have a project
+    # create configmap and secret
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.json          |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml  |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml               |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    # check configmap/secret support during create app from image
+    When I perform the :create_app_from_image_with_advanced_options web console action with:
+      | primary_catagory | Languages  |   
+      | sub_catagory     | PHP        |
+      | service_item     | PHP        |
+      | app_name         | php-sample |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret_for_build web console action with:
+      | env_var_key   | env_from_sec |
+      | resource_name | test-secret  |
+      | resource_key  | data-1       |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret_for_build web console action with:
+      | env_var_key   | env_from_conmap |
+      | resource_name | special-config  |
+      | resource_key  | special.type    |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :goto_buildconfig_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | php-sample          |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:     
+      | env_var_key   | env_from_sec  |
+      | resource_name | test-secret   |
+      | resource_key  | data-1        |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:     
+      | env_var_key   | env_from_conmap |
+      | resource_name | special-config  |
+      | resource_key  | special.type    |
+    Then the step should succeed
+    # check configmap/secret support on buildconfig Environment tab
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | env_from_sec2 |
+      | resource_name | test-secret   |
+      | resource_key  | data-2        |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | env_from_conmap2 |
+      | resource_name | special-config   |
+      | resource_key  | special.type     |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    Given 5 seconds have passed   
+    # check configmap/secret support on buildconfig edit page
+    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | php-sample          |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | env_from_sec3 |
+      | resource_name | testsecret1   |
+      | resource_key  | secret1       |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | env_from_conmap3   |
+      | resource_name | example-config     |
+      | resource_key  | example.property.1 |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :goto_buildconfig_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | php-sample          |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:     
+      | env_var_key   | env_from_sec3 |
+      | resource_name | testsecret1   |
+      | resource_key  | secret1       |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:     
+      | env_var_key   | env_from_conmap3   |
+      | resource_name | example-config     |
+      | resource_key  | example.property.1 |
+    Then the step should succeed

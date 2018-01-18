@@ -177,8 +177,7 @@ check_build_hidden_secret:
   - selector:
       xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd[contains(.,'<hidden_text>')]
 goto_buildconfig_environment_tab:
-  action: goto_one_buildconfig_page
-  action: goto_environment_tab
+  url: /console/project/<project_name>/browse/builds/<bc_name>?tab=environment
 goto_build_environment_tab:
   action: goto_one_build_page
   action: goto_environment_tab
