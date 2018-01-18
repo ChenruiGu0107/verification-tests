@@ -11,6 +11,7 @@ Feature: oc_version.feature
     And the output should match:
       | oc.*            |
       | kubernetes.*    |
+    And the expression should be true> @result[:props][:oc_version].split('.')[1] == @result[:props][:kubernetes_version].split('.')[1]
     When I run the :version client command
     Then the step should succeed
     And the output should match:
@@ -18,6 +19,7 @@ Feature: oc_version.feature
       | kubernetes.*    |
       | [Ss]erver.*     |
       | [Oo]penshift.*  |
+    And the expression should be true> @result[:props][:kubernetes_server_version].split('.')[1] == @result[:props][:openshift_server_version].split('.')[1]
     When I run the :config_view client command
     And I save the output to file> user1.kubeconfig
     Given I replace lines in "user1.kubeconfig":

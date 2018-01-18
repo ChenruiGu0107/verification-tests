@@ -146,7 +146,7 @@ Feature: oc observe related tests
     Then the step should succeed
     # Stop oc observe
     When I terminate last background process
-    Then the output by order should match:
+    Then the output should match:
       | Sync.*add_to_inventory.*<%= project.name %> database <%= cb.database_ip %>     |
       | Sync.*add_to_inventory.*<%= project.name %> frontend <%= cb.frontend_ip %>     |
       | Updated.*add_to_inventory.*<%= project.name %> database <%= cb.database_ip %>  |

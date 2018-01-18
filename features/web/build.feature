@@ -70,9 +70,8 @@ Feature: build related feature on web console
     Then the step should succeed
     # Make build failed by design
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:latest                     |
-      | code         | https://github.com/openshift/fakerepo.git |
-      | name         | ruby-sample-another                       |
+      | app_repo     | openshift/ruby:latest~https://github.com/openshift/fakerepo.git |
+      | name         | ruby-sample-another                                             |
     Then the step should succeed
     Given the "ruby-sample-another-1" build failed
     When I perform the :check_one_build_inside_bc_page web console action with:

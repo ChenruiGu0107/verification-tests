@@ -153,8 +153,8 @@ Feature: oc exports related scenarios
       | error: output format "xyz" not recognized |
 
     # For sake of Online test in which one user can only create 1 project
-    Given I switch to the second user
-    And I have a project
+    Given I ensure "<%= project.name %>" project is deleted
+    And I create a new project
     And I run the :get client command with:
       | resource | svc |
     Then the step should succeed
