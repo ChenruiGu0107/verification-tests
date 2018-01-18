@@ -43,7 +43,7 @@ When /^admin creates a StorageClass( in the node's zone)? from #{QUOTED} where:$
   @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
 
   if @result[:success]
-    @storageclasses << @result[:resource]
+    cache_resources *@result[:resource]
 
     # register mandatory clean-up
     _sc = @result[:resource]

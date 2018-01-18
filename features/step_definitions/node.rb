@@ -9,8 +9,7 @@
 Given /^I select a random node's host$/ do
   ensure_admin_tagged
   nodes = env.nodes.select { |n| n.schedulable? }
-  @nodes.reject! {|n| nodes.include? n}
-  @nodes.concat nodes.shuffle
+  cache_resources *nodes.shuffle
   @host = node.host
 end
 
@@ -18,8 +17,7 @@ Given /^I store the( schedulable)? nodes in the#{OPT_SYM} clipboard$/ do |schedu
   ensure_admin_tagged
   cbname = 'nodes' unless cbname
   cb[cbname] = env.nodes.select { |n| !schedulable || n.schedulable? }
-  @nodes.reject! {|n| cb[cbname].include? n}
-  @nodes.concat cb[cbname].shuffle
+  cache_resources *cb[cbname].shuffle
 end
 
 Given /^(I|admin) stores? in the#{OPT_SYM} clipboard the nodes backing pods(?: in project #{QUOTED})? labeled:$/ do |who, cbname, project, labels|
@@ -43,7 +41,7 @@ end
 Given /^environment has( at least| at most) (\d+)( schedulable)? nodes?$/ do |cmp, num, schedulable|
   ensure_admin_tagged
   nodes = env.nodes.select { |n| !schedulable || n.schedulable?}
-  @nodes.concat (nodes.shuffle - @nodes)
+  cache_resources *nodes.shuffle
 
   case cmp
   when /at least/
