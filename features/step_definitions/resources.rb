@@ -21,7 +21,7 @@ Given /^hidden recreate cluster resource after scenario$/ do
   teardown_add {
     _resource.ensure_deleted
     res = _resource.class.create(by: _admin,
-                                 spec: _raw_resource)
+                                 spec: _resource_struct)
     if res[:success]
       cache_resources res[:resource]
     else
