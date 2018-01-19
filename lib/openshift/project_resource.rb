@@ -23,23 +23,6 @@ module CucuShift
       project.env
     end
 
-    # @note requires sub-class to define `#parse_oc_describe` method
-    def describe(user, quiet: false)
-      resource_type = self.class::RESOURCE
-      resource_name = name
-      cli_opts = {
-        as: user, key: :describe, n: project.name,
-        name: resource_name,
-        resource: resource_type,
-        _quiet: quiet
-      }
-      cli_opts[:_quiet] = quiet if quiet
-
-      res = cli_exec(**cli_opts)
-      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
-      return res
-    end
-
     # creates a new OpenShift Project Resource via API
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
     #   ProjectResource as
