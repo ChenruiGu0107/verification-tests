@@ -767,7 +767,7 @@ require "base64"
         @hooks[hook] = block
       elsif code_str
         # instantiate from string ruby code
-        @hooks[hook] = eval code_str
+        @hooks[hook] = eval code_str, binding, "web_hook_#{hook.to_s}"
       else
         raise "can't create hook from #{code_str.inspect}"
       end
