@@ -42,6 +42,8 @@ Feature: Testing abrouting
       | (80%) |
     Given I have a pod-for-ping in the project
     #access the route without cookies
+    Given I wait up to 30 seconds for the steps to pass:
+    """ 
     When I execute on the pod:
       | curl |
       | -sS |
@@ -52,7 +54,8 @@ Feature: Testing abrouting
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
-    Given I wait for the steps to pass:
+    """
+    Given I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
       | curl |
