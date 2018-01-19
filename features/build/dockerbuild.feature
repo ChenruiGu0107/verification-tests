@@ -84,6 +84,7 @@ Feature: dockerbuild.feature
   # @case_id OCP-10615
   Scenario: Custom build with dockerImage with specified tag
     Given I have a project
+    Given project role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
     And I process and create:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479296/application-template-custombuild.json |

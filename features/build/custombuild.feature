@@ -5,6 +5,8 @@ Feature: custombuild.feature
   @smoke
   Scenario: Build with custom image - origin-custom-docker-builder
     Given I have a project
+    Given project role "system:build-strategy-custom-test" is added to the "first" user
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
     Then the step should succeed
@@ -36,6 +38,8 @@ Feature: custombuild.feature
   # @case_id OCP-11104
   Scenario: Custom build with imageStreamImage in buildConfig
     Given I have a project
+    Given project role "system:build-strategy-custom-test" is added to the "first" user
+    Then the step should succeed
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479017/custombuild-template.json"
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:

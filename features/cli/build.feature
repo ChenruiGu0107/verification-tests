@@ -383,6 +383,8 @@ Feature: build 'apps' with CLI
   # @case_id OCP-11713
   Scenario: Add ENV with CustomStrategy when do custom build
     Given I have a project
+    Given project role "system:build-strategy-custom" is added to the "first" user
+    Then the step should succeed
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc479022/application-template-custombuild.json |
     Then the step should succeed
@@ -1205,27 +1207,29 @@ Feature: build 'apps' with CLI
   # @case_id OCP-10772
   Scenario: Specify build apiVersion for custom build
     Given I have a project
+    Given project role "system:build-strategy-custom" is added to the "first" user
+    Then the step should succeed
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     Given I get project buildconfigs
     Then the output should contain:
       | ruby-sample-build |
-      | Custom |
+      | Custom            |
     When I run the :describe client command with:
-      | resource | buildconfig |
-      | name | ruby-sample-build |
+      | resource | buildconfig       |
+      | name     | ruby-sample-build |
     Then the output should contain:
       | ruby-sample-build |
-      | Custom |
+      | Custom            |
     When I run the :env client command with:
       | resource | pod/ruby-sample-build-1-build |
-      | list | true |
+      | list     | true                          |
     Then the step should succeed
     And the output should contain:
       | "apiVersion":"v1" |
     When I run the :patch client command with:
-      | resource | buildconfig |
+      | resource      | buildconfig       |
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"customStrategy": {"buildAPIVersion": "v1"}}}} |
     Then the step should succeed
@@ -1235,7 +1239,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-sample-build-2" build completes
     When I run the :env client command with:
       | resource | pod/ruby-sample-build-2-build |
-      | list | true |
+      | list     | true                          |
     Then the step should succeed
     And the output should contain:
       | "apiVersion":"v1"      |
@@ -2828,7 +2832,7 @@ Feature: build 'apps' with CLI
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11025
-  Scenario: oc start-build with url 
+  Scenario: oc start-build with url
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11025/test-build.json |

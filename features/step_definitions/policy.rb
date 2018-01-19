@@ -109,3 +109,33 @@ Given /^cluster roles are restored after scenario$/ do
     _admin.cli_exec(:oadm_policy_reconcile_cluster_roles, {confirm: 'true'})
   }
 end
+
+Given /^project role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|group|service account)$/ do |role, op, which, type|
+  case type
+    when "group"
+      _add_command = :oadm_add_role_to_group
+      _remove_command = :oadm_remove_role_from_group
+      _opts = {role_name: role, group_name: which}
+    when "user", "service account"
+      if type == "user"
+        _user_name = user(word_to_num(which), switch: false).name
+      else
+        _user_name = service_account(which, switch: false).name
+      end
+      _add_command = :oadm_add_role_to_user
+      _remove_command = :oadm_remove_role_from_user
+      _opts = {role_name: role, user_name: _user_name}
+  end
+
+  case op
+    when "added to"
+      _command = _add_command
+    when "removed from"
+      _command = _remove_command
+    else
+      raise "unknown policy operation #{op}"
+  end
+
+  @result = user.cli_exec(_command, **_opts)
+
+end

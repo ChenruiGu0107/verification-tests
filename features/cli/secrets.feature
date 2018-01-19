@@ -254,9 +254,10 @@ Feature: secrets related scenarios
 
   # @author cryan@redhat.com
   # @case_id OCP-10784
-  @admin
   Scenario: Secret can be used to download dependency from private registry - custom build
     Given I have a project
+    Given project role "system:build-strategy-custom" is added to the "first" user
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
     Then the step should succeed
@@ -440,21 +441,22 @@ Feature: secrets related scenarios
 
   # @author cryan@redhat.com
   # @case_id OCP-10690
-  @admin
   Scenario: Add an arbitrary list of secrets to custom builds
     Given I have a project
     Given an 8 characters random string of type :dns is stored into the :pass1 clipboard
     Given an 8 characters random string of type :dns is stored into the :pass2 clipboard
+    Given project role "system:build-strategy-custom" is added to the "first" user
+    Then the step should succeed
     When I run the :secrets client command with:
-      | action | new-basicauth |
-      | name | secret1 |
-      | username | testuser1 |
+      | action   | new-basicauth   |
+      | name     | secret1         |
+      | username | testuser1       |
       | password | <%= cb.pass1 %> |
     Then the step should succeed
     When I run the :secrets client command with:
-      | action | new-basicauth |
-      | name | secret2 |
-      | username | testuser2 |
+      | action   | new-basicauth   |
+      | name     | secret2         |
+      | username | testuser2       |
       | password | <%= cb.pass2 %> |
     Then the step should succeed
     When I run the :new_app client command with:
@@ -462,44 +464,44 @@ Feature: secrets related scenarios
     Then the step should succeed
     Given the pod named "ruby-sample-build-1-build" status becomes :running
     When I run the :get client command with:
-      | resource | buildconfig |
+      | resource      | buildconfig       |
       | resource_name | ruby-sample-build |
-      | o | json |
+      | o             | json              |
     Then the step should succeed
     And the output should contain:
       | secret1 |
       | secret2 |
     When I run the :exec admin command with:
-      | pod | ruby-sample-build-1-build |
-      | n | <%= project.name %> |
-      | exec_command | ls |
-      | exec_command_arg | /tmp |
+      | pod              | ruby-sample-build-1-build |
+      | n                | <%= project.name %>       |
+      | exec_command     | ls                        |
+      | exec_command_arg | /tmp                      |
     Then the output should contain:
       | secret1 |
       | secret2 |
     When I run the :exec admin command with:
-      | pod | ruby-sample-build-1-build |
-      | n | <%= project.name %> |
-      | exec_command | cat |
-      | exec_command_arg | /tmp/secret1/username |
+      | pod              | ruby-sample-build-1-build |
+      | n                | <%= project.name %>       |
+      | exec_command     | cat                       |
+      | exec_command_arg | /tmp/secret1/username     |
     Then the output should contain "testuser1"
     When I run the :exec admin command with:
-      | pod | ruby-sample-build-1-build |
-      | n | <%= project.name %> |
-      | exec_command | cat |
-      | exec_command_arg | /tmp/secret1/password |
+      | pod              | ruby-sample-build-1-build |
+      | n                | <%= project.name %>       |
+      | exec_command     | cat                       |
+      | exec_command_arg | /tmp/secret1/password     |
     Then the output should contain "<%= cb.pass1 %>"
     When I run the :exec admin command with:
-      | pod | ruby-sample-build-1-build |
-      | n | <%= project.name %> |
-      | exec_command | cat |
-      | exec_command_arg | /tmp/secret2/username |
+      | pod              | ruby-sample-build-1-build |
+      | n                | <%= project.name %>       |
+      | exec_command     | cat                       |
+      | exec_command_arg | /tmp/secret2/username     |
     Then the output should contain "testuser2"
     When I run the :exec admin command with:
-      | pod | ruby-sample-build-1-build |
-      | n | <%= project.name %> |
-      | exec_command | cat |
-      | exec_command_arg | /tmp/secret2/password |
+      | pod              | ruby-sample-build-1-build |
+      | n                | <%= project.name %>       |
+      | exec_command     | cat                       |
+      | exec_command_arg | /tmp/secret2/password     |
     Then the output should contain "<%= cb.pass2 %>"
 
   # @author yantan@redhat.com
