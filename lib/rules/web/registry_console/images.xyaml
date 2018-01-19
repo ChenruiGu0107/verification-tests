@@ -22,6 +22,16 @@ click_images_link:
     selector:
       xpath: //a[i[@title='Images']]
     op: click
+click_a_link_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: click_a_link
+click_a_link:
+  element:
+    selector:
+      xpath: //a[substring(@href, string-length(@href) - string-length('<url_ends_with>') + 1) = '<url_ends_with>' and .='<link_text>']
+    op: click
 click_to_goto_one_image_page_in_iframe:
   action: click_images_link_in_iframe
   action:
@@ -31,8 +41,36 @@ click_to_goto_one_image_page_in_iframe:
 click_to_goto_one_image_page:
   element:
     selector:
-      xpath: //tbody[.//th[contains(text(),'<project_name>/<image_name>')]]
+      xpath: //tbody//th[contains(text(),'<project_name>/<image_name>')]
     op: click
+click_to_goto_one_image_tag_page_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: click_to_goto_one_image_tag_page
+click_to_goto_one_image_tag_page:
+  element:
+    selector:
+      xpath: //tbody//th[contains(.,'<tag_label>')]
+    op: click
+check_info_on_one_image_tag_page_in_iframe:
+  action: click_to_goto_one_image_tag_page_in_iframe
+  action:
+    context:
+      tag_name: iframe
+    ref: check_one_image_tag_detailed_info
+check_one_image_tag_detailed_info:
+  elements:
+  - selector:
+      xpath: //dt[normalize-space()='Author']
+  - selector:
+      xpath: //dt[normalize-space()='Built']/following-sibling::dd[contains(., 'ago')]
+  - selector:
+      xpath: //dt[normalize-space()='Digest']/following-sibling::dd[contains(., 'sha256:')]
+  - selector:
+      xpath: //dt[normalize-space()='Tags']/following-sibling::dd[contains(., '<project_name>/<image_name>:<tag_label>')]
+  - selector:
+      visible_text: !ruby/regexp /docker pull .*<project_name>.<image_name>:<tag_label>/
 check_no_images_on_images_page_in_iframe:
   action:
     context:
@@ -56,7 +94,7 @@ check_image_info_on_one_image_page:
   - selector:
       xpath: //dt[span[text()='Access Policy']]/following-sibling::dd[contains(.,'<access_policy>')]
   - selector:
-      xpath: //dt[span[text()='Pull repository']]/following-sibling::dd[contains(.,'<pull_repository>')]
+      xpath: //dt[text()='Pulling repository']/following-sibling::dd[contains(.,'<pull_repository>')]
   - selector:
       xpath: //dt[span[text()='Image count']]/following-sibling::dd[contains(.,'<image_count>')]
 check_image_tag_in_iframe_on_one_image_page:
@@ -65,10 +103,6 @@ check_image_tag_in_iframe_on_one_image_page:
       tag_name: iframe
     ref: check_image_tag_on_one_image_page
 check_image_tag_on_one_image_page:
-  # TODO extend this action with more image tag checks
-  elements:
-  - selector:
-      xpath: //th/a[text()='<tag_label>']
-    op: click
-  - selector:
-      xpath: //dt[span[text()='Tags']]/following-sibling::dd[span[text()='<project_name>/<image_name>:<tag_label>']]
+  element:
+    selector: &toggle_tag_item
+      xpath: //td[following-sibling::th/a[text()='<tag_label>']]
