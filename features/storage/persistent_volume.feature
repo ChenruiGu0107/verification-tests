@@ -417,7 +417,7 @@ Feature: Persistent Volume Claim binding policies
     # Delete the project, the pv will be deleted then
     Given I switch to cluster admin pseudo user
     Given I ensure "<%= project.name %>" project is deleted
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear
 
     # Check mount point on the node
     Given I use the "<%= node.name %>" node

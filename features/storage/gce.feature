@@ -18,8 +18,8 @@ Feature: GCE specific scenarios
       | resource | pvc/pvc |
     Then the step should succeed
     And the output should contain:
-      | ProvisioningFailed             |
-      | must not contain an empty zone |
+      | ProvisioningFailed        |
+      | must not contain an empty |
 
   # @author lxia@redhat.com
   # @case_id OCP-11063
@@ -62,9 +62,9 @@ Feature: GCE specific scenarios
     When I run the :describe client command with:
       | resource | pvc/pvc |
     Then the step should succeed
-    And the output should contain:
-      | ProvisioningFailed                                 |
-      | does not manage zone "us-central1-a,us-central1-b" |
+    And the output should match:
+      | ProvisioningFailed                            |
+      | does not .*zone "us-central1-a,us-central1-b" |
 
   # @author lxia@redhat.com
   # @case_id OCP-12833
@@ -85,8 +85,8 @@ Feature: GCE specific scenarios
       | resource | pvc/pvc |
     Then the step should succeed
     And the output should contain:
-      | ProvisioningFailed                                                       |
-      | zone and zones StorageClass parameters must not be used at the same time |
+      | ProvisioningFailed                           |
+      | parameters must not be used at the same time |
 
   # @author lxia@redhat.com
   # @case_id OCP-15435

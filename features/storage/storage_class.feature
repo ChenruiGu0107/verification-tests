@@ -180,7 +180,7 @@ Feature: storageClass related feature
     Given I ensure "pod-<%= project.name %>" pod is deleted
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear
 
     Examples:
       | provisioner | type        | zone          | is-default | size  |
@@ -209,10 +209,10 @@ Feature: storageClass related feature
     """
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
-    Then the output should contain:
+    Then the output should match:
       | ProvisioningFailed                                                    |
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
-      | does not manage zone "europe-west1-d"                                 |
+      | does not .*zone "europe-west1-d"                                      |
     """
 
   # @author lxia@redhat.com
@@ -724,12 +724,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "StorageClass:\s[a-z]+"
+    And the output should match "StorageClass:\s+[a-z]+"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "StorageClass:\s[a-z]+"
+    And the output should match "StorageClass:\s+[a-z]+"
 
   # @author lxia@redhat.com
   # @case_id OCP-13667
