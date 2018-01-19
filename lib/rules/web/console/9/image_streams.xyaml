@@ -8,6 +8,30 @@ check_image_streams:
   elements:
   - selector:
       xpath: //a[ancestor::table and contains(text(), '<is_name>')]
+check_image_stream_instructions:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /docker tag myimage.*<project_name>.<image_name>:tag/
+  - selector:
+      visible_text: !ruby/regexp /docker push.*<project_name>.<image_name>:tag/
+check_image_stream_summaries:
+  elements:
+  - selector:
+      xpath: //dt[contains(., 'Pulling') and contains(., 'epository')]/following-sibling::dd[contains(normalize-space(), '<pulling_repo>')]
+  - selector:
+      xpath: //dt[contains(., 'Image') and contains(., 'ount')]/following-sibling::dd[contains(normalize-space(), '<image_count>')]
+check_image_stream_tags_table_head:
+  element:
+    selector:
+      xpath: //th[contains(., 'Tag')]/following-sibling::th[contains(., 'From')]/following-sibling::th[contains(., 'Identifier')]/following-sibling::th[contains(., 'Last Updated')]
+check_image_stream_tags_table:
+  element:
+    selector:
+      xpath: //th[a[contains(@href,'project/<project_name>/browse/images/<image_name>/<image_tag>') and contains(., '<image_tag>')]]/following-sibling::td[contains(., '<image_from>')]/following-sibling::td[contains(., 'sha256:')]
+check_image_stream_tags_table_empty:
+  element:
+    selector:
+      visible_text: No tags are present.
 check_is_tag_basic_page:
   elements:
   - selector:
