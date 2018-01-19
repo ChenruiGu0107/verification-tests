@@ -54,11 +54,13 @@ Feature: ansible install related feature
     And logging service is installed in the system
     And a replicationController becomes ready with labels:
       | component=es |
+    And a deploymentConfig becomes ready with labels:
+      | component=es |
     # disable es pod by scaling it to 0
     Then I run the :scale client command with:
-      | resource | replicationController |
-      | name     | <%= rc.name %>        |
-      | replicas | 0                     |
+      | resource | deploymentConfig |
+      | name     | <%= dc.name %>   |
+      | replicas | 0                |
     And I wait until number of replicas match "0" for replicationController "<%= rc.name %>"
     And I login to kibana logging web console
     And I get the visible text on web html page
