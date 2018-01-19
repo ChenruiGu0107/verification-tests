@@ -260,6 +260,33 @@ module CucuShift
       return res
     end
 
+    # @note requires sub-class to define `#parse_oc_describe` method if
+    #   parsing of the output is needed
+    def describe(user=nil, quiet: false)
+      user ||= default_user(user)
+
+      if env != user.env
+        raise "user and resource are from different environments"
+      end
+
+      resource_type = self.class::RESOURCE
+      resource_name = name
+      cli_opts = {
+        name: resource_name,
+        resource: resource_type,
+        _quiet: quiet
+      }
+
+      cli_opts[:n] = project.name if self.respond_to?(:project)
+      cli_opts[:_quiet] = quiet if quiet
+
+      res = user.cli_exec(:describe, **cli_opts)
+      if self.respond_to?(:parse_oc_describe)
+        res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
+      end
+      return res
+    end
+
     # @return [CucuShift::ResultHash] with :success true if we've eventually got
     #   the resource in ready status; the result hash is from last executed
     #   get call
