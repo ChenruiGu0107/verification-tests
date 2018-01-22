@@ -55,3 +55,41 @@ Feature: genericbuild.feature
       | f | test-valuefrommap.json |
     Then the step should fail
     And the output should contain "configMapKeyRef.key: Required value"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-17484
+  @admin
+  @destructive
+  Scenario: Specify default tolerations via the BuildOverrides plugin
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+            tolerations:
+            - key: key1
+              value: value1
+              effect: NoSchedule
+              operator: Equal
+            - key: key2
+              value: value2
+              effect: NoSchedule
+              operator: Equal
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes	
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I run the :describe client command with:
+      | resource | pod                      |
+      | name     | ruby-hello-world-1-build |
+    Then the step should succeed
+    Then the output should contain:
+      | Tolerations:     key1=value1:NoSchedule |
+      |                  key2=value2:NoSchedule |
