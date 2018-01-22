@@ -555,3 +555,72 @@ Feature: Ansible-service-broker related scenarios
     # Access mediawiki's route successfully
     Then I wait up to 60 seconds for a web server to become available via the "mediawiki123" route
     And the output should contain "MediaWiki has been successfully installed"
+
+  # @author chezhang@redhat.com
+  @admin
+  Scenario Outline: Multiple Plans support for DB APBs
+    # Get the registry name from the configmap
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I save the first service broker registry prefix to :prefix clipboard
+
+    # Swtich back to normal user and create first project
+    And I switch to the first user
+    Given I have a project
+
+    # Provision DB apb with dev plan
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<db_name>                                                                                      |
+      | param | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<db_secret_name>                                                                                 |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                    |
+    Then the step should succeed
+    And evaluation of `service_instance("<db_name>").uid(user: user)` is stored in the :uid1 clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<db_secret_name>                                                                                            |
+      | param | INSTANCE_NAME=<db_name>                                                                                                 |
+      | param | PARAMETERS=<db_parameters>                                                                                              |
+      | param | UID=<%= cb.uid1 %>                                                                                                      |
+      | n     | <%= project.name %>                                                                                                  |
+    Then the step should succeed
+
+    # Checking provision succeed with dev plan
+    Given a pod becomes ready with labels:
+      | app=<db_label> |
+    And I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+    # Create another project
+    Given I create a new project
+
+    # Provision DB apb with prod plan
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<db_name>                                                                                      |
+      | param | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
+      | param | PLAN_EXTERNAL_NAME=prod                                                                                      |
+      | param | SECRET_NAME=<db_secret_name>                                                                                 |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                    |
+    Then the step should succeed
+    And evaluation of `service_instance("<db_name>").uid(user: user)` is stored in the :uid2 clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<db_secret_name>                                                                                            |
+      | param | INSTANCE_NAME=<db_name>                                                                                                 |
+      | param | PARAMETERS=<db_parameters>                                                                                              |
+      | param | UID=<%= cb.uid2 %>                                                                                                      |
+      | n     | <%= project.name %>                                                                                                  |
+    Then the step should succeed
+
+    # Checking provision succeed with prod plan
+    Given a pod becomes ready with labels:
+      | app=<db_label> |
+    And I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+    Examples:
+      | db_name                         | db_secret_name                             | db_parameters                                                                                                                         | db_label             |
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | rhscl-postgresql-apb | # @case_id OCP-15328
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-16086
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-16087
