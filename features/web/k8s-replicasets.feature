@@ -141,7 +141,7 @@ Feature: Features about k8s replicasets
     When I run the :scale_down_once_on_rs_page web console action
     Then the step should succeed
     """
-    When I perform the :check_ready_pods_number_in_table web console action with:
+    When I perform the :check_pods_number_in_table web console action with:
       | pods_number | 1 |
     Then the step should succeed
     When I run the :click_on_events_tab web console action
@@ -156,7 +156,7 @@ Feature: Features about k8s replicasets
 
     When I run the :scale_up_once_on_rs_page web console action
     Then the step should succeed
-    When I perform the :check_ready_pods_number_in_table web console action with:
+    When I perform the :check_pods_number_in_table web console action with:
       | pods_number | 2 |
     Then the step should succeed
     When I run the :click_on_events_tab web console action

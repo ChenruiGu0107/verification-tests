@@ -630,20 +630,18 @@ Feature: create app on web console related
       | l        | test=1234updated    |
       | n        | <%= project.name %> |
     Then the step should succeed
-    And the output should contain:
-      | bc/ruby-sample-build       |
-      | builds/ruby-sample-build-1 |
-      | is/origin-ruby-sample      |
-      | is/ruby-22-centos7         |
-      | dc/database                |
-      | dc/frontend                |
-      | rc/database-1              |
-      | rc/frontend-1              |
-      | routes/route-edge          |
-      | svc/database               |
-      | svc/frontend               |
-    And the output should not contain:
-      | po/ |
+    And the output should match:
+      | ruby-sample-build          |
+      | ruby-sample-build-1        |
+      | origin-ruby-sample         |
+      | ruby-22-centos7            |
+      | d.*c.*/database            |
+      | d.*c.*/frontend            |
+      | route-edge                 |
+      | s.*v.*c/database           |
+      | s.*v.*c/frontend           |
+    And the output should not match:
+      | po.*/ |
     """
 
   # @author etrott@redhat.com
