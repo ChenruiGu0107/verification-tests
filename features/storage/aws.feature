@@ -262,3 +262,40 @@ Feature: AWS specific scenarios
     Given 10 pods become ready with labels:
       | name=frontendhttp|
     """
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-12964
+  @admin
+  @destructive
+  Scenario: Volume is detached when restart contoller manager
+    Given I have a project
+    And I run the steps 2 times:
+    """
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
+      | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i} |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                 |
+
+    Then the step should succeed
+    And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i}   |
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift |
+      | ["metadata"]["name"]                                         | mypod#{cb.i}          |
+    Then the step should succeed
+    And the pod named "mypod#{cb.i}" becomes ready
+    """
+
+    Given I save volume id from PV named "<%= pvc('dynamic-pvc-1').volume_name(user: admin, cached: true) %>" in the :vid clipboard
+
+    Given I run commands on all masters:
+      | systemctl stop atomic-openshift-master-controllers |
+    Then the step should succeed
+    And I ensure "mypod1" pod is deleted
+    And I ensure "dynamic-pvc-1" pvc is deleted
+
+    Given I run commands on all masters:
+      | systemctl start atomic-openshift-master-controllers |
+    Then the step should succeed
+    And the pod named "mypod2" becomes ready
+    And I verify that the IAAS volume with id "<%= cb.vid %>" has status "available" within 120 seconds 
