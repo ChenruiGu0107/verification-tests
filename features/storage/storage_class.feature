@@ -938,6 +938,7 @@ Feature: storageClass related feature
 
     When I ensure "pvc-<%= project.name %>" pvc is deleted
     Then the PV becomes :released
+    And admin ensures "<%= pvc.volume_name %>" pv is deleted
 
     Examples:
       | provisioner    |
