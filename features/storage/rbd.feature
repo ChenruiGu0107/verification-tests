@@ -275,7 +275,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    And the expression should be true> pvc.capacity(user: user) == "9Gi"
+    And the expression should be true> pvc.capacity == "9Gi"
 
 
   # @author jhou@redhat.com

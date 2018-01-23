@@ -230,7 +230,7 @@ Feature: Storage of GlusterFS plugin testing
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
-    And the expression should be true> pvc.capacity(user: user) == "15Gi"
+    And the expression should be true> pvc.capacity == "15Gi"
 
   # @author jhou@redhat.com
   # @case_id OCP-10266
@@ -355,7 +355,7 @@ Feature: Storage of GlusterFS plugin testing
     # Create a StorageCLass for GlusterFS provisioner where gidMin > gidMax
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 2001                                                             |
       | ["parameters"]["gidMax"]  | 2000                                                             |
     Then the step should succeed
@@ -377,7 +377,7 @@ Feature: Storage of GlusterFS plugin testing
     # Create a StorageCLass for GlusterFS provisioner where gidMin/gidMax has negative values
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-neg-<%= project.name %>                             |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | -10000                                                           |
       | ["parameters"]["gidMax"]  | -1000                                                            |
     Then the step should succeed
@@ -404,7 +404,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 3333                                                             |
       | ["parameters"]["gidMax"]  | 33333                                                            |
     Then the step should succeed
@@ -468,7 +468,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
@@ -495,7 +495,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 5555                                                             |
       | ["parameters"]["gidMax"]  | 5555                                                             |
     Then the step should succeed
@@ -538,7 +538,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | disperse:4:2                                                     |
@@ -568,7 +568,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | none                                                             |
@@ -597,7 +597,7 @@ Feature: Storage of GlusterFS plugin testing
     # Setting replica to 2
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:2                                                      |
@@ -620,7 +620,7 @@ Feature: Storage of GlusterFS plugin testing
     # Setting replica to 0
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass1-<%= project.name %>                                |
-      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:0                                                      |
@@ -786,7 +786,7 @@ Feature: Storage of GlusterFS plugin testing
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_retain.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                                           |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["reclaimPolicy"]         | Retain                                                           |
     Then the step should succeed
 

@@ -626,7 +626,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pvc('nfsdynpvc').volume_name %>" pv is deleted after scenario
-    And the expression should be true> pvc.capacity(user: user) == "6Gi"
+    And the expression should be true> pvc.capacity == "6Gi"
 
   # @author wehe@redhat.com
   # @case_id OCP-12891

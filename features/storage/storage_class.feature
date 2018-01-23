@@ -156,8 +156,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And the expression should be true> pvc.capacity(user: user) == "<size>"
-    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pvc.capacity == "<size>"
+    And the expression should be true> pvc.access_modes[0] == "ReadWriteOnce"
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
     # ToDo
     # check storage size info
@@ -350,8 +350,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And the expression should be true> pvc.capacity(user: user) == "<size>"
-    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pvc.capacity == "<size>"
+    And the expression should be true> pvc.access_modes[0] == "ReadWriteOnce"
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
