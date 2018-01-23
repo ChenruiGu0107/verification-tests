@@ -9,9 +9,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    And <podno> pods become ready with labels:
-      |app=<template>|
-    When I use the "<buildcfg>" service
+    And I wait for the "<buildcfg>" service to become ready
     Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
@@ -189,8 +187,6 @@ Feature: quickstarts.feature
       | param | SOURCE_REPOSITORY_URL=https://github.com/openshift/<repo> |
     Then the step should succeed
     Given the "<name>-1" build completes
-    And a pod becomes ready with labels:
-      | app=<name> |
     And I wait for the "<name>" service to become ready
     And I wait for a web server to become available via the "<name>" route
     Then the output should match "Welcome to your \w+ application on OpenShift"
@@ -243,9 +239,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    And <podno> pods become ready with labels:
-      |app=<template>|
-    When I use the "<buildcfg>" service
+    And I wait for the "<buildcfg>" service to become ready
     Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
@@ -269,9 +263,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "dotnet-example-1" build was created
     And the "dotnet-example-1" build completed
-    And a pod becomes ready with labels:
-      |app=dotnet-example|
-    When I use the "dotnet-example" service
+    And I wait for the "dotnet-example" service to become ready
     Then I wait for a web server to become available via the "dotnet-example" route
     Then the output should contain "ASP.NET"
 
@@ -284,9 +276,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "httpd-example-1" build was created
     And the "httpd-example-1" build completed
-    And a pod becomes ready with labels:
-      | app=httpd-example |
-    When I use the "httpd-example" service
+    And I wait for the "httpd-example" service to become ready
     Then I wait for a web server to become available via the "httpd-example" route
     Then the output should contain "httpd application"
 
