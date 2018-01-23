@@ -177,6 +177,8 @@ Feature: check image streams page
       | project_name | <%= project.name %> |
       | image_name   | ruby                |
     Then the step should succeed
+    When I run the :check_image_stream_tags_table_head web console action
+    Then the step should succeed
     When I perform the :check_image_stream_tags_table web console action with:
       | project_name | <%= project.name %>                            |
       | image_name   | ruby                                           |
