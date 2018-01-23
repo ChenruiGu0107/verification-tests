@@ -913,6 +913,7 @@ Feature: Testing route
     Then the output should not contain "check inter"
 
     Given I switch to the first user
+    When I use the "<%= cb.proj_name %>" project
     #unidle the service to make the pod in running
     And I wait up to 600 seconds for a web server to become available via the "service-unsecure" route
     When I run the :idle client command with:
