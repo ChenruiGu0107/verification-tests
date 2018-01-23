@@ -39,7 +39,7 @@ Feature: GCE specific scenarios
     Then the step should succeed
     And the "pvc-#{cb.i}" PVC becomes :bound
     When I run the :get admin command with:
-      | resource | pv/<%= pvc.volume_name(user: user) %> |
+      | resource | pv/<%= pvc.volume_name %> |
       | o        | json                                  |
     Then the output should match:
       | us-central1-[ab] |
@@ -145,8 +145,8 @@ Feature: GCE specific scenarios
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario
-    Given I save volume id from PV named "<%= pvc.volume_name(user: admin) %>" in the :volumeID clipboard
+    And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
+    Given I save volume id from PV named "<%= pvc.volume_name %>" in the :volumeID clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-failure-domain.json" where:
       | ["metadata"]["name"]                                               | pv-<%= project.name %> |
       | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/region"] | us-central1            |

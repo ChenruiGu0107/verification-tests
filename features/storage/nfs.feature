@@ -562,7 +562,7 @@ Feature: NFS Persistent Volume
     Given I ensure "nfsdynpod" pod is deleted
     And I ensure "nfsdynpvc" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author wehe@redhat.com
   # @case_id OCP-12878
@@ -595,7 +595,7 @@ Feature: NFS Persistent Volume
     Given I ensure "nfsdynpod" pod is deleted
     And I ensure "nfsdynpvc" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author wehe@redhat.com
   # @case_id OCP-12903
@@ -607,12 +607,12 @@ Feature: NFS Persistent Volume
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
     Given I run the :delete client command with:
       | object_type       | pvc       |
       | object_name_or_id | nfsdynpvc |
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 60 seconds
 
   # @author wehe@redhat.com
   # @case_id OCP-13708
@@ -625,8 +625,8 @@ Feature: NFS Persistent Volume
       | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pvc('nfsdynpvc').volume_name(user: admin) %>" pv is deleted after scenario
-    And the expression should be true> pvc.capacity(user: user) == "6Gi"
+    And admin ensures "<%= pvc('nfsdynpvc').volume_name %>" pv is deleted after scenario
+    And the expression should be true> pvc.capacity == "6Gi"
 
   # @author wehe@redhat.com
   # @case_id OCP-12891
@@ -662,7 +662,7 @@ Feature: NFS Persistent Volume
       | object_name_or_id | nfs-provisioner |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author wehe@redhat.com
   # @case_id OCP-12899

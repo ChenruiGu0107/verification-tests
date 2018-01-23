@@ -129,7 +129,7 @@ Feature: Storage of Ceph plugin testing
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
     # Switch to admin to bypass scc
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
@@ -178,7 +178,7 @@ Feature: Storage of Ceph plugin testing
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
     # Switch to admin to bypass scc
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
@@ -275,7 +275,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    And the expression should be true> pvc.capacity(user: user) == "9Gi"
+    And the expression should be true> pvc.capacity == "9Gi"
 
 
   # @author jhou@redhat.com
@@ -293,14 +293,14 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
 
     # Test auto deleting PV
     Given I run the :delete client command with:
       | object_type       | pvc                     |
       | object_name_or_id | pvc-<%= project.name %> |
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 60 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 60 seconds
 
   # @author lizhou@redhat.com
   # @case_id OCP-13621
@@ -316,7 +316,7 @@ Feature: Storage of Ceph plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
-    And I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :image clipboard
+    And I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
 
     Given I run the :get admin command with:
       | resource      | secret         |

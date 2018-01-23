@@ -130,7 +130,7 @@ Feature: Dynamic provisioning
 
     When I run the :get admin command with:
       | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
+      | resource_name | <%= pvc.volume_name %> |
     Then the step should succeed
     And the output should contain:
       | dynamic-pvc-<%= project.name %> |
@@ -160,7 +160,7 @@ Feature: Dynamic provisioning
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 1200 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
   # @author wehe@redhat.com
   # @case_id OCP-13889
@@ -239,7 +239,7 @@ Feature: Dynamic provisioning
     When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
     Then the step should succeed
 
-    Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name(user: admin) %>" pv is deleted
+    Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name %>" pv is deleted
 
     Then the "dynamic-pvc1-<%= project.name %>" PVC becomes :lost within 300 seconds
 

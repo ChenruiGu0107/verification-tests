@@ -7,7 +7,7 @@ Feature: pvc protection specific scenarios
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.finalizers(user: user)&.include? "kubernetes.io/pvc-protection"
+    And the expression should be true> pvc.finalizers&.include? "kubernetes.io/pvc-protection"
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
 
   # @author lxia@redhat.com

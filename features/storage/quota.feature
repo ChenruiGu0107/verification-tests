@@ -104,7 +104,7 @@ Feature: ResourceQuata for storage
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
     Then the step should succeed
     And the "pvcnew" PVC becomes :bound
-    And admin ensures "<%= pvc('pvcnew').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvcnew').volume_name %>" pv is deleted after scenario
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvcnew2                             |
@@ -134,4 +134,4 @@ Feature: ResourceQuata for storage
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound
     Given I ensure "pvc1-<%= project.name %>" pvc is deleted
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
