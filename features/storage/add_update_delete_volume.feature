@@ -592,7 +592,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
     And the "pvcsc" PVC becomes :bound within 120 seconds
-    And the expression should be true> pvc.storage_class(user: user) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
     And the expression should be true> pvc.capacity(user: user) == "1Gi"
 

@@ -404,7 +404,7 @@ Feature: Persistent Volume Claim binding policies
     When I run commands on the host:
       | mount |
     Then the output should contain:
-      | <%= pvc.volume_name(user: user) %> |
+      | <%= pvc.volume_name %> |
 
     # Read and write to the mounted storage on pod
     When I execute on the pod:
@@ -417,14 +417,14 @@ Feature: Persistent Volume Claim binding policies
     # Delete the project, the pv will be deleted then
     Given I switch to cluster admin pseudo user
     Given I ensure "<%= project.name %>" project is deleted
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear
 
     # Check mount point on the node
     Given I use the "<%= node.name %>" node
     When I run commands on the host:
       | mount |
     Then the output should not contain:
-      | <%= pvc.volume_name(user: user) %> |
+      | <%= pvc.volume_name %> |
 
     Examples:
       | provisioner    | platform |
@@ -436,10 +436,10 @@ Feature: Persistent Volume Claim binding policies
 
   # @author wehe@redhat.com
   # @case_id OCP-16094
-  # @bug_id 1496256 
+  # @bug_id 1496256
   @admin
   @destructive
-  Scenario: Deleted in use PVCs cannot break the scheduler 
+  Scenario: Deleted in use PVCs cannot break the scheduler
     Given I have a project
     And I have a NFS service in the project
     And evaluation of `service("nfs-service").ip` is stored in the :nfs_ip clipboard
@@ -551,7 +551,7 @@ Feature: Persistent Volume Claim binding policies
   # @author wehe@redhat.com
   # @case_id OCP-16607
   @admin
-  Scenario: Two pods compete the same ReadWriteOnce volume 
+  Scenario: Two pods compete the same ReadWriteOnce volume
     Given I have a project
     And environment has at least 2 schedulable nodes
     Given I store the schedulable nodes in the clipboard
@@ -575,7 +575,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
       | ["spec"]["nodeSelector"]           | accessmodes: rwo2     |
     Then the step should succeed
-    Given the pod named "mypod2" status becomes :pending 
+    Given the pod named "mypod2" status becomes :pending
     When I run the :describe client command with:
       | resource | pod    |
       | name     | mypod2 |

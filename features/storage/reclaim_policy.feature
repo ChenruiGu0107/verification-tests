@@ -126,10 +126,10 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
     When I run the :patch admin command with:
       | resource      | pv                                                  |
-      | resource_name | <%= pvc.volume_name(user: user) %>                  |
+      | resource_name | <%= pvc.volume_name %>                  |
       | p             | {"spec":{"persistentVolumeReclaimPolicy":"Retain"}} |
     Then the step should succeed
 
@@ -139,7 +139,7 @@ Feature: Persistent Volume reclaim policy tests
     """
     When I run the :get admin command with:
       | resource      | pv                                 |
-      | resource_name | <%= pvc.volume_name(user: user) %> |
+      | resource_name | <%= pvc.volume_name %> |
     Then the step should succeed
     And the output should contain:
       | Retain   |

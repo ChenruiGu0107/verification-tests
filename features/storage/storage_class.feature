@@ -158,7 +158,7 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pvc.capacity(user: user) == "<size>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
     # ToDo
     # check storage size info
     # check storage type info
@@ -180,7 +180,7 @@ Feature: storageClass related feature
     Given I ensure "pod-<%= project.name %>" pod is deleted
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear
 
     Examples:
       | provisioner | type        | zone          | is-default | size  |
@@ -352,7 +352,7 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pvc.capacity(user: user) == "<size>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
@@ -369,7 +369,7 @@ Feature: storageClass related feature
     Given I ensure "pod-<%= project.name %>" pod is deleted
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
     Examples:
       | size  |
@@ -746,8 +746,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13668
@@ -764,8 +764,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13669
@@ -783,8 +783,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"]                                           | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13670
@@ -806,8 +806,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"]                                           | sc2-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc1-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc1-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc1-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc1-<%= project.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12872
@@ -821,8 +821,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == nil
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == nil
+    And the expression should be true> pvc.storage_class == nil
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == nil
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12873
@@ -838,8 +838,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12874
@@ -860,8 +860,8 @@ Feature: storageClass related feature
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12875
@@ -882,8 +882,8 @@ Feature: storageClass related feature
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
-    And the expression should be true> env.version_ge("3.7", user: user)? pvc.storage_class(user:user) == "":pvc.storage_class(user:user) == nil
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == nil
+    And the expression should be true> env.version_ge("3.7", user: user)? pvc.storage_class == "":pvc.storage_class == nil
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == nil
 
   # @author chaoyang@redhat.com
   # @case_id OCP-14160
@@ -903,8 +903,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10228

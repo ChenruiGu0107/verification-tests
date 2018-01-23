@@ -100,7 +100,7 @@ Feature: Azure disk specific scenarios
     Given I ensure "azpvcpo" pod is deleted
     And I ensure "azpvc" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
     Examples:
       | sctype |

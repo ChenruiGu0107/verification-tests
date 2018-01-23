@@ -187,7 +187,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
@@ -228,7 +228,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi               |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     And the expression should be true> pvc.capacity(user: user) == "15Gi"
 
@@ -245,14 +245,14 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
 
     # Test auto deleting PV
     Given I run the :delete client command with:
       | object_type       | pvc                     |
       | object_name_or_id | pvc-<%= project.name %> |
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 60 seconds
 
   # @author jhou@redhat.com
   # @case_id OCP-10356
@@ -268,7 +268,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner1 |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
@@ -291,7 +291,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     When I run the :get client command with:
       | resource      | endpoints              |
@@ -324,7 +324,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
 
     # Delete StorageClass then delete pvc
     Given I run the :delete admin command with:
@@ -335,12 +335,12 @@ Feature: Storage of GlusterFS plugin testing
       | object_name_or_id | pvc-<%= project.name %> |
     When I run the :get admin command with:
       | resource      | pv                                  |
-      | resource_name | <%= pvc.volume_name(user: admin) %> |
+      | resource_name | <%= pvc.volume_name %> |
     Then the output should contain:
       | Failed |
     When I run the :describe admin command with:
       | resource | pv                                  |
-      | name     | <%= pvc.volume_name(user: admin) %> |
+      | name     | <%= pvc.volume_name %> |
     Then the output should contain:
       | VolumeFailedDelete                          |
       | "storageclass-<%= project.name%>" not found |
@@ -413,12 +413,12 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # Verify PV is annotated with inhitial gidMin 3333
     When I run the :get admin command with:
       | resource      | pv                                 |
-      | resource_name | <%= pvc.volume_name(user: user) %> |
+      | resource_name | <%= pvc.volume_name %> |
       | o             | yaml                               |
     Then the output should contain:
       | pv.beta.kubernetes.io/gid: "3333" |
@@ -475,12 +475,12 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # Verify PV is annotated with inhitial gidMin 3333
     When I run the :get admin command with:
       | resource      | pv                                 |
-      | resource_name | <%= pvc.volume_name(user: user) %> |
+      | resource_name | <%= pvc.volume_name %> |
       | o             | yaml                               |
     Then the output should contain:
       | pv.beta.kubernetes.io/gid: "2000" |
@@ -504,7 +504,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # The 2nd PVC can't provision any because GID range is full
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
@@ -527,7 +527,7 @@ Feature: Storage of GlusterFS plugin testing
     """
     And the "pvc2" PVC becomes :bound
     """
-    And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc2').volume_name %>" pv is deleted after scenario
 
   # @author jhou@redhat.com
   # @case_id OCP-12943
@@ -549,9 +549,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 16Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :volumeID clipboard
     And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
@@ -579,9 +579,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :volumeID clipboard
     And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
@@ -608,9 +608,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :volumeID clipboard
     And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
@@ -631,9 +631,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                              |
     Then the step should succeed
     And the "pvc2" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc2').volume_name %>" pv is deleted after scenario
 
-    Given I save volume id from PV named "<%= pvc('pvc2').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    Given I save volume id from PV named "<%= pvc('pvc2').volume_name %>" in the :volumeID clipboard
     And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
@@ -651,10 +651,10 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # Verify by default it's replicated with 3 replicas
-    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :volumeID clipboard
     And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:

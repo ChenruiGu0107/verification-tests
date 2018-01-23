@@ -32,7 +32,7 @@ Feature: AWS specific scenarios
     And I ensure "test-pod" pod is deleted
     And I ensure "efs" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author chaoyang@redhat.com
   # @case_id OCP-13131
@@ -108,7 +108,7 @@ Feature: AWS specific scenarios
 
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author chaoyang@redhat.com
   # @case_id OCP-13128
@@ -147,7 +147,7 @@ Feature: AWS specific scenarios
     Then the step should succeed
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author chaoyang@redhat.com
   # @case_id OCP-14318
@@ -187,7 +187,7 @@ Feature: AWS specific scenarios
     """
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
 
   # @author chaoyang@redhat.com
@@ -231,7 +231,7 @@ Feature: AWS specific scenarios
 
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
   # @author chaoyang@redhat.com
   # @case_id OCP-15015
@@ -286,7 +286,7 @@ Feature: AWS specific scenarios
     And the pod named "mypod#{cb.i}" becomes ready
     """
 
-    Given I save volume id from PV named "<%= pvc('dynamic-pvc-1').volume_name(user: admin, cached: true) %>" in the :vid clipboard
+    Given I save volume id from PV named "<%= pvc('dynamic-pvc-1').volume_name %>" in the :vid clipboard
 
     Given I run commands on all masters:
       | systemctl stop atomic-openshift-master-controllers |
@@ -298,4 +298,4 @@ Feature: AWS specific scenarios
       | systemctl start atomic-openshift-master-controllers |
     Then the step should succeed
     And the pod named "mypod2" becomes ready
-    And I verify that the IAAS volume with id "<%= cb.vid %>" has status "available" within 120 seconds 
+    And I verify that the IAAS volume with id "<%= cb.vid %>" has status "available" within 120 seconds
