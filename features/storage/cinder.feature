@@ -74,8 +74,8 @@ Feature: Cinder Persistent Volume
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-a-<%= project.name %>                                  |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
-      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.props[:scc_supplemental_groups].split("/")[0] %> |
-      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.props[:scc_mcs] %>                               |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                                           |
     Then the step should succeed
     Given the pod named "mypod-a-<%= project.name %>" becomes ready
 
@@ -91,8 +91,8 @@ Feature: Cinder Persistent Volume
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-b-<%= project.name %>                                  |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
-      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.props[:scc_supplemental_groups].split("/")[0] %> |
-      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.props[:scc_mcs] %>                               |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                                           |
     Then the step should succeed
     Given the pod named "mypod-b-<%= project.name %>" becomes ready
 

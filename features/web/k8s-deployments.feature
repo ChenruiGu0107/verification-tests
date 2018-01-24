@@ -145,7 +145,7 @@ Feature: Features about k8s deployments
       | resource_name | hello-openshift                                                                      |
       | last_version  | #1                                                                                   |
       | replicas      | <%= deployment("hello-openshift").replicas(user:user) %> replicas                    |
-      | strategy_type | <%= deployment("hello-openshift").props[:spec]["strategy"]["type"].sub('U', ' u') %> |
+      | strategy_type | <%= deployment("hello-openshift").strategy["type"].sub("U", " u") %>                          |
     Then the step should succeed
     When I perform the :click_on_deployment_last_version_on_deployments_page web console action with:
       | resource_name | hello-openshift |
@@ -156,7 +156,7 @@ Feature: Features about k8s deployments
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"yapei/hello-openshift"}]}}}} |
     Then the step should succeed
     When I perform the :check_replicas_less_than web console action with:
-      | replicas | <%= deployment("hello-openshift").props[:spec]["strategy"]["rollingUpdate"]["maxUnavailable"] %> |
+      | replicas | <%= deployment("hello-openshift").strategy["rollingUpdate"]["maxUnavailable"] %> |
     Then the step should succeed
     When I perform the :goto_deployments_page web console action with:
       | project_name | <%= project.name %> |

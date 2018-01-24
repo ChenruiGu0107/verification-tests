@@ -24,6 +24,11 @@ module CucuShift
     end
     alias replicas replica_count
 
+    def strategy(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "strategy")
+    end
+
     # @return [Boolean] true if we've eventually
     #   get the number of replicas to match the desired number
     def wait_till_replica_count_match(user:, seconds:, replica_count:)
