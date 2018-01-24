@@ -437,3 +437,46 @@ Feature: Storage of Ceph plugin testing
     Then the output should contain:
       | Released |
     And admin ensures "<%= pv.name %>" pv is deleted
+
+  # @author jhou@redhat.com
+  # @case_id OCP-17261
+  @admin
+  Scenario: Using mountOptions for Ceph RBD StorageClass
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And evaluation of `secret.raw_value_of("key")` is stored in the :secret_key clipboard
+
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_mount_optins.yaml" where:
+      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["mountOptions"][0]        | discard                                             |
+      | ["mountOptions"][1]        | noatime                                             |
+    Then the step should succeed
+
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["metadata"]["name"] | cephrbd-secret       |
+      | ["data"]["key"]      | <%= cb.secret_key %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
+    Then the step should succeed
+
+    Given the pod named "pod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | grep | rbd | /etc/mtab |
+    Then the output should contain:
+      | discard |
+      | noatime |
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
+
+
