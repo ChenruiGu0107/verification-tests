@@ -309,10 +309,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     end
   end
 
-  if op == 'installed'
-    step %Q/there should be 0 #{svc_type} service installed/
-  end
-
   target_proj = proj.nil? ? project.name : proj
   # we are enforcing that metrics to be installed into 'openshift-infra' for
   # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a

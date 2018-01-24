@@ -146,7 +146,7 @@ module CucuShift
 
     # returns [Hash] of Container objects belonging to a pod, keyed by container name
     #
-    def containers(user:, cached: true, quiet: false)
+    def containers(user: nil, cached: true, quiet: false)
       spec = get_cached_prop(prop: :containers, user: user, cached: cached, quiet: quiet)
       containers = {}
       spec.each do | container |
@@ -159,7 +159,7 @@ module CucuShift
     end
 
     # return the Container object matched by the lookup parameter
-    def container(user:, name:, cached: true, quiet: false)
+    def container(user: nil, name:, cached: true, quiet: false)
       self.containers(user:user, cached: cached, quiet: quiet).fetch(name) {
         raise "No container with name #{name} found."
       }

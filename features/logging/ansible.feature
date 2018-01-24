@@ -364,3 +364,39 @@ Feature: ansible install related feature
     And I get the ".operation" logging index information from a pod with labels "component=es-ops"
     Then the expression should be true> cb.index_data and cb.index_data.count > 0
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12113
+  @admin
+  @destructive
+  Scenario: Deploy logging via Ansible: clean install with json-file log driver + CEFK pod limits
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12113/inventory |
+    And a pod becomes ready with labels:
+      | component=es |
+    # check es-clsuter size == 1
+    Then the expression should be true> pod.containers.keys == ["proxy", "elasticsearch"]
+    And the expression should be true> pod.containers['elasticsearch'].spec.memory_limit_raw == "1024M"
+    And the expression should be true> pod.containers['elasticsearch'].spec.cpu_limit_raw == "200m"
+    # check fluentd limits
+    Given a pod becomes ready with labels:
+      | component=fluentd |
+    Then the expression should be true> pod.container(name: 'fluentd-elasticsearch').spec.memory_limit_raw == "1024M"
+    Then the expression should be true> pod.container(name: 'fluentd-elasticsearch').spec.cpu_limit_raw == "200m"
+    Given a pod becomes ready with labels:
+      | component=curator |
+    Then the expression should be true> pod.container(name: 'curator').spec.memory_limit_raw == "1024M"
+    Then the expression should be true> pod.container(name: 'curator').spec.cpu_limit_raw == "200m"
+    Given a pod becomes ready with labels:
+      | component=kibana |
+    Then the expression should be true> pod.container(name: 'kibana').spec.memory_limit_raw == "1024M"
+    Then the expression should be true> pod.container(name: 'kibana').spec.cpu_limit_raw == "200m"
+    # check /etc/oci-umount.conf on master
+    When I select a random node's host
+    And I run commands on the host:
+      | cat /etc/oci-umount.conf |
+    Then the output should contain:
+      | /var/lib/docker/containers/* |
+
