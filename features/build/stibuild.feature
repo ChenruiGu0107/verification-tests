@@ -327,3 +327,23 @@ Feature: stibuild.feature
     Then the step should fail
     Then the output should contain:
       | Error: invalid argument "abc"  |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15970
+  Scenario: Create an application using template with route defined	
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Then the output should contain:
+      | Access your application via route 'www.example.com' |
+
+  # @wewang@redhat.com
+  # @case_id OCP-15974
+  Scenario: Create an application with no host value in template
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/application-template-stibuild.json |
+    Then the step should succeed
+    And the output should match:
+      | Access your application via route 'route-edge[-a-zA-Z0-9_.]+' |
