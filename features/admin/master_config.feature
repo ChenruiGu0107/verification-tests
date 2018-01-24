@@ -1706,3 +1706,91 @@ Feature: test master config related steps
       | skip_tls_verify | true                 |
     Then the step should fail
 
+  # @author haowang@redhat.com
+  # @case_id OCP-17499
+  @admin
+  @destructive
+  Scenario: Deploy with multiple hooks of quota 3.9
+    Given the master version >= "3.9"
+    Given the user has all owned resources cleaned
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        ClusterResourceOverride:
+          configuration:
+            apiVersion: v1
+            kind: ClusterResourceOverrideConfig
+            limitCPUToMemoryPercent: 200
+            cpuRequestToLimitPercent: 6
+            memoryRequestToLimitPercent: 60
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    And I replace lines in "quota-terminating.yaml":
+      | pods: "4" | pods: "2" |
+    And I run the :create admin command with:
+      | f | quota-terminating.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |       |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+
+  # @author haowang@redhat.com
+  # @case_id OCP-17497
+  @admin
+  @destructive
+  Scenario: Deploy with quota of 1 terminating pod 3.9
+    Given the master version >= "3.9"
+    Given the user has all owned resources cleaned
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        ClusterResourceOverride:
+          configuration:
+            apiVersion: v1
+            kind: ClusterResourceOverrideConfig
+            limitCPUToMemoryPercent: 200
+            cpuRequestToLimitPercent: 6
+            memoryRequestToLimitPercent: 60
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    And I replace lines in "quota-terminating.yaml":
+      | pods: "4" | pods: "1" |
+    And I run the :create admin command with:
+      | f | quota-terminating.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :deploy client command with:
+      | deployment_config | deployment-example |
+      | latest            |                    |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
