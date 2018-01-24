@@ -75,7 +75,7 @@ module CucuShift
         # some server error, good to retry a few times
         if retries > 0
           sleep 10
-          return request(method, payload, retries - 1)
+          return request(method, url, payload, retries - 1)
         else
           raise "OwnThat: internal server error while managing lock, see log"
         end
