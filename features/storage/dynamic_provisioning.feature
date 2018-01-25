@@ -365,3 +365,27 @@ Feature: Dynamic provisioning
       | cinder         | xfs    | # @case_id OCP-16060
       | azure-disk     | xfs    | # @case_id OCP-16061
       | vsphere-volume | xfs    | # @case_id OCP-16057
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-17188
+  @admin
+  Scenario: User can dynamic created encryted ebs volume
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/sc_encrypted.yaml" where:
+    | ["metadata"]["name"] | sc-<%= project.name %> |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
+    Then the step should succeed
+    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/aws                        |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/aws/testfile |
+    Then the step should succeed
