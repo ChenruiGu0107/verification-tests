@@ -54,8 +54,25 @@ check_pipline_no_permission_page:
   element:
     selector:
       xpath: //h1[contains(.,"Pipelines")]
+check_pipeline_name:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"project/<project_name>/browse/pipelines/<pipeline_name>") and text()="<pipeline_name>"]
+check_pipeline_build_number:
+  elements:
+  - selector:
+      xpath: //a[contains(text(),'Build') and contains(text(),'#<pipeline_build_num>') and @href='project/<project_name>/browse/pipelines/<pipeline_name>/<pipeline_name>-<pipeline_build_num>']
+check_pipeline_log_link:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'<jenkins_log_url>') and normalize-space(text())='View Log']
 check_pipeline_stage_appear:
   elements:
   - selector:
       xpath: //div[@title='<stage_name>']
     timeout: 120
+click_start_pipeline:
+  elements:
+  - selector:
+      xpath: //*[normalize-space(text())='Start Pipeline']
+    op: click

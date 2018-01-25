@@ -359,3 +359,48 @@ Feature: Check overview page
       | project_name | <%= project.name%> |
       | bc_name   | ruby-sample-build  |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-13652
+  Scenario: Check pipeline on overview page
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pipeline/ui-pipeline-stage.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+
+    Given the "sample-pipeline-1" build was created
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :list_by_type_on_overview_page web console action with:
+      | type | Pipeline |
+    Then the step should succeed
+
+    Given I wait until the status of deployment "jenkins" becomes :complete
+    Given the "sample-pipeline-1" build becomes :complete
+    When I perform the :check_pipeline_info_on_overview web console action with:
+      | project_name       | <%= project.name %>    |
+      | pipeline_name      | sample-pipeline        |
+      | pipeline_build_num | 1                      |
+      | jenkins_log_url    | job/<%= project.name %>-sample-pipeline/1/console |
+    Then the step should succeed
+
+    When I perform the :check_pipeline_stage_appear web console action with:
+      | stage_name | stageone |
+    Then the step should succeed
+    When I perform the :check_pipeline_stage_appear web console action with:
+      | stage_name | stagetwo |
+    Then the step should succeed
+
+    When I run the :click_start_pipeline web console action
+    Then the step should succeed
+    When I perform the :check_pipeline_info_on_overview web console action with:
+      | project_name       | <%= project.name %>    |
+      | pipeline_name      | sample-pipeline        |
+      | pipeline_build_num | 2                      |
+      | jenkins_log_url    | job/<%= project.name %>-sample-pipeline/2/console |
+    Then the step should succeed

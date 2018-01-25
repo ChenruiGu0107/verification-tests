@@ -6,7 +6,7 @@ Feature: pipeline related
     Given I have a project
 
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pipeline/samplepipeline.yaml |      
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -31,5 +31,5 @@ Feature: pipeline related
     When I perform the :check_build_trigger web console action with:
       | project_name      | <%= project.name %>                             |
       | bc_and_build_name | nodejs-mongodb-example/nodejs-mongodb-example-1 |
-      | trigger_info      | Jenkins job: https://<%= route("jenkins", service("jenkins")).dns %>/job/<%= project.name %>-sample-pipeline/1/ |
+      | trigger_info      | Jenkins job                                     |
     Then the step should succeed
