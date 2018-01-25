@@ -1,5 +1,33 @@
 Feature: Persistent Volume Claim binding policies
   # @author lxia@redhat.com
+  # @case_id OCP-17734
+  Scenario: Pod with overlapped mount points still works
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | pvc1 |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | pvc2 |
+    Then the step should succeed
+    And the "pvc2" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod-overlap-path.yaml" replacing paths:
+      | ["metadata"]["name"] | mypod |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/openshift/file-in-mount-path1 |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/openshift/ocp/file-in-mount-path2 |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -aR | /mnt/openshift |
+    Then the output should contain:
+      | file-in-mount-path1 |
+      | file-in-mount-path2 |
+
+  # @author lxia@redhat.com
   # @case_id OCP-10925
   @admin
   Scenario: describe pv should show messages and events
