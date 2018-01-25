@@ -10,3 +10,9 @@ click_cancel_button:
       text: Cancel
       tag_name: button
     op: click
+click_delete_button:
+  element:
+    selector:
+      text: Delete
+      tag_name: button
+    op: click

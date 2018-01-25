@@ -206,3 +206,63 @@ Feature: Testing registry
       | link_text     | Show all image streams     |
       | url_ends_with | images/<%= project.name %> |
     Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id OCP-9897
+  Scenario: Check image info and delete image on registry console
+    Given I have a project
+    And I open registry console in a browser
+    When I perform the :create_new_image_stream_in_iframe web action with:
+      | is_name           | testisnew                                     |
+      | project_name      | <%= project.name %>                           |
+      | populate          | Sync all tags from a remote image repository  |
+      | pull_from         | docker.io/openshift/hello-openshift           |
+    Then the step should succeed
+    Given I wait for the "testisnew:latest" imagestreamtags to appear
+    When I perform the :goto_one_image_page web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+    Then the step should succeed
+    When I perform the :tag_expands_in_iframe web action with:
+      | tag_label   | latest  |
+    Then the step should succeed
+    When I perform the :check_image_tab_under_expanded_tag_in_iframe web action with:
+      | project_name  | <%= project.name %> |
+      | image_name    | testisnew           |
+      | tag_label     | latest              |
+    Then the step should succeed
+    When I perform the :check_container_tab_under_expanded_tag_in_iframe web action with:
+      | command     | /hello-openshift |
+      | ports       | 8080/tcp         |
+      | extra_ports | 8888/tcp         |
+    Then the step should succeed
+    When I run the :check_metadata_tab_under_expanded_tag_in_iframe web action
+    Then the step should succeed
+    When I perform the :tag_collapses_in_iframe web action with:
+      | tag_label   | latest  |
+    Then the step should succeed
+
+    When I perform the :tag_expands_in_iframe web action with:
+      | tag_label   | v1.1  |
+    Then the step should succeed
+    When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | v1.1                |
+      | cancel       | true                |
+    Then the step should succeed
+    When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | v1.1                |
+    Then the step should fail
+    When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | v1.1                |
+    Then the step should succeed
+    When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | testisnew           |
+      | tag_label    | v1.1                |
+    Then the step should succeed
