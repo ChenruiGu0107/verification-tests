@@ -947,3 +947,46 @@ Feature: storageClass related feature
       | aws-ebs        | # @case_id OCP-17271
       | cinder         | # @case_id OCP-17270
       | azure-disk     | # @case_id OCP-17274
+
+  # @author jhou@redhat.com
+  @admin
+  Scenario Outline: Setting mountOptions for StorageClass
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-mountOptions.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["mountOptions"][0]                                                             | discard                     |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                       |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<keyword>          |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | grep | <keyword>  | /etc/mtab |
+    Then the step should succeed
+    And the output should contain:
+      | discard |
+
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
+
+    Examples:
+      | provisioner    | keyword |
+      | vsphere-volume | vsphere | # @case_id OCP-17224
+      | gce-pd         | gce     | # @case_id OCP-17273
+      | aws-ebs        | ebs     | # @case_id OCP-17271
+      | cinder         | cinder  | # @case_id OCP-17270
+      | azure-disk     | azure   | # @case_id OCP-17274
