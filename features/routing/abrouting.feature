@@ -1053,7 +1053,7 @@ Feature: Testing abrouting
     # Access the route
     Given I run the steps 20 times:
     """
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    When I open web server via the "service-unsecure" route
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
@@ -1328,6 +1328,7 @@ Feature: Testing abrouting
       | weight 1 |
     """
     # Access the route
+    When I use the "<%= cb.proj1 %>" project
     Given I run the steps 20 times:
     """
     When I open web server via the "service-unsecure" route
