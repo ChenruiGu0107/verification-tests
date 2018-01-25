@@ -356,6 +356,9 @@ module CucuShift
             os_disk.os_type = Object.const_get opts[:os_disk][:params][:os_type]
           end
           os_disk.name = "#{vmname}"
+          if opts.dig(:os_disk, :disk_size_gb)
+            os_disk.disk_size_gb = opts.dig(:os_disk, :disk_size_gb)
+          end
           os_disk.caching = ComputeModels::CachingTypes::ReadWrite
           os_disk.create_option = type
           os_disk.vhd = ComputeModels::VirtualHardDisk.new.tap do |vhd|

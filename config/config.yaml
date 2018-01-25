@@ -290,6 +290,7 @@ services:
     storage_options:
       os_disk:
         type: Azure::ARM::Compute::Models::DiskCreateOptionTypes::FromImage
+        # disk_size_gb: 30
         params:
           # please specify image and os_type OR publisher/offer/sku/version
           # image: https://mystorageaccount.blob.core.windows.net/something/rhel-73-20170502.vhd
