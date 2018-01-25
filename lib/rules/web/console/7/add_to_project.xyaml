@@ -1,9 +1,13 @@
 filter_by_keywords:
-  element:
-    selector:
-      id: search
+  elements:
+  - selector:
+      placeholder: Filter by Keyword
     type: input
     op: send_keys <keyword>
+  - selector:
+      placeholder: Filter by Keyword
+    op: send_keys <press_enter>
+    type: input
 filter_by_tags:
   elements:
   - selector:
@@ -24,7 +28,7 @@ clear_tag_filters:
 clear_keyword_filters:
   element:
     selector:
-      xpath: //div/button[contains(@class,'clear')]
+      xpath: //div//a[contains(@class,'clear')]
     op: click
 check_all_content_is_hidden:
   element:

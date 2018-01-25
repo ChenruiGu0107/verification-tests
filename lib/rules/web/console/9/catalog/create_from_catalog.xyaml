@@ -60,9 +60,9 @@ create_new_project_in_wizard:
     ref:
     - set_project_name
 click_project_dropdown_in_wizard:
-  element:
-    selector:
-      xpath: //label[contains(.,'Add to Project')]/..//span[contains(@class,'ui-select-match')]
+  elements:
+  - selector:
+      xpath: //div[contains(@placeholder,'Select or create project')]/span[contains(@class,'ui-select-toggle')]
     op: click
 select_create_project_in_dropdown:
   element:

@@ -42,6 +42,7 @@ Feature: scenarios related to catalog page
   # @author chali@redhat.com
   # @case_id OCP-10989
   Scenario: Check the browse catalog tab on "Add to Project" page
+    Given the master version <= "3.6"
     Given I create a new project
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
@@ -227,4 +228,67 @@ Feature: scenarios related to catalog page
     Then the step should succeed
     When I perform the :check_message_step_missing web console action with:
       | step_number | 1 |
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-15066
+  Scenario: Catalog should include template from another project
+    Given the master version >= "3.7"
+    When I run the :click_select_from_project web console action
+    Then the step should succeed
+    When I perform the :check_text_in_wizard web console action with:
+      | text | No Available Projects |
+    Then the step should succeed
+    When I run the :click_cancel web console action
+    Then the step should succeed
+
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+    Then the step should succeed
+    And I create a new project
+
+    When I perform the :check_project_number_on_home_page web console action with:
+      | project_number | 2 |
+    Then the step should succeed
+    When I run the :click_select_from_project web console action
+    Then the step should succeed
+    When I perform the :check_text_in_wizard web console action with:
+      | text | No Project Selected |
+    Then the step should succeed
+    When I run the :click_select_a_project_dropdown_list_in_wizard web console action
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I perform the :select_existing_project_in_dropdown web console action with:
+      | project_name | <%= project(1, switch: false).name %> |
+    Then the step should succeed
+    """
+    When I perform the :check_text_in_wizard web console action with:
+      | text | No Templates |
+    Then the step should succeed
+
+    When I run the :click_select_a_project_dropdown_list_in_wizard web console action
+    Then the step should succeed
+    When I perform the :select_existing_project_in_dropdown web console action with:
+      | project_name | <%= project(0, switch: false).name %> |
+    Then the step should succeed
+    When I perform the :check_resource_item_in_wizard web console action with:
+      | item_name | ruby-helloworld-sample |
+    Then the step should succeed
+
+    When I perform the :filter_by_keywords web console action with:
+      | keyword     | php    |
+      | press_enter | :enter |
+    Then the step should succeed
+    When I perform the :check_resource_item_not_in_wizard web console action with:
+      | item_name | ruby-helloworld-sample |
+    Then the step should succeed
+
+    When I run the :clear_keyword_filters web console action
+    Then the step should succeed
+
+    When I perform the :create_app_with_template_from_user_project web console action with:
+      | project_name   | <%= project(1, switch: false).name %> |
+      | template_name  | ruby-helloworld-sample                |
+      | create_project | false                                 |
     Then the step should succeed
