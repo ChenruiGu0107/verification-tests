@@ -72,7 +72,7 @@ Given /^default (docker-registry|router) replica count is restored after scenari
   logger.info("#{resource} replicas will be restored to #{_num} after scenario")
 
   teardown_add {
-    if _num != _dc.replicas(user: _admin, quiet: true)
+    if _num != _dc.replicas(user: _admin, cached: false, quiet: true)
       @result = _admin.cli_exec(:scale,
                                 resource: "deploymentconfigs",
                                 name: _dc.name,
@@ -82,7 +82,7 @@ Given /^default (docker-registry|router) replica count is restored after scenari
 
       # paranoya check no bad caching takes place
       num_replicas_restored = wait_for(60) {
-        _num == _dc.replicas(user: _admin, quiet: true)
+        _num == _dc.replicas(user: _admin, cached: false, quiet: true)
       }
       unless num_replicas_restored
         raise "#{_dc.name} replica num still not restored?!"
