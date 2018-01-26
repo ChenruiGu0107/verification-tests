@@ -11,6 +11,10 @@ filter_resources:
   elements:
   - selector:
       placeholder: 'Filter by label '
+    op: click
+    type: input
+  - selector:
+      placeholder: 'Filter by label '
     op: send_keys <label_key>
     type: input
   - selector:

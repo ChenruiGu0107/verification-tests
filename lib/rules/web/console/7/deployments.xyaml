@@ -130,7 +130,7 @@ click_on_deployment_last_version_on_deployments_page:
 check_resource_on_deployment_page:
   element:
     selector:
-      xpath: //div[h3[text()="<resource_type>"]]//tr[td[@data-title="Name"]/a[text()="<resource_name>" and @href="project/<project_name>/browse/<resource>/<resource_name>"] and td[@data-title="Last Version"]//a[normalize-space(text())="<last_version>"]]
+      xpath: //div[h3[starts-with(text(),'<resource_type>')]]//tr[td[@data-title='Name']/a[text()='<resource_name>' and @href='project/<project_name>/browse/<resource>/<resource_name>'] and td[@data-title='Last Version']//a[normalize-space(text())='<last_version>']]
 check_deployment_on_deployment_page:
   action: check_resource_on_deployment_page
   element:

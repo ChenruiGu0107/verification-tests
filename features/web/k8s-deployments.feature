@@ -134,7 +134,7 @@ Feature: Features about k8s deployments
     When I perform the :check_resource_on_deployment_page web console action with:
       | project_name  | <%= project.name %>       |
       | resource      | dc                        |
-      | resource_type | Deployment Configurations |
+      | resource_type | Deployment Config         |
       | resource_name | testdc                    |
       | last_version  | #1                        |
     Then the step should succeed

@@ -45,7 +45,7 @@ check_container_template_on_one_pod_page:
   action:
     context:
       xpath: >-
-        //div[@class='pod-template' and div[contains(.,'Container: <name>')]]
+        //div[@class='pod-template' and div[contains(@class,'pod-container-name')and contains(.,'<name>')]]
     ref: check_container_template
 check_container_template:
   action:

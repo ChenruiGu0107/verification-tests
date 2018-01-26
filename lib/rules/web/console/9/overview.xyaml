@@ -101,7 +101,7 @@ check_route_link_on_overview:
 expand_resource_entry:
   element:
     selector: # translate() used to make case insensitive check for resource_type (always use lower case <resource_type>)
-      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<resource_type>']]
+      xpath: //div[@class='list-pf-container' and div//span[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//div[starts-with(translate(normalize-space(text()), 'DRS', 'drs'),'<resource_type>')]]
     op: click
     optional: true
 check_dc_idle_text_on_overview:
@@ -408,9 +408,11 @@ list_by_type_on_overview_page:
       xpath: //div[contains(@class,'ui-select-choices-row')]//span[contains(text(),'<type>')]
     op: click
 check_resources_order_on_overview_page:
-  element:
-    selector:
-      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<first_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<first_type>']]/following::div[@class='list-pf-container' and div//h3[contains(.,'<second_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<second_type>']]
+  elements:
+  - selector:
+      xpath: //div[@class='list-pf-container' and div//span[contains(.,'<first_name>')] and div//h3//div[starts-with(translate(normalize-space(text()), 'DRS', 'drs'),'<first_type>')]]
+  - selector:
+      xpath: //div[@class='list-pf-container' and div//span[contains(.,'<second_name>')] and div//h3//div[starts-with(translate(normalize-space(text()), 'DRS', 'drs'),'<second_type>')]]
 switch_project_in_project_lists:
   action: click_project_dropdown_button
   action: select_project_in_project_list

@@ -1333,24 +1333,24 @@ Feature: build related feature on web console
     Then the step should succeed
     Given 1 pods become ready with labels:
       | deployment=php-1 |
-    When I perform the :reorder_environment_variable web console action with:
-      | env_variable_name | DCtwo |
-      | direction         | up    |
-      | offset            | 1     |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc   |
-      | resource_name | php  |
-      | o             | json |
-    Then the step succeeded
-    And expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].map {|var| var['name']} == ["DCtwo", "DCone", "DCthree"]
-    When I perform the :check_environment_variables_order web console action with:
-      | env_vars_order | DCtwo,DCone,DCthree |
-    Then the step should succeed
-    Given 1 pods become ready with labels:
-      | deployment=php-2 |
+#    When I perform the :reorder_environment_variable web console action with:
+#      | env_variable_name | DCtwo |
+#      | direction         | up    |
+#      | offset            | 1     |
+#    Then the step should succeed
+#    When I run the :click_save_button web console action
+#    Then the step should succeed
+#    When I run the :get client command with:
+#      | resource      | dc   |
+#      | resource_name | php  |
+#      | o             | json |
+#    Then the step succeeded
+#    And expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].map {|var| var['name']} == ["DCtwo", "DCone", "DCthree"]
+#    When I perform the :check_environment_variables_order web console action with:
+#      | env_vars_order | DCtwo,DCone,DCthree |
+#    Then the step should succeed
+#    Given 1 pods become ready with labels:
+#      | deployment=php-2 |
     When I perform the :delete_env_var web console action with:
       | env_var_key | DCone |
     Then the step should succeed

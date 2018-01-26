@@ -261,6 +261,9 @@ reorder_environment_variable:
         return true;
     expect_result: true
 check_environment_variables_order:
+  element:
+    selector:
+      xpath: //div[contains(@class,'key-value-editor-entry')]
   scripts:
   - command: |
         var patterns = "<env_vars_order>".split(",").map(function(v){return new RegExp(v);}),
