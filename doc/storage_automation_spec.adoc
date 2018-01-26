@@ -1,0 +1,93 @@
+= Guideline for storage test automation
+
+When it comes to OpenShift storage test automation, we always assume a storage provider or api endpoint is ready. In the past storage team had deployed containerized storage providers to power up test automation. While they reduce the complexity of preparing storage environments, they increased flaky tests. The team had to invest more time debugging failed tests. Dynamic provision is the future for OpenShift storage and is a good solution for testing various volume plugins.
+
+Even with dynamic provisioner you have to preconfigure your various storage clusters. This guideline aimed at specifying what kind of resources should be pre-configured. Storage team should follow this doc to setup their SDS and OpenShift resources before starting automated testing for the volume plugin. The ultimate goal is making playbooks take over all the labors, but playbooks should follow this specification as well.
+
+
+== Ceph
+A healthy https://mojo.redhat.com/docs/DOC-1045731[Ceph storage cluster] with 1 MON and 3 OSDs should be configured, MDS is required for CephFS service. The MON's ip should be reachable from within the OpenShift cluster.
+
+== Ceph RBD
+
+A StorageClass for Ceph RBD should be ready, the name should be `cephrbdprovisioner`.
+
+----
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: cephrbdprovisioner
+provisioner: kubernetes.io/rbd
+parameters:
+  monitors: "$IP:6789"
+  adminId: "admin"
+  adminSecretName: "cephrbd-secret"
+  adminSecretNamespace: "default"
+  pool: "rbd"
+  userId: "admin"
+  userSecretName: "cephrbd-user-secret"
+  userSecretNamespace: "default"
+----
+
+A secret named `cephrbd-secret` should created in the **default** namespace. Obtain the key value by running `ceph-authtool -p /etc/ceph/ceph.client.admin.keyring | base64` from the ceph MON.
+
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cephrbd-secret
+data:
+  key: QVFEcUZGTmFhdlRETWhBQTVOanplM2FzbS9YdE1KanJlczNPMGc9PQo=
+type: kubernetes.io/rbd
+----
+
+== CephFS
+
+First make sure you follow **Ceph RBD** section to correctly configure the OpenShift resources, then run the following commands to prepare CephFS on the MON.
+
+----
+yum -y install ceph-fuse
+
+ceph osd pool create cephfs_data 1
+ceph osd pool create cephfs_metadata 1
+ceph fs new cephfs cephfs_metadata cephfs_data
+ceph fs ls
+----
+
+
+== GlusterFS
+
+https://mojo.redhat.com/docs/DOC-1154765[Deploy CNS] on your OpenShift cluster, the current CNS deployment will give you both GlusterFS and block volume.
+
+A StorageClass for GlusterFS should be ready, the name should be `glusterprovisioner`.
+
+====
+----
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: glusterprovisioner
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "http://172.30.18.228:8080" <1>
+----
+<1> The `resturl` is the service ip of heketi pod. You can also use the router hostname.
+====
+
+== iSCSI
+An iSCSI target should be preconfigured, on every OpenShift node, the initiator should be able to discover the target and establish a session.
+
+== FC
+The automated FC test cases can only be tested on dedicated machines with FC cards. Therefore `targetWWNs` and `lun` are hardcoded values.
+
+== NFS
+Cucushift has integrated NFS dynamic provisioner deployment.
+
+== EFS
+Cucushift has integrated EFS dynamic provisioner deployment.
+
+== StorageClass
+On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider.
+
+== Feature-gates
+Every storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do not turn on/off feature gates during our testing to maintain good test efficiency and stability.
