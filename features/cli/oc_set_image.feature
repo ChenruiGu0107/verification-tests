@@ -74,14 +74,14 @@ Feature: oc set image related tests
     ## 2. oc set image with --source=imagestreamtag
     When I run the :set_image client command with:
       | type_name       | dc/dctest                         |
-      | container_image | dctest-1=openshift/httpd:latest   |
+      | container_image | dctest-1=openshift/ruby:latest    |
       | source          | imagestreamtag                    |
     Then the step should succeed
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
     Then the step should succeed
-    And the output should match "[Ii]mage.*httpd"
+    And the output should match "[Ii]mage.*ruby"
     ## 3. oc set image with --source=docker
     When I run the :set_image client command with:
       | type_name       | dc/dctest                         |
