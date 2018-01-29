@@ -190,7 +190,8 @@ Feature: Testing abrouting
       | (20%) |
       | (80%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 40 times:
+    Given the "access.log" file is deleted
+    And I run the steps 40 times:
     """
     When I execute on the pod:
       | curl      |
@@ -218,7 +219,8 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (10%) |
       | (90%) |
-    Given I run the steps 40 times:
+    Given the "access1.log" file is deleted
+    And I run the steps 40 times:
     """
     When I execute on the pod:
       | curl      |
@@ -279,7 +281,8 @@ Feature: Testing abrouting
       | 20% |
       | 80% |
     Given I have a pod-for-ping in the project
-    Given I run the steps 40 times:
+    Given the "access.log" file is deleted
+    And I run the steps 40 times:
     """
     When I execute on the pod:
       | curl |
@@ -340,7 +343,8 @@ Feature: Testing abrouting
       | (30%) |
       | (70%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -411,7 +415,8 @@ Feature: Testing abrouting
       | (70%) |
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -441,6 +446,7 @@ Feature: Testing abrouting
       | (10%) |
       | (90%) |
     Then the step should succeed
+    Given the "access1.log" file is deleted
     Given I run the steps 20 times:
     """
     When I execute on the pod:
@@ -543,7 +549,7 @@ Feature: Testing abrouting
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                          |
-      | resourcename | service-unsecure                                     |
+      | resourcename | service-unsecure                               |
       | overwrite    | true                                           |
       | keyval       | haproxy.router.openshift.io/balance=roundrobin |
     Then the step should succeed
@@ -561,7 +567,8 @@ Feature: Testing abrouting
       | 20% |
       | 30% |
       | 50% |
-    Given I run the steps 60 times:
+    Given the "access.log" file is deleted
+    And I run the steps 60 times:
     """
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
     And the output should contain "Hello-OpenShift"
@@ -1051,7 +1058,8 @@ Feature: Testing abrouting
     Then the step should succeed
     And all pods in the project are ready
     # Access the route
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I open web server via the "service-unsecure" route
     And the output should contain "Hello-OpenShift"
@@ -1121,7 +1129,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-unsecure" service
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I open secure web server via the "route-edge" route
     Then the step should succeed
@@ -1192,7 +1201,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-secure" service
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I open secure web server via the "route-pass" route
     Then the step should succeed
@@ -1265,7 +1275,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-secure" service
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I open secure web server via the "route-reen" route
     Then the step should succeed
@@ -1329,7 +1340,8 @@ Feature: Testing abrouting
     """
     # Access the route
     When I use the "<%= cb.proj1 %>" project
-    Given I run the steps 20 times:
+    Given the "access.log" file is deleted
+    And I run the steps 20 times:
     """
     When I open web server via the "service-unsecure" route
     And the output should contain "Hello-OpenShift"
