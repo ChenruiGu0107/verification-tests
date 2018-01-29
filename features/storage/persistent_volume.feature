@@ -954,7 +954,6 @@ Feature: Persistent Volume Claim binding policies
 
   # @author piqin@redhat.com
   @admin
-  @destructive
   Scenario Outline: PV and PVC with same VolumeMode, but with other invalid feild should not be bound
     Given I check feature gate "BlockVolume" is enabled
 

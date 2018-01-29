@@ -105,3 +105,75 @@ Given(/^default storage class is deleted$/) do
     end
   end
 end
+
+Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with volume expansion (enabled|disabled)$/) do |target_sc, src_sc, expand|
+  ensure_admin_tagged
+
+  step %Q/I run the :export admin command with:/, table(%{
+    | resource | StorageClass |
+    | name     | #{src_sc}    |
+  })
+  sc_hash = YAML.load @result[:response]
+
+  sc_hash["metadata"]["name"] = "#{target_sc}"
+  if expand == "enabled"
+    sc_hash["allowVolumeExpansion"] = true
+  else
+    sc_hash["allowVolumeExpansion"] = false
+  end
+  if sc_hash["metadata"]["annotations"] && sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"]
+    sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] = "false"
+  end
+
+  logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
+  @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
+
+  if @result[:success]
+    cache_resources *@result[:resource]
+
+    # register mandatory clean-up
+    _sc = @result[:resource]
+    _admin = admin
+    teardown_add { _sc.ensure_deleted(user: _admin) }
+  else
+    logger.error(@result[:response])
+    raise "failed to clone StorageClass from: #{src_sc}"
+  end
+end
+
+Given(/^admin recreate storage class #{QUOTED} with:$/) do |sc_name, table|
+  ensure_admin_tagged
+  ensure_destructive_tagged
+
+  step %Q/I run the :export admin command with:/, table(%{
+    | resource | StorageClass |
+    | name     | #{sc_name}   |
+  })
+  sc_org = YAML.load @result[:response]
+
+  sc_hash = YAML.load @result[:response]
+  table.raw.each do |path, value|
+    eval "sc_hash#{path} = value" unless path == ''
+  end
+
+  src_sc = storage_class(sc_name)
+  src_sc.ensure_deleted(user: admin)
+
+  logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
+  @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
+
+  if @result[:success]
+    cache_resources *@result[:resource]
+
+    # register mandatory clean-up
+    _sc = @result[:resource]
+    _admin = admin
+    teardown_add {
+      _sc.ensure_deleted(user: _admin)
+      CucuShift::StorageClass.create(by: admin, spec: sc_org)
+    }
+  else
+    logger.error(@result[:response])
+    raise "failed to modify StorageClass : #{sc_name}"
+  end
+end
