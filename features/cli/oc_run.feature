@@ -217,7 +217,8 @@ Feature: oc run related scenarios
       | name      | myrun-pod             |
       | image     | aosqe/hello-openshift |
       | generator | run-pod/v1            |
-      | env       | MYENV1=v1,MYENV2=v2   |
+      | env       | MYENV1=v1             |
+      | env       | MYENV2=v2             |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | pod       |
