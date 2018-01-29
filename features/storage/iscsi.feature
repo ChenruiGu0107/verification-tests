@@ -111,8 +111,8 @@ Feature: ISCSI volume plugin testing
 
     # Create the pod with 2 containers mounting RW and RO PVCs
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pod-two-luns.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | iscsi-rw-<%= project.name %>   |
-      | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | iscsi-ro-<%= project.name %>   |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | iscsi-rw-<%= project.name %> |
+      | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | iscsi-ro-<%= project.name %> |
     Then the step should succeed
     And the pod named "iscsi2luns" becomes ready
 
@@ -209,9 +209,9 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}   |
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                              |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
     Then the step should succeed
     And the pod named "iscsi-<%= project.name %>" becomes ready
     When I execute on the pod:
@@ -245,18 +245,18 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                                |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                            |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                   |
     Then the step should succeed
     And the pod named "iscsi-1-<%= project.name %>" becomes ready
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                                |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | false                                                      |
+      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                            |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | false                                                  |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                         |
@@ -279,18 +279,18 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                                |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+      | ["metadata"]["name"]                            | iscsi-1-<%= project.name %>                            |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                   |
     Then the step should succeed
     And the pod named "iscsi-1-<%= project.name %>" becomes ready
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                                |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
+      | ["metadata"]["name"]                            | iscsi-2-<%= project.name %>                            |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                   |
     Then the step should succeed
     And the pod named "iscsi-2-<%= project.name %>" becomes ready
 
@@ -318,13 +318,13 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-with-multicontainer.yaml" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
-      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | false                                                      |
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                              |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                   |
+      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | false                                                  |
     Then the step should succeed
 
     And I wait up to 120 seconds for the steps to pass:
@@ -360,13 +360,13 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-with-multicontainer.yaml" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                       |
-      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                  |
-      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}     |
-      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | true                                                       |
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                              |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]     | true                                                   |
+      | ["spec"]["volumes"][1]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][1]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"} |
+      | ["spec"]["volumes"][1]["iscsi"]["readOnly"]     | true                                                   |
     Then the step should succeed
     And the pod named "iscsi-<%= project.name %>" becomes ready
 
@@ -388,3 +388,45 @@ Feature: ISCSI volume plugin testing
     And the output should contain:
       | ext4         |
       | /mnt/iscsipd |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-17467
+  @admin
+  @destructive
+  Scenario: Namespaced iscsi chap secrets
+    Given I have a iSCSI setup in the environment
+
+    # Create a namespace to store the secret
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :prj clipboard
+
+    Given I use the "<%= cb.prj %>" project
+    When I run the :create client command with:
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/chap-secret-auto.yml |
+    Then the step should succeed
+
+    # Create PV/PVC
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-chap.json" where:
+      | ["metadata"]["name"]                        | pv-iscsi-<%= cb.prj %>  |
+      | ["spec"]["iscsi"]["targetPortal"]           | <%= cb.iscsi_ip %>:3260 |
+      | ["spec"]["iscsi"]["secretRef"]["name"]      | chap-secret             |
+      | ["spec"]["iscsi"]["secretRef"]["namespace"] | <%= cb.prj %>           |
+    Then the step should succeed
+
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :prj_new clipboard
+    And I switch to cluster admin pseudo user
+    And I use the "<%= cb.prj_new %>" project
+
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-iscsi-<%= cb.prj_new %> |
+      | ["spec"]["volumeName"] | pv-iscsi-<%= cb.prj %>      |
+    Then the step should succeed
+    And the "pvc-iscsi-<%= cb.prj_new %>" PVC becomes bound to the "pv-iscsi-<%= cb.prj %>" PV
+
+    # Create tester pod
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | iscsi-<%= cb.prj_new %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= cb.prj_new %> |
+    Then the step should succeed
+    And the pod named "iscsi-<%= cb.prj_new %>" becomes ready
