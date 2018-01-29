@@ -256,7 +256,7 @@ check_networking_info_on_overview:
 check_internal_traffic:
   elements:
   - selector:
-      xpath: .//span[text()='Internal Traffic']
+      xpath: .//div[contains(.,'Internal Traffic')]
   - selector:
       xpath: .//a[contains(@href,'project/<project_name>/browse/services/<service_name>') and text()='<service_name>']
   - selector:
@@ -264,7 +264,7 @@ check_internal_traffic:
 check_external_traffic:
   elements:
   - selector:
-      xpath: .//span[text()='External Traffic']
+      xpath: .//div[contains(.,'External Traffic')]
   - selector:
       xpath: .//a[contains(text(),'<route_url>')]
   - selector:
