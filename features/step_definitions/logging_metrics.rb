@@ -401,7 +401,9 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
         | cert      | #{cert_name}   |
         | hostnames | #{service_url} |
         })
-
+      # the ssl cert is generated in the first master, must make sure host
+      # context is correct
+      host = env.master_hosts.first
       @result = host.exec_admin("cp -f /etc/origin/master/ca.crt #{host.workdir}")
       step %Q/the step should succeed/
       sync_certs_cmd = "oc project #{project.name}; oc rsync #{host.workdir} base-ansible-pod:/tmp"
@@ -924,7 +926,7 @@ Given /^event logs can be found in the ES pod(?: in the#{OPT_QUOTED} project)?/ 
   raise "ES pod '#{pod.name}' did not see any hits within #{seconds} seconds" unless success
 end
 
-When /^I wait for the #{QUOTED} index to appear in the ES pod(?: with labels #{QUOTED})?$/ do |index_name, pod_labels|
+When /^I wait(?: (\d+) seconds)? for the #{QUOTED} index to appear in the ES pod(?: with labels #{QUOTED})?$/ do |seconds, index_name, pod_labels|
   # pod type check for safeguard
   if pod_labels
     step %Q/a pod becomes ready with labels:/, table(%{
@@ -933,7 +935,9 @@ When /^I wait for the #{QUOTED} index to appear in the ES pod(?: with labels #{Q
   else
     raise 'Current pod must be of type ES' unless pod.labels.key? 'component' and pod.labels['component'].start_with? 'es'
   end
-  seconds = 5 * 60
+
+  seconds = Integer(seconds) unless seconds.nil?
+  seconds ||= 8 * 60
   index_data = nil
   success = wait_for(seconds) {
     step %Q/I get the "#{index_name}" logging index information/

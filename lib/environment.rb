@@ -153,13 +153,13 @@ module CucuShift
     end
 
     # naming scheme is
-    # https://metrics.<cluster_id>.openshift.com/hawkular/metrics
+    # https://metrics.<cluster_id>.openshift.com/hawkular/
     def metrics_console_url
       if admin?
         route = self.router_default_subdomain(user: 'admin', project: 'default')
-        opts[:metrics_console_url] = "https://metrics." + route + "/hawkular/metrics"
+        opts[:metrics_console_url] = "https://metrics." + route + "/hawkular"
       else
-        opts[:metrics_console_url] || web_console_url.gsub('console.', 'metrics.') + "/hawkular/metrics"
+        opts[:metrics_console_url] || web_console_url.gsub('console.', 'metrics.') + "/hawkular"
       end
     end
 

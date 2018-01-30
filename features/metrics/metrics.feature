@@ -304,10 +304,8 @@ Feature: metrics related scenarios
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12276/inventory |
     And I switch to cluster admin pseudo user
     And I use the "openshift-infra" project
-    And evaluation of `rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_limit_raw` is stored in the :cpu_limit clipboard
-    And evaluation of `rc('hawkular-cassandra-1').container_spec(user: user, name: 'hawkular-cassandra-1').memory_limit_raw` is stored in the :memory_limit clipboard
-    Then the expression should be true> cb.cpu_limit == "100m"
-    Then the expression should be true> cb.memory_limit == "1G"
+    Then the expression should be true> rc('hawkular-cassandra-1').container_spec(name: 'hawkular-cassandra-1').memory_limit_raw == "1G"
+    Then the expression should be true> rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_request_raw == "100m"
 
   # @author: pruan@redhat.com
   # @case_id: OCP-14519

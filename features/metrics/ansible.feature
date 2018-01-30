@@ -68,7 +68,8 @@ Feature: ansible install related feature
     And metrics service is installed in the "openshift-infra" project with ansible using:
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory |
       | copy_custom_cert | true                                                                                                   |
-
+    # we have to run the curl in the first master because that is where the cert file is located
+    Given I use the "<%= env.master_hosts.first.hostname %>" node
     And I wait up to 120 seconds for the steps to pass:
     """
     And I run commands on the host:
@@ -117,7 +118,7 @@ Feature: ansible install related feature
     Given I create a project with non-leading digit name
     And metrics service is installed in the "openshift-infra" project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10214/inventory |
-    Given I I login via web console
+    Given I login via web console
     And I open metrics console in the browser
     Given the metrics service status in the metrics web console is "STARTED"
 
@@ -183,6 +184,7 @@ Feature: ansible install related feature
     And metrics service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
     And I switch to cluster admin pseudo user
+    And I wait for the "alerts" service to become ready
     And I run the :delete admin command with:
       | object_type       | svc    |
       | object_name_or_id | alerts |
