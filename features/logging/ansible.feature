@@ -259,6 +259,10 @@ Feature: ansible install related feature
     Given I have a project
     Given logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
+    # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
     When I wait for the ".operation" index to appear in the ES pod with labels "component=es"
     Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |

@@ -355,10 +355,10 @@ Feature: logging related scenarios
   @destructive
   Scenario: Check fluentd changes for common data model and index naming
     Given I create a project with non-leading digit name
+    And logging service is installed in the system
     When I run the :new_app client command with:
       | app_repo | httpd-example |
     Then the step should succeed
-    And logging service is installed in the system
     When I wait 900 seconds for the "project.<%= project.name %>" index to appear in the ES pod with labels "component=es"
     And the expression should be true> cb.index_data['index'] == "project.#{project.name}.#{project.uid}.#{Time.new.strftime('%Y.%m.%d')}"
     And I wait for the ".operations" index to appear in the ES pod
