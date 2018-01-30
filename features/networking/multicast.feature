@@ -76,11 +76,11 @@ Feature: testing multicast scenarios
     When I execute on the "<%= cb.pod3 %>" pod:
       | cat | /tmp/p3.log |
     Then the step should succeed
-    And the output should contain:
-      | <%= cb.pod1ip %> : joined (S,G) = (*, 232.43.211.234), pinging |
-      | <%= cb.pod2ip %> : joined (S,G) = (*, 232.43.211.234), pinging |
-      | <%= cb.pod1ip %> : multicast, xmt/rcv/%loss = 5/5/0% |
-      | <%= cb.pod2ip %> : multicast, xmt/rcv/%loss = 5/5/0% |
+    And the output should match:
+      | <%= cb.pod1ip %>.*joined \(S,G\) = \(\*, 232.43.211.234\), pinging |
+      | <%= cb.pod2ip %>.*joined \(S,G\) = \(\*, 232.43.211.234\), pinging |
+      | <%= cb.pod1ip %>.*multicast, xmt/rcv/%loss = 5/5/0% |
+      | <%= cb.pod2ip %>.*multicast, xmt/rcv/%loss = 5/5/0% |
 
   # @author hongli@redhat.com
   # @case_id OCP-12928
@@ -411,11 +411,11 @@ Feature: testing multicast scenarios
     When I execute on the "<%= cb.pod3 %>" pod:
       | cat | /tmp/p3.log |
     Then the step should succeed
-    And the output should contain:
-      | <%= cb.pod1ip %> : joined (S,G) = (*, 232.43.211.234), pinging |
-      | <%= cb.pod2ip %> : joined (S,G) = (*, 232.43.211.234), pinging |
-      | <%= cb.pod1ip %> : multicast, xmt/rcv/%loss = 5/5/0% |
-      | <%= cb.pod2ip %> : multicast, xmt/rcv/%loss = 5/5/0% |
+    And the output should match:
+      | <%= cb.pod1ip %>.*joined \(S,G\) = \(\*, 232.43.211.234\), pinging |
+      | <%= cb.pod2ip %>.*joined \(S,G\) = \(\*, 232.43.211.234\), pinging |
+      | <%= cb.pod1ip %>.*multicast, xmt/rcv/%loss = 5/5/0% |
+      | <%= cb.pod2ip %>.*multicast, xmt/rcv/%loss = 5/5/0% |
 
   # @author hongli@redhat.com
   # @case_id OCP-12977
