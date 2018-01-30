@@ -65,7 +65,6 @@ Feature: oc set image related tests
   # @author xiaocwan@redhat.com
   # @case_id OCP-10304
   Scenario: oc set image to update existed image for container with --source
-    Given I log the message> this scenario is only valid for oc 3.4
     Given I have a project
     ## 1.  Create pod container(s) and ISs for project
     When I run the :create client command with:

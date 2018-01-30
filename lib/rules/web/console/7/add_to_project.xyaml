@@ -28,7 +28,7 @@ clear_tag_filters:
 clear_keyword_filters:
   element:
     selector:
-      xpath: //div//a[contains(@class,'clear')]
+      xpath: //div//*[contains(@class,'clear')]
     op: click
 check_all_content_is_hidden:
   element:
