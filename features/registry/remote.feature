@@ -114,6 +114,11 @@ Feature: remote registry related scenarios
     Then the step should succeed
     # create a short hand
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
+    And I register clean-up steps:
+    """
+    I run commands on the host:
+      | docker rmi -f  <%= cb.my_tag%>  |
+    """
     When I run commands on the host:
       | docker pull busybox                 |
       | docker tag busybox <%= cb.my_tag %> |
@@ -129,13 +134,6 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker pull <%= cb.my_tag %> |
     Then the step should succeed
-    And I register clean-up steps:
-    """
-    I run commands on the host:
-      | docker rmi -f  <%= cb.my_tag%>  |
-    """
-    And the output should contain:
-      | Downloaded newer image |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-10591
