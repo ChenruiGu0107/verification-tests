@@ -8,11 +8,21 @@
         block.call
       rescue Selenium::WebDriver::Error::UnknownError => e
         if e.message.include? "Other element would receive the click:"
-          # see https://bugzilla.redhat.com/show_bug.cgi?id=1512539
           logger.warn e.inspect
-          run_action(:close_second_level_navigation)
+
+          case e.message
+          when /nav-pf-secondary-nav/
+            # see https://bugzilla.redhat.com/show_bug.cgi?id=1512539
+            run_action(:close_second_level_navigation)
+          when /navbar-pf-vertical/, /project-bar/, /form-group/
+            scroll_by = browser.element(css: ".navbar.navbar-pf-vertical").height
+            scroll_by += browser.element(css: ".project-bar").height
+            browser.execute_script("window.scrollBy(0,#{scroll_by})")
+          end
+
           block.call
         else
+          logger.debug "unhandled UnknownError"
           raise
         end
       end
