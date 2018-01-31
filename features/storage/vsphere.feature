@@ -73,9 +73,8 @@ Feature: vSphere test scenarios
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
-      | Pending            |
-      | ProvisioningFailed |
-      | Error diskformat   |
+      | Pending |
+      | Failed  |
     """
 
   # @author jhou@redhat.com
