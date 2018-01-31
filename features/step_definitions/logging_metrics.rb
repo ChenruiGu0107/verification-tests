@@ -158,6 +158,7 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
     step %Q/all existing pods are ready with labels:/, table(%{
       | component=es,logging-infra=elasticsearch |
       })
+    step %Q/I wait until the ES cluster is healthy/
     step %Q/all existing pods are ready with labels:/, table(%{
       | component=fluentd,logging-infra=fluentd |
       })
@@ -995,5 +996,19 @@ Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ d
     @result[:parsed] = YAML.load(@result[:response])
   else
     raise "HTTP operation failed with error, #{@result[:response]}"
+  end
+end
+
+# currently just run the utility 'es_cluster_health' from the elasticsearch container within the es pod
+Given /^I wait(?: for (\d+) seconds)? until the ES cluster is healthy$/ do |seconds|
+  # pod type check for safeguard
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | component=es |
+    })
+  seconds = Integer(seconds) unless seconds.nil?
+  seconds ||= 100
+  success = wait_for(seconds) do
+    status = YAML.load(pod.exec('es_cluster_health', as: user, container: 'elasticsearch')[:response])['status']
+    status == 'green'
   end
 end
