@@ -184,6 +184,11 @@
   :cmd: oc create secret <createservice_type>
   :options:
     :name: <value>
+    :docker_email: --docker-email=<value>
+    :docker_password: --docker-password=<value>
+    :docker_server: --docker-server=<value>
+    :docker_username: --docker-username=<value>
+    :dry_run: --dry-run=<value>
     :from_literal: --from-literal=<value>
 :create_service:
   :cmd: oc create service <createservice_type>
