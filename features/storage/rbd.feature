@@ -355,9 +355,10 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
-      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
-      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["parameters"]["features"] | layering, exclusive-lock                            |
+      | ["metadata"]["name"]            | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"]      | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["imageFormat"]   | 2                                                   |
+      | ["parameters"]["imageFeatures"] | layering                                            |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
