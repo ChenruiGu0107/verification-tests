@@ -34,8 +34,8 @@ Feature: Storage of GlusterFS plugin testing
       | resource | pods    |
       | name     | gluster |
     Then the output should contain:
-      | FailedMount             |
-      | glusterfs: mount failed |
+      | FailedMount  |
+      | mount failed |
     """
 
   # @author lxia@redhat.com
@@ -517,8 +517,8 @@ Feature: Storage of GlusterFS plugin testing
       | resource | pvc  |
       | name     | pvc2 |
     Then the output should contain:
-      | Pending                                      |
-      | failed to reserve gid from table: range full |
+      | Pending    |
+      | range full |
     """
 
     # Verify the queued pending PVC could provision when the GID is released
