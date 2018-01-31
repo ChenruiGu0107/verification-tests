@@ -437,7 +437,6 @@ Feature: secrets related scenarios
       | resource      | pod       |
       | name          | newdc-1-  |
     Then the step should succeed
-    And the output should match "authentication required"
 
   # @author cryan@redhat.com
   # @case_id OCP-10690

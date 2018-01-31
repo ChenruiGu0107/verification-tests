@@ -23,7 +23,6 @@ Feature: REST related features
       | resource | pods |
       | verb | list |
     Then the step should succeed
-    And the output should contain "system:nodes"
     When I run the :policy_who_can client command with:
       | verb | list |
       | resource | replicationcontrollers |
