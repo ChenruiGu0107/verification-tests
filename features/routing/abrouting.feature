@@ -120,14 +120,10 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (0%)   |
       | (100%) |
-    Given I have a pod-for-ping in the project
+    When I wait up to 20 seconds for a secure web server to become available via the "route-edge" route
     Given I run the steps 10 times:
     """
-    When I execute on the pod:
-      | curl                                                                     |
-      | -sS                                                                       |
-      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -k                                                                       |
+    When I open secure web server via the "route-edge" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
     """
@@ -154,7 +150,6 @@ Feature: Testing abrouting
   # @case_id OCP-12076
   Scenario: Set backends weight for unsecure route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed
@@ -189,16 +184,11 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (20%) |
       | (80%) |
-    Given I have a pod-for-ping in the project
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     And I run the steps 40 times:
     """
-    When I execute on the pod:
-      | curl      |
-      | -sS       |
-      | --resolve |
-      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    When I open web server via the "service-unsecure" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
@@ -219,15 +209,11 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (10%) |
       | (90%) |
-    Given the "access1.log" file is deleted
+    Given the "access1.log" file is deleted if it exists
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     And I run the steps 40 times:
     """
-    When I execute on the pod:
-      | curl      |
-      | -sS       |
-      | --resolve |
-      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    When I open web server via the "service-unsecure" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access1.log" file is appended with the following lines:
@@ -243,7 +229,6 @@ Feature: Testing abrouting
   # @case_id OCP-11608
   Scenario: Set backends weight for edge route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed
@@ -280,16 +265,11 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | 20% |
       | 80% |
-    Given I have a pod-for-ping in the project
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a secure web server to become available via the "route-edge" route
     And I run the steps 40 times:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -ksS |
+    When I open secure web server via the "route-edge" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
@@ -305,7 +285,6 @@ Feature: Testing abrouting
   # @case_id OCP-11809
   Scenario: Set backends weight for passthough route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed
@@ -342,16 +321,11 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (30%) |
       | (70%) |
-    Given I have a pod-for-ping in the project
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a secure web server to become available via the "route-pass" route
     And I run the steps 20 times:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
-      | -ksS |
+    When I open secure web server via the "route-pass" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
@@ -415,7 +389,7 @@ Feature: Testing abrouting
       | (70%) |
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
     And I run the steps 20 times:
     """
     When I execute on the pod:
@@ -446,7 +420,7 @@ Feature: Testing abrouting
       | (10%) |
       | (90%) |
     Then the step should succeed
-    Given the "access1.log" file is deleted
+    Given the "access1.log" file is deleted if it exists
     Given I run the steps 20 times:
     """
     When I execute on the pod:
@@ -567,10 +541,11 @@ Feature: Testing abrouting
       | 20% |
       | 30% |
       | 50% |
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     And I run the steps 60 times:
     """
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    When I open web server via the "service-unsecure" route
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
@@ -994,6 +969,7 @@ Feature: Testing abrouting
       | service   | service-unsecure=256  |
       | service   | service-unsecure-2=0  |
     Then the step should succeed      
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     Given I run the steps 10 times:
     """
     When I open web server via the "service-unsecure" route
@@ -1058,7 +1034,8 @@ Feature: Testing abrouting
     Then the step should succeed
     And all pods in the project are ready
     # Access the route
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     And I run the steps 20 times:
     """
     When I open web server via the "service-unsecure" route
@@ -1129,7 +1106,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-unsecure" service
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a secure web server to become available via the "route-edge" route
     And I run the steps 20 times:
     """
     When I open secure web server via the "route-edge" route
@@ -1201,7 +1179,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-secure" service
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a secure web server to become available via the "route-pass" route
     And I run the steps 20 times:
     """
     When I open secure web server via the "route-pass" route
@@ -1275,7 +1254,8 @@ Feature: Testing abrouting
     And all pods in the project are ready
     # Access the route
     When I use the "service-secure" service
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a secure web server to become available via the "route-reen" route
     And I run the steps 20 times:
     """
     When I open secure web server via the "route-reen" route
@@ -1340,7 +1320,8 @@ Feature: Testing abrouting
     """
     # Access the route
     When I use the "<%= cb.proj1 %>" project
-    Given the "access.log" file is deleted
+    Given the "access.log" file is deleted if it exists
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     And I run the steps 20 times:
     """
     When I open web server via the "service-unsecure" route

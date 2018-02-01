@@ -151,11 +151,15 @@ end
 # @author cryan@redhat.com
 # @param [String] path Path to the file
 # @note Deletes a local file
-Given /^(?:a|the) "([^"]+)" file is deleted$/ do |file|
+Given /^(?:a|the) "([^"]+)" file is deleted( if it exists)?$/ do |file, graceful|
   if File.exist?(file)
     FileUtils.rm(file)
   else
-    raise "Unable to delete the file; please check the path/filename."
+    if graceful
+      logger.warn("The file is not exists")
+    else
+      raise "Unable to delete the file; please check the path/filename."
+    end
   end
 end
 
