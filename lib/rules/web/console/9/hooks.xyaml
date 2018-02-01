@@ -72,7 +72,7 @@ check_dc_recreate_strategy_default_settings:
   - selector:
       xpath: //a[contains(@href,'recreate-strategy') and contains(normalize-space(),'Learn More')]
   - selector:
-      xpath: //input[@id='strategyTimeout' and @placeholder='600']
+      xpath: //input[@id='strategy-timeout' and @placeholder='600']
     type: input
 check_dc_exec_new_pod_hook_setting:
   elements:

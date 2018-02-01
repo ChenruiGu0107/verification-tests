@@ -117,8 +117,6 @@ Feature: Independent link related scenarios
     Given the expression should be true> browser.url =~ /fromtemplate.template=ruby-helloworld-sample.namespace=openshift.templateParamsMap.*ADMIN_USERNAME.*adminuser/
     """
 
-    When I run the :click_create_button web console action
-    Then the step should succeed
     When I perform the :check_error_no_permission_to_create_project web console action with:
       | user_name      | <%= user(1,switch: false).name %> |
       | project_name   | <%= project.name %>               |

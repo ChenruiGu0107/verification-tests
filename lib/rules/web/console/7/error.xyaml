@@ -11,9 +11,10 @@ check_error_list_project_resources:
   - selector:
       xpath: //div[contains(.,'Failed to list')]
 check_error_no_permission_to_create_project:
+  action: click_create_button
   elements:
   - selector:
-      xpath: //span[contains(.,'User "<user_name>" cannot create processedtemplates in project "<project_name>"')]
+      xpath: //span[contains(.,'An error occurred processing the template')]
 check_error_notification_on_page:
   elements:
   - selector:
