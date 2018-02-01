@@ -514,8 +514,7 @@ Given /^I have a iSCSI setup in the environment$/ do
         "node.session.auth.username = 5f84cec2\n" +
         "node.session.auth.password = b0d324e9\n" +
         "EOF\n",
-      "systemctl enable iscsid",
-      "systemctl start iscsid",
+      "systemctl --now enable iscsid",
       "iscsiadm -m discovery -t sendtargets -p #{iscsi_ip}",
       "iscsiadm -m node -p #{iscsi_ip}:3260 -T iqn.2016-04.test.com:storage.target00 -I default --login"
     ]
