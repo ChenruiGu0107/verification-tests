@@ -975,7 +975,7 @@ Feature: storageClass related feature
     Given the pod named "pod-<%= project.name %>" becomes ready
 
     When I execute on the pod:
-      | grep | <keyword>  | /etc/mtab |
+      | grep | <keyword>  | /proc/self/mountinfo |
     Then the step should succeed
     And the output should contain:
       | discard |
