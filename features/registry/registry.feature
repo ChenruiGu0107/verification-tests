@@ -591,12 +591,13 @@ Feature: Testing registry
     When I docker push on the node to the registry the following images:
       | docker.io/busybox:latest | busybox:latest |
     Then the step should succeed
-    When I run the :oc_secrets_new_dockercfg client command with:
-      |secret_name      |test                     |
-      |docker_email     |serviceaccount@redhat.com|
-      |docker_password  |<%= cb.reg_pass %>       |
-      |docker_server    |<%= cb.reg_svc_url %>    |
-      |docker_username  |<%= cb.reg_user %>       |
+    When I run the :create_secret client command with:
+      | createservice_type | docker-registry           | 
+      | name               | test                      |
+      | docker_email       | serviceaccount@redhat.com |
+      | docker_password    | <%= cb.reg_pass %>        |
+      | docker_server      | <%= cb.reg_svc_url %>     |
+      | docker_username    | <%= cb.reg_user %>        |
     Then the step should succeed
     When I run the :tag client command with:
       | source_type  | docker                        |
@@ -662,12 +663,13 @@ Feature: Testing registry
       | docker.io/openshift/deployment-example:latest | test/test/deployment-example:latest |
       | docker.io/openshift/ruby-22-centos7:latest    | test/test/ruby-22-centos7:latest    |
     Then the step should succeed
-    When I run the :oc_secrets_new_dockercfg client command with:
-      |secret_name      |test                     |
-      |docker_email     |serviceaccount@redhat.com|
-      |docker_password  |<%= cb.reg_pass %>       |
-      |docker_server    |<%= cb.reg_svc_url %>    |
-      |docker_username  |<%= cb.reg_user %>       |
+    When I run the :create_secret client command with:
+      | createservice_type | docker-registry          |
+      | name               | test                     |
+      | docker_email       | serviceaccount@redhat.com|
+      | docker_password    | <%= cb.reg_pass %>       |
+      | docker_server      | <%= cb.reg_svc_url %>    |
+      | docker_username    | <%= cb.reg_user %>       |
     Then the step should succeed
     When I run the :secret_add client command with:
       | sa_name     | default |
