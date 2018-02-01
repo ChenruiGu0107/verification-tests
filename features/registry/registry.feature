@@ -185,9 +185,7 @@ Feature: Testing registry
     And all the image layers in the :layers clipboard do not exist in the registry
     And evaluation of `image_stream_tag("ruby-20-centos7:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
-    When I run the :cp admin command with:
-      | source | default/<%= pod.name %>:/config.yml |
-      | dest   | ./config.yml                |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/config.yml"
     Then the step should succeed
     And I replace content in "config.yml":
       | mirrorpullthrough: true | mirrorpullthrough: false |
