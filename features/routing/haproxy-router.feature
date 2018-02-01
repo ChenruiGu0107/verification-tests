@@ -3221,8 +3221,8 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     When I execute on the pod:
-      | bash | -c | for i in {1..10} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
-    Then the output should contain 10 times:
+      | bash | -c | for i in {1..15} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
+    Then the output should contain 15 times:
       | Hello-OpenShift |
     And the output should not contain "Empty reply from server"
 
@@ -3235,7 +3235,7 @@ Feature: Testing haproxy router
 
     Given 10 seconds have passed
     When I execute on the pod:
-      | bash | -c | for i in {1..10} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
+      | bash | -c | for i in {1..15} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
     Then the output should contain:
       | Hello-OpenShift |
       | Empty reply from server |
