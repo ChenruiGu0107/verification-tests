@@ -170,7 +170,7 @@ Feature: Event related scenarios
       | resource | pod       |
       | name     | hello-pod |
     Then the output should match:
-      | Unhealthy.*Readiness probe failed:.*exec failed.*\\/bin\\/hello:\\s+no such file or directory |
+      | Unhealthy.*Readiness probe (failed\|errored):.*exec failed.*\\/bin\\/hello:\\s+no such file or directory |
     """
 
   # @author chezhang@redhat.com
