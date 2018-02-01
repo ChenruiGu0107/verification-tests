@@ -1056,14 +1056,10 @@ Feature: pod related features
     Given evaluation of `pod("selinux-pod").node_name(user: user)` is stored in the :node clipboard
     Given I use the "<%= cb.node %>" node
     Given I run commands on the host:
-       | docker inspect <%= cb.containerID %> |
+      | docker inspect <%= cb.containerID %>\|\| cat /run/containers/storage/overlay-containers/<%= cb.containerID.split("/").last %>/userdata/config.json |
     Then the step should succeed
-    And the output should contain:
-      | "SecurityOpt"             |
-      | "label=user:unconfined_u" |
-      | "label=role:unconfined_r" |
-      | "label=level:s0:c25,c968" |
-      | "seccomp=unconfined"      |
+    And the output should match:
+      | unconfined_u:unconfined_r:(container_file_t\|svirt_lxc_net_t):s0:c25,c968 |
 
   # @author chezhang@redhat.com
   # @case_id OCP-13374
