@@ -514,7 +514,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "memory.available must be positive" |
     Then the step should succeed
@@ -531,7 +531,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"xf10fs\"" |
     Then the step should succeed
@@ -548,7 +548,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"3000000000000\"" |
     Then the step should succeed
@@ -565,7 +565,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"0.00000000001\"" |
     Then the step should succeed
@@ -582,7 +582,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "memory.available must be positive" |
     Then the step should succeed
@@ -604,7 +604,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"system\" is different from docker cgroup driver: \"systemd\"" |
     Then the step should succeed
@@ -619,7 +619,7 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
-    And the output should contain "control process exited with error"
+    And the output should contain "atomic-openshift-node.service failed"
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"cgroupfs\" is different from docker cgroup driver: \"systemd\"" |
     Then the step should succeed
