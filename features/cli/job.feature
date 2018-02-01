@@ -293,7 +293,7 @@ Feature: job.feature
     """
     When I get project pods
     Then the output should match:
-      | (CrashLoopBackOff\|RunContainerError) |
+      | (CrashLoopBackOff\|RunContainerError\|CreateContainerError) |
     """
     When I get project job
     Then the output should match:
