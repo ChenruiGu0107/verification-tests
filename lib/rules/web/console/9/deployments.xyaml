@@ -251,10 +251,10 @@ goto_one_standalone_rc_page:
 update_container_image_name:
   elements:
   - selector:
-      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[@for="imageName"]]/input
+      xpath: //h3[text()='Images']/following::dl/div[div/h4[text()='Container <container_name>']]//div[label[contains(@for, 'image-name')]]/input
     op: clear
   - selector:
-      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[@for="imageName"]]/input
+      xpath: //h3[text()='Images']/following::dl/div[div/h4[text()='Container <container_name>']]//div[label[contains(@for, 'image-name')]]/input
     op: send_keys <image_name>
 set_autostart_deployment_checkbox:
   element:
