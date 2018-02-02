@@ -1216,6 +1216,7 @@ Feature: test master config related steps
   @admin
   @destructive
   Scenario: NodeController will sets NodeTaints when node become notReady/unreachable
+    Given environment has at least 2 schedulable nodes
     Given master config is merged with the following hash:
     """
     kubernetesMasterConfig:
@@ -1232,19 +1233,19 @@ Feature: test master config related steps
     And I register clean-up steps:
     """
     When I run commands on the host:
-      | systemctl restart docker                |
+      | systemctl restart cri-o  \|\| systemctl restart docker |
     Then the step should succeed
     """
     Given I run commands on the host:
-      | systemctl stop docker |
+      | systemctl stop cri-o \|\| systemctl stop docker |
     Then the step should succeed
-    Given I wait for the steps to pass:
+    Given I wait up to 300 seconds for the steps to pass:
     """
     When I run the :describe admin command with:
       | resource | no                      |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should match:
-      | Taints:\\s+node.alpha.kubernetes.io\/notReady:NoExecute |
+      | Taints:\\s+node(.alpha)?.kubernetes.io\/not-?[Rr]eady:NoExecute |
     """
     When I run the :get admin command with:
       | resource      | no                      |
@@ -1257,7 +1258,7 @@ Feature: test master config related steps
       | type: Ready                        |
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | systemctl start docker |
+      | systemctl start cri-o \|\| systemctl start docker |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -1282,7 +1283,7 @@ Feature: test master config related steps
       | resource | no                      |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should match:
-      | Taints:\\s+node.alpha.kubernetes.io\/unreachable:NoExecute |
+      | Taints:\\s+node(.alpha)?.kubernetes.io\/unreachable:NoExecute |
     """
     When I run the :get admin command with:
       | resource      | no                      |
