@@ -660,10 +660,15 @@ Feature: Testing haproxy router
   Scenario: Haproxy router health check via stats port specified by user
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
+    When I run the :get admin command with:
+      | resource      | dc |
+      | resource_name | router |
+      | template      | {{(index .spec.template.spec.containers 0).image}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :default_router_image clipboard
     Given default router replica count is restored after scenario
     And admin ensures "tc-516834" dc is deleted after scenario
     And admin ensures "tc-516834" service is deleted after scenario
@@ -674,7 +679,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | tc-516834 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | images | <%= cb.default_router_image %> |
       | stats_port | <%= cb.stats_port %> |
       | service_account | router |
     And a pod becomes ready with labels:
