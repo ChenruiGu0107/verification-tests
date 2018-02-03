@@ -5,7 +5,7 @@ Feature: NodeSelector related tests
   @admin
   @destructive
   Scenario: ClusterDefaultNodeSelector will be ignored if namespace nodeSelector exist		
-    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
     Given I run commands on the host:
@@ -56,7 +56,7 @@ Feature: NodeSelector related tests
   @admin
   @destructive
   Scenario: NodeSelector in pod should merge with clusterDefaultNodeSelector		
-    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
     Given I run commands on the host:
@@ -111,7 +111,7 @@ Feature: NodeSelector related tests
   @admin
   @destructive
   Scenario: NodeSelector in pod should merge with namespace nodeSelector			
-    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
     Given I run commands on the host:
@@ -164,7 +164,7 @@ Feature: NodeSelector related tests
   @admin
   @destructive
   Scenario: Pod create should fail when nodeSelector conflicts with whitelist				
-    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    Given I use the first master host
     And the "/etc/origin/master/admission-control-config-file.cfg" path is removed on the host after scenario
     And admin ensures "ns1" project is deleted after scenario
     Given I run commands on the host:
