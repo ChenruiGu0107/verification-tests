@@ -3987,7 +3987,7 @@ Feature: Testing haproxy router
       | key_val   | team=red              |
       | overwrite | true                  |
     Then the step should succeed
-    When I wait up to 10 seconds for a web server to become available via the "service-unsecure" route
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
 
@@ -4135,6 +4135,13 @@ Feature: Testing haproxy router
     And I wait for the pod named "<%= cb.router_pod %>" to die
     When a pod becomes ready with labels:
       | deploymentconfig=router |
+    #Add 10 seconds to make sure the port 80 is binding since even if the router pod ready also did not mean the port has been bound 
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | /usr/bin/curl | -sS | -w | %{http_code} |  127.0.0.1:80 |
+    Then the output should contain "503"
+    """
     #Check the http request will be timetout in 7 seconds > 6s ( timeout connect 5s + timeout http-request 1s )
     When I run the :exec client command with:
       | pod              | <%= pod.name %> |
