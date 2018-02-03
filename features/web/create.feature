@@ -779,21 +779,22 @@ Feature: create app on web console related
       | env_var_key   | DCkey2              |
       | env_var_value | DCvalue2update      |
     Then the step should succeed
-
+    
+    # Laste step: Go through all resources and check their labels
     When I run the :get client command with:
       | resource | all                 |
       | l        | test1=value1        |
       | n        | <%= project.name %> |
     Then the step should succeed
-    And the output should contain:
-      | bc/php             |
-      | builds/php-1       |
-      | is/php             |
-      | dc/php             |
-      | rc/php-1           |
-      | routes/php         |
-      | svc/php            |
-      | po/<%= pod.name %> |
+    And the output should match:
+      | (bc\|buildconfigs)/php            |
+      | builds/php-1                      |
+      | (is\|imagestreams)/php            |
+      | (dc\|deploymentconfigs)/php       |
+      | (rc\|replicationcontroller)/php-1 |
+      | routes/php                        |
+      | (svc\|service)/php                |
+      | (po\|pod)/<%= pod.name %>         |
 
   # @author etrott@redhat.com
   # @case_id OCP-11288
