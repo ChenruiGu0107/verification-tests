@@ -13,7 +13,7 @@ check_error_list_project_resources:
 check_error_no_permission_to_create_project:
   elements:
   - selector:
-      xpath: //span[contains(.,'User "<user_name>" cannot create processedtemplates in project "<project_name>"')]
+      xpath: //div[contains(.,'You do not have authority to process templates in project <project_name>')]
 check_error_notification_on_page:
   elements:
   - selector:
