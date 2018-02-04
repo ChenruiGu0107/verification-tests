@@ -430,7 +430,7 @@ Feature: Service-catalog related scenarios
       | param | BINDING_NAME=ups-binding-2                                                                               |
       | param | SECRET_NAME=my-secret-2                                                                                  |
     Then the step should fail
-    And the output should match "forbidden: ServiceBindings.*an instance that is being deleted"
+    And the output should match "forbidden: ServiceBinding.*instance that is being deleted"
 
     # Delete servicebinding ups-binding
     When I run the :delete client command with:
