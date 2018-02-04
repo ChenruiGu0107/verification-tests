@@ -108,7 +108,8 @@ check_hostname_readonly:
 click_edit_weights_as_integers:
   elements:
   - selector:
-      xpath: //a[contains(text(),'edit weights as integers')]
+      visible_text: !ruby/regexp '/edit weights as integers/'
+    type: button
     op: click
 check_error_info_for_duplicated_service:
   elements:
@@ -147,7 +148,7 @@ check_service_weight:
 remove_a_service_from_route:
   element:
     selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]/a[contains(.,"Remove Service")]
+      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//button[contains(.,"Remove Service")]
     op: click
 split_traffic_across_multiple_services:
   elements:
@@ -204,7 +205,7 @@ expand_add_another_service:
   elements:
   - selector:
       text: Add Another Service
-    type: a
+    type: button
     op: click
 check_four_services_weight_on_route_page:
   action: check_three_services_weight_on_route_page
