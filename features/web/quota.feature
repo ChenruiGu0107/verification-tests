@@ -814,6 +814,10 @@ Feature: functions about resourcequotas
 
     #check warning info when create pv
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-default.json"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                         |
       | file_path        | <%= localhost.absolutize("nfs-default.json") %> |
     Then the step should succeed
     And I run the :click_create_button web console action
