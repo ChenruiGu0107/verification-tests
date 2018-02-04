@@ -213,17 +213,22 @@ Feature: ansible install related feature
     And I run commands on the host:
       | logger --tag deadbeef[123] deadbeef-message-OCP16688 |
     Then the step should succeed
+    ### hack alert with 3.9, I get inconsistent behavior such that the data is
+    # not pushed w/o removing the  es-containers.log.pos journal.pos files
+    And I run commands on the host:
+      | rm -f /var/log/journal.pos         |
+      | rm -f /var/log/es-containers-*.pos |
+    Then the step should succeed
     And I wait up to 600 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod:
       | relative_url | _search?pretty&size=5&q=message:deadbeef-message-OCP16688 |
       | op           | GET                                                       |
-    And the output should contain:
-      | deadbeef-message-OCP16688 |
+
+    And the expression should be true> @result[:parsed]['hits']['hits'][0]['_source']['message'] == 'deadbeef-message-OCP16688'
     """
     And evaluation of `@result[:parsed]['hits']['hits'][0]['_source']` is stored in the :query_res clipboard
     Then the expression should be true> (["hostname", "@timestamp"] - cb.query_res.keys).empty?
-    And the expression should be true> cb.query_res['message'] == "deadbeef-message-OCP16688"
     # check for SYSLOG, SYSLOG_IDENTIFIER
     Then the expression should be true> (["SYSLOG_FACILITY", "SYSLOG_IDENTIFIER", "SYSLOG_PID"] - cb.query_res['systemd']['u'].keys).empty?
     And the expression should be true> cb.query_res['systemd']['u']['SYSLOG_IDENTIFIER'] == 'deadbeef'
