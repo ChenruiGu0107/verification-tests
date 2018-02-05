@@ -402,7 +402,7 @@ end
 Given /^CA trust is added to the pod-for-ping$/ do
   @result = cb.ping_pod.exec(
     "bash", "-c",
-    "wget https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem -O /tmp/ca.pem",
+    "wget https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem -O /tmp/ca.pem -T 10 -t 3",
     as: user
   )
   raise "cannot get ca cert" unless @result[:success]
