@@ -86,3 +86,13 @@ Given /^F5 router public IP is stored in the :vserver_ip clipboard$/ do
     And evaluation of `@result[:response].chomp` is stored in the :vserver_ip clipboard
   """
 end
+
+Given /^default router image is stored into the#{OPT_SYM} clipboard$/ do | cb_name |
+  step %Q/I run the :get admin command with:/, table(%{
+    | resource      | dc |
+    | resource_name | router |
+    | template      | {{(index .spec.template.spec.containers 0).image}} |
+  })
+  step %Q/the step should succeed/
+  cb[cb_name] = @result[:response]
+end
