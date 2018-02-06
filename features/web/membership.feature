@@ -19,8 +19,8 @@ Feature: memberships related features via web
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
-      | resource_name | basic-user  |
     Then the output should contain:
+      | basic-user |
       | test_group |
     When I perform the :delete_role_on_membership web console action with:
       | project_name | <%= project.name %> |
@@ -29,53 +29,11 @@ Feature: memberships related features via web
       | role         | basic-user          |
     Then the step should succeed
     And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
+      | resource     | rolebinding |
     Then the output should not contain:
+      | basic-user |
       | test_group |
-    When I perform the :check_entry_content_on_membership web console action with:
-      | project_name | <%= project.name %>                        |
-      | tab_name     | System Groups                              |
-      | name         | system:serviceaccounts:<%= project.name %> |
-      | role         | system:image-puller                        |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Groups       |
-      | count        | 1                   |
-    Then the step should succeed
-    When I perform the :add_role_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Groups       |
-      | name         | test_group          |
-      | role         | basic-user          |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Groups       |
-      | count        | 2                   |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
-    Then the output should contain:
-      | system:test_group |
-    When I perform the :delete_role_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Groups       |
-      | name         | system:test_group   |
-      | role         | basic-user          |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Groups       |
-      | count        | 1                   |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
-    Then the output should not contain:
-      | system:test_group |
+
 
   # @author etrott@redhat.com
   # @case_id OCP-11843
@@ -111,9 +69,9 @@ Feature: memberships related features via web
       | count        | 2                   |
     Then the step should succeed
     And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
+      | resource      | rolebinding        |
     Then the output should contain:
+      | basic-user|
       | test_user |
     When I perform the :delete_role_on_membership web console action with:
       | project_name | <%= project.name %> |
@@ -128,9 +86,9 @@ Feature: memberships related features via web
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
-      | resource_name | basic-user  |
     Then the output should not contain:
-      | test_user |
+      | basic-user | 
+      | test_user  |
     When I perform the :check_entry_content_on_membership_with_namespace web console action with:
       | project_name | <%= project.name %>  |
       | tab_name     | Service Accounts     |
@@ -171,9 +129,9 @@ Feature: memberships related features via web
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
-      | resource_name | basic-user  |
     Then the output should contain:
-      | test.sa |
+      | basic-user |
+      | test.sa    |
     When I perform the :delete_role_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Service Accounts    |
@@ -188,9 +146,9 @@ Feature: memberships related features via web
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
-      | resource_name | basic-user  |
     Then the output should not contain:
-      | test.sa |
+      | basic-user |
+      | test.sa    |
     When I perform the :add_role_on_membership_with_typed_namespace web console action with:
       | project_name  | <%= project.name %> |
       | tab_name      | Service Accounts    |
@@ -212,10 +170,10 @@ Feature: memberships related features via web
       | count        | 3                   |
     Then the step should succeed
     And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
+      | resource      | rolebinding|
     Then the output should contain:
-      | test.sa |
+      | basic-user |
+      | test.sa    |
     When I perform the :delete_role_on_membership_with_namespace web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Service Accounts    |
@@ -230,41 +188,10 @@ Feature: memberships related features via web
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
-      | resource_name | basic-user  |
     Then the output should not contain:
-      | test.sa |
-    When I perform the :add_role_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Users        |
-      | name         | test_user           |
-      | role         | basic-user          |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Users        |
-      | count        | 1                   |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
-    Then the output should contain:
-      | system:test_user |
-    When I perform the :delete_role_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Users        |
-      | name         | system:test_user    |
-      | role         | basic-user          |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | System Users        |
-      | count        | 0                   |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource      | rolebinding |
-      | resource_name | basic-user  |
-    Then the output should not contain:
-      | system:test_user |
+      | basic-user |
+      | test.sa    |
+
 
   # @author etrott@redhat.com
   # @case_id OCP-12099

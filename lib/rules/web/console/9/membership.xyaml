@@ -79,18 +79,18 @@ click_on_delete_role_on_membership:
       xpath: //div[div//strong[normalize-space(text())="<name>"]]//span[a[normalize-space(text())="<role>"]]/a[2]
     op: click
   - selector:
-      text: !ruby/regexp /Are you sure you want to remove/
+      visible_text: !ruby/regexp /Are you sure you want to remove/
   action:
     if_param: danger_alert
     ref: check_remove_danger_alert
   elements:
   - selector:
-      text: <operation_confirm>
+      visible_text: <operation_confirm>
     op: click
   action:
     if_element:
       selector:
-        text: !ruby/regexp /removed from/
+        visible_text: !ruby/regexp /removed from/
     ref:
     - check_successful_message_of_roles_deleting
 check_successful_message_of_roles_deleting:
@@ -100,14 +100,14 @@ check_successful_message_of_roles_deleting:
 check_remove_danger_alert:
   element:
     selector:
-      text: !ruby/regexp /<danger_alert>/
+      visible_text: !ruby/regexp /<danger_alert>/
 click_on_delete_role_on_membership_with_namespace:
   elements:
   - selector:
       xpath: //div[div//span[normalize-space()="<namespace> /"] and div//strong[normalize-space()="<name>"]]//span[a[normalize-space()="<role>"]]/a
     op: click
   - selector:
-      text: Remove
+      visible_text: Remove
     op: click
   - selector:
       text: The role "<role>" was removed from "<name>".
@@ -191,11 +191,11 @@ check_entry_content_on_membership_with_namespace:
 check_error_message_on_membership:
   element:
     selector:
-      text: The role "<role>" has already been granted to "<name>".
+      visible_text: The role "<role>" has already been granted to "<name>".
 check_permission_error_on_membership:
   element:
     selector:
-      text: You do not have permission to view roles in this project.
+      visible_text: You do not have permission to view roles in this project.
 check_restrict_rolebinding_message_on_membership:
   element:
     selector:
