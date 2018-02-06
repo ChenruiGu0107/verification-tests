@@ -1,4 +1,36 @@
 Feature: Persistent Volume Recycling
+  # @author lxia@redhat.com
+  # @case_id OCP-10519
+  @admin
+  @destructive
+  Scenario: Recycler using pod template without volume should fail with error
+    Given I use the first master host
+    And the "/etc/origin/master/my-recycler.json" path is removed on the host after scenario
+    Given I run commands on the host:
+      | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-recycler-invalid.json -o /etc/origin/master/my-recycler.json |
+    Given master config is merged with the following hash:
+    """
+    kubernetesMasterConfig:
+      controllerArguments:
+        pv-recycler-pod-template-filepath-nfs:
+        - "/etc/origin/master/my-recycler.json"
+        pv-recycler-minimum-timeout-nfs:
+        - "300"
+        pv-recycler-increment-timeout-nfs:
+        - "30"
+        pv-recycler-pod-template-filepath-hostpath:
+        - "/etc/origin/master/my-recycler.json"
+        pv-recycler-minimum-timeout-hostpath:
+        - "60"
+        pv-recycler-timeout-increment-hostpath:
+        - "30"
+    """
+    And the master service is restarted on all master nodes
+    When I run commands on the host:
+      | journalctl -l --since "5 min ago" \| grep '/etc/origin/master/my-recycler.json' |
+    Then the step should succeed
+    And the output should contain:
+      | not contain any volume |
 
   # @author lxia@redhat.com
   # @case_id OCP-9637
