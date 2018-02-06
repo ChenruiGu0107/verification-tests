@@ -87,7 +87,7 @@ Cucushift has integrated NFS dynamic provisioner deployment.
 Cucushift has integrated EFS dynamic provisioner deployment.
 
 == StorageClass
-On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider.
+On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider when your OCP version is equal or greater than **3.6**.
 
 == Feature-gates
 Every storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do not turn on/off feature gates during our testing to maintain good test efficiency and stability.
