@@ -67,7 +67,7 @@ click_cancel:
 click_close:
   element:
     selector:
-      text: Close
+      xpath: //*[text()='Close']
     op: click
 check_close_x:
   element: &close_x
@@ -152,7 +152,7 @@ click_edit_YAML:
 check_page_contain_text:
   element:
     selector:
-      visible_text: !ruby/regexp /<text>/
+      xpath: //*[contains(.,'<text>')]
     timeout: 30
 check_page_not_contain_text:
   element:

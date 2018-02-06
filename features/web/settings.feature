@@ -154,3 +154,6 @@ Feature: check settings page on web console
     And evaluation of `@result[:response].scan(/^Kubernetes Master:\nv(.+)/)[0][0]` is stored in the :kube2 clipboard
     Then the expression should be true> cb.master1 == cb.master2
     Then the expression should be true> cb.kube1 == cb.kube2
+    When I perform the :check_web_console_version web console action with:
+      | web_console_version | <%= cb.master1 %> |
+    Then the step should succeed

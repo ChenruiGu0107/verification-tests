@@ -847,7 +847,7 @@ check_dc_custom_strategy_settings:
   - selector:
       xpath: //a[contains(@href,'custom-strategy') and contains(normalize-space(),'Learn More')]
   - selector:
-      id: imageName
+      id: image-name
     type: input
   - selector:
       xpath: //label[contains(normalize-space(),'Command')]
@@ -868,7 +868,7 @@ set_dc_custom_strategy_settings:
 set_dc_strategy_image_name:
   element:
     selector:
-      xpath: //h3[text()='Deployment Strategy']/parent::div//input[@id='imageName']
+      xpath: //h3[text()='Deployment Strategy']/parent::*//input[@id='image-name']
     op: send_keys <image_name>
 set_dc_strategy_cmd_line:
   element:
