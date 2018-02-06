@@ -14,24 +14,7 @@ Feature: Cgroup related scenario
     And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :node_capacity_cpu clipboard
     And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :node_capacity_memory clipboard
     And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :node_allocate_cpu clipboard
-    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :node_allocate_memory clipboard
-    # Set cgroups-per-qos to false with no enforce-node--allocatable arguments
-    When node config is merged with the following hash:
-    """
-    kubeletArguments:
-      cgroups-per-qos:
-      - "false"
-      cgroup-driver:
-      - "systemd"
-    """
-    Then the step should succeed
-    And I try to restart the node service on node
-    Then the step should fail
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "10 sec ago" \| grep "Cgroup" |
-    Then the step should succeed
-    And the output should match:
-      | [Ff]ailed to run Kubelet:\s+(Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS( \(--cgroups-per-qos\))? feature is turned on |
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :node_allocate_memory clipboard 
     # Set cgroups-per-qos to false and enforce-node-allocatable with values
     When node config is merged with the following hash:
     """
@@ -50,7 +33,7 @@ Feature: Cgroup related scenario
       | journalctl -l -u atomic-openshift-node --since "10 sec ago" \| grep "Cgroup" |
     Then the step should succeed 
     And the output should match:
-      | [Ff]ailed to run Kubelet:\s+(Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS( \(--cgroups-per-qos\))? feature is turned on |
+      | ([Ff]ailed to run Kubelet:\s+Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS\s?(\s?\(--cgroups-per-qos\))? feature is turned on |
     # Set cgroups-per-qos to false and enforce-node-allocatable without values
     When node config is merged with the following hash:
     """
