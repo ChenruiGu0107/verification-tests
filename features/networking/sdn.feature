@@ -13,7 +13,7 @@ Feature: SDN related networking scenarios
       | grep -i mtu /etc/origin/node/node-config.yaml \| sed 's/[^0-9]*//g' |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :mtu clipboard
-    Given the expression should be true> cb.mtu != "3450"
+    Given the expression should be true> cb.mtu != "1234"
     When I run commands on the host:
       | ip link show tun0 |
     Then the expression should be true> @result[:response].include?(cb.mtu)
@@ -27,7 +27,7 @@ Feature: SDN related networking scenarios
     """
     And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
     When I run commands on the host:
-      | sed -i 's/mtu:.*/mtu: 3450/g' /etc/origin/node/node-config.yaml |
+      | sed -i 's/mtu:.*/mtu: 1234/g' /etc/origin/node/node-config.yaml |
     Then the step should succeed
     When I run the ovs commands on the host:
       | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
@@ -38,15 +38,15 @@ Feature: SDN related networking scenarios
     # check mtu for tun0 and new create pod
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
-      | ["nodeName"] | <%= cb.nodes[0].name %> |
+      | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And the pod named "hello-pod" becomes ready
     When I execute on the pod:
       | bash | -c | ip addr |
-    Then the output should contain "mtu 3450"
+    Then the output should contain "mtu 1234"
     When I run commands on the host:
       | ip link show tun0 |
-    Then the output should contain "mtu 3450"
+    Then the output should contain "mtu 1234"
 
   # @author bmeng@redhat.com
   # @case_id OCP-10005
