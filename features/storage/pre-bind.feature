@@ -84,7 +84,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
     Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %>   |
-      | ["spec"]["volumeName"]     | nfspv1-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfspv-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteMany              |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
     And the "nfspv-<%= project.name %>" PV status is :available
@@ -102,7 +102,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
     Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %>   |
-      | ["spec"]["volumeName"]                       | nfspv1-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfspv-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                        |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
     And the "nfspv-<%= project.name %>" PV status is :available
