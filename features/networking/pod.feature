@@ -189,3 +189,37 @@ Feature: Pod related networking scenarios
     # The fake rule disappeared after creating a pod with hostport
     And the output should not contain:
       | -A KUBE-HOSTPORTS -p tcp --dport 110 -j ACCEPT |
+
+
+  # @author bmeng@redhat.com
+  # @case_id OCP-10549
+  @admin
+  @destructive
+  Scenario: The broadcast IP address should not be assigned to a pod
+    Given I select a random node's host
+    And the node network is verified
+    And the node service is verified
+
+    # Get the node hostsubnet
+    And evaluation of `host_subnet(node.name).subnet` is stored in the :hostnetwork clipboard
+    # Get the max available IP
+    And evaluation of `IPAddr.new("<%= cb.hostnetwork.chomp %>").to_range().max` is stored in the :broadcastip clipboard
+    And evaluation of `IPAddr.new("<%= cb.broadcastip %>").to_i - 1` is stored in the :maxipint clipboard
+    And evaluation of `IPAddr.new(<%= cb.maxipint %>, Socket::AF_INET).to_s` is stored in the :maxip clipboard
+    # Write the max IP to the cni last reserved ip file
+    When I run commands on the host:
+      | printf "<%= cb.maxip %>" > $(find /var/lib/cni/networks/openshift-sdn/ -name "last_reserve*") |
+    Then the step should succeed
+
+    # Create a pod and make sure it will not use the broadcast ip
+    Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= node.name %> |
+    Then the step should succeed
+    Given all pods in the project are ready
+    When I run the :get client command with:
+      | resource      | pods |
+      | o             | wide |
+    Then the step should succeed
+    And the output should not contain "<%= cb.broadcastip %>"
