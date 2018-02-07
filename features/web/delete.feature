@@ -177,7 +177,7 @@ Feature: Delete the resources via web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-14215/k8s-deployment.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given a pod is present with labels::
       | app=hello-openshift |
     When I perform the :goto_one_k8s_deployment_page web console action with:
       | project_name        | <%= project.name %> |
@@ -218,11 +218,6 @@ Feature: Delete the resources via web console
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
-    When I run the :get client command with:
-      | resource | builds |
-    Then the step should succeed
-    And the output should contain:
-      | ruby-sample-build-1 |
     When I perform the :goto_one_buildconfig_page web console action with:
       | project_name | <%= project.name %> |
       | bc_name      | ruby-sample-build   |
@@ -243,7 +238,7 @@ Feature: Delete the resources via web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given a pod is present with labels:
       | app=hello |
     When I perform the :goto_one_stateful_sets_page web console action with:
       | project_name       | <%= project.name %> |

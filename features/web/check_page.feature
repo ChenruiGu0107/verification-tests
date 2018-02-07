@@ -112,6 +112,7 @@ Feature: check page info related
   # @author xxing@redhat.com
   # @case_id OCP-9907
   Scenario: Check volumes info on pod page
+    Given the master version >= "3.2"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-dapi-volume.yaml |

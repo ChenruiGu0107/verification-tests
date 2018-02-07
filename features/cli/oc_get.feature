@@ -119,10 +119,8 @@ Feature: oc get related command
     Then the step should succeed
     When I run the :get client command with:
       | resource | all |
-    Then the step should succeed
     And the output should contain "hpa/php-apache"
     When I run the :delete client command with:
       | object_type | all  |
       | all         | true |
-    Then the step should succeed
     And the output should match "horizontalpodautoscaler.*php-apache.*deleted"
