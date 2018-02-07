@@ -213,29 +213,40 @@ Feature: remote registry related scenarios
   @admin
   Scenario: User should be denied pushing when it does not have 'admin' role
     Given I have a project
-    And I select a random node's host
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     When I give project view role to the second user
     Given I switch to the second user
-    And the "~/.docker/config.json" file is restored on host after scenario
-    When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
-    Then the step should succeed
+    And evaluation of `user.get_bearer_token.token` is stored in the :user2_token clipboard
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
-    When I run commands on the host:
-      | docker pull busybox                 |
-      | docker tag busybox <%= cb.my_tag %> |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.my_tag %> |
-    Then the step should fail
-    And the output should contain "unauthorized"
     Given I switch to the first user
-    When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.my_tag %> |
+    And a pod becomes ready with labels:
+        | name=skopeo |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | --dcreds                   |
+      | dnm:<%= cb.user2_token %>  |
+      | docker://docker.io/busybox |
+      | docker://<%= cb.my_tag %>  |
+    Then the step should fail
+    And the output should contain "not authorized"
+    When I execute on the pod:
+      | skopeo                                 |
+      | --debug                                |
+      | --insecure-policy                      |
+      | copy                                   |
+      | --dest-cert-dir                        |
+      | /opt/qe/ca                             |
+      | --dcreds                               |
+      | dnm:<%= user.get_bearer_token.token %> |
+      | docker://docker.io/busybox             |
+      | docker://<%= cb.my_tag %>              |
     Then the step should succeed
 
   # @author pruan@redhat.com

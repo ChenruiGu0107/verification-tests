@@ -398,6 +398,54 @@ Given /^I have a skopeo pod in the(?: "([^ ]+?)")? project$/ do |project_name|
 
 end
 
+Given /^master CA is added to the#{OPT_QUOTED} (dc|deployment)$/ do |name,resource|
+  ensure_admin_tagged
+  
+  steps """
+    Given I use the first master host
+    When I run commands on the host:
+      | cat /etc/origin/master/ca.crt |
+    Then the step should succeed
+    And I save the output to file> openshift.crt
+  """
+
+  step %Q/I run the :create_configmap client command with:/, table(%{
+    | name      | ca              |
+    | from_file | openshift.crt   |
+  })
+  step %Q/the step should succeed/
+   
+  step %Q/I check that the "#{name}" dc exists/
+
+  steps """
+    When I run the :rollout_pause client command with:
+      | resource | dc     |
+      | name     | #{name} |
+    Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource       | dc/#{name}      |
+      | add            | true            |
+      | type           | configmap       |
+      | configmap-name | ca              |
+      | mount-path     | /opt/qe/ca      |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | dc          |
+      | name     | #{name}     |
+      | key_val  | cert=master |
+    Then the step should succeed
+    When I run the :rollout_resume client command with:
+      | resource | dc     |
+      | name     | #{name} |
+    Then the step should succeed
+  """
+
+  step %Q/a replicationController becomes ready with labels:/, table(%{
+        | cert=master |
+    })
+
+end
+
 # Download the ca.pem to pod-for ping
 Given /^CA trust is added to the pod-for-ping$/ do
   @result = cb.ping_pod.exec(
