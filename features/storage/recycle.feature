@@ -10,13 +10,10 @@ Feature: Persistent Volume Recycling
       | chmod | g+w | /mnt/data |
     Then the step should succeed
 
-    Given I use the first master host
-    And the "/etc/origin/master/my-recycler.json" path is removed on the host after scenario
-    When I run commands on the host:
+    Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
+    Given I run commands on all masters:
       | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
       | sed -i 's/127.0.0.1/<%= service("nfs-service").ip %>/' /etc/origin/master/my-recycler.json                                               |
-    Then the step should succeed
-
     Given master config is merged with the following hash:
     """
     kubernetesMasterConfig:
@@ -67,9 +64,8 @@ Feature: Persistent Volume Recycling
   @admin
   @destructive
   Scenario: Recycler using pod template without volume should fail with error
-    Given I use the first master host
-    And the "/etc/origin/master/my-recycler.json" path is removed on the host after scenario
-    Given I run commands on the host:
+    Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
+    Given I run commands on all masters:
       | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-recycler-invalid.json -o /etc/origin/master/my-recycler.json |
     Given master config is merged with the following hash:
     """
@@ -89,6 +85,7 @@ Feature: Persistent Volume Recycling
         - "30"
     """
     And the master service is restarted on all master nodes
+    Given I use the first master host
     When I run commands on the host:
       | journalctl -l --since "5 min ago" \| grep '/etc/origin/master/my-recycler.json' |
     Then the step should succeed
