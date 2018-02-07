@@ -383,3 +383,15 @@ Feature: logging related scenarios
     And a deploymentConfig becomes ready with labels:
       | component=es |
     And the expression should be true> dc.revision_history_limit == 0
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15281
+  @admin
+  @destructive
+  Scenario: max_local_storage_nodes default value should be 1 to prevent permitting multiple nodes to share the same data directory
+    Given the master version >= "3.6"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And evaluation of `YAML.load(config_map('logging-elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
+    And the expression should be true> cb.data.dig('node', 'max_local_storage_nodes') == 1
+    And the expression should be true> cb.data.dig('gateway','recover_after_nodes') == '${NODE_QUORUM}'
