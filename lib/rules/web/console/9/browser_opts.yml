@@ -11,7 +11,7 @@
           logger.warn e.inspect
 
           case e.message
-          when /nav-pf-secondary-nav/
+          when /nav-pf-secondary-nav/, /ng-click/
             # see https://bugzilla.redhat.com/show_bug.cgi?id=1512539
             run_action(:close_second_level_navigation)
           when /navbar-pf-vertical/, /project-bar/, /form-group/
