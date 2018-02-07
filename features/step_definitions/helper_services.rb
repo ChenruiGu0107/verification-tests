@@ -556,7 +556,7 @@ Given /^default router is disabled and replaced by a duplicate$/ do
   orig_project = project(0) rescue nil
   _project = project("default")
 
-  step 'I store master image version in the clipboard'
+  step 'default router image is stored into the :default_router_image clipboard'
   @result = dc("router", _project).ready?(user: admin)
   unless @result[:success]
     raise "default router not ready before scenario, fix it first"
@@ -577,7 +577,7 @@ Given /^default router is disabled and replaced by a duplicate$/ do
                            name: "testroute",
                            replicas: cb.router_num.to_s,
                            n: "default",
-                           images: product_docker_repo + "openshift3/ose-haproxy-router:" + cb.master_version)
+                           images: cb.default_router_image)
 
   cb.new_router_dc = dc("testroute", _project)
   @result = dc.wait_till_status(:complete, admin, 300)
