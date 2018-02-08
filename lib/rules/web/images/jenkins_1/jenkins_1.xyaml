@@ -162,7 +162,7 @@ jenkins_click_add_build_step_button:
     type: button
 
 jenkins_check_build_fields:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
   elements:
   - selector:
@@ -208,7 +208,7 @@ jenkins_check_build_fields:
   action: jenkins_click_save_button
 
 jenkins_check_post_build_fields:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_post_build_action_button
   elements:
   - selector:
@@ -236,7 +236,7 @@ jenkins_check_post_build_fields:
   action: jenkins_click_save_button
 
 jenkins_check_logging_build_step_verbose:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
   elements:
   - selector:
@@ -336,7 +336,7 @@ jenkins_check_logging_build_step_verbose:
     type: input
 
 jenkins_post_cancel_build_from_job:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_post_build_action_button
   elements:
   - selector:
@@ -359,7 +359,7 @@ jenkins_post_cancel_build_from_job:
   action: jenkins_click_save_button
 
 jenkins_cancel_deployment_from_job:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_post_build_action_button
   elements:
   - selector:
@@ -439,6 +439,9 @@ jenkins_create_pipeline_job:
 jenkins_create_openshift_build_trigger:
   action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Trigger OpenShift Build
@@ -461,6 +464,9 @@ jenkins_create_openshift_build_trigger:
 jenkins_create_openshift_deployment_trigger:
   action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Trigger OpenShift Deployment
@@ -481,7 +487,7 @@ jenkins_create_openshift_deployment_trigger:
   action: jenkins_click_save_button
 
 jenkins_create_openshift_resources:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
   elements:
   - selector:
@@ -506,7 +512,7 @@ jenkins_create_openshift_resources:
     type: button
 
 jenkins_delete_openshift_resources:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
   elements:
   - selector:
@@ -628,7 +634,7 @@ jenkins_pipeline_create_resource_snippet:
 
 
 jenkins_pipeline_insert_script:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   element:
     selector:
       xpath: //div[contains(@id,"workflow-editor-1")]
@@ -647,12 +653,12 @@ jenkins_pipeline_insert_script:
     type: button
 
 jenkins_scale_openshift_deployment:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
+  action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
-  - selector:
-      xpath: //button[contains(., 'Add build step')]
-    op: click
-    type: button
   - selector:
       text: Scale OpenShift Deployment
     op: click
@@ -679,7 +685,7 @@ jenkins_scale_openshift_deployment:
     type: button
 
 jenkins_trigger_sample_openshift_build:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   elements:
   - selector:
       xpath: //input[contains(@checkurl,"OpenShiftScaler/checkApiURL")]
@@ -799,12 +805,12 @@ jenkins_trigger_sample_openshift_build:
     type: button
 
 jenkins_tag_openshift_image:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
+  action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
-  - selector:
-      xpath: //button[contains(., 'Add build step')]
-    op: click
-    type: button
   - selector:
       text: Tag OpenShift Image
     op: click
@@ -851,7 +857,7 @@ jenkins_tag_openshift_image:
     type: button
 
 jenkins_tag_openshift_image_update_dest_tag:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   elements:
   - selector:
       xpath: //td[contains(text(),"whenever the source tag changes")]/following-sibling::td[1]/input[1]
@@ -863,7 +869,7 @@ jenkins_tag_openshift_image_update_dest_tag:
     type: button
 
 jenkins_tag_openshift_image_id_update:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   elements:
   - selector:
       xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
@@ -920,8 +926,11 @@ jenkins_verify_logged_in:
     visible: true
 
 jenkins_verify_openshift_build:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Build
@@ -942,8 +951,11 @@ jenkins_verify_openshift_build:
   action: jenkins_click_save_button
 
 jenkins_verify_openshift_deployment:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Deployment
@@ -964,8 +976,11 @@ jenkins_verify_openshift_deployment:
   action: jenkins_click_save_button
 
 jenkins_verify_openshift_service:
-  url: /job/<job_name>/configure
+  action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Service

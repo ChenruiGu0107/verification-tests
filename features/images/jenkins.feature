@@ -1115,7 +1115,7 @@ Feature: jenkins.feature
       | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 1               |
       | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 2               |
       | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     | 2               |
-      | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 2               |
+      | from JSON or YAML |           |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 2               |
 
   # @author wewang@redhat.com
   # @case_id OCP-11940
@@ -1916,11 +1916,12 @@ Feature: jenkins.feature
       | name=jenkins |
     And I wait for the "jenkins" service to become ready
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
+      | rules    | lib/rules/web/images/jenkins_<version>/                           |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR1                                |
       | env_value| value1                              |
@@ -1930,12 +1931,14 @@ Feature: jenkins.feature
       | env         | VAR1=newvalue   |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR1                                |
       | env_value| value1                              |
     Then the step should succeed
     And the "sample-pipeline-1" build completes
     When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace| <%= project.name %>                |
       | job_name| <%= project.name %>-sample-pipeline |
       | job_num | 1                                   |
     Then the step should succeed
@@ -1948,17 +1951,20 @@ Feature: jenkins.feature
       | env         | VAR3=value3     |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR2                                |
       | env_value|                                     |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR3                                |
       | env_value|                                     |
     Then the step should succeed
     And the "sample-pipeline-2" build completes
     When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace| <%= project.name %>                |
       | job_name| <%= project.name %>-sample-pipeline |
       | job_num | 2                                   |
     Then the step should succeed
@@ -1985,7 +1991,7 @@ Feature: jenkins.feature
       | name=jenkins |
     And I wait for the "jenkins" service to become ready
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
+      | rules    | lib/rules/web/images/jenkins_<version>/                           |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
@@ -1994,6 +2000,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "sample-pipeline-1" build completes
     When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace| <%= project.name %>                |
       | job_name| <%= project.name %>-sample-pipeline |
       | job_num | 1                                   |
     Then the step should succeed
@@ -2009,17 +2016,20 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR1                                |
       | env_value| newvalue1                           |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR2                                |
       | env_value| value2                              |
     Then the step should succeed
     And the "sample-pipeline-2" build completes
     When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace| <%= project.name %>                |
       | job_name| <%= project.name %>-sample-pipeline |
       | job_num | 2                                   |
     Then the step should succeed
@@ -2033,6 +2043,7 @@ Feature: jenkins.feature
       | p             | {"spec":{"strategy":{"jenkinsPipelineStrategy":{"env":[{"name": "VAR2","value": "value2"}]}}}} |
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
+      | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
       | env_name | VAR1                                |
       | env_value| newvalue1                           |
