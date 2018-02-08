@@ -109,23 +109,9 @@ Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   cb[cb_name] = etcd_version
 end
 
-Given /^the #{QUOTED} path is removed on all masters after scenario$/ do |path|
-  ensure_admin_tagged
-
-  _host = env.master_hosts.first
-  _path = _host.absolutize(path)
-  # check path sanity
-  if ["'", "\n", "\\"].find {|c| _path.include? c}
-    raise "please specify path with sane characters"
-  end
-  # lame check for not removing root directories
-  unless _path =~ %r{^/\.?[^/.]+.*/\.?[^/.]+.*}
-    raise "path must be at least 2 levels deep"
-  end
-  @result = env.master_hosts.map { |host|
-    teardown_add {
-      success = host.delete(_path)
-      raise "can't remove #{_path} on #{host.hostname}" unless success
-    }
+Given /^the #{QUOTED} path is( recursively)? removed on all masters after scenario$/ do |recursively, path|
+  @result = env.master_hosts.reverse_each { |host|
+    @host = host
+    step %{the "#{path}" path is#{recursively} removed on the host after scenario}
   }
 end
