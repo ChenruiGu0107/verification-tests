@@ -711,9 +711,15 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to swtich user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
-    step %Q/I run the :create admin command with:/, table(%{
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_with_proxy.yaml |
-      | n | <%= project.name %>                                                                                                |
+    proxy_value = ""
+    if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
+      proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
+    end
+    template_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_proxy.yaml"
+    step %Q/I run oc create as admin over "#{template_url}" replacing paths:/, table(%{
+      | ['metadata']['namespace']                    | <%= project.name %> |
+      | ['spec']['containers'][0]['env'][0]['value'] | #{proxy_value}  |
+      | ['spec']['containers'][0]['env'][1]['value'] | #{proxy_value}  |
     })
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
