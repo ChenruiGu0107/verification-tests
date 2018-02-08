@@ -892,9 +892,9 @@ add_env_var_value_for_dc_custom_strategy:
 keep_parameters_in_dc_dialog:
   elements:
   - selector:
-      xpath: //h1[contains(.,"Keep parameters?")]
+      visible_text: !ruby/regexp /Keep .* parameters?/
   - selector:
-      text: !ruby/regexp /Yes/
+      visible_text: !ruby/regexp /Yes/
     type: button
     op: click
 check_learn_more_link_for_rolling_strategy:

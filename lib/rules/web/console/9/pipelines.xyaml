@@ -16,13 +16,13 @@ check_jenkinsfile_link:
       text: What's a Jenkinsfile?
     op: click
   - selector: &jenkinsfile_header
-      xpath: //div[h2[text()='Jenkinsfile Examples'] or h4[text()='Jenkinsfile Examples']]
+      xpath: //div[*[text()='Jenkinsfile Examples']]
   - selector:
       xpath: //a[text()='Pipeline Builds' and contains(@ng-href, '/builds_and_image_streams.html#pipeline-build')]
   - selector:
       xpath: //a[text()='OpenShift Pipeline Plugin' and contains(@ng-href, '/using_images/other_images/jenkins.html#openshift-origin-pipeline-plug-in')]
 close_jenkinsfile_modal_window:
-  action: click_ok
+  action: click_close
   element: &jenkins_header_missing
     selector: *jenkinsfile_header
     missing: true
