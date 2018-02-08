@@ -162,8 +162,6 @@ Feature: negative tests
     Then the step should succeed
     And the output should not match:
       | [Ee]rror                         |
-    And the output should match:
-      | details.*oc describe.*oc get all |
 
     # oc logs
     When I run the :logs client command with:

@@ -23,7 +23,7 @@ Feature: oc_version.feature
     When I run the :config_view client command
     And I save the output to file> user1.kubeconfig
     Given I replace lines in "user1.kubeconfig":
-      | <%= env.master_hosts[0].hostname %> | not<%= env.master_hosts[0].hostname %> |
+      | <%= env.api_endpoint_url %> | not<%= env.api_endpoint_url %> |
     When I run the :version client command with:
       | config | user1.kubeconfig |
     Then the step should fail

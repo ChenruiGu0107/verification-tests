@@ -82,7 +82,6 @@ Feature: oc get related command
       | resource-type    |
       | user             |
       | cs               |
-      | ing              |
       | groups           |
       | no               |
       | ns               |
