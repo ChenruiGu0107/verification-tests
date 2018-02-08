@@ -1126,7 +1126,7 @@ Feature: build related feature on web console
     When I perform the :check_build_hidden_secret web console action with:
       | project_name      | <%= project.name %>                     |
       | bc_and_build_name | ruby-sample-build/ruby-sample-build-2   |
-      | hidden_text       | secr***                                 |
+      | hidden_text       | secr                                    |
     Then the step should succeed
 
     # Following checkpoint is only from the TC about generic webhook.

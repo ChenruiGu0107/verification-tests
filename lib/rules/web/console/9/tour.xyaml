@@ -3,7 +3,7 @@
 click_tour_button_on_home_page:
   elements:
   - selector:
-      text: !ruby/regexp /Tour/i
+      visible_text: !ruby/regexp /Tour/i
     type: button
     op: click
     timeout: 30
@@ -11,7 +11,7 @@ click_tour_from_helper:
   action: click_helper_icon_on_home_page
   elements:
   - selector:
-      text: !ruby/regexp /Tour/i
+      visible_text: !ruby/regexp /Tour/i
     type: a
     op: click
 check_items_load_on_all_tag_page:
