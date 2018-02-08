@@ -3958,7 +3958,7 @@ Feature: Testing haproxy router
       | name     | <%= cb.project_red %> |
       | key_val  | team=red              |
     Then the step should succeed
-    When I wait up to 10 seconds for a web server to become available via the "service-unsecure" route
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
     #updated the namespace with label 'team=blue', then the route will not be accessed.
