@@ -1,3 +1,7 @@
+check_prompt_msg:
+  element:
+    selector:
+      visible_text: !ruby/regexp /<prompt_msg>/
 click_create_button:
   element:
     selector:

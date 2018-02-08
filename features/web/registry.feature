@@ -266,3 +266,26 @@ Feature: Testing registry
       | image_name   | testisnew           |
       | tag_label    | v1.1                |
     Then the step should succeed
+
+  # @author cryan@redhat.com xxia@redhat.com
+  # @case_id OCP-9902
+  Scenario: Create project and imagestream with invalid name on registry console
+    Given I open registry console in a browser
+    When I perform the :create_new_project_in_iframe web action with:
+      | project_name  | $###@$%^^&&*&               |
+      | prompt_msg    | contains invalid characters |
+    Then the step should succeed
+    When I perform the :create_new_project_in_iframe web action with:
+      | project_name  | 123456789aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbb1234567 |
+      | prompt_msg    | no more than 63 characters                                             |
+    Then the step should succeed
+
+    Given I have a project
+    When I perform the :create_new_image_stream_in_iframe web action with:
+      | is_name           | abc-dcna$                                     |
+      | project_name      | <%= project.name %>                           |
+      | populate          | Sync all tags from a remote image repository  |
+      | pull_from         | docker.io/openshift/hello-openshift           |
+      | prompt_msg        | contains invalid characters                   |
+    Then the step should succeed
+

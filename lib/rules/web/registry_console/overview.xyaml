@@ -32,6 +32,11 @@ create_new_project:
     if_param:
       cancel: 'true'
     ref: click_cancel_button
+  action:
+    if_param: prompt_msg
+    ref:
+    - check_prompt_msg
+    - click_cancel_button
 set_display_name:
   element:
     selector:
@@ -80,6 +85,11 @@ create_new_image_stream:
     if_param: populate
     ref: set_populate
   action: click_create_button
+  action:
+    if_param: prompt_msg
+    ref:
+    - check_prompt_msg
+    - click_cancel_button
 set_populate:
   elements:
   - selector:
