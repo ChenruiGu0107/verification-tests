@@ -712,8 +712,8 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   # use admin user to get the information so we don't need to swtich user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
     step %Q/I run the :create admin command with:/, table(%{
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod.yaml |
-      | n | <%= project.name %>                                                                                     |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_with_proxy.yaml |
+      | n | <%= project.name %>                                                                                                |
     })
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
