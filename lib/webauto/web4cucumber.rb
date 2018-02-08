@@ -555,7 +555,7 @@ require "base64"
             # click an element with several modifier keys pressed
             # op: "click - :control\n- :shift"
             keys = Psych.load val
-            element.send(op.to_sym, *keys)
+            with_hook(:click) { element.send(op.to_sym, *keys) }
           end
         when "clear"
           raise "cannot #{op} with a value" unless val.empty?
