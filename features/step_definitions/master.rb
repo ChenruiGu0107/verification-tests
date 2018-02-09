@@ -109,3 +109,9 @@ Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   cb[cb_name] = etcd_version
 end
 
+Given /^the #{QUOTED} path is( recursively)? removed on all masters after scenario$/ do |path, recursively|
+  @result = env.master_hosts.reverse_each { |host|
+    @host = host
+    step %{the "#{path}" path is#{recursively} removed on the host after scenario}
+  }
+end
