@@ -880,6 +880,7 @@
 :set_volume:
   :cmd: oc set volume
   :options:
+    :add: --add=<value>
     :resource: <value>
     :resource_name: <value>
     :action: <value>

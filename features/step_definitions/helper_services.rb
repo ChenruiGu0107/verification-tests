@@ -392,8 +392,8 @@ Given /^I have a skopeo pod in the(?: "([^ ]+?)")? project$/ do |project_name|
 
   step %Q/a pod becomes ready with labels:/, table(%{
         | name=skopeo |
-    }) 
-   
+    })
+
   cb.skopeo_pod = pod
 
 end
