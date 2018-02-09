@@ -175,7 +175,6 @@ Feature: services related feature on web console
     When I run the :create_route_passthrough client command with:
       | name     | myroute                 |
       | service  | hello-openshift         |
-      | hostname | www.hello-openshift.com |
     Then the step should succeed
     When I perform the :goto_one_service_page web console action with:
       | project_name | <%= project.name %> |

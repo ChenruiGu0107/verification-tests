@@ -629,7 +629,6 @@ Feature: create app on web console related
       | resource | all                 |
       | l        | test=1234updated    |
       | n        | <%= project.name %> |
-    Then the step should succeed
     And the output should match:
       | ruby-sample-build          |
       | ruby-sample-build-1        |
@@ -785,7 +784,6 @@ Feature: create app on web console related
       | resource | all                 |
       | l        | test1=value1        |
       | n        | <%= project.name %> |
-    Then the step should succeed
     And the output should match:
       | (bc\|buildconfigs)/php            |
       | builds/php-1                      |

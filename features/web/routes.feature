@@ -78,12 +78,12 @@ Feature: Routes related features on web console
   # @author yapei@redhat.com
   # @case_id OCP-12258
   Scenario: Create route for multi-port services on web console
+    Given the master version >= "3.3"
     When I create a new project
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
     Then the step should succeed

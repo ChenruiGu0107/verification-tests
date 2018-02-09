@@ -105,22 +105,22 @@ check_delete_deployment_warning_in_delete_action:
   action: click_delete
   elements:
   - selector:
-      xpath: //h1[contains(.,'Are you sure you want to delete the deployment')]
+      xpath: //*[@class='modal-dialog']/*[contains(.,'Are you sure') and contains(.,'delete the deployment')]
   - selector:
-      xpath: //span[contains(.,'This will delete the deployment, all rollout history, and any running pod')]
+      xpath: //*[contains(.,'will delete the deployment') and contains(.,'all rollout history') and contains(.,'any running pod')]
 check_delete_bc_warning_in_delete_action:
   action: click_actions_button
   action: click_delete
   elements:
   - selector:
-      xpath: //h1[contains(.,'Are you sure you want to delete the build config')]
+      xpath: //*[@class='modal-dialog']/*[contains(.,'Are you sure') and contains(.,'delete the build config')]
   - selector:
-      xpath: //p[contains(.,'It cannot be undone') and contains(.,'Make sure this is something you really want to do')]
+      xpath: //*[contains(.,'cannot be undone') and contains(.,'Make sure')]
 check_delete_statefulsets_warning_in_delete_action:
   action: click_actions_button
   action: click_delete
   elements:
   - selector:
-      xpath: //h1[contains(.,'Are you sure you want to delete the stateful set')]
+      xpath: //*[@class='modal-dialog']/*[contains(.,'Are you sure') and contains(.,'delete the stateful set')]
   - selector:
-      xpath: //span[contains(.,'This will delete the stateful set and any running pods')]
+      xpath: //*[contains(.,'will delete the stateful set and any running pods')]
