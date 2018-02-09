@@ -50,3 +50,32 @@ Feature: CephFS storage plugin testing
       | ["spec"]["volumes"][0]["cephfs"]["monitors"][0] | <%= pod("cephfs-server").ip(user: user) %>:6789 |
     Then the step should succeed
     And the pod named "cephfs" becomes ready
+
+  # @author jhou@redhat.com
+  # @case_id OCP-17460
+  @admin
+  Scenario: Namespaced CephFS secrets
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And I have a project
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/pv-retain.json" where:
+      | ["metadata"]["name"]                         | pv-cephfs-server-<%= project.name %>                |
+      | ["spec"]["cephfs"]["monitors"][0]            | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["cephfs"]["secretRef"]["name"]      | cephrbd-secret                                      |
+      | ["spec"]["cephfs"]["secretRef"]["namespace"] | default                                             |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/pvc-cephfs.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-cephfs-<%= project.name %>       |
+      | ["spec"]["volumeName"] | pv-cephfs-server-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-cephfs-<%= project.name %>" PVC becomes bound to the "pv-cephfs-server-<%= project.name %>" PV
+
+    # Create tester pod
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | cephfs-<%= project.name %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-cephfs-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "cephfs-<%= project.name %>" becomes ready
