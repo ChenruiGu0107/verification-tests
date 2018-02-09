@@ -292,8 +292,8 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
     Then the step should fail
     And the output should contain:
-      | UID                           |
-      | does not match required range |
+      | unable to validate against any security context constraint |
+      | Invalid value: 1000                                        |
     When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/<scc_file_name>.yaml
     Then the step should succeed
     When I run the :create client command with:
