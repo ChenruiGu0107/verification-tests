@@ -28,28 +28,30 @@ module CucuShift
     def executor(user)
       return @executors[user.name] if @executors[user.name]
 
-      rulez = @rules || RULES_DIR +  "base/"
-
-      browser_opts = {
+      browser_opts = @browser_opts || {
         logger: logger,
         base_url: env.web_console_url,
         browser_type: conf[:browser] ? conf[:browser].to_sym : :firefox,
-        rules: rulez,
+        rules: RULES_DIR +  "base/", # will be updated after version is found
         snippets_dir: SNIPPETS_DIR
       }
 
+      logger.debug "initializing web console browser for user #{user.name}"
       e = @executors[user.name] = Web4Cucumber.new(**browser_opts)
 
-      unless @rules
+      unless @browser_opts
+        # we didn't yet figure out versioned rules and browser opts
         versioned_rules = "#{RULES_DIR}#{get_master_version(user)}/"
         browser_opts_overrides_file = "#{versioned_rules}browser_opts.yml"
 
+        logger.debug "adding versioned web console browser rules from " \
+                     "'#{versioned_rules}'"
         e.replace_rules([e.rules, versioned_rules])
-        @rules = Collections.deep_freeze(e.rules)
+        browser_opts[:rules] = Collections.deep_freeze(e.rules)
 
         if e.started?
-          res = logout(user)
           # it seems we used browser to get cluster version, tag it as new here
+          res = logout(user)
           @version_browser = e
           unless res[:success]
             raise  "logout from web console failed:\n" + res[:response]
@@ -57,12 +59,15 @@ module CucuShift
         end
 
         if File.exist? browser_opts_overrides_file
+          logger.debug "recreating web console browser for user #{user.name}" \
+                       "using overrides from '#{browser_opts_overrides_file}'"
           browser_opts_overrides = YAML.load_file browser_opts_overrides_file
-          browser_opts[:rules] = @rules
           browser_opts.merge! browser_opts_overrides
           e.finalize
           e = @executors[user.name] = Web4Cucumber.new(**browser_opts)
         end
+
+        @browser_opts = browser_opts
       end
 
       return e

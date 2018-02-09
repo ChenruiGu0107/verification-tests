@@ -5,7 +5,7 @@
     # this will execute in the Web4Cucumber instance context
     proc { |block|
       begin
-        logger.debug "Clicking web element via hook.."
+        logger.trace "Clicking web element via hook.."
         block.call
       rescue Selenium::WebDriver::Error::UnknownError => e
         if e.message.include? "Other element would receive the click:"

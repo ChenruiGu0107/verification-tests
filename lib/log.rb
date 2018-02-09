@@ -142,6 +142,10 @@ module CucuShift
       self.log(msg, DEBUG, show_datetime)
     end
 
+    def trace(msg, show_datetime='time')
+      self.log(msg, TRACE, show_datetime)
+    end
+
     def plain(msg, show_datetime='time')
       self.log(msg, PLAIN, show_datetime)
     end
