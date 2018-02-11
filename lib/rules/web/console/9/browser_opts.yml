@@ -18,7 +18,7 @@
           when /navbar-pf-vertical/, /project-bar/, /form-group/
             scroll_by = browser.element(css: ".navbar.navbar-pf-vertical").height
             scroll_by += browser.element(css: ".project-bar").height
-            browser.execute_script("window.scrollBy(0,#{scroll_by})")
+            browser.execute_script("window.scrollBy(0,-#{scroll_by})")
           else
             # e.g. class="modal-backdrop fade in ng-scope ng-animate ng-leave
             #   ng-leave-active"
