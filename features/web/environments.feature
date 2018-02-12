@@ -44,6 +44,8 @@ Feature: env related feature
     When I perform the :delete_env_var_from_configmap_or_secret web console action with:
       | env_var_key | example-config |
     Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
     When I perform the :check_page_not_contain_text web console action with:
       | text | example-config |
     Then the step should succeed
@@ -53,7 +55,7 @@ Feature: env related feature
     Then the step should succeed
     When I run the :click_clear_changes web console action
     Then the step should succeed
-    # The following step would fail due to existing bug: https://bugzilla.redhat.com/show_bug.cgi?id=1515527
+    # The following step would fail on 3.7 due to existing bug: https://bugzilla.redhat.com/show_bug.cgi?id=1515527
     When I perform the :check_page_not_contain_text web console action with:
       | text | example-config |
     Then the step should succeed

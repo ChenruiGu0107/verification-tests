@@ -49,7 +49,7 @@ check_a_route_detail_page:
   action: click_show_annotations
   elements:
   - selector:
-      xpath: //td[text()='openshift.io/generated-by']
+      xpath: //td[contains(.,'openshift.io/')]
   action: click_hide_annotations
   elements:
   - selector:

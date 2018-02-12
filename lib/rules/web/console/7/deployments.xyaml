@@ -868,8 +868,7 @@ set_dc_custom_strategy_settings:
 set_dc_strategy_image_name:
   element:
     selector:
-      id: imageName
-    type: input
+      xpath: //input[@id = 'imageName' and contains(@ng-model, 'strategyData')]
     op: send_keys <image_name>
 set_dc_strategy_cmd_line:
   element:
