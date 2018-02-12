@@ -86,7 +86,8 @@ Feature: ansible install related feature
     Given the master version >= "3.5"
     Given I have a project
     And metrics service is installed in the "openshift-infra" project with ansible using:
-      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12879/inventory |
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12879/inventory |
+
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-infra" project
     Then status becomes :running of exactly 1 pods labeled:

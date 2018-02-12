@@ -385,8 +385,8 @@ Feature: ansible install related feature
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12113/inventory |
     And a pod becomes ready with labels:
       | component=es |
-    # check es-clsuter size == 1
-    Then the expression should be true> pod.containers.keys == ["proxy", "elasticsearch"]
+    # make sure containers are there regardless of ordering
+    Then the expression should be true> ["proxy", "elasticsearch"] - pod.containers.keys == []
     And the expression should be true> pod.containers['elasticsearch'].spec.memory_limit_raw == "1024M"
     And the expression should be true> pod.containers['elasticsearch'].spec.cpu_limit_raw == "200m"
     # check fluentd limits

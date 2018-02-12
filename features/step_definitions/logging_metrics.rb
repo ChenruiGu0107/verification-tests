@@ -228,9 +228,10 @@ Given /^all hawkular related pods are running in the#{OPT_QUOTED} project$/ do |
   ensure_destructive_tagged
   step %Q/I switch to cluster admin pseudo user/
   project(target_proj)
+  heapster_only = (cb.ini_style_config.params['OSEv3:vars'].keys.include? 'openshift_metrics_heapster_standalone') and (cb.ini_style_config.params['OSEv3:vars']['openshift_metrics_heapster_standalone'] == 'true')
   begin
-    step %Q/I wait until replicationController "hawkular-cassandra-1" is ready/
-    step %Q/I wait until replicationController "hawkular-metrics" is ready/
+    step %Q/I wait until replicationController "hawkular-cassandra-1" is ready/ unless heapster_only
+    step %Q/I wait until replicationController "hawkular-metrics" is ready/ unless heapster_only
     step %Q/I wait until replicationController "heapster" is ready/
   ensure
     @user = org_user
@@ -711,16 +712,23 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to swtich user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
-    proxy_value = ""
+    proxy_value = nil
     if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
       proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
     end
-    template_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_proxy.yaml"
-    step %Q/I run oc create as admin over "#{template_url}" replacing paths:/, table(%{
-      | ['metadata']['namespace']                    | <%= project.name %> |
-      | ['spec']['containers'][0]['env'][0]['value'] | #{proxy_value}  |
-      | ['spec']['containers'][0]['env'][1]['value'] | #{proxy_value}  |
-    })
+    if proxy_value
+      template_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_proxy.yaml"
+      step %Q/I run oc create as admin over "#{template_url}" replacing paths:/, table(%{
+        | ['metadata']['namespace']                    | <%= project.name %> |
+        | ['spec']['containers'][0]['env'][0]['value'] | #{proxy_value}  |
+        | ['spec']['containers'][0]['env'][1]['value'] | #{proxy_value}  |
+      })
+    else
+      step %Q/I run the :create admin command with:/, table(%{
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod.yaml |
+        | n | <%= project.name %>                                                                                     |
+      })
+    end
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
     # save it for future use
