@@ -993,8 +993,11 @@
   :cmd: oc adm policy add-role-to-user <role_name> <user_name>
   :options:
     :role_namespace: --role-namespace=<value>
+    :rolebinding_name: --rolebinding-name=<value>
 :oadm_add_role_to_group:
   :cmd: oc adm policy add-role-to-group <role_name> <group_name>
+  :options:
+    :rolebinding_name: --rolebinding-name=<value>
 :oadm_build_chain:
   :cmd: oc adm build-chain
   :options:
