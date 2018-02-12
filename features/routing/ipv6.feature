@@ -6,6 +6,11 @@ Feature: Testing IPv6 related scenarios
   @destructive
   Scenario: The haproxy support terminate IPv6 traffic at the router if set ROUTER_IP_V4_V6_MODE to v4v6	
     Given the master version >= "3.6"
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+
     Given admin ensures new router pod becomes ready after following env added:
       | ROUTER_IP_V4_V6_MODE=v4v6 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
@@ -29,8 +34,7 @@ Feature: Testing IPv6 related scenarios
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
 
-    Given I select a random node's host
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | netstat -anlp \| grep "haproxy" |
     Then the step should succeed
     And the output should match:
@@ -40,7 +44,7 @@ Feature: Testing IPv6 related scenarios
     # access routes via loopback IPv6 address [::1] from the node
     Given I wait up to 15 seconds for the steps to pass:
     """
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | curl --resolve <%= route("service-unsecure").dns(by: user) %>:80:::1 http://<%= route("service-unsecure").dns(by: user) %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
@@ -48,7 +52,7 @@ Feature: Testing IPv6 related scenarios
 
     Given I wait up to 15 seconds for the steps to pass:
     """
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | curl --resolve <%= route("reen-route").dns(by: user) %>:443:::1 https://<%= route("reen-route").dns(by: user) %>/ -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
@@ -74,6 +78,11 @@ Feature: Testing IPv6 related scenarios
   @destructive
   Scenario: The haproxy support terminate IPv6 traffic at the router if set ROUTER_IP_V4_V6_MODE to v6
     Given the master version >= "3.6"
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+
     Given admin ensures new router pod becomes ready after following env added:
       | ROUTER_IP_V4_V6_MODE=v6 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
@@ -96,8 +105,7 @@ Feature: Testing IPv6 related scenarios
       | service | service-secure |
     Then the step should succeed
 
-    Given I select a random node's host
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | netstat -anlp \| grep "haproxy" |
     Then the step should succeed
     And the output should match:
@@ -107,7 +115,7 @@ Feature: Testing IPv6 related scenarios
     # access routes via loopback IPv6 address [::1] from the node
     Given I wait up to 15 seconds for the steps to pass:
     """
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | curl --resolve <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:::1 https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
@@ -115,7 +123,7 @@ Feature: Testing IPv6 related scenarios
 
     Given I wait up to 15 seconds for the steps to pass:
     """
-    When I run commands on the host:
+    When I run commands on the nodes in the :router_node clipboard:
       | curl --resolve <%= route("pass-route", service("pass-route")).dns(by: user) %>:443:::1 https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/ -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
