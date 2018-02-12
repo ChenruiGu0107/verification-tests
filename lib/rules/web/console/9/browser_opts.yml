@@ -5,19 +5,26 @@
     # this will execute in the Web4Cucumber instance context
     proc { |block|
       begin
+        logger.trace "Clicking web element via hook.."
         block.call
       rescue Selenium::WebDriver::Error::UnknownError => e
         if e.message.include? "Other element would receive the click:"
           logger.warn e.inspect
 
           case e.message
-          when /nav-pf-secondary-nav/, /ng-click/
+          when /nav-pf-secondary-nav/
             # see https://bugzilla.redhat.com/show_bug.cgi?id=1512539
             run_action(:close_second_level_navigation)
           when /navbar-pf-vertical/, /project-bar/, /form-group/
             scroll_by = browser.element(css: ".navbar.navbar-pf-vertical").height
             scroll_by += browser.element(css: ".project-bar").height
-            browser.execute_script("window.scrollBy(0,#{scroll_by})")
+            browser.execute_script("window.scrollBy(0,-#{scroll_by})")
+          else
+            # e.g. class="modal-backdrop fade in ng-scope ng-animate ng-leave
+            #   ng-leave-active"
+            # we just wait repeat operation hoping the modal has fade out or
+            #   possibly some unknown issue fixed itself
+            sleep 5
           end
 
           block.call
