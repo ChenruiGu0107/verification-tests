@@ -65,8 +65,7 @@ Feature: ansible install related feature
     And I login to kibana logging web console
     And I get the visible text on web html page
     And the output should contain:
-      | Status: Red                                                   |
-      | Unable to connect to Elasticsearch at https://logging-es:9200 |
+      | Status: Red |
 
   # @author pruan@redhat.com
   # @case_id OCP-11687
@@ -359,11 +358,6 @@ Feature: ansible install related feature
       | ls | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
     Then the step should succeed
     And the output should contain "/etc/fluent/configs.d/filter-post-z-retag-two.conf"
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17424/exepected_conf"
-    And evaluation of `@result[:response]` is stored in the :expected clipboard
-    And I execute on the "<%= pod.name %>" pod:
-      | cat | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
-    Then the expression should be true> @result[:response].include? cb.expected
     # check non-ops es pod
     And I get the ".operation" logging index information from a pod with labels "component=es"
     Then the expression should be true> cb.index_data.nil?
