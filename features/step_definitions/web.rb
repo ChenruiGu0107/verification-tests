@@ -215,7 +215,8 @@ When /^I perform the :(.*?) web( console)? action in "([^"]+)" window with:$/ do
   end
 end
 
+# perhaps we can get rid of this step since it's so short??
 Given /^I open metrics console in the browser$/ do
-  step %Q/I store the metrics url to the clipboard/
-  step %Q/I access the "<%= cb.metrics_url %>" url in the web browser/
+  metrics_url = env.metrics_console_url + "/metrics"
+  step %Q/I access the "#{metrics_url}" url in the web browser/
 end
