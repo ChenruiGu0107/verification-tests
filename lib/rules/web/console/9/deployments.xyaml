@@ -135,7 +135,7 @@ check_deployment_on_deployment_page:
   action: check_resource_on_deployment_page
   element:
     selector:
-      xpath: //div[h3[text()="<resource_type>"]]//tr[td[@data-title="Strategy" and normalize-space(text())="<strategy_type>"] and td[@data-title="Replicas" and normalize-space(.)="<replicas>"]]
+      xpath: //div[h3[text()="<resource_type>"]]//tr[td[@data-title="Strategy" and normalize-space(text())="<strategy_type>"] and td[@data-title="Replicas" and contains(normalize-space(.),"<replicas>")]]
     timeout: 30
 click_on_one_deployment_configuration_tab:
   action: click_on_configuration_tab

@@ -75,7 +75,7 @@ Feature: Features about k8s deployments
     When I run the :patch client command with:
       | resource      | deployment                                                                                                     |
       | resource_name | hello-openshift                                                                                                |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"yapei/hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"aosqe/hello-openshift"}]}}}} |
     Then the step should succeed
     When I perform the :check_latest_k8s_deployment_version web console action with:
       | project_name                  | <%= project.name %> |
@@ -144,8 +144,8 @@ Feature: Features about k8s deployments
       | resource_type | Deployments                                                                          |
       | resource_name | hello-openshift                                                                      |
       | last_version  | #1                                                                                   |
-      | replicas      | <%= deployment("hello-openshift").replicas(user:user) %> replicas                    |
-      | strategy_type | <%= deployment("hello-openshift").strategy["type"].sub("U", " u") %>                          |
+      | replicas      | <%= deployment("hello-openshift").replicas(user:user) %> replica                     |
+      | strategy_type | <%= deployment("hello-openshift").strategy["type"].sub("U", " u") %>                 |
     Then the step should succeed
     When I perform the :click_on_deployment_last_version_on_deployments_page web console action with:
       | resource_name | hello-openshift |
@@ -153,7 +153,7 @@ Feature: Features about k8s deployments
     When I run the :patch client command with:
       | resource      | deployment                                                                                                 |
       | resource_name | hello-openshift                                                                                            |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"yapei/hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"aosqe/hello-openshift"}]}}}} |
     Then the step should succeed
     When I perform the :check_replicas_less_than web console action with:
       | replicas | <%= deployment("hello-openshift").strategy["rollingUpdate"]["maxUnavailable"] %> |
@@ -167,27 +167,27 @@ Feature: Features about k8s deployments
       | resource_type | Deployments         |
       | resource_name | hello-openshift     |
       | last_version  | #2                  |
-      | replicas      | 4 replicas          |
+      | replicas      | 1 replica           |
       | strategy_type | Rolling update      |
     Then the step should succeed
     When I perform the :click_on_one_deployment web console action with:
       | k8s_deployments_name | hello-openshift |
     Then the step should succeed
     When I perform the :edit_replicas_on_deployment_page web console action with:
-      | replicas | 3 |
+      | replicas | 2 |
     Then the step should succeed
     When I perform the :check_rs_on_one_deployment_page web console action with:
       | rs_name  | hello-openshift |
       | version  | #2              |
-      | replicas | 3               |
+      | replicas | 2               |
     Then the step should succeed
     When I perform the :edit_replicas_on_deployment_page web console action with:
-      | replicas | 5 |
+      | replicas | 1 |
     Then the step should succeed
     When I perform the :check_rs_on_one_deployment_page web console action with:
       | rs_name  | hello-openshift |
       | version  | #2              |
-      | replicas | 5               |
+      | replicas | 1               |
     Then the step should succeed
 
   # @author etrott@redhat.com
@@ -198,7 +198,7 @@ Feature: Features about k8s deployments
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
     Then the step should succeed
-    Given I wait until number of replicas match "4" for deployment "hello-openshift"
+    Given I wait until number of replicas match "1" for deployment "hello-openshift"
     When I perform the :add_label_on_edit_autoscaler_page_for_k8s_deployment web console action with:
       | project_name        | <%= project.name %> |
       | k8s_deployment_name | hello-openshift     |
@@ -265,7 +265,7 @@ Feature: Features about k8s deployments
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Scaling                                      |
-      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name %>      |
     Then the step should succeed
     When I run the :goto_environment_tab web console action
     Then the step should succeed
@@ -294,7 +294,7 @@ Feature: Features about k8s deployments
     Given evaluation of `@result[:parsed]['items'].find{ |rs| rs['metadata']['name'] != cb.rs_name }['metadata']['name']` is stored in the :rs_name_new clipboard
     When I perform the :check_event_message web console action with:
       | reason  | Scaling                                          |
-      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name_new %>      |
     Then the step should succeed
 
     When I perform the :filter_by_keyword web console action with:
@@ -302,11 +302,11 @@ Feature: Features about k8s deployments
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Scaling                                      |
-      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name %>      |
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
       | reason  | Scaling                                          |
-      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name_new %>      |
     Then the step should succeed
 
     When I perform the :filter_by_keyword web console action with:
@@ -314,11 +314,11 @@ Feature: Features about k8s deployments
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
       | reason  | Scaling                                      |
-      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name %>      |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Scaling                                          |
-      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+      | message | Scaled up replica set <%= cb.rs_name_new %>      |
     Then the step should succeed
 
     When I perform the :filter_by_keyword web console action with:
@@ -376,7 +376,7 @@ Feature: Features about k8s deployments
       | image_name    | openshift/hello-openshift |
       | resource_type | deployment                |
       | resource_name | hello-openshift           |
-      | scaled_number | 4                         |
+      | scaled_number | 1                         |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
       | resource_type | deployment      |
@@ -386,44 +386,44 @@ Feature: Features about k8s deployments
     When I run the :patch client command with:
       | resource      | deployment                                                                                                  |
       | resource_name | hello-openshift                                                                                             |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"yapei/hello-openshift", "name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"aosqe/hello-openshift", "name":"hello-openshift"}]}}}} |
     Then the step should succeed
-    Given 4 pods become ready with labels:
+    Given a pod is present with labels:
       | app=hello-openshift |
     When I perform the :check_overview_tile web console action with:
       | resource_type | deployment            |
       | resource_name | hello-openshift       |
-      | image_name    | yapei/hello-openshift |
-      | scaled_number | 4                     |
+      | image_name    | aosqe/hello-openshift |
+      | scaled_number | 1                     |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
       | resource_type | deployment      |
       | resource_name | hello-openshift |
       | version       | #2              |
     Then the step should succeed
-    Given I run the steps 2 times:
+    Given I run the steps 1 times:
     """
     When I run the :scale_up_once web console action
     Then the step should succeed
     """
     When I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 6 |
+      | scaled_number | 2 |
     Then the step should succeed
 
-    Given I run the steps 4 times:
+    Given I run the steps 1 times:
     """
     When I run the :scale_down_once web console action
     Then the step should succeed
     """
-    Given 2 pods become ready with labels:
+    Given a pod is present with labels:
       | app=hello-openshift |
     When I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 2 |
+      | scaled_number | 1 |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | deployment                                                                                                       |
       | resource_name | hello-openshift                                                                                                  |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"yapei/hello-openshift-test", "name":"hello-openshift"}]}}}} |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"aosqe/hello-openshift-test", "name":"hello-openshift"}]}}}} |
     Then the step should succeed
     When I perform the :goto_monitoring_page web console action with:
       | project_name  | <%= project.name %> |
@@ -434,11 +434,11 @@ Feature: Features about k8s deployments
     Then the step should fail
     When I perform the :check_image_name_on_monitoring web console action with:
       | resource_type | Deployments           |
-      | image_name    | yapei/hello-openshift |
+      | image_name    | aosqe/hello-openshift |
     Then the step should fail
     When I perform the :check_image_name_on_monitoring web console action with:
       | resource_type | Deployments                |
-      | image_name    | yapei/hello-openshift-test |
+      | image_name    | aosqe/hello-openshift-test |
     Then the step should succeed
     When I run the :click_on_hide_older_resources web console action
     Then the step should succeed
@@ -448,22 +448,22 @@ Feature: Features about k8s deployments
     Then the step should succeed
     When I perform the :check_image_name_on_monitoring web console action with:
       | resource_type | Deployments           |
-      | image_name    | yapei/hello-openshift |
+      | image_name    | aosqe/hello-openshift |
     Then the step should succeed
     When I perform the :check_image_name_on_monitoring web console action with:
       | resource_type | Deployments                |
-      | image_name    | yapei/hello-openshift-test |
+      | image_name    | aosqe/hello-openshift-test |
     Then the step should succeed
     When I perform the :expand_resource_logs_by_image web console action with:
       | resource_type | Deployments           |
-      | image_name    | yapei/hello-openshift |
+      | image_name    | aosqe/hello-openshift |
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should contain:
       | Logs are not available for replica sets. |
     When I perform the :expand_resource_logs_by_image web console action with:
       | resource_type | Deployments                |
-      | image_name    | yapei/hello-openshift-test |
+      | image_name    | aosqe/hello-openshift-test |
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should contain:
