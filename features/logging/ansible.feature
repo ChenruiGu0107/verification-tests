@@ -64,9 +64,9 @@ Feature: ansible install related feature
     And I wait until number of replicas match "0" for replicationController "<%= rc.name %>"
     And I login to kibana logging web console
     And I get the visible text on web html page
+    # just catch red is enough since the error ouptu changed to Request Timeout in 3.9
     And the output should contain:
-      | Status: Red                                                   |
-      | Unable to connect to Elasticsearch at https://logging-es:9200 |
+      | Status: Red |
 
   # @author pruan@redhat.com
   # @case_id OCP-11687
