@@ -186,11 +186,7 @@ Feature: ansible install related feature
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
     And I switch to cluster admin pseudo user
     And I wait for the "alerts" service to become ready
-    And I run the :delete admin command with:
-      | object_type       | svc    |
-      | object_name_or_id | alerts |
-    Then the step should succeed
-    And I wait for the resource "svc" named "alerts" to disappear within 60 seconds
+    Given I ensure "alerts" service is deleted
     # rerun the ansible install again
     And metrics service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
