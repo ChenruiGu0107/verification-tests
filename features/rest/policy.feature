@@ -87,7 +87,8 @@ Feature: REST policy related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=hello-openshift |
     # project admin could update image
     When I replace resource "pod" named "hello-openshift":
       | openshift/hello-openshift | openshift/hello-openshift-fedora |

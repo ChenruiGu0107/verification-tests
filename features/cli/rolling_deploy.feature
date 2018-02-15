@@ -54,7 +54,8 @@ Feature: rolling deployment related scenarios
       | resource | replicationcontrollers |
       | name     | hooks-1                |
       | replicas | 10                     |
-    And all pods in the project are ready
+    And 10 pods become ready with labels:
+      | name=hello-openshift |
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: -10 |
     Then the step should fail
@@ -72,7 +73,8 @@ Feature: rolling deployment related scenarios
       | resource | dc    |
       | name     | hooks |
       | replicas | 3     |
-    And all pods in the project are ready
+    And 3 pods become ready with labels:
+      | name=hello-openshift |
     And I replace resource "dc" named "hooks":
       | maxSurge: 25%       | maxSurge: 10%       |
       | maxUnavailable: 25% | maxUnavailable: 0 |
@@ -110,13 +112,13 @@ Feature: rolling deployment related scenarios
   Scenario: Rolling-update pods with default value for maxSurge/maxUnavailable
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |
       | replicas | 3     |
-    And all pods in the project are ready
+    And 3 pods become ready with labels:
+      | name=hello-openshift |
     And I wait up to 120 seconds for the steps to pass:
     """
     And I run the :get client command with:

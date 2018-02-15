@@ -13,7 +13,6 @@ Feature: Return description with cli
       |name=frontend|
     And a pod becomes ready with labels:
       |name=database|
-    #And all pods in the project are ready
 
     #Use blank parameter
     When I run the :describe client command with:
@@ -112,7 +111,8 @@ Feature: Return description with cli
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=test-pods |
     When I run the :describe client command with:
       | resource | svc               |
       | name     | test-service      |

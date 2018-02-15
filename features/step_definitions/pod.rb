@@ -103,8 +103,7 @@ Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods? labeled:$/ do |st
 end
 
 # for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod
-# this step is deprecated due to not having clear semantics
-Given /^all pods in the project are ready$/ do
+Given /^all the pods in the project reach a successful state$/ do
   pods = project.pods(by:user)
   logger.info("Number of pods: #{pods.count}")
   pods.each do | pod |
@@ -116,6 +115,22 @@ Given /^all pods in the project are ready$/ do
     end
   end
 end
+
+# use this with care and it just all of the pods in the project, better to filter out the pods with labels if possible
+Given /^all pods in the project are ready$/ do
+  pods = project.pods(by:user)
+  ready_timeout = 15 * 60
+  logger.info("Number of pods: #{pods.count}")
+  pods.each do |pod|
+    cache_pods(pod)
+    @result = pod.wait_till_ready(user, ready_timeout)
+    unless @result[:success]
+      raise "pod #{pod.name} did not become ready within allowed time"
+    end
+  end
+end
+
+
 
 Given /^#{NUMBER} pods become ready with labels:$/ do |count, table|
   labels = table.raw.flatten # dimentions irrelevant

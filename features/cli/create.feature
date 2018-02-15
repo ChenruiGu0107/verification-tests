@@ -202,19 +202,12 @@ Feature: creating 'apps' with CLI
     When I run the :create client command with:
       |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=test-pods |
     When I get project pod
     Then the step should succeed
     And the output should contain:
       | Running |
-    When I get project service
-    Then the step should succeed
-    And the output should contain:
-      | test-service |
-      | name=test-pods |
-    When I get project endpoints
-    And the output should contain:
-      | test-service |
     Given I wait for the "test-service" service to become ready
     When I execute on the pod:
       | curl | -ksS | <%= service.url %> |
@@ -967,7 +960,7 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     #And the output should match:
     #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
-   
+
   # @author geliu@redhat.com
   # @case_id OCP-16295
   Scenario: 3.7 User can expose the environment variables to pods

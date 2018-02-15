@@ -54,7 +54,8 @@ Feature: oc_delete.feature
     And evaluation of `project.name` is stored in the :prj1 clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/40.json |
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=graceful |
     Given the project is deleted
     Given 10 seconds have passed
     When I run the :get admin command with:

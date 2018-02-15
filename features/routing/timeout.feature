@@ -7,7 +7,8 @@ Feature: Testing timeout route
     When I run the :create client command with:
       | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=httpbin-pod |
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -29,7 +30,7 @@ Feature: Testing timeout route
       | delay/1                               |
     When I open web server via the "http://<%= route.dns(by: user) %>/delay/5" url
     Then the output should contain "504 Gateway"
-    """    
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-11347
@@ -39,12 +40,13 @@ Feature: Testing timeout route
     When I run the :create client command with:
       | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=httpbin-pod |
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
-    When I run the :create_route_edge client command with: 
+    When I run the :create_route_edge client command with:
       | name     | edge-route       |
       | service  | service-unsecure |
     Then the step should succeed
@@ -81,8 +83,9 @@ Feature: Testing timeout route
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod-2.json |
     Then the step should succeed
-    And all pods in the project are ready
-    When I run the :create client command with: 
+    And a pod becomes ready with labels:
+      | name=httpbin-pod |
+    When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/passthough/service_secure.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
@@ -125,7 +128,8 @@ Feature: Testing timeout route
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod-2.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=httpbin-pod |
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/reencrypt/service_secure.json |
     Then the step should succeed
@@ -232,4 +236,4 @@ Feature: Testing timeout route
       | \-A              |
       | 15               |
       | haproxy.config   |
-    Then the output should not contain "timeout server  *^%"  
+    Then the output should not contain "timeout server  *^%"

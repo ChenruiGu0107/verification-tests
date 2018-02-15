@@ -43,7 +43,7 @@ Feature: Testing abrouting
     Given I have a pod-for-ping in the project
     #access the route without cookies
     Given I wait up to 30 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       | -sS |
@@ -581,7 +581,7 @@ Feature: Testing abrouting
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -600,7 +600,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -619,7 +619,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -638,7 +638,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -680,7 +680,7 @@ Feature: Testing abrouting
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -699,7 +699,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -717,7 +717,7 @@ Feature: Testing abrouting
       | service   | service-secure-2=1 |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -736,7 +736,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -746,10 +746,10 @@ Feature: Testing abrouting
       | haproxy.config   |
     Then the output should contain "leastconn"
     """
-    
+
 
   # @author yadu@redhat.com
-  # @case_id OCP-13522 
+  # @case_id OCP-13522
   @admin
   Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
@@ -786,7 +786,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -804,7 +804,7 @@ Feature: Testing abrouting
       | service   | service-secure-2=1 |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -823,7 +823,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass: 
+    And I wait up to 5 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -942,7 +942,7 @@ Feature: Testing abrouting
     Then the step should fail
     And the output should match:
       | cannot specify more than 3 .*backends |
-      
+
   # @author yadu@redhat.com
   # @case_id OCP-15382
   Scenario: Set max backends weight for ab routing
@@ -968,7 +968,7 @@ Feature: Testing abrouting
       | routename | service-unsecure      |
       | service   | service-unsecure=256  |
       | service   | service-unsecure-2=0  |
-    Then the step should succeed      
+    Then the step should succeed
     When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     Given I run the steps 10 times:
     """
@@ -986,7 +986,7 @@ Feature: Testing abrouting
   # @author yadu@redhat.com
   # @case_id OCP-15910
   Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - unsecure route
-    # Create pods and services	    
+    # Create pods and services
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
@@ -1055,7 +1055,7 @@ Feature: Testing abrouting
   # @author yadu@redhat.com
   # @case_id OCP-15993
   Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - edge route
-    # Create pods and services      
+    # Create pods and services
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
@@ -1086,7 +1086,7 @@ Feature: Testing abrouting
       | 20% |
       | 10% |
       | 30% |
-      | 40% |    
+      | 40% |
     # Scale pods
     When I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -1123,19 +1123,19 @@ Feature: Testing abrouting
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
     Then the expression should be true> (1..3).include? cb.accesslength2
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
-    Then the expression should be true> (2..6).include? cb.accesslength1    
+    Then the expression should be true> (2..6).include? cb.accesslength1
 
   # @author yadu@redhat.com
   # @case_id OCP-15994
   Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - passthrough route
-    # Create pods and services      
+    # Create pods and services
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod2.json |
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod3.json |
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod4.json |
-    Then the step should succeed		
+    Then the step should succeed
     Given I wait for the "service-secure" service to become ready
     Given I wait for the "service-secure-2" service to become ready
     Given I wait for the "service-secure-3" service to become ready
@@ -1159,7 +1159,7 @@ Feature: Testing abrouting
       | 20% |
       | 10% |
       | 30% |
-      | 40% |    
+      | 40% |
     # Scale pods
     When I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -1201,7 +1201,7 @@ Feature: Testing abrouting
   # @author yadu@redhat.com
   # @case_id OCP-15995
   Scenario: Each endpoint gets weight/numberOfEndpoints portion of the requests - reencrypt route
-    # Create pods and services      
+    # Create pods and services
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/abwithrc_pod1.json |
@@ -1277,7 +1277,7 @@ Feature: Testing abrouting
   # @case_id OCP-15902
   @admin
   Scenario: Endpoint will end up weight 1 when scaled weight per endpoint is less than 1
-    # Create pods and services      
+    # Create pods and services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:

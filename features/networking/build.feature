@@ -8,7 +8,8 @@ Feature: Testing the isolation during build scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svcip clipboard
     And evaluation of `service("test-service").ports(user: user)[0].dig("port")` is stored in the :p1svcport clipboard
 
@@ -54,7 +55,7 @@ Feature: Testing the isolation during build scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
-    # Create egress policy 
+    # Create egress policy
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json  |
       | n | <%= cb.proj1 %> |
@@ -84,7 +85,8 @@ Feature: Testing the isolation during build scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svcip clipboard
     And evaluation of `service("test-service").ports(user: user)[0].dig("port")` is stored in the :p1svcport clipboard
 
@@ -129,7 +131,8 @@ Feature: Testing the isolation during build scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svcip clipboard
     And evaluation of `service("test-service").ports(user: user)[0].dig("port")` is stored in the :p1svcport clipboard
 

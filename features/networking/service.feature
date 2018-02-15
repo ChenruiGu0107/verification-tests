@@ -64,7 +64,8 @@ Feature: Service related networking scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     Given I use the "test-service" service
     And evaluation of `service.ip(user: user)` is stored in the :service1_ip clipboard
 
@@ -126,7 +127,8 @@ Feature: Service related networking scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     Given I use the "test-service" service
     And evaluation of `service.ip(user: user)` is stored in the :service1_ip clipboard
     Given I wait for the "test-service" service to become ready
@@ -137,7 +139,8 @@ Feature: Service related networking scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     Given I use the "test-service" service
     And evaluation of `service.ip(user: user)` is stored in the :service2_ip clipboard
 
@@ -157,7 +160,7 @@ Feature: Service related networking scenarios
 
   # @author bmeng@redhat.com
   # @case_id OCP-11341
-  @admin    
+  @admin
   Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
     Given I have a project
     When I run the :create client command with:
@@ -237,7 +240,7 @@ Feature: Service related networking scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
     Then the step should succeed
-    When I run the :get client command with:                                                                    
+    When I run the :get client command with:
       | resource      | service          |
       | resource_name | service-unsecure |
     Then the step should succeed
@@ -321,7 +324,7 @@ Feature: Service related networking scenarios
   Scenario: The openflow list will be cleaned after delete the services
     Given the env is using one of the listed network plugins:
       | subnet      |
-      | multitenant |		
+      | multitenant |
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |

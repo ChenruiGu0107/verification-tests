@@ -76,7 +76,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -279,7 +280,7 @@ Feature: Testing haproxy router
     And the expression should be true> cb.first_access == @result[:response]
     """
 
-  # @author hongli@redhat.com 
+  # @author hongli@redhat.com
   # @case_id OCP-10207
   Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
     Given I have a project
@@ -491,7 +492,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -510,7 +512,7 @@ Feature: Testing haproxy router
       | cacert | ca.pem |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -608,7 +610,7 @@ Feature: Testing haproxy router
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
-      | cacert | ca.pem |      
+      | cacert | ca.pem |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -953,7 +955,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -1317,7 +1320,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=header-test |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
     Then the step should succeed
@@ -1331,7 +1335,7 @@ Feature: Testing haproxy router
       | --resolve |
       | <%= route.dns(by: user) %>:<%= cb.http_port %>:<%= cb.router_service_ip %> |
       | http://<%= route.dns(by: user) %>:<%= cb.http_port %>/ |
-    Then the step should succeed 
+    Then the step should succeed
     And the output should contain "<%= route.dns(by: user) %>:<%= cb.http_port %>"
 
     When I run the :create_route_edge client command with:
@@ -1381,7 +1385,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -1439,7 +1444,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -1581,14 +1587,15 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deployment=tc-520314-2 |
     Given I use the "tc-520314" service
-    And evaluation of `service.ip(user: user)` is stored in the :router_service_ip clipboard    
+    And evaluation of `service.ip(user: user)` is stored in the :router_service_ip clipboard
 
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -1611,7 +1618,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I open secure web server via the "edge-route" route
     Then the output should contain "Hello-OpenShift"
-    
+
     And I wait up to 20 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -1620,7 +1627,7 @@ Feature: Testing haproxy router
       | <%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %>:<%= cb.router_service_ip %> |
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
-    Then the step should succeed    
+    Then the step should succeed
     Then the output should contain "Hello-OpenShift"
     """
 
@@ -1816,13 +1823,14 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :expose client command with:
       | resource      | service      |
       | resource_name | test-service |
       | name          | route1       |
     Then the step should succeed
-    When I use the "test-service" service    
+    When I use the "test-service" service
     Then I wait up to 15 seconds for a web server to become available via the "route1" route
     And the output should contain "Hello OpenShift"
 
@@ -1831,7 +1839,8 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :expose client command with:
       | resource      | service      |
       | resource_name | test-service |
@@ -1889,13 +1898,14 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :expose client command with:
       | resource      | service      |
       | resource_name | test-service |
       | name          | route1       |
     Then the step should succeed
-    When I use the "test-service" service    
+    When I use the "test-service" service
     Then I wait up to 15 seconds for a web server to become available via the "route1" route
     And the output should contain "Hello OpenShift"
 
@@ -1904,11 +1914,12 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :expose client command with:
       | resource      | service      |
       | resource_name | test-service |
-      | name          | route2       |    
+      | name          | route2       |
     Then the step should succeed
     When I open web server via the "http://<%= route("route2", service("test-service")).dns(by: user) %>/" url
     Then the step should fail
@@ -1982,19 +1993,19 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     When I execute on the pod:
-      | bash | 
-      |  -c  | 
-      |  curl -o /dev/null -D - http://<%= route.dns(by: user) %> -H "Accept-Encoding: gzip" | 
+      | bash |
+      |  -c  |
+      |  curl -o /dev/null -D - http://<%= route.dns(by: user) %> -H "Accept-Encoding: gzip" |
     Then the step should succeed
     And the output should contain "Content-Encoding: gzip"
-  
+
 
   # @author hongli@redhat.com
   # @case_id OCP-12683
   @admin
   @destructive
   Scenario: The health check interval of backend can be set by env variable
-    # set router env (from default 5000ms to 1234ms)  
+    # set router env (from default 5000ms to 1234ms)
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And default router deployment config is restored after scenario
@@ -3020,7 +3031,7 @@ Feature: Testing haproxy router
       | object_type       | pod        |
       | object_name_or_id | <%= cb.router_pod_new %> |
     Then the step should succeed
-    
+
     Given I switch to the first user
     And I use the "<%= cb.proj_name1 %>" project
 
@@ -3033,7 +3044,7 @@ Feature: Testing haproxy router
   # @author zzhao@redhat.com
   # @case_id OCP-11409
   @admin
-  @destructive  
+  @destructive
   Scenario: Default ports will be bound only after the routes are loaded for container network router
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name1 clipboard
@@ -3101,7 +3112,7 @@ Feature: Testing haproxy router
   # @author yadu@redhat.com
   # @case_id OCP-12967 OCP-12968
   @admin
-  @destructive     
+  @destructive
   Scenario Outline: Router dns name info exist in route when creating router with --router-canonical-hostname option
     Given I switch to cluster admin pseudo user
     And I use the "default" project
@@ -3117,7 +3128,7 @@ Feature: Testing haproxy router
     Given admin ensures "tc-12967" dc is deleted after scenario
     And admin ensures "tc-12967" service is deleted after scenario
 
-    When I run the :oadm_router admin command with: 
+    When I run the :oadm_router admin command with:
       | name               | tc-12967 |
       | images             | <%= cb.default_router_image %> |
       | canonical_hostname | external1.router.com |
@@ -3131,7 +3142,8 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :expose client command with:
       | resource      | service      |
       | resource_name | test-service |
@@ -3155,7 +3167,7 @@ Feature: Testing haproxy router
   # @bug_id 1371826
   @admin
   @destructive
-  Scenario: panic error should not be found in haproxy router log    
+  Scenario: panic error should not be found in haproxy router log
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And a pod becomes ready with labels:
@@ -3177,7 +3189,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -3188,7 +3201,7 @@ Feature: Testing haproxy router
       | resource_name | service-unsecure |
       | p             | {"spec": {"path": "/test"}} |
     Then the step should succeed
-    
+
     #Delete the route and re-create it
     When I run the :delete client command with:
       | object_type       | route      |
@@ -3212,7 +3225,7 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready 
+    And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
     Then the step should succeed
@@ -3264,7 +3277,7 @@ Feature: Testing haproxy router
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    
+
     # The default cipher is 'intermediate' and using the specify cipher 'DHE-RSA-AES256-GCM-SHA384' can be accessed.
     When I execute on the "hello-pod" pod:
       | curl |
@@ -3293,7 +3306,7 @@ Feature: Testing haproxy router
     When a pod becomes ready with labels:
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
-    
+
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
     #access the route using the same cipher will failed. since it do not exist in 'modern' list
@@ -3333,7 +3346,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the output should contain "SSL connection using TLSv1.2 / DHE-RSA-AES256-GCM-SHA384"
-    
+
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     # Update router to make it using specified 'ECDHE-RSA-AES256-GCM-SHA384'
@@ -3347,7 +3360,7 @@ Feature: Testing haproxy router
 
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
-    #access the route using above cipher will failed. 
+    #access the route using above cipher will failed.
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -3366,7 +3379,7 @@ Feature: Testing haproxy router
       | -k |
       | -vv |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"    
+    And the output should contain "Hello-OpenShift"
     And the output should contain "SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384"
 
 
@@ -3382,7 +3395,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -3416,7 +3430,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should contain:
       | CN=*.<%= cb.subdomain %> |
-    """    
+    """
     # Enable ROUTER_STRICT_SNI
     Given admin ensures new router pod becomes ready after following env added:
       |  ROUTER_STRICT_SNI=true|
@@ -3442,9 +3456,9 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Could get certificate info for edge routes after enable ROUTER_STRICT_SNI
-    # Enable ROUTER_STRICT_SNI		
+    # Enable ROUTER_STRICT_SNI
     Given admin ensures new router pod becomes ready after following env added:
-      |  ROUTER_STRICT_SNI=true|    
+      |  ROUTER_STRICT_SNI=true|
 
     Given I switch to the first user
     And I have a project
@@ -3453,7 +3467,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -3467,7 +3482,7 @@ Feature: Testing haproxy router
       | service  | service-unsecure |
       | cert     | route_edge-www.edge.com.crt |
       | key      | route_edge-www.edge.com.key |
-      | cacert   | ca.pem |      
+      | cacert   | ca.pem |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name     | edge-route2      |
@@ -3476,7 +3491,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     Given I have a pod-for-ping in the project
     And I wait up to 15 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       |  --resolve |
@@ -3489,7 +3504,7 @@ Feature: Testing haproxy router
       | CN=*.example.com |
     """
     And I wait up to 15 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       |  --resolve |
@@ -3517,7 +3532,8 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -3546,7 +3562,7 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     And I wait up to 15 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       |  --resolve |
@@ -3559,7 +3575,7 @@ Feature: Testing haproxy router
       | CN=*.example.com |
     """
     And I wait up to 15 seconds for the steps to pass:
-    """ 
+    """
     When I execute on the pod:
       | curl |
       |  --resolve |
@@ -3570,7 +3586,7 @@ Feature: Testing haproxy router
     # will not retrun certs info when enable ROUTER_STRICT_SNI
     And the output should contain "(35)"
     And the output should not contain "CN="
-    """ 
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-15023
@@ -3581,7 +3597,8 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I expose the "test-service" service
     Then the step should succeed
 
@@ -3625,7 +3642,8 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | service | test-service |
@@ -3671,7 +3689,8 @@ Feature: Testing haproxy router
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I run the :create_route_passthrough client command with:
       | name | route-pass |
       | service | test-service |
@@ -3971,7 +3990,7 @@ Feature: Testing haproxy router
     Given 10 seconds have passed
     And I run the steps 3 times:
     """
-    When I open web server via the "service-unsecure" route  
+    When I open web server via the "service-unsecure" route
     Then the step should fail
     And the output should not contain "Hello-OpenShift"
     """
@@ -4002,29 +4021,29 @@ Feature: Testing haproxy router
     # create route
     When I expose the "service-unsecure" service
     Then the step should succeed
- 
-    Given I switch to cluster admin pseudo user 
+
+    Given I switch to cluster admin pseudo user
     And I use the "default" project
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
-    """  
+    """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain "<%=cb.pod_ip %>"
     And the output should not contain "check inter"
     """
 
-    Given I switch to the first user 
+    Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
     When I run the :scale client command with:
       | resource | replicationcontrollers |
-      | name     | <%= cb.rc_name %>      |    
+      | name     | <%= cb.rc_name %>      |
       | replicas | 2                      |
     And I wait until number of replicas match "2" for replicationController "<%= cb.rc_name %>"
-    And all pods in the project are ready
-
+    And all existing pods are ready with labels:
+      | name=test-pods |
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And I wait up to 10 seconds for the steps to pass:
@@ -4101,7 +4120,7 @@ Feature: Testing haproxy router
     And I replace lines in "haproxy-config-custom.template":
       | /(timeout http-request ).*"10s".*/ | \\11s |
     Then the step should succeed
-    Given admin ensures "customrouter" configmap is deleted after scenario    
+    Given admin ensures "customrouter" configmap is deleted after scenario
     And I run the :create_configmap client command with:
       | name      | customrouter                   |
       | from_file | haproxy-config-custom.template |
@@ -4130,7 +4149,7 @@ Feature: Testing haproxy router
     And I wait for the pod named "<%= cb.router_pod %>" to die
     When a pod becomes ready with labels:
       | deploymentconfig=router |
-    #Add 10 seconds to make sure the port 80 is binding since even if the router pod ready also did not mean the port has been bound 
+    #Add 10 seconds to make sure the port 80 is binding since even if the router pod ready also did not mean the port has been bound
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the pod:
