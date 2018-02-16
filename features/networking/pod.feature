@@ -87,7 +87,7 @@ Feature: Pod related networking scenarios
       | bash |
       | -c |
       | (echo "Connection test to vxlan port") \| /usr/bin/ncat --udp <%= cb.udp_pod %> 4789 |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :logs client command with:
       | resource_name | udp4789-pod |
     Then the step should succeed
@@ -167,7 +167,8 @@ Feature: Pod related networking scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=nodename-pod |
     Given 30 seconds have passed
     When I run commands on the host:
       | iptables-save \| grep HOSTPORT |
@@ -180,7 +181,8 @@ Feature: Pod related networking scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/nodeport_pod.json" replacing paths:
       | ["spec"]["template"]["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=rc-test |
     When I run commands on the host:
       | iptables-save \| grep HOSTPORT |
     Then the step should succeed
@@ -217,7 +219,8 @@ Feature: Pod related networking scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=nodename-pod |
     When I run the :get client command with:
       | resource      | pods |
       | o             | wide |

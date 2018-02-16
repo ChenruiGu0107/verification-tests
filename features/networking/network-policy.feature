@@ -1122,21 +1122,22 @@ Feature: Network policy plugin scenarios
     Given the env is using networkpolicy plugin
     And environment has at least 2 nodes
     And I store the nodes in the :nodes clipboard
-    # create project and pod 
+    # create project and pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=nodename_pod |
     And evaluation of `pod.ip` is stored in the :p1pod1ip clipboard
-    # create another project and pod 
+    # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given a pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.ip` is stored in the :p2pod1ip clipboard
 

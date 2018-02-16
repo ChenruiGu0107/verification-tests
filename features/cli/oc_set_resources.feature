@@ -122,7 +122,8 @@ Feature: oc_set_resources.feature
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     # Set resource for non-existing container
     When I run the :set_resources client command with:
       | resource     | rc           |

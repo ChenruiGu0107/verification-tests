@@ -526,7 +526,8 @@ Feature: SDN related networking scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
-    Given all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=nodename-pod |
     # Check the pod will not get broadcast ip assigned
     When I run the :get client command with:
       | resource      | pods |
@@ -776,7 +777,7 @@ Feature: SDN related networking scenarios
       | systemctl restart atomic-openshift-node |
     Then the step should fail
     And I wait up to 20 seconds for the steps to pass:
-    """    
+    """
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "2 min ago" \| grep network.go |
     Then the step should succeed

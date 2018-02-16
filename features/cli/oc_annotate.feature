@@ -9,8 +9,8 @@ Feature: oc annotate related features
     When I run oc create over "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" replacing paths:
       | ["metadata"]["name"]  | hello-again |
     Then the step should succeed
-
-    Given all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=hello-openshift |
     When I run the :annotate client command with:
       | resource     | pod                     |
       | resourcename | hello-openshift         |

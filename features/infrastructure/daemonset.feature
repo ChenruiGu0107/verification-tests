@@ -14,7 +14,8 @@ Feature: Features of daemonset
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
-    Given all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=hello-daemonset |
     Given I store in the clipboard the pods labeled:
       | name=hello-daemonset |
     Then the expression should be true> env.nodes.count == cb.pods.count
@@ -29,7 +30,8 @@ Feature: Features of daemonset
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
-    Given all pods in the project are ready
+    And 2 pods become ready with labels:
+      | name=hello-daemonset |
     Then I run the :get client command with:
       | resource | pod  |
       | o        | name |

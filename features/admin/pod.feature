@@ -223,7 +223,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
@@ -248,7 +247,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod1 clipboard
-    And all pods in the project are ready
     And I replace lines in "Eviction.json":
       | "name": "<%= cb.pod %>",|"name": "<%= cb.pod1 %>",|
     When I perform the :create_pod_eviction rest request with:
@@ -265,7 +263,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod2 clipboard
-    And all pods in the project are ready
     And I replace lines in "Eviction.json":
       | "name": "<%= cb.pod1 %>",|"name": "<%= cb.pod2 %>",|
     When I perform the :create_pod_eviction rest request with:
@@ -307,7 +304,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
@@ -851,7 +847,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
@@ -905,7 +900,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
@@ -954,7 +948,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
@@ -1008,7 +1001,6 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    And all pods in the project are ready
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |

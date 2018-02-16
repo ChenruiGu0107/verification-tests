@@ -19,7 +19,7 @@ Feature: Testing route
       | resource      | service          |
       | resource_name | header-test-insecure |
       | name          | header-test-insecure-dup |
-    Then the step should succeed    
+    Then the step should succeed
     Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author zzhao@redhat.com
@@ -136,7 +136,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=test-pods |
     When I run the :get client command with:
       | resource | endpoints |
     Then the output should contain:
@@ -162,7 +163,8 @@ Feature: Testing route
       | name     | <%= cb.rc_name %>      |
       | replicas | 1                      |
     And I wait until number of replicas match "1" for replicationController "<%= cb.rc_name %>"
-    And all pods in the project are ready
+    And all existing pods are ready with labels:
+      | name=test-pods |
     When I run the :get client command with:
       | resource | endpoints |
     Then the output should contain:
@@ -191,17 +193,18 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
-      | name     | myroute      |
-      | service  | service-unsecure |
+      | name    | myroute          |
+      | service | service-unsecure |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      | route |
-      | resource_name | myroute |
+      | resource      | route                                                    |
+      | resource_name | myroute                                                  |
       | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Abc"}}} |
     And the output should contain:
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
@@ -234,7 +237,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -280,7 +284,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
@@ -312,7 +317,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -421,7 +427,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -463,7 +470,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -512,7 +520,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
     Then the step should succeed
@@ -544,7 +553,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -569,7 +579,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -610,7 +621,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -642,7 +654,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
     Then the step should succeed
@@ -705,7 +718,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
     Then the step should succeed
@@ -756,7 +770,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I expose the "test-service" service
     Then the step should succeed
     Given I have a pod-for-ping in the project
@@ -788,7 +803,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -988,7 +1004,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=service-unsecure |
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :get client command with:
@@ -1008,7 +1025,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -1040,7 +1058,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
@@ -1086,7 +1105,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
@@ -1179,7 +1199,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
@@ -1294,6 +1315,7 @@ Feature: Testing route
     When I run the :create client command with:
       | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
+    And I pry
     And all pods in the project are ready
     Given I use the "service-secure" service
     When I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route
@@ -1415,7 +1437,7 @@ Feature: Testing route
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I open web server via the "https://<%= route("route-pass", service("service-secure")).dns(by: user).upcase %>" url    
+    When I open web server via the "https://<%= route("route-pass", service("service-secure")).dns(by: user).upcase %>" url
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
 
@@ -1520,7 +1542,7 @@ Feature: Testing route
     When I wait for a secure web server to become available via the "edge-route" route
     Then the step should succeed
     And the output should contain "x-forwarded-for"
-		
+
 
   # @author yadu@redhat.com
   # @case_id OCP-14685
@@ -1643,7 +1665,7 @@ Feature: Testing route
       | resource     | route                                               |
       | resourcename | <%= cb.header_test_svc.name %>                      |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.a/b  |
-      | overwrite    | true                                                | 
+      | overwrite    | true                                                |
     Then the step should succeed
     # The whitelist will not take effect
     When I wait for a web server to become available via the route
@@ -1680,7 +1702,7 @@ Feature: Testing route
     When I run the :create_route_edge client command with:
       | name           | route-edge                                |
       | service        | <%= cb.header_test_svc.name %>            |
-    Then the step should succeed 
+    Then the step should succeed
     Given I have a pod-for-ping in the project
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -1716,7 +1738,7 @@ Feature: Testing route
     Given the master version >= "3.6"
     And I have a project
     And I store default router IPs in the :router_ip clipboard
-    #Create the pod/svc/route 
+    #Create the pod/svc/route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/header-reecrypt-without-CA.json |
     Then the step should succeed
@@ -1813,7 +1835,7 @@ Feature: Testing route
       | ["items"][0]["metadata"]["annotations"] | { haproxy.router.openshift.io/hsts_header: "max-age=100;includeSubDomains;preload" } |
     Then the step should succeed
     And all pods in the project are ready
-    
+
     Given I use the "service-secure" service
     And I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route
     Then the output should contain "Hello-OpenShift"
@@ -1915,7 +1937,7 @@ Feature: Testing route
       | resource     | route                                                                          |
       | resourcename | myroute                                                                        |
       | keyval       | haproxy.router.openshift.io/hsts_header=max-age=20;includeSubDomains;invalid   |
-      | keyval       | router.openshift.io/cookie_name=edge-with-invalid-hsts-preload                 | 
+      | keyval       | router.openshift.io/cookie_name=edge-with-invalid-hsts-preload                 |
       | overwrite    | true                                                                           |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
@@ -1935,7 +1957,8 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
-    And all pods in the project are ready
+    And a pod becomes ready with labels:
+      | name=test-pods |
     When I expose the "test-service" service
     Then the step should succeed
     When I run the :annotate client command with:
