@@ -108,10 +108,11 @@ Feature: rolling deployment related scenarios
       | keep 3 pods available, don't exceed 5 pods |
 
   # @author pruan@redhat.com
-  # @case_id 503865,OCP-12359
+  # @case_id OCP-12359
   Scenario: Rolling-update pods with default value for maxSurge/maxUnavailable
     Given I have a project
     When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |
