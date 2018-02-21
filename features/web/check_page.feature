@@ -121,7 +121,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |
       | pod_name     | pod-dapi-volume     |
     Then the step should succeed
-    Given evaluation of `service_account("default").get_secret_names.select{|a| a.include?("default-token")}[0]` is stored in the :sname clipboard
+    Given evaluation of `service_account("default").get_secret_names(by: user).select{|a| a.include?("default-token")}[0]` is stored in the :sname clipboard
     When I get the visible text on web html page
     Then the output should match:
       | ^podinfo$                                           |
@@ -532,7 +532,7 @@ Feature: check page info related
     Then the step should succeed
     When I run the :check_navitator_menus web console action
     Then the step should succeed
-    
+
     ## check navigator exist with hightlight item on dc edit page
     When I run the :run client command with:
       | name      | myrun                     |
@@ -555,4 +555,4 @@ Feature: check page info related
     When I run the :click_expand_collapse_navigator_button web console action
     Then the step should succeed
     When I run the :check_navigator_expand web console action
-    Then the step should succeed   
+    Then the step should succeed
