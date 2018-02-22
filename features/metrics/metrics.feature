@@ -249,9 +249,9 @@ Feature: metrics related scenarios
       | type         | rx                |
     Then the step should succeed
 
-  # @author: penli@redhat.com
-  # @author: lizhou@redhat.com
-  # @case_id: OCP-13983
+  # @author penli@redhat.com
+  # @author lizhou@redhat.com
+  # @case_id OCP-13983
   # combined using unified step for deploying metrics
   @admin
   @destructive
@@ -297,8 +297,8 @@ Feature: metrics related scenarios
       | type=hawkular-cassandra |
     Then I wait until number of replicas match "1" for replicationController "hawkular-cassandra-1"
 
-  # @author: pruan@redhat.com
-  # @case_id: OCP-12276
+  # @author pruan@redhat.com
+  # @case_id OCP-12276
   # combined using unified step for deploying metrics
   @admin
   @destructive
@@ -311,8 +311,8 @@ Feature: metrics related scenarios
     Then the expression should be true> rc('hawkular-cassandra-1').container_spec(name: 'hawkular-cassandra-1').memory_limit_raw == "1G"
     Then the expression should be true> rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_request_raw == "100m"
 
-  # @author: pruan@redhat.com
-  # @case_id: OCP-14519
+  # @author pruan@redhat.com
+  # @case_id OCP-14519
   @admin
   @destructive
   Scenario: Show CPU,memory, network metrics statistics on pod page of openshift web console
@@ -346,3 +346,18 @@ Feature: metrics related scenarios
       | project_name | <%= cb.proj_1_name %> |
       | pod_name     | hello-openshift       |
     Then the step should succeed
+
+
+  # @author pruan@redhat.com
+  # @case_id OCP-13082
+  @admin
+  @destructive
+  Scenario: Make sure no password exposed in process command line
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system
+    And I select a random node's host
+    And I run commands on the host:
+      | ps -aux \| grep hawkular |
+    Then the output should not contain:
+      | password= |
