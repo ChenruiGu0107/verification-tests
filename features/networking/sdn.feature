@@ -783,3 +783,39 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should contain "net/ipv4/ip_forward=0, it must be set to 1"
     """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-14985
+  @admin
+  @destructive
+  Scenario: The openflow list will be cleaned after deleted the node
+    Given environment has at least 2 nodes
+    And I store the nodes in the :nodes clipboard
+
+    # get node_1's host IP and save to clipboard
+    Given I use the "<%= cb.nodes[1].name %>" node
+    And the node service is restarted on the host after scenario
+    And evaluation of `host_subnet(cb.nodes[1].name).ip` is stored in the :hostip clipboard
+
+    # check ovs rule in node_0
+    Given I use the "<%= cb.nodes[0].name %>" node
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep <%= cb.hostip %> |
+    Then the step should succeed
+    And the output should match:
+      | table=10,.*tun_src=<%= cb.hostip %> actions=goto_table:30 |
+      | table=50,.*arp,.*set_field:<%= cb.hostip %>->tun_dst |
+      | table=90,.*ip,.*set_field:<%= cb.hostip %>->tun_dst |
+      | table=111,.*set_field:<%= cb.hostip %>->tun_dst,.*goto_table:120 |
+
+    # delete the node_1
+    When I run the :delete admin command with:
+      | object_type       | node                    |
+      | object_name_or_id | <%= cb.nodes[1].name %> |
+    Then the step should succeed
+
+    # again, check ovs rule in node_0
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null |
+    Then the step should succeed
+    And the output should not contain "<%= cb.hostip %>"
