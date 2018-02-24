@@ -817,3 +817,30 @@ Feature: NFS Persistent Volume
       | retrans=2 |
       | hard      |
       | timeo=600 |
+
+  # @author wehe@redhat.com
+  # @case_id OCP-17279 
+  @admin
+  @destructive
+  Scenario: Configure 'Retain' reclaim policy for nfs 
+    Given I have a project
+    And I have a nfs-provisioner pod in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["reclaimPolicy"]    | Retain                 |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario
+    And the expression should be true> pv.reclaim_policy == "Retain"
+
+    When I ensure "<%= pvc.name %>" pvc is deleted
+    Given I run the :get admin command with:
+      | resource      | pv             |
+      | resource_name | <%= pv.name %> |
+    Then the output should contain:
+      | Released |

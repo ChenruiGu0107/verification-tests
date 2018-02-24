@@ -194,3 +194,107 @@ Feature: Storage of Hostpath plugin testing
     Then the step should fail
     And the output should contain:
       | may not specify mount options for this volume type |
+
+  # @author wehe@redhat.com
+  # @case_id OCP-14665
+  @admin
+  @destructive
+  Scenario: Mount propagation test of HostToContainer and Bidirectional 
+    Given feature gate "MountPropagation" is enabled
+    And admin creates a project with a random schedulable node selector
+    And I use the "<%= node.name %>" node
+    And the "/mnt/disk" path is recursively removed on the host after scenario
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propashare.yaml | 
+      | n | <%= project.name %>                                                                                            |
+    Then the step should succeed
+    Given the pod named "propashare" becomes ready
+    When I execute on the pod:
+      | mkdir | -p | /mnt/local/master |
+    Then the step should succeed
+    When I execute on the pod:
+      | mount | -t | tmpfs | master | /mnt/local/master |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/local/master/masterdata |
+    Then the step should succeed
+    When I run commands on the host:
+      | ls /mnt/disk/master |
+    Then the output should contain:
+      | masterdata |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propaslave.yaml |
+      | n | <%= project.name %>                                                                                            |
+    Then the step should succeed
+    Given the pod named "propaslave" becomes ready
+    When I execute on the pod:
+      | mkdir | -p | /mnt/local/slave |
+    Then the step should succeed
+    When I execute on the pod:
+      | mount | -t | tmpfs | slave | /mnt/local/slave |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/local/slave/slavedata |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/local/master/ |
+    Then the output should contain:
+      | masterdata |
+    When I execute on the "propashare" pod:
+      | ls | /mnt/local/slave/ |
+    Then the output should not contain:
+      | slavedata |
+    When I run commands on the host:
+      | mkdir -p /mnt/disk/slave1                       |
+      | mount -t tmpfs HostToContainer /mnt/disk/slave1 |
+      | touch /mnt/disk/slave1/slavedata                |
+    Then the step should succeed
+    When I execute on the "propaslave" pod:
+      | ls | /mnt/local/slave1 |
+    Then the output should contain:
+      | slavedata |
+    When I run commands on the host:
+      | umount master          |
+      | umount slave           |
+      | umount HostToContainer |
+    Then the step should succeed
+
+  # @author wehe@redhat.com
+  # @case_id OCP-14673
+  @admin
+  @destructive
+  Scenario: Bidirectional and HostoContainer mount propagation with unpriviledged pod 
+    Given feature gate "MountPropagation" is enabled
+    And admin creates a project with a random schedulable node selector
+    And I use the "<%= node.name %>" node
+    And the "/mnt/<%= project.name %>" path is recursively removed on the host after scenario
+    And I run commands on the host:
+      | mkdir -p /mnt/<%= project.name %>                         |
+      | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propashare.yaml" replacing paths:
+      | ["spec"]["containers"][0]["securityContext"]["privileged"] | false |
+    Then the step should fail 
+    And the output should contain:
+      | Bidirectional mount propagation is available only to privileged containers |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propaslave.yaml" replacing paths:
+      | ["spec"]["containers"][0]["securityContext"]["privileged"] | false                    |
+      | ["spec"]["volumes"][0]["hostPath"]["path"]                 | /mnt/<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "propaslave" becomes ready
+    When I run commands on the host:
+      | mkdir -p /mnt/<%= project.name %>/slave                         |
+      | mount -t tmpfs HostToContainer /mnt/<%= project.name %>/slave   |
+      | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %>/slave |
+      | touch /mnt/<%= project.name %>/slave/slavedata                  |
+    Then the step should succeed
+    When I execute on the "propaslave" pod:
+      | ls | /mnt/local/slave |
+    Then the output should contain:
+      | slavedata |
+    When I run commands on the host:
+      | umount master          |
+      | umount slave           |
+      | umount HostToContainer |
+    Then the step should succeed
+

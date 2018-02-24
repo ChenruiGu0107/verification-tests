@@ -156,3 +156,64 @@ Given /^the output is parsed as (YAML|JSON)$/ do |format|
   end
 end
 
+Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED} (enabled|disabled)?)?$/ do |fg, fgen, adm, admen|
+  ensure_destructive_tagged
+  fg_en = (fgen == "enabled") 
+  env.master_services.each { |service|
+    master_config = service.config
+    config_hash = master_config.as_hash()
+    config_hash["kubernetesMasterConfig"] ||= {}
+    config_hash["kubernetesMasterConfig"]["apiServerArguments"] ||= {}
+    config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"] ||= []
+    config_hash["kubernetesMasterConfig"]["controllerArguments"] ||= {} 
+    config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"] ||= []
+    config_hash["admissionConfig"] ||= {}
+    config_hash["admissionConfig"]["pluginConfig"] ||= {} 
+    api_fg = config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"]
+    controller_fg = config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"]
+    adm_plg = config_hash["admissionConfig"]["pluginConfig"]
+    unless api_fg && api_fg.include?("#{fg}=#{fg_en}") &&
+           controller_fg && controller_fg.include?("#{fg}=#{fg_en}") 
+      config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
+      config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
+      if fg_en
+        config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"] << "#{fg}=true"
+        config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"] << "#{fg}=true"
+      end
+      update_api_controller = true
+    end
+    if adm
+      adme_da = !(admen == "enabled") 
+      config_hash["admissionConfig"]["pluginConfig"]["#{adm}"] ||= {}
+      config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"] ||= {}
+      config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"] ||= nil 
+      adm_da = config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"]
+      if adm_da != adme_da
+        adm_yml =  {"#{adm}" => 
+                     {"configuration" => {"apiVersion" => "v1",
+                                           "disable" => adme_da, 
+                                           "kind" => "DefaultAdmissionConfig"}}}
+        config_hash["admissionConfig"]["pluginConfig"].delete("#{adm}")
+        config_hash["admissionConfig"]["pluginConfig"].merge!(adm_yml)
+        update_adm = true
+      end
+    end
+    if update_api_controller || update_adm
+      step 'master config is merged with the following hash:', config_hash.to_yaml 
+    end
+  }
+  env.nodes.map(&:service).each { |service|
+    node_config = service.config
+    config_hash = node_config.as_hash()
+    config_hash["kubeletArguments"] ||= {}
+    config_hash["kubeletArguments"]["feature-gates"] ||= []
+    kubelet_fg = config_hash["kubeletArguments"]["feature-gates"]
+    unless kubelet_fg && kubelet_fg.include?("#{fg}=#{fg_en}") 
+      config_hash["kubeletArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
+      if fg_en
+        config_hash["kubeletArguments"]["feature-gates"] << "#{fg}=true"
+      end
+      step 'config of all nodes is merged with the following hash:', config_hash.to_yaml
+    end
+  }
+end 
