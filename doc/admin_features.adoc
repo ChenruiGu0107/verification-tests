@@ -60,3 +60,29 @@ As another example, see the step `Given /^(the [a-z]+) user is cluster-admin$/` 
     }
 
 Here we fail whole run if user cannot be restored for any reason.
+
+== System verification steps
+
+System verification steps are closely related to clean-up steps. The basic idea is that we want to
+make sure that environment is in expected state before and after scenario execution. Because they
+would run both - before and after scenario, they would not perform any setup changes, just verify
+environment operational status.
+
+Again there are two ways verification steps can be used. One way is to use a dedicated verification
+steps like the networking step:
+
+    the#{OPT_QUOTED} node network is verified
+
+Then other way is to insert custom steps like:
+
+    Given system verification steps are used:
+    """
+    When I run the :get admin command with:
+      | resource                | scc              |
+      | o                       | yaml             |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= user.name %>        |
+    And the output should match:
+      | \sanyuid\s              |
+    """
