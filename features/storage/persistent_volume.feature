@@ -733,7 +733,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17550
   @admin
+  @destructive
   Scenario: PV with Filesystem VolumeMode and PVC with unspecified VolumeMode should be bound successfully
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -762,7 +765,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17552
   @admin
+  @destructive
   Scenario: PV with Block VolumeMode and PVC with unspecified VolumeMode could not be bound
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -800,7 +806,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17554
   @admin
+  @destructive
   Scenario: PV with unspecified VolumeMode and PVC with Filesystem VolumeMode should be bound successfully
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -829,7 +838,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17555
   @admin
+  @destructive
   Scenario: PV with unspecified VolumeMode and PVC with Block VolumeMode could not be bound
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -867,7 +879,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17558
   @admin
+  @destructive
   Scenario: PV's spec.VolumeMode field should be dropped when feature gate BlockVolume is not enabled
+    Given feature gate "BlockVolume" is disabled
+
     Given I have a project
     And I have a NFS service in the project
 
@@ -912,7 +927,10 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   # @case_id OCP-17562
   @admin
+  @destructive
   Scenario: Pod's spec.[init]containers.VolumeDevices field should be dropped when feature gate BlockVolume is not enabled
+    Given feature gate "BlockVolume" is disabled
+
     Given I have a project
     And I have a NFS service in the project
 
@@ -940,7 +958,10 @@ Feature: Persistent Volume Claim binding policies
 
   # @author piqin@redhat.com
   @admin
+  @destructive
   Scenario Outline: PV and PVC with same VolumeMode, but with other invalid feild should not be bound
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -972,7 +993,10 @@ Feature: Persistent Volume Claim binding policies
 
   # @author piqin@redhat.com
   @admin
+  @destructive
   Scenario Outline: PV and PVC with different specified VolumeMode should not be bound
+    Given feature gate "BlockVolume" is enabled
+
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
