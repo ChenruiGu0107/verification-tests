@@ -289,9 +289,8 @@ Feature: Service-catalog related scenarios
     """
     When I run the :describe client command with:
       | resource | serviceinstance |
-    Then the output should match "Delete instance failed.*Delete instance blocked by existing ServiceBindings"
+    Then the output should match "DeprovisionBlockedByExistingCredentials.*ServiceBindings.*must be removed"
     """
-
     # Check ServiceInstance and ServiceBinding status after 6mins
     Given 360 seconds have passed
     And I check that the "ups-instance" serviceinstance exists
@@ -420,7 +419,7 @@ Feature: Service-catalog related scenarios
     """
     When I run the :describe client command with:
       | resource | serviceinstance |
-    Then the output should match "Delete instance failed.*Delete instance blocked by existing ServiceBindings"
+    Then the output should match "DeprovisionBlockedByExistingCredentials.*ServiceBindings.*must be removed"
     """
 
     # Create the second servicebinding
