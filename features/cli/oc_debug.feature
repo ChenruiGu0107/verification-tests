@@ -29,8 +29,8 @@ Feature: oc debug related scenarios
       | deployment=hello-1 |
     When I run the :debug client command with:
       | resource         | dc/hello |
-      | keep_annotations |        |
-      | o                | yaml   |
+      | keep_annotations |          |
+      | o                | yaml     |
     Then the step should succeed
     And the output should match:
       | openshift.io/deployment-config.latest-version:.*1 |

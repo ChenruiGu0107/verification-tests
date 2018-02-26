@@ -145,13 +145,9 @@ Feature: Pod related features on web console
       | source_url   | https://github.com/openshift/django-ex.git |
     Then the step should succeed
     Given I use the "<%= project.name %>" project
-    Given I wait for the "python-sample" service to become ready
-    When I run the :get client command with:
-      | resource      | pod              |
-      | resource_name | <%= pod.name %>  |
-      | o             | json             |
-    Then the step succeeded
-    Given evaluation of `@result[:parsed]['metadata']['labels']` is stored in the :label_from_ui clipboard
+    Given a pod is present with labels:
+      | deployment=python-sample-1 |
+    Given evaluation of `pod.labels` is stored in the :label_from_ui clipboard    
     # check labels via cli
     Given I create a new project
     When I run the :new_app client command with:
@@ -159,13 +155,9 @@ Feature: Pod related features on web console
       | code         | https://github.com/openshift/django-ex.git |
       | name         | python-sample |
     Then the step should succeed
-    Given I wait for the "python-sample" service to become ready
-    When I run the :get client command with:
-      | resource      | pod              |
-      | resource_name | <%= pod.name %>  |
-      | o             | json             |
-    Then the step succeeded
-    Given evaluation of `@result[:parsed]['metadata']['labels']` is stored in the :label_from_cli clipboard
+    Given a pod is present with labels:
+      | deployment=python-sample-1 |    
+    Given evaluation of `pod.labels` is stored in the :label_from_cli clipboard
     Then the expression should be true> cb.label_from_ui == cb.label_from_cli
 
   # @author cryan@redhat.com
