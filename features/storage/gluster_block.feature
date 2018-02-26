@@ -17,6 +17,7 @@ Feature: Gluster Block features testing file
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And I ensure "pvc-<%= project.name %>" pvc is deleted after scenario
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
@@ -28,7 +29,6 @@ Feature: Gluster Block features testing file
       | grep | mpath | /proc/self/mountinfo |
     Then the output should contain:
       | rw |
-    And I ensure "pvc-<%= project.name %>" pvc is deleted
 
   # @author jhou@redhat.com
   # @case_id OCP-17278
@@ -48,6 +48,7 @@ Feature: Gluster Block features testing file
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And admin ensures "<%= pv.name %>" pv is deleted after scenario
 
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
 
@@ -57,5 +58,3 @@ Feature: Gluster Block features testing file
       | resource_name | <%= pv.name %> |
     Then the output should contain:
       | Released |
-    And admin ensures "<%= pv.name %>" pv is deleted
-
