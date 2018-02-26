@@ -350,6 +350,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
 
   # prep the inventory file.
   cb.master_url = env.master_hosts.first.hostname
+  # get a list of scheduleable nodes and stored it as an array of string
+  cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
   cb.api_port = '8443' if cb.api_port.nil?
 
   step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
