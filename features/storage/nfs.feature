@@ -844,3 +844,59 @@ Feature: NFS Persistent Volume
       | resource_name | <%= pv.name %> |
     Then the output should contain:
       | Released |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-12221
+  @admin
+  Scenario: Volume should re-attached with correct mode when pod is re-created with different read-write mode
+    Given I have a project
+    And I have a NFS service in the project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
+      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                                             | ReadOnlyMany                     |
+      | ["spec"]["capacity"]["storage"]                                        | 5Gi                              |
+      | ["metadata"]["name"]                                                   | ro-<%= project.name %>           |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | ro-<%= project.name %> |
+      | ["spec"]["volumeName"]     | ro-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadOnlyMany           |
+    Then the step should succeed
+    And the "ro-<%= project.name %>" PVC becomes bound to the "ro-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | podname                |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | ro-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "podname" becomes ready
+
+    When I execute on the pod:
+      | grep | <%= service("nfs-service").ip %> | /proc/mounts |
+    Then the step should succeed
+    And the output should contain "ro"
+
+    Given I ensure "podname" pod is deleted
+    And I ensure "ro-<%= project.name %>" pvc is deleted
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | rw-<%= project.name %>           |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | rw-<%= project.name %> |
+      | ["spec"]["volumeName"]     | rw-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce          |
+    Then the step should succeed
+    And the "rw-<%= project.name %>" PVC becomes bound to the "rw-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | podname                |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | rw-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "podname" becomes ready
+
+    When I execute on the pod:
+      | grep | <%= service("nfs-service").ip %> | /proc/mounts |
+    Then the step should succeed
+    And the output should contain "rw"
