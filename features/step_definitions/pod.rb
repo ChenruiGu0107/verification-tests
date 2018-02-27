@@ -65,6 +65,11 @@ Given /^a pod is present with labels:$/ do |table|
   pods = project.pods(by:user)
 
   @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
+  if @result[:matching].empty?
+    raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
+  end
+
+  cache_pods(*@result[:matching])
 end
 
 Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|

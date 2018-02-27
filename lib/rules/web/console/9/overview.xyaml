@@ -226,7 +226,7 @@ check_application_block_info_on_overview:
   action: expand_resource_entry
   action:
     context: &tile_context
-      xpath: //span[text()='<resource_name>']/ancestor::div[contains(@class,'list-pf-item')]
+      xpath: //*[text()='<resource_name>']/ancestor::div[contains(@class,'list-pf-item')]
     ref:
     - check_container_info_on_overview
     - check_networking_info_on_overview

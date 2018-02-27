@@ -55,7 +55,7 @@ Feature: oc logs related features
       | since            | 3h                   |
     Then the step should succeed
     And the output should match:
-      | T[0-9:.]+Z |
+      | T[0-9:.]+ |
     And evaluation of `@result[:response]` is stored in the :logs clipboard
     """
     And 2 seconds have passed
@@ -74,7 +74,7 @@ Feature: oc logs related features
       | since-time       | 2000-01-01T00:00:00Z |
     Then the step should succeed
     And the output should match:
-      | T[0-9:.]+Z |
+      | T[0-9:.]+ |
 
     # Only one of "--since" and "--since-time" can be used
     When I run the :logs client command with:
