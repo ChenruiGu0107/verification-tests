@@ -1129,7 +1129,7 @@ Feature: Network policy plugin scenarios
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=nodename_pod |
+      | name=nodename-pod |
     And evaluation of `pod.ip` is stored in the :p1pod1ip clipboard
     # create another project and pod
     Given I create a new project
