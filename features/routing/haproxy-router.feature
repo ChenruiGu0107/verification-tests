@@ -1401,6 +1401,10 @@ Feature: Testing haproxy router
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem |
       | -O |
       | /tmp/default-router.pem |
+      | -T |
+      | 10 |
+      | -t |
+      | 3  |
     Then the step should succeed
     When I execute on the pod:
       | curl |
