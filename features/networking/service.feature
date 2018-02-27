@@ -345,3 +345,47 @@ Feature: Service related networking scenarios
     Then the step should succeed
     And the output should not contain:
       | <%= cb.service_ip %> |
+
+
+  # @author bmeng@redhat.com
+  # @case_id OCP-16748
+  @admin
+  Scenario: Should remove the conntrack table immediately when the endpoint of UDP service gets deleted
+    # Create pod and svc which is listening on the udp port
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/udp8080-pod.json |
+    Then the step should succeed
+    And the pod named "udp-pod" becomes ready
+    When I run the :expose client command with:
+      | resource       | pod          |
+      | resource_name  | udp-pod      |
+      | port           | 8080         |
+      | protocol       | UDP          |
+    Then the step should succeed
+    Given I use the "udp-pod" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.node_name(user: user)` is stored in the :node clipboard
+    And I use the "<%= cb.node %>" node
+
+    # Access the udp svc to generate the conntrack entry
+    When I execute on the pod:
+      | bash | -c | (echo test ; sleep 1 ; echo test) \| /usr/bin/ncat -u <%= cb.service_ip %> 8080 |
+    Then the step should succeed
+
+    # Check the conntrack entry generated on the node
+    When I run commands on the host:
+      | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
+    Then the step should succeed
+    And the output should contain:
+      | udp |
+      | dst=<%= cb.service_ip %> |
+
+    Given I ensure "udp-pod" pod is deleted
+    # Check the conntrack entry is deleted with the svc
+    When I run commands on the host:
+      | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
+    Then the step should succeed
+    And the output should not contain "dst=<%= cb.service_ip %>"
