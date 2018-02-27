@@ -1004,8 +1004,6 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=service-unsecure |
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :get client command with:
