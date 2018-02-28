@@ -451,7 +451,7 @@ Feature: projects related features via cli
     Given I create 3 new projects
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | skip_tls_verify | true           |
       | config   | new_config_file       |
     Then the step should succeed
@@ -469,7 +469,7 @@ Feature: projects related features via cli
     When I switch to the second user
     # Due to FW, to cover bug 1263562, script must use --config=<the same file> for oc login here
     And I run the :login client command with:
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | config   | new_config_file       |
     Then the step should succeed
     And the output should contain:

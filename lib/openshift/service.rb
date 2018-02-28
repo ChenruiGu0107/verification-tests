@@ -55,7 +55,7 @@ module CucuShift
 
     # @param by [CucuShift::User] the user to create route with
     def expose(user: nil)
-      res = cli_exec(as: user, key: :expose, output: :yaml,
+      res = default_user(user).cli_exec(:expose, output: :yaml,
                      resource: :service,
                      resource_name: name,
                      namespace: project.name)

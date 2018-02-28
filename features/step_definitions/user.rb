@@ -23,7 +23,7 @@ Given /^I create the serviceaccount "([^"]*)"$/ do |name|
 end
 
 Given /^I find a bearer token of the(?: (.+?))? service account$/ do |acc|
-  service_account(acc).load_bearer_tokens(by: user)
+  service_account(acc).load_bearer_tokens(user: user)
 end
 
 Given /^the(?: ([a-z]+))? user has all owned resources cleaned$/ do |who|

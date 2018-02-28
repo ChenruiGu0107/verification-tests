@@ -21,9 +21,6 @@ module CucuShift
       @bg_processes = []
       @bg_rulesresults = []
 
-      # TODO: convert service_account to ProjectResource
-      @service_accounts = []
-
       # some arrays to store cached projects as they have a custom getter
       @projects = []
       # used to store host the user wants to run commands on
@@ -105,31 +102,6 @@ module CucuShift
 
     def host
       return @host
-    end
-
-    # TODO: convert service_account to ProjectResource
-    def service_account(name=nil, project: nil, project_name: nil, switch: true)
-      return @service_accounts.last if name.nil? && !@service_accounts.empty?
-
-      if project && project_name && project.name != project_name
-        raise "project names inconsistent: #{project.name} vs #{project_name}"
-      end
-      project ||= self.project(project_name, generate: false)
-
-      if name.nil?
-        raise "requesting service account for the first time with no name"
-      end
-
-      sa = @service_accounts.find { |s|
-        [ s.name, s.shortname ].include?(name) &&
-        s.project == project
-      }
-      unless sa
-        sa = ServiceAccount.new(name: name, project: project)
-        @service_accounts << sa
-      end
-      @service_accounts << @service_accounts.delete(sa) if switch
-      return sa
     end
 
     ## generate Resource getters
@@ -227,6 +199,24 @@ module CucuShift
       end
 
       return project_resource(Route, name, project)
+    end
+
+    # @param name [String] can be short or full service account name
+    def service_account(name = nil, project = nil)
+      if name && name.include?(":")
+        m = name.match /^system:serviceaccount:([^:]+):([^:]+)$/
+        if m
+          if project && project.name != m[1]
+            raise "project name and service account name do not match: " \
+              "#{name} vs #{project.name}"
+          end
+          return project_resource(ServiceAccount, m[2], project(m[1]))
+        else
+          raise "bad service account name: #{name}"
+        end
+      else
+        return project_resource(ServiceAccount, name, project)
+      end
     end
 
     # @return web4cucumber object from scenario cache

@@ -34,7 +34,7 @@ Feature: git server related scenarios
     When I execute on the pod:
       |bash|
       |-c  |
-      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.cached_tokens.first %>"; }; f'|
     Then the step should succeed
     When I execute on the pod:
       |bash|

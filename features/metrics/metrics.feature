@@ -60,7 +60,7 @@ Feature: metrics related scenarios
   Scenario: Check hawkular alerts endpoint is accessible
     Given I create a project with non-leading digit name
     Given metrics service is installed in the system
-    And evaluation of `user.get_bearer_token.token` is stored in the :user_token clipboard
+    And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given I store default router subdomain in the :metrics clipboard
     Given cluster role "cluster-admin" is added to the "first" user
     And I perform the GET metrics rest request with:
@@ -111,7 +111,7 @@ Feature: metrics related scenarios
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
-    And evaluation of `user.get_bearer_token.token` is stored in the :user_token clipboard
+    And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given cluster role "cluster-admin" is added to the "first" user
     And I perform the POST metrics rest request with:
       | project_name | _system                                                                                           |

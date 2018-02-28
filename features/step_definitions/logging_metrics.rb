@@ -92,7 +92,7 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   opts = opts_array_to_hash(table.raw)
   raise "required parameter 'path' is missing" unless opts[:path]
 
-  bearer_token = opts[:token] ? opts[:token] : user.get_bearer_token.token
+  bearer_token = opts[:token] ? opts[:token] : user.cached_tokens.first
 
   https_opts = {}
   https_opts[:headers] ||= {}

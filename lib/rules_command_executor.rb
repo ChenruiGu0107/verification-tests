@@ -8,6 +8,8 @@ module CucuShift
   class RulesCommandExecutor
     # include CucuShift::Common::Helper
 
+    attr_reader :host
+
     # @param [Object] rules might be parsed rules, file, directory or array of any of these. All rules are merged and error is raised on duplicate rules. If directory string ends with slash `/` character, then it is loaded recursively.
     # @param [CucuShift::Host] host host to execute the commands on
     # @param [CucuShift::User] user host os user to execute command as (e.g. sudo)
@@ -49,7 +51,7 @@ module CucuShift
     def run(cmd_key, options)
       cmd_options, exec_options = self.class.split_exec_options(options)
       cmd = build_command_line(cmd_key, cmd_options)
-      res = @host.exec_as(@user, cmd, **exec_options)
+      res = host.exec_as(@user, cmd, **exec_options)
 
       rules_execution_result_processor = proc {
         process_result(result: res, rules: rules[cmd_key], options: cmd_options)
@@ -302,7 +304,7 @@ module CucuShift
           redo
         end
       end
-      value = @host.shell_escape value unless noescape
+      value = host.shell_escape value unless noescape
       return value
     end
 

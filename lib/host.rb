@@ -90,7 +90,8 @@ module CucuShift
 
     def workdir(**opts)
       unless @workdir_exists
-        @workdir_exists = mkdir(@workdir, :raw => true)
+        mkdir(@workdir, :raw => true)
+        @workdir_exists = true
       end
       if ! opts[:absolute] || ["/", "\\"].include?(@workdir[0])
         return @workdir

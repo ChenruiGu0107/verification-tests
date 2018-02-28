@@ -5,75 +5,25 @@ require 'uri'
 require 'http'
 
 module CucuShift
-  # represents an OpenShift token
-  class Token
-    include Common::Helper
-
-    attr_reader :user, :token, :valid_until
-
-    # @param [CucuShift::User] user the user owning the token
-    # @param [String] token the actual token string
-    # @param [Time] valid the time until token is valid
-    def initialize(user:, token:, valid:)
-      if ! token || token.empty?
-        raise 'new token string should not be nil, false or empty'
-      end
-
-      @user = user
-      @token = token.to_s.freeze
-      @valid_until = valid
-
-      # in some environments we can't obtain tokens dynamically
-      # lets make sure we do not revoke/delete these tokens
-      @protected = false
-    end
-
-    def protected?
-      @protected
-    end
-    def protect
-      @protected = true
-      return self
-    end
-
-    # it token still valid? 10 seconds given to avoid misleading result due to
-    #   network delays
-    def valid?(grace_period: 10)
-      valid_until > Time.now + grace_period
-    end
-
-    # @param [Boolean] uncache remove token from user object cache regardless of
-    #   success
-    def delete(uncache: false)
-      if protected?
-        res = { success: false, instruction: "delete token #{token}",
-                exitstatus: 1, response: "should not remove protected tokens"
-        }
-      else
-        res = user.rest_request(:delete_oauthaccesstoken, token_to_delete:token)
-      end
-
-      if res[:success] || uncache
-        user.cached_tokens.delete(self)
-      end
-
-      return res
-    end
-
-    # @param [CucuShift::User] user the user we want token for
-    # @return [CucuShift::Token]
-    def self.new_oauth_bearer_token(user)
+  # this file hosts necessary logic to login into OpenShift via username and
+  # password
+  module LoginIncl
+    # @param [String] user the username we want token for
+    # @return [String]
+    def new_token_by_password(user:, password:, env:)
       # try challenging client auth
       res = oauth_bearer_token_challenge(
-        server_url: user.env.api_endpoint_url,
-        user: user.name,
-        password: user.password
+        server_url: env.api_endpoint_url,
+        user: user,
+        password: password
       )
 
       if res[:exitstatus] == 401 && res[:headers]["link"]
         # looks like we are directed at using web auth of some sort
         login_url = res[:headers]["link"][0][/(?<=<).*(?=>)/]
-        res = web_bearer_token_obtain(user: user, login_url: login_url)
+        Http.logger.info("trying to login via web at #{login_url}")
+        res = web_bearer_token_obtain(user: user, password: password,
+                                      login_url: login_url)
       end
 
       unless res[:success]
@@ -87,9 +37,7 @@ module CucuShift
         raise e
       end
 
-      t = Token.new(user: user, token: res[:token], valid: res[:valid_until])
-      user.cached_tokens << t
-      return t
+      return res[:token], res[:valid_until]
     end
 
     # try to obtain token via web login with the supplied user's name and
@@ -97,7 +45,7 @@ module CucuShift
     # @param [String] login_url the address where we are directed to log in
     # @param [String] user the user to get a token for
     # @return [CucuShift::ResultHash] (:token key should be set on success)
-    def self.web_bearer_token_obtain(user:, login_url:)
+    def web_bearer_token_obtain(user:, password:, login_url:)
       obtain_time = Time.now
 
       res = CucuShift::Http.http_request(method: :get, url: login_url)
@@ -113,7 +61,7 @@ module CucuShift
         return res
       end
 
-      res = CucuShift::Http.http_request(method: :post, url: login_action, cookies: cookies, payload: {username: user.name, password: user.password})
+      res = CucuShift::Http.http_request(method: :post, url: login_action, cookies: cookies, payload: {username: user, password: password})
 
       if res[:exitstatus] == 302
         redir302 = res[:headers]["location"].first
@@ -149,7 +97,7 @@ module CucuShift
     # @param [String] password
     # @return [CucuShift::ResultHash]
     # @note curl -u joe -kv -H "X-CSRF-Token: xxx" 'https://master.cluster.local:8443/oauth/authorize?client_id=openshift-challenging-client&response_type=token'
-    def self.oauth_bearer_token_challenge(server_url:, user:, password:)
+    def oauth_bearer_token_challenge(server_url:, user:, password:)
       # :headers => {'X-CSRF-Token' => 'xx'} seems not needed
       opts = {:user=> user,
               :password=> password,
@@ -175,5 +123,9 @@ module CucuShift
 
       return res
     end
+  end
+
+  module Login
+    extend LoginIncl
   end
 end

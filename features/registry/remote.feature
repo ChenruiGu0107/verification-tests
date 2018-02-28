@@ -18,7 +18,7 @@ Feature: remote registry related scenarios
     And evaluation of `service("docker-registry", project("default")).url(user: admin)` is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     When I use the "<%= cb.original_proj %>" project
     When I run commands on the host:
@@ -88,7 +88,7 @@ Feature: remote registry related scenarios
     And I select a random node's host
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
 
     When I run commands on the host:
@@ -110,7 +110,7 @@ Feature: remote registry related scenarios
     And the "~/.docker/config.json" file is restored on host after scenario
     # TODO: this PR should allow 'deployer' the permission to push https://github.com/openshift/origin/pull/9066
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     # create a short hand
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
@@ -150,7 +150,7 @@ Feature: remote registry related scenarios
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull docker.io/busybox:latest |
@@ -179,7 +179,7 @@ Feature: remote registry related scenarios
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull docker.io/busybox:latest |
@@ -218,7 +218,7 @@ Feature: remote registry related scenarios
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     When I give project view role to the second user
     Given I switch to the second user
-    And evaluation of `user.get_bearer_token.token` is stored in the :user2_token clipboard
+    And evaluation of `user.cached_tokens.first` is stored in the :user2_token clipboard
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
     Given I switch to the first user
     And a pod becomes ready with labels:
@@ -244,7 +244,7 @@ Feature: remote registry related scenarios
       | --dest-cert-dir                        |
       | /opt/qe/ca                             |
       | --dcreds                               |
-      | dnm:<%= user.get_bearer_token.token %> |
+      | dnm:<%= user.cached_tokens.first %> |
       | docker://docker.io/busybox             |
       | docker://<%= cb.my_tag %>              |
     Then the step should succeed
@@ -260,7 +260,7 @@ Feature: remote registry related scenarios
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     # create a short hand
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc487929-busybox:local"` is stored in the :my_tag clipboard
@@ -300,7 +300,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And the "busybox" image stream was created
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/busybox:2.0"` is stored in the :my_tag clipboard
     When I run commands on the host:
@@ -344,7 +344,7 @@ Feature: remote registry related scenarios
       | n             | <%= project.name %>             |
     Then the step should succeed
     When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/mystream:2.0"` is stored in the :my_tag clipboard
     When I run commands on the host:
@@ -386,7 +386,7 @@ Feature: remote registry related scenarios
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
@@ -598,12 +598,12 @@ Feature: remote registry related scenarios
     Given I store the default registry scheme to the :registry_scheme clipboard
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.get_bearer_token.token %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/latest --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+      | curl -u <%=user.name %>:<%= user.cached_tokens.first %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/latest --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
     Then the step should succeed
     And the output should match:
       |.*blobSum.*|
     And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.get_bearer_token.token %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/<%= cb.image_id %> --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+      | curl -u <%=user.name %>:<%= user.cached_tokens.first %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/<%= cb.image_id %> --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
     Then the step should succeed
     And the output should match:
       |.*blobSum.*|
@@ -639,12 +639,12 @@ Feature: remote registry related scenarios
     Given I store the default registry scheme to the :registry_scheme clipboard
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.get_bearer_token.token %> -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/latest --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+      | curl -u <%=user.name %>:<%= user.cached_tokens.first %> -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/latest --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
     Then the step should succeed
     And the output should match:
       | .*layers[\s\S]*digest.* |
     And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.get_bearer_token.token %> -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/<%= cb.image_id %> --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+      | curl -u <%=user.name %>:<%= user.cached_tokens.first %> -H 'Accept: application/vnd.docker.distribution.manifest.v2+json' <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/<%= cb.image_id %> --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
     Then the step should succeed
     And the output should match:
       | .*layers[\s\S]*digest.* |

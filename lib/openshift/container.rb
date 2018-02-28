@@ -85,6 +85,21 @@ module CucuShift
       return res
     end
 
+    def last_completed(user: nil, cached: false, quiet: false)
+      container_state = status(user: user, cached: cached, quiet: quiet)['lastState']
+      current_state =  container_state.keys.first
+      terminated_reason = container_state['terminated']['reason'] if current_state == 'terminated'
+      expected_status = 'Completed'
+      res = {
+        instruction: "get containter state",
+        response: "matched state: '#{terminated_reason}' while expecting '#{expected_status}'",
+        matched_state: terminated_reason,
+        exitstatus: 0
+      }
+      res[:success] = terminated_reason == expected_status
+      return res
+    end
+
     def wait_till_completed(seconds, quiet: false, cached: false)
       res = nil
       iterations = 0

@@ -33,14 +33,14 @@ When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, b
   opts = table.raw == [["dummy"]] ? [] : opts_array_process(table.raw)
 
   if background
-    @result = env.admin_cli_executor.exec(
+    @result = env.admin.cli_exec(
       yaml_key.to_sym,
       opts << [ :_background, true ]
     )
     @bg_rulesresults << @result
     @bg_processes << @result[:process_object]
   else
-    @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts)
+    @result = env.admin.cli_exec(yaml_key.to_sym, opts)
   end
 end
 

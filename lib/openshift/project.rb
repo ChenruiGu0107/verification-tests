@@ -29,8 +29,8 @@ module CucuShift
     end
     alias exists? visible?
 
-    def empty?(user:)
-      res = cli_exec(as: user, key: :status, v: true, n: name)
+    def empty?(user: nil)
+      res = default_user(user).cli_exec(:status, v: true, n: name)
 
       res[:success] = res[:response] =~ /ou have no.+services.+deployment.+configs/
       return res
@@ -68,7 +68,7 @@ module CucuShift
 
 
     # creates a new project
-    # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
+    # @param by [CucuShift::APIAccessorOwner, CucuShift::APIAccessor] the user to create project as
     # @param name [String] the name of the project
     # @return [CucuShift::ResultHash]
     def self.create(by:, name: nil, **opts)
@@ -91,12 +91,12 @@ module CucuShift
       # note that search for users is only done inside the set of users
       #   currently used by scenario; we don't expect scenario to know
       #   usernames before a user is actually requested from the user_manager
-      if by.kind_of?(ClusterAdmin) && ! env.users.by_name(opts[:admin])
+      if env.is_admin?(by) && ! env.users.by_name(opts[:admin])
         raise "creating project as admin without administrators may easily lead to project leaks in the test framework, avoid doing so"
       elsif opts.delete(:_via) == :web
-        res = webconsole_exec(as: by, action: :new_project, project_name: name, **opts)
+        res = by.webconsole_exec(:new_project, project_name: name, **opts)
       else
-        res = cli_exec(as: by, key: :new_project, project_name: name, **opts)
+        res = by.cli_exec(:new_project, project_name: name, **opts)
       end
       res[:project] = self
       return res
@@ -137,7 +137,7 @@ module CucuShift
       }
       opts = default_opts.merge cmd_opts
 
-      return cli_exec(as: by, key: :delete, **opts)
+      return default_user(by).cli_exec(:delete, **opts)
     end
   end
 end

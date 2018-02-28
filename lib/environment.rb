@@ -1,8 +1,7 @@
 require 'json'
 
 require 'cli_executor'
-require 'admin_cli_executor'
-require 'cluster_admin'
+require 'admin_credentials'
 require 'user_manager'
 require 'host'
 require 'http'
@@ -87,25 +86,29 @@ module CucuShift
     end
 
     def admin
-      @admin ||= admin? ? ClusterAdmin.new(env: self) : raise("no admin rights")
-    end
-
-    def admin_cli_executor
-      @admin_cli_executor ||= if admin?
-        CucuShift.const_get(opts[:admin_cli]).new(self, **opts)
-                              else
-        raise "we cannot run as admins in this environment"
-                              end
-    end
-
-    def webconsole_executor
-      @webconsole_executor ||= WebConsoleExecutor.new(self, **opts)
+      @admin ||= admin_creds.get
     end
 
     # @return [Boolean] true if we have means to execute admin cli commands and
     #   rest requests
     def admin?
-      opts[:admin_cli] && ! opts[:admin_cli].empty?
+      opts[:admin_creds] && ! opts[:admin_creds].empty?
+    end
+
+    def is_admin?(obj)
+      admin? && @admin && @admin == obj
+    end
+
+    private def admin_creds
+      if admin?
+        CucuShift.const_get(opts[:admin_creds]).new(self, **opts)
+      else
+        raise "we cannot run as admins in this environment"
+      end
+    end
+
+    def webconsole_executor
+      @webconsole_executor ||= WebConsoleExecutor.new(self, **opts)
     end
 
     def rest_request_executor
@@ -345,7 +348,6 @@ module CucuShift
       @user_manager.clean_up if @user_manager
       @hosts.each {|h| h.clean_up } if @hosts
       @cli_executor.clean_up if @cli_executor
-      @admin_cli_executor.clean_up if @admin_cli_executor
       @webconsole_executor.clean_up if @webconsole_executor
     end
   end

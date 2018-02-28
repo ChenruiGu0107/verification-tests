@@ -112,7 +112,7 @@ module CucuShift
         # if res[:success]
         return executor(user).run_action(:login_token,
                                            # user: res[:response].chomp,
-                                           token: user.get_bearer_token.token
+                                           token: user.cached_tokens.first
                                           )
         # else
         #  raise "error getting user API object: res[:response]"

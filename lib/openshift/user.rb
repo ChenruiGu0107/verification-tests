@@ -1,73 +1,80 @@
-require 'yaml'
-
-require 'common'
+require 'api_accessor'
+require 'api_accessor_owner'
+require 'login'
 require 'subscription_plan'
-require_relative 'token'
 require_relative 'project'
 
 module CucuShift
   # @note represents an OpenShift environment user account
-  class User
-    include Common::Helper
+  class User < ClusterResource
+    include CucuShift::APIAccessorOwner
 
-    attr_reader :name, :env, :rest_preferences
+    attr_accessor :auth_name, :password
+
+    RESOURCE = "users"
 
     # @param token [String] auth bearer token in plain string format
-    # @param name [String] username (optional if we auth with token)
-    # @param password [String] password if we have such for the user
     # @param env [CucuShift::Environment] the test environment user belongs to
-    # @note user needs either token or password and username
-    def initialize(name: nil, password: nil, token: nil, env:)
-      @name = name.freeze if name
-      @env = env
-      @password = password.freeze if password
-      @rest_preferences = {}
-      @tokens = []
-      @client_cert = nil
+    # @return [User]
+    def self.from_token(token, env:)
+      api_accessor = APIAccessor.new(
+        token: token,
+        token_protected: true,
+        env: env
+      )
 
-      add_str_token(token, protect: true) if token
-
-      if @tokens.empty? && (@name.nil? || @password.nil?)
-        raise "to initialize user we need a token or username and password"
-      end
+      user = User.from_api_object(env, api_accessor.get_self[:parsed])
+      api_accessor.id = user.name
+      user.add_api_accessor api_accessor
+      return user
     end
 
-    # TODO: add support for users by certificate
-    def name
-      if @name
-        return @name
-      elsif cached_tokens[0]
-        return @name = uid
-      else
-        raise "somehow user has no name and no token defined"
+    # @param env [CucuShift::Environment] the test environment user belongs to
+    # @param name [String] optional username as returned by `get user '~'
+    # @param auth_name [String] the name used to auth to OpenShift
+    # @param password [String] password
+    # @return [User]
+    def self.from_user_password(auth_name, password, env:)
+      if auth_name.nil? || password.nil? || auth_name.empty? || password.empty?
+        raise "auth username and password need to be provided"
       end
+
+      token, expires = Login.new_token_by_password(
+        user: auth_name,
+        password: password,
+        env: env
+      )
+
+      api_accessor = APIAccessor.new(
+        token: token,
+        token_protected: false,
+        expires: expires,
+        env: env
+      )
+
+      user = User.from_api_object(env, api_accessor.get_self[:parsed])
+      user.password = password.freeze
+      user.auth_name = auth_name.freeze
+      api_accessor.id = user.name
+      user.add_api_accessor api_accessor
+      return user
     end
 
-    # this is the string identifying the user inside the cluster and does not
-    # necessarily match the username used to login on the web console; usually
-    # when using multiple identity providers, virtual clusters, etc.
-    def uid
-      return @uid if @uid
+    def self.from_cert(cert, key, env:)
+      api_accessor = APIAccessor.new(
+        client_cert: cert,
+        client_key: key,
+        env: env
+      )
 
-      res = get_self
-      if res[:success] && res[:props] && res[:props][:name]
-        @uid = res[:props][:name]
-        return @uid
-      else
-        clarify = cached_tokens[0] ? " with token #{cached_tokens[0]}" : nil
-        raise "could not obtain username#{clarify}: #{res[:response]}"
-      end
+      user = User.from_api_object(env, api_accessor.get_self[:parsed])
+      api_accessor.id = user.name
+      user.add_api_accessor api_accessor
+      return user
     end
 
     def plan
       @plan ||= SubscriptionPlan.new(self)
-    end
-
-    def get_self
-      #env.rest_request_executor.exec(user: self, auth: :bearer_token,
-      #                                           req: :get_user,
-      #                                           opts: {username: '~'})
-      rest_request(:get_user, username: '~')
     end
 
     # @return true if we know user's password
@@ -76,7 +83,7 @@ module CucuShift
     end
 
     def to_s
-      "#{@name || "unknown"}@#{env.opts[:key]}"
+      "#{name}@#{env.opts[:key]}"
     end
 
     def password
@@ -88,76 +95,14 @@ module CucuShift
       end
     end
 
-    # add a token in plain string format to cached tokens
-    # @param token [String] the bearer token
-    def add_str_token(str_token, protect: false)
-      # we just guess token validity of one day, it should be persisting
-      #   long enough to conduct testing anyway; I don't see reason to do the
-      #   extra step getting validity from API
-      unless cached_tokens.find { |t| t.token == str_token }
-        cached_tokens << Token.new(user: self, token: str_token,
-                                   valid: Time.now + 24 * 60 * 60)
-        cached_tokens.last.protect if protect
-      end
-
-    end
-
-    private def cli_executor
-      env.cli_executor
-    end
-
-    def cli_exec(key, opts={})
-      cli_executor.exec(self, key, opts)
-    end
-
     def webconsole_executor
+      # TODO: if has token or password
       env.webconsole_executor.executor(self)
     end
 
     def webconsole_exec(action, opts={})
+      # TODO: if has token or password
       env.webconsole_executor.run_action(self, action, **opts)
-    end
-
-    # execute a rest request as this user
-    # @param [Symbol] req the request to be executed
-    # @param [Hash] opts the options needed for particular request
-    # @note to select auth type, add :auth key to @rest_preferences
-    def rest_request(req, **opts)
-      env.rest_request_executor.exec(user: self, req: req, opts: opts)
-    end
-
-    private def rest_request_executor
-      env.rest_request_executor
-    end
-
-    # will return user known oauth tokens
-    # @note we do not encourage caching everything into this test framework,
-    #   rather prefer discovering online state. Token is different though as
-    #   without a token, one is unlikely to be able to perform any other
-    #   operation. So we need to have at least limited token caching.
-    def cached_tokens
-      return @tokens
-    end
-
-    def get_bearer_token(**opts)
-      return cached_tokens.first if cached_tokens.size > 0
-      return Token.new_oauth_bearer_token(self) # this should add token to cache
-    end
-
-    # def known_token?
-    #   (cached_tokens.size > 0) ^ CliExecutor.token_from_cli(self)
-    # end
-
-    def client_cert
-      if defined? @client_cert
-        @client_cert
-      else
-        @client_cert ||= CliExecutor.client_cert_from_cli(self) # rescue false
-      end
-    end
-
-    def known_cert?
-      !!client_cert
     end
 
     def clean_projects
@@ -201,9 +146,10 @@ module CucuShift
     def clean_up
       clean_up_on_load
       # best effort remove any non-protected tokens
-      cached_tokens.reverse_each do |token|
-        token.delete(uncache: true) unless token.protected?
+      cached_api_accessors.reverse_each do |accessor|
+        accessor.clean_up
       end
     end
+
   end
 end

@@ -48,9 +48,10 @@ module CucuShift
 
         case auth
         when :client_cert
-          opts[:ssl_client_cert], opts[:ssl_client_key] = user.client_cert
+          opts[:ssl_client_cert] = user.client_cert
+          opts[:ssl_client_key] = user.client_key
         when :bearer_token
-          opts[:options][:oauth_token] = user.get_bearer_token.token
+          opts[:options][:oauth_token] = user.token
           opts[:headers]["Authorization"] = "Bearer <oauth_token>"
         else
           raise "#{auth.upcase} auth not implemented yet"

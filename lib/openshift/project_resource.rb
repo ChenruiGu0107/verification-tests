@@ -24,7 +24,7 @@ module CucuShift
     end
 
     # creates a new OpenShift Project Resource via API
-    # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
+    # @param by [CucuShift::APIAccessorOwner, CucuShift::APIAccessor] the user to create
     #   ProjectResource as
     # @param project [CucuShift::Project] the namespace for the new resource
     # @param spec [String, Hash] the Hash object to create project resource or
@@ -84,7 +84,7 @@ module CucuShift
       by = default_user(by)
       del_opts = {}
       del_opts[:grace_period] = grace_period unless grace_period.nil?
-      cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
+      by.cli_exec(:delete, object_type: self.class::RESOURCE,
                object_name_or_id: name, namespace: project.name,
                **del_opts)
     end

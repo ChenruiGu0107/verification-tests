@@ -16,6 +16,7 @@ module CucuShift
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
   autoload :PolarShift, "polarshift/autoload"
 
+  autoload :APIAccessor, "api_accessor"
   autoload :LocalProcess, "local_process.rb"
   autoload :OwnThat, "ownthat.rb"
   autoload :Platform, "platform/autoload"

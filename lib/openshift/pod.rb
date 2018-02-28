@@ -165,7 +165,7 @@ module CucuShift
       }
     end
 
-    def uid(user, cached: true, quiet: false)
+    def uid(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :uid, user: user, cached: cached, quiet: quiet)
     end
     # @note call without parameters only when props are loaded
@@ -251,7 +251,8 @@ module CucuShift
       #
       #env.cli_executor.exec(as, :exec, opts)
 
-      cli_exec(as: as, key: :exec, pod: name, n: project.name, container: container,
+      default_user(as).cli_exec(:exec, pod: name, n: project.name,
+               container: container,
                oc_opts_end: true,
                exec_command: command,
                exec_command_arg: args,

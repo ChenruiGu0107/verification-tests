@@ -98,7 +98,7 @@ When /^I perform login to registry console in the browser$/ do
                        password: user.password)
   else
     browser.run_action(:login_token_reg_console,
-                       token: user.get_bearer_token.token)
+                       token: user.cached_tokens.first)
   end
 end
 

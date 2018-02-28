@@ -59,29 +59,47 @@ module CucuShift
       end
     end
 
-    # login or setup kube config according to parameters
+    # prepare kube config according to parameters
+    # @param user [APIAccessor]
+    # @return
     private def config_setup(user:, executor:, opts: {})
-      if user.cached_tokens.size == 0
-        ## login with username and password and generate a bearer token
-        res = executor.run(:login, username: user.name, password: user.password, server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT, **opts)
-      else
+      if user.token
         ## login with existing token
-        res = executor.run(:login, token: user.cached_tokens.first.token, server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT, **opts)
-      end
-      if res[:success]
-        if user.cached_tokens.size == 0
-          ## lets cache token if obtained by username/password
-          user.add_str_token(self.class.token_from_cli(executor: executor, opts: opts))
+        res = executor.run(:login, token: user.token, server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT, **opts)
+      elsif user.client_cert
+        cert = nil
+        key = nil
+        Tempfile.create('clcert') do |f|
+          f.binmode
+          f.print user.client_cert.to_pem
+          f.close
+          cert = executor.host.absolutize(File.basename(f.path))
+          executor.host.copy_to(f.path, cert)
         end
+        Tempfile.create('clkey') do |f|
+          f.binmode
+          f.print user.client_key.to_pem
+          f.close
+          key = executor.host.absolutize(File.basename(f.path))
+          executor.host.copy_to(f.path, key)
+        end
+        # oc --config=/tmp/tmp.config --server=https://ec2-54-86-33-62.compute-1.amazonaws.com:443 --client-certificate=/tmp/crt --client-key=/tmp/key --insecure-skip-tls-verify=true get user '~' --template='{{.metadata.name}}'
+        res = executor.run(:config_set_creds, name: user.id, cert: cert, key: key, embed: true, server: user.env.api_endpoint_url, **opts)
+        raise "setting keys failed, see log" unless res[:success]
+        res = executor.run(:config_set_cluster, name: "default", server: user.env.api_endpoint_url, **opts)
+        raise "setting cluster failed, see log" unless res[:success]
+        res = executor.run(:config_set_context, name: "default", cluster: "default", user: user.id, **opts)
+        raise "setting context failed, see log" unless res[:success]
+        res = executor.run(:config_use_context, name: "default", **opts)
+        raise "using context failed, see log" unless res[:success]
       else
+        raise "no idea how to prepare kubeconfig for api accessor without a " \
+          "token or client certificate"
+      end
+
+      unless res[:success]
         # logger.error res[:response]
-        logger.warn "cannot login with command: #{res[:instruction]}"
-        Token.new_oauth_bearer_token(user)
-        if user.cached_tokens.size > 0
-          return config_setup(user: user, executor: executor, opts: opts)
-        else
-          raise "after alternative login, user still has no cached tokens"
-        end
+        raise "cannot login with command: #{res[:instruction]}"
       end
     end
 
@@ -103,6 +121,9 @@ module CucuShift
       return conf["users"][0]["user"]["token"]
     end
 
+    # @return [Array, nil] an array of two elements, first is
+    #   [OpenSSL::X509::Certificate] and second [OpenSSL::PKey::RSA], or nil
+    #   when no certificate can be retrieved
     def self.client_cert_from_cli(user)
       res = user.cli_exec(:config_view, flatten: true, minify: true)
       unless res[:success]
@@ -136,24 +157,30 @@ module CucuShift
       @executors = {}
     end
 
-    # @param [CucuShift::User] user user to execute command with
+    # @param [CucuShift::APIAccessor] api accessor to execute command with
     # @return rules executor, separate one per user
     def executor(user)
-      return @executors[user.name] if @executors[user.name]
+      return @executors[user.id] if @executors[user.id]
 
       host = user.env.api_host
-      version = version_for_user(user, host)
-      executor = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
+      if user.id == "admin"
+        # we avoid touching root kubeconfig on muster as much as possible
+        version = version_for_user(:admin, host)
+        executor = RulesCommandExecutor.new(host: host, user: :admin, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
+      else
+        version = version_for_user(user.id, host)
+        executor = RulesCommandExecutor.new(host: host, user: user.id, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
 
-      config_setup(user: user, executor: executor, opts: {ca: "/etc/openshift/master/ca.crt"})
+        config_setup(user: user, executor: executor, opts: {ca: "/etc/openshift/master/ca.crt"})
+      end
 
       # this executor is ready to be used, set it early to allow caching token
-      @executors[user.name] = executor
+      @executors[user.id] = executor
 
       return executor
     end
 
-    # @param user [CucuShift::User] the user we want to get version for
+    # @param user [String] the user we want to get version for
     # @param host [CucuShift::Host] the host we'll be running commands on
     private def version_for_user(user, host)
       # we assume all users will use same oc version;
@@ -218,7 +245,7 @@ module CucuShift
     #   commands may cause race conditions.
     # @return [Hash] :config => "<workdir>/<env key>_<user name>.kubeconfig"
     private def user_opts(user)
-      user_config = "#{user.env.opts[:key]}_#{user.name}.kubeconfig"
+      user_config = "#{user.env.opts[:key]}_#{user.id}.kubeconfig"
       user_config = host.absolute_path user_config # inside workdir
       host.delete user_config
 
@@ -227,17 +254,17 @@ module CucuShift
       config_setup(user: user, executor: executor, opts: {config: user_config, skip_tls_verify: "true"})
 
       # success, set opts early to allow caching token
-      logged_users[user.name] = {config: user_config}
-      return logged_users[user.name]
+      logged_users[user.id] = {config: user_config}
+      return logged_users[user.id]
     end
 
     # @param [Hash, Array] opts the options to pass down to executor
     def exec(user, key, opts={})
-      unless logged_users[user.name]
+      unless logged_users[user.id]
         user_opts(user)
       end
 
-      executor.run(key, Common::Rules.merge_opts(logged_users[user.name],opts))
+      executor.run(key, Common::Rules.merge_opts(logged_users[user.id], opts))
     end
 
     def clean_up

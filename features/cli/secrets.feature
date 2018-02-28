@@ -359,7 +359,7 @@ Feature: secrets related scenarios
       # Get openshift docker registry. Format is like: 172.31.168.158:5000
       | docker_server      | <%= cb.user1_image[/[^\/]*/] %>                      |
       | docker_username    | <%= user(0, switch: false).name %>                   |
-      | docker_password    | <%= user(0, switch: false).get_bearer_token.token %> |
+      | docker_password    | <%= user(0, switch: false).cached_tokens.first %> |
     Then the step should succeed
 
     When I run the :run client command with:
@@ -574,7 +574,7 @@ Feature: secrets related scenarios
     When I execute on the pod:
       |bash|
       |-c  |
-      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.cached_tokens.first %>"; }; f'|
     Then the step should succeed
     When I execute on the pod:
       |bash|
@@ -606,7 +606,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     When I run the :oc_secrets_new_basicauth client command with:
       |secret_name |mysecret                          |
-      |password    |<%= user.get_bearer_token.token %>|
+      |password    |<%= user.cached_tokens.first %>|
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig      |
@@ -723,7 +723,7 @@ Feature: secrets related scenarios
     When I execute on the pod:
       |bash|
       |-c  |
-      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.cached_tokens.first %>"; }; f'|
     Then the step should succeed
     When I execute on the pod:
       |bash|
@@ -759,7 +759,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     When I run the :oc_secrets_new_basicauth client command with:
       |secret_name |mysecret                          |
-      |password    |<%= user.get_bearer_token.token %>|
+      |password    |<%= user.cached_tokens.first %>|
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig      |
@@ -870,7 +870,7 @@ Feature: secrets related scenarios
       |credential_file |.gitconfig|
     Then the step should succeed
     And I replace lines in ".gitconfig":
-      |redhat|<%= user.get_bearer_token.token %>|
+      |redhat|<%= user.cached_tokens.first %>|
     When I run the :new_secret client command with:
       |secret_name     |mysecret1  |
       |credential_file |.gitconfig|
@@ -900,7 +900,7 @@ Feature: secrets related scenarios
     When I execute on the pod:
       |bash|
       |-c  |
-      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.cached_tokens.first %>"; }; f'|
     Then the step should succeed
     When I execute on the pod:
       |bash|

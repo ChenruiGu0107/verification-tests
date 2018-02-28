@@ -320,7 +320,7 @@ Given /^I have a git client pod in the#{OPT_QUOTED} project$/ do |project_name|
   if cb.ssh_private_key.nil? then
     @result = pod.exec(
         "bash", "-c",
-        "git config --global credential.http://#{cb.git_svc_ip}:8080.helper '!f() { echo \"username=#{user.name}\"; echo \"password=#{user.get_bearer_token.token}\"; }; f'",
+        "git config --global credential.http://#{cb.git_svc_ip}:8080.helper '!f() { echo \"username=#{user.name}\"; echo \"password=#{user.cached_tokens.first}\"; }; f'",
         as: user
     )
     raise "cannot set git client pod global config" unless @result[:success]

@@ -8,7 +8,6 @@ module CucuShift
   # @note represents a Resource / OpenShift API Object
   class Resource
     include Common::Helper
-    include Common::UserObjectHelper
     extend  Common::BaseHelper
 
     # this needs to be set per sub class
@@ -62,7 +61,6 @@ module CucuShift
       user = default_user(user)
 
       get_opts = {
-        as: user, key: :get,
         resource_name: name,
         resource: self.class::RESOURCE,
         output: "yaml"
@@ -73,7 +71,7 @@ module CucuShift
         get_opts[:namespace] = project.name
       end
 
-      res = cli_exec(get_opts)
+      res = user.cli_exec(:get, **get_opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])

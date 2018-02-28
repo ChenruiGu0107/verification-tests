@@ -30,7 +30,7 @@ module CucuShift
     end
 
     # creates a new OpenShift Cluster Resource from spec
-    # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
+    # @param by [CucuShift::APIAccessorOwner, CucuShift::APIAccessor] the user to create
     #   Resource as
     # @param spec [String, Hash] the Hash representaion of the API object to
     #   be created or a String path of a JSON/YAML file
@@ -174,8 +174,8 @@ module CucuShift
     end
 
     def delete(by: nil)
-      cli_exec(as: default_user(by), object_type: self.class::RESOURCE,
-               object_name_or_id: name, key: :delete)
+      default_user(by).cli_exec(:delete, object_type: self.class::RESOURCE,
+               object_name_or_id: name)
     end
 
     ############### take care of object comparison ###############

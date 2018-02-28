@@ -7,9 +7,6 @@ module CucuShift
   class Route < ProjectResource
     RESOURCE = "routes"
 
-    include Common::Helper
-    include Common::UserObjectHelper
-
     attr_reader :props, :name
     attr_writer :service
 

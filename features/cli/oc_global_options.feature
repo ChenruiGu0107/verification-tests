@@ -154,7 +154,7 @@ Feature: oc global options (oc options) related scenarios
     And I switch to the default service account
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | ca       | ca.crt      |
       | skip_tls_verify | true |
       | config   | new.config  |
@@ -171,7 +171,7 @@ Feature: oc global options (oc options) related scenarios
 
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | skip_tls_verify | true |
       | config   | 2.config    |
     Then the step should succeed
@@ -191,7 +191,7 @@ Feature: oc global options (oc options) related scenarios
 
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed
@@ -208,7 +208,7 @@ Feature: oc global options (oc options) related scenarios
     And I create a new project
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed

@@ -88,7 +88,7 @@ Feature:policy related features on web console
       | cluster admin can create a project for you    |
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>        |
-      | token    | <%= user.get_bearer_token.token %> |
+      | token    | <%= user.cached_tokens.first %> |
       | skip_tls_verify | true                        |
       | config   | new.config                         |
     Then the step should succeed
@@ -117,7 +117,7 @@ Feature:policy related features on web console
       | cluster admin can create a project for you    |
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>        |
-      | token    | <%= user.get_bearer_token.token %> |
+      | token    | <%= user.cached_tokens.first %> |
       | skip_tls_verify | true                        |
       | config   | new.config                         |
     Then the step should succeed

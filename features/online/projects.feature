@@ -34,7 +34,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
     Given I create a new project
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
       | config   | new_config_file                     |
       | skip_tls_verify | true                         |
     Then the step should succeed
@@ -44,7 +44,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
     Then I switch to the second user
     And I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>        |
-      | token    | <%= user.get_bearer_token.token %> |
+      | token    | <%= user.cached_tokens.first %> |
       | config   | new_config_file                    |
       | skip_tls_verify | true                         |
     Then the step should succeed
@@ -64,7 +64,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
     Then the step should succeed
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>           |
-      | token    | <%= user(0).get_bearer_token.token %> |
+      | token    | <%= user(0).cached_tokens.first %> |
     Then the step should succeed
     And the output should contain:
       | You have access to the following projects and can switch between them with 'oc project <projectname>': |
@@ -76,7 +76,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
   Scenario: Should use and show the existing projects after the user login - starter
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.get_bearer_token.token %>  |
+      | token    | <%= user.cached_tokens.first %>  |
     Then the step should succeed
     And the output should contain:
       | You don't have any projects. You can try to create a new project |

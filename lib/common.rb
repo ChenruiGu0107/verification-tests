@@ -128,33 +128,6 @@ module CucuShift
       CucuShift.autoload :Host, "host"
     end # module Helper
 
-    module UserObjectHelper
-      # execute cli command as user or admin
-      # @param as [CucuShift::User, CucuShift::ClusterAdmin, :admin] the user
-      #   to run cli with
-      # @param key [Symbol] the command key to execute
-      # @param opts [Hash] the command options
-      # @return [CucuShift::ResultHash]
-      # @note usually invoked by managed objects like projects, routes, etc.
-      #   that could have same operations executed by admin or user; this method
-      #   simplifies such calls; requires `#env` method defined
-      # @deprecated, just use `default_user(as).cli_exec` wherever needed
-      def cli_exec(as:, key:, **opts)
-        default_user(as).cli_exec(key, **opts)
-      end
-
-      def webconsole_exec(as:, action:, **opts)
-        user = as
-
-        if !user.respond_to?(:webconsole_exec)
-          raise "user #{user} cannot perform web operations"
-        end
-
-        user.webconsole_exec(action, **opts)
-      end
-
-    end # module UserObjectHelper
-
     # some ugly hack that we need to be more reliable
     module Hacks
       # we'll try calling this one after common pry calls as well by affected

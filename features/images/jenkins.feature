@@ -534,7 +534,7 @@ Feature: jenkins.feature
     Then the step should succeed
 
     Given I find a bearer token of the system:serviceaccount:<%= cb.proj2 %>:default service account
-    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
+    Given evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -652,7 +652,7 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     And I log in to jenkins
     Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
-    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
+    Given evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard

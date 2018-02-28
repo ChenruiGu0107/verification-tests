@@ -234,7 +234,7 @@ Feature: Secure Heapster APIs scenarios
       | curl                                                                                            |
       | -sk                                                                                             |
       | -H                                                                                              |
-      | Authorization: Bearer <%= user.get_bearer_token.token %>                                        |
+      | Authorization: Bearer <%= user.cached_tokens.first %>                                        |
       | https://<%= service.ip(user: user) %>/apis/metrics/v1alpha1/namespaces/<%= project.name %>/pods |
     Then the output should contain:
       | <%= pod.name %>                   |

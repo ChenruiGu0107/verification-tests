@@ -2,9 +2,9 @@
 
 == Prerequisites
 
-You obviously need to have admin rights on the test environment. So environment needs to have `admin_cli` configuration option set.
+You obviously need to have admin rights on the test environment. So environment needs to have `admin_creds` configuration option set.
 
-This will make possible calls to `Environment#admin` and `Environment#admin_cli_executor` methods. These methods give access to doing operations as a cluster admin user. See `ClusterAdmin` and `AdminCliExecutor` classes.
+This will make possible calls to `Environment#admin` method. This method must return a `APIAccessor` or a `APIAccessorOwner` to allow performing operations as a cluster admin user.
 
 == What's the issue?
 

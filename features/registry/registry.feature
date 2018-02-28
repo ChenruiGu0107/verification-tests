@@ -173,7 +173,7 @@ Feature: Testing registry
     And I select a random node's host
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
@@ -228,7 +228,7 @@ Feature: Testing registry
     And default registry service ip is stored in the :registry_ip clipboard
     And I select a random node's host
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
@@ -261,7 +261,7 @@ Feature: Testing registry
     When I run commands on the host:
       | docker rmi docker.io/busybox:latest |
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
@@ -362,7 +362,7 @@ Feature: Testing registry
     And I select a random node's host
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     When I run commands on the host:
       | docker pull docker.io/aosqe/pushwithdocker19:latest |
@@ -454,7 +454,7 @@ Feature: Testing registry
     Then I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     """
     When I run commands on the host:
@@ -532,7 +532,7 @@ Feature: Testing registry
     Then I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     """
     When I run commands on the host:
@@ -778,7 +778,7 @@ Feature: Testing registry
     Then I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
     """
     When I run commands on the host:

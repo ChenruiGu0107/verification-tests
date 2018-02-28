@@ -55,7 +55,7 @@ environments:
     #set OPENSHIFT_ENV_DED_INT_AWS_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   ded_stage_aws:
     hosts: api.ded-stage-aws.openshift.com:etcd:master:node
@@ -66,7 +66,7 @@ environments:
     #set OPENSHIFT_ENV_DED_STAGE_AWS_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   dev_preview_int:
     hosts: api.dev-preview-int.openshift.com:etcd:master:node
@@ -77,7 +77,7 @@ environments:
     #set OPENSHIFT_ENV_DEV_PREVIEW_INT_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   dev_preview_stg:
     hosts: api.dev-preview-stg.openshift.com:etcd:master:node
@@ -88,7 +88,7 @@ environments:
     #set OPENSHIFT_ENV_DEV_PREVIEW_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   dsaas_stg:
     hosts: api.dsaas-stg.openshift.com:etcd:master:node
@@ -99,7 +99,7 @@ environments:
     #set OPENSHIFT_ENV_DSAAS_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   free_int:
     hosts: api.free-int.openshift.com:etcd:master:node
@@ -110,7 +110,7 @@ environments:
     #set OPENSHIFT_ENV_FREE_INT_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   free_stg:
     hosts: api.free-stg.openshift.com:etcd:master:node
@@ -121,7 +121,7 @@ environments:
     #set OPENSHIFT_ENV_FREE_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   online: &preview
     hosts: api.preview.openshift.com:etcd:master:node
@@ -132,7 +132,7 @@ environments:
     #set OPENSHIFT_ENV_ONLINE_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   online_int:
     hosts: api.online-int.openshift.com:etcd:master:node
@@ -143,7 +143,7 @@ environments:
     #set OPENSHIFT_ENV_ONLINE_INT_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   online_stg:
     hosts: api.online-stg.openshift.com:etcd:master:node
@@ -154,7 +154,7 @@ environments:
     #set OPENSHIFT_ENV_ONLINE_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   online_starter:
     hosts: api.starter-us-east-1.openshift.com:etcd:master:node
@@ -165,7 +165,7 @@ environments:
     #set OPENSHIFT_ENV_ONLINE_STARTER_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   origin:
     # hosts: use OPENSHIFT_ENV_ORIGIN_HOSTS=host:role1:...,host2:role1:...
@@ -178,7 +178,7 @@ environments:
     # user_manager_users: joe:redhat,alice:redhat
     cli: SharedLocalCliExecutor
     # cli: SharedLocalCliExecutor
-    admin_cli: MasterKubeconfigLocalAdminCliExecutor
+    admin_creds: MasterOsAdminCredentials
     api_port: 8443
   ose:
     # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
@@ -191,7 +191,7 @@ environments:
     # user_manager_users: joe:redhat,alice:redhat
     #cli: MasterOsPerUserCliExecutor
     cli: SharedLocalCliExecutor
-    admin_cli: MasterKubeconfigLocalAdminCliExecutor
+    admin_creds: MasterOsAdminCredentials
     api_port: 8443
     # version: 3.6.1.44.16
   preview: *preview
@@ -204,7 +204,7 @@ environments:
     #set OPENSHIFT_ENV_QE_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
   stage:
     hosts: api.stage.openshift.com:etcd:master:node
@@ -215,7 +215,7 @@ environments:
     #set OPENSHIFT_ENV_STAGE_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
-    admin_cli: false
+    admin_creds: false
     api_port: 443
 
 optional_classes:

@@ -1,5 +1,6 @@
 require 'set'
 
+require 'api_accessor'
 require 'common'
 require 'openshift/user'
 
@@ -12,12 +13,6 @@ module CucuShift
       @env = env
       @opts = opts
       @users = []
-    end
-
-    # @return [#each, #clear, #find] a set of users that supports #clear, #each
-    #   and #find methods; [Array] and [Set] should do
-    private def users_used
-      raise 'should use a subclass with #{__method__} implemented'
     end
 
     # @param num [Integer] the index of user to return; this may allocate a new
@@ -54,6 +49,31 @@ module CucuShift
       used.each(&:clean_up)
       used.clear
     end
+
+    # @return [#each, #clear, #find] a set of users that supports #clear, #each
+    #   and #find methods; [Array] and [Set] should do
+    private def users_used
+      raise 'should use a subclass with #{__method__} implemented'
+    end
+
+    # @return [User] bcreated based on specification
+    private def user_from_spec(spec)
+      case spec
+      when Hash
+        User.send(spec[:method], **spec[:params], env: env)
+      when String
+        if spec.size < 3 || !spec.include?(":")
+          raise "invalid user specification #{spec.inspect}"
+        elsif spec.start_with? ':'
+          User.from_token(spec[1..-1], env: env)
+        else
+          username, colon,  password = spec.partition(":")
+          User.from_user_password(username, password, env: env)
+        end
+      else
+        raise "invalid user specification #{spec.inspect}"
+      end
+    end
   end
 
   class StaticUserManager < UserManager
@@ -74,17 +94,7 @@ module CucuShift
       #   @users << User.new(username, password, env, **opts)
       # end
       raise "no users specification" unless opts[:user_manager_users]
-      @user_specs = opts[:user_manager_users].split(",").map do |uspec|
-        if uspec.empty?
-          raise "empty user specification does not make sense"
-        elsif uspec.start_with? ':'
-          # this user is specified by token only
-          {token: uspec[1..-1]}
-        else
-          username, colon,  password = uspec.partition(":")
-          {name: username, password: password}
-        end
-      end
+      @user_specs = opts[:user_manager_users].split(",")
       Collections.deep_freeze(@user_specs)
     end
 
@@ -93,7 +103,7 @@ module CucuShift
       if @users_used[num]
         return @users_used[num]
       elsif @user_specs[num]
-        @users_used[num] = User.new(**@user_specs[num], env: env)
+        @users_used[num] = user_from_spec(@user_specs[num])
         @users_used[num].clean_up_on_load
         return @users_used[num]
       else
@@ -139,7 +149,7 @@ module CucuShift
       if @users_used[num]
         return @users_used[num]
       elsif @user_specs[num]
-        @users_used[num] = User.new(**@user_specs[num], env: env)
+        @users_used[num] = user_from_spec(@user_specs[num])
         # intentionally no clean-up on load for upgrade users
         return @users_used[num]
       else
@@ -188,12 +198,7 @@ module CucuShift
       unless users_used[num]
         res = reserve_a_user
         @users_used_raw[num] = {lock: res}
-        username, creds = res["resource"].split(':', 2)
-        if username.empty?
-          @users_used_raw[num][:user] = User.new(token: creds, env: env)
-        else
-          @users_used_raw[num][:user] = User.new(name: username, password: creds, env: env)
-        end
+        @users_used_raw[num][:user] = user_from_spec(res["resource"])
       end
       return users_used[num]
     end

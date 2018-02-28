@@ -219,7 +219,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                    |
       | copy                                                                 |
       | --dcreds                                                             |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                  |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                  |
       | docker://docker.io/busybox                                           |
       | docker://<%= cb.registry_route %>/<%= project.name %>/busybox:latest |
     Then the step should succeed  
@@ -245,7 +245,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                    |
       | copy                                                                 |
       | --dcreds                                                             |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                  |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                  |
       | docker://docker.io/busybox                                           |
       | docker://<%= cb.registry_route %>/<%= project.name %>/<tag>          |
     Then the step should succeed  
@@ -285,7 +285,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
       | docker://docker.io/busybox                                              |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail  
@@ -303,7 +303,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
       | docker://docker.io/busybox                                              |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should succeed
@@ -332,7 +332,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | --insecure-policy                                                       |
       | copy                                                                    |
       | --dcreds                                                                |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | <%= user.name %>:<%= user.cached_tokens.first %>                     |
       | docker://docker.io/busybox                                              |
       | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail  
