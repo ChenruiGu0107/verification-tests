@@ -28,6 +28,7 @@ Feature: ansible install related feature
   # This is the dup case of OCP-10776, to support deploy steps changes on OCP v3.5 and later
   # Run this case in m1.large on OpenStack, m3.large on AWS, or n1-standard-2 on GCE
   @admin
+  @destructive
   @smoke
   Scenario: Version >= 3.5 deploy metrics stack with persistent storage
     Given the master version >= "3.5"
