@@ -51,7 +51,7 @@ module CucuShift
     def run(cmd_key, options)
       cmd_options, exec_options = self.class.split_exec_options(options)
       cmd = build_command_line(cmd_key, cmd_options)
-      res = host.exec_as(@user, cmd, **exec_options)
+      res = host.exec_as(@user, cmd, stderr: :stderr, **exec_options)
 
       rules_execution_result_processor = proc {
         process_result(result: res, rules: rules[cmd_key], options: cmd_options)
@@ -73,8 +73,7 @@ module CucuShift
       end
       # JSON is subset of YAML, so we cna just use YAML parser to address both
       if res[:success] && ['json', 'yaml'].include?(fmt)
-        res[:response].gsub!("No resources found.\n","")
-        res[:parsed] = YAML.load(res[:response])
+        res[:parsed] = YAML.load(res[:stdout])
       end
 
       return res

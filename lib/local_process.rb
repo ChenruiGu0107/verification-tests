@@ -220,13 +220,16 @@ module CucuShift
               raise("stderr never closed of: #{result[:instruction]}")
               end
           end
-          result[:response] = result[:stdout].to_s
+          if result[:stderr].equal?(result[:stdout]) ||
+              result[:stderr].to_s.empty?
+            result[:response] = result[:stdout].to_s
+          else
+            result[:response] = "#{result[:stdout]}\nSTDERR:\n" \
+              "#{result[:stderr]}"
+          end
 
           unless opts[:quiet]
-            logger.plain(result[:stdout], false)
-            unless result[:stderr].equal?(result[:stdout])
-              logger.plain(result[:stderr], false)
-            end
+            logger.plain(result[:response], false)
             logger.info("Exit Status: #{result[:exitstatus]}")
           end
 
