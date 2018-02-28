@@ -133,11 +133,13 @@ Feature: Testing route
   @smoke
   Scenario: Service endpoint can be work well if the mapping pod ip is updated
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And all existing pods are ready with labels:
+    Given a pod becomes ready with labels:
       | name=test-pods |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+
     When I run the :get client command with:
       | resource | endpoints |
     Then the output should contain:
@@ -150,20 +152,19 @@ Feature: Testing route
       | name     | <%= cb.rc_name %>      |
       | replicas | 0                      |
     Then the step should succeed
-    Given I wait up to 20 seconds for the steps to pass:
-    """
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
     When I run the :get client command with:
       | resource | endpoints |
     Then the output should contain:
       | test-service |
       | none         |
-    """
+
     When I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | <%= cb.rc_name %>      |
       | replicas | 1                      |
     And I wait until number of replicas match "1" for replicationController "<%= cb.rc_name %>"
-    And all existing pods are ready with labels:
+    And a pod becomes ready with labels:
       | name=test-pods |
     When I run the :get client command with:
       | resource | endpoints |
