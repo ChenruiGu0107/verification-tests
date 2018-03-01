@@ -60,20 +60,28 @@ When /^I open web server via the(?: "(.+?)")? url$/ do |url|
 end
 
 Given /^I download a file from "(.+?)"(?: into the "(.+?)" dir)?$/ do |url, dl_path|
+  retries = 3
   @result = CucuShift::Http.get(url: url, cookies: cb.http_cookies)
-  if @result[:success]
-    if dl_path
-      file_name = File.join(dl_path, File.basename(URI.parse(url).path))
+  # force failure
+  while true
+    if @result[:success]
+      if dl_path
+        file_name = File.join(dl_path, File.basename(URI.parse(url).path))
+      else
+        file_name = File.basename(URI.parse(url).path)
+      end
+      File.open(file_name, 'wb') { |f|
+        f.write(@result[:response])
+      }
+      @result[:file_name] = file_name
+      @result[:abs_path] = File.absolute_path(file_name)
+      break
+    elsif @result[:exitstatus] >= 500 && retries > 0
+      @result = CucuShift::Http.get(url: url, cookies: cb.http_cookies)
     else
-      file_name = File.basename(URI.parse(url).path)
+      raise "Failed to download file from #{url} with HTTP status #{@result[:exitstatus]}"
     end
-    File.open(file_name, 'wb') { |f|
-      f.write(@result[:response])
-    }
-    @result[:file_name] = file_name
-    @result[:abs_path] = File.absolute_path(file_name)
-  else
-    raise "Failed to download file from #{url} with HTTP status #{@result[:exitstatus]}"
+    retries -= 1
   end
 end
 
