@@ -568,6 +568,7 @@ require "base64"
           element.drag_and_drop_by(off_right, off_down)
         when "set", "select_value", "append"
           if element.instance_of?(Watir::CheckBox)
+            hook = :click
             if val == "true"
               val = true
             elsif val == "false"
@@ -575,10 +576,12 @@ require "base64"
             else
               raise("you can set only 'true' or 'false' to element of type #{element.class}")
             end
+          else
+            hook = :none
           end
 
           if element.respond_to? op.to_sym
-            element.send(op.to_sym, val)
+            with_hook(hook) { element.send(op.to_sym, val) }
           else
             raise "element type #{element.class} does not support #{op}"
           end
