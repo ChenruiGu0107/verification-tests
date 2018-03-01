@@ -48,7 +48,11 @@ module CucuShift
         result[:instruction] = instruction
         logger.info(instruction) unless opts[:quiet]
         stdout = result[:stdout] = opts[:stdout] || String.new
-        stderr = result[:stderr] = opts[:stderr] || stdout
+        if opts[:stderr] == :stderr
+          stderr = result[:stderr] = String.new
+        else
+          stderr = result[:stderr] = opts[:stderr] || stdout
+        end
 
         @started_at = Time.now
         @channel = connection.session.open_channel do |channel|
@@ -168,7 +172,7 @@ module CucuShift
         end
         unless opts[:quiet]
           logger.plain(result[:stdout], false)
-          logger.plain(result[:stderr], false) unless result[:stdout] == result[:stderr]
+          logger.plain(result[:stderr], false) unless result[:stdout].equal?(result[:stderr])
           logger.info("Exit Status: #{result[:exitstatus]}")
         end
 
@@ -369,7 +373,7 @@ module CucuShift
           res[:error] = e
           res[:response] = exception_to_string(e)
         end
-        if res[:stdout].equal? res[:stderr]
+        if res[:stdout].equal?(res[:stderr]) || res[:stderr].to_s.empty?
           output = res[:stdout]
         else
           output = "STDOUT:\n#{res[:stdout]}\nSTDERR:\n#{res[:stderr]}"
