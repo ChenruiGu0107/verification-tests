@@ -341,7 +341,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed
@@ -380,7 +380,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed

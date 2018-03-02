@@ -3277,10 +3277,7 @@ Feature: Testing haproxy router
       | name    | route-edge |
       | service | service-unsecure |
     Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
 
     # The default cipher is 'intermediate' and using the specify cipher 'DHE-RSA-AES256-GCM-SHA384' can be accessed.
     When I execute on the "hello-pod" pod:

@@ -37,7 +37,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     # check mtu for tun0 and new create pod
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And the pod named "hello-pod" becomes ready

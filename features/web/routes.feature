@@ -169,10 +169,7 @@ Feature: Routes related features on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     # create passthrough route on web console
     When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |

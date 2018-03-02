@@ -13,10 +13,7 @@ Feature: Service related networking scenarios
       | resource      | endpoints  |
       | resource_name | external-http |
     Then the output should contain "61.135.218.25:80"
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
       | /usr/bin/curl | <%= cb.service_ip %>:10086 |
     Then the output should contain "www.youdao.com"
@@ -27,20 +24,14 @@ Feature: Service related networking scenarios
     ## Create pod in project1 and copy the pod ip
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     And evaluation of `pod.ip` is stored in the :pod1_ip clipboard
 
     ## Create pod in project2
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
     And I use the "<%= cb.project2 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
 
     ## Create selector less service in project2 which point to the pod in project1
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
@@ -73,10 +64,7 @@ Feature: Service related networking scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
     And I use the "<%= cb.project2 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
 
     ## Create selector less service in project2 which point to the service in project1
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_service.json" replacing paths:
