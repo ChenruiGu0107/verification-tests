@@ -80,12 +80,6 @@ Feature: SDN related networking scenarios
       | systemctl restart atomic-openshift-node |
     Then the step should succeed
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30s ago" |
-    Then the step should succeed
-    And the output should contain:
-      | Failed to determine node address from hostname |
-      | using default interface                        |
-    When I run commands on the host:
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
 
