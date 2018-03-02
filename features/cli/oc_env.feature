@@ -225,9 +225,9 @@ Feature: oc_env.feature
       | env | APPLE3=linux               |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=cakephp-mysql-example |
+      | name=cakephp-mysql-example |
     Given I store in the clipboard the pods labeled:
-      | app=cakephp-mysql-example |
+      | name=cakephp-mysql-example |
     When I run the :env client command with:
       | resource | pods/<%= cb.pods[0].name%> |
       | list     | true                       |
