@@ -79,10 +79,7 @@ Feature: Pod related networking scenarios
     Then the step should succeed
     And the pod named "udp4789-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :udp_pod clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    And the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
       | bash |
       | -c |

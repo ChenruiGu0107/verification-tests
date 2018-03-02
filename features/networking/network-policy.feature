@@ -585,10 +585,7 @@ Feature: Network policy plugin scenarios
 
     # Add label to an existing pod and a new pod in each project
     Given I use the "<%= cb.proj1 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
-    Then the step should succeed
-    And the pod named "hello-pod" becomes ready
+    And I have a pod-for-ping in the project
     When I run the :label client command with:
       | resource  | pod |
       | name      | <%= cb.p1pod3 %> |
@@ -596,10 +593,7 @@ Feature: Network policy plugin scenarios
       | key_val   | type=red |
     Then the step should succeed
     Given I use the "<%= cb.proj2 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
-    Then the step should succeed
-    And the pod named "hello-pod" becomes ready
+    And I have a pod-for-ping in the project
     When I run the :label client command with:
       | resource  | pod |
       | name      | <%= cb.p2pod3 %> |
@@ -713,10 +707,7 @@ Feature: Network policy plugin scenarios
 
     # Add label to an existing pod and a new pod in project1
     Given I use the "<%= cb.proj1 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
-    Then the step should succeed
-    And the pod named "hello-pod" becomes ready
+    And I have a pod-for-ping in the project
     And evaluation of `pod.ip` is stored in the :p1pod4ip clipboard
     When I run the :label client command with:
       | resource  | pod |
