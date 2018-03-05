@@ -728,6 +728,13 @@ Feature: SDN related networking scenarios
       | SDN healthcheck detected unhealthy OVS server |
       | full SDN setup required |
     """
+    # wait 120s for the node restarting and ovs rule come back
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run ovs dump flows commands on the host
+    Then the step should succeed
+    Then the output should contain "<%= cb.net_plugin[:type] %>.<%= cb.net_plugin[:version] %>"
+    """
 
     When I run the ovs commands on the host:
       | ovs-ofctl -O openflow13 mod-flows br0 "table=253, actions=note:99.<%= cb.net_plugin[:version] %>" |
@@ -740,6 +747,12 @@ Feature: SDN related networking scenarios
     And the output should contain:
       | SDN healthcheck detected unhealthy OVS server |
       | full SDN setup required |
+    """
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run ovs dump flows commands on the host
+    Then the step should succeed
+    Then the output should contain "<%= cb.net_plugin[:type] %>.<%= cb.net_plugin[:version] %>"
     """
 
   # @author yadu@redhat.com
