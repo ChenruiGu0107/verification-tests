@@ -212,19 +212,8 @@ Feature: storage security check
       | system_u:object_r:svirt_sandbox_file_t:s0 |
     When I execute on the pod:
       | touch | /mnt/secret/file |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -lZ | /mnt/secret/file |
-    Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
-    When I execute on the pod:
-      | cp | /hello | /mnt/secret |
-    Then the step should succeed
-    When I execute on the pod:
-      | /mnt/secret/hello |
-    Then the step should succeed
+    Then the step should fail 
+    And the outputs should contain "Read-only file system"
 
   # @author wehe@redhat.com
   # @case_id OCP-14139
@@ -249,19 +238,8 @@ Feature: storage security check
       | system_u:object_r:svirt_sandbox_file_t:s0 |
     When I execute on the pod:
       | touch | /mnt/dapi/file |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -lZ | /mnt/dapi/file |
-    Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
-    When I execute on the pod:
-      | cp | /hello | /mnt/dapi |
-    Then the step should succeed
-    When I execute on the pod:
-      | /mnt/dapi/hello |
-    Then the step should succeed
+    Then the step should fail 
+    And the outputs should contain "Read-only file system"
 
   # @author wehe@redhat.com
   # @case_id OCP-14138
@@ -289,19 +267,8 @@ Feature: storage security check
       | system_u:object_r:svirt_sandbox_file_t:s0 |
     When I execute on the pod:
       | touch | /mnt/configmap/file |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -lZ | /mnt/configmap/file |
-    Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
-    When I execute on the pod:
-      | cp | /hello | /mnt/configmap |
-    Then the step should succeed
-    When I execute on the pod:
-      | /mnt/configmap/hello |
-    Then the step should succeed
+    Then the step should fail 
+    And the outputs should contain "Read-only file system"
 
   # @author chaoyang@redhat.com
   # @author wehe@redhat.com
