@@ -467,16 +467,16 @@ Feature: dockerbuild.feature
       | build_arg   | ARG=VALUE        |
     Then the step should fail
     And the output should match:
-      | [Cc]annot specify build args |
-      | not a [Dd]ocker build        |
+      | [Cc]annot specify     |
+      | not a [Dd]ocker build |
     Given the "ruby-hello-world-1" build was created
     When I run the :start_build client command with:
       | from_build | ruby-hello-world-1 |
       | build_arg  | ARG=VALUE          |
     Then the step should fail
     And the output should match:
-      | [Cc]annot specify build args |
-      | not a [Dd]ocker build        |
+      | [Cc]annot specify     |
+      | not a [Dd]ocker build |
     When I run the :delete client command with:
       | all_no_dash | |
       | all         | |
