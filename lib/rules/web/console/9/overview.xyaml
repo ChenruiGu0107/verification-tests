@@ -342,7 +342,7 @@ edit_yaml_in_kebab_on_overview:
 check_edit_yaml_link:
   element:
     selector:
-      xpath: .//ul//a[@href="project/<project_name>/edit/yaml?kind=<edityaml_type>&name=<yaml_name>&group=<group>&returnURL="]
+      xpath: .//ul//a[contains(@href,"project/<project_name>/edit/yaml?kind=<edityaml_type>&name=<yaml_name>")]
 check_edit_link_in_kebab_on_overview:
   action:
     if_element: 

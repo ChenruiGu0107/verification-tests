@@ -230,7 +230,6 @@ Feature: Check overview page
       | edityaml_type | ReplicaSet          |
       | resource_name | frontend            |  
       | yaml_name     | frontend            |
-      | group         | extensions          |
       | viewlog_type  | pods                |
       | log_name      | <%= cb.replica_pod%>| 
     Then the step should succeed
@@ -253,7 +252,6 @@ Feature: Check overview page
       | edityaml_type | StatefulSet         |
       | resource_name | hello               |
       | yaml_name     | hello               |
-      | group         | apps                |
       | viewlog_type  | pods                |
       | log_name      | <%= cb.hello_pod%>  |
     Then the step should succeed
@@ -271,7 +269,6 @@ Feature: Check overview page
       | edityaml_type | Deployment            |
       | resource_name | hello-openshift       |
       | yaml_name     | hello-openshift       |
-      | group         | apps                  |
       | viewlog_type  | pods                  |
       | log_name      | <%= cb.openshift_pod%>|
     Then the step should succeed
@@ -310,7 +307,6 @@ Feature: Check overview page
       | project_name  | <%= project.name%>    |
       | edityaml_type | ReplicationController |
       | yaml_name     | myrun-rc              |
-      | group         ||
       | viewlog_type  | pods                  |
       | log_name      | <%= cb.myrunrc_pod%>  |
     Then the step should succeed
@@ -325,7 +321,6 @@ Feature: Check overview page
       | project_name  | <%= project.name%> |
       | edityaml_type | Pod                |
       | yaml_name     | myrun-pod          |
-      | group         ||
       | viewlog_type  | pods               |
       | log_name      | myrun-pod          |
     Then the step should succeed
