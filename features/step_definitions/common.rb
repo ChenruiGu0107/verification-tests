@@ -224,3 +224,29 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
     end
   }
 end
+
+Given /^I check feature gate #{QUOTED}(?: with admission #{QUOTED})? is enabled$/ do |fg, adm|
+  env.master_services.each { |service|
+    master_config = service.config
+    config_hash = master_config.as_hash()
+    if config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"] == nil ||
+         !config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"].include?("#{fg}=true") ||
+         config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"] == nil ||
+         !config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"].include?("#{fg}=true")
+      raise "feature gate #{fg} is not enabled on the master, please enable it first"
+    end
+    if adm && (config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"] == nil || config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"])
+      raise "admission controller #{adm} is not enabled, please enable it first"
+    end
+  }
+
+  nodes = env.nodes.select { |n| n.schedulable? }
+  nodes.each { |node|
+    nodename = node.name
+    node_config = node(nodename).service.config
+    config_hash = node_config.as_hash()
+    if config_hash["kubeletArguments"]["feature-gates"] == nil || !config_hash["kubeletArguments"]["feature-gates"].include?("#{fg}=true")
+      raise "feature gate #{fg} is not enabled on the node #{nodename}, please enable it first"
+    end
+  }
+end
