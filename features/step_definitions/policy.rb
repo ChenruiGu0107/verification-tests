@@ -12,7 +12,8 @@ When /^I give project (.+?) role to the(?: (.+?))? (user|service account)$/ do |
     :policy_add_role_to_user,
     role: role_name,
     user_name: user_name,
-    n: project.name
+    n: project.name,
+    rolebinding_name: role_name
   )
 end
 

@@ -452,7 +452,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     When I run the :policy_remove_role_from_user client command with:
       | role      | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
