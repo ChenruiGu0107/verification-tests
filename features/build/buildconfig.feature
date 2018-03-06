@@ -303,9 +303,9 @@ Feature: buildconfig.feature
   Scenario: Trigger chain builds from a image update
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | openshift/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
-    Then the "ruby-20-centos7" image stream was created
+    Then the "ruby-22-centos7" image stream was created
     And the "ruby-hello-world-1" build was created
     Given the "ruby-hello-world-1" build becomes :complete
     When I run the :new_build client command with:
@@ -316,8 +316,8 @@ Feature: buildconfig.feature
     And the "ruby-ex-1" build was created
     When I run the :tag client command with:
       | source_type | docker                 |
-      | source      | centos/ruby-22-centos7 |
-      | dest        | ruby-20-centos7:latest |
+      | source      | centos/ruby-23-centos7 |
+      | dest        | ruby-22-centos7:latest |
     Then the step should succeed
     And the "ruby-hello-world-2" build was created
     When the "ruby-hello-world-2" build becomes :complete
