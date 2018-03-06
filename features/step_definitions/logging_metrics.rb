@@ -905,10 +905,15 @@ Given /^I verify Prometheus metrics service is functioning$/ do
   step %Q/a pod becomes ready with labels:/, table(%{
      | app=prometheus |
    })
+  metrics_api_cmd = "curl localhost:9090/api/v1/query?query=up&time"
+  @result = pod.exec("bash", "-c", metrics_api_cmd, as: user)
+  step %Q/the step should succeed/
+  expected_api_query_pattern = '"status":"success"'
+  raise "Did not find expected api query pattern '#{expected_alerts_pattern}', got #{@result[:response]}" unless @result[:response].include? expected_api_query_pattern
   metrics_check_cmd = "curl localhost:9090/metrics"
   @result = pod.exec("bash", "-c", metrics_check_cmd, as: user)
   step %Q/the step should succeed/
-  expected_metrics_pattern = "prometheus_evaluator_iterations_missed_total counter"
+  expected_metrics_pattern = "prometheus_engine_queries 0"
   raise "Did not find expected metrics pattern '#{expected_metrics_pattern}', got #{@result[:response]}" unless @result[:response].include? expected_metrics_pattern
   alerts_check_cmd = "curl localhost:9093/api/v1/alerts"
   @result = pod.exec("bash", "-c", alerts_check_cmd, as: user)
