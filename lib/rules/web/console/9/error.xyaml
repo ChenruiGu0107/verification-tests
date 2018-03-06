@@ -2,14 +2,12 @@
 check_error_page:
   elements:
   - selector:
-      xpath: //h1[contains(.,'Error')]
+      xpath: //*[contains(.,'Error')]
   - selector:
-      xpath: //div[contains(.,'<project_name> does not exist or you are not authorized to view it')]
+      xpath: //*[contains(.,'<project_name> does not exist or you are not authorized to view it')]
 check_error_list_project_resources:
   url: /console/project/<project_name>/overview
-  elements:
-  - selector:
-      xpath: //div[contains(.,'Failed to list')]
+  action: check_error_page
 check_error_no_permission_to_create_project:
   elements:
   - selector:
