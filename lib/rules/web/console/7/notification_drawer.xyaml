@@ -95,3 +95,4 @@ check_unread_notification_num:
   - selector:
       visible_text: !ruby/regexp /<unread_num> Unread/i
     type: div
+    timeout: 60
