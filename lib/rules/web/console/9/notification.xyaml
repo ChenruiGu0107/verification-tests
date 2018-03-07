@@ -50,3 +50,5 @@ check_notification_save_conflict_error:
       xpath: //div/span[contains(text(),"Failed to save notification preferences")]
   - selector:
       xpath: //div/span[contains(text(),"the object has been modified")]
+systemstatus_warning:
+  action: check_page_contain_text
