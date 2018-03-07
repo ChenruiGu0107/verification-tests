@@ -167,6 +167,7 @@
     When I perform the :check_page_not_contain_text web console action with:
       | text | python |
     Then the step should succeed
+    Given the "php-sample-1" build finished
     When I perform the :check_zero_unread_in_drawer web console action with:
       | unread_num | 0 |
     Then the step should succeed
