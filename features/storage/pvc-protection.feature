@@ -93,5 +93,5 @@ Feature: pvc protection specific scenarios
       | resource | pod    |
       | name     | newpod |
     Then the step should succeed
-    And the output should contain "pvc-<%= project.name %> is being deleted"
+    And the output should contain "already used"
     """
