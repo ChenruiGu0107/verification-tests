@@ -108,8 +108,7 @@ Feature:policy related features on web console
   Scenario: Cluster-admin disable access to project by remove cluster role from group
     Given I log the message> this scenario is only valid for oc >= 3.4
     Given cluster roles are restored after scenario
-    Given cluster role "self-provisioner" is removed from the "system:authenticated" group
-    And cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
+    Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
 
     Given I login via web console
     When I get the html of the web page

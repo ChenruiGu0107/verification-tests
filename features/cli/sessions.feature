@@ -13,7 +13,7 @@ Feature: sessions related scenarios
     When I run the :whoami client command with:
       | t || 
     Then the output should contain:
-      | <%= user.cached_tokens[0].token %> |
+      | <%= user.cached_tokens.first %> |
     When I run the :whoami client command with:
       | invalid_option | true |
     Then the output should contain:
