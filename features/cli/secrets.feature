@@ -26,8 +26,7 @@ Feature: secrets related scenarios
       |resource     |secrets  |
       |resource_name|test     |
     Then the step should succeed
-    And the output should contain:
-      |kubernetes.io/dockercfg|
+    And the output should match "kubernetes.io/dockerc.*f.*g.*"
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-12360
