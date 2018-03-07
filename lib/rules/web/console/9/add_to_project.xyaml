@@ -34,10 +34,13 @@ check_all_content_is_hidden:
   element:
     selector:
       xpath: //div[normalize-space(text())='All content is hidden by the current filter.' and a[text()='Clear Filter']]
+check_add_to_project_button:
+  element: &add_to_project
+    selector: 
+      xpath: //button[@title='Add to Project']
 check_add_to_project_button_missing:
   element: 
-    selector: &add_to_project
-      xpath: //a[normalize-space()='Add to Project']
+    <<: *add_to_project
     missing: true
 click_add_to_project:
   element:

@@ -292,3 +292,35 @@ Feature: scenarios related to catalog page
       | template_name  | ruby-helloworld-sample                |
       | create_project | false                                 |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-16665
+  Scenario: Browse catalog and quick search from within a project
+    Given the master version >= "3.9"
+    Given I have a project
+    # search catalog item by a page in project
+    When I perform the :search_catalog_from_project_page web console action with:
+      | project_name | <%= project.name %> |
+      | keyword      | python              |
+      | number       | 3                   |
+    Then the step should succeed
+    # check page direct to Catalog
+    And the expression should be true> browser.url.end_with? "/catalog?filter=python"
+    When I perform the :check_catalog_page_title_and_first_level_menu web console action with:
+      | menu_name | Catalog |
+    Then the step should succeed
+    # only check overlay panel shows
+    When I perform the :select_service_from_catalog_and_cancel web console action with:
+      | service_item     | Python |
+    Then the step should succeed
+    # check page direct to Catalog by clicking browse catalog in project
+    When I perform the :browse_catalog_from_project_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    And the expression should be true> browser.url.end_with? "/catalog"
+    When I perform the :filter_by_keywords web console action with:
+      | keyword     | ruby   |
+      | press_enter | :enter |
+    When I perform the :check_service_item_from_catalog web console action with:
+      | service_item | Ruby |
+    Then the step should succeed

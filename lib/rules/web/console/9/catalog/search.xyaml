@@ -65,9 +65,14 @@ search_and_click_first_item_from_catalog:
     selector:
       xpath: //div[@class='catalog-search']//li[1][.//span[contains(@class, 'match-icon')] and .//div[contains(@class, 'match-label')] and .//span[contains(@class, '<has_tag>')]]/a
     op: click
+view_all_results:
+  element:
+    selector: 
+      xpath: //a[contains(@class, "catalog-search-show-all")]
+    op: click
+    timeout: 30
 search_catalog_no_result:
   action: search_catalog
   element:
     selector:
       xpath: //div[@class='catalog-search']//li[contains(., 'No results found')]
-

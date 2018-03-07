@@ -13,6 +13,9 @@ create_app_from_image_with_advanced_options:
   action: check_advanced_options_link_in_wizard
   action: create_app_from_image_set_app_name
   action: create_app_from_image_try_sample_repo
+select_service_from_catalog_and_cancel:
+  action: click_service_item_from_catalog
+  action: click_cancel_button
 click_primary_category_from_catalog:
   element:
     selector:
@@ -23,10 +26,14 @@ click_sub_category_from_catalog:
     selector:
       xpath: //a[contains(@class,'services-sub-category-tab')]//div[normalize-space()="<sub_catagory>"]
     op: click
+check_service_item_from_catalog:
+  element: &catalog_item
+    selector:
+      xpath: //div[contains(@class,'services-items')]//div[@title='<service_item>']
+    timeout: 30   
 click_service_item_from_catalog:
   element:
-    selector:
-      xpath: //ul//a[contains(@class,'services-item')]//div[@title='<service_item>']
+    <<: *catalog_item
     op: click
 do_configuration_step_in_wizard:
   action: select_existing_project_or_create_new_project
@@ -131,4 +138,3 @@ choose_create_binding_for_provision:
     selector:
       xpath: //label[contains(.,'Create a secret')]
     op: click
- 
