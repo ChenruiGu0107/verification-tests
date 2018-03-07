@@ -81,7 +81,7 @@ Feature: kubelet restart and node restart
     """
     # restart node
     Given I use the "<%= node.name %>" node
-    And the host is rebooted and I wait it to become available
+    And the host is rebooted and I wait it up to 600 seconds to become available
     And I wait up to 120 seconds for the steps to pass:
     """
     Given I run the steps 3 times:
