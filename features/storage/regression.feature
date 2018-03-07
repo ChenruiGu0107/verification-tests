@@ -78,5 +78,5 @@ Feature: Regression testing cases
     When I run the :describe client command with:
       | resource | pod |
     Then the output should contain:
-      | already exclusively attached |
+      | already |
     """
