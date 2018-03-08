@@ -242,6 +242,11 @@ Feature: SDN related networking scenarios
   Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
     Given I have a project
     When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
+    When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :get client command with:
@@ -256,18 +261,24 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | iptables -S -t nat \| grep <%= cb.clusternetwork %> \| cut -d ' ' -f 2- |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :nat_rule clipboard
+    And evaluation of `@result[:response].chomp` is stored in the :nat_rule1 clipboard
     When I run commands on the host:
-      | iptables -t nat -D <%= cb.nat_rule %> |
-      | iptables -t filter -D OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES |
-      | iptables -t nat -S \| grep <%= cb.service_ip %> \| cut -d ' ' -f2- \| xargs -L1 iptables -t nat -D |
+      | iptables -S -t nat \| grep <%= cb.service_ip %> \| cut -d ' ' -f 2- |
+    Then the step should succeed
+    And evaluation of `@result[:response].chomp` is stored in the :nat_rule2 clipboard
+
+    When I run commands on the host:
+      | iptables -t nat -D <%= cb.nat_rule1 %> |
+      | iptables -t nat -D <%= cb.nat_rule2 %> |
     Then the step should succeed
     And I wait up to 40 seconds for the steps to pass:
     """
     When I run commands on the host:
       | iptables -S -t nat |
-    Then the output should match:
-      | KUBE-SERVICES -d <%= cb.service_ip %>/32 -p tcp -m comment --comment ".*/service-unsecure:http cluster IP" -m tcp --dport 27017 |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.nat_rule1 %> |
+      | <%= cb.nat_rule2 %> |
     """
 
   # @author bmeng@redhat.com
