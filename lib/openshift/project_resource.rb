@@ -170,7 +170,8 @@ module CucuShift
       res.merge! user.cli_exec(:get, opts)
 
       if res[:success]
-        res[:parsed] = YAML.load(res[:response])
+        # oc 3.5 returns "No resources found." in stderr so we need to ignore it
+        res[:parsed] = YAML.load(res[:stdout])
         res[:items] = res[:parsed]["items"].map { |i|
           self.from_api_object(project, i)
         }
