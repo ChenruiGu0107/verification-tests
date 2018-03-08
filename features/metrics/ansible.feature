@@ -252,3 +252,16 @@ Feature: ansible install related feature
     And the expression should be true> cb.containers['prom-proxy'].spec.cpu_request_raw == '200m'
     And the expression should be true> cb.containers['prom-proxy'].spec.memory_request_raw == '500Mi'
 
+  # @author pruan@redhat.com
+  # @case_id OCP-18163
+  @admin
+  @destructive
+  Scenario: Check terminationGracePeriodSeconds value for hawkular-cassandra pod
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system
+    And I switch to cluster admin pseudo user
+    Given I use the "openshift-infra" project
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    Then the expression should be true> pod.termination_grace_period_seconds == 1800
