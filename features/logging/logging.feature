@@ -395,3 +395,54 @@ Feature: logging related scenarios
     And evaluation of `YAML.load(config_map('logging-elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
     And the expression should be true> cb.data.dig('node', 'max_local_storage_nodes') == 1
     And the expression should be true> cb.data.dig('gateway','recover_after_nodes') == '${NODE_QUORUM}'
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17429
+  @admin
+  @destructive
+  Scenario: The pvc are kept by default when uninstall logging via Ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17429/inventory |
+    Then the expression should be true> pvc('logging-es-0').ready?[:success]
+    Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
+    And logging service is uninstalled from the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_uninstall_inventory |
+    And I check that there are no dc in the project
+    And I check that there are no ds in the project
+    # XXX: check check will fail unless https://bugzilla.redhat.com/show_bug.cgi?id=1549220 is fixed
+    And I check that there are no configmap in the project
+    Then the expression should be true> pvc('logging-es-0').ready?[:success]
+    Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16138
+  @admin
+  @destructive
+  Scenario: Fluentd buffer limit options
+    Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16138/inventory |
+    Given a pod becomes ready with labels:
+      | component=fluentd,logging-infra=fluentd |
+    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "512"
+    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "2m"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17248
+  @admin
+  @destructive
+  Scenario: Invalid value for FILE_BUFFER_LIMIT
+    Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
+    Given a pod becomes ready with labels:
+      | component=fluentd,logging-infra=fluentd |
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    Then the output should contain:
+      | Invalid file buffer limit  |
+      | Failed to convert to bytes |
