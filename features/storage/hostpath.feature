@@ -14,7 +14,7 @@ Feature: Storage of Hostpath plugin testing
     And I use the "<%= cb.proj_name %>" project
 
     #Add label to the first node "<%= cb.proj_name %>=hostpath"
-    Given I store the schedulable nodes in the :nodes clipboard
+    Given I store the ready and schedulable nodes in the :nodes clipboard
     And label "<%= cb.proj_name %>=hostpath" is added to the "<%= cb.nodes[0].name %>" node
 
     #Create a dir on the first node
@@ -77,7 +77,7 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
 
     #Add label to the first node "<%= cb.proj_name %>=testfor510646"
-    Given I store the schedulable nodes in the :nodes clipboard
+    Given I store the ready and schedulable nodes in the :nodes clipboard
     And label "<%= cb.proj_name %>=testfor510646" is added to the "<%= cb.nodes[0].name %>" node
 
     #Create a dir on the first node

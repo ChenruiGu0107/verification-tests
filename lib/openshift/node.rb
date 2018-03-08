@@ -58,6 +58,15 @@ module CucuShift
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return !spec['unschedulable']
     end
+
+    def ready?(user: nil, cached: true, quiet: false)
+      status = get_cached_prop(prop: :status, user:user, cached: cached, quiet: quiet)
+      ready = status['conditions'].any? do |con|
+        con['type'] == "Ready" && con['status'] == "True"
+      end
+      return ready
+    end
+
     # @return [Integer} capacity cpu in 'm'
     def capacity_cpu(user: nil, cached: true, quiet: false)
       obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)

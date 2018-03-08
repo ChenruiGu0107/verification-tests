@@ -649,7 +649,7 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
     And environment has at least 2 schedulable nodes
     And I have a NFS service in the project
-    Given I store the schedulable nodes in the clipboard
+    Given I store the ready and schedulable nodes in the clipboard
     And label "accessmodes=rwx1" is added to the "<%= cb.nodes[0].name %>" node
     And label "accessmodes=rwx2" is added to the "<%= cb.nodes[1].name %>" node
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
@@ -692,7 +692,7 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Two pods compete the same ReadWriteOnce volume
     Given I have a project
     And environment has at least 2 schedulable nodes
-    Given I store the schedulable nodes in the clipboard
+    Given I store the ready and schedulable nodes in the clipboard
     And label "accessmodes=rwo1" is added to the "<%= cb.nodes[0].name %>" node
     And label "accessmodes=rwo2" is added to the "<%= cb.nodes[1].name %>" node
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:

@@ -13,10 +13,18 @@ Given /^I select a random node's host$/ do
   @host = node.host
 end
 
-Given /^I store the( schedulable)? nodes in the#{OPT_SYM} clipboard$/ do |schedulable, cbname|
+Given /^I store the( schedulable| ready and schedulable)? nodes in the#{OPT_SYM} clipboard$/ do |state, cbname|
   ensure_admin_tagged
   cbname = 'nodes' unless cbname
-  cb[cbname] = env.nodes.select { |n| !schedulable || n.schedulable? }
+
+  if !state
+    cb[cbname] = env.nodes.dup
+  elsif state.strip == "schedulable"
+    cb[cbname] = env.nodes.select { |n| n.schedulable? }
+  else
+    cb[cbname] = env.nodes.select { |n| n.ready? && n.schedulable? }
+  end
+
   cache_resources *cb[cbname].shuffle
 end
 
