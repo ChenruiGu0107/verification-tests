@@ -3,6 +3,7 @@ require 'yaml'
 require_relative 'build'
 require_relative 'cluster_resource'
 require_relative 'pod'
+require_relative 'role_binding'
 
 module CucuShift
   # @note represents an OpenShift environment project
@@ -112,8 +113,43 @@ module CucuShift
       Build.list(user: by, project: self, **get_opts)
     end
 
-    # def get_services
-    # end
+    def is_user_admin?(user:, cached: true, quiet: false)
+      user ||= default_user(user)
+      unless cached && @is_admin_hash&.has_key?(user)
+        @is_admin_hash ||= {}
+        if env.version_ge("3.3", user: user)
+          res = user.cli_exec(:policy_can_i,
+                              verb: "delete",
+                              resource: "project",
+                              n: self.name,
+                              q: true,
+                              _quiet: quiet)
+          # note that without quiet option, exit code is always 0
+          # oc auth can-i always returns non-zero for "no" though
+          @is_admin_hash[user] = res[:success]
+        else
+          fakeuser = rand_str(8, :dns952)
+          res = user.cli_exec(:policy_add_role_to_user,
+                              role: "admin",
+                              n: self.name,
+                              user_name: fakeuser,
+                              _quiet: quiet)
+          @is_admin_hash[user] = res[:success]
+          if res[:success]
+            res = user.cli_exec(:policy_remove_role_from_user,
+                                role: "admin",
+                                n: self.name,
+                                user_name: fakeuser,
+                                _quiet: quiet)
+            unless res[:success]
+              logger.warn "role admin could not be removed from fake user: " \
+                "#{fakeuser}"
+            end
+          end
+        end
+      end
+      return @is_admin_hash[user]
+    end
 
     #oc delete all -l app=hi -n ie2yc
     #buildconfigs/ruby-hello-world

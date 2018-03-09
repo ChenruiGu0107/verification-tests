@@ -10,8 +10,8 @@ Given /^I have a project$/ do
 
   project = @projects.reverse.find {|p|
     !sys_projects.include?(p.name) &&
-    p.visible?(user: user) &&
-    p.active?(user: user, cached: 1)
+      p.is_user_admin?(user: user, cached: true) &&
+      p.active?(user: user, cached: true)
   }
   if project
     # project does exist as visible is doing an actual query
@@ -19,6 +19,7 @@ Given /^I have a project$/ do
     @projects << @projects.delete(project)
   else
     projects = (user.projects - sys_projects).select {|p|
+      p.is_user_admin?(user: user, cached: true) &&
       p.active?(user: user, cached: true)
     }
     if projects.empty?
@@ -28,9 +29,7 @@ Given /^I have a project$/ do
         raise "unable to create project, see log"
       end
     else
-      # at this point we know that project cache does not contain any user
-      #   visible projects, so we can safely add user projects to cache
-      @projects.concat projects
+      cache_resources *projects
     end
   end
 end
