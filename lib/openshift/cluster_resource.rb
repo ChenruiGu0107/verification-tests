@@ -191,7 +191,7 @@ module CucuShift
 
     ################# make pry inspection nicer ##################
     def inspect
-      "#<#{self.class} #{env.key}/#{name}"
+      "#<#{self.class} #{env.key}/#{name}>"
     end
   end
 end
