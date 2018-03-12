@@ -1,6 +1,6 @@
 --- # new project actions
-create_project_on_homepage: 
-  action: click_create_project_on_homepage 
+create_project_on_homepage:
+  action: click_create_project_on_homepage
   action: new_project_form
   action: click_create_button
 click_create_project_on_homepage:
@@ -25,15 +25,16 @@ kebab_context_on_homepage:
     selector: &kebab_context
       xpath: //a[@href='project/<project_name>']/../preceding-sibling::div
 view_membership_in_kebab_on_homepage:
-  action: click_kebab_on_homepage
-  elements:
-  - selector:
-      xpath: //a[@href='project/<project_name>']/../preceding-sibling::div//a[contains(.,'View Membership')]
+  action:
+    context: *kebab_context
+    ref:
+    - click_kebab_on_homepage
+    - click_view_membership
+click_view_membership:
+  element:
+    selector:
+      xpath: .//ul//a[contains(.,'View Membership')]
     op: click
-  - selector:
-      xpath: //h1[contains(.,'Membership')]
-    timeout: 80
-  action: goto_home_page
 click_kebab_on_homepage:
   element:
     selector:

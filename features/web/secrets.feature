@@ -425,7 +425,7 @@ Feature: web secrets related
     When I perform the :select_one_build_secret_from_box web console action with:
       | secret_name | mysecret1 |
     Then the step should succeed
-    When I perform the :set_custom_build_secet_mountpath web console action with:
+    When I perform the :set_custom_build_secret_mountpath web console action with:
       | mountpath | testdir/exam1 |
     Then the step should succeed
     When I run the :click_add_another_build_secret_link web console action
@@ -433,7 +433,7 @@ Feature: web secrets related
     When I perform the :select_one_build_secret_from_box web console action with:
       | secret_name | mysecret2 |
     Then the step should succeed
-    When I perform the :set_custom_build_secet_mountpath web console action with:
+    When I perform the :set_custom_build_secret_mountpath web console action with:
       | mountpath | /tmp/exam2 |
     Then the step should succeed
     When I run the :click_save_button web console action

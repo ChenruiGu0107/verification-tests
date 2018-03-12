@@ -26,6 +26,10 @@ Feature: projects related features via homepage
     When I perform the :view_membership_in_kebab_on_homepage web console action with:
       | project_name | <%= project.name %>  |
     Then the step should succeed
+    When I run the :check_membership_heading web console action
+    Then the step should succeed
+    When I run the :goto_home_page web console action
+    Then the step should succeed
     When I perform the :delete_project_in_kebab_on_homepage web console action with:
       | project_name | <%= project.name %>  |
       | input_str    | <%= project.name %>  |

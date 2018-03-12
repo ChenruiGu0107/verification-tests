@@ -5,9 +5,12 @@ goto_membership_page:
 
 check_membership_no_permission_page:
   action: goto_membership_page
+  action: check_membership_heading
+check_membership_heading:
   element:
     selector:
       xpath: //h1[contains(.,"Membership")]
+    timeout: 60
 click_to_goto_membership_page:
   action: goto_overview_page
   elements:
