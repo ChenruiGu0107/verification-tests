@@ -34,7 +34,7 @@ module CucuShift
     end
 
     # @return [Boolean]
-    def visible?(user: nil, result: {}, quiet: false)
+    def exists?(user: nil, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
@@ -45,11 +45,10 @@ module CucuShift
         raise "error getting #{self.class.name} '#{name}' existence: #{result[:response]}"
       end
     end
-    alias exists? visible?
 
     def get_checked(user: nil, quiet: false)
       res = {}
-      if visible?(user: user, quiet: quiet, result: res)
+      if exists?(user: user, quiet: quiet, result: res)
         return res
       else
         raise CucuShift::ResourceNotFoundError,
@@ -203,7 +202,7 @@ module CucuShift
       start_time = monotonic_seconds
 
       wait_for(seconds) {
-        visible?(user: user, result: res, quiet: true)
+        exists?(user: user, result: res, quiet: true)
 
         logger.info res[:command] if iterations == 0
         iterations = iterations + 1

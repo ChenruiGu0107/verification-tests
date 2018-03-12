@@ -2187,7 +2187,7 @@ Feature: jenkins.feature
       | resource | is   |
       | name     | myis |
     Then the step should succeed
-    Then the expression should be true> image_stream("myis").visible?(user: user)
+    Then the expression should be true> image_stream("myis").exists?(user: user)
     Examples:
       | ver |
       | 1   |

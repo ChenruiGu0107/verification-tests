@@ -577,6 +577,8 @@
     :user_name: <value>
 :policy_can_i:
   :cmd: oc policy can-i <verb> <resource>
+  :options:
+    :q: -q
 :policy_who_can:
   :cmd: oc policy who-can <verb> <resource>
 :policy_scc_review:

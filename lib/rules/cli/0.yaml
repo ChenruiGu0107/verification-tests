@@ -563,8 +563,6 @@
     :role_namespace: --role-namespace=<value>
     :serviceaccount: -z <value>
     :user_name: <value>
-:policy_can_i:
-  :cmd: oc policy can-i <verb> <resource>
 :policy_who_can:
   :cmd: oc policy who-can <verb> <resource>
 :policy_scc_review:
