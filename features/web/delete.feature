@@ -177,7 +177,7 @@ Feature: Delete the resources via web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-14215/k8s-deployment.yaml |
     Then the step should succeed
-    Given a pod is present with labels::
+    Given a pod is present with labels:
       | app=hello-openshift |
     When I perform the :goto_one_k8s_deployment_page web console action with:
       | project_name        | <%= project.name %> |
@@ -188,7 +188,7 @@ Feature: Delete the resources via web console
     Then the step should succeed
     And the output should contain:
       | hello-openshift |
-    
+
     When I run the :check_delete_deployment_warning_in_delete_action web console action
     Then the step should succeed
     When I run the :click_delete web console action

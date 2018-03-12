@@ -62,7 +62,7 @@ Feature: Testing Admin Scenarios
 
   @admin
   Scenario: get rpm information from puddle
-    Given I save the rpm name for "openshift-ansible" package from puddle to the :playbook_rpm_name clipboard
+    Given I save the rpm name matching /openshift-ansible/ from puddle to the :playbook_rpm_name clipboard
     And I download a file from "<%= cb.puddle_url + "/Packages/" + cb.playbook_rpm_name.first %>"
     Then the step should succeed
 
