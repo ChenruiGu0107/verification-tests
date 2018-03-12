@@ -487,3 +487,10 @@ Given /^the taints of the nodes in the#{OPT_SYM} clipboard are restored after sc
     end
   }
 end
+
+Given /^I run commands on all nodes:$/ do |table|
+  ensure_admin_tagged
+  @result = CucuShift::ResultHash.aggregate_results env.node_hosts.map { |host|
+    host.exec_admin(table.raw.flatten)
+  }
+end
