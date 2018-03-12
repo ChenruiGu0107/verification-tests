@@ -728,12 +728,15 @@ Feature: Egress-ingress related networking scenarios
     Given I have a project  
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com", multi: true)` is stored in the :yahoo clipboard
+    And evaluation of `CucuShift::Common::Net.dns_lookup("www.yahoo.com", multi: true)` is stored in the :yahoo clipboard
     Then the expression should be true> cb.yahoo.size >= 3
 
     # Create egress policy 
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json"
+    And I replace lines in "dns-egresspolicy2.json":
+      | yahoo.com | www.yahoo.com |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json |
+      | f | dns-egresspolicy2.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
  
@@ -748,7 +751,7 @@ Feature: Egress-ingress related networking scenarios
      | ping | -c1 | -W2 | <%= cb.yahoo[2] %> |
     Then the step should fail 
 
-  
+
   # @author weliang@redhat.com
   # @case_id OCP-15004
   @admin
@@ -845,15 +848,15 @@ Feature: Egress-ingress related networking scenarios
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json"
     And I replace lines in "dns-egresspolicy2.json":
       | 98.138.0.0/16 | 0.0.0.0/0 |
-      | yahoo.com | www.cisco.com |
     And I run the :create admin command with:
       | f | dns-egresspolicy2.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
-    
+
     # Check curl from pod
     When I execute on the pod:
       | curl | -ILs  | www.test.com |    
+    Then the step should succeed
 
 
   # @author weliang@redhat.com
