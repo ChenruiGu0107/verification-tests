@@ -1033,3 +1033,20 @@ Given /^I wait(?: for (\d+) seconds)? until the ES cluster is healthy$/ do |seco
     status == 'green'
   end
 end
+
+# just call diagnostics w/o giving any arguments
+# dignostics command line options are different depending on the version of OCP, for OCP <= 3.7, the command must
+# be run from the master's host.  With OCP > 3.7, we can run form either localhost or master host.  For consistency we
+# just alway run from master
+# reuturn: @result should contain the run status
+Given /^I run logging diagnostics$/ do
+  ensure_admin_tagged
+  if env.version_gt("3.7", user: user)
+    diag_cmd = "oc adm diagnostics AggregatedLogging --logging-project=#{project.name}"
+  else
+    diag_cmd = "oc adm diagnostics AggregatedLogging"
+  end
+  host = env.master_hosts.first
+
+  @result = host.exec(diag_cmd)
+end

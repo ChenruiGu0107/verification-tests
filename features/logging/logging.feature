@@ -287,8 +287,7 @@ Feature: logging related scenarios
     Given logging service is installed in the system
     And I switch to cluster admin pseudo user
     # XXX calling the command from master due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1510212
-    And I run commands on the host:
-      | oc adm diagnostics AggregatedLogging |
+    And I run logging diagnostics
     And the output should not contain:
       | Skipping diagnostic: AggregatedLogging |
     Then the output should contain:
@@ -305,8 +304,7 @@ Feature: logging related scenarios
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml |
     And I switch to cluster admin pseudo user
     # make sure we have a good starting point
-    And I run commands on the host:
-      | oc adm diagnostics AggregatedLogging |
+    And I run logging diagnostics
     And the output should not contain:
       | Skipping diagnostic: AggregatedLogging |
     Then the output should contain:
@@ -321,8 +319,7 @@ Feature: logging related scenarios
       | object_type       | endpoints          |
       | object_name_or_id | logging-kibana-ops |
     Then the step should succeed
-    And I run commands on the host:
-      | oc adm diagnostics AggregatedLogging |
+    And I run logging diagnostics
     And the output should not contain:
       | Skipping diagnostic: AggregatedLogging |
     And the output should contain:
@@ -337,8 +334,7 @@ Feature: logging related scenarios
       | object_type       | svc                |
       | object_name_or_id | logging-kibana-ops |
     Then the step should succeed
-    And I run commands on the host:
-      | oc adm diagnostics AggregatedLogging |
+    And I run logging diagnostics
     And the output should not contain:
       | Skipping diagnostic: AggregatedLogging |
     And the output should contain:
@@ -446,3 +442,18 @@ Feature: logging related scenarios
     Then the output should contain:
       | Invalid file buffer limit  |
       | Failed to convert to bytes |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11846
+  @admin
+  @destructive
+  Scenario: Aggregated logging diagnostics for fluentd daemonset
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And I switch to cluster admin pseudo user
+    And I ensure "logging-fluentd" daemonset is deleted from the "<%= project.name %>" project
+    Then the step should succeed
+    And I run logging diagnostics
+    Then the output should contain:
+      | There were no DaemonSets in project |
