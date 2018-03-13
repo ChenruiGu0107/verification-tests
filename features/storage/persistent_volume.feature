@@ -729,3 +729,291 @@ Feature: Persistent Volume Claim binding policies
     Then the output should contain:
       | mypod1 |
       | mypod2 |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17550
+  @admin
+  Scenario: PV with Filesystem VolumeMode and PVC with unspecified VolumeMode should be bound successfully
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]   | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"] | Filesystem             |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17552
+  @admin
+  Scenario: PV with Block VolumeMode and PVC with unspecified VolumeMode could not be bound
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]   | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"] | Block                  |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Block       |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    Given 120 seconds have passed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | FailedBinding                   |
+      | no persistent volumes available |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17554
+  @admin
+  Scenario: PV with unspecified VolumeMode and PVC with Filesystem VolumeMode should be bound successfully
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"] | pv-<%= project.name %> |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"] | Filesystem              |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17555
+  @admin
+  Scenario: PV with unspecified VolumeMode and PVC with Block VolumeMode could not be bound
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"] | pv-<%= project.name %> |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Filesystem  |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"] | Block                   |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | VolumeMode: |
+      | Block       |
+    Given 120 seconds have passed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | FailedBinding                   |
+      | no persistent volumes available |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17558
+  @admin
+  @destructive
+  Scenario: PV's spec.VolumeMode field should be dropped when feature gate BlockVolume is not enabled
+    Given feature gate "BlockVolume" is disabled
+
+    Given I have a project
+    And I have a NFS service in the project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]            | pv-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"] | 5Gi                              |
+      | ["spec"]["volumeMode"]          | Block                            |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should not contain:
+      | VolumeMode: |
+      | Block       |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"]                       | Block                   |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should not contain:
+      | VolumeMode: |
+      | Block       |
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/test_file |
+    Then the step should succeed
+
+  # @author piqin@redhat.com
+  # @case_id OCP-17562
+  @admin
+  @destructive
+  Scenario: Pod's spec.[init]containers.VolumeDevices field should be dropped when feature gate BlockVolume is not enabled
+    Given feature gate "BlockVolume" is disabled
+
+    Given I have a project
+    And I have a NFS service in the project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]            | pv-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"] | 5Gi                              |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
+    Then the step should succeed
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/initcontainer-blockvolume-pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I get project pod named "mypod-<%= project.name %>" as YAML
+    Then the output by order should not contain:
+      | volumeDevices:          |
+      | - devicePath: /dev/xvda |
+
+  # @author piqin@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: PV and PVC with same VolumeMode, but with other invalid feild should not be bound
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]   | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"] | Block                  |
+      | <pv_key>               | <pv_value>             |
+    Then the step should succeed
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"]       | Block                   |
+      | <pvc_key>                    | <pvc_value>             |
+    Then the step should succeed
+    Given 120 seconds have passed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | FailedBinding                   |
+      | no persistent volumes available |
+
+    Examples:
+      | pv_key                          | pv_value      | pvc_key                                      | pvc_value     |
+      | ["spec"]["capacity"]["storage"] | 1Gi           | ["spec"]["resources"]["requests"]["storage"] | 5Gi           | # @case_id OCP-17561
+      | ["spec"]["accessModes"][0]      | ReadWriteOnce | ["spec"]["accessModes"][0]                   | ReadWriteMany | # @case_id OCP-17557
+      | ["spec"]["storageClassName"]    | sc-1          | ["spec"]["storageClassName"]                 | sc-2          | # @case_id OCP-17559
+
+  # @author piqin@redhat.com
+  @admin
+  Scenario Outline: PV and PVC with different specified VolumeMode should not be bound
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]   | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"] | <pv_volumeMode>        |
+    Then the step should succeed
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["volumeMode"]       | <pvc_volumeMode>        |
+    Then the step should succeed
+    Given 120 seconds have passed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | FailedBinding                   |
+      | no persistent volumes available |
+
+    Examples:
+      | pv_volumeMode | pvc_volumeMode |
+      | Block         | Filesystem     | # @case_id OCP-17551
+      | Filesystem    | Block          | # @case_id OCP-17553
