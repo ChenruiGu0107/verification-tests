@@ -67,24 +67,27 @@ Feature: Testing registry
   @destructive
   Scenario: Prune images by command oadm_prune_images
     Given cluster role "system:image-pruner" is added to the "first" user
-    And default registry service ip is stored in the :registry_ip clipboard
+    And default docker-registry route is stored in the :registry_ip clipboard
     Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    And I select a random node's host
-    And the "~/.docker/config.json" file is restored on host after scenario
-    And I run commands on the host:
-      | docker logout <%= cb.registry_ip %> |
-      | docker pull docker.io/aosqe/singlelayer:latest |
-      | docker tag docker.io/aosqe/singlelayer:latest  <%= cb.registry_ip %>/<%= project.name %>/mystream:latest|
-      | docker push <%= cb.registry_ip %>/<%= project.name %>/mystream:latest|
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/aosqe/singlelayer:latest |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
     And the "mystream:latest" image stream tag was created
     And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
     And evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
-    And default docker-registry route is stored in the :registry_ip clipboard
     And I ensures "mystream" imagestream is deleted
     Given I delete the project
     And I run the :oadm_prune_images client command with:
@@ -158,6 +161,9 @@ Feature: Testing registry
     Then the step should succeed
     Given I wait until the latest rc of internal registry is ready
     Given I create a new project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    And evaluation of `project.name` is stored in the :prj1 clipboard
     When I run the :tag client command with:
       | source_type | docker                                 |
       | source      | docker.io/aosqe/hello-openshift:latest |
@@ -169,17 +175,28 @@ Feature: Testing registry
       | confirm    | true                                       |
     Then the step should succeed
     When I find a bearer token of the deployer service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    And the "~/.docker/config.json" file is restored on host after scenario
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    And default docker-registry route is stored in the :registry_ip clipboard
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %> |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
     Then the step should succeed
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %> |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
     Then the step should succeed
     And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
@@ -192,8 +209,8 @@ Feature: Testing registry
     Then the step should succeed
     And I run the :new_secret admin command with:
       | secret_name     | registryconfig |
-      | credential_file | ./config.yml    |
-      | namespace       | default         |
+      | credential_file | ./config.yml   |
+      | namespace       | default        |
     Then the step should succeed
     And admin ensures "registryconfig" secrets is deleted from the "default" project after scenario
     And I run the :volume admin command with:
@@ -202,7 +219,7 @@ Feature: Testing registry
       | name        | config             |
       | mount-path  | /config            |
       | type        | secret             |
-      | secret-name | registryconfig    |
+      | secret-name | registryconfig     |
       | namespace   | default            |
     Then the step should succeed
     Given I wait until the latest rc of internal registry is ready
@@ -214,6 +231,7 @@ Feature: Testing registry
     Then the step should succeed
     Given I wait until the latest rc of internal registry is ready
     And I create a new project
+    And evaluation of `project.name` is stored in the :prj2 clipboard
     When I run the :tag client command with:
       | source_type | docker                                 |
       | source      | docker.io/aosqe/hello-openshift:latest |
@@ -225,16 +243,28 @@ Feature: Testing registry
       | confirm    | true                                       |
     Then the step should succeed
     When I find a bearer token of the deployer service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    And I use the "<%= cb.prj1 %>" project
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %> |
+      | docker://<%= cb.registry_ip %>/<%= cb.prj2 %>/hello-world:latest |
     Then the step should succeed
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %> |
+      | docker://<%= cb.registry_ip %>/<%= cb.prj2 %>/ruby-20-centos7:latest |
     Then the step should succeed
     And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
@@ -277,41 +307,20 @@ Feature: Testing registry
   # @author haowang@redhat.com
   # @case_id OCP-11490
   @admin
-  @destructive
   Scenario: Import new tags to image stream
     Given I have a project
-    And I select a random node's host
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     And I have a registry in my project
-    Given the node service is verified
-    And the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    And I run commands on the host:
-      | systemctl restart docker |
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-tls-verify=false |
+      | docker://docker.io/busybox:latest |
+      | docker://<%= cb.reg_svc_url %>/test/busybox:latest  |
     Then the step should succeed
-    """
-    And the "/etc/sysconfig/docker" file is restored on host after scenario
-    And I run commands on the host:
-      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.reg_svc_url%>'" >> /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker pull docker.io/busybox:latest |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker tag docker.io/busybox:latest <%= cb.reg_svc_url %>/test/busybox:latest|
-    Then the step should succeed
-    Then I wait up to 60 seconds for the steps to pass:
-    """
-    And I run commands on the host:
-      | docker push <%= cb.reg_svc_url %>/test/busybox:latest|
-    Then the step should succeed
-    """
     When I run the :import_image client command with:
       | from       | <%= cb.reg_svc_url %>/test/busybox |
       | image_name | busybox                            |
@@ -320,11 +329,14 @@ Feature: Testing registry
       | insecure   | true                               |
     Then the step should succeed
     And the "busybox:latest" image stream tag was created
-    And I run commands on the host:
-      | docker tag docker.io/busybox:latest <%= cb.reg_svc_url %>/test/busybox:v1|
-    Then the step should succeed
-    And I run commands on the host:
-      | docker push <%= cb.reg_svc_url %>/test/busybox:v1 |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-tls-verify=false |
+      | docker://docker.io/busybox:latest |
+      | docker://<%= cb.reg_svc_url %>/test/busybox:v1 |
     Then the step should succeed
     When I run the :import_image client command with:
       | from       | <%= cb.reg_svc_url %>/test/busybox |
@@ -334,14 +346,14 @@ Feature: Testing registry
       | insecure   | true                               |
     Then the step should succeed
     And the "busybox:v1" image stream tag was created
-    And I run commands on the host:
-      | docker pull docker.io/library/centos:latest |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker tag docker.io/library/centos:latest <%= cb.reg_svc_url %>/test/busybox:centos |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker push <%= cb.reg_svc_url %>/test/busybox:centos |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-tls-verify=false |
+      | docker://docker.io/library/centos:latest |
+      | docker://<%= cb.reg_svc_url %>/test/busybox:centos |
     Then the step should succeed
     When I run the :import_image client command with:
       | from       | <%= cb.reg_svc_url %>/test/busybox |
@@ -357,21 +369,21 @@ Feature: Testing registry
   @admin
   Scenario: Have size information for images pushed to internal registry
     Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I find a bearer token of the builder service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    And the "~/.docker/config.json" file is restored on host after scenario
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker pull docker.io/aosqe/pushwithdocker19:latest |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker tag docker.io/aosqe/pushwithdocker19:latest <%= cb.registry_ip %>/<%= project.name %>/busybox:latest |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push  <%= cb.registry_ip %>/<%= project.name %>/busybox:latest |
+    And default docker-registry route is stored in the :registry_ip clipboard
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | --dcreds                   |
+      | dnm:<%= service_account.cached_tokens.first %>  |
+      | docker://docker.io/aosqe/pushwithdocker19:latest |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/busybox:latest  |
     Then the step should succeed
     And evaluation of `image_stream_tag("busybox:latest").digest(user:user)` is stored in the :digest clipboard
     Then I run the :describe admin command with:
@@ -425,6 +437,7 @@ Feature: Testing registry
     And the master service is restarted on all master nodes
     Given I switch to the first user
     And I have a project
+    And I have a skopeo pod in the project
     When I run the :import_image client command with:
       | from       | docker.io/openshift/ruby-20-centos7:latest |
       | image_name | ruby-20-centos7:latest                     |
@@ -432,33 +445,15 @@ Feature: Testing registry
     Then the step should succeed
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    Given the node service is verified
-    And the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    """
-    And the "/etc/sysconfig/docker" file is restored on host after scenario
-    And I run commands on the host:
-      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.registry_ip %>'" >> /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    Then I wait up to 60 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
-    Then the step should succeed
-    """
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --tls-verify=false         |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %> |
+      | docker://docker-registry.default.svc:5001/<%= project.name %>/ruby-20-centos7:latest |
     Then the step should succeed
 
   # @author haowang@redhat.com
@@ -508,35 +503,19 @@ Feature: Testing registry
     And the master service is restarted on all master nodes
     Given I switch to the first user
     And I have a project
+    And I have a skopeo pod in the project
     When I find a bearer token of the builder service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    Given the node service is verified
-    And the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    """
-    And the "/etc/sysconfig/docker" file is restored on host after scenario
-    And I run commands on the host:
-      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.registry_ip %>'" >> /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    Then I wait up to 60 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
-    Then the step should succeed
-    """
-    When I run commands on the host:
-      | docker pull docker.io/busybox && docker tag docker.io/busybox <%= cb.registry_ip %>/<%= project.name%>/busybox && docker push <%= cb.registry_ip %>/<%= project.name%>/busybox|
+    And default docker-registry route is stored in the :registry_ip clipboard
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-tls-verify=false    |
+      | --dcreds                   |
+      | dnm:<%= service_account.cached_tokens.first %>  |
+      | docker://docker.io/busybox                      |
+      | docker://docker-registry.default.svc:5000/<%= project.name%>/busybox  |
     Then the step should succeed
     And the "busybox:latest" image stream tag was created
     And evaluation of `image_stream_tag("busybox:latest").image_layers(user:user)` is stored in the :layers clipboard
@@ -572,22 +551,24 @@ Feature: Testing registry
 
   # @author: yinzhou@redhat.com
   # @case_id: OCP-12059
-  @destructive
   @admin
   Scenario: Pull image with secrets from private remote registry in the OpenShift registry
     Given I have a project
-    And I select a random node's host
-    And I have a registry with htpasswd authentication enabled in my project
-    And I add the insecure registry to docker config on the node
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    Given I have a registry with htpasswd authentication enabled in my project
     And a pod becomes ready with labels:
       | deploymentconfig=registry |
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I log into auth registry on the node
-    Then the step should succeed
-    """
-    When I docker push on the node to the registry the following images:
-      | docker.io/busybox:latest | busybox:latest |
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-tls-verify=false    |
+      | --dcreds                   |
+      | <%= cb.reg_user %>:<%= cb.reg_pass %>  |
+      | docker://docker.io/busybox             |
+      | docker://<%= cb.reg_svc_url %>/busybox:latest  |
     Then the step should succeed
     When I run the :create_secret client command with:
       | createservice_type | docker-registry           | 
@@ -608,10 +589,15 @@ Feature: Testing registry
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
     Then the step should succeed
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    When I run commands on the host:
-      | docker logout <%= cb.integrated_reg_ip %> |
-      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
 
   # @author mcurlej@redhat.com
@@ -701,22 +687,32 @@ Feature: Testing registry
   @admin
   Scenario: Admin can understand/manage image use and prune oversized image
     Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And default docker-registry route is stored in the :registry_ip clipboard
-    And the "~/.docker/config.json" file is restored on host after scenario
-    When I run commands on the host:
-      | docker logout <%= cb.integrated_reg_ip %>                                          |
-      | docker pull aosqe/singlelayer:latest                                               |
-      | docker tag docker.io/aosqe/singlelayer:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/singlelayer:latest             |
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/singlelayer:latest     |
-      | docker pull openshift/hello-openshift:latest                                       |
-      | docker tag docker.io/openshift/hello-openshift:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/hello-openshift:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/hello-openshift:latest |
+    Given default docker-registry route is stored in the :registry_ip clipboard
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/aosqe/singlelayer:latest |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/singlelayer:latest  |
+    Then the step should succeed
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/openshift/hello-openshift:latest |
+      | docker://<%= cb.registry_ip %>/<%= project.name %>/hello-openshift:latest  |
     Then the step should succeed
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
     Then the step should succeed
@@ -760,29 +756,25 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     Given I switch to the first user
     And I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I run the :tag client command with:
       | source_type | docker                  |
       | source      | openshift/origin:latest |
       | dest        | mystream:latest         |
     Then the step should succeed
     When I find a bearer token of the builder service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
-    And I register clean-up steps:
-    """
-    And I run commands on the host:
-      | docker rmi <%= cb.registry_ip %>/<%= project.name %>/mystream:latest |
-    Then the step should succeed
-    """
-    And the "~/.docker/config.json" file is restored on host after scenario
-    Then I wait up to 60 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.registry_ip %> |
-    Then the step should succeed
-    """
-    When I run commands on the host:
-      | docker pull <%= cb.registry_ip %>/<%= project.name%>/mystream:latest |
+    And default docker-registry route is stored in the :registry_ip clipboard
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | --creds                    |
+      | dnm:<%= service_account.cached_tokens.first %>  |
+      | docker://<%= cb.registry_ip %>/<%= project.name%>/mystream:latest |
     Then the step should succeed
     And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry

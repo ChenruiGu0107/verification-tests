@@ -26,20 +26,23 @@ Feature: Testing imagestream
   @admin
   Scenario: Shouldn't prune the image with week and strong reference witch the strong reference is imagestream
     Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    And evaluation of `project.name` is stored in the :original_proj clipboard
-    And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And default docker-registry route is stored in the :registry_hostname clipboard
-    And I run commands on the host:
-      | docker logout  <%= cb.integrated_reg_ip %>                                                                                                     |
-      | docker pull docker.io/busybox:latest;docker tag  docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest                                                                |
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/busybox:latest |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | mystream:latest          |
@@ -47,27 +50,37 @@ Feature: Testing imagestream
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :digest1 clipboard
     When I run the :tag client command with:
-      | source_type  | docker                                                              |
-      | source       | <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
-      | dest         | <%= cb.original_proj %>/myisb:latest                                |
-      | insecure     | true                                                                |
+      | source_type  | docker                                                          |
+      | source       | <%= cb.registry_hostname %>/<%= project.name %>/mystream:latest |
+      | dest         | <%= project.name %>/myisb:latest                                |
+      | insecure     | true                                                            |
     Then the step should succeed
-    And I run commands on the host:
-      | docker pull docker.io/openshift/hello-openshift:latest;docker tag  docker.io/openshift/hello-openshift:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/openshift/hello-openshift:latest |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | mystream:latest          |
       | template      | {{.image.metadata.name}} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :digest2 clipboard
-    And I run commands on the host:
-      | docker pull docker.io/openshift/deployment-example:latest;docker tag  docker.io/openshift/deployment-example:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | copy                       |
+      | --dest-cert-dir            |
+      | /opt/qe/ca                 |
+      | docker://docker.io/openshift/deployment-example:latest |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | mystream:latest          |
@@ -157,9 +170,10 @@ Feature: Testing imagestream
   @destructive
   @admin
   Scenario: Should prune the extenal image correctly
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And default docker-registry route is stored in the :registry_hostname clipboard
     Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
     When I run the :tag client command with:
       | source_type  | docker            |
       | source       | docker.io/busybox |
@@ -169,13 +183,15 @@ Feature: Testing imagestream
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    And evaluation of `project.name` is stored in the :original_proj clipboard
-    And I select a random node's host
-    And I run commands on the host:
-      | docker logout  <%= cb.integrated_reg_ip %>                                       |
-      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
+    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/myis13895:latest  |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | myis13895:latest         |
@@ -187,11 +203,15 @@ Feature: Testing imagestream
       | source       | openshift/hello-openshift |
       | dest         | myis13895:latest          |
     Then the step should succeed
-    And I run commands on the host:
-      | docker rmi -f <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
-      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest   |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/myis13895:latest  |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | myis13895:latest         |
@@ -203,11 +223,15 @@ Feature: Testing imagestream
       | source       | openshift/deployment-example |
       | dest         | myis13895:latest             |
     Then the step should succeed
-    And I run commands on the host:
-      | docker rmi -f <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
-      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest   |
+    When I execute on the pod:
+      | skopeo                     |
+      | --debug                    |
+      | --insecure-policy          |
+      | inspect                    |
+      | --cert-dir                 |
+      | /opt/qe/ca                 |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/myis13895:latest  |
     Then the step should succeed
-    When I use the "<%= cb.original_proj %>" project
     When I run the :get client command with:
       | resource      | istag                    |
       | resource_name | myis13895:latest         |
