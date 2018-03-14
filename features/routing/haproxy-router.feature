@@ -1361,11 +1361,9 @@ Feature: Testing haproxy router
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
     Given default router replica count is restored after scenario
-    And admin ensures "tc-500001" dc is deleted after scenario
-    And admin ensures "tc-500001" service is deleted after scenario
+    And admin ensures "ocp-12651" dc is deleted after scenario
+    And admin ensures "ocp-12651" service is deleted after scenario
     When I run the :scale client command with:
       | resource | dc |
       | name | router |
@@ -1373,12 +1371,12 @@ Feature: Testing haproxy router
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem"
     When I run the :oadm_router admin command with:
-      | name | tc-500001|
+      | name | ocp-12651|
       | images | <%= cb.default_router_image %> |
       | default_cert | default-router.pem |
     And a pod becomes ready with labels:
-      | deploymentconfig=tc-500001|
-    And evaluation of `pod.ip` is stored in the :router_default_cert clipboard
+      | deploymentconfig=ocp-12651|
+    And evaluation of `pod.ip` is stored in the :custom_router_ip clipboard
 
     Given I switch to the first user
     And I have a project
@@ -1409,7 +1407,7 @@ Feature: Testing haproxy router
     When I execute on the pod:
       | curl |
       | --resolve |
-      | <%= route("route-edge", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_default_cert %> |
+      | <%= route("route-edge", service("service-unsecure")).dns(by: user) %>:443:<%= cb.custom_router_ip %> |
       | https://<%= route("route-edge", service("service-unsecure")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/default-router.pem |
