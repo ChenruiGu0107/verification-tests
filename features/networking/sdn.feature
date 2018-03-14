@@ -677,6 +677,7 @@ Feature: SDN related networking scenarios
     Given I use the "<%= cb.nodes[0].name %>" node
     And the node service is verified
     And the node network is verified
+    And the node labels are restored after scenario
     And the node service is restarted on the host after scenario
     When I run the :delete admin command with:
       | object_type       | node                    |
@@ -812,6 +813,7 @@ Feature: SDN related networking scenarios
 
     # get node_1's host IP and save to clipboard
     Given I use the "<%= cb.nodes[1].name %>" node
+    And the node labels are restored after scenario
     And the node service is restarted on the host after scenario
     And evaluation of `host_subnet(cb.nodes[1].name).ip` is stored in the :hostip clipboard
 
