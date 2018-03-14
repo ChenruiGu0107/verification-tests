@@ -26,14 +26,14 @@ Feature: Testing imagestream
   @admin
   Scenario: Shouldn't prune the image with week and strong reference witch the strong reference is imagestream
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    And default docker-registry route is stored in the :registry_hostname clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    Given default docker-registry route is stored in the :registry_hostname clipboard
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -183,7 +183,7 @@ Feature: Testing imagestream
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |

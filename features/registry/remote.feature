@@ -5,9 +5,7 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Pull image by digest value in the OpenShift registry
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    When I find a bearer token of the deployer service account
+    And I find a bearer token of the deployer service account
     When I run the :tag client command with:
       | source_type | docker                  |
       | source      | openshift/origin:latest |
@@ -15,7 +13,9 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -73,7 +73,6 @@ Feature: remote registry related scenarios
 
     Given I switch to the default user
     And I have a project
-    And I have a skopeo pod in the project
     When I run the :tag client command with:
       | source_type | docker                               |
       | source      | aosqe/sleep:preserve-for-testing     |
@@ -81,7 +80,8 @@ Feature: remote registry related scenarios
     Then the step should succeed
 
     Given I find a bearer token of the deployer service account
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -102,13 +102,13 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Pull image with integrated registry have stored the data
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    And default docker-registry route is stored in the :integrated_reg_ip clipboard
     # TODO: this PR should allow 'deployer' the permission to push https://github.com/openshift/origin/pull/9066
     # create a short hand
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                               |
       | --debug                              |
       | --insecure-policy                    |
@@ -169,13 +169,13 @@ Feature: remote registry related scenarios
   @admin
   Scenario: ImageStream annotations can be set
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/annotations.json |
     Then the step should succeed
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                                 |
       | --debug                                |
       | --insecure-policy                      |
@@ -210,15 +210,17 @@ Feature: remote registry related scenarios
   @admin
   Scenario: User should be denied pushing when it does not have 'admin' role
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
-    When I give project view role to the second user
+    And default docker-registry route is stored in the :integrated_reg_ip clipboard
+    And I give project view role to the second user
+
     Given I switch to the second user
     And evaluation of `user.cached_tokens.first` is stored in the :user2_token clipboard
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
+
     Given I switch to the first user
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -287,15 +289,15 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Tracking tags with imageStream spec.tag
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/busybox.json |
     Then the step should succeed
     And the "busybox" image stream was created
-    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/busybox:2.0"` is stored in the :my_tag clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    Given evaluation of `cb.integrated_reg_ip + "/" + project.name + "/busybox:2.0"` is stored in the :my_tag clipboard
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                               |
       | --debug                              |
       | --insecure-policy                    |
@@ -431,8 +433,6 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Support unauthenticated with registry-admin role
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
@@ -441,9 +441,11 @@ Feature: remote registry related scenarios
       | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
-    Then the "ruby-ex-1" build completes
+    And the "ruby-ex-1" build completes
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -496,8 +498,6 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Support unauthenticated with registry-viewer role docker pull
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
@@ -508,7 +508,9 @@ Feature: remote registry related scenarios
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
     Given default docker-registry route is stored in the :integrated_reg_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
