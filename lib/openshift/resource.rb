@@ -299,6 +299,10 @@ module CucuShift
         logger.info res[:command] if iterations == 0
         iterations = iterations + 1
 
+        unless ready_state_reachable?(user: user, cached: true, quiet: true)
+          break
+        end
+
         res[:success]
       }
 
@@ -343,6 +347,17 @@ module CucuShift
     #   specified statuses (same -> same should also be true)
     # @note dummy class for generic use but better overload in sub-class
     def status_reachable?(from_status, to_status)
+      true
+    end
+
+    # @param user [User, APIAccessor] user to execute any API calls as
+    # @param cached [Boolean] whether to return cached state or not
+    # @param quiet [Boolean] whether to produce console output from executed
+    #   operations
+    # @return [Boolean] whether it is possible for the object to ever become
+    #   ready
+    # @note this is a dummy method, each class that cares should override
+    def ready_state_reachable?(user: nil, cached: true, quiet: false)
       true
     end
 

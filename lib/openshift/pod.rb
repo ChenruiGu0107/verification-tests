@@ -51,15 +51,16 @@ module CucuShift
       return self # mainly to help ::from_api_object
     end
 
-    # @return [CucuShift::ResultHash] with :success depending on status=True
-    #   with type=Ready
+    # @return [CucuShift::ResultHash] with :success depending on pod
+    #   condition type=Ready and status=True; only `Running` pods with all
+    #   containers probes succeeding appear to have this
     def ready?(user:, quiet: false, cached: false)
-      if cached && props[:status]
+      if cached && props[:raw]
         res = { instruction: "get cached pod #{name} readiness",
-                response: {"status" => props[:status]}.to_yaml,
+                response: props[:raw].to_yaml,
                 success: true,
                 exitstatus: 0,
-                parsed: {"status" => props[:status]}
+                parsed: props[:raw]
         }
       else
         res = get(user: user, quiet: quiet)
@@ -242,7 +243,13 @@ module CucuShift
     #   specified statuses (same -> should be true)
     def status_reachable?(from_status, to_status)
       [to_status].flatten.include?(from_status) ||
-        ![:failed, :unknown].include?(from_status)
+        ![:failed, :succeeded, :unknown].include?(from_status)
+    end
+
+    def ready_state_reachable?(user: user, cached: true, quiet: false)
+      from_status = phase(user: user, cached: cached, quiet: quiet)
+      to_status = :running # according to #ready? only running pods apply
+      return status_reachable?(from_status, to_status)
     end
 
     # executes command on pod

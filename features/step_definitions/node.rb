@@ -224,31 +224,37 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
 
   _node = node(node_name)
   _host = _node.host
-  _pod_name = "hostname-pod-" + rand_str(5, :dns)
-  _pod_obj = <<-eof
-    {
-      "apiVersion":"v1",
-      "kind": "Pod",
-      "metadata": {
-        "name": "#{_pod_name}",
-        "labels": {
-          "puspose": "testing-node-validity",
-          "name": "hostname-pod"
-        }
-      },
-      "spec": {
-        "containers": [{
-          "name": "hostname-pod",
-          "image": "openshift/hello-openshift",
-          "ports": [{
-            "containerPort": 8080,
-            "protocol": "TCP"
-          }]
-        }],
-        "nodeName" : "#{_node.name}"
-      }
-    }
-  eof
+
+  # to reduce test execution time we stop creating a pod to verify node
+  # if this turns out to be a problem, before reenable, make sure we
+  # use a project without node selector. Otherwise things break on 3.9+
+  # see OPENSHIFTQ-12320
+  #
+  #_pod_name = "hostname-pod-" + rand_str(5, :dns)
+  #_pod_obj = <<-eof
+  #  {
+  #    "apiVersion":"v1",
+  #    "kind": "Pod",
+  #    "metadata": {
+  #      "name": "#{_pod_name}",
+  #      "labels": {
+  #        "puspose": "testing-node-validity",
+  #        "name": "hostname-pod"
+  #      }
+  #    },
+  #    "spec": {
+  #      "containers": [{
+  #        "name": "hostname-pod",
+  #        "image": "openshift/hello-openshift",
+  #        "ports": [{
+  #          "containerPort": 8080,
+  #          "protocol": "TCP"
+  #        }]
+  #      }],
+  #      "nodeName" : "#{_node.name}"
+  #    }
+  #  }
+  #eof
 
   svc_verify = proc {
     # node service running
@@ -257,21 +263,21 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
       raise "node service not running, see log"
     end
     # pod can be scheduled on node
-    step 'I have a project'
-    @result = admin.cli_exec(:create, f: "-", _stdin: _pod_obj, n: project.name)
-    raise "cannot create verification pod, see log" unless @result[:success]
-    step %Q{the pod named "#{_pod_name}" becomes ready}
-    unless _node.name == pod(_pod_name).node_name(user: admin, quiet: true)
-      raise "verification node not running on correct node"
-    end
+    #step 'I have a project'
+    #@result = admin.cli_exec(:create, f: "-", _stdin: _pod_obj, n: project.name)
+    #raise "cannot create verification pod, see log" unless @result[:success]
+    #step %Q{the pod named "#{_pod_name}" becomes ready}
+    #unless _node.name == pod(_pod_name).node_name(user: admin, quiet: true)
+    #  raise "verification node not running on correct node"
+    #end
     ## thought it would be good enough check but we can switch to creating
     #    a route and then accessing it in case this proves not stable enough
-    @result = _host.exec("curl -sS #{pod.ip(user: user)}:8080")
-    unless @result[:success] || @result[:response].include?("Hello OpenShift!")
-      raise "verification pod doesn't serve properly, see log"
-    end
-    @result = pod(_pod_name).delete(by: user, grace_period: 0)
-    raise "can't delete verification pod" unless @result[:success]
+    #@result = _host.exec("curl -sS #{pod.ip(user: user)}:8080")
+    #unless @result[:success] || @result[:response].include?("Hello OpenShift!")
+    #  raise "verification pod doesn't serve properly, see log"
+    #end
+    #@result = pod(_pod_name).delete(by: user, grace_period: 0)
+    #raise "can't delete verification pod" unless @result[:success]
   }
 
   svc_verify.call
