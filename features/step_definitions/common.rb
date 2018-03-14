@@ -167,11 +167,8 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
     config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"] ||= []
     config_hash["kubernetesMasterConfig"]["controllerArguments"] ||= {} 
     config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"] ||= []
-    config_hash["admissionConfig"] ||= {}
-    config_hash["admissionConfig"]["pluginConfig"] ||= {} 
     api_fg = config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"]
     controller_fg = config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"]
-    adm_plg = config_hash["admissionConfig"]["pluginConfig"]
     unless api_fg && api_fg.include?("#{fg}=#{fg_en}") &&
            controller_fg && controller_fg.include?("#{fg}=#{fg_en}") 
       config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
@@ -184,11 +181,12 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
     end
     if adm
       adme_da = !(admen == "enabled") 
+      config_hash["admissionConfig"] ||= {}
+      config_hash["admissionConfig"]["pluginConfig"] ||= {}
       config_hash["admissionConfig"]["pluginConfig"]["#{adm}"] ||= {}
       config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"] ||= {}
-      config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"] ||= nil 
-      adm_da = config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"]
-      if adm_da != adme_da
+      unless config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"].include?("disable") &&
+             config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"] == adme_da
         adm_yml =  {"#{adm}" => 
                      {"configuration" => {"apiVersion" => "v1",
                                            "disable" => adme_da, 
