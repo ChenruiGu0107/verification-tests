@@ -31,5 +31,8 @@ module CucuShift
     # - system:admin
     # - system:serviceaccounts:default
 
+    def user_names(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet)["userNames"]
+    end
   end
 end
