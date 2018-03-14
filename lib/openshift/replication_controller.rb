@@ -67,16 +67,30 @@ module CucuShift
       if env.version_ge("3.4", user: user)
         return super(user: user, cached: cached, quiet: quiet).to_i
       else
-        return props[:ready_replicas] if cached && props[:ready_replicas]
-        # get ready pods by selector
-        labels = selector(user: user) # selector never changes so use cached
-        # if we are here, then we don't have the value cached on env <= v3.3
-        pods = Pod.get_matching(
+        pods = pods(user: user, cached: cached, quiet: quiet).select { |p|
+          p.ready?(user: user, cached: true)
+        }
+        return pods.size
+      end
+    end
+
+    # lists this replica set's managed pods
+    def pods(user: nil, cached: true, quiet: false)
+      if cached && props[:pods]
+        return props[:pods]
+      else
+        user ||= default_user(user)
+        # I believe selector never changes thus cached selector should be fine
+        labels = selector(user: user)
+        props[:pods] = Pod.get_matching(
           user: user,
           project: project,
-          get_opts: {l: selector_to_label_arr(*labels)}
-        ) { |p, p_hash| p.ready?(user: user, cached: true) }
-        return props[:ready_replicas] = pods.size
+          get_opts: {
+            l: selector_to_label_arr(*labels),
+            _quiet: quiet
+          }
+        )
+        return props[:pods]
       end
     end
 

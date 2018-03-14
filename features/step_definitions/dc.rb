@@ -194,6 +194,9 @@ Given /^master CA is added to the#{OPT_QUOTED} dc$/ do |name|
   step %Q/a replicationController becomes ready with labels:/, table(%{
         | mastercert=#{name} |
     })
+
+  dc.rc = rc
+  cache_resources *rc.pods(user:user, quiet: true)
 end
 
 Given /^a deploymentConfig becomes ready with labels:$/ do |table|

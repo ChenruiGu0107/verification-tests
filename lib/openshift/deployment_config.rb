@@ -89,14 +89,21 @@ module CucuShift
     def replication_controller(user: nil, cached: true)
       version = latest_version(user: user, cached: cached, quiet: true)
 
-      if @rc&.name&.end_with?("-#{version}")
-        return @rc
+      if props[:rc]&.name&.end_with?("-#{version}")
+        return props[:rc]
       else
         rc_name = "#{name}-#{version}"
-        return @rc = ReplicationController.new(name: rc_name, project: project)
+        props[:rc] = ReplicationController.new(name: rc_name, project: project)
+        props[:rc].default_user = default_user(user)
+        return props[:rc]
       end
     end
     alias rc replication_controller
+
+    def replication_controller=(rc)
+      props[:rc] = rc
+    end
+    alias rc= replication_controller=
 
     # availablity check only exists in 3.3, and oc describe doesn't have that
     # information prior, so we can't use the same logic to check for that info
