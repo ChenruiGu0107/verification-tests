@@ -395,7 +395,7 @@ Given /^I have a skopeo pod in the(?: "([^ ]+?)")? project$/ do |project_name|
     })
 
   cb.skopeo_pod = pod
-
+  cb.skopeo_dc = dc("skopeo")
 end
 
 # Download the ca.pem to pod-for ping

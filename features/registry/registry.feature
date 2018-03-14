@@ -68,14 +68,15 @@ Feature: Testing registry
   Scenario: Prune images by command oadm_prune_images
     Given cluster role "system:image-pruner" is added to the "first" user
     And default docker-registry route is stored in the :registry_ip clipboard
-    Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
+    And I have a project
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+
+    Given I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -159,11 +160,12 @@ Feature: Testing registry
       | e         | REGISTRY_OPENSHIFT_MIDDLEWARE_MIRRORPULLTHROUGH=false   |
       | namespace | default                                                 |
     Then the step should succeed
-    Given I wait until the latest rc of internal registry is ready
+    And I wait until the latest rc of internal registry is ready
+
     Given I create a new project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     And evaluation of `project.name` is stored in the :prj1 clipboard
+    And I find a bearer token of the deployer service account
+    And default docker-registry route is stored in the :registry_ip clipboard
     When I run the :tag client command with:
       | source_type | docker                                 |
       | source      | docker.io/aosqe/hello-openshift:latest |
@@ -174,9 +176,10 @@ Feature: Testing registry
       | image_name | ruby-20-centos7:latest                     |
       | confirm    | true                                       |
     Then the step should succeed
-    When I find a bearer token of the deployer service account
-    And default docker-registry route is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+
+    Given I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -242,9 +245,9 @@ Feature: Testing registry
       | image_name | ruby-20-centos7:latest                     |
       | confirm    | true                                       |
     Then the step should succeed
-    When I find a bearer token of the deployer service account
+    Given I find a bearer token of the deployer service account
     And I use the "<%= cb.prj1 %>" project
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the "<%= cb.skopeo_dc.rc.pods.first.name %>" pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -309,10 +312,10 @@ Feature: Testing registry
   @admin
   Scenario: Import new tags to image stream
     Given I have a project
+    And I have a registry in my project
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
-    And I have a registry in my project
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -369,11 +372,11 @@ Feature: Testing registry
   @admin
   Scenario: Have size information for images pushed to internal registry
     Given I have a project
+    And I find a bearer token of the builder service account
+    And default docker-registry route is stored in the :registry_ip clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
-    When I find a bearer token of the builder service account
-    And default docker-registry route is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -436,8 +439,6 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
     Given I switch to the first user
-    And I have a project
-    And I have a skopeo pod in the project
     When I run the :import_image client command with:
       | from       | docker.io/openshift/ruby-20-centos7:latest |
       | image_name | ruby-20-centos7:latest                     |
@@ -445,7 +446,10 @@ Feature: Testing registry
     Then the step should succeed
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+
+    Given I have a project
+    And I have a skopeo pod in the project
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -502,11 +506,11 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
     Given I switch to the first user
+    And I find a bearer token of the builder service account
+    And default docker-registry route is stored in the :registry_ip clipboard
     And I have a project
     And I have a skopeo pod in the project
-    When I find a bearer token of the builder service account
-    And default docker-registry route is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -554,12 +558,10 @@ Feature: Testing registry
   @admin
   Scenario: Pull image with secrets from private remote registry in the OpenShift registry
     Given I have a project
+    Given I have a registry with htpasswd authentication enabled in my project
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
-    Given I have a registry with htpasswd authentication enabled in my project
-    And a pod becomes ready with labels:
-      | deploymentconfig=registry |
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -571,7 +573,7 @@ Feature: Testing registry
       | docker://<%= cb.reg_svc_url %>/busybox:latest  |
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry           | 
+      | createservice_type | docker-registry           |
       | name               | test                      |
       | docker_email       | serviceaccount@redhat.com |
       | docker_password    | <%= cb.reg_pass %>        |
@@ -687,14 +689,14 @@ Feature: Testing registry
   @admin
   Scenario: Admin can understand/manage image use and prune oversized image
     Given I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
     Given default docker-registry route is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
@@ -756,16 +758,16 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     Given I switch to the first user
     And I have a project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     When I run the :tag client command with:
       | source_type | docker                  |
       | source      | openshift/origin:latest |
       | dest        | mystream:latest         |
     Then the step should succeed
-    When I find a bearer token of the builder service account
+    Given I find a bearer token of the builder service account
     And default docker-registry route is stored in the :registry_ip clipboard
-    When I execute on the "<%= cb.skopeo_pod.name %>" pod:
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    When I execute on the pod:
       | skopeo                     |
       | --debug                    |
       | --insecure-policy          |
