@@ -1906,7 +1906,8 @@ Feature: build 'apps' with CLI
     Given I have a project
     And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
     When I run the :new_build client command with:
-      | app_repo       | aosqe/ruby-20-centos7:user0~https://github.com/openshift/ruby-hello-world |
+      | name           | ruby-hello-world |
+      | app_repo       | aosqe/ruby-20-centos7:user0~https://github.com/openshift-qe/ruby-hello-world-support-ruby2.0 |
     Then the step should succeed
     Given the "ruby-hello-world-1" build completes
     When I replace resource "bc" named "ruby-hello-world":
@@ -2262,7 +2263,8 @@ Feature: build 'apps' with CLI
     Given I have a project
     And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
     When I run the :new_build client command with:
-      | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift/ruby-hello-world |
+      | name           | ruby-hello-world |
+      | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift-qe/ruby-hello-world-support-ruby2.0 |
     Then the step should succeed
     Given the "ruby-hello-world-1" build completes
 
