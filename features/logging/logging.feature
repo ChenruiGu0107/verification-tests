@@ -435,7 +435,8 @@ Feature: logging related scenarios
     Given I create a project with non-leading digit name
     And logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
-    Given a pod becomes ready with labels:
+      | negative_test | true                                                                                               |
+    Given a pod is present with labels:
       | component=fluentd,logging-infra=fluentd |
     When I run the :logs client command with:
       | resource_name    | pods/<%= pod.name %>|

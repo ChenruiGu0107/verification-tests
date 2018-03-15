@@ -270,6 +270,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
 
+  # check to see if it's a negative test, skip post installation pod check if it's
+  cb.negative_test = !!ansible_opts[:negative_test]
   # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
   # specified, we assume we are dealing with non-Prometheus metrics installation
   if ansible_opts.has_key? :inventory
@@ -451,10 +453,18 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       if svc_type == 'logging'
         # there are 4 pods we need to verify that should be running  logging-curator,
         # logging-es, logging-fluentd, and logging-kibana
-        step %Q/all logging pods are running in the "#{target_proj}" project/
+        if cb.negative_test
+          logger.warn("Skipping post installation check due to negative test")
+        else
+          step %Q/all logging pods are running in the "#{target_proj}" project/
+        end
       else
-        step %Q/all metrics pods are running in the "#{target_proj}" project/
-        step %Q/I verify metrics service is functioning/
+        if cb.negative_test
+          logger.warn("Skipping post installation check due to negative test")
+        else
+          step %Q/all metrics pods are running in the "#{target_proj}" project/
+          step %Q/I verify metrics service is functioning/
+        end
       end
     else
       if svc_type == 'logging'
