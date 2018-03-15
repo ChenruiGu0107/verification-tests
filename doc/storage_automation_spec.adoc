@@ -91,3 +91,78 @@ On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud prov
 
 == Feature-gates
 Every storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do not turn on/off feature gates during our testing to maintain good test efficiency and stability.
+
+=== Enable feature gate for pvc expanding
+
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
+
+----
+kubernetesMasterConfig:
+  ...
+  apiServerArguments:
+    feature-gates:
+    - ExpandPersistentVolumes=true
+  controllerArguments:
+    feature-gates:
+    - ExpandPersistentVolumes=true
+----
+
+Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
+
+----
+  nodeName
+    ...
+  kubeletArguments:
+    feature-gates:
+    - ExpandPersistentVolumes=true
+----
+
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and add the contents into the pluginConfig sections:
+
+----
+    PersistentVolumeClaimResize:
+      configuration:
+        apiVersion: v1
+        disable: false
+        kind: DefaultAdmissionConfig
+----
+
+If enabled "PersistentVolumeClaimResize" admission controller plugin, and want to make pvc expanding working, need create a storageclass with allowVolumeExpansion=true
+
+----
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp-allowexpand-false
+parameters:
+  resturl: http://heketi-storage-glusterfs.apps.0207-l7k.qe.rhcloud.com
+  restuser: admin
+  secretName: heketi-storage-admin-secret
+  secretNamespace: glusterfs
+provisioner: kubernetes.io/glusterfs
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+----
+
+
+=== Enable feature gate for Local Volume
+
+Enable feature gates "PersistentLocalVolumes" in apiserver, controllermanager and kubelet. 
+
+Start from OCP3.9, still need to add the following configuration:
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the schedulerArguments and controllerArguments sections:
+
+----
+kubernetesMasterConfig:
+  ...
+  schedulerArguments:
+    feature-gates:
+    - VolumeScheduling=true
+  controllerArguments:
+    feature-gates:
+    - VolumeScheduling=true
+----
+
+=== Enable feature gate for Block Volume
+
+Enable feature gates "BlockVolume" in apiserver, controllermanager and kubelet. 
