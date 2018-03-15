@@ -1036,21 +1036,16 @@ Feature: Persistent Volume Claim binding policies
     And the pod named "mypod" becomes ready
 
     Given I save volume id from PV named "<%= pvc.volume_name %>" in the :vid clipboard
-    Given I use the "<%= pod.node_name %>" node
+    And I use the "<%= pod.node_name %>" node
     And the node service is restarted on the host after scenario
-    When I run commands on the host:
-      | systemctl stop atomic-openshift-node |
-    Then the step should succeed
+    And the node service is stopped
     When I run the :delete client command with:
       | object_type       | pod   |
       | object_name_or_id | mypod |
     Then the step should succeed
     And the pod named "mypod" becomes terminating
 
-    #Given the node service is restarted on the host
-    When I run commands on the host:
-      | systemctl start atomic-openshift-node |
-    Then the step should succeed
+    Given the node service is restarted
     And I wait for the resource "pod" named "mypod" to disappear
     When I run commands on the host:
       | mount \| grep "<%= cb.vid %>" |

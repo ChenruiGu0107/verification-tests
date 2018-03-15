@@ -74,6 +74,7 @@ module CucuShift
 
         result = status(service)
         results.push(result)
+
         # some pre-3.9 versions of OpenShift reported failed status on stop
         # https://bugzilla.redhat.com/show_bug.cgi?id=1557851
         unless [:inactive, :failed].include?(result[:status])
@@ -162,11 +163,19 @@ module CucuShift
       def restart_all(**opts)
         results = []
         services.each { |service|
-          results.push(restart(service, opts))
+          results.push(restart(service, **opts))
         }
         return CucuShift::ResultHash.aggregate_results(results)
       end
 
+      # executes #stop on each of the services configured.
+      def stop_all(**opts)
+        results = []
+        services.each { |service|
+          results.push(stop(service, **opts))
+        }
+        return CucuShift::ResultHash.aggregate_results(results)
+      end
     end
   end
 end

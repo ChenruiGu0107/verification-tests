@@ -160,36 +160,29 @@ end
 
 Given /^the node service is restarted on the host( after scenario)?$/ do |after|
   ensure_destructive_tagged
-  _host = @host
+  _node = env.nodes.find { |n| n.host.hostname == @host.hostname }
 
-  @result = _host.exec_admin("systemctl status atomic-openshift-node")
-  unless @result[:success] && @result[:response].include?("active (running)")
-    raise "something already wrong with node service, failing early"
+  unless _node
+    raise "cannot find node for host #{@host.hostname}"
   end
 
   _op = proc {
-    @result = _host.exec_admin("systemctl restart atomic-openshift-node")
-    unless @result[:success]
-      raise "could not restart node service on #{_host.hostname}"
-    end
-
-    sleep 15 # give service some time to fail
-    @result = _host.exec_admin("systemctl status atomic-openshift-node")
-    unless @result[:success]
-      raise "node service not running on #{_host.hostname}"
-    end
-
-    # TODO: do we need `oc get node` and check status ready? We'll need a Node
-    #   object in such case. Also question is how long to wait before check,
-    #   because openshift is not so fast to react on errors.
+    _node.service.restart_all(raise: true)
   }
 
   if after
-    logger.info "Node service to be restarted after scenario on #{_host.hostname}"
+    logger.info "Node service will be restarted after scenario on #{_node.name}"
     teardown_add _op
   else
     _op.call
   end
+end
+
+# the step does not register clean-ups because these usually are properly
+#   ordered in scenario itself, we don't want automatic extra restarts
+Given /^the#{OPT_QUOTED} node service is stopped$/ do |node_name|
+  ensure_destructive_tagged
+  node(node_name).service.stop_all(raise: true)
 end
 
 Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name|
@@ -385,7 +378,7 @@ Given /^the node service is restarted on all( schedulable)? nodes$/ do |schedula
   }
 end
 
-Given /^the node service is restarted on node#{OPT_QUOTED}$/ do |node_name|
+Given /^the#{OPT_QUOTED} node service is restarted$/ do |node_name|
   ensure_destructive_tagged
   node(node_name).service.restart_all(raise: true)
 end
