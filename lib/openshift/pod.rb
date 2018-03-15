@@ -246,7 +246,7 @@ module CucuShift
         ![:failed, :succeeded, :unknown].include?(from_status)
     end
 
-    def ready_state_reachable?(user: user, cached: true, quiet: false)
+    def ready_state_reachable?(user: nil, cached: true, quiet: false)
       from_status = phase(user: user, cached: cached, quiet: quiet)
       to_status = :running # according to #ready? only running pods apply
       return status_reachable?(from_status, to_status)
