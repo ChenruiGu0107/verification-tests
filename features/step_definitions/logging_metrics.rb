@@ -365,6 +365,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   cb.master_version = cb.master_version[0..2]
+  host = env.master_hosts.first
   # Need to construct the cert information if needed BEFORE inventory is processed
   if ansible_opts[:copy_custom_cert]
     key_name = "cucushift_custom.key"
@@ -407,7 +408,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
         })
       # the ssl cert is generated in the first master, must make sure host
       # context is correct
-      host = env.master_hosts.first
       @result = host.exec_admin("cp -f /etc/origin/master/ca.crt #{host.workdir}")
       step %Q/the step should succeed/
       sync_certs_cmd = "oc project #{project.name}; oc rsync #{host.workdir} base-ansible-pod:/tmp"
