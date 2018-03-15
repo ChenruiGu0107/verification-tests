@@ -4,8 +4,8 @@ Feature: F5 router related scenarios
   # @case_id OCP-11998
   @admin
   Scenario: the F5 routes change accordingly when the routes update
-    Given admin ensures a F5 router pod is ready
-    And F5 router public IP is stored in the :vserver_ip clipboard
+    Given F5 router public IP is stored in the :vserver_ip clipboard
+    And admin ensures a F5 router pod is ready
 
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
@@ -111,7 +111,8 @@ Feature: F5 router related scenarios
   # @case_id OCP-12106
   @admin
   Scenario: Should report meaningful error message when trying to create the wildcard domain on f5 router
-    Given admin ensures a F5 router pod is ready
+    Given F5 router public IP is stored in the :vserver_ip clipboard
+    And admin ensures a F5 router pod is ready
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
