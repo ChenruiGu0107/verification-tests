@@ -166,3 +166,40 @@ kubernetesMasterConfig:
 === Enable feature gate for Block Volume
 
 Enable feature gates "BlockVolume" in apiserver, controllermanager and kubelet. 
+
+
+=== Enable feature gate for pvc protection
+
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
+----
+kubernetesMasterConfig:
+...
+  apiServerArguments:
+    feature-gates:
+    - PVCProtection=true
+...
+  controllerArguments:
+    feature-gates:
+    - PVCProtection=true
+...
+----
+
+Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
+----
+kubeletArguments:
+  feature-gates:
+  - PVCProtection=true
+...
+----
+
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and add the contents into the pluginConfig sections:
+----
+admissionConfig:
+  pluginConfig:
+    PVCProtection:
+      configuration:
+        apiVersion: v1
+        disable: false
+        kind: DefaultAdmissionConfig
+...
+----
