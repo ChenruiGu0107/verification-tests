@@ -508,3 +508,19 @@ Feature: logging related scenarios
     Then the output should contain:
       | Did not find a DeploymentConfig to support component 'es' |
       | Did not find a DeploymentConfig to support optional component 'es-ops' |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16680
+  @admin
+  @destructive
+  Scenario: Aggregated logging diagnostics for cluster-reader RoleBindings
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And I switch to cluster admin pseudo user
+    And cluster role "cluster-reader" is removed from the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account
+    And I run logging diagnostics
+    And the output should contain "ServiceAccount 'aggregated-logging-fluentd' is not a cluster-reader in the '<%= project.name %>' project"
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account
+    And I run logging diagnostics
+    Then the output should contain "Completed with no errors or warnings seen"
