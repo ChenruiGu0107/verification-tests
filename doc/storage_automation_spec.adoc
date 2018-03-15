@@ -203,3 +203,27 @@ admissionConfig:
         kind: DefaultAdmissionConfig
 ...
 ----
+
+=== Enable feature gate for mount propagation
+
+Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
+----
+kubernetesMasterConfig:
+...
+  apiServerArguments:
+    feature-gates:
+    - MountPropagation=true
+...
+  controllerArguments:
+    feature-gates:
+    - MountPropagation=true
+...
+----
+
+Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
+----
+kubeletArguments:
+  feature-gates:
+  - MountPropagation=true
+...
+----
