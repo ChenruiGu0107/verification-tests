@@ -34,5 +34,9 @@ module CucuShift
     def user_names(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet)["userNames"]
     end
+
+    def group_names(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet)["groupNames"]
+    end
   end
 end

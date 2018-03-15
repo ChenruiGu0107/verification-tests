@@ -22,16 +22,6 @@ click_images_link:
     selector:
       xpath: //a[i[@title='Images']]
     op: click
-click_a_link_in_iframe:
-  action:
-    context:
-      tag_name: iframe
-    ref: click_a_link
-click_a_link:
-  element:
-    selector:
-      xpath: //a[substring(@href, string-length(@href) - string-length('<url_ends_with>') + 1) = '<url_ends_with>' and .='<link_text>']
-    op: click
 click_tab_under_expanded_tag:
   element:
     selector:

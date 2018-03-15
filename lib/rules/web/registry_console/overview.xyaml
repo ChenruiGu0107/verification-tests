@@ -53,9 +53,9 @@ set_access_policy:
       id: project-access-policy
     op: click
   - selector:
-      xpath: //div[@id='project-access-policy']//a[contains(text,'<access_policy>')]
+      xpath: //div[@id='project-access-policy']//a[contains(text(),'<access_policy>')]
     op: click
-check_project_in_iframe_on_overview_page:
+check_project_on_overview_page_in_iframe:
   action:
     context:
       tag_name: iframe
@@ -128,3 +128,76 @@ set_remote_unsecure_registry:
       xpath: //label[.//span[text()='Remote registry is insecure']]/input
     type: checkbox
     op: set <unsecure_registry>
+check_overview_page_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_overview_page
+check_overview_page:
+  elements:
+  - selector:
+      xpath: //span[contains(.,'Images by project')]
+  - selector:
+      xpath: //span[contains(.,'Images pushed recently')]
+  - selector:
+      xpath: //span[contains(.,'Login commands')]
+  - selector:
+      xpath: //span[contains(.,'Image commands')]
+click_images_by_project_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: click_images_by_project
+click_images_by_project:
+  elements:
+  - selector:
+      xpath: //td/a[contains(@ng-href,'#/images/<project_name>') and contains(text(), '<project_name>')]
+    op: click
+check_images_by_project_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_images_by_project
+check_images_by_project:
+  elements:
+  - selector:
+      xpath: //th[contains(.,'<project_name>/<image_name>')]
+check_images_pushed_recently_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_images_pushed_recently
+check_images_pushed_recently:
+  url: /registry#/overview
+  elements:
+  - selector:
+      xpath: //div[h2[contains(.,'Images pushed recently')]]/following-sibling::div//dt/a[contains(text(), '<project_name>/<image_name>')]
+check_all_images_overview_link_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_all_images_overview_link
+check_all_images_overview_link:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),'All images')]
+    op: click
+  - selector:
+      xpath: //th[contains(.,'<project_name>/<image_name>')]
+check_docker_commands_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_docker_commands
+check_docker_commands:
+  elements:
+  - selector:
+      xpath: //code[contains(.,'sudo docker login')]
+  - selector:
+      xpath: //code[contains(.,'oc login')]
+  - selector:
+      xpath: //code[contains(.,'sudo docker tag')]
+  - selector:
+      xpath: //code[contains(.,'sudo docker push')]
+  - selector:
+      xpath: //code[contains(.,'sudo docker pull')]

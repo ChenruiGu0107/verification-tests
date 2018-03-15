@@ -289,3 +289,102 @@ Feature: Testing registry
       | prompt_msg        | contains invalid characters                   |
     Then the step should succeed
 
+  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @case_id OCP-9893
+  Scenario: Check Projects page on atomic-registry web console
+    Given I create 2 new projects
+    And I open registry console in a browser
+    When I run the :goto_projects_page web action
+    Then the step should succeed
+    When I perform the :select_project_dropdown_in_iframe web action with:
+      | project_name | All Projects |
+    Then the step should succeed
+    When I run the :check_all_projects_page_in_iframe web action
+    Then the step should succeed
+
+    When I perform the :add_group_or_user_on_projects_page_in_iframe web action with:
+      | type       | group       |
+      | name       | test1       |
+      | prompt_msg | User "<%= user.name %>" cannot create groups at the cluster scope |
+    Then the step should succeed
+    When I perform the :add_group_or_user_on_projects_page_in_iframe web action with:
+      | type       | user        |
+      | name       | test1       |
+      | identity   | test1       |
+      | prompt_msg | User "<%= user.name %>" cannot create users at the cluster scope |
+    Then the step should succeed
+
+    When I perform the :select_project_dropdown_in_iframe web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_project_membership_page_in_iframe web action
+    Then the step should succeed
+
+    When I perform the :click_a_link_in_iframe web action with:
+      | link_text     | Show all Projects |
+      | url_ends_with | projects          |
+    Then the step should succeed
+    When I run the :check_all_projects_page_in_iframe web action
+    Then the step should succeed
+
+  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @case_id OCP-9894
+  Scenario: Check Overview page on atomic-registry web console
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type  | docker                     |
+      | source       | docker.io/library/busybox:latest   |
+      | dest         | mystream:latest            |
+    Then the step should succeed
+
+    Given I open registry console in a browser
+    When I run the :check_overview_page_in_iframe web action
+    Then the step should succeed
+    When I run the :check_docker_commands_in_iframe web action
+    Then the step should succeed
+    When I perform the :click_images_by_project_in_iframe web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_images_by_project_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | mystream            |
+    Then the step should succeed
+    When I perform the :check_images_pushed_recently_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | mystream            |
+    Then the step should succeed
+    When I perform the :check_all_images_overview_link_in_iframe web action with:
+      | project_name | <%= project.name %> |
+      | image_name   | mystream            |
+    Then the step should succeed
+
+  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @case_id OCP-10498
+  Scenario: Create shared project on registry console
+    Given I open registry console in a browser
+    When I perform the :create_new_project_in_iframe web action with:
+      | project_name  | user1-test-prj                                      |
+      | description   | test                                                |
+      | display_name  | test                                                |
+      | access_policy | Shared: Allow any authenticated user to pull images |
+    Then the step should succeed
+    
+    # Allow time for the project to fully create and register the security policy before logout
+    Given I use the "user1-test-prj" project
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    Given the expression should be true> role_binding("registry-viewer").group_names(cached: false).include? "system:authenticated"
+    """
+
+    When I perform the :check_project_on_overview_page_in_iframe web action with:
+      | project_name | user1-test-prj |
+    Then the step should succeed
+    When I run the :logout web action
+    Then the step should succeed
+    Given I switch to the second user
+    When I run the :click_login_again web action
+    Then the step should succeed
+    And I perform login to registry console in the browser
+    When I perform the :check_project_on_overview_page_in_iframe web action with:
+      | project_name | user1-test-prj |
+    Then the step should succeed
