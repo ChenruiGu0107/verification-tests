@@ -740,12 +740,16 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       branch_name = conf[:openshift_ansible_installer][4..-1]
     end
     step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
-    cb.repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
     # extract the commit id for git checkout later
     commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-
-    download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{cb.repo_url}"
-
+    # with OCP 3.9, ansible rpm has its own channel/repo location, we need to
+    # use ansible >= 2.4.3
+    if env.version_gt("3.7", user: user)
+      repo_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/ansible.repo"
+    else
+      repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
+    end
+    download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{repo_url}"
     @result = pod.exec("bash", "-c", download_cmd, as: user)
     step %Q/the step should succeed/
     install_ansible_cmd = 'yum -y install ansible'
