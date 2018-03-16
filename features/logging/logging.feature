@@ -434,8 +434,8 @@ Feature: logging related scenarios
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
     And logging service is installed in the project with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
-      | negative_test | true                                                                                               |
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
+      | negative_test | true                                                                                                   |
     Given a pod is present with labels:
       | component=fluentd,logging-infra=fluentd |
     When I run the :logs client command with:
@@ -524,3 +524,50 @@ Feature: logging related scenarios
     And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account
     And I run logging diagnostics
     Then the output should contain "Completed with no errors or warnings seen"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17243
+  @admin
+  @destructive
+  Scenario: FILE_BUFFER_LIMIT is less than BUFFER_SIZE_LIMIT
+    Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17243/inventory |
+      | negative_test | true                                                                                                   |
+    Given a pod is present with labels:
+      | component=fluentd,logging-infra=fluentd |
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    Then the output should contain:
+      | ERROR:                                     |
+      | TOTAL_BUFFER_SIZE_LIMIT                    |
+      | is too small compared to BUFFER_SIZE_LIMIT |
+    Given a pod is present with labels:
+      | component=mux,deploymentconfig=logging-mux,logging-infra=mux,provider=openshift |
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    Then the output should contain:
+      | ERROR:                                     |
+      | TOTAL_BUFFER_SIZE_LIMIT                    |
+      | is too small compared to BUFFER_SIZE_LIMIT |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17235
+  @admin
+  @destructive
+  Scenario: FILE_BUFFER_LIMIT, BUFFER_SIZE_LIMIT and BUFFER_QUEUE_LIMIT use the default value
+    Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17235/inventory |
+    Given a pod becomes ready with labels:
+      | component=fluentd,logging-infra=fluentd |
+    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "32"
+    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "8m"
+    Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "256Mi"
+    Given a pod becomes ready with labels:
+      | component=mux,deploymentconfig=logging-mux,logging-infra=mux,provider=openshift |
+    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "32"
+    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "8m"
+    Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "2Gi"
