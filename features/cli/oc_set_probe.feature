@@ -236,7 +236,6 @@ Feature: oc_set_probe.feature
       | l    | deployment=mongodb-3 |
     Then the output should not contain:
       | Liveness |
-      | true     |
     #set two kind probe in one dc
     When I run the :set_probe client command with:
       | resource  | dc/mysql |
