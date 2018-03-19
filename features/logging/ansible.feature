@@ -247,7 +247,7 @@ Feature: ansible install related feature
     When I get the ".searchguard.<%= dc.name %>" logging index information from a pod with labels "component=es"
     Then the expression should be true> cb.index_data['docs.count'] == "5"
     """
-    And the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 159
+    And the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 0
     # check operation and project.install-test.xxx index
     When I wait for the ".operations." index to appear in the ES pod
     Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
