@@ -2,7 +2,7 @@ Feature: oc exports related scenarios
 
   # @author pruan@redhat.com
   # @case_id OCP-12576
-  Scenario: Export resource as json format by oc export
+  Scenario: Export resource as json or yaml format by oc export
     Given I have a project
     And I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-centos7.json|
@@ -56,6 +56,35 @@ Feature: oc exports related scenarios
     Then the step should succeed
     And the output should match:
       | frontend.*[Cc]onfig.*[Ii]mage |
+
+    # Export other various APIs resources, like extensions/v1beta1, autoscaling/v1, batch/v1
+    # Cover bug 1546443 1553696 1552325 densely reported same issue
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml                                |
+    Then the step should succeed
+    When I run the :autoscale client command with:
+      | name | deployment/hello-openshift |
+      | max  | 2                          |
+    Then the step should succeed
+    And I wait for the "hello-openshift" hpa to appear
+
+    When I run the :export client command with:
+      | resource  | deployment,hpa,job |
+    Then the step should succeed
+    # check for capitalized and missing fields (bug 1546443)
+    And the output should not match "^ *[A-Z]"
+    And the output should match "  metadata:$"
+    And I save the output to file>export.yaml
+    Given I ensure "hello-openshift" deployments is deleted
+    And I ensure "hello-openshift" hpa is deleted
+    And I ensure "pi" jobs is deleted
+    When I run the :create client command with:
+      | f | export.yaml |
+    Then the step should succeed
+    And I wait for the "hello-openshift" deployments to appear
+    And I wait for the "hello-openshift" hpa to appear
+    And I wait for the "pi" jobs to appear
 
   # @author pruan@redhat.com
   # @case_id OCP-12577
