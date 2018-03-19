@@ -1,4 +1,4 @@
-Feature: oc patch related scenarios
+Feature: oc patch/apply related scenarios
   # @author xxia@redhat.com
   # @case_id OCP-10696
   @smoke
@@ -316,3 +316,72 @@ Feature: oc patch related scenarios
     Then the step should fail
     And the output should match:
       | (does not contain declared merge key\|is invalid.*spec.ports.*equired) |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-15009
+  Scenario: Apply a configuration to a resource via oc apply
+    Given I have a project
+    And I run the :run client command with:
+      | name      | hello                     |
+      | image     | openshift/hello-openshift |
+      | -l        | run=hello,version=3.1     |
+    Then the step should succeed
+
+    Given I wait until the status of deployment "hello" becomes :complete
+    And I get project dc named "hello" as YAML
+    And I save the output to file> mydc.yaml
+    # Replace under spec.template.metadata.labels. Other occurrences not replaced.
+    And I replace lines in "mydc.yaml":
+      | /(        )version: "3.1"/ | \\1version: "3.2" |
+    When I run the :apply client command with:
+      | f          | mydc.yaml |
+      | overwrite  | true      |
+    Then the step should fail
+    # Cover bug 1539529
+    And the output should match "invalid.*does not match"
+    When I run the :apply client command with:
+      | f             | mydc.yaml |
+      | overwrite     | true      |
+      | force         | true      |
+      | grace-period  | 30        |
+    Then the step should fail
+    And the output should match "invalid.*does not match"
+    
+    # Valid example of modify and apply
+    Given I replace lines in "mydc.yaml":
+      | "3.2" | "3.1" |
+      | 21600 | 21601 |
+    When I run the :apply client command with:
+      | f  | mydc.yaml |
+    Then the step should succeed
+    When I run the :apply_view_last_applied client command with:
+      | resource  | dc/hello |
+    Then the step should succeed
+    # Cover bug 1503601, i.e., ensure the output is valid YAML,
+    # in case illegal fields and/or values occur, e.g. "(MISSING)" in the bug
+    And the output is parsed as YAML
+    And the output should contain "21601"
+    
+    Given I replace lines in "mydc.yaml":
+      | "3.1" | "3.3" |
+    When I run the :apply_set_last_applied client command with:
+      | f  | mydc.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                        |
+      | resource_name | hello                     |
+      | template      | {{.metadata.annotations}} |
+    Then the step should succeed
+    And the output should contain:
+      | last-applied-configuration  |
+      | "3.3"                       |
+    When I run the :get client command with:
+      | resource      | dc        |
+      | resource_name | hello     |
+      | template      | {{.spec}} |
+    Then the step should succeed
+    # set-last-applied does not set field other than annotation
+    And the output should not contain:
+      | "3.3"  |
+
+
