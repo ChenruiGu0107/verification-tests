@@ -571,3 +571,23 @@ Feature: logging related scenarios
     Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "32"
     Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "8m"
     Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "2Gi"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17238
+  @admin
+  @destructive
+  Scenario: FILE_BUFFER_LIMIT, BUFFER_QUEUE_LIMIT and  BUFFER_SIZE_LIMIT use customed value
+    Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17238/inventory |
+    Given a pod becomes ready with labels:
+      | component=fluentd,logging-infra=fluentd |
+    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "64"
+    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "4m"
+    Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "1Gi"
+    Given a pod becomes ready with labels:
+      | component=mux,deploymentconfig=logging-mux,logging-infra=mux,provider=openshift |
+    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "32"
+    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "8m"
+    Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "512Mi"
