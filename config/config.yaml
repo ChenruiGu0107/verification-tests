@@ -27,6 +27,9 @@ global:
   #   OpenShift installer
   max_instance_name_length: 38
 
+  # default timeout waiting for VMs to become accessible after launch
+  # vm_accessible_timeout: 600
+
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);

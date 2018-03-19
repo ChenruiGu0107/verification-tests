@@ -511,7 +511,8 @@ module CucuShift
 
         # wait each host to become accessible
         existing_hosts.concat hosts
-        hosts.each {|h| h.wait_to_become_accessible(600)}
+        vm_accessible_timeout = conf[:vm_accessible_timeout] || 600
+        hosts.each {|h| h.wait_to_become_accessible(vm_accessible_timeout)}
       else
         raise "unsupported installation task: '#{task[:type]}'"
       end
