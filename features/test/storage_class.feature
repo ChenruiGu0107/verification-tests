@@ -10,3 +10,20 @@ Feature: StorageClass testing scenarios
       | resource_name | sc-<%= project.name %> |
       | o             | yaml                   |
     Then the step should succeed
+
+  @admin
+  Scenario: Add option allowVolumeExpansion to StorageClass
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+    When I run the :get admin command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    And as admin I successfully patch resource "storageclass/standard" with:
+      | {"allowVolumeExpansion":true,"metadata":{"annotations":{"updatedBy":"<%=project.name%>-<%=Time.new%>"}}} |
+    When I run the :get admin command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    # Multi times
+    Given as admin I successfully patch resource "storageclass/standard" with:
+      | {"allowVolumeExpansion":true,"metadata":{"annotations":{"updatedBy":"<%=project.name%>-<%=Time.new%>"}}} |
