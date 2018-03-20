@@ -679,6 +679,7 @@ Feature: Testing haproxy router
       | images | <%= cb.default_router_image %> |
       | stats_port | <%= cb.stats_port %> |
       | service_account | router |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-516834 |
     When I execute on the pod:
@@ -710,6 +711,7 @@ Feature: Testing haproxy router
       | name | <%= cb.router1_name %> |
       | images | <%= cb.default_router_image %> |
       | force_subdomain | ${name}-${namespace}.apps.aaa.com |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.router1_name %> |
     And evaluation of `pod.ip` is stored in the :router1_ip clipboard
@@ -717,6 +719,7 @@ Feature: Testing haproxy router
       | name | <%= cb.router2_name %> |
       | images | <%= cb.default_router_image %> |
       | force_subdomain | ${name}-${namespace}.apps.zzz.com |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.router2_name %> |
     And evaluation of `pod.ip` is stored in the :router2_ip clipboard
@@ -799,6 +802,7 @@ Feature: Testing haproxy router
       | images | <%= cb.default_router_image %> |
       | stats_port | 0 |
       | service_account | router |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-516836 |
     When I execute on the pod:
@@ -831,6 +835,7 @@ Feature: Testing haproxy router
       | stats_user | tc483532 |
       | stats_passwd | 483532tc |
       | service_account | router |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-483532 |
     When I execute on the pod:
@@ -882,6 +887,7 @@ Feature: Testing haproxy router
       | stats_port | <%= cb.stats_port %> |
       | stats_user | tc483529|
       | service_account | router |
+      | selector | router=enabled |
     And evaluation of `@result[:response]` is stored in the :router_output clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=tc-483529|
@@ -928,6 +934,7 @@ Feature: Testing haproxy router
     When I run the :oadm_router admin command with:
       | name | router-label-red |
       | images | <%= cb.default_router_image %> |
+      | selector | router=enabled |
     Then a pod becomes ready with labels:
       | deploymentconfig=router-label-red |
     When I run the :env client command with:
@@ -940,6 +947,7 @@ Feature: Testing haproxy router
     When I run the :oadm_router admin command with:
       | name | router-label-blue |
       | images | <%= cb.default_router_image %> |
+      | selector | router=enabled |
     Then a pod becomes ready with labels:
       | deploymentconfig=router-label-blue |
     When I run the :env client command with:
@@ -1048,6 +1056,7 @@ Feature: Testing haproxy router
       | images | <%= cb.default_router_image %> |
       | stats_port | 22 |
       | service_account | router |
+      | selector | router=enabled |
     Then the step should succeed
     Then I wait up to 300 seconds for the steps to pass:
     """
@@ -1237,6 +1246,7 @@ Feature: Testing haproxy router
     When I run the :oadm_router admin command with:
       | name   | tc-518936                      |
       | images | <%= cb.default_router_image %> |
+      | selector | router=enabled |
     Then a pod becomes ready with labels:
       | deploymentconfig=tc-518936 |
     When I run the :env client command with:
@@ -1305,6 +1315,7 @@ Feature: Testing haproxy router
       | stats_port | <%= cb.stats_port %> |
       | replicas | <%= cb.router_num %> |
       | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
+      | selector | router=enabled |
     When I run the :env client command with:
       | resource | dc/tc-531375 |
       | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
@@ -1374,6 +1385,7 @@ Feature: Testing haproxy router
       | name | ocp-12651|
       | images | <%= cb.default_router_image %> |
       | default_cert | default-router.pem |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=ocp-12651|
     And evaluation of `pod.ip` is stored in the :custom_router_ip clipboard
@@ -1437,6 +1449,7 @@ Feature: Testing haproxy router
       | images | <%= cb.default_router_image %> |
       | host_network | false |
       | replicas | <%= cb.router_num %> |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-498716 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
@@ -1525,6 +1538,7 @@ Feature: Testing haproxy router
       | name | router-test |
       | host_network | true |
       | ports | 1080:1081,10443:10444 |
+      | selector | router=enabled |
     Then the step should fail
     And the output should contain "must be equal"
 
@@ -1581,6 +1595,7 @@ Feature: Testing haproxy router
       | replicas | <%= cb.router_num %> |
       | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
       | host_network | false |
+      | selector | router=enabled |
     When I run the :env client command with:
       | resource | dc/tc-520314 |
       | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
@@ -1815,6 +1830,7 @@ Feature: Testing haproxy router
       | images          | <%= cb.default_router_image %> |
       | service_account | dyrouter                       |
       | n               | <%= cb.proj1 %>                |
+      | selector | router=enabled |
     Given I switch to the first user
     And I use the "<%= cb.proj1 %>" project
     And admin ensures "tc-testrouter" dc is deleted after scenario
@@ -1890,6 +1906,7 @@ Feature: Testing haproxy router
       | service_account | dyrouter                       |
       | n               | <%= cb.proj1 %>                |
       | host_network    | false                          |
+      | selector | router=enabled |
     Given I switch to the first user
     And I use the "<%= cb.proj1 %>" project
     And admin ensures "tc-testrouter" dc is deleted after scenario
@@ -1951,6 +1968,7 @@ Feature: Testing haproxy router
       | host_network | false |
       | host_ports | false |
       | replicas | <%= cb.router_num %> |
+      | selector | router=enabled |
     Then a pod becomes ready with labels:
       | deploymentconfig=tc-521765 |
     Given I run commands on the nodes in the :router_node clipboard:
@@ -3083,6 +3101,7 @@ Feature: Testing haproxy router
       | images | <%= cb.default_router_image %> |
       | host_network | false |
       | replicas | 0 |
+      | selector | router=enabled |
     Then the step should succeed
     When I run the :env client command with:
       | resource | dc/ocp-11409 |
@@ -3136,6 +3155,7 @@ Feature: Testing haproxy router
       | canonical_hostname | external1.router.com |
       | host_network       | <hostnetwork> |
       | replicas           | <%= cb.router_num %> |
+      | selector | router=enabled |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-12967 |
 
