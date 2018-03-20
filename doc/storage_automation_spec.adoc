@@ -77,7 +77,25 @@ Cucushift has integrated EFS dynamic provisioner deployment.
 On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider when your OCP version is equal or greater than **3.6**.
 
 == Feature-gates
-All storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do our best to avoid turning on/off feature gates during test automation to maintain good test efficiency and stability.
+
+All storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do our best to avoid turning on/off feature gates during test automation to maintain good test efficiency and stability. Use either the ansible installer or manual configuration to setup a test environment meeting our requirements.
+
+=== Using ansible installer
+
+====
+[source, flexy parameters]
+----
+openshift_ansible_vars:
+  osm_api_server_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
+  osm_controller_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "VolumeScheduling=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
+  openshift_master_scheduler_args: '{"feature-gates": ["VolumeScheduling=true"]}'
+  openshift_master_admission_plugin_config: '{"PVCProtection":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}, "PersistentVolumeClaimResize":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}}'
+  openshift_node_kubelet_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"],  "enable-controller-attach-detach": ["true"],"minimum-container-ttl-duration": ["10s"], "maximum-dead-containers-per-container": ["1"], "maximum-dead-containers": ["20"], "image-gc-high-threshold": ["80"], "image-gc-low-threshold": ["70"]}'
+----
+====
+
+=== Manual configurations
+
 
 On all masters edit configuration file `/etc/origin/master/master-config.yaml`, update the contents of the `apiServerArguments`, `controllerArguments` and `admissionConfig` sections:
 
