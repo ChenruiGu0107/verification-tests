@@ -131,9 +131,12 @@ Given /^the#{OPT_QUOTED} node network is verified$/ do |node_name|
   _host = _node.host
 
   net_verify = proc {
-    step "I run ovs dump flows commands on the host"
-    unless @result[:success] || @result[:response] =~ /table=253.*actions=note/
-      raise "unexpected network setup, see log"
+    # to simplify the process, ping all node's tun0 IP including the node itself, even test env has only one node
+    hostsubnet = CucuShift::HostSubnet.list(user: admin)
+    hostsubnet.each do | hostsubnet |
+      dest_ip = IPAddr.new(hostsubnet.subnet).succ
+      @result = _host.exec("ping -c 2 -W 2 #{dest_ip}")
+      raise "failed to ping tun0 IP: #{dest_ip}" unless @result[:success]
     end
   }
 
