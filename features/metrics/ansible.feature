@@ -265,3 +265,78 @@ Feature: ansible install related feature
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-cassandra |
     Then the expression should be true> pod.termination_grace_period_seconds == 1800
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17163
+  @admin
+  @destructive
+  Scenario: deploy metrics with dynamic volume along with OCP
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17163/inventory |
+    And I switch to cluster admin pseudo user
+    Given I use the "openshift-infra" project
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    # 3 steps to verify hawkular-cassandra pod using mount correctly
+    # 1. pvc working
+    Then the expression should be true> pvc('metrics-cassandra-1').ready?[:success]
+    # 2. check pod volume name matches 'metrics-cassandra-1'
+    Then the expression should be true> pod.volumes.select { |v| v["name"] == 'cassandra-data' }.first.dig('persistentVolumeClaim', 'claimName') == 'metrics-cassandra-1'
+    # 3. check volume cassandra-data was mounted to /cassandra_data" in pod spec
+    Then the expression should be true> pod.container(name: 'hawkular-cassandra-1').spec.volume_mounts.select { |v| v['mountPath'] == "/cassandra_data" }.count > 0
+
+  # @author pruan@redhat.com
+  # @case_id OCP-9982
+  @admin
+  @destructive
+  Scenario: Heapster should use node name instead of external ID to indentify metrics
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system
+    Given I select a random node's host
+    And evaluation of `node.external_id` is stored in the :external_id clipboard
+    Given cluster role "cluster-admin" is added to the "first" user
+    # it usually take a little while for the query to comeback with contents
+    And I wait for the steps to pass:
+    """
+    And I perform the GET metrics rest request with:
+      | project_name | _system              |
+      | path         | /metrics/metrics     |
+    And the expression should be true> @result[:exitstatus] == 200
+    """
+    # extract all of the result id and parse it into an array which should NOT contain external ID
+    And evaluation of `YAML.load(@result[:response]).map { |r| r['id'] }` is stored in the :result_ids clipboard
+    Then the expression should be true> cb.result_ids.select {|id| id.include? cb.external_id}.count == 0
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15860
+  @admin
+  @destructive
+  Scenario: Undeploy HOSA via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15860/inventory |
+    And I switch to cluster admin pseudo user
+    Then all Hawkular agent related resources exist in the project
+    And metrics service is uninstalled from the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15860/uninstall_inventory |
+    Then no Hawkular agent resources exist in the project
+
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12112
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - Deploy with custom metrics parameter
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12112/inventory |
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-infra" project
+    Then the expression should be true> rc('hawkular-cassandra-1').suplemental_groups.include? 65531
+    Then the expression should be true> rc('heapster').annotation('kubectl.kubernetes.io/last-applied-configuration').include? '--metric_resolution=15s'
+    Then the expression should be true> rc('hawkular-metrics').annotation('kubectl.kubernetes.io/last-applied-configuration').include? "-Dhawkular.metrics.default-ttl=14"
+

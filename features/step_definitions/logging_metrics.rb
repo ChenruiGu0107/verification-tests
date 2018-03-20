@@ -218,6 +218,40 @@ Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
     step %Q/all hawkular related pods are running in the project/
   end
 end
+# HOA is short for Hawkular Openshift Agent
+Given /^all Hawkular agent related resources exist in the#{OPT_QUOTED} project$/ do | proj_name |
+  ensure_admin_tagged
+  proj_name ||= "default"
+  project(proj_name)
+
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | name=hawkular-openshift-agent|
+  })
+  step %Q/I check that the "hawkular-openshift-agent" daemonset exists/
+  step %Q/I check that the "hawkular-openshift-agent" service_account exists/
+  step %Q/I check that the "hawkular-openshift-agent" clusterrole exists/
+  step %Q/I check that the "hawkular-openshift-agent-configuration" config_map exists/
+end
+
+# HOA pod is gone along with
+# daemonset/hawkular-openshift-agent
+# sa/hawkular-openshift-agent
+# configmap/hawkular-openshift-agent-configuration
+# clusterrole/hawkular-openshift-agent
+Given /^no Hawkular agent resources exist in the#{OPT_QUOTED} project$/ do | proj_name |
+  ensure_admin_tagged
+  proj_name ||= "default"
+  project(proj_name)
+  #
+  step %Q/all existing pods die with labels:/, table(%{
+    | name=hawkular-openshift-agent|
+  })
+  step %Q/the daemonset named "hawkular-openshift-agent" does not exist in the project/
+  step %Q/the configmap named "hawkular-openshift-agent-configuration" does not exist in the project/
+  step %Q/the service_account named "hawkular-openshift-agent" does not exist in the project/
+  step %Q/the clusterrole named "hawkular-openshift-agent" does not exist in the project/
+end
+
 
 Given /^all hawkular related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   target_proj = proj_name.nil? ? "openshift-infra" : proj_name

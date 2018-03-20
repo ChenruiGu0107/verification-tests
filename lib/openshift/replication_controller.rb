@@ -158,5 +158,10 @@ module CucuShift
 
       return res
     end
+
+    def suplemental_groups(user: nil, quiet: false, cached: false)
+      rr = raw_resource(user: user, cached: true, quiet: quiet)
+      sg = rr.dig('spec','template','spec','securityContext','supplementalGroups')
+    end
   end
 end

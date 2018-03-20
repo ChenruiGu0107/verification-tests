@@ -43,6 +43,7 @@ module CucuShift
       props[:service_account_name] = spec["serviceAccountName"]
       props[:containers] = spec["containers"]
       props[:termination_grace_period_seconds] = spec['terminationGracePeriodSeconds']
+      props[:volumes] = spec["volumes"]
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
       # status should be retrieved on demand but we cache it for the brave
@@ -196,6 +197,10 @@ module CucuShift
 
     def termination_grace_period_seconds(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :termination_grace_period_seconds, user: user, cached: cached, quiet: quiet)
+    end
+
+    def volumes(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :volumes, user: user, cached: cached, quiet: quiet)
     end
 
     def env_var(name, container: nil, user: nil)

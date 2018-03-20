@@ -34,7 +34,7 @@ module CucuShift
       end
     end
 
-    def replica_counters(user:, cached: true, quiet: false, res: nil)
+    def replica_counters(user: nil, cached: true, quiet: false, res: nil)
       resource = raw_resource(user: user, quiet: quiet, res: res, cached: cached)
       self.class::REPLICA_COUNTERS.map do |counter, path|
         [counter, resource.dig(*path).to_i]

@@ -118,5 +118,9 @@ module CucuShift
       return unless mem
       return convert_to_bytes(mem)
     end
+
+    def external_id(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).dig('spec', 'externalID')
+    end
   end
 end
