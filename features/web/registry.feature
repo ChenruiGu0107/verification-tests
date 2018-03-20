@@ -243,28 +243,28 @@ Feature: Testing registry
     Then the step should succeed
 
     When I perform the :tag_expands_in_iframe web action with:
-      | tag_label   | v3.10  |
+      | tag_label   | latest  |
     Then the step should succeed
     When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v3.10               |
+      | tag_label    | latest              |
       | cancel       | true                |
     Then the step should succeed
     When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v3.10               |
+      | tag_label    | latest              |
     Then the step should fail
     When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v3.10               |
+      | tag_label    | latest              |
     Then the step should succeed
     When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v3.10               |
+      | tag_label    | latest              |
     Then the step should succeed
 
   # @author cryan@redhat.com xxia@redhat.com
