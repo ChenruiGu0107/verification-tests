@@ -50,7 +50,7 @@ Feature: Testing registry
     Given I have a project
     Given I open registry console in a browser
 
-    When I perform the :check_project_in_iframe_on_overview_page web action with:
+    When I perform the :check_project_on_overview_page_in_iframe web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
 
@@ -97,7 +97,7 @@ Feature: Testing registry
       | display_name | test |
       | cancel       | true |
     Then the step should succeed
-    When I perform the :check_project_in_iframe_on_overview_page web action with:
+    When I perform the :check_project_on_overview_page_in_iframe web action with:
       | project_name | test |
     Then the step should fail
 
@@ -106,7 +106,7 @@ Feature: Testing registry
       | description  | test |
       | display_name | test |
     Then the step should succeed
-    When I perform the :check_project_in_iframe_on_overview_page web action with:
+    When I perform the :check_project_on_overview_page_in_iframe web action with:
       | project_name | test |
     Then the step should succeed
 
@@ -243,28 +243,28 @@ Feature: Testing registry
     Then the step should succeed
 
     When I perform the :tag_expands_in_iframe web action with:
-      | tag_label   | v1.1  |
+      | tag_label   | v3.10  |
     Then the step should succeed
     When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v1.1                |
+      | tag_label    | v3.10               |
       | cancel       | true                |
     Then the step should succeed
     When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v1.1                |
+      | tag_label    | v3.10               |
     Then the step should fail
     When I perform the :delete_tag_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v1.1                |
+      | tag_label    | v3.10               |
     Then the step should succeed
     When I perform the :check_tag_missing_on_one_imagestream_page_in_iframe web action with:
       | project_name | <%= project.name %> |
       | image_name   | testisnew           |
-      | tag_label    | v1.1                |
+      | tag_label    | v3.10               |
     Then the step should succeed
 
   # @author cryan@redhat.com xxia@redhat.com
