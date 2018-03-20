@@ -10,6 +10,8 @@ A healthy https://mojo.redhat.com/docs/DOC-1045731[Ceph storage cluster] with 1 
 
 == Ceph RBD
 
+
+
 A StorageClass for Ceph RBD should be ready, the name should be `cephrbdprovisioner`.
 
 ----
@@ -55,24 +57,9 @@ ceph fs ls
 ----
 
 
-== GlusterFS
+== Gluster Storage
 
-https://mojo.redhat.com/docs/DOC-1154765[Deploy CNS] on your OpenShift cluster, the current CNS deployment will give you both GlusterFS and block volume.
-
-A StorageClass for GlusterFS should be ready, the name should be `glusterprovisioner`.
-
-====
-----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: glusterprovisioner
-provisioner: kubernetes.io/glusterfs
-parameters:
-  resturl: "http://172.30.18.228:8080" <1>
-----
-<1> The `resturl` is the service ip of heketi pod. You can also use the router hostname.
-====
+Setup Gluster storage with https://openshift-qe-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/StorageEnvLauncher/, you will get a gluster storage cluster with both GlusterFS and Gluster-block supported. The StorageClass will be auto created to serve test automation.
 
 == iSCSI
 An iSCSI target should be preconfigured, on every OpenShift node, the initiator should be able to discover the target and establish a session.
@@ -90,109 +77,28 @@ Cucushift has integrated EFS dynamic provisioner deployment.
 On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider when your OCP version is equal or greater than **3.6**.
 
 == Feature-gates
-Every storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do not turn on/off feature gates during our testing to maintain good test efficiency and stability.
 
-=== Enable feature gate for pvc expanding
+All storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do our best to avoid turning on/off feature gates during test automation to maintain good test efficiency and stability. Use either the ansible installer or manual configuration to setup a test environment meeting our requirements.
 
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
+=== Using ansible installer
 
+====
+[source, flexy parameters]
 ----
-kubernetesMasterConfig:
-  ...
-  apiServerArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
-  controllerArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
+openshift_ansible_vars:
+  osm_api_server_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
+  osm_controller_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "VolumeScheduling=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
+  openshift_master_scheduler_args: '{"feature-gates": ["VolumeScheduling=true"]}'
+  openshift_master_admission_plugin_config: '{"PVCProtection":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}, "PersistentVolumeClaimResize":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}}'
+  openshift_node_kubelet_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"],  "enable-controller-attach-detach": ["true"],"minimum-container-ttl-duration": ["10s"], "maximum-dead-containers-per-container": ["1"], "maximum-dead-containers": ["20"], "image-gc-high-threshold": ["80"], "image-gc-low-threshold": ["70"]}'
 ----
+====
 
-Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
-
-----
-  nodeName
-    ...
-  kubeletArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
-----
-
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and add the contents into the pluginConfig sections:
-
-----
-    PersistentVolumeClaimResize:
-      configuration:
-        apiVersion: v1
-        disable: false
-        kind: DefaultAdmissionConfig
-----
-
-If enabled "PersistentVolumeClaimResize" admission controller plugin, and want to make pvc expanding working, need create a storageclass with allowVolumeExpansion=true
-
-----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: gp-allowexpand-false
-parameters:
-  resturl: http://heketi-storage-glusterfs.apps.0207-l7k.qe.rhcloud.com
-  restuser: admin
-  secretName: heketi-storage-admin-secret
-  secretNamespace: glusterfs
-provisioner: kubernetes.io/glusterfs
-reclaimPolicy: Delete
-allowVolumeExpansion: true
-----
+=== Manual configurations
 
 
-=== Enable feature gate for Local Volume
+On all masters edit configuration file `/etc/origin/master/master-config.yaml`, update the contents of the `apiServerArguments`, `controllerArguments` and `admissionConfig` sections:
 
-Enable feature gates "PersistentLocalVolumes" in apiserver, controllermanager and kubelet. 
-
-Start from OCP3.9, still need to add the following configuration:
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the schedulerArguments and controllerArguments sections:
-
-----
-kubernetesMasterConfig:
-  ...
-  schedulerArguments:
-    feature-gates:
-    - VolumeScheduling=true
-  controllerArguments:
-    feature-gates:
-    - VolumeScheduling=true
-----
-
-=== Enable feature gate for Block Volume
-
-Enable feature gates "BlockVolume" in apiserver, controllermanager and kubelet. 
-
-
-=== Enable feature gate for pvc protection
-
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
-----
-kubernetesMasterConfig:
-...
-  apiServerArguments:
-    feature-gates:
-    - PVCProtection=true
-...
-  controllerArguments:
-    feature-gates:
-    - PVCProtection=true
-...
-----
-
-Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
-----
-kubeletArguments:
-  feature-gates:
-  - PVCProtection=true
-...
-----
-
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and add the contents into the pluginConfig sections:
 ----
 admissionConfig:
   pluginConfig:
@@ -201,29 +107,45 @@ admissionConfig:
         apiVersion: v1
         disable: false
         kind: DefaultAdmissionConfig
+    PersistentVolumeClaimResize:
+      configuration:
+        apiVersion: v1
+        disable: false
+        kind: DefaultAdmissionConfig
 ...
-----
 
-=== Enable feature gate for mount propagation
-
-Edit the master configuration file on all masters (/etc/origin/master/master-config.yaml by default) and update the contents of the apiServerArguments and controllerArguments sections:
-----
 kubernetesMasterConfig:
-...
+  ...
   apiServerArguments:
     feature-gates:
+    - ExpandPersistentVolumes=true
+    - PersistentLocalVolumes=true
+    - BlockVolume=true
+    - PVCProtection=true
     - MountPropagation=true
-...
+  ...
   controllerArguments:
     feature-gates:
+    - ExpandPersistentVolumes=true
+    - VolumeScheduling=true
+    - PersistentLocalVolumes=true
+    - BlockVolume=true
+    - PVCProtection=true
     - MountPropagation=true
-...
+  ...
+  schedulerArguments:
+    feature-gates:
+    - VolumeScheduling=true
 ----
 
-Edit the node configuration file on all nodes (/etc/origin/node/node-config.yaml by default) and update the contents of the kubeletArguments and nodeName sections:
+On all nodes edit configuration file `/etc/origin/node/node-config.yaml`, update the contents of the `kubeletArguments` section:
+
 ----
-kubeletArguments:
-  feature-gates:
-  - MountPropagation=true
-...
+  kubeletArguments:
+    feature-gates:
+    - ExpandPersistentVolumes=true
+    - PersistentLocalVolumes=true
+    - BlockVolume=true
+    - PVCProtection=true
+    - MountPropagation=true
 ----
