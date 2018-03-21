@@ -361,6 +361,26 @@ services:
       token_credential_uri: https://accounts.google.com/o/oauth2/token
     fix_hostnames: false
     cloud_type: gce
+  vsphere_nay:
+    connect:
+      host: 'my.hostname.example.com'
+      insecure: false
+      user: myusername
+      password: mypassword
+      # cookie: abc # we can also auth by cookie but have not tested
+    common:
+      datacenter: null
+    create_opts:
+      type: :clone
+      clone_opts:
+        from_vm: "rhel74"
+        target_resource_pool: "resgroup-42" # null means firs pool we see
+        edit: {} # not implemented
+    host_connect_opts:
+      user: root
+      ssh_private_key: path/key.pem
+      class: SSHAccessibleHost
+    cloud_type: vsphere
   # stomp_bus:
   #   # default_queue: /topic/mytopic
   #   sslctx_newparm:

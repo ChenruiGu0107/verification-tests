@@ -13,6 +13,7 @@ module CucuShift
   autoload :GCE, 'launchers/gce'
   autoload :Azure, 'launchers/azure'
   autoload :OpenStack, "launchers/openstack"
+  autoload :VSphere, "launchers/v_sphere"
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
   autoload :PolarShift, "polarshift/autoload"
 
