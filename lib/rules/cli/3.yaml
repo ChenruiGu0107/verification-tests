@@ -954,11 +954,14 @@
 :tag:
   :cmd: oc tag <source>
   :options:
-    :dest: <value>
-    :source_type: --source=<value>
     :alias: --alias=<value>
     :d: --delete=<value>
+    :dest: <value>
     :insecure: --insecure=<value>
+    :reference: --reference=<value>
+    :reference_policy: --reference-policy=<value>
+    :scheduled: --scheduled=<value>
+    :source_type: --source=<value>    
 :types:
   :cmd: oc types
 :version:

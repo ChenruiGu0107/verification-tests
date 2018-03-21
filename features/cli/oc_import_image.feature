@@ -319,20 +319,24 @@ Feature: oc import-image related feature
     Then the output should match:
       |[Ll]astTriggeredImage.*deployment-example@sha256.*|
     When I run the :delete client command with:
-      | all_no_dash ||
-      | all         ||
+      | object_type | dc |
+      | all         |    |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | is |
+      | all         |    |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | svc |
+      | all         |     |
     Then the step should succeed
     When I run the :tag client command with:
-      | source_type | docker                       |
-      | source      | openshift/deployment-example |
-      | dest        | deployment-example:latest    |
+      | source_type      | docker                       |
+      | source           | openshift/deployment-example |
+      | dest             | deployment-example:latest    |
+      | reference_policy | local                        |
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
-    When I run the :patch client command with:
-      | resource      | istag                                        |
-      | resource_name | deployment-example:latest                    |
-      | p             | {"tag":{"referencePolicy":{"type":"Local"}}} |
-    Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | deployment-example:latest   |
     Then the output should match:
@@ -347,6 +351,7 @@ Feature: oc import-image related feature
       | o               | yaml               |
     Then the output should match:
       | [Ll]astTriggeredImage.*:.*<%= project.name %>\/deployment-example@sha256.*|
+
   # @author geliu@redhat.com
   # @case_id OCP-12766
   Scenario: Allow imagestream request build config triggers by different mode('TagreferencePolicy':source/local)
@@ -366,8 +371,12 @@ Feature: oc import-image related feature
       | o               | yaml    |
     Then the expression should be true> @result[:parsed]['spec']['triggers'][3]['imageChange']['lastTriggeredImageID'].include? 'centos/ruby-22-centos7'
     When I run the :delete client command with:
-      | all_no_dash ||
-      | all         ||
+      | object_type | bc |
+      | all         |    |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | is |
+      | all         |    |
     Then the step should succeed
     When I run the :import_image client command with:
       | from            | centos/ruby-22-centos7 |
