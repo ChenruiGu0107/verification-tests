@@ -311,6 +311,7 @@ Feature: Check deployments function
     When I run the :run client command with:
       | name         | myrun                 |
       | image        | aosqe/hello-openshift |
+      | limits       | memory=256Mi          |
     Then the step should succeed
     Given I wait until the status of deployment "myrun" becomes :running
     # create autoscaler

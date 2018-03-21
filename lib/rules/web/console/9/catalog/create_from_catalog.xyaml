@@ -109,7 +109,7 @@ check_successful_result_info_in_wizard:
 check_goto_overview_page_link_in_wizard:
   element:
     selector:
-      xpath: //a[@href='project/<project_name>' and contains(.,'overview')]
+      xpath: //a[contains(@href,'project/<project_name>') and contains(.,'overview')]
 check_wizard_information:
   elements:
   - selector:

@@ -43,4 +43,4 @@ check_help_and_sug_on_next_step_page:
 check_successful_result_info_on_next_step_page:
   element:
     selector:
-      visible_text: !ruby/regexp /has been created/
+      xpath: //*[contains(.,'has been created')]
