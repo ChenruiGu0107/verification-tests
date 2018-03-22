@@ -49,6 +49,15 @@ global:
   # browser: chrome
 
 environments:
+  ded_int_gcp:
+    hosts: api.ded-int-gcp.openshift.com:etcd:master:node
+    web_console_url: https://console.ded-int-gcp.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    cli: SharedLocalCliExecutor
+    admin_creds: false
+    api_port: 443
   ded_int_aws:
     hosts: api.ded-int-aws.openshift.com:etcd:master:node
     web_console_url: https://console.ded-int-aws.openshift.com
