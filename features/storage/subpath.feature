@@ -104,9 +104,7 @@ Feature: volumeMounts should be able to use subPath
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["subPath"]      | subpath                   |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/nfs-subpath.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -117,10 +115,6 @@ Feature: volumeMounts should be able to use subPath
     Then the step should succeed
     When I execute on the pod:
       | touch | /mnt/test_file |
-    Then the step should succeed
-    #And the output should not contain "Permission denied"
-    When I execute on the pod:
-      | cp | /hello | /mnt |
     Then the step should succeed
     When I execute on the pod:
       | /mnt/hello |
@@ -150,7 +144,6 @@ Feature: volumeMounts should be able to use subPath
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/iscsi-subpath.json" replacing paths:
       | ["metadata"]["name"]                                         | iscsi-<%= project.name %>     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= project.name %> |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["subPath"]      | subpath                       |
     Then the step should succeed
     And the pod named "iscsi-<%= project.name %>" becomes ready
 
@@ -172,4 +165,194 @@ Feature: volumeMounts should be able to use subPath
       | svirt_sandbox_file_t |
       | s0:c2,c13            |
 
+    When I execute on the pod:
+      | touch | /mnt/iscsi/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/iscsi/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
 
+  # @author jhou@redhat.com
+  # @case_id OCP-18424
+  @admin
+  Scenario: Subpath with glusterfs volume
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+        | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+        | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+        | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/glusterfs-subpath.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | ls | -ld | /mnt/gluster/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/gluster/testfile |
+    Then the step should succeed
+    When I execute on the "pod-<%= project.name %>" pod:
+      | /mnt/gluster/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-18425
+  @admin
+  Scenario: Subpath with gluster-block volume
+    Given I have a StorageClass named "gluster-block"
+    And I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+        | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+        | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | gluster-block           |
+        | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/glusterfs-subpath.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | ls | -ld | /mnt/gluster/ |
+    Then the output should contain:
+      | drwxr-sr-x |
+    When I execute on the pod:
+      | touch | /mnt/gluster/testfile |
+    Then the step should succeed
+    When I execute on the "pod-<%= project.name %>" pod:
+      | /mnt/gluster/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-18423
+  @admin
+  Scenario: Subpath with rbd volume
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+        | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+        | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+        | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
+    # Create tester pod
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/rbd-subpath.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | id | -u |
+    Then the output should contain:
+      | 101010 |
+    When I execute on the "pod-<%= project.name %>" pod:
+      | id | -G |
+    Then the output should contain:
+      | 123456 |
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | -ld | /mnt/rbd |
+    Then the output should contain:
+      | 123456     |
+      | drwxr-sr-x |
+    When I execute on the pod:
+      | touch | /mnt/rbd/testfile |
+    Then the step should succeed
+    When I execute on the "pod-<%= project.name %>" pod:
+      | /mnt/rbd/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-18426
+  @admin
+  Scenario: Subpath with CephFS volume
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And I have a project
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/pv-retain.json" where:
+      | ["metadata"]["name"]                         | pv-cephfs-server-<%= project.name %>                |
+      | ["spec"]["cephfs"]["monitors"][0]            | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["cephfs"]["secretRef"]["name"]      | cephrbd-secret                                      |
+      | ["spec"]["cephfs"]["secretRef"]["namespace"] | default                                             |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/pvc-cephfs.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-cephfs-<%= project.name %>       |
+      | ["spec"]["volumeName"] | pv-cephfs-server-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-cephfs-<%= project.name %>" PVC becomes bound to the "pv-cephfs-server-<%= project.name %>" PV
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/cephfs-subpath.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %>        |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-cephfs-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+  # @author jhou@redhat.com
+  # @case_id OCP-18426
+  @admin
+  Scenario Outline: Subpath with cloud volumes
+    Given I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/common-subpath.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | touch | /mnt/iaas/testfile |
+    Then the step should succeed
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | /mnt/iaas/ |
+    Then the output should contain:
+      | testfile |
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | -ld | /mnt/iaas/ |
+    Then the output should contain:
+      | drwxr-sr-x |
+    When I execute on the "pod-<%= project.name %>" pod:
+      | /mnt/iaas/hello |
+    Then the output should contain:
+      | Hello OpenShift Storage |
+
+    Examples:
+      | provisioner    |
+      | vsphere-volume | # @case_id OCP-18422
+      | gce-pd         | # @case_id OCP-18419
+      | aws-ebs        | # @case_id OCP-18418
+      | cinder         | # @case_id OCP-18421
+      | azure-disk     | # @case_id OCP-18420
