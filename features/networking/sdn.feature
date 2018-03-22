@@ -259,7 +259,7 @@ Feature: SDN related networking scenarios
     And the node iptables config is verified
     And the node service is restarted on the host after scenario
     When I run commands on the host:
-      | iptables -S -t nat \| grep <%= cb.clusternetwork %> \| cut -d ' ' -f 2- |
+      | iptables -S -t nat \| grep "\-s <%= cb.clusternetwork %>" \| cut -d ' ' -f 2- |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :nat_rule1 clipboard
     When I run commands on the host:
