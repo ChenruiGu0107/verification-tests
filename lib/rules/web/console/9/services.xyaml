@@ -3,8 +3,7 @@ check_service_list_page:
   action: goto_services_page
   elements:
   - selector:
-      text: <service_name>
-    type: a
+      xpath: //a[contains(text(),'<service_name>')]
 check_no_grouped_services: {}
 check_one_service_page:
   action: goto_one_service_page

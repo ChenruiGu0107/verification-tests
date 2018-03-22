@@ -421,14 +421,6 @@ select_project_in_project_list:
   - selector:
       xpath: //span[@class='text' and normalize-space()='<target_project>']
     op: click
-check_pod_stuck_warning_message:
-  params:
-    resource_type: pod
-  action: expand_resource_entry 
-  element:
-    selector:
-      xpath: //span[contains(.,'pending state for more than five minutes')]
-    timeout: 500
 delete_serviceinstance_on_overview_page:
   action:
     context: *tile_context

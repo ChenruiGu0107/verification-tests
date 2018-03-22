@@ -528,7 +528,6 @@ Feature: create app on web console related
       | project_name      | <%= project.name %> |
       | namespace         | openshift           |
       | image_stream_name | jboss-webserver30-tomcat8-openshift |
-      | image_stream_tag  | latest              |
     Then the step should succeed
     When I perform the :check_deploy_image_name web console action with:
       | image_name | jboss-webserver30-tomcat |
@@ -573,7 +572,7 @@ Feature: create app on web console related
     And I wait for the "python-dfi" service to appear
     And I wait for the "python-dfi" dc to appear
     And a pod is present with labels:
-      | deployment=python-dfi |
+      | deployment=python-dfi-1 |
 
   # @author etrott@redhat.com
   # @case_id OCP-11621

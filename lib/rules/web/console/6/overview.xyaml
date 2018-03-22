@@ -411,10 +411,4 @@ check_resources_order_on_overview_page:
   element:
     selector:
       xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<first_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<first_type>']]/following::div[@class='list-pf-container' and div//h3[contains(.,'<second_name>')] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<second_type>']]
-check_pod_stuck_warning_message:
-  action: expand_resource_entry 
-  element:
-    selector:
-      xpath: //span[contains(.,'pending state for more than five minutes')]
-    timeout: 500
 

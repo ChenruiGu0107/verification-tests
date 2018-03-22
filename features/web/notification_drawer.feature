@@ -243,12 +243,6 @@
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod-bad.json |
     Then the step should succeed
-    When I perform the :goto_overview_page web console action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-    When I perform the :check_pod_stuck_warning_message web console action with:
-      | resource_name | hello-openshift |
-    Then the step should succeed
     When I perform the :open_notification_drawer_for_one_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

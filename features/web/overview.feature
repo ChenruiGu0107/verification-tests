@@ -330,9 +330,6 @@ Feature: Check overview page
       | generator | run-pod/v1                     |
       | limits    | cpu=300m,memory=250Mi          |
     Then the step should succeed
-    When I perform the :check_pod_stuck_warning_message web console action with:
-      | resource_name | myrun-pod-warning |
-    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed

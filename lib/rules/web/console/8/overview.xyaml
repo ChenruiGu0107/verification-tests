@@ -415,10 +415,4 @@ select_project_in_project_list:
   - selector:
       xpath: //span[@class='text' and normalize-space()='<target_project>']
     op: click
-check_pod_stuck_warning_message:
-  action: expand_resource_entry 
-  element:
-    selector:
-      xpath: //span[contains(.,'pending state for more than five minutes')]
-    timeout: 500
 
