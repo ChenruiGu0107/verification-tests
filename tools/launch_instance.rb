@@ -361,6 +361,11 @@ module CucuShift
       when CucuShift::GCE
         res = iaas.create_instances(host_names, user_data: user_data_string,
                                     **launch_opts )
+      when CucuShift::VSphere
+        if user_data_string && !user_data_string.empty?
+          logger.warn "user-data not implemented for VSphere yet"
+        end
+        res = iaas.create_instances(host_names, **launch_opts)
       else
         raise "Unknown IaaS class #{iaas.class}."
       end
@@ -371,6 +376,10 @@ module CucuShift
       launched.each do |host|
         host[:fix_hostnames] = fix_hostnames
         host[:cloud_service_name] = service_name
+        # This property will contain only whatever opts are set for launching
+        #   this instance in the launch template. One still needs to have the
+        #   same global config as used during launch command to get the opts
+        #   that were not overridden in the launch template.
         host[:cloud_launch_opts] = launch_opts
         host.roles.concat host_group[:roles]
       end

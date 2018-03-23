@@ -19,6 +19,7 @@ module CucuShift
       end
 
       def self.reverse_lookup(ip)
+        raise(ArgumentError, "IP should not be nil") unless ip
         res = Socket.getaddrinfo(ip, 0, Socket::AF_UNSPEC, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME, true)
 
         if res.size != 1

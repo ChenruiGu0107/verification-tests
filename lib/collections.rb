@@ -128,6 +128,14 @@ module CucuShift
       }
     end
 
+    # @param hash [Hash] the Hash object to slice
+    # @param keys [Array] the keys we care about in the hash
+    # @return [Hash] the resulting hash
+    # @see active_support/core_ext/hash/slice.rb
+    def hash_slice(hash, keys)
+      hash.select { |k, v| keys.include? k }
+    end
+
     # Method to covert Cucumber `Table#raw` into a hash
     # @param [Hash|Array] opts normalized Hash or raw array of String options
     # @param [Boolean] sym_mode if true, all keys are converted to Symbols

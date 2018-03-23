@@ -34,8 +34,12 @@ module CucuShift
           CucuShift::OpenStack.instance(service_name: service_name)
         when "gce"
           CucuShift::GCE.new(service_name: service_name)
+        when "vsphere"
+          CucuShift::VSphere.new(service_name: service_name)
         else
-          raise "unknown service type #{service_type} for cloud #{service_name}"
+          raise "unknown service type " \
+            "#{conf[:services, service_name, :cloud_type]} for cloud " \
+            "#{service_name}"
         end
       end
     end
