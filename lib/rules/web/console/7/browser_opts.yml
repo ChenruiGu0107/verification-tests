@@ -7,8 +7,8 @@
       begin
         logger.trace "Clicking web element via hook.."
         block.call
-      rescue Selenium::WebDriver::Error::UnknownError => e
-        if e.message.include? "Other element would receive the click:"
+      rescue Selenium::WebDriver::Error::UnknownError,Selenium::WebDriver::Error::ElementClickInterceptedError => e
+        if e.message.include? "not clickable"
           logger.warn e.inspect
 
           case e.message

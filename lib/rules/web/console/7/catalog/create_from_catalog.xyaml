@@ -84,7 +84,7 @@ check_advanced_options_link_in_wizard:
       xpath: //a[text()='advanced options']
     op: click
   - selector:
-      xpath: //h1[text()='<service_item>'] 
+      xpath: //h1[text()='<service_item>']
 check_successful_result_info_in_wizard:
   element:
     selector:
@@ -102,7 +102,7 @@ check_wizard_information:
 check_app_name_pattern_error_from_catalog:
   element:
     selector:
-      text: !ruby/regexp /Application name consists of lower-case letters, numbers, and dashes. It must start with a letter and can't end/ 
+      text: !ruby/regexp /Application name consists of lower-case letters, numbers, and dashes. It must start with a letter and can't end/
 provision_serviceclass_without_binding_on_homepage:
   action: select_service_to_order_from_catalog
   action: click_next_button
@@ -116,8 +116,18 @@ provision_serviceclass_with_binding_on_homepage:
   action: choose_create_binding_for_provision
   action: click_create_button
   action: click_close
+provision_serviceclass_with_binding_and_wait_secret_shown:
+  action: select_service_to_order_from_catalog
+  action: click_next_button
+  action: click_next_button
+  action: choose_create_binding_for_provision
+  action: click_create_button
 choose_create_binding_for_provision:
   element:
     selector:
       xpath: //label[contains(.,'Create a secret')]
     op: click
+wait_secret_showing_in_successful_result:
+  element:
+    selector:
+      xpath: //*[@class='results-message-details' and contains(.,'binding operation created the secret')]/a[contains(@href,'browse/secrets')]

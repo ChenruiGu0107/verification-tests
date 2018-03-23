@@ -62,6 +62,11 @@ click_add_button:
     selector:
       xpath: //button[contains(text(),"Add") and not(@disabled)]
     op: click
+click_bind:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Bind") and not(@disabled)]
+    op: click
 click_create_button:
   elements:
   - selector:
@@ -180,7 +185,7 @@ check_before_button_missing:
     <<: *before_button
     missing: true
 click_before_button:
-  element: 
+  element:
     <<: *before_button
     op: click
     timeout: 300
@@ -194,12 +199,12 @@ check_next_button_missing:
     <<: *next_button
     missing: true
 click_next_button:
-  element: 
+  element:
     <<: *next_button
     op: click
     timeout: 300
 click_done_button:
-  element: 
+  element:
     selector:
       xpath: //button[contains(.,"Done") and not(@disabled)]
     op: click

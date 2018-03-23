@@ -250,7 +250,7 @@ check_networking_info_on_overview:
     if_element:
       selector:
         xpath: .//div[text()='Networking']
-    ref: 
+    ref:
     - check_internal_traffic
     - check_external_traffic
 check_internal_traffic:
@@ -260,7 +260,7 @@ check_internal_traffic:
   - selector:
       xpath: .//a[contains(@href,'project/<project_name>/browse/services/<service_name>') and text()='<service_name>']
   - selector:
-      xpath: .//span[normalize-space()='<service_port_mapping>'] 
+      xpath: .//span[normalize-space()='<service_port_mapping>']
 check_external_traffic:
   elements:
   - selector:
@@ -345,23 +345,23 @@ check_edit_yaml_link:
       xpath: .//ul//a[contains(@href,"project/<project_name>/edit/yaml?kind=<edityaml_type>&name=<yaml_name>")]
 check_edit_link_in_kebab_on_overview:
   action:
-    if_element: 
+    if_element:
       selector:
          xpath: .//ul//a[text()='Edit']
     ref: check_edit_dc_link
 check_edit_dc_link:
   element:
-    selector: 
+    selector:
       xpath: .//ul//a[@href="project/<project_name>/edit/dc/<resource_name>"]
 check_viewlogs_link_in_kebab_on_overview:
   action:
-    if_element:  
+    if_element:
       selector:
         xpath: .//ul//a[text()='View Logs']
     ref: check_view_log_link
 check_view_log_link:
   element:
-    selector: 
+    selector:
       xpath: .//ul//a[@href="project/<project_name>/browse/<viewlog_type>/<log_name>?tab=logs"]
 filter_by_text_on_overview_page:
   action: goto_overview_page
@@ -426,3 +426,16 @@ delete_serviceinstance_on_overview_page:
     - click_kebab_drop_down_list_on_overview
     - click_delete
     - confirm_resource_deletion
+create_binding_on_overview_page:
+  action: goto_overview_page
+  action:
+    context: *tile_context
+    ref:
+    - click_kebab_drop_down_list_on_overview
+    - click_create_binding
+    - click_bind
+click_create_binding:
+  element:
+    selector:
+      text: Create Binding
+    op: click
