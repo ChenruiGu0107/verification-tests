@@ -37,27 +37,13 @@ jenkins_check_build_string_parameter:
 
 jenkins_add_pod_template:
   url: /configure
-  elements:
-  - selector:
-      text: Add Pod Template
-    type: button
-    op: click
-  - selector:
-      text: Kubernetes Pod Template
-    type: a
-    op: click
-  - selector:
-      xpath: (//input[contains(@name,"_.name")])[last()]
-    op: send_keys <podname>
-    type: input
-  - selector:
-      xpath: (//input[contains(@name,"_.label")])[last()]
-    op: send_keys <podlabel>
-    type: input
-  - selector:
-      xpath: (//input[contains(@name,"_.image")])[last()]
-    op: send_keys <podimage>
-    type: input
+  scripts:
+  - command: return document.getElementsByName("_.name")[document.getElementsByName("_.name").length-2].value = "<slave_name>"
+    expect_result: true
+  - command: return document.getElementsByName("_.label")[document.getElementsByName("_.label").length-1].value = "<slave_label>"
+    expect_result: true
+  - command: return document.getElementsByName("_.image")[document.getElementsByName("_.image").length-1].value = "<slave_image>"
+    expect_result: true
   action: jenkins_click_save_button
 
 jenkins_build_now:
@@ -912,7 +898,7 @@ jenkins_verify_job_success:
     visible: true
 
 jenkins_verify_job_text:
-  url: /job/<job_name>/<job_number>/console
+  url: /job/<job_name>/<job_num>/console
   elements:
   - selector:
       xpath: //div[@id='main-panel']//pre[contains(.,'<checktext>')]
@@ -1011,4 +997,4 @@ go_to_installed_plugin_manage_page:
 go_to_updates_plugin_manage_page:
   url: /pluginManager
 goto_jenkins_buildlog_page:
-  url: /job/<job_name>/<job_num>/console
+  url: /job/<job_name>/<job_num>/consoleFull
