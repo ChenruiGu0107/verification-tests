@@ -1034,8 +1034,9 @@ Feature: jenkins.feature
 
   # @author cryan@redhat.com
   # @case_id OCP-11344
-  Scenario: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
+  Scenario Outline: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
+    Given I have an ephemeral jenkins v<jenkins_version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11344/samplepipeline.yaml |
     Then the step should succeed
@@ -1057,6 +1058,11 @@ Feature: jenkins.feature
     Then the output should match:
       | sample-pipeline-1\s+JenkinsPipeline\s+Running |
     """
+
+    Examples:
+      | jenkins_version |
+      | 1               | # @case_id OCP-11344 
+      | 2               | # @case_id OCP-11374
 
   # @author cryan@redhat.com
   # @case_id OCP-11355 OCP-11356 OCP-11357
