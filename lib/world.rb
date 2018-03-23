@@ -450,10 +450,11 @@ module CucuShift
       step_name = ''
       params = []
       data.each_with_index do |line, index|
-        if line.strip.start_with?('!')
+        line = line.strip
+        if line.start_with?('!')
           params << [line.gsub('!','|')]
-        elsif line.strip.start_with?('|')
-          # with multiline string we can use '|'
+        elsif line.start_with?('|')
+          # with multiline string we can use '|' or it can be escaped
           params << line
         else
           step_name = line.gsub(/^\s*(?:Given|When|Then|And) /,"")

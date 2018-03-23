@@ -32,6 +32,10 @@ end
 #   until they execute without raising an error)
 Given /^I wait(?: up to #{NUMBER} seconds)? for the steps to pass:$/ do |seconds, steps_string|
   begin
+    unless steps_string.respond_to? :lines
+      # we are using a table instead of multi-line string it seems
+      steps_string = steps_string.raw.flatten.join("\n")
+    end
     logger.dedup_start
     seconds = Integer(seconds) rescue 60
     # repetitions = 0

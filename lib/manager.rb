@@ -27,12 +27,21 @@ module CucuShift
     end
 
     def clean_up
-      @world.after_scenario if @world
+      if @world
+        begin
+          # this is likely not going to work in at_exit pahse with
+          # cucumber 2.4 because builtin methods like `#step` are messed up
+          # at that stage. Should we continue on failures in `#at_exit`?
+          @world.after_scenario
+        ensure
+          # let GC kick in as well avoid double clean-up at_exit
+          @world = nil
+        end
+      end
       @environments.clean_up if @environments
       @temp_resources.each(&:clean_up)
       @temp_resources.clear
       Host.localhost.clean_up
-      @world = nil # let GC kick in as well avoid double clean-up at_exit
     end
     alias after_scenario clean_up
 
