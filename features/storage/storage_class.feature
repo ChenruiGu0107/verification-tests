@@ -990,3 +990,30 @@ Feature: storageClass related feature
       | aws-ebs        | ebs     | # @case_id OCP-17271
       | cinder         | cinder  | # @case_id OCP-17270
       | azure-disk     | azure   | # @case_id OCP-17274
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-17272
+  @admin
+  Scenario: Configure Retain reclaim policy for aws-efs
+    Given I have a project
+    And I have a efs-provisioner in the project
+      
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-reclaim-policy.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1      |     
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
+      | ["provisioner"]                                                                 | openshift.org/aws-efs  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
+
+    When I ensure "pvc-<%= project.name %>" pvc is deleted
+    Then the PV becomes :released
+    And admin ensures "<%= pvc.volume_name %>" pv is deleted
