@@ -872,11 +872,11 @@ Feature: Egress-ingress related networking scenarios
     # Check egress rule added in openflow
     Given I use the "<%= pod.node_name(user: user) %>" node
     When I run the ovs commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep tcp \| grep tp_dst=53 |
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep tcp \| grep tp_dst=53 |
     And the output should contain 1 times:
       | nw_dst=<%= cb.hostip %> |
     When I run the ovs commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep udp \| grep tp_dst=53 |
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep udp \| grep tp_dst=53 |
     And the output should contain 1 times:
       | nw_dst=<%= cb.hostip %> |
 
@@ -890,6 +890,13 @@ Feature: Egress-ingress related networking scenarios
       | n | <%= cb.proj1 %> |
     Then the step should succeed
 
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep table=101 |
+    And the output should contain:
+      | actions=drop |
+    """
     # Check ping from pod
     When I execute on the pod:
       | ping | -c2 | -W2 | www.cisco.com |
