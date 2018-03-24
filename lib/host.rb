@@ -370,7 +370,7 @@ module CucuShift
     end
 
     private def get_src_ip(destination_ip)
-      res = exec("ip route get '#{destination_ip}' | sed -rn 's/^.*src (([0-9]+\.?){4})/\\1/p'")
+      res = exec("ip route get '#{destination_ip}' | sed -rn 's/^.*src (([0-9]+\.?){4}|[0-9a-f:]+).*/\\1/p'")
       if res[:success]
         return res[:response].strip
       else
@@ -396,6 +396,11 @@ module CucuShift
     end
 
     def local_ip?(host_or_ip)
+      # I think src ip approach is more reliable than hostname checking
+      # if get_local_hostname == host_or_ip
+      #   return true
+      # else
+
       ip = dns_resolve host_or_ip
       raise "unknown host '#{host_or_ip}'" if ip.empty?
 
