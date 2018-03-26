@@ -4185,3 +4185,18 @@ Feature: Testing haproxy router
       | exec_command_arg | 80              |
       | _stdin           | :empty          |
     Then the output should contain "408 Request Time-out"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-14425
+  @admin
+  @destructive
+  Scenario: Set the timeout of keep alive for router
+    Given the master version >= "3.6"
+    Given I switch to cluster admin pseudo user
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_SLOWLORIS_HTTP_KEEPALIVE=7s |
+
+    When I execute on the pod:
+      | grep | timeout | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | timeout http-keep-alive 7s |
