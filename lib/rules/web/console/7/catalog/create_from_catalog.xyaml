@@ -122,6 +122,11 @@ provision_serviceclass_with_binding_and_wait_secret_shown:
   action: click_next_button
   action: choose_create_binding_for_provision
   action: click_create_button
+provision_from_unbindable_template_on_homepage:
+  action: select_service_to_order_from_catalog
+  action: click_next_button
+  action: click_create_button
+  action: click_close
 choose_create_binding_for_provision:
   element:
     selector:
