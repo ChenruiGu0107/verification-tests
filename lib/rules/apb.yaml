@@ -1,0 +1,13 @@
+:main:
+  :cmd: apb
+  :options:
+    :debug: --debug
+    :project: --project=<value>
+:list:
+  :cmd: apb list
+  :options:
+    :broker: --broker=<value>
+:bootstrap:
+  :cmd: apb bootstrap
+  :options:
+    :broker: --broker=<value>
