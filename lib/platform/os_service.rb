@@ -12,8 +12,11 @@ module CucuShift
 
       def status(service, quiet: false)
         statuses = {
-          active: "active \\(running\\)",
-          inactive: "inactive"
+          active: "active",
+          activating: "activating",
+          deactivating: "deactivating",
+          inactive: "inactive",
+          failed: "failed"
         }
 
         # interesting whether `systemctl is-active svc` is better
@@ -36,6 +39,56 @@ module CucuShift
 
       def logger
         host.logger
+      end
+
+      # Will stop the provided service.
+      # @param opts [Hash] see supported options below
+      #   :raise [Boolean] raise if stop fails
+      # @param service [String] name of the service running on the host
+      def stop(service, **opts)
+        raise "No service provided to restart!" unless service
+        results = []
+        current_status = status(service, quiet: true)
+
+        case current_status[:status]
+        when :inactive, :failed
+          logger.warn "Stop is requested for service #{service} on " \
+            "#{host.hostname} but it is already #{current_status[:status]}."
+          return current_status
+        else
+          logger.info "before stop status of service #{service} on " \
+            "#{host.hostname} is: #{current_status[:status]}"
+          results.push(current_status)
+        end
+
+        result = host.exec_admin("systemctl stop #{service}")
+        results.push(result)
+        unless result[:success]
+          if opts[:raise]
+            raise "could not stop service #{service} on #{host.hostname}"
+          end
+          return CucuShift::ResultHash.aggregate_results(results)
+        end
+
+        sleep 5 # lets guess some hardcoded sleep after stop for the time being
+
+        result = status(service)
+        results.push(result)
+
+        # some pre-3.9 versions of OpenShift reported failed status on stop
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1557851
+        unless [:inactive, :failed].include?(result[:status])
+          result[:success] = false
+          err_msg = "service #{service} on #{host.hostname} still " \
+            "#{result[:status]} 5 seconds after stop command"
+          if opts[:raise]
+            raise err_msg
+          else
+            logger.warn err_msg
+          end
+        end
+
+        return CucuShift::ResultHash.aggregate_results(results)
       end
 
       # Will restart the provided service.
@@ -110,11 +163,19 @@ module CucuShift
       def restart_all(**opts)
         results = []
         services.each { |service|
-          results.push(restart(service, opts))
+          results.push(restart(service, **opts))
         }
         return CucuShift::ResultHash.aggregate_results(results)
       end
 
+      # executes #stop on each of the services configured.
+      def stop_all(**opts)
+        results = []
+        services.each { |service|
+          results.push(stop(service, **opts))
+        }
+        return CucuShift::ResultHash.aggregate_results(results)
+      end
     end
   end
 end

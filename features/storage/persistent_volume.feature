@@ -1017,3 +1017,36 @@ Feature: Persistent Volume Claim binding policies
       | pv_volumeMode | pvc_volumeMode |
       | Block         | Filesystem     | # @case_id OCP-17551
       | Filesystem    | Block          | # @case_id OCP-17553
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18282
+  @admin
+  @destructive
+  Scenario: Volume is detached after restart node service
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | dynamic-pvc |
+    Then the step should succeed
+    And the "dynamic-pvc" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc |
+      | ["metadata"]["name"]                                         | mypod       |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+
+    Given I save volume id from PV named "<%= pvc.volume_name %>" in the :vid clipboard
+    And I use the "<%= pod.node_name %>" node
+    And the node service is restarted on the host after scenario
+    And the node service is stopped
+    When I run the :delete client command with:
+      | object_type       | pod   |
+      | object_name_or_id | mypod |
+    Then the step should succeed
+    And the pod named "mypod" becomes terminating
+
+    Given the node service is restarted
+    And I wait for the resource "pod" named "mypod" to disappear
+    When I run commands on the host:
+      | mount \| grep "<%= cb.vid %>" |
+    Then the step should fail
