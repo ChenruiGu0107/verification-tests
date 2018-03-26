@@ -6,43 +6,34 @@ Feature: web console customization related features
   @admin
   Scenario: Check System Alerts on Masthead as online message
     Given the master version >= "3.9"
-    # Update the configmap settings and redeploy pod
-    ## redeploy pod to make restored comfigmap work in tear-down
-    Given I register clean-up steps:
+    And system verification steps are used:
     """
     I switch to cluster admin pseudo user
     I use the "openshift-web-console" project
     I wait up to 360 seconds for the steps to pass:
-      | When a pod becomes ready with labels:                       |
-      |   \| webconsole=true      \|                                |
-      | Then the step should succeed                                |
-      | When I run the :rsh client command with:                    |
-      |   \| pod    \| <%= pod.name %> \|                                      |
-      |   \| _stdin \| cat \/var\/webconsole-config\/webconsole-config.yaml \| |  
+      | Given a pod becomes ready with labels:                      |
+      |  \| webconsole=true \|                                      |
+      | When admin executes on the pod:                             |
+      |  \| cat \| /var/webconsole-config/webconsole-config.yaml \| |
       | Then the step should succeed                                |
       | And the output should not contain "system-status.js"        |
     """
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-web-console" project
-    Given the "webconsole-config" configmap is recreated by admin in the "openshift-web-console" project after scenario
-    When a pod becomes ready with labels:
+    ## redeploy pod to make restored comfigmap work in tear-down
+    And the "webconsole-config" configmap is recreated by admin in the "openshift-web-console" project after scenario
+    And a pod becomes ready with labels:
       | webconsole=true |
-    Then the step should succeed
     When value of "webconsole-config.yaml" in configmap "webconsole-config" as YAML is merged with:
     """
-    "extensions":
-      "scriptURLs": ["https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/system-status.js"]
+    extensions:
+      scriptURLs:
+      - "https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/system-status.js"
     """
-    Then the step should succeed
-    ## redeploy pod to make new configmap works
-    And I wait up to 360 seconds for the steps to pass:
+    Then I wait up to 360 seconds for the steps to pass:
     """
-    When a pod becomes ready with labels: 
-      | webconsole=true  |
-    Then the step should succeed
-    When I run the :rsh client command with:
-      | pod          | <%= pod.name %> |
-      | _stdin       | cat /var/webconsole-config/webconsole-config.yaml |  
+    Given a pod becomes ready with labels:
+      | webconsole=true |
+    When admin executes on the pod:
+      | cat | /var/webconsole-config/webconsole-config.yaml |
     Then the step should succeed
     And the output should contain "system-status.js"
     """
