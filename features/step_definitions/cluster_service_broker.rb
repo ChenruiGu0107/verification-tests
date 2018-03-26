@@ -14,3 +14,13 @@ Given /^the #{QUOTED} cluster service broker is recreated$/ do |name|
 
   step 'hidden recreate cluster resource after scenario'
 end
+
+Given /^I save the first service broker registry prefix to#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= :reg_prefix
+  org_project = project(generate: false) rescue nil
+  project('openshift-ansible-service-broker')
+  cb[cb_name] = YAML.load(config_map('broker-config').value_of('broker-config', user: admin))['registry'].first['name']
+  project(org_project)
+end
+

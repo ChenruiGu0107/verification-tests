@@ -96,3 +96,9 @@ Feature: Ansible-service-broker related scenarios
    Then the expression should be true>  cb.mariadb_dep.select { |e| e.start_with? 'registry.access.redhat.com/rhscl/mariadb' }.count == 2
    Then the expression should be true>  cb.postgresql_dep.select { |e| e.start_with? 'registry.access.redhat.com/rhscl/postgresql' }.count == 2
    Then the expression should be true>  cb.media_wiki_dep.select { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' }.count == 1
+
+
+  @admin
+  Scenario: test step to get openshift-ansible-service-broker
+    Given I save the first service broker registry prefix to :prefix clipboard
+
