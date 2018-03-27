@@ -257,12 +257,9 @@ Feature: scenarios related to catalog page
     Then the step should succeed
     When I run the :click_select_a_project_dropdown_list_in_wizard web console action
     Then the step should succeed
-    Given I wait for the steps to pass:
-    """
     When I perform the :select_existing_project_in_dropdown web console action with:
       | project_name | <%= project(1, switch: false).name %> |
     Then the step should succeed
-    """
     When I perform the :check_text_in_wizard web console action with:
       | text | No Templates |
     Then the step should succeed
