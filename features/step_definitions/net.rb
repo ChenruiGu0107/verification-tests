@@ -160,3 +160,63 @@ When /^I wait for the #{QUOTED} TCP server to start accepting connections$/ do |
     "iterations, #{hostport} is: " <<
     "#{@result[:success] ? "accessible" : @result[:error].inspect}"
 end
+
+Given /^I verify server HTTP keep-alive with:$/ do |table|
+  opts = opts_array_to_hash table.raw
+  expected_timeout = Integer(opts[:"keep-alive"]) || raise("specify keep-alive")
+  margin = Integer(opts[:margin]) || 5
+  hostname = opts[:hostname] || raise("specify hostname")
+  request_string = opts[:request] || "GET / HTTP/1.1\nHost: #{hostname}\n\n"
+  connect_timeout = 5
+  read_timeout = 5
+  continue_timeout = nil
+
+  Socket.tcp(hostname, 80, connect_timeout: 5) do |sock|
+    buffered_socket = Net::BufferedIO.new(sock,
+                                          read_timeout: read_timeout,
+                                          continue_timeout: continue_timeout,
+                                          debug_output: logger)
+    ## preform one simple HTTP request
+    begin
+      # sock.sendmsg request_string
+      buffered_socket.write request_string
+      # using internal method as it fits so nicely
+      resp = Net::HTTPResponse.read_new buffered_socket
+      resp.reading_body(buffered_socket, true) {}
+    rescue
+      logger.error "we failed to read from server even once"
+      raise
+    end
+
+    ## wait until close to expected timeout and try again
+    safe_sleep = expected_timeout - margin
+    sleep safe_sleep >= 0 ? safe_sleep : 0
+    begin
+      # sock.sendmsg request_string
+      buffered_socket.write request_string
+      resp = Net::HTTPResponse.read_new buffered_socket
+      resp.reading_body(buffered_socket, true) {}
+    rescue
+      logger.error "we failed to get second page from server within timeout"
+      raise
+    end
+
+    ## keep-alive works,now check how much time it takes for socket to close
+    start = monotonic_seconds
+    begin
+      res = IO.select([sock], nil, nil, expected_timeout + margin + 10)
+      duration = (monotonic_seconds - start).round(2)
+      if res
+        sock.read_nonblock(1)
+      else
+        raise "after #{duration} seconds connection still not closed"
+      end
+    rescue EOFError
+      if (expected_timeout - duration).magnitude > margin
+        raise "connection eventually closed but after #{duration} seconds"
+      else
+        logger.info "connection closed as expected after #{duration} seconds"
+      end
+    end
+  end
+end
