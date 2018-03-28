@@ -31,26 +31,30 @@ module CucuShift
       return self
     end
 
-    # @param cached [Boolean] does nothing, keep for compatibility
     # @return [CucuShift::ResultHash] with :success if at least one pod by
     #   selector is ready
-    def ready?(user:, quiet: false, cached: false)
+    def ready?(user: nil, quiet: false, cached: false)
+      res = {}
+      pods = pods(user: user, quiet: quiet, cached: cached, result: res)
+      pods.select! { |p| p.ready?(user: user, cached: true)[:success] }
+      res[:success] = pods.size > 0
+      return res
+    end
+
+    # @return [Array<Pod>]
+    def pods(user: nil, quiet: false, cached: true, result: {})
       if !selector(user: user, quiet: quiet) || selector.empty?
         raise "can't tell if ready for services without pod selector"
       end
 
-      res = {}
-      pods = Pod.get_labeled(*selector,
-                      user: user,
-                      project: project,
-                      quiet: quiet,
-                      result: res) { |p, p_hash|
-        p.ready?(user: user, cached: true)[:success]
-      }
-
-      res[:success] = pods.size > 0
-
-      return res
+      unless cached && props[:pods]
+        props[:pods] = Pod.get_labeled(*selector,
+                                       user: default_user(user),
+                                       project: project,
+                                       quiet: quiet,
+                                       result: result)
+      end
+      return props[:pods]
     end
 
     # @param by [CucuShift::User] the user to create route with
