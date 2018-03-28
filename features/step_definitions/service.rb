@@ -13,3 +13,7 @@ Given(/^I wait for the(?: "([^"]*)")? service to be created$/) do |name|
     raise "timeout waiting for service #{name} to be created"
   end
 end
+
+Given /^I get the#{OPT_QUOTED} service pods$/ do |svc_name|
+  cache_resources *service(svc_name).pods(cached: false)
+end

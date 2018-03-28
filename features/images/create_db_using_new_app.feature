@@ -9,7 +9,8 @@ Feature:Create db using new_app cmd feature
       | env          | MYSQL_DATABASE=db   |
     Then the step should succeed
     Given I wait for the "mysql" service to become ready
-    And I wait up to 60 seconds for the steps to pass:
+    And I get the service pods
+    When I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
       | bash           |
@@ -17,7 +18,7 @@ Feature:Create db using new_app cmd feature
       | mysql -h $MYSQL_SERVICE_HOST -uuser -ppass -e "show databases" |
     Then the step should succeed
     """
-    And the output should contain "db"
+    Then the output should contain "db"
 
     When I execute on the pod:
       | bash           |
@@ -54,6 +55,7 @@ Feature:Create db using new_app cmd feature
       | env          | MONGODB_ADMIN_PASSWORD=pass |
     Then the step should succeed
     Given I wait for the "mongodb" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -88,7 +90,7 @@ Feature:Create db using new_app cmd feature
     Given a pod becomes ready with labels:
       | run=mysql |
     When I execute on the pod:
-      | cat                      | 
+      | cat                      |
       | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 8M          |
@@ -136,7 +138,7 @@ Feature:Create db using new_app cmd feature
     Given a pod becomes ready with labels:
       | run=mysql |
     When I execute on the pod:
-      | cat                      | 
+      | cat                      |
       | /etc/my.cnf.d/50-my-tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 51M          |
