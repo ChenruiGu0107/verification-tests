@@ -819,7 +819,7 @@ Feature: NFS Persistent Volume
       | timeo=600 |
 
   # @author wehe@redhat.com
-  # @case_id OCP-17279 
+  # @case_id OCP-17279
   @admin
   @destructive
   Scenario: Configure 'Retain' reclaim policy for nfs 

@@ -947,6 +947,7 @@ Feature: storageClass related feature
       | aws-ebs        | # @case_id OCP-17271
       | cinder         | # @case_id OCP-17270
       | azure-disk     | # @case_id OCP-17274
+      | azure-file     | # @case_id OCP-17276
 
   # @author jhou@redhat.com
   @admin
