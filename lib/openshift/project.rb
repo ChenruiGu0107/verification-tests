@@ -113,6 +113,16 @@ module CucuShift
       Build.list(user: by, project: self, **get_opts)
     end
 
+    def get_service_bindings(by:, **get_opts)
+      ServiceBinding.list(user: by, project: self, **get_opts)
+    end
+    alias_method :service_bindings, :get_service_bindings
+
+    def get_service_instances(by:, **get_opts)
+      ServiceBinding.list(user: by, project: self, **get_opts)
+    end
+    alias_method :service_instances, :get_service_instances
+
     def is_user_admin?(user:, cached: true, quiet: false)
       user ||= default_user(user)
       unless cached && @is_admin_hash&.has_key?(user)
