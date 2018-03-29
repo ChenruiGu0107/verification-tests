@@ -15,6 +15,7 @@ Feature: Add env variables to image feature
     Then the step should succeed
 
     Given I wait for the "mysql" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:

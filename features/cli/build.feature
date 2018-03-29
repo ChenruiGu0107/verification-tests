@@ -132,6 +132,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -142,6 +143,7 @@ Feature: build 'apps' with CLI
     """
     And the output should contain "Demo App"
     Given I wait for the "ruby-hello-world-1" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -295,6 +297,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1-1" build completed
     Given the "ruby-hello-world-2-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec client command with:
@@ -308,6 +311,7 @@ Feature: build 'apps' with CLI
     """
     And the output should contain "Demo App"
     Given I wait for the "ruby-hello-world-1" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec client command with:
@@ -321,6 +325,7 @@ Feature: build 'apps' with CLI
     """
     And the output should contain "Demo App"
     Given I wait for the "ruby-hello-world-2" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec client command with:
@@ -917,6 +922,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
 
     Given I wait for the "mysql" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -925,6 +931,7 @@ Feature: build 'apps' with CLI
     """
     And the output should contain "mysql"
     Given I wait for the "mongodb" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -934,6 +941,7 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | 2.6 |
     Given I wait for the "postgresql-94-rhel7" service to become ready
+    And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -1596,6 +1604,7 @@ Feature: build 'apps' with CLI
       | RUN cp -r /sys/fs/cgroup/cpuacct,cpu/cpu* /tmp                     |
       | RUN cp -r /sys/fs/cgroup/memory/memory.limit_in_bytes /tmp/memlimit|
     Given I wait for the "ruby-cgroup-test" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:

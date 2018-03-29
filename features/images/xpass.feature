@@ -126,6 +126,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -153,6 +154,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -188,6 +190,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -223,6 +226,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -331,6 +335,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -372,6 +377,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods 
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -413,6 +419,7 @@ Feature: xpass.feature
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:

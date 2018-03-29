@@ -35,6 +35,7 @@ Feature: Configuration of environment variables check
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/<template> |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | env |
     Then the step should succeed
@@ -55,6 +56,7 @@ Feature: Configuration of environment variables check
     Given the "php-sample-build-1" build was created
     Given the "php-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | env |
     Then the step should succeed
@@ -81,6 +83,7 @@ Feature: Configuration of environment variables check
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:

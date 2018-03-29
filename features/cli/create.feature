@@ -82,6 +82,7 @@ Feature: creating 'apps' with CLI
     Then I wait for a web server to become available via the "frontend" route
     And the output should contain "Demo App"
     Given I wait for the "database" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | bash |
       | -c   |
@@ -209,6 +210,7 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | Running |
     Given I wait for the "test-service" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | curl | -ksS | <%= service.url %> |
     Then the step should succeed
@@ -233,6 +235,7 @@ Feature: creating 'apps' with CLI
       | deployment=sti-python-1      |
       | deploymentconfig=sti-python  |
     And I wait for the "sti-python" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I run the :exec client command with:
@@ -263,6 +266,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the "sti-python2-1" build completed
     Given I wait for the "sti-python2" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:
@@ -284,6 +288,7 @@ Feature: creating 'apps' with CLI
       | deployment=sti-python-1      |
       | deploymentconfig=sti-python  |
     And I wait for the "sti-python" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I run the :exec client command with:

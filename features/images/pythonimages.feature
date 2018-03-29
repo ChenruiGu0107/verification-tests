@@ -8,6 +8,7 @@ Feature: Openshift build and configuration of enviroment variables check
       | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-34-rhel7-stibuild.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:

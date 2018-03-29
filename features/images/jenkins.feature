@@ -13,6 +13,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "jenkins" PVC becomes :bound within 300 seconds
     Given I wait for the "jenkins" service to become ready
+    And I get the service pods
     Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     And I wait for the steps to pass:
     """
@@ -169,6 +170,7 @@ Feature: jenkins.feature
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
     And I wait for the "jenkins" service to become ready
+    And I get the service pods
     Given I wait up to 60 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
@@ -828,6 +830,7 @@ Feature: jenkins.feature
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
     And I wait for the "jenkins" service to become ready
+    And I get the service pods
     Given I wait up to 60 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url

@@ -17,6 +17,7 @@ Feature: phpimages.feature
       | target_port | 8080 |
       | name | myservice |
     Given I wait for the "myservice" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
     Then the output should not contain:

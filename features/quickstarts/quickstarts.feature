@@ -58,6 +58,7 @@ Feature: quickstarts.feature
       | database |
       | frontend |
     Given I wait for the "frontend" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:
@@ -84,6 +85,7 @@ Feature: quickstarts.feature
     Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "Welcome to OpenShift"
     Given I wait for the "cakephp-example" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
     Then the step should succeed
@@ -101,6 +103,7 @@ Feature: quickstarts.feature
     And the "beego-example-1" build was created
     And the "beego-example-1" build completed
     Then I wait for the "beego-example" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -119,6 +122,7 @@ Feature: quickstarts.feature
     And the "dancer-example-1" build was created
     And the "dancer-example-1" build completed
     Then I wait for the "dancer-example" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -137,6 +141,7 @@ Feature: quickstarts.feature
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
     Then I wait for the "cakephp-example" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -155,6 +160,7 @@ Feature: quickstarts.feature
     And the "nodejs-example-1" build was created
     And the "nodejs-example-1" build completed
     Then I wait for the "nodejs-example" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:

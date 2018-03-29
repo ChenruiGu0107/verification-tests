@@ -11,6 +11,7 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
 
     Given I wait for the "postgresql" service to become ready
+    And I get the service pods
     And I wait for the steps to pass:
     """
     When I execute on the pod:
