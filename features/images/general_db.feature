@@ -300,6 +300,7 @@ Feature: general_db.feature
       | env               | MONGODB_ADMIN_PASSWORD=pass                      |
     Then the step should succeed
     Given I wait for the "mongodb32" service to become ready
+    And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:

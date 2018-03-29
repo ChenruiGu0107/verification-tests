@@ -621,6 +621,7 @@ Feature: buildlogic.feature
       | MaxRequestWorkers\\s*2  |
       | ServerLimit\\s*2        |
     When I wait for the "dancer-ex" service to become ready
+    And I get the service pods
     Then the step should succeed
     When I execute on the pod:
       | bash                                                                          |

@@ -509,6 +509,7 @@ Feature: mysql_images.feature
     And a pod becomes ready with labels:
       | name=mysql-master         |
     Given I wait for the "mysql-master" service to become ready
+    And I get the service pods
     And I wait up to 200 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -573,6 +574,7 @@ Feature: mysql_images.feature
     And a pod becomes ready with labels:
       | name=mysql-master         |
     Given I wait for the "mysql-master" service to become ready
+    And I get the service pods
     And I wait up to 200 seconds for the steps to pass:
     """
     When I execute on the pod:

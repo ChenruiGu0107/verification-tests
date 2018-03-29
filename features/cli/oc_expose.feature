@@ -24,6 +24,7 @@ Feature: oc_expose.feature
     Then the output should contain "myservice"
     And the output should contain "80/TCP"
     Given I wait for the "myservice" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -51,6 +52,7 @@ Feature: oc_expose.feature
       | generator     | service/v1       |
       | name          | myservice        |
     Given I wait for the "myservice" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
     Then the step should succeed
@@ -76,6 +78,7 @@ Feature: oc_expose.feature
       | generator     | service/v1      |
       | name          | myservice       |
     Given I wait for the "myservice" service to become ready
+    And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
     Then the step should succeed
@@ -147,6 +150,7 @@ Feature: oc_expose.feature
       | myservice |
       | 80/TCP    |
     Given I wait for the "myservice" service to become ready
+    And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
     When I execute on the pod:
