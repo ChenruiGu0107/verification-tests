@@ -400,7 +400,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   org_user = user
   # we may not have the minor version of the image loaded. so just use the
   # major version label
-  cb.master_version = cb.master_version[0..2]
   host = env.master_hosts.first
   # Need to construct the cert information if needed BEFORE inventory is processed
   if ansible_opts[:copy_custom_cert]
@@ -451,13 +450,13 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       step %Q/the step should succeed/
     end
     if svc_type == 'logging'
-      if cb.master_version < "3.8"
+      if env.version_le("3.7", user: user)
         ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
       else
         ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-logging/config.yml"
       end
     else
-      if cb.master_version < "3.8"
+      if env.version_le("3.7", user: user)
         if install_prometheus
           ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-prometheus.yml"
         else

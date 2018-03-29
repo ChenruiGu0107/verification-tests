@@ -31,10 +31,11 @@ Given /^default (docker-registry|router) replica count is stored in the#{OPT_SYM
   cb[cb_name] = _dc.replicas(user: admin)
   logger.info "default #{resource} has replica count of: #{cb[cb_name]}"
 end
-
+# example output... ["3.10.0-0.15.0", 3, 10]  we are only intersted in the elements [1] and [2]
 Given /^I store master major version in the#{OPT_SYM} clipboard$/ do |cb_name|
   cb_name = 'master_version' unless cb_name
-  cb[cb_name] = env.get_version(user: user)[0]
+  full_version, major, minor = env.get_version(user: user)
+  cb[cb_name] = major.to_s + "." + minor.to_s
   logger.info "Master Version: " + cb[cb_name]
 end
 
