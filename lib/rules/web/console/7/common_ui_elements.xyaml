@@ -211,7 +211,8 @@ click_done_button:
 click_save_button:
   elements:
   - selector:
-      xpath: //button[contains(text(),'Save') and not(@disabled)]
+      visible_text: !ruby/regexp '/Save/'
+    type: button
     op: click
 click_view_details:
   element:

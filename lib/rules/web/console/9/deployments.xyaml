@@ -889,12 +889,20 @@ add_env_var_value_for_dc_custom_strategy:
   - selector:
       xpath: //key-value-editor[contains(@entries,'custom')]//div[@ng-repeat='entry in entries'][last()]/div[2]//input
     op: send_keys <env_var_value>
-keep_parameters_in_dc_dialog:
+keep_parameters:
   elements:
   - selector:
-      visible_text: !ruby/regexp /Keep .* parameters?/
+      visible_text: !ruby/regexp /Keep.*parameters?/
   - selector:
       visible_text: !ruby/regexp /Yes/
+    type: button
+    op: click
+not_keep_parameters:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /Keep.*parameters?/
+  - selector:
+      visible_text: !ruby/regexp /No/
     type: button
     op: click
 check_learn_more_link_for_rolling_strategy:
@@ -904,7 +912,7 @@ check_learn_more_link_for_rolling_strategy:
 check_detail_info_on_configuration_tab:
   element: &detail_tab_info
     selector:
-      xpath: //dt[contains(.,"<field>")]/..//dd[contains(.,"<value>")]
+      xpath: //dt[contains(.,"<field>")]/following::dd[1][contains(.,"<value>")]
 check_detail_on_configuration_tab_for_rolling:
   action: goto_one_dc_page
   action: click_on_configuration_tab
