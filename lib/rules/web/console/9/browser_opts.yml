@@ -14,7 +14,6 @@
           case e.message
           when /nav-pf-secondary-nav/, /list-group-item-value/
             # see https://bugzilla.redhat.com/show_bug.cgi?id=1512539
-            logger.info "Running close_second_level_navigation"
             run_action(:close_second_level_navigation)
           when /navbar-pf-vertical/, /project-bar/, /form-group/
             logger.info "Scrolling element off view"
