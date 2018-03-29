@@ -1168,27 +1168,27 @@ Feature: build related feature on web console
     When I run the :describe client command with:
       | resource | bc/ruby-sample-build |
     Then the step should succeed
-    And evaluation of `@result[:response].scan(/https.*github$/)` is stored in the :github_webhook clipboard
-    And evaluation of `@result[:response].scan(/https.*generic$/)` is stored in the :generic_webhook clipboard
+    And evaluation of `URI::parse(@result[:response].scan(/https.*webhooks/)[0]).path + '/secret101/github'` is stored in the :github_webhook clipboard
+    And evaluation of `URI::parse(@result[:response].scan(/https.*webhooks/)[0]).path + '/secret101/generic'` is stored in the :generic_webhook clipboard
     When I perform the :check_bc_github_webhook_trigger web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-      | github_webhook_trigger | <%= cb.github_webhook[0].scan(/oapi.*/)[0] %> |
+      | project_name           | <%= project.name %>      |
+      | bc_name                | ruby-sample-build        |
+      | github_webhook_trigger | <%= cb.github_webhook %> |
     Then the step should succeed
     When I perform the :check_bc_generic_webhook_trigger web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-      | generic_webhook_trigger | <%= cb.generic_webhook[0].scan(/oapi.*/)[0] %>  |
+      | project_name            | <%= project.name %>        |
+      | bc_name                 | ruby-sample-build          |
+      | generic_webhook_trigger | <%= cb.generic_webhook %>  |
     Then the step should succeed
     When I perform the :check_bc_github_webhook_trigger_on_bc_edit_page web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-      | github_webhook_trigger | <%= cb.github_webhook[0].scan(/oapi.*/)[0] %> |
+      | project_name           | <%= project.name %>      |
+      | bc_name                | ruby-sample-build        |
+      | github_webhook_trigger | <%= cb.github_webhook %> |
     Then the step should succeed
     When I perform the :check_bc_generic_webhook_trigger_on_bc_edit_page web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-      | generic_webhook_trigger | <%= cb.generic_webhook[0].scan(/oapi.*/)[0] %>  |
+      | project_name            | <%= project.name %>        |
+      | bc_name                 | ruby-sample-build          |
+      | generic_webhook_trigger | <%= cb.generic_webhook %>  |
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
