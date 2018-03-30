@@ -7,7 +7,8 @@ Given /^I run the ovs commands on the host:$/ do | table |
     logger.info("environment using rpm to launch openvswitch")
   elsif _host.exec_admin("docker ps")[:response].include? "openvswitch"
     logger.info("environment using docker to launch openvswith")
-    ovs_cmd = "docker exec openvswitch " + ovs_cmd
+    container_id = _host.exec_admin("docker ps | grep openvswitch | cut -d' ' -f1")[:response].chomp
+    ovs_cmd = "docker exec #{container_id} " + ovs_cmd
   elsif _host.exec_admin("runc list")[:response].include? "openvswitch"
     logger.info("environment using runc to launch openvswith")
     ovs_cmd = "runc exec openvswitch " + ovs_cmd
