@@ -4185,3 +4185,39 @@ Feature: Testing haproxy router
       | exec_command_arg | 80              |
       | _stdin           | :empty          |
     Then the output should contain "408 Request Time-out"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-14425
+  @admin
+  @destructive
+  Scenario: Set the timeout of keep alive for router
+    Given the master version >= "3.6"
+    And evaluation of `7` is stored in the :ka clipboard
+    And I switch to cluster admin pseudo user
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_SLOWLORIS_HTTP_KEEPALIVE=<%= cb.ka %>s |
+
+    When I execute on the pod:
+      | grep | timeout | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | timeout http-keep-alive <%= cb.ka %>s |
+
+    ## create some test route
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json              |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    Given I wait for a web server to become available via the route
+    Then the output should contain "Hello-OpenShift"
+    # margin is high, see https://bugzilla.redhat.com/show_bug.cgi?id=1562244
+    And I verify server HTTP keep-alive with:
+      | keep-alive   | <%= cb.ka %>     |
+      | margin       | 6                |
+      | hostname     | <%= route.dns %> |

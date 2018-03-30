@@ -129,6 +129,7 @@ module CucuShift
     def info(msg, show_datetime='time')
       self.log(msg, INFO, show_datetime)
     end
+    alias << info
 
     def warn(msg, show_datetime='time')
       self.log(msg, WARN, show_datetime)
