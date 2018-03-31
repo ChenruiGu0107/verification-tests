@@ -1,13 +1,8 @@
 Feature: Update sql apb related feature
  # @author zitang@redhat.com
   @admin
-  Scenario Outline: [APB] Data will be preserved if version of PostgreSQL APB update	
-    #get the registry name
-    Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
-    And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
-    #provision postgresql
-    Given I switch to the first user
+  Scenario Outline: [APB] Data will be preserved if version of PostgreSQL APB update
+    Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     When I run the :new_app client command with:
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
@@ -28,14 +23,8 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=postgresql-<db_version_1>-<db_plan_1>  |
-    And I wait up to 80 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | serviceinstance                            |
-    Then the step should succeed
-    And the output should match 1 times:
-      | Message:\\s+The instance was provisioned successfully |
-    """
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds  
+
     #Add data to postgresql
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -92,14 +81,8 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=postgresql-<db_version_2>-<db_plan_2>    |
-    And I wait up to 180 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | serviceinstance                            |
-    Then the step should succeed
-    And the output should match 1 times:
-      | Message:\\s+The instance was updated successfully     |
-    """
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds     
+    
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -118,12 +101,8 @@ Feature: Update sql apb related feature
   #@author zitang@redhat.com
   @admin
   Scenario Outline: [APB] Data will be preserved if version of MySQL or MariaDB APB update  
-    #get the registry name
-    Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
-    And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
+    Given I save the first service broker registry prefix to :prefix clipboard
     #provision mysql
-    Given I switch to the first user
     And I have a project
     When I run the :new_app client command with:
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
@@ -144,14 +123,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=<pod_label>-<db_version_1>-<db_plan_1>  |
-    And I wait up to 80 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | serviceinstance |
-    Then the step should succeed
-    And the output should match 1 times:
-      | Message:\\s+The instance was provisioned successfully |
-    """
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 80 seconds
     #Add data to postgresql
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -210,14 +182,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=<pod_label>-<db_version_2>-<db_plan_2>    |
-    And I wait up to 180 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | serviceinstance                        |
-    Then the step should succeed
-    And the output should match 1 times:
-      | Message:\\s+The instance was updated successfully |
-    """
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 80 seconds
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -235,3 +200,137 @@ Feature: Update sql apb related feature
      |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_version":"10.1"} |prod       |dev      |10.2         |10.1        | # @case_id OCP-17671
      |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.0","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_version":"10.2"} |dev       |prod      |10.0         |10.2        | # @case_id OCP-17672
 
+ # @author zitang@redhat.com
+  @admin
+  Scenario Outline: Plan of serviceinstance can be updated
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<db_name>                                                                                      |
+      | param | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
+      | param | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
+      | param | SECRET_NAME=<secret_name>                                                                                    |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | param | SECRET_NAME=<secret_name>                                                                                                               |
+      | param | INSTANCE_NAME=<db_name>                                                                                                                 |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version>","postgresql_password":"test"}   |
+      | param | UID=<%= cb.db_uid %>                                                                                                                    |
+      | n     | <%= project.name %>                                                                                                                     |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | <pod_label_1>  |
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+    # update instance 
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | <pod_label_2>    |
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    
+     Examples:
+      |db_name                         |db_plan_1 |db_plan_2 |secret_name                                |db_version |pod_label_1                      |pod_label_2                      |                                 
+      |<%= cb.prefix %>-postgresql-apb |prod      |dev       |<%= cb.prefix %>-postgresql-apb-parameters |9.5        |deployment=postgresql-9.5-prod-1 |deployment=postgresql-9.5-dev-1  | # @case_id OCP-16151
+      |<%= cb.prefix %>-postgresql-apb |dev       |prod      |<%= cb.prefix %>-postgresql-apb-parameters |9.5        |deployment=postgresql-9.5-dev-1  |deployment=postgresql-9.5-prod-1 | # @case_id OCP-18249
+      |<%= cb.prefix %>-postgresql-apb |dev       |prod      |<%= cb.prefix %>-postgresql-apb-parameters |9.5        |deployment=postgresql-1          |deployment=postgresql-2          | # @case_id OCP-18308
+
+  # @author zitang@redhat.com
+  @admin
+  Scenario Outline: Plan of serviceinstance can recover from an invalid one 
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<db_name>                                                                                      |
+      | param | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
+      | param | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
+      | param | SECRET_NAME=<secret_name>                                                                                    |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | param | SECRET_NAME=<secret_name>                                                                                                               |
+      | param | INSTANCE_NAME=<db_name>                                                                                                                 |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version>","postgresql_password":"test"}   |
+      | param | UID=<%= cb.db_uid %>                                                                                                                    |
+      | n     | <%= project.name %>                                                                                                                     |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=postgresql-<db_version>-<db_plan_1>-1  |
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+    # update an invalid plan
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance                            |
+    Then the step should succeed
+    And the output should match:
+      | Message:.*ClusterServicePlan.*not exist     |
+    """
+    # update to the previous  plan
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_1>"   | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+    # update an invalid plan again
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance   |
+    Then the step should succeed
+    And the output should match:
+      | Message:.*ClusterServicePlan.*not exist  |
+    """
+    # update to the previous  plan
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<db_name>      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_3>"   | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=postgresql-<db_version>-<db_plan_3>-1  |
+    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+
+     Examples:
+      |db_name                         |db_plan_1 |db_plan_2 |db_plan_3|secret_name                                |db_version |                                 
+      |<%= cb.prefix %>-postgresql-apb |dev      | dev-123       |prod     |<%= cb.prefix %>-postgresql-apb-parameters |9.5    | # @case_id OCP-17298
