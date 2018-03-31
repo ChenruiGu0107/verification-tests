@@ -97,7 +97,7 @@ Feature: Ansible-service-broker related scenarios
 
     When I switch to cluster admin pseudo user
     # Revert to the original configuration
-    And the "ansible-service-broker" cluster service broker is recreated
+    And the "ansible-service-broker" cluster service broker is recreated after scenario
 
     When I run the :patch client command with:
       | resource           | clusterservicebroker     |
@@ -222,7 +222,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: AnsibleServiceBroker BasicAuth username password
     #back up and clean env , the recreating will be in reverse order in cleanup process.
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given I register clean-up steps:
     """
       I wait up to 150 seconds for the steps to pass:
@@ -356,7 +356,7 @@ Feature: Ansible-service-broker related scenarios
   @admin
   @destructive
   Scenario: Check secrets support for ansible-service-broker  
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given I register clean-up steps:
     """
       I wait up to 150 seconds for the steps to pass:
@@ -397,25 +397,25 @@ Feature: Ansible-service-broker related scenarios
     And the output should contain "Broker successfully bootstrapped on startup"
     """
     
+    #relist clusterserviceplan
+    Given the "ansible-service-broker" cluster service broker is recreated
+    When I run the :describe client command with:
+      | resource           | clusterservicebroker     |
+      | name               | ansible-service-broker   |
+    And the output should match:
+      | Reason:\\s+FetchedCatalog  | 
+      | Status:\\s+True  | 
     Given cluster service classes are indexed by external name in the :csc clipboard
     And evaluation of `cb.csc['<%= cb.prefix %>-postgresql-apb'].name` is stored in the :postgresql_name clipboard
     When I run the :get client command with:
       | resource | clusterserviceplan                                                                                                 |
       | o        | custom-columns=NAME:.metadata.name,CLASS\ NAME:.spec.clusterServiceClassRef.name,EXTERNAL\ NAME:.spec.externalName |
     Then the output should contain "<%= cb.postgresql_name %>"
-    And evaluation of `@result[:response].scan(/.*#{cb.postgresql_name}.*dev/)[0].split(" ")[0]` is stored in the :plan_id clipboard
-    
-    #relist clusterserviceplan
-    When I run the :delete admin command with:
-      | object_type       | clusterserviceplan |
-      | object_name_or_id | <%= cb.plan_id %>     |
-    Then the step should succeed
-    When I run the :patch admin command with:
-      | resource | clusterservicebroker/ansible-service-broker |
-      |  p       | {"spec":{"relistDuration":"5m1s"}}          |
-    Then the step should succeed
+    And evaluation of `@result[:response].scan(/.*#{cb.postgresql_name}.*dev/)[0].split(" ")[0]` is stored in the :plan_dev clipboard
+    And evaluation of `@result[:response].scan(/.*#{cb.postgresql_name}.*prod/)[0].split(" ")[0]` is stored in the :plan_prod clipboard
     When I run the :get client command with:
       | resource      | clusterserviceplan                                         |
-      | resource_name | <%= cb.plan_id %>                                          |
+      | resource_name | <%= cb.plan_dev %>                                         |
+      | resource_name | <%= cb.plan_prod %>                                        |
       | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties} |
     Then the output should not contain "postgresql_database"  
