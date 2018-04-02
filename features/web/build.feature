@@ -154,7 +154,7 @@ Feature: build related feature on web console
       | bc_name                  | ruby-sample-build    |
       | changing_source_repo_url | iwio%##$7234         |
     Then the step should succeed
-    When I run the :click_save_button web console action
+    When I run the :click_somewhere_out_of_focus web console action
     Then the step should succeed
     When I run the :check_invalid_url_warn_message web console action
     Then the step should succeed

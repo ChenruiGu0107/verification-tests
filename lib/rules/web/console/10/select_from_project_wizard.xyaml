@@ -32,9 +32,8 @@ click_select_from_project:
     op: click
     timeout: 30
 click_select_a_project_dropdown_list_in_wizard:
+  action: click_somewhere_out_of_focus_for_wizard
   elements:
-  - selector:
-      xpath: //h2[contains(.,'Select from Project')]
   - selector:
       xpath: //div[@placeholder='Select a Project']/span[contains(@class,'ui-select-toggle')]
     op: click
