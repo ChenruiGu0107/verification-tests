@@ -759,7 +759,7 @@ delete_label_value_on_edit_autoscaler_page:
              for (var i=0; i<rows.length; i++) {
                var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
                if (inputs[0].value == label_key) {
-                 rows[i].querySelector(".key-value-editor-buttons a").click();
+                 rows[i].querySelector(".key-value-editor-buttons .btn-remove").click();
                  return true;
                }
              }

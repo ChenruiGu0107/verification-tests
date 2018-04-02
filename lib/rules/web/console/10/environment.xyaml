@@ -107,7 +107,7 @@ add_env_var_using_configmap_or_secret_for_build:
       <<: *bc_env_key
     op: send_keys <env_var_key>
   action: select_env_var_resource
-  action: select_env_var_key  
+  action: select_env_var_key
 add_all_var_from_configmap_or_secret:
   action: click_add_all_values_from_configmap_or_secret
   action: select_all_env_var_resource
@@ -214,7 +214,7 @@ delete_env_var:
              for (var i =0; i< rows.length; i++) {
                  var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')
                  if (inputs.length==2 && inputs[0].value == key) {
-                     rows[i].querySelector(".key-value-editor-buttons a").click()
+                     rows[i].querySelector(".key-value-editor-buttons .btn-remove").click()
                      return true
                  }
              }
@@ -227,11 +227,11 @@ delete_env_var_from_configmap_or_secret:
   scripts:
     - command: |
              var key = "<env_var_key>"
-             var rows = document.querySelectorAll('div[class~=environment-from-editor] div[class~=environment-from-entry]')
+             var rows = document.querySelectorAll('.environment-from-editor .environment-from-entry')
              for (var i =0; i< rows.length; i++) {
                  var inputs = rows[i].querySelectorAll('div[class~=environment-from-input] span')
                  if (inputs.length > 0 && inputs[0].innerText.includes(key)) {
-                     rows[i].querySelector("div[class~=environment-from-editor-button] a").click()
+                     rows[i].querySelector(".btn-remove").click()
                      return true
                  }
              }
