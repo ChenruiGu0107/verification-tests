@@ -113,8 +113,8 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     When I wait for the resource "serviceinstance" named "<db_name>" to disappear within 300 seconds
     And I wait for the resource "serviceinstance" named "<%= cb.prefix %>-mediawiki-apb" to disappear within 300 seconds
-    # And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
-    # And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
+    And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
+    And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
     Then I check that there are no pods in the project
     And I check that there are no dc in the project
     And I check that there are no rc in the project
