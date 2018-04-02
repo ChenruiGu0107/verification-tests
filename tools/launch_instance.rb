@@ -10,6 +10,7 @@ require 'cgi'
 require 'commander'
 require 'uri'
 require 'yaml'
+require 'json'
 
 require 'collections'
 require 'common'
@@ -184,36 +185,47 @@ module CucuShift
     end
 
     # path and basepath can be URLs but even if not, they should be URL encoded
-    def readfile(path, basepath=nil)
+    # @param details [Hash] a hash to put additional details about the read
+    #   file; this is absolute location as string presently
+    def readfile(path, basepath=nil, details: {})
       case path
       when %r{\Ahttps?://}
+        details[:location] = path
         return Http.get(url: path, raise_on_error: true)[:response]
       when %r{\A/}
+        details[:location] = path
         return File.read(URI::decode(path))
       else
-        if ! basepath
-          return File.read expand_private_path(
-            URI::decode(path),
-            public_safe: true
-          )
+        if basepath
+          with_base = join_paths_or_urls(basepath, path)
+          return readfile(with_base, details: details)
         else
-          with_base = File.join(basepath, path)
-          # remove any `..` and `.` path elements
-          with_base.gsub!(%r{/\./}, "/")
-          while with_base.gsub!(%r{/[^/]+/\.\./}, "/") do end
-          begin
-            return readfile(with_base)
-          rescue => e
-            logger.warn "last effort to read relative path because " \
-                        "'#{with_base}'  falied to be loaded: #{e.inspect}"
-            return readfile(path)
-          end
+          details[:location] = expand_path(URI::decode(path))
+          return File.read details[:location]
         end
       end
     end
 
-    def basename(path_or_url)
+    private def basename(path_or_url)
       File.basename(URI.parse(path_or_url).path)
+    end
+
+    # @param path_or_url [String] the URL or PATH we want to get dirname of
+    # @return [String] base path or URL
+    private def dirname_path_or_url(path_or_url)
+      dirname = File.dirname path_or_url
+      return dirname == "." ? nil : dirname
+    end
+
+    # @param base_path_or_url [String]
+    # @param relative_path_or_url [String]
+    # @return [String] joined and normalized
+    private def join_paths_or_urls(base_path_or_url, relative_path_or_url)
+      joined = File.join(base_path_or_url, relative_path_or_url)
+      # remove any `..` and `.` path elements
+      joined.gsub!(%r{/\./}, "/")
+      while joined.gsub!(%r{/[^/]+/\.\./}, "/") do end
+      return joined
     end
 
     def localize(path, basepath=nil)
@@ -230,20 +242,10 @@ module CucuShift
       when %r{\A/}
         return path
       else
-        if ! basepath
-          return expand_private_path(path, public_safe: true)
+        if basepath
+          return localize(join_paths_or_urls(basepath, path))
         else
-          with_base = File.join(basepath, path)
-          # remove any `..` and `.` path elements
-          with_base.gsub!(%r{/\./}, "/")
-          while with_base.gsub!(%r{/[^/]+/\.\./}, "/") do end
-          begin
-            return localize(with_base)
-          rescue => e
-            logger.warn "last effort to localize relative path because " \
-                        "'#{with_base}'  falied to be loaded: #{e.inspect}"
-            localize(path)
-          end
+          return expand_path(path)
         end
       end
     end
@@ -317,6 +319,11 @@ module CucuShift
       return host_names
     end
 
+    # This method will merge common launch opts with host group launch opts and
+    #   launch it. The meaning of launch opts and what van be set by it
+    #   varies between service providers. See below how they are passed to
+    #   the create method, then check individual service provider method for
+    #   more understanding.
     # @return [Array<Host>]
     def launch_host_group(host_group, common_launch_opts,
                           user_data_vars: {}, existing_hosts: nil)
@@ -365,7 +372,7 @@ module CucuShift
         if user_data_string && !user_data_string.empty?
           logger.warn "user-data not implemented for VSphere yet"
         end
-        res = iaas.create_instances(host_names, **launch_opts)
+        res = iaas.create_instances(host_names, create_opts: launch_opts)
       else
         raise "Unknown IaaS class #{iaas.class}."
       end
@@ -392,6 +399,7 @@ module CucuShift
     end
 
     # symbolize keys in launch templates
+    # @param template [Hash]
     def normalize_template(template)
       template = Collections.deep_hash_symkeys template
       template[:hosts][:list].map! {|hg| Collections.deep_hash_symkeys hg}
@@ -405,6 +413,9 @@ module CucuShift
         end
       end
       return template
+    rescue
+      logger.plain "failed to normalize:\n#{template.to_yaml}" rescue nil
+      raise
     end
 
     def run_ansible_playbook(playbook, inventory, extra_vars: nil, env: nil, retries: 1)
@@ -489,7 +500,11 @@ module CucuShift
           dyn.close if dyn
         end
       when "playbook"
-        inventory_erb = ERB.new(readfile(task[:inventory], config_dir))
+        inventory_erb = ERB.new(
+          readfile(task[:inventory], config_dir),
+          nil,
+          "<"
+        )
         inventory_erb.filename = task[:inventory]
         inventory_str = inventory_erb.result(erb_binding)
         inventory = Host.localhost.absolutize basename(task[:inventory])
@@ -531,7 +546,8 @@ module CucuShift
     # @param launched_instances_name_prefix [String]
     def launch_template(config:, launched_instances_name_prefix:)
       hosts = []
-      vars = YAML.load(readfile(config))
+      file_details = {}
+      vars = YAML.load(readfile(config, details: file_details))
       if ENV["LAUNCHER_VARS"] && !ENV["LAUNCHER_VARS"].strip.empty?
         launcher_vars = YAML.load ENV["LAUNCHER_VARS"]
         if Hash === launcher_vars
@@ -544,13 +560,38 @@ module CucuShift
       vars[:instances_name_prefix] = launched_instances_name_prefix
       raise "specify 'template' in variables" unless vars[:template]
 
-      # this can be a URL or a PATH
-      config_dir = File.dirname config
-      config_dir = nil if config_dir == "."
+      # this dir can be a URL or a PATH
+      config_dir = dirname_path_or_url(file_details[:location])
+      template = ERB.new(
+        readfile(vars[:template], config_dir, details: file_details),
+        nil,
+        "<"
+      )
+      template.filename = file_details[:location]
       erb_binding = Common::BaseHelper.binding_from_hash(launcher_binding,
                                                          hosts: hosts, **vars)
-      template = ERB.new(readfile(vars[:template], config_dir))
-      template = YAML.load(template.result(erb_binding))
+      template_dir = dirname_path_or_url(file_details[:location])
+
+      # define convenience include methods
+      erb_binding.local_variable_set :include_erb, lambda { |path, indent=0|
+        t = ERB.new(
+          readfile(path, template_dir), nil, "<", rand_str(10, :ruby_variable)
+        )
+        t.filename = path
+        t.result(erb_binding).gsub(/^/, " "*indent)
+      }
+      erb_binding.local_variable_set :include_ruby, lambda { |path|
+        eval(readfile(path, template_dir), erb_binding, path)&.to_json
+      }
+
+      # finally execute and normalize template
+      template_result = template.result(erb_binding)
+      begin
+        template = YAML.load(template_result)
+      rescue
+        logger.info "Failed to parse YAML of:\n#{template_result}" rescue nil
+        raise
+      end
       template = normalize_template(template)
 
       ## implicit launch of hosts
