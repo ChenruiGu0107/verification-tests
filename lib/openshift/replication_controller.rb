@@ -136,29 +136,6 @@ module CucuShift
       return res
     end
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   get the number of reclicas 'running' to match the desired number
-    def wait_till_replica_count_match(user:, state:, seconds:, replica_count:)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = replica_count_match?(user: user, state: state, replica_count: replica_count, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
-    end
-
     def suplemental_groups(user: nil, quiet: false, cached: false)
       rr = raw_resource(user: user, cached: true, quiet: quiet)
       sg = rr.dig('spec','template','spec','securityContext','supplementalGroups')

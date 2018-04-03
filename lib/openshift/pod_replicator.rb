@@ -73,7 +73,7 @@ module CucuShift
     end
 
     ################### container spec related methods ####################
-    def template(user:, cached: true, quiet: false)
+    def template(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", "template")
     end
@@ -95,9 +95,8 @@ module CucuShift
       specs.each do | spec |
         target_spec = spec if spec.name == name
       end
-      raise "No container spec found mathcing '#{name}'!" if target_spec.is_a? Hash
+      raise "No container spec found matching '#{name}'!" if target_spec.is_a? Hash
       return target_spec
     end
-
   end
 end

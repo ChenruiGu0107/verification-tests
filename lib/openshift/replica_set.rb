@@ -23,25 +23,5 @@ module CucuShift
     end
     alias replicas replica_count
 
-    # @return [Boolean] true if we've eventually
-    #   get the number of replicas to match the desired number
-    def wait_till_replica_count_match(user:, seconds:, replica_count:)
-      stats = {}
-      res = {
-        instruction: "wait till replicaset #{name} reach matching count",
-        success:     false,
-      }
-
-      res[:success] = wait_for(seconds, stats: stats) do
-        replica_count(user: user, cached: false, quiet: true) == replica_count
-      end
-
-      res[:response] = "After #{stats[:iterations]} iterations and " \
-                       "#{stats[:full_seconds]} seconds: " \
-                       "#{replica_count(user: user, cached: true, quiet: true)}"
-
-      logger.info res[:response]
-      return res
-    end
   end
 end
