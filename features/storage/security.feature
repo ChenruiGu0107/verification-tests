@@ -29,10 +29,10 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZd | /mnt |
     Then the step should succeed
-    And the output should contain:
-      | 24680                |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+    And the output should match:
+      | 24680                                    |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
     When I execute on the pod:
       | touch | /mnt/testfile |
     Then the step should succeed
@@ -79,10 +79,10 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZ | /mnt/testfile |
     Then the step should succeed
-    And the output should contain:
-      | 24680                |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+    And the output should match:
+      | 24680                                    |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
     When I execute on the pod:
       | cp | /hello | /mnt |
     Then the step should succeed
@@ -207,9 +207,9 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZd | /mnt/secret/ |
     Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    And the outputs should match:
+      | 123456                                                        |
+      | system_u:object_r:(svirt_sandbox_file_t\|container_file_t):s0 |
     When I execute on the pod:
       | touch | /mnt/secret/file |
     Then the step should fail 
@@ -233,9 +233,9 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZd | /mnt/dapi/ |
     Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    And the outputs should match:
+      | 123456                                                        |
+      | system_u:object_r:(svirt_sandbox_file_t\|container_file_t):s0 |
     When I execute on the pod:
       | touch | /mnt/dapi/file |
     Then the step should fail 
@@ -262,9 +262,9 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZd | /mnt/configmap/ |
     Then the step should succeed
-    And the outputs should contain:
-      | 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    And the outputs should match:
+      | 123456                                                        |
+      | system_u:object_r:(svirt_sandbox_file_t\|container_file_t):s0 |
     When I execute on the pod:
       | touch | /mnt/configmap/file |
     Then the step should fail 
