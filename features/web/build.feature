@@ -265,86 +265,24 @@ Feature: build related feature on web console
       | bc_name             | myapp                |
       | docker_file_content | FROM centos:7RUN yum install -y httpd |
     Then the step should succeed
-    # edit bc
-    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | dockertest           |
-      | env_var_value       | docker1234           |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | testname          |
-      | env_var_value       | testvalue         |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
+    # edit bc webhook, will fail since Docker bc webhook is not configurable
     When I perform the :enable_webhook_build_trigger web console action with:
       | project_name        | <%= project.name %>  |
       | bc_name             | myapp                |
     Then the step should fail
-    # check env vars on web console
-    When I perform the :check_buildconfig_environment web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | dockertest           |
-      | env_var_value       | docker1234           |
-    Then the step should succeed
-    When I perform the :check_buildconfig_environment web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | testname          |
-      | env_var_value       | testvalue         |
-    Then the step should succeed
-    # check env vars via CLI
-    When I run the :get client command with:
-      | resource      | bc    |
-      | resource_name | myapp |
-      | o             | json  |
-    Then the step should succeed
-    Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"dockertest", "value"=>"docker1234"})
-    Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"testname", "value"=>"testvalue"})
-    # remove env vars
-    When I perform the :delete_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | dockertest           |
+    # edit bc Dockerfile content
+    When I perform the :edit_buildconfig_dockerfile_content web console action with:
+      | project_name           | <%= project.name %>  |
+      | bc_name                | myapp                |
+      | content | FROM centos:7RUN yum update httpd |
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
-    When I perform the :check_buildconfig_environment web console action with:
+    When I perform the :check_buildconfig_dockerfile_config web console action with:
       | project_name        | <%= project.name %>  |
       | bc_name             | myapp                |
-      | env_var_key         | testname             |
-      | env_var_value       | testvalue            |
+      | docker_file_content | FROM centos:7RUN yum update httpd |
     Then the step should succeed
-    When I get the html of the web page
-    Then the output should not contain:
-      | dockertest |
-      | docker1234 |
-    When I perform the :delete_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-      | env_var_key         | testname             |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    # check env vars again
-    When I perform the :check_empty_buildconfig_environment web console action with:
-      | project_name        | <%= project.name %>  |
-      | bc_name             | myapp                |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | bc    |
-      | resource_name | myapp |
-      | o             | json  |
-    Then the step should succeed
-    And the output should not contain:
-      | dockertest |
-      | testname   |
 
   # @author pruan@redhat.com
   # @case_id OCP-10754
@@ -1211,8 +1149,8 @@ Feature: build related feature on web console
       | project_name      | <%= project.name %> |
       | bc_and_build_name | ruby-ex             |
     Then the step should succeed
-    
-    ## need to trigger 2 new builds VERY VERY quickly! 
+
+    ## need to trigger 2 new builds VERY VERY quickly!
     ## cli is slower than clicking button because of parsing response, so trigger from console first
     When I run the :click_start_build_button web console action
     And I run the :start_build client command with:
@@ -1566,7 +1504,7 @@ Feature: build related feature on web console
     Then the step should succeed
     # check configmap/secret support during create app from image
     When I perform the :create_app_from_image_with_advanced_options web console action with:
-      | primary_catagory | Languages  |   
+      | primary_catagory | Languages  |
       | sub_catagory     | PHP        |
       | service_item     | PHP        |
       | app_name         | php-sample |
@@ -1587,12 +1525,12 @@ Feature: build related feature on web console
       | project_name | <%= project.name %> |
       | bc_name      | php-sample          |
     Then the step should succeed
-    When I perform the :check_configmap_or_secret_env_var web console action with:     
+    When I perform the :check_configmap_or_secret_env_var web console action with:
       | env_var_key   | env_from_sec  |
       | resource_name | test-secret   |
       | resource_key  | data-1        |
     Then the step should succeed
-    When I perform the :check_configmap_or_secret_env_var web console action with:     
+    When I perform the :check_configmap_or_secret_env_var web console action with:
       | env_var_key   | env_from_conmap |
       | resource_name | special-config  |
       | resource_key  | special.type    |
@@ -1610,7 +1548,7 @@ Feature: build related feature on web console
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
-    Given 5 seconds have passed   
+    Given 5 seconds have passed
     # check configmap/secret support on buildconfig edit page
     When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
       | project_name | <%= project.name %> |
@@ -1632,12 +1570,12 @@ Feature: build related feature on web console
       | project_name | <%= project.name %> |
       | bc_name      | php-sample          |
     Then the step should succeed
-    When I perform the :check_configmap_or_secret_env_var web console action with:     
+    When I perform the :check_configmap_or_secret_env_var web console action with:
       | env_var_key   | env_from_sec3 |
       | resource_name | testsecret1   |
       | resource_key  | secret1       |
     Then the step should succeed
-    When I perform the :check_configmap_or_secret_env_var web console action with:     
+    When I perform the :check_configmap_or_secret_env_var web console action with:
       | env_var_key   | env_from_conmap3   |
       | resource_name | example-config     |
       | resource_key  | example.property.1 |
