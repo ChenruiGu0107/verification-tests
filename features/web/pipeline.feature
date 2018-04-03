@@ -4,10 +4,12 @@ Feature: pipeline related
   Scenario: Show jenkins job url in build trigger info when the build is triggered by jenkins
     Given the master version >= "3.5"
     Given I have a project
-
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pipeline/samplepipeline.yaml |      
     Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=jenkins |
+
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
