@@ -205,8 +205,9 @@ Feature: functions about resource limits on pod
       | memory_limit   | 750                                        |
     Then the step should succeed
     Given the "python-limit-demo-1" build was created
-    Given the "python-limit-demo-1" build completed
-    Given I wait for the "python-limit-demo" service to become ready
+    And the "python-limit-demo-1" build completed
+    And a pod becomes ready with labels:
+      | app=python-limit-demo |
     When I perform the :check_limits_on_pod_page web console action with:
       | project_name   | <%= project.name %>              |
       | pod_name       | <%= pod.name %>                  |
@@ -267,8 +268,9 @@ Feature: functions about resource limits on pod
       | memory_limit   | 750                                         |
     Then the step should succeed
     Given the "php-limit-1" build was created
-    Given the "php-limit-1" build completed
-    Given I wait for the "php-limit" service to become ready
+    And the "php-limit-1" build completed
+    And a pod becomes ready with labels:
+      | app=php-limit |
     When I perform the :check_limits_on_pod_page web console action with:
       | project_name   | <%= project.name %>              |
       | pod_name       | <%= pod.name %>                  |
