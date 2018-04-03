@@ -95,3 +95,25 @@ Feature: pvc protection specific scenarios
     Then the step should succeed
     And the output should contain "already used"
     """
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18548
+  @admin
+  @destructive
+  Scenario: Should be able to delete pvc/pv which is created during PVCProtection is enabled and then disabled
+    Given I check feature gate "PVCProtection" with admission "PVCProtection" is enabled
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | mypvc |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
+      | ["metadata"]["name"]                                         | mypod |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+
+    Given feature gate "PVCProtection" is disabled with admission "PVCProtection" disabled
+    Given I ensure "mypod" pod is deleted
+    And I ensure "mypvc" pvc is deleted
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear
