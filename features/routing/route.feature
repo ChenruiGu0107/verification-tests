@@ -889,10 +889,10 @@ Feature: Testing route
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
@@ -978,7 +978,7 @@ Feature: Testing route
     And I use the "<%=cb.proj_name %>" project
     When I wait up to 600 seconds for a secure web server to become available via the "route-pass" route
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_new_ip clipboard
 
     #Check the 'check inter 5000ms' already recover after unidle

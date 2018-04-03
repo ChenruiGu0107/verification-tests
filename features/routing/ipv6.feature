@@ -17,11 +17,11 @@ Feature: Testing IPv6 related scenarios
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
 
     # create unsecure and reencrypt route
     When I expose the "service-unsecure" service
@@ -89,11 +89,11 @@ Feature: Testing IPv6 related scenarios
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
 
     # create edge and passthrough route
     When I run the :create_route_edge client command with:
