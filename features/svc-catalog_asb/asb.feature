@@ -217,4 +217,38 @@ Feature: Ansible-service-broker related scenarios
     And the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/postgresql').length >= 2
     And the expression should be true> @result[:response].scan('registry.access.redhat.com/openshift3/mediawiki').length == 1
     And the output should match 4 times:
-      |Provider\s*Display\s*Name:\s*Red Hat, Inc.     |
+      | Provider\s*Display\s*Name:\s*Red Hat, Inc.     |
+
+
+  # @author jiazha@redhat.com
+  # @case_id OCP-15878
+  @admin
+  @destructive
+  Scenario: [ASB] Check asb bootstrap/catalog work fine
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
+    And evaluation of `secret("asb-client").token` is stored in the :asb_token clipboard
+
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/bootstrap
+    :method: post
+    :headers:
+      :Authorization: Bearer <%= cb.asb_token %>
+    """
+    Then the step should succeed
+    Then the output should contain "spec_count"
+    And the output should not contain "0,"
+
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.asb_token %>
+    """
+    Then the output should match:
+      | services                                                        |
+      | name.*apb                                                       |
+      | description                                                     |
