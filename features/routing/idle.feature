@@ -5,17 +5,17 @@ Feature: idle service related scenarios
   @smoke
   Scenario: Pod can be changed to un-idle when there is unsecure or edge or passthrough route coming
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given I wait until replicationController "test-rc" is ready
-    And I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until replicationController "caddy-rc" is ready
+    And I wait until number of replicas match "1" for replicationController "caddy-rc"
     When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :idle client command with:
       | svc_name | service-unsecure |
     Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
+    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
     When I run the :get client command with:
       | resource | endpoints |
     Then the step should succeed
@@ -23,9 +23,9 @@ Feature: idle service related scenarios
       | service-secure.*none |
       | service-unsecure.*none |
     Then I wait up to 60 seconds for a web server to become available via the "service-unsecure" route
-    Given I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :get client command with:
       | resource | endpoints |
@@ -42,7 +42,7 @@ Feature: idle service related scenarios
     When I run the :idle client command with:
       | svc_name | service-unsecure |
     Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
+    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
     When I run the :get client command with:
       | resource | endpoints |
     Then the step should succeed
@@ -51,9 +51,9 @@ Feature: idle service related scenarios
       | service-unsecure.*none |
     Given I use the "edge-route" service
     Then I wait up to 60 seconds for a secure web server to become available via the "edge-route" route
-    Given I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :get client command with:
       | resource | endpoints |
@@ -70,7 +70,7 @@ Feature: idle service related scenarios
     When I run the :idle client command with:
       | svc_name | service-secure |
     Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
+    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
     When I run the :get client command with:
       | resource | endpoints |
     Then the step should succeed
@@ -79,9 +79,9 @@ Feature: idle service related scenarios
       | service-unsecure.*none |
     Given I use the "route-pass" service
     Then I wait up to 60 seconds for a secure web server to become available via the "route-pass" route
-    Given I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :get client command with:
       | resource | endpoints |
@@ -94,11 +94,11 @@ Feature: idle service related scenarios
   # @case_id OCP-13837
   Scenario: Pod can be changed to un-idle when there is reencrypt route coming
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given I wait until replicationController "test-rc" is ready
-    And I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until replicationController "caddy-rc" is ready
+    And I wait until number of replicas match "1" for replicationController "caddy-rc"
 
     # check reencrypt route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
@@ -110,7 +110,7 @@ Feature: idle service related scenarios
     When I run the :idle client command with:
       | svc_name | service-secure |
     Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
+    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
     When I run the :get client command with:
       | resource | endpoints |
     Then the step should succeed
@@ -119,9 +119,9 @@ Feature: idle service related scenarios
       | service-unsecure.*none |
     Given I use the "route-reen" service
     Then I wait up to 60 seconds for a secure web server to become available via the "route-reen" route
-    Given I wait until number of replicas match "1" for replicationController "test-rc"
+    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :get client command with:
       | resource | endpoints |

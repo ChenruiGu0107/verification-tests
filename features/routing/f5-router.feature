@@ -8,11 +8,11 @@ Feature: F5 router related scenarios
     And admin ensures a F5 router pod is ready
 
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
 
     # create four type of routes
     When I expose the "service-unsecure" service

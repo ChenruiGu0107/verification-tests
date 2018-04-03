@@ -2045,10 +2045,10 @@ Feature: Testing haproxy router
     And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     # create all types of route
@@ -2092,10 +2092,10 @@ Feature: Testing haproxy router
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     # create unsecure route
@@ -2131,10 +2131,10 @@ Feature: Testing haproxy router
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     When I run the :create_route_edge client command with:
@@ -2171,10 +2171,10 @@ Feature: Testing haproxy router
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     When I run the :create_route_passthrough client command with:
@@ -2211,10 +2211,10 @@ Feature: Testing haproxy router
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
@@ -4030,13 +4030,13 @@ Feature: Testing haproxy router
   Scenario: No health check when there is only one endpoint for a route
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    Given evaluation of `"test-rc"` is stored in the :rc_name clipboard
+    Given evaluation of `"caddy-rc"` is stored in the :rc_name clipboard
     # create route
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -4062,7 +4062,7 @@ Feature: Testing haproxy router
       | replicas | 2                      |
     And I wait until number of replicas match "2" for replicationController "<%= cb.rc_name %>"
     And all existing pods are ready with labels:
-      | name=test-pods |
+      | name=caddy-pods |
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And I wait up to 10 seconds for the steps to pass:
