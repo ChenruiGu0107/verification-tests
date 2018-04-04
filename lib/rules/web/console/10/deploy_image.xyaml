@@ -82,7 +82,7 @@ deploy_image_navigate:
       xpath: //uib-tab-heading[contains(.,'Deploy Image')]
     op: click
   - selector:
-      xpath: //p[contains(.,'Deploy an existing image from an image stream tag or docker pull spec')]
+      xpath: //*[contains(.,'Deploy an existing image from')]
 select_namespace:
   elements:
   - selector:

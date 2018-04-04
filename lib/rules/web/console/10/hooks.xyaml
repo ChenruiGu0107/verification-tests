@@ -85,7 +85,7 @@ check_dc_hook_newpod_command:
   scripts:
   - command: |
         var value = "<command>";
-        var el = document.querySelectorAll('p[ng-model="input.args"] input');
+        var el = document.querySelectorAll('[ng-model="input.args"] input');
         if (el[0].value == value) {
           return true;
         } else {
