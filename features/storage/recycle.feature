@@ -137,5 +137,5 @@ Feature: Persistent Volume Recycling
     When I execute on the "nfs-server" pod:
       | ls | -A | /mnt/data/ |
     Then the output should not contain:
-      | file |
+      | file   |
       | folder |

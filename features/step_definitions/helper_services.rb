@@ -27,9 +27,10 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   raise "could not create NFS Server service" unless @result[:success]
 
   step 'I wait for the "nfs-service" service to become ready'
-
   # now you have NFS running, to get IP, call `service.ip` or
   #   `service("nfs-service").ip`
+
+  cb.nfs_pod = pod("nfs-server")
 end
 
 #This is a step to create nfs-provisioner pod or dc in the project

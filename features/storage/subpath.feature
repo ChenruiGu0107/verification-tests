@@ -160,10 +160,10 @@ Feature: volumeMounts should be able to use subPath
     # Verify SELinux context is set properly
     When I execute on the "iscsi-<%= project.name %>" pod:
       | ls | -lZd | /mnt/iscsi |
-    Then the output should contain:
-      | 123456               |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+    Then the output should match:
+      | 123456                                   |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
 
     When I execute on the pod:
       | touch | /mnt/iscsi/testfile |
