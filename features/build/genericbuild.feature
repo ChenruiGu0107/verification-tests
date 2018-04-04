@@ -93,3 +93,102 @@ Feature: genericbuild.feature
     Then the output should contain:
       | Tolerations:     key1=value1:NoSchedule |
       |                  key2=value2:NoSchedule |
+      
+  # @author wewang@redhat.com
+  # @case_id OCP-10793
+  @admin 
+  @destructive
+  Scenario: Configure the BuildDefaults plugin when build     
+    Given I have a project
+    And I have a proxy configured in the project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://<%= cb.proxy_ip %>:3128
+            gitHTTPSProxy: https://<%= cb.proxy_ip %>:3128 
+            env:
+            - name: CUSTOM_VAR
+              value: custom_value
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :new_app client command with:                                                          
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | env  | http_proxy=http://<%= cb.proxy_ip %>:3128                                                              |
+      | env  | https_proxy=https://<%= cb.proxy_ip %>:3128                                                            |
+    Then the step should succeed                                                                          
+    And the "ruby22-sample-build-1" build completes                                                       
+    Given 2 pods become ready with labels:                                                                
+      | app=ruby-helloworld-sample |
+    When I execute on the pod:                                                                            
+      | env |
+    Then the step should succeed                                                                          
+    And the output should contain "https_proxy=https://<%= cb.proxy_ip %>:3128"                         
+    When I run the :start_build client command with:                                                      
+      | buildconfig | ruby22-sample-build                   |
+      | env         | https_proxy=error.rdu.redhat.com:3128 |
+    Then the step should succeed                                                                         
+    And the "ruby22-sample-build-2" build failed                                                          
+    When I run the :logs client command with:                                                             
+      | resource_name | build/ruby22-sample-build-2 |
+    Then the step should succeed                                                                          
+    And the output should contain "HTTPError Could not fetch specs"                                         
+    Given master config is merged with the following hash:                                                
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://<%= cb.proxy_ip %>:3128
+            gitHTTPSProxy: https://<%= cb.proxy_ip %>:3128 
+            env:
+            - name: HTTP_PROXY
+              value: http://error.rdu.redhat.com:3128
+            - name: HTTPS_PROXY
+              value: https://error.rdu.redhat.com:3128
+            - name: CUSTOM_VAR
+              value: custom_value
+    """
+    Then the step should succeed                                                                          
+    Given the master service is restarted on all master nodes                                            
+    When I run the :start_build client command with:                                                     
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed                                                                        
+    And the "ruby22-sample-build-3" build failed                                                          
+    When I run the :logs client command with:                                                             
+      | resource_name | build/ruby22-sample-build-3 |
+    Then the step should succeed                                                                          
+    And the output should contain "HTTPError Could not fetch specs from https://rubygems.org"                                          
+    Given master config is merged with the following hash:                                                
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://error.rdu.redhat.com:3128
+            gitHTTPSProxy: https://error.rdu.redhat.com:3128
+            env:
+            - name: CUSTOM_VAR
+              value: custom_value
+    """
+    Then the step should succeed                                                                          
+    Given the master service is restarted on all master nodes                                             
+    When I run the :start_build client command with:                                                      
+      | buildconfig | ruby22-sample-build                         |
+      | env         | http_proxy=http://<%= cb.proxy_ip %>:3128   |
+      | env         | https_proxy=https://<%= cb.proxy_ip %>:3128 |
+    Then the step should succeed                                                                          
+    And the "ruby22-sample-build-4" build failed                                                          
+    When I run the :logs client command with:                                                             
+      | resource_name | build/ruby22-sample-build-4 |
+    Then the step should succeed                                                                         
+    And the output should contain "unable to access 'https://github.com/openshift/ruby-hello-world.git/'" 
