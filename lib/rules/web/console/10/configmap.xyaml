@@ -108,8 +108,9 @@ edit_configmap_value:
           }
         }
         if (id == null) return null;
-        id = id.replace("key", "value");
-        editor = ace.edit(id);
+        id = id.replace("key", "drop-zone");
+        editor_element = document.evaluate('//div[@id="'+id+'"]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        editor = ace.edit(editor_element);
         editor.setValue(`<new_config_map_value>`);
         return true;
     expect_result: true
