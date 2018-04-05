@@ -403,3 +403,25 @@ Feature: ansible install related feature
     Then the output should contain:
       | /var/lib/docker/containers/* |
 
+  # @author pruan@redhat.com
+  # @case_id OCP-18504
+  @admin
+  @destructive
+  Scenario: Check the default image prefix and version - logging
+    Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18504/inventory |
+    And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
+    And evaluation of `{"curator"=>"curator", "curator-ops"=>"curator", "es"=>"elasticsearch", "es"=>"elasticsearch", "kibana"=>"kibana", "kibana-ops"=>"kibana", "mux"=>"mux"}` is stored in the :rc_labels clipboard
+    Given I repeat the following steps for each :label_hash in cb.rc_labels:
+    """
+    And a replicationController becomes ready with labels:
+      | component=#{cb.label_hash.first} |
+    And the expression should be true> rc.container_spec(name: cb.label_hash.last).image.start_with? cb.expected_prefix
+    And the expression should be true> rc.container_spec(name: cb.label_hash.last).image.end_with? cb.master_version
+    """
+    # check fluentd's ds instead of pod
+    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.start_with? cb.expected_prefix
+    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.end_with? cb.master_version
+

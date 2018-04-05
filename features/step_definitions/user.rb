@@ -1,5 +1,5 @@
 # you use "second", "third", "default", etc. user
-Given /^I switch to(?: the)? ([a-z]+) user$/ do |who|
+Given /^I switch to(?: the)? #{WORD} user$/ do |who|
   user(word_to_num(who))
 end
 

@@ -152,18 +152,19 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
     project(proj_name)
   end
   begin
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | component=curator,logging-infra=curator |
+    # check rc readiness for 3/4 logging components, fluentd does not have rc, so stick with pod readiness for that compoent
+    step %Q/a replicationController becomes ready with labels:/, table(%{
+      | component=curator,logging-infra=curator,openshift.io/deployment-config.name=logging-curator,provider=openshift |
       })
-    step %Q/all existing pods are ready with labels:/, table(%{
+    step %Q/a replicationController becomes ready with labels:/, table(%{
       | component=es,logging-infra=elasticsearch |
       })
     step %Q/I wait until the ES cluster is healthy/
     step %Q/all existing pods are ready with labels:/, table(%{
       | component=fluentd,logging-infra=fluentd |
       })
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | component=kibana, logging-infra=kibana |
+    step %Q/a replicationController becomes ready with labels:/, table(%{
+      | component=kibana,logging-infra=kibana,openshift.io/deployment-config.name=logging-kibana,provider=openshift |
       })
   ensure
     @user = org_user
@@ -347,7 +348,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     end
   end
 
-  target_proj = proj.nil? ? project.name : proj
   # we are enforcing that metrics to be installed into 'openshift-infra' for
   # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
   # value)
@@ -356,6 +356,12 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       target_proj = 'openshift-metrics'
     else
       target_proj = 'openshift-infra'
+    end
+  else
+    if cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace'] == ""
+      target_proj = proj.nil? ? project.name : proj
+    else
+      target_proj = cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace']
     end
   end
 
@@ -1058,7 +1064,15 @@ Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ d
   required_params.each do |param|
     raise "Missing parameter '#{param}'" unless opts[param]
   end
-  query_cmd = "curl -s -X#{opts[:op]} --insecure --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key 'https://localhost:9200/#{opts[:relative_url]}'"
+  # if user specify token, curl command should use it instead of usering the system cert
+
+  if opts[:token]
+    #query_opts = "-H \"Authorization: Bearer #{opts[:token]}\""
+    query_opts = "-H \"Authorization: Bearer #{opts[:token]}\" -H \"X-Forwarded-For: 127.0.0.1\""
+  else
+    query_opts = "--insecure --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key"
+  end
+  query_cmd = "curl -sk -X #{opts[:op]} #{query_opts} 'https://localhost:9200/#{opts[:relative_url]}'"
   @result = pod.exec("bash", "-c", query_cmd, as: user, container: 'elasticsearch')
   if @result[:success]
     @result[:parsed] = YAML.load(@result[:response])

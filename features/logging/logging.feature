@@ -591,3 +591,86 @@ Feature: logging related scenarios
     Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "32"
     Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "8m"
     Then the expression should be true> pod.env_var('FILE_BUFFER_LIMIT') == "512Mi"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16747
+  @admin
+  @destructive
+  Scenario: Scale up kibana pods and elasticsearch pods
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16747/inventory |
+    # redeploy with scalling after the initial installation
+    And logging service is installed in the project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16747/inventory_scaling |
+    And a pod becomes ready with labels:
+      | component=es |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then I perform the HTTP request on the ES pod:
+      | relative_url | /_cluster/health?format=JSON |
+      | op           | GET                          |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['status'] == 'green'
+    And the expression should be true> @result[:parsed]['number_of_nodes'] == 3
+    """
+
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17449
+  @admin
+  @destructive
+  Scenario: View the project mapping index as different roles
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project clipboard
+    Given logging service is installed in the system
+    # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.target_proj %>" project
+    Given a pod becomes ready with labels:
+      | component=es |
+
+    # index takes over 10 minutes to come up initially
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    And I execute on the pod:
+      | ls                                                                   |
+      | /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
+    And the output should contain:
+      | project.<%= project.name %>.<%= project.uid %> |
+    """
+    # Give user1 admin role
+    When I run the :policy_add_role_to_user client command with:
+      | role             | admin                              |
+      | user_name        | <%= user(1, switch: false).name %> |
+      | rolebinding_name | admin                              |
+    Then the step should succeed
+    # Give user2 edit role
+    When I run the :policy_add_role_to_user client command with:
+      | role             | edit                               |
+      | user_name        | <%= user(2, switch: false).name %> |
+      | rolebinding_name | edit                               |
+    Then the step should succeed
+    # Give user3 view role
+    When I run the :policy_add_role_to_user client command with:
+      | role             | view                               |
+      | user_name        | <%= user(3, switch: false).name %> |
+      | rolebinding_name | view                               |
+    Then the step should succeed
+    Given evaluation of `%w[first second third]` is stored in the :users clipboard
+    Given I repeat the following steps for each :user in cb.users:
+    """
+    And I switch to the #{cb.user} user
+    And I perform the HTTP request on the ES pod:
+      | relative_url | project.<%= cb.org_project %>.*/_count?format=JSON |
+      | op           | GET                                                |
+      | token        | <%= user.cached_tokens.first %>                    |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]['count'] > 0
+    """
+
+
