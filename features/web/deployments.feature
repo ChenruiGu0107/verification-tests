@@ -595,7 +595,9 @@ Feature: Check deployments function
       | dc_name      | dctest              |
       | dc_image     | openshift/php:5.5   |
     Then the step should succeed
-    Given I wait until the status of deployment "dctest" becomes :complete
+
+    #wait for dc being updated to avoid confliction.
+    Given I wait until the status of deployment "dctest" becomes :running
     When I run the :click_to_goto_edit_page web console action
     Then the step should succeed
     When I perform the :set_autostart_deployment_checkbox web console action with:
