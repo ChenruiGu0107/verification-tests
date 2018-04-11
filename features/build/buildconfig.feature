@@ -424,3 +424,21 @@ Feature: buildconfig.feature
     And the output should not contain:
       | passwd |
 
+  # @author xiuwang@redhat.com
+  # @case_id OCP-12057
+  Scenario: Using secret to pull a docker image which be used as source input
+    Given I have a project
+    When I run the :new_secret client command with:
+     | secret_name     | pull                                                                 |
+     | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+     | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12057/application-template-stibuild_pull_private_sourceimage.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+     | name=frontend |
+    When I execute on the pod:
+     | ls | openshiftqedir |
+    Then the step should succeed
+    And the output should contain:
+     | app-root |
