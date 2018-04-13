@@ -1716,9 +1716,9 @@ Feature: deployment related features
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc532415/min_ready.yaml
     Then the step should succeed
     And 20 seconds have passed
-    And the expression should be true> dc('minreadytest').unavailable_replicas(user: user) == 2
+    And the expression should be true> dc('minreadytest').unavailable_replicas == 2
     And 60 seconds have passed
-    And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2
+    And the expression should be true> dc('minreadytest').available_replicas(cached: false) == 2
 
   # @author mcurlej@redhat.com
   # @case_id OCP-10902
@@ -1952,7 +1952,7 @@ Feature: deployment related features
   # @author yinzhou@redhat.com
   # @case_id OCP-14336
   @admin
-  Scenario: Show deployment conditions correctly 
+  Scenario: Show deployment conditions correctly
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:

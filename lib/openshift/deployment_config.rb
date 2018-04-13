@@ -12,8 +12,11 @@ module CucuShift
     STATUSES = %i[waiting running succeeded failed complete].freeze
     REPLICA_COUNTERS = {
       desired: %w[spec replicas].freeze,
-      current: %w[status replicas].freeze,
-      available: %w[status availableReplicas].freeze
+      all: %w[status replicas].freeze,
+      available: %w[status availableReplicas].freeze,
+      updated: %w[status updatedReplicas].freeze,   # CURRENT column
+      unavailable: %w[status unavailableReplicas].freeze,
+      ready: %w[status readyReplicas].freeze
     }.freeze
 
     # @param from_status [Symbol] the status we currently see
@@ -108,10 +111,6 @@ module CucuShift
     # availablity check only exists in 3.3, and oc describe doesn't have that
     # information prior, so we can't use the same logic to check for that info
     # @note only works with v3.3+
-    def unavailable_replicas(user: nil, cached: false, quiet: false)
-      raw_resource(user: user, cached: cached, quiet: quiet).
-        dig("status", "unavailableReplicas")
-    end
 
     def strategy(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
