@@ -12,6 +12,7 @@ module CucuShift
     STATUSES = %i[waiting running succeeded failed complete].freeze
     REPLICA_COUNTERS = {
       desired: %w[spec replicas].freeze,
+      current: %w[status replicas].freeze,
       all: %w[status replicas].freeze,
       available: %w[status availableReplicas].freeze,
       updated: %w[status updatedReplicas].freeze,   # CURRENT column
