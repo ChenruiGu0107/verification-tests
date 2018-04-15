@@ -1018,3 +1018,15 @@ Feature: storageClass related feature
     When I ensure "pvc-<%= project.name %>" pvc is deleted
     Then the PV becomes :released
     And admin ensures "<%= pvc.volume_name %>" pv is deleted
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18650
+  Scenario: Make sure storage.k8s.io/v1beta1 API is enabled in 3.10
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/apis/storage.k8s.io
+    :method: GET
+    """
+    Then the step should succeed
+    And the output should contain:
+      | storage.k8s.io/v1beta1 |
