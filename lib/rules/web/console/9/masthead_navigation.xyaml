@@ -48,6 +48,9 @@ check_navitator_menus:
   action: check_navigator_fist_menu_resources
   action: check_navigator_fist_menu_storages
   action: check_navigator_fist_menu_monitoring
+check_navigator_extension_menus:
+  action: check_navigator_first_menu_dashboard
+  action: check_git_menu
 check_navigator_fist_menu_overview:
   params:
     menu_name: Overview
@@ -72,6 +75,18 @@ check_navigator_fist_menu_monitoring:
   params:
     menu_name: Monitoring
   action: check_first_level_menu_item
+check_navigator_first_menu_dashboard:
+  params:
+    menu_name: Dashboard
+  action: check_first_level_menu_item
+check_git_menu:
+  elements: 
+  - selector:
+      xpath: //*[contains(.,'Branches')]
+  - selector:
+      xpath: //*[contains(.,'Collaboration')]
+  - selector:
+      xpath: //*[contains(.,'Pull Requests')]
 check_first_level_menu_item:
   element: &first_level_item
     selector:

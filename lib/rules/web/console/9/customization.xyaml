@@ -58,3 +58,24 @@ click_show_less:
       class: less
     type: span
     op: click
+check_launch_apps_items:
+  action: click_launcher_app
+  action: check_launcher_app_dashboard
+  action: check_launcher_app_manage_account
+click_launcher_app:
+  element:
+    selector: 
+      xpath: //*[@items="launcherApps"]
+    op: click
+check_launcher_app_dashboard:
+  elements:
+  - selector: 
+      xpath:  //*[contains(.,'Dashboard')]
+  - selector: 
+      xpath: //*[@href="http://example.com/dashboard"]
+check_launcher_app_manage_account:
+  elements:
+  - selector: 
+      xpath: //*[contains(.,'Manage Account')]
+  - selector: 
+      xpath: //*[@href="http://example.com/account"]

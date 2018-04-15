@@ -12,6 +12,10 @@ click_create_route:
 create_unsecured_route_from_service_or_overview_page:
   action: set_route_name
   action: click_create_button
+create_unsecured_route_for_hostname:
+  action: set_route_name
+  action: set_hostname
+  action: click_create_button
 create_route_dont_specify_hostname_from_routes_page:
   action: click_create_route
   action: choose_service_to_add_route

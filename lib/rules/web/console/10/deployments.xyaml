@@ -246,6 +246,9 @@ goto_one_dc_page:
 goto_one_dc_environment_tab:
   action: goto_one_dc_page
   action: goto_environment_tab
+check_navigator_extension_menus:
+  action: check_navigator_first_menu_dashboard
+  action: check_git_menu
 goto_one_standalone_rc_page:
   url: /console/project/<project_name>/browse/deployments-replicationcontrollers/<rc_name>
 update_container_image_name:
