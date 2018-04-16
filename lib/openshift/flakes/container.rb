@@ -1,4 +1,4 @@
-require 'openshift/container_spec'
+require_relative 'container_spec'
 
 module CucuShift
   class Container

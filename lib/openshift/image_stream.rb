@@ -1,4 +1,5 @@
-require 'openshift/project_resource'
+require 'openshift/flakes/image_stream_tag_spec'
+require 'openshift/flakes/image_stream_tag_status'
 
 module CucuShift
   # represents an OpenShift Image Stream
@@ -30,32 +31,45 @@ module CucuShift
       return self.docker_image_repository(user).match(/[^\/]*\//)[0]
     end
 
+    def tag_statuses(user: nil, cached: true, quiet: false)
+      unless cached && props[:status_tags]
+        rr = raw_resource(user: user, cached: cached, quiet: quiet)
+        props[:status_tags] = rr.dig('status', 'tags').map { |tag|
+          ImageStreamTagStatus.new(tag, self)
+        }
+      end
+      return props[:status_tags]
+    end
+
+    def tag_status(name:, user: nil, cached: true, quiet: false)
+      tag_statuses(user: user, cached: cached, quiet: quiet).find { |tag_status|
+        tag_status.name == name
+      }
+    end
+
     def tags(user: nil, cached: true, quiet: false)
-      rr = raw_resource(user: user, cached: cached, quiet: quiet)
-      rr.dig('status', 'tags')
+      unless cached && props[:spec_tags]
+        rr = raw_resource(user: user, cached: cached, quiet: quiet)
+        props[:spec_tags] = rr.dig('spec', 'tags').map { |tag|
+          ImageStreamTagSpec.new(tag, self)
+        }
+      end
+      return props[:spec_tags]
     end
 
-    # some heuristics to try find latest tag's dockerImageReference
-    def latest_tag_docker_image_reference(user: nil, cached: true, quiet: false)
-      tags = self.tags(user: user, cached: cached, quiet: quiet)
-      tag = tags.find {|t| t["tag"] == "latest"}
-      unless tag
-        tag = tags.first
-      end
-      return tag["items"].first["dockerImageReference"]
+    def tag(name:, user: nil, cached: true, quiet: false)
+      tags(user: user, cached: cached, quiet: quiet).find { |tag|
+        tag.name == name
+      }
     end
 
-    # get all the items listed for specific tag.
-    def tag_items(user: nil, name: nil, cached: true, quiet: false)
-      tags = self.tags(user: user, cached: cached, quiet: quiet)
-      raise "No tags found for image stream #{self.name}" unless tags.length > 0
-      if name
-        tag = tags.find{|t| t["tag"] == name}
-        raise "No matching tag '#{name}' found" unless tag
-        return tag["iterms"]
-      else
-        return tags.first["items"]
-      end
+    # @return [ImageStreamTagStatus] for the "latest" tag; then such tag name
+    #   does not exist, it will return the first tag we see in image stream
+    #   status
+    def latest_tag_status(user: nil, cached: true, quiet: false)
+      tag = tag_status(name: "latest", user: user, cached: cached, quiet: quiet)
+      tag ||= tag_statuses(cached: true).first
+      return tag
     end
   end
 end

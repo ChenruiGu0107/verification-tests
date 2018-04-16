@@ -27,7 +27,7 @@ Feature: oc set image related tests
       | l        | test=1234                                |
     Then the step should succeed
     And the output should contain ""<%= @pods[0].name %>" image updated"
-    
+
     When I run the :describe client command with:
       | resource | pod                  |
       | name     | <%= @pods[0].name %> |
@@ -108,12 +108,12 @@ Feature: oc set image related tests
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
-    ## 2. set image with keywork python for compatibility between 3.6 and 3.7 
+    ## 2. set image with keywork python for compatibility between 3.6 and 3.7
     When I run the :set_image client command with:
       | type_name       | dc,rc                            |
-      | container_image | dctest-1=openshift/python:latest |  
+      | container_image | dctest-1=openshift/python:latest |
       | all             | true                             |
-    Then the step should succeed 
+    Then the step should succeed
     ## step 3 checking
     When I run the :describe client command with:
       | resource        | dc                                |
@@ -147,8 +147,8 @@ Feature: oc set image related tests
     ## 5. Update without --local to apply
     When I run the :set_image client command with:
       | filename        | dc.yaml                           |
-      | container_image | dctest-2=openshift/ruby:latest    |  
-    Then the step should succeed 
+      | container_image | dctest-2=openshift/ruby:latest    |
+    Then the step should succeed
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
@@ -192,8 +192,8 @@ Feature: oc set image related tests
     Then the step should succeed
     Given the "ruby-ex-1" build was created
     Given the "ruby-ex-1" build completed
-    And evaluation of `image_stream("deployment-example").latest_tag_docker_image_reference(user: user).split("@").last` is stored in the :dc_image_id clipboard
-    And evaluation of `image_stream("ruby-ex").latest_tag_docker_image_reference(user: user).split("@").last` is stored in the :ruby_image_id clipboard
+    And evaluation of `image_stream("deployment-example").latest_tag_status.imageref.name` is stored in the :dc_image_id clipboard
+    And evaluation of `image_stream("ruby-ex").latest_tag_status.imageref.name` is stored in the :ruby_image_id clipboard
     Given cluster role "system:image-pruner" is added to the "first" user
     When I run the :oadm_top_images client command
     And the output should match:
@@ -218,7 +218,7 @@ Feature: oc set image related tests
       | source      | docker.io/openshift/hello-openshift   |
       | dest        | <%= project.name %>/ho:latest         |
     Then the step should succeed
-    And evaluation of `image_stream("ho").latest_tag_docker_image_reference(user:user).split("@").last` is stored in the :image_id clipboard
+    And evaluation of `image_stream("ho").latest_tag_status.imageref.name` is stored in the :image_id clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/imagesignature.yaml"
     Then the step should succeed
     When I run the :create client command with:
@@ -248,7 +248,7 @@ Feature: oc set image related tests
       | name: <%= cb.image_id %>@imagesignaturetest |
     And I replace lines in "imagesignature.yaml":
       | name:  <%= cb.image_id %>@imagesignaturetest | name: <%= cb.image_id %>@imagesignaturetest2 |
-      | - 25 | - 20 | 
+      | - 25 | - 20 |
     When I run the :create client command with:
       | f | imagesignature.yaml |
     Then the step should succeed

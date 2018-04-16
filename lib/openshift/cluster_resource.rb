@@ -19,14 +19,8 @@ module CucuShift
       @props = props
     end
 
-    def default_user(user=nil)
-      if user
-        super(user)
-      elsif @default_user
-        @default_user
-      else
-        default_user = env.admin
-      end
+    def default_user(user=nil, optional: false)
+      super(user, optional: true) || super(env.admin)
     end
 
     # creates a new OpenShift Cluster Resource from spec
@@ -62,6 +56,20 @@ module CucuShift
                                 update_from_api_object(resource_hash)
     end
 
+    # @param reference [ObjectReference]
+    # @param referer [Resource]
+    # @return [ClusterResource]
+    def self.from_reference(reference, referer)
+      resource = self.class.new(name: reference.name, env: referer.env)
+      begin
+        resource.default_user(reference.default_user(optional: true))
+      rescue UnsupportedOperationError
+        # perhaps referer is a resource without default user set,
+        # but environment does not support admin access
+      end
+
+      return resource
+    end
     # update multiple API resources in as little calls as possible
     # @param user [User] the user to use for the API calls
     # @param resources [Array<ClusterResource>]

@@ -1898,21 +1898,18 @@ Feature: deployment related features
       | resource | frontend |
     Then the step should succeed
     And I wait until the status of deployment "frontend" becomes :complete
-    When I get project dc named "frontend" as JSON
-    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage clipboard
-    Then the output should contain:
-      | lastTriggeredImage     |
+    Given evaluation of `dc.trigger_by_type(type: 'ImageChange').last_image` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build finishes
     When I get project imagestream named "origin-ruby-sample" as JSON
-    And evaluation of `image_stream('origin-ruby-sample').tag_items(user: user)` is stored in the :imagestreamitems clipboard
+    And evaluation of `image_stream('origin-ruby-sample').tag_statuses[0].events` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I get project dc named "frontend" as JSON
     Then the output should contain:
       | "latestVersion": 1 |
-    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :sed_imagestreamimage clipboard
+    And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
     When I run the :deploy client command with:
       | deployment_config | frontend |
@@ -1920,14 +1917,14 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "frontend" becomes :complete
     When I get project dc named "frontend" as JSON
-    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage2 clipboard
+    And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage2 clipboard
     And the expression should be true> cb.imagestreamimage == cb.imagestreamimage2
     When I run the :rollout_latest client command with:
       | resource | frontend |
     Then the step should succeed
     And I wait until the status of deployment "frontend" becomes :complete
     When I get project dc named "frontend" as JSON
-    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage3 clipboard
+    And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage3 clipboard
     And the expression should be true> cb.imagestreamimage != cb.imagestreamimage3
 
   # @author yinzhou@redhat.com

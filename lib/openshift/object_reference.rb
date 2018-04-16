@@ -53,6 +53,15 @@ module CucuShift
         return struct['uid']
       end
 
+      # @param referer [Resource] the resource containing this reference
+      # @return [Resource]
+      def resource(referer)
+        return @resource if @resource
+
+        clazz = Object.const_get("::CucuShift::#{kind}")
+        @resource = clazz.from_reference(self, referer)
+        return @resource
+      end
     end
 
     include ExportMethods

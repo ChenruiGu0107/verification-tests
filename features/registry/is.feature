@@ -12,7 +12,6 @@ Feature: Testing imagestream
     Then the step should succeed
     And the "busybox" image stream was created
     And the expression should be true> image_stream('busybox').tags(user: user).length == 5
-    And the expression should be true> image_stream('busybox').tags(user: user)
     And the "busybox:latest" image stream tag was created
     And the "busybox:v1.3-2" image stream tag was created
     And the "busybox:v1.3-3" image stream tag was created

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'openshift/container_spec'
 require 'openshift/pod_replicator'
 require 'openshift/replication_controller'
+
+require 'openshift/flakes/container_spec'
+require 'openshift/flakes/deployment_config_trigger'
 
 module CucuShift
 
@@ -111,33 +113,54 @@ module CucuShift
         dig("spec", "selector")
     end
 
-    def triggers(user: nil, cached: false, quiet: false)
-      raw_resource(user: user, cached: cached, quiet: quiet).
-        dig("spec", "triggers")
-    end
-
-    # return specific trigger matched by type, please note cached is default to false
-    def trigger_params(user: nil, type:, cached: false, quiet: false)
-      triggers = self.triggers(user: user, cached: cached, quiet: quiet)
-      trigger = triggers.find {|t| t["type"] == type}
-      case trigger["type"]
-        when "ImageChange"
-          index_key = "imageChangeParams"
-        when "ConfigChange"
-          index_key = "configChangeParams"
-        else
-          raise "Unsupported trigger type '#{type}' detected"
-      end
-      if trigger.has_key? index_key
-        return trigger[index_key]
+    # @return [CucuShift::Trigger]
+    def triggers(user: nil, cached: true, quiet: false)
+      if cached && props[:triggers]
+        return props[:triggers]
       else
-        return {}
+        triggers = raw_resource(user: user, cached: cached, quiet: quiet).
+          dig("spec", "triggers") || []
+        props[:triggers] = DeploymentConfigTrigger.from_list(triggers, self)
+        return props[:triggers]
       end
     end
 
-    # return the last triggered image
-    def last_image_for_trigger(user: nil, type:, cached: false, quiet: false)
-      return  trigger_params(user:user, type: "ImageChange")['lastTriggeredImage']
+    # return trigger params matched by type or nil
+    def trigger_by_type(user: nil, type:, cached: true, quiet: false)
+      triggers = self.triggers(user: user, cached: cached, quiet: quiet)
+      triggers = triggers.select {|t| t.type == type}
+      if triggers.size == 1
+        return triggers[0]
+      elsif triggers.size == 0
+        raise "no #{type} triggers found for DC #{name}"
+      else
+        raise "confusing, found #{triggers.size} #{type} triggers for DC " \
+          "#{name}, use some better method to select"
+      end
+    end
+
+    def trigger_is_tags(user: nil, cached: true, quiet: false)
+      triggers(user: user, cached: cached, quiet: quiet).select { |t|
+        t.type == "ImageChange"
+      }.map { |t| t.from }
+    end
+
+    # This one basically finds build configs that update any of the is tags
+    #   that trigger us. I'm not sure if there is any other way for a build
+    #   config to trigger a deployment config.
+    def trigger_build_configs(user: nil, cached: true, quiet: false,
+                              project: nil)
+      unless cached && props[:trigger_build_configs]
+        bcs = BuildConfig.list(
+          user: default_user(user),
+          project: project || self.project
+        )
+        istags = trigger_is_tags(user: user, cached: cached, quiet: quiet)
+        props[:trigger_build_configs] = bcs.select { |bc|
+          istags.include? bc.output_to
+        }
+      end
+      return props[:trigger_build_configs]
     end
 
     def revision_history_limit(user: nil, cached: true, quiet: false)

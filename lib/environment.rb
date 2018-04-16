@@ -103,7 +103,8 @@ module CucuShift
       if admin?
         CucuShift.const_get(opts[:admin_creds]).new(self, **opts)
       else
-        raise "we cannot run as admins in this environment"
+        raise UnsupportedOperationError,
+          "we cannot run as admins in this environment"
       end
     end
 
@@ -170,16 +171,12 @@ module CucuShift
     #   system image streams in the `openshift` project
     # @note dc/router could be used as well but will require admin
     def system_docker_repo
-      return @system_docker_repo if @system_docker_repo
-      is = ImageStream.new(name: "jenkins",
-                           project: Project.new(name: "openshift", env: self))
-      image_ref = is.latest_tag_docker_image_reference(user: users[0])
-      first_element = image_ref.split("/", 2).first
-      if first_element.include? "."
-        return @system_docker_repo = first_element + "/"
-      else
-        return @system_docker_repo = ""
+      unless @system_docker_repo
+        is = ImageStream.new(name: "jenkins",
+                             project: Project.new(name: "openshift", env: self))
+        @system_docker_repo = is.latest_tag_status(user: users[0]).imageref.repo
       end
+      return @system_docker_repo
     end
 
     # helper parser

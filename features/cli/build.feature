@@ -272,72 +272,35 @@ Feature: build 'apps' with CLI
       | l                 | app=testapps                                                                                                                                     |
       | insecure_registry | true                                                                                                                                             |
     Then the step should succeed
-    When I get project buildConfig
-    Then the output should match:
-      | NAME\\s+TYPE                 |
-      | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
-      | <%= Regexp.escape("ruby-hello-world-1") %>\\s+Source |
-      | <%= Regexp.escape("ruby-hello-world-2") %>\\s+Source |
-    When I run the :describe client command with:
-      | resource | buildConfig      |
-      | name     | ruby-hello-world |
-    Then the output should match:
-      | ImageStreamTag ruby-22-rhel7:latest |
-    When I run the :describe client command with:
-      | resource | buildConfig        |
-      | name     | ruby-hello-world-1 |
-    Then the output should match:
-      | ImageStreamTag openshift/ruby |
-    When I run the :describe client command with:
-      | resource | buildConfig        |
-      | name     | ruby-hello-world-2 |
-    Then the output should match:
-      | ImageStreamTag <%= Regexp.escape(project.name) %>/ruby:2.2 |
-    Given the "ruby-hello-world-1" build completed
-    Given the "ruby-hello-world-1-1" build completed
-    Given the "ruby-hello-world-2-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
-    And I get the service pods
-    And I wait up to 120 seconds for the steps to pass:
+
+    # we end up with total of 5 build configs in the project
+    When evaluation of `CucuShift::BuildConfig.list(user: user, project: project)` is stored in the :bc clipboard
+    Then the expression should be true> cb.bc.size == 6
+
+    # we end upt with 3 services in the project
+    When evaluation of `CucuShift::Service.list(user: user, project: project)` is stored in the :services clipboard
+    Then the expression should be true> cb.services.size == 3
+
+    # check all specified is tags are served by a service
+    Given I store the image stream tag of the "openshift/ruby" image stream latest tag in the clipboard
+    Given evaluation of `[ cb.tag, istag("ruby:2.2"), istag("ruby-22-rhel7:latest") ]` is stored in the :istags clipboard
+    When I repeat the following steps for each :svc in cb.services:
     """
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %>  |
-      | c            | ruby-hello-world |
-      | oc_opts_end  ||
-      | exec_command | curl  |
-      | exec_command | -k    |
-      | exec_command | <%= service.ip %>:8080 |
+    # service has a dc
+    Given the expression should be true> dc(cb.svc.selector["deploymentconfig"])
+    # check there is a build config that triggers dc with one of the istags
+    When build configs that trigger the dc are stored in the :bc clipboard
+    Then the expression should be true> cb.bc.any? {|bc| cb.istags.delete(bc.strategy.from) }
+
+    # test that service becomes accessible
+    When I expose the "8080" port of the "#{cb.svc.name}" service
     Then the step should succeed
-    """
+    And I wait for the service to become ready up to 360 seconds
+    And I wait for a web server to become available via the route
     And the output should contain "Demo App"
-    Given I wait for the "ruby-hello-world-1" service to become ready
-    And I get the service pods
-    And I wait up to 120 seconds for the steps to pass:
     """
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %>    |
-      | c            | ruby-hello-world-1 |
-      | oc_opts_end  ||
-      | exec_command | curl  |
-      | exec_command | -k    |
-      | exec_command | <%= service.ip %>:8080 |
-    Then the step should succeed
-    """
-    And the output should contain "Demo App"
-    Given I wait for the "ruby-hello-world-2" service to become ready
-    And I get the service pods
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %>    |
-      | c            | ruby-hello-world-2 |
-      | oc_opts_end  ||
-      | exec_command | curl  |
-      | exec_command | -k    |
-      | exec_command | <%= service.ip %>:8080 |
-    Then the step should succeed
-    """
-    And the output should contain "Demo App"
+    # all expected image stream tags have been used
+    Then the expression should be true> cb.istags.empty?
 
   # @author cryan@redhat.com
   # @case_id OCP-12382

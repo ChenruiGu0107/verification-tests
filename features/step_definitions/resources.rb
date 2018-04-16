@@ -67,10 +67,8 @@ Given /^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the#{OPT_QUOTED}
   _user = who == "admin" ? admin : user
 
   resource = resource(name, resource_type, project_name: namespace)
-  resource.default_user(_user)
 
   resource.get_checked
-  cache_resources resource
 end
 
 Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project)?$/ do |who, resource_type, namespace|
@@ -116,15 +114,13 @@ end
 Given /^(I|admin) waits? for the#{OPT_QUOTED} (\w+) to become ready(?: in the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
-  _resource.default_user(_user)
   timeout = timeout ? timeout.to_i : 60
 
   @result = _resource.wait_till_ready(_user, timeout)
   unless @result[:success]
-    raise %Q{#{type} "#{name}" did not become ready within #{timeout} seconds}
+    raise %Q{#{type} "#{_resource.name}" did not become ready within } \
+       "#{timeout} seconds"
   end
-
-  cache_resources _resource
 end
 
 # tries to delete resource if it exists and make sure it disappears
@@ -148,14 +144,12 @@ end
 Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
-  _resource.default_user(_user)
   timeout = timeout ? timeout.to_i : 60
 
   @result = _resource.wait_to_appear(_user, timeout)
   unless @result[:success]
     raise %Q{#{type} "#{name}" did not appear within timeout}
   end
-  cache_resources _resource
 end
 
 Given /^the( admin)? (\w+) named #{QUOTED} does not exist(?: in the#{OPT_QUOTED} project)?$/ do |who, resource_type, resource_name, project_name|

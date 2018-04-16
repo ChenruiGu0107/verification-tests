@@ -218,3 +218,10 @@ Given /^a deploymentConfig becomes ready with labels:$/ do |table|
     raise "#{dc.name} deployment_config did not become ready"
   end
 end
+
+Given /^build configs that trigger the#{OPT_QUOTED} dc are stored in the#{OPT_SYM} clipboard$/ do |dc_name, cb_name|
+  cb_name ||= :dcbcs
+
+  cb[cb_name] = dc(dc_name).trigger_build_configs(cached: false)
+  cache_resources *cb[cb_name]
+end

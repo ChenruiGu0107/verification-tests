@@ -338,9 +338,9 @@ module CucuShift
       subclass_of = proc {|parent, child| parent >= child}
       return case clazz
       when subclass_of.curry[ProjectResource]
-        clazz.new(name: name, project: project(project_name))
+        project_resource(clazz, name, project(project_name))
       when subclass_of.curry[ClusterResource]
-        clazz.new(name: name, env: env)
+        cluster_resource(clazz, name, env)
       else
         raise "unhandled class #{clazz}"
       end

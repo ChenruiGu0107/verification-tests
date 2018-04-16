@@ -58,11 +58,15 @@ module CucuShift
     end
 
     # @param by [CucuShift::User] the user to create route with
-    def expose(user: nil)
-      res = default_user(user).cli_exec(:expose, output: :yaml,
-                     resource: :service,
-                     resource_name: name,
-                     namespace: project.name)
+    def expose(user: nil, port: nil)
+      opts = {
+        output: :yaml,
+        resource: :service,
+        resource_name: name,
+        namespace: project.name,
+      }
+      opts[:port] = port if port
+      res = default_user(user).cli_exec(:expose, **opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])

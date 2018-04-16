@@ -105,12 +105,12 @@ module CucuShift
         result[:size] = response
       else
         logger.info("HTTP #{method.upcase} took #{'%.3f' % total_time} sec: #{result[:error] || response.description}") unless quiet
-        result[:exitstatus] ||= response.code
+        result[:exitstatus] ||= response&.code || -1
         result[:response] = response
         result[:success] = result[:exitstatus].to_s[0] == "2"
-        result[:cookies] ||= response.cookie_jar
-        result[:headers] ||= response.raw_headers
-        result[:size] ||= response.size
+        result[:cookies] ||= response&.cookie_jar
+        result[:headers] ||= response&.raw_headers
+        result[:size] ||= response&.size || 0
       end
       result[:total_time] = total_time
       return result

@@ -1,5 +1,6 @@
 require 'openshift/project_resource'
-require 'openshift/container'
+
+require 'openshift/flakes/container'
 
 module CucuShift
   # represents an OpenShift pod

@@ -14,6 +14,12 @@ module CucuShift
     # @param project [CucuShift::Project] the project we belong to
     # @param props [Hash] additional properties of the resource
     def initialize(name:, project:, props: {})
+      unless String === name
+        raise "name should be a string but it is #{name.inspect}"
+      end
+      unless Project === project
+        raise "name should be a Project but it is #{project.inspect}"
+      end
       @name = name
       @project = project
       @props = props
@@ -58,6 +64,30 @@ module CucuShift
     def self.from_api_object(project, resource_hash)
       self.new(project: project, name: resource_hash["metadata"]["name"]).
                                 update_from_api_object(resource_hash)
+    end
+
+    # @param reference [ObjectReference]
+    # @param referer [Resource]
+    # @return [ProjectResource]
+    def self.from_reference(reference, referer)
+      referer_project = referer.project if referer.respond_to?(:project)
+      if referer_project &&
+          (!reference.namespace || referer_project.name == reference.namespace)
+        project = referer_project
+      else
+        project = Project.new(name: reference.namespace, env: referer.env)
+      end
+
+      resource = self.new(name: reference.name, project: project)
+      begin
+        resource.default_user(referer.default_user(optional: true),
+                              optional: true)
+      rescue UnsupportedOperationError
+        # perhaps referer is a cluster resource without default user set,
+        # but environment does not support admin access
+      end
+
+      return resource
     end
 
     # update multiple API resources in as little calls as possible

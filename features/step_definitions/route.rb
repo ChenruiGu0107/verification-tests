@@ -2,8 +2,8 @@ require 'openshift/route'
 require 'openshift/service'
 
 # e.g I expose the "myapp" service
-When /^I expose(?: the)?(?: "(.+?)")? service$/ do |service_name|
-  cache_resources service(service_name).expose(user: user)
+When /^I expose(?: the#{OPT_QUOTED} port of) the#{OPT_QUOTED} service$/ do |port, service_name|
+  cache_resources service(service_name).expose(user: user, port: port)
 
   # for backward compatibility return a successrul ResultHash
   @result = {
