@@ -82,6 +82,31 @@ Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project
   end
 end
 
+Given /^(I|admin) waits? for all (\w+) in the#{OPT_QUOTED} project to become ready(?: up to (\d+) seconds)?$/ do |by, type, project_name, timeout|
+  timeout = timeout ? Integer(timeout) : 180
+  _user = by == "admin" ? admin : user
+  clazz = resource_class(type)
+
+  unless CucuShift::ProjectResource > clazz
+    raise "#{clazz} is not a ProjectResource"
+  end
+
+  list = clazz.list(user: _user, project: project(project_name))
+  cache_resources *list
+  logger.info("#{clazz::RESOURCE}: #{list.map(&:name)}")
+
+  start_time = monotonic_seconds
+  results = list.map do |resource|
+    passed_time = monotonic_seconds - start_time
+    @result = resource.wait_till_ready(_user, timeout - passed_time)
+    unless @result[:success]
+      raise "#{clazz.name} #{resource.name} did not become ready within timeout"
+    end
+    @result
+  end
+  @result = CucuShift::ResultHash.aggregate_results(results)
+end
+
 Given /^(I|admin) waits? for the#{OPT_QUOTED} (\w+) to become ready(?: in the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)

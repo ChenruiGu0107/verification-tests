@@ -91,8 +91,8 @@ Feature: create app on web console related
       | sub_catagory     | Mongo               |
       | service_item     | MongoDB (Ephemeral) |
     Then the step should succeed
-    Given I wait for all serviceinstances in the project become ready
-    And I wait for all servicebindings in the project become ready
+    Given I wait for all serviceinstances in the project to become ready
+    And I wait for all servicebindings in the project to become ready
     When I run the :wait_secret_showing_in_successful_result web console action
     Then the step should succeed
     When I run the :click_close web console action
@@ -102,6 +102,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %> |
       | resource_name | MongoDB             |
     Then the step should succeed
-    Given I wait for all servicebindings in the project become ready
+    Given I wait for all servicebindings in the project to become ready
     When I run the :wait_secret_showing_in_successful_result web console action
     Then the step should succeed
