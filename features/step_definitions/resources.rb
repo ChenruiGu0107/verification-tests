@@ -5,7 +5,7 @@
 # verification that they are working properly. We can't predict what each
 # type will require. Thus extracting common code here and leave resource type
 # specific steps handle verification.
-Given /^hidden recreate cluster resource after scenario$/ do
+Given /^hidden recreate cluster resource( after scenario)?$/ do |after_scenario|
   ensure_destructive_tagged
 
   unless cb.cluster_resource_to_recreate
@@ -18,7 +18,7 @@ Given /^hidden recreate cluster resource after scenario$/ do
   _admin = admin
   _resource_struct = _resource.raw_resource(user: _admin).freeze
 
-  teardown_add {
+  p = proc {
     _resource.ensure_deleted
     res = _resource.class.create(by: _admin,
                                  spec: _resource_struct)
@@ -28,6 +28,12 @@ Given /^hidden recreate cluster resource after scenario$/ do
       raise "failed to create #{_resource.class}: #{res[:response]}"
     end
   }
+
+  if after_scenario
+    teardown_add p
+  else
+    p.call
+  end
 end
 
 Given /^the #{QUOTED} (\w+) is recreated( by admin)? in the#{OPT_QUOTED} project after scenario$/ do |resource_name, resource_type, by_admin, project_name|
