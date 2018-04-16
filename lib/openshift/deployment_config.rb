@@ -51,21 +51,9 @@ module CucuShift
       return res
     end
 
-    # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    # @note at the moment we check how many running replicas we have, does it
-    #   make more sense and is it reliable to just check :overall_status shown
-    #   by the describe command with the `#status?` method?
-    def ready?(user:, quiet: false)
-      res = get(user: user, quiet: quiet)
-
-      if res[:success]
-        available = available_replicas(user: user, cached: true, quiet: true)
-        res[:success] = (
-          available > 0 &&
-            replicas(user: user, cached: true, quiet: true) == available
-        )
-      end
-      return res
+    # @return [CucuShift::ResultHash] with :success depending the rc readiness for the dc that it belongs to
+    def ready?(user: nil, cached: false, quiet: false)
+      rc(user: user, cached: cached, quiet: quiet).ready?(user: user, cached: cached, quiet: quiet)
     end
 
     # we define this in method_missing so alias can't fly
