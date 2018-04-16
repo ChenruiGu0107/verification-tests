@@ -1,9 +1,9 @@
-Given /^the #{QUOTED} cluster service broker is recreated$/ do |name|
+Given /^the #{QUOTED} cluster service broker is recreated( after scenario)?$/ do |name, after_scenario|
   _admin = admin
   _csb = cluster_service_broker(name)
   cb.cluster_resource_to_recreate = _csb
 
-  teardown_add {
+  verify = proc {
     success = wait_for(60, interval: 9) {
       _csb.describe[:response].include? "Successfully fetched catalog entries from broker"
     }
@@ -12,7 +12,13 @@ Given /^the #{QUOTED} cluster service broker is recreated$/ do |name|
     end
   }
 
-  step 'hidden recreate cluster resource after scenario'
+  if after_scenario
+    teardown_add verify
+    step 'hidden recreate cluster resource after scenario'
+  else
+    step 'hidden recreate cluster resource after scenario'
+    verify.call
+  end
 end
 
 Given /^I save the first service broker registry prefix to#{OPT_SYM} clipboard$/ do |cb_name|
