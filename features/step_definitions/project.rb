@@ -239,16 +239,48 @@ Then(/^the project should be empty$/) do
   end
 end
 
-When /^I get project ([-a-zA-Z_]+)(?: named "([^"]*)")?$/ do |resource, resource_name|
+When /^I get project ([-a-zA-Z_]+) named #{QUOTED}(?: as (YAML|JSON))?$/ do |resource, resource_name, format|
+  _resource = resource(resource_name, resource, project_name: project.name)
+  @result = _resource.get(user: user)
+  if @result[:success] && format == "JSON"
+    # this is a hack but it is needed for backward compatibility and it is
+    # too ugly to allow #get accept format as a parameter
+    @result[:response] = JSON.pretty_generate(
+      CucuShift::Resource.struct_iso8601_time(@result[:parsed])
+    )
+  end
+end
+
+# discouraged
+When /^I get project ([-a-zA-Z_]+)$/ do |type|
   @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name)
 end
 
+# discouraged
 When /^I get project ([-a-zA-Z_]+) with labels:$/ do |resource, table|
   labels = table.raw.flatten
   @result = user.cli_exec(:get, resource: resource, n: project.name, l: labels)
 end
 
-When /^I get project ([-a-zA-Z_]+)(?: named "([^"]*)")? as (YAML|JSON)$/ do |resource, resource_name, format|
-  @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name, o: format.downcase)
-  step "the output is parsed as #{format}"
+When /^I get project ([-a-zA-Z_]+) as (YAML|JSON)$/ do |type, format|
+  @result = {}
+  clazz = resource_class(type)
+
+  unless CucuShift::ProjectResource > clazz
+    raise "#{clazz} is not a project resource"
+  end
+
+  begin
+    list = clazz.list(user: user,
+                      project: project,
+                      result: @result, get_opts: {output: format.downcase})
+    cache_resources *list
+  rescue
+    unless @result.has_key? :success
+      # if operation somehow failed but result was generated we let user
+      # catch the issue by checking @result, otherwise we raise the original
+      # error
+      raise
+    end
+  end
 end

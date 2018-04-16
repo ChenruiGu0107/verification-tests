@@ -188,9 +188,11 @@ module CucuShift
                [:n, project.name]
       ]
       get_opts.each { |k,v|
-        if [:resource, :output, :o, :n, :namespace, :resource_name,
+        if [:resource, :n, :namespace, :resource_name,
             :w, :watch, :watch_only].include?(k)
           raise "incompatible option #{k} provided in get_opts"
+        elsif [:output, :o].include?(k) && !["json", "yaml"].include?(v)
+          raise "output can only be JSON or YAML but is: #{v}"
         else
           opts << [k, v]
         end

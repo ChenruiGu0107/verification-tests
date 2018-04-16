@@ -575,7 +575,7 @@ Feature: creating 'apps' with CLI
     When I get project pod named "<%= pod.name %>" as JSON
     Then the step should succeed
     Given I save the output to file> podschange.json
-    When I get project bc as JSON
+    When I get project build_config as JSON
     Then the step should succeed
     Given I save the output to file> buildconfigschange.json
     #Services are missing here, because they were replaced in the
@@ -599,7 +599,7 @@ Feature: creating 'apps' with CLI
     Given I save the output to file> change/pods.json
     Given I replace lines in "change/pods.json":
       | "name": "changed" | "name": "changed2" |
-    When I get project bc as JSON
+    When I get project build_config as JSON
     Then the output should contain:
       | "uri": "https://github.com/openshift/origin" |
     Given I save the output to file> change/buildconfig.json
@@ -614,7 +614,7 @@ Feature: creating 'apps' with CLI
     When I get project pod named "<%= pod.name %>" as JSON
     Then the output should contain:
       | "name": "changed2" |
-    When I get project bc as JSON
+    When I get project build_config as JSON
     Then the output should contain:
       | "uri": "https://github.com/openshift/rails-ex" |
     When I run the :start_build client command with:
