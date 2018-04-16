@@ -1050,3 +1050,37 @@ Feature: Persistent Volume Claim binding policies
     When I run commands on the host:
       | mount \| grep "<%= cb.vid %>" |
     Then the step should fail
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18527
+  @admin
+  @destructive
+  Scenario: Volume could be successfully unmounted when Pod is force deleted during kubelet downtime
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | dynamic-pvc |
+    Then the step should succeed
+    And the "dynamic-pvc" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc |
+      | ["metadata"]["name"]                                         | mypod       |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+
+    Given I save volume id from PV named "<%= pvc.volume_name %>" in the :vid clipboard
+    And I use the "<%= pod.node_name %>" node
+    And the node service is restarted on the host after scenario
+    And the node service is stopped
+    When I run the :delete client command with:
+      | object_type       | pod   |
+      | object_name_or_id | mypod |
+      | force             | true  |
+    Then the step should succeed
+    And the pod named "mypod" becomes terminating
+
+    Given the node service is restarted
+    And I wait for the resource "pod" named "mypod" to disappear
+    When I run commands on the host:
+      | mount \| grep "<%= cb.vid %>" |
+    Then the step should fail

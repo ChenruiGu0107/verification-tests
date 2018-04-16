@@ -244,13 +244,14 @@
 :delete:
   :cmd: oc delete
   :options:
-    :cascade: --cascade=<value>
-    :f: -f <value>
-    :l: -l <value>
     :all: --all
     #The following 'all' can be used with selectors, like the -l flag.
     :all_no_dash: all
+    :cascade: --cascade=<value>
+    :f: -f <value>
+    :force: --force=<value>
     :grace_period: --grace-period=<value>
+    :l: -l <value>
     :object_name_or_id: <value>
     :object_type: <value>
 :deploy:
