@@ -255,9 +255,11 @@ Feature: build related feature on web console
       | to    | myappis                                 |
       | name  | myapp                                   |
     Then the step should succeed
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name        | <%= project.name %>  |
       | bc_name             | myapp                |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy      | Docker               |
     Then the step should succeed
     When I perform the :check_buildconfig_dockerfile_config web console action with:
@@ -328,9 +330,11 @@ Feature: build related feature on web console
       | Webhook GitHub    |
       | Webhook Generic   |
     # check bc on web console
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy | Custom               |
     Then the step should succeed
     When I perform the :check_bc_builder_image_stream web console action with:
@@ -424,9 +428,11 @@ Feature: build related feature on web console
       | Webhook GitHub  |
       | Webhook Generic |
     # check bc on web console
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy | Docker               |
     Then the step should succeed
     # edit bc
@@ -497,9 +503,11 @@ Feature: build related feature on web console
     Then the step should succeed
     And evaluation of `@result[:response][0,38]` is stored in the :image_stream_image clipboard
     # check bc on web console
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample          |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy | Source               |
     Then the step should succeed
     # edit bc
@@ -818,9 +826,11 @@ Feature: build related feature on web console
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525737/application-template-custombuild.json |
     Then the step should succeed
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy | Custom               |
     Then the step should succeed
     When I perform the :check_none_buildconfig_source_repo web console action with:
@@ -848,9 +858,11 @@ Feature: build related feature on web console
     When I run the :new_app client command with:
       | file | application-template-stibuild.json |
     Then the step should succeed
-    When I perform the :check_build_strategy web console action with:
+    When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
       | build_strategy | Source               |
     Then the step should succeed
     When I perform the :check_none_buildconfig_source_repo web console action with:
@@ -1579,4 +1591,3 @@ Feature: build related feature on web console
       | env_var_key   | env_from_conmap3   |
       | resource_name | example-config     |
       | resource_key  | example.property.1 |
-    Then the step should succeed

@@ -5,6 +5,8 @@ goto_one_pipeline_page:
   url: /console/project/<project_name>/browse/pipelines/<pipeline_name>
 goto_one_pipeline_build_page:
   url: /console/project/<project_name>/browse/pipelines/<pipeline_name>/<pipeline_name>-<build_number>
+goto_pipeline_bc_edit_page:
+  url: /console/project/<project_name>/edit/pipelines/<pipeline_name>
 goto_pipeline_configuration_tab:
   action: goto_one_pipeline_page
   action: click_on_configuration_tab
@@ -69,7 +71,7 @@ check_pipeline_log_link:
 check_pipeline_stage_appear:
   elements:
   - selector:
-      xpath: //div[@title='<stage_name>'] 
+      xpath: //div[@title='<stage_name>']
     timeout: 120
 click_start_pipeline:
   elements:

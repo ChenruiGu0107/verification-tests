@@ -157,7 +157,6 @@ check_buildconfig_dockerfile_config:
   - selector:
       xpath: //dt[contains(.,'Dockerfile')]/following-sibling::div[contains(.,'<docker_file_content>')]
 check_build_strategy:
-  action: goto_buildconfig_configuration_tab
   elements:
   - selector:
       xpath: //dt[contains(.,'Build Strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]

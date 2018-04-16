@@ -1,5 +1,8 @@
 --- # perform operations with ace editor
 patch_ace_editor_content:
+  element:
+    selector:
+      class: ace_content
   params:
     editor_xpath: //div[contains(@class,'editor')]
   scripts:
@@ -15,6 +18,9 @@ patch_ace_editor_content:
         return true;
     expect_result: true
 set_ace_editor_content:
+  element:
+    selector:
+      class: ace_content
   params:
     editor_xpath: //div[contains(@class,"editor")]
   scripts:
@@ -25,6 +31,9 @@ set_ace_editor_content:
         return true;
     expect_result: true
 check_ace_editor_content_has:
+  element:
+    selector:
+      class: ace_content
   params:
     editor_xpath: //div[contains(@class,'editor')]
   scripts:
