@@ -3,8 +3,8 @@ Feature: Template service broker related features
   # @author xiuwang@redhat.com
   # @case_id  ocp-18230
   Scenario: deprovision an unready serviceinstance
-    Given I have a project
     Given the master version >= "3.7"
+    And I have a project
     When I run the :goto_home_page web console action
     Then the step should succeed
     When I perform the :provision_from_unbindable_template_on_homepage web console action with:
@@ -12,8 +12,8 @@ Feature: Template service broker related features
       | sub_catagory     | Ruby                           |
       | service_item     | Rails + PostgreSQL (Ephemeral) |
     Then the step should succeed
-    When I get project serviceinstances as JSON 
-    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :svcinstancename clipboard
+    When I get project serviceinstances as JSON
+    And evaluation of `service_instance.name` is stored in the :svcinstancename clipboard
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
@@ -37,10 +37,10 @@ Feature: Template service broker related features
       | sub_catagory     | Mongo               |
       | service_item     | MongoDB (Ephemeral) |
     Then the step should succeed
-    When I get project serviceinstances as JSON 
-    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :svcinstancename clipboard
-    When I get project servicebinding as JSON 
-    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :svcbindingname clipboard
+    When I get project serviceinstances as JSON
+    And evaluation of `service_instance.name` is stored in the :svcinstancename clipboard
+    When I get project servicebinding as JSON
+    And evaluation of `service_binding` is stored in the :svcbindingname clipboard
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
