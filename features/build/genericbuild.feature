@@ -93,6 +93,37 @@ Feature: genericbuild.feature
     Then the output should contain:
       | Tolerations:     key1=value1:NoSchedule |
       |                  key2=value2:NoSchedule |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15353
+    Scenario: Setting ports using parameter in template and set parameter value with string
+    Given I have a project
+    And I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc15352_15353/service.yaml |
+      | p | PROTOCOL=UDP                                                                                        |
+      | p | CONTAINER_PORT=abc                                                                                  | 
+      | p | EXT_PORT=efg                                                                                        |
+      | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
+    And the step should fail
+    Then the output should contain "decNum: got first char 'e'"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15352
+    Scenario: Setting ports using parameter in template and set parameter value with number
+    Given I have a project
+    And I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc15352_15353/service.yaml | 
+      | p | PROTOCOL=UDP                                                                                        |
+      | p | CONTAINER_PORT=888                                                                                  |   
+      | p | EXT_PORT=999                                                                                        |
+      | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
+    And the step should succeed 
+    When I run the :get client command with:
+      | resource  | service |
+    And the step should succeed
+    Then the output should contain:
+      | NAME       |  
+      | bug-param  |  
       
   # @author wewang@redhat.com
   # @case_id OCP-10793
