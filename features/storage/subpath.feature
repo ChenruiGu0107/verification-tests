@@ -356,3 +356,38 @@ Feature: volumeMounts should be able to use subPath
       | aws-ebs        | # @case_id OCP-18418
       | cinder         | # @case_id OCP-18421
       | azure-disk     | # @case_id OCP-18420
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-18429
+  @admin
+  Scenario: Subpath with EFS volume
+    Given I have a project
+    And I have a efs-provisioner in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/class.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["provisioner"]      | openshift.org/aws-efs  |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | efspvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>     |
+    Then the step should succeed
+    And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/subpath/nfs-subpath.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>  |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | ls | -ld | /mnt/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/test_file |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
+
