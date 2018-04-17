@@ -192,3 +192,36 @@ Feature: genericbuild.feature
       | resource_name | build/ruby22-sample-build-4 |
     Then the step should succeed                                                                         
     And the output should contain "unable to access 'https://github.com/openshift/ruby-hello-world.git/'" 
+
+  # @author wewang@redhat.com
+  # @case_id OCP-10964
+  @admin
+  @destructive
+  Scenario: Set NoProxy env in bc when build
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://error.rdu.redhat.com:3128
+            gitHTTPSProxy: https://error.rdu.redhat.com:3128
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build failed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                                          |
+      | resource_name |  ruby22-sample-build                                                                                                 |
+      | p             | {"spec": {"source": { "git": {"uri": "https://github.com/openshift/ruby-hello-world.git","noProxy": "github.com"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build completed 
