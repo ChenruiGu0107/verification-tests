@@ -5,24 +5,24 @@ module CucuShift
   class ClusterRoleBinding < ClusterResource
     RESOURCE = 'clusterrolebindings'
 
-    def update_from_api_object(hash)
-      super
-
-      m = hash["metadata"]
-
-      unless hash["kind"] == shortclass
-        raise "hash not from a #{shortclass}: #{hash["kind"]}"
-      end
-      unless name == m["name"]
-        raise "hash from a different #{shortclass}: #{name} vs #{m["name"]}"
-      end
-
-      props[:role_ref] = hash["roleRef"]
-      props[:subjects] = hash["subjects"]
-      props[:user_names] = hash["userNames"]
-
-      return self # mainly to help ::from_api_object
+    # @return [Array<String>]
+    def user_names(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet)["userNames"]
     end
+
+    def role(user: nil, cached: true, quiet: false)
+      unless cached && props[:role]
+        role = raw_resource(user: user, cached: cached, quiet: quiet).
+          dig("roleRef", "name")
+        props[:role] = ClusterRole.new(name: role, env: env)
+      end
+      return props[:role]
+    end
+
+    # @return [Array<User, Group, ServiceAccount, Systemuser, SystemGroup>]
+    # def subjects(user: nil, cached: true, quiet: false)
+    #   TODO
+    # end
 
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
