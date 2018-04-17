@@ -412,7 +412,7 @@ Feature: dockerbuild.feature
       | code | https://github.com/openshift/ruby-hello-world |
       | build_arg   | ARG=VALUE        |
     Then the step should succeed
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12856/push-generic-build-args.json"
     Then the step should succeed

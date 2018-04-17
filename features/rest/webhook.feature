@@ -63,7 +63,7 @@ Feature: Webhook REST Related Tests
     And the output should contain:
       | GitHub   |
       | Generic  |
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pingevent.json"
     When I perform the HTTP request:
@@ -86,7 +86,7 @@ Feature: Webhook REST Related Tests
       | app_repo     | https://github.com/openshift-qe/ruby-ex#test-tcms438840|
     Then the step should succeed
     Given the "ruby-ex-1" build completes
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
     And I replace lines in "<file>":
@@ -145,7 +145,7 @@ Feature: Webhook REST Related Tests
       | app_repo     | https://github.com/openshift-qe/ruby-ex#test-tcms438840 |
     Then the step should succeed
     Given the "ruby-ex-1" build completes
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
     And I replace lines in "<file>":

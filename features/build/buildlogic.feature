@@ -377,7 +377,7 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the "ruby-hello-world-2" build was created
     And the "ruby-hello-world-2" build completes
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic.json"
     When I replace lines in "push-generic.json":
@@ -429,7 +429,7 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the "ruby-hello-world-2" build was created
     And the "ruby-hello-world-2" build completes
-    When I get project BuildConfig as JSON
+    When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic.json"
     When I replace lines in "push-generic.json":

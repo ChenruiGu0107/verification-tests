@@ -253,7 +253,7 @@ end
 
 # discouraged
 When /^I get project ([-a-zA-Z_]+)$/ do |type|
-  @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name)
+  @result = user.cli_exec(:get, resource: type, n: project.name)
 end
 
 # discouraged
