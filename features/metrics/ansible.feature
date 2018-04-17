@@ -388,4 +388,54 @@ Feature: ansible install related feature
     Then the expression should be true> daemon_set('hawkular-openshift-agent').container_spec(name: 'hawkular-openshift-agent').image.start_with? cb.expected_prefix
     Then the expression should be true> daemon_set('hawkular-openshift-agent').container_spec(name: 'hawkular-openshift-agent').image.end_with? cb.master_version
 
+  # @author pruan@redhat.com
+  # @case_id OCP-17206
+  @admin
+  @destructive
+  Scenario: Deploy Prometheus with dynamic pv via ansible
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17206/inventory |
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-metrics" project
+    # check pvcs are all BOUND
+    Then the expression should be true> pvc('prometheus').ready?[:success]
+    Then the expression should be true> pvc('prometheus-alertbuffer').ready?[:success]
+    Then the expression should be true> pvc('prometheus-alertmanager').ready?[:success]
 
+    # Verify PVC prometheus  are mount to prometheus-data, prometheus-alertmanager are mount to alertmanager-data,
+    # prometheus-alertbuffer are mount to alerts-data
+
+    Given evaluation of `{"prometheus"=>"prometheus-data","alertmanager"=>"alertmanager-data", "alert-buffer"=>"alerts-data"}` is stored in the :container_mounts clipboard
+    And I repeat the following steps for each :container_mount in cb.container_mounts:
+    """
+    And evaluation of `pod('prometheus-0').container(name: cb.container_mount.first).spec.volume_mounts.select { |v| v['name'] == cb.container_mount.last}` is stored in the :volume_mnt clipboard
+    Then the expression should be true> cb.volume_mnt.first['mountPath'] == "/#{cb.container_mount.first}"
+    """
+    # check prom-proxy naming is an exception so need to do it separately.
+    And evaluation of `pod('prometheus-0').container(name: 'prom-proxy').spec.volume_mounts.select { |v| v['name'] == "prometheus-data"}` is stored in the :volume_mnt clipboard
+    Then the expression should be true> cb.volume_mnt.first['mountPath'] == "/prometheus"
+    # Verify prometheus-data are mount in the container prometheus and prom-proxy
+    Given evaluation of `%w[prometheus prom-proxy]` is stored in the :containers clipboard
+    And I repeat the following steps for each :container in cb.containers:
+    """
+    When I run the :exec client command with:
+      | pod              | #{pod.name }    |
+      | container        | #{cb.container} |
+      | exec_command     | --              |
+      | exec_command     | df              |
+      | exec_command_arg | -h              |
+    Then the output should contain "/prometheus"
+    """
+    Given evaluation of `%w[alertmanager alert-buffer]` is stored in the :containers clipboard
+    And I repeat the following steps for each :container in cb.containers:
+    """
+    When I run the :exec client command with:
+      | pod              | #{pod.name}     |
+      | container        | #{cb.container} |
+      | exec_command     | --              |
+      | exec_command     | df              |
+      | exec_command_arg | -h              |
+    Then the output should contain "/#{cb.container}"
+    """
