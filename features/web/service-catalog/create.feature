@@ -105,3 +105,30 @@ Feature: create app on web console related
     Given I wait for all servicebindings in the project to become ready
     When I run the :wait_secret_showing_in_successful_result web console action
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-13995
+  Scenario: Create page should keep values navigated from advanced options
+    Given the master version >= "3.7"
+    Given I have a project
+    When I run the :goto_home_page web console action
+    Then the step should succeed
+    When I perform the :select_service_to_order_from_catalog web console action with:
+      | primary_catagory | Languages                |
+      | sub_catagory     | .NET                     |
+      | service_item     | .NET Core Builder Images |
+    Then the step should succeed
+    When I run the :click_next_button web console action
+    Then the step should succeed
+    When I perform the :do_configuration_step_in_wizard web console action with:
+      | create_project | false               |
+      | project_name   | <%= project.name %> |
+      | app_name       | netapp              |
+    Then the step should succeed
+    When I perform the :check_advanced_options_link_in_wizard web console action with:
+      | service_item   | .NET Core Builder Images |
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    Given the expression should be true> browser.url.match("name=netapp.*sourceURI=.*s2i-dotnetcore-ex.git.*sourceRef=dotnetcore.*contextDir=app")
+    """
