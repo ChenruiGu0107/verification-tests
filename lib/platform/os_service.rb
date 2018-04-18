@@ -28,7 +28,7 @@ module CucuShift
         end
 
         statuses.keys.each do |key|
-          if result[:response] =~ /Active:.*#{statuses[key]}/
+          if result[:response] =~ /Active:\s+#{statuses[key]}/
             result[:status] = key
             return result
           end
