@@ -81,3 +81,62 @@ Feature: oc plugin related tests
     And the output should contain:
       | The Magnificent Aging Plugin |
       | No pods                      |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-14849
+  @admin @destructive
+  Scenario: check search order and list folders for oc plugins
+    Given I select a random node's host
+    When I run commands on the host:
+      | mkdir -p kubectl_plugins_path/mytestplugin                 |
+      | mkdir -p xdg_data_dirs/kubectl/plugins/mytestplugin        |
+      | curl -o xdg_data_dirs/kubectl/plugins/mytestplugin/plugin.yaml https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_plugin/xdg_data_dirs.yaml |
+      | curl -o kubectl_plugins_path/mytestplugin/plugin.yaml https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_plugin/kubectl_plugins_path.yaml   |
+      | KUBECTL_PLUGINS_PATH=kubectl_plugins_path XDG_DATA_DIRS=xdg_data_dirs oc plugin -h |
+    Then the step should succeed
+    And the output should contain "myKUBECTL_PLUGINS_PATH"
+    And the output should not contain "myXDG_DATA_DIRS"
+
+    # Check parent path
+    When I run commands on the host:
+      | mv kubectl_plugins_path/mytestplugin/kubectl_plugins_path.yaml kubectl_plugins_path |
+      | KUBECTL_PLUGINS_PATH=kubectl_plugins_path oc plugin -h                              |
+    Then the step should succeed
+    And the output should contain "myKUBECTL_PLUGINS_PATH"
+
+    Given I register clean-up steps:
+    """
+    When I run commands on the host:
+      | rm -rf /usr/share/kubectl/plugins/mytestplugin ~/.kube/plugins/mytestplugin |
+    Then the step should succeed
+    """
+
+    When I run commands on the host:
+      | mkdir -p ~/.kube/plugins/mytestplugin            |
+      | mkdir -p /usr/share/kubectl/plugins/mytestplugin |
+      | curl -o ~/.kube/plugins/mytestplugin/plugin.yaml https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_plugin/kube.yaml                 |
+      | curl -o /usr/share/kubectl/plugins/mytestplugin/plugin.yaml https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_plugin/usr-share.yaml |
+      | unset KUBECTL_PLUGINS_PATH XDG_DATA_DIRS         |
+      | oc plugin -h                                     |
+    Then the step should succeed
+    And the output should match:
+      | mykubeplugin.*My plugin's short description   |
+      | mysharedplugin.*My plugin's short description |
+
+    When I run commands on the host:
+      | XDG_DATA_DIRS=xdg_data_dirs oc plugin -h |
+    Then the step should succeed
+    And the output should match:
+      | mykubeplugin.*My plugin's short description     |
+      | myXDG_DATA_DIRS.*My plugin's short description  |
+    And the output should not contain:
+      | mysharedplugin |
+
+    When I run commands on the host:
+      | KUBECTL_PLUGINS_PATH=kubectl_plugins_path oc plugin -h |
+    Then the step should succeed
+    And the output should match:
+      | myKUBECTL_PLUGINS_PATH.*My plugin's short description |
+    And the output should not contain:
+      | mykubeplugin   |
+      | mysharedplugin |
