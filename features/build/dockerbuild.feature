@@ -220,7 +220,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
-    When I get project bc named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby22-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc.json
     And I replace lines in "bc.json":
@@ -238,7 +238,7 @@ Feature: dockerbuild.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
-    When I get project bc named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby22-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc1.json
     And I replace lines in "bc1.json":

@@ -11,7 +11,7 @@ Feature: build 'apps' with CLI
       | e            | key3=value3                                         |
       | image_stream | openshift/ruby                                      |
     Then the step should succeed
-    When I get project bc named "ruby-hello-world" as YAML
+    When I get project build_config named "ruby-hello-world" as YAML
     Then the output should match:
       | uri:\\s+https://github.com/openshift/ruby-hello-world|
       | ref:\\s+beta2                                        |
@@ -1139,7 +1139,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517666/ruby22rhel7-template-sti.json |
     Given the "ruby22-sample-build-1" build completes
-    When I get project bc named "ruby22-sample-build" as YAML
+    When I get project build_config named "ruby22-sample-build" as YAML
     Then the output should contain "xiuwangs2i-2"
     Given 1 pods become ready with labels:
       | deploymentconfig=frontend |
@@ -1256,7 +1256,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | binary | ruby |
     Then the step should succeed
-    When I get project bc named "ruby" as YAML
+    When I get project build_config named "ruby" as YAML
     Then the step should succeed
     And the output should contain:
       | sourceStrategy |
@@ -1265,7 +1265,7 @@ Feature: build 'apps' with CLI
       | binary | registry.access.redhat.com/rhscl/ruby-22-rhel7:latest |
       | to     | ruby1 |
     Then the step should succeed
-    When I get project bc named "ruby1" as YAML
+    When I get project build_config named "ruby1" as YAML
     Then the step should succeed
     And the output should contain:
       | sourceStrategy |
@@ -1275,7 +1275,7 @@ Feature: build 'apps' with CLI
       | strategy | docker |
       | to     | ruby2 |
     Then the step should succeed
-    When I get project bc named "ruby2" as YAML
+    When I get project build_config named "ruby2" as YAML
     Then the step should succeed
     And the output should contain:
       | dockerStrategy |
@@ -1298,7 +1298,7 @@ Feature: build 'apps' with CLI
       | name | final-app |
       | allow_missing_imagestream_tags| true |
     Then the step should succeed
-    When I get project bc named "final-app" as YAML
+    When I get project build_config named "final-app" as YAML
     Then the output should match:
       | kind:\s+ImageStreamTag |
       | name:\s+python:latest |
@@ -1443,7 +1443,7 @@ Feature: build 'apps' with CLI
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "http_proxy","value": "http://<%= cb.proxy_ip %>:3128"}]}}}} |
     Then the step should succeed
-    When I get project bc named "ruby-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     Then the output should contain "http://<%= cb.proxy_ip %>:3128"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1534,7 +1534,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517668/ruby22rhel7-template-docker.json |
     Given the "ruby22-sample-build-1" build completes
-    When I get project bc named "ruby22-sample-build" as YAML
+    When I get project build_config named "ruby22-sample-build" as YAML
     Then the output should contain "xiuwangtest"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
@@ -1858,7 +1858,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :create client command with:
       | f | <file_name> |
-    When I get project bc named "<bc_name>"
+    When I get project build_config named "<bc_name>"
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig   | <bc_name> |

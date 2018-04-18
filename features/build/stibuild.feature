@@ -27,7 +27,7 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should contain:
       | {"name":"DISABLE_ASSET_COMPILATION","value":"true"} |
-    When I get project bc named "ruby-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     And I save the output to file>bc.json
     And I replace lines in "bc.json":
       | true | 1 |

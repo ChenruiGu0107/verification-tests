@@ -30,7 +30,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | code         | https://github.com/jboss-openshift/openshift-quickstarts |
       | context_dir  | undertow-servlet                                         |
       | name         | openjdk18                                                |
-    When I get project bc named "openjdk18" as YAML
+    When I get project build_config named "openjdk18" as YAML
     Then the output should match:
       | uri:\\s+https://github.com/jboss-openshift/openshift-quickstarts |
       | type: Git                                                        |
