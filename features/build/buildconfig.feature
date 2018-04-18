@@ -248,7 +248,7 @@ Feature: buildconfig.feature
       | resource_name | ruby22-sample-build |
       | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "EXAMPLE","value": "sample-app"}, {"name":"HTTP_PROXY","value":"http://incorrect.proxy:3128"}]}}}} |
     Then the step should succeed
-    When I get project bc named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby22-sample-build" as JSON
     Then the output should contain "HTTP_PROXY"
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |

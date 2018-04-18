@@ -24,7 +24,7 @@ Feature: dockerbuild.feature
       | github.com/openshift/ruby-hello-world.git | github.com/v3test/ruby-hello-world.git |
     Then the step should succeed
     And the output should contain "replaced"
-    When I get project bc named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby22-sample-build" as JSON
     Then the output should contain:
       |github.com/v3test/ruby-hello-world.git|
     When I run the :start_build client command with:
@@ -82,7 +82,7 @@ Feature: dockerbuild.feature
       | p             |{"spec":{"output":{"to":{"name":"<%= cb.host_yaml %>:<%= cb.port_yaml %>/<%= project.name %>/origin-ruby22-sample"}}}} |
     Then the step should succeed
 
-    When I get project bc named "ruby22-sample-build" as YAML
+    When I get project build_config named "ruby22-sample-build" as YAML
     Then the step should succeed
     And the output should contain "<%= cb.host_yaml %>:<%= cb.port_yaml %>"
 
