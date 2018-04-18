@@ -141,11 +141,11 @@ kubernetesMasterConfig:
 On all nodes edit configuration file `/etc/origin/node/node-config.yaml`, update the contents of the `kubeletArguments` section:
 
 ----
-  kubeletArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
-    - PersistentLocalVolumes=true
-    - BlockVolume=true
-    - PVCProtection=true
-    - MountPropagation=true
+kubeletArguments:
+  feature-gates:
+  - ExpandPersistentVolumes=true
+  - PersistentLocalVolumes=true
+  - BlockVolume=true
+  - PVCProtection=true
+  - MountPropagation=true
 ----
