@@ -79,9 +79,9 @@ module CucuShift
         dig("status", "latestVersion")
     end
 
-    # @return [CucuShift::ReplicationController[
-    def replication_controller(user: nil, cached: true)
-      version = latest_version(user: user, cached: cached, quiet: true)
+    # @return [CucuShift::ReplicationController]
+    def replication_controller(user: nil, cached: true, quiet: true)
+      version = latest_version(user: user, cached: cached, quiet: quiet)
 
       if props[:rc]&.name&.end_with?("-#{version}")
         return props[:rc]
