@@ -4,10 +4,11 @@ module CucuShift
     class OpenShiftService
       include Common::BaseHelper
 
-      attr_reader :host, :services
+      attr_reader :host, :services, :expected_load_time
 
       def initialize(host)
         @host = host
+        @expected_load_time = 20
       end
 
       def status(service, quiet: false)
@@ -153,10 +154,6 @@ module CucuShift
         #end
 
         return CucuShift::ResultHash.aggregate_results(results)
-      end
-
-      def expected_load_time
-        20
       end
 
       # executes #restart on each of the services configured.
