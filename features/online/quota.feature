@@ -213,7 +213,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
 
     When I run the :policy_add_role_to_user client command with:
       | role       | edit                               |
-      | user_name  | <%= user(1, switch: false).uid %> |
+      | user_name  | <%= user(1, switch: false).name %> |
       | n          | <%= cb.project1 %>                 |
     Then the step should succeed
 

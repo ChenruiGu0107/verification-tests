@@ -26,15 +26,15 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
   Scenario: Build and run Java applications using redhat-openjdk18-openshift image
     Given I have a project
     And I create a new application with:
-      | image_stream | openshift/redhat-openjdk18-openshift:latest              |
+      | image_stream | openshift/redhat-openjdk18-openshift:1.2                 |
       | code         | https://github.com/jboss-openshift/openshift-quickstarts |
       | context_dir  | undertow-servlet                                         |
       | name         | openjdk18                                                |
-    When I get project build_config named "openjdk18" as YAML
+    When I get project buildconfigs as YAML
     Then the output should match:
       | uri:\\s+https://github.com/jboss-openshift/openshift-quickstarts |
       | type: Git                                                        |
-      | name: redhat-openjdk18-openshift:latest                          |
+      | name: redhat-openjdk18-openshift:1.2                             |
     Given the "openjdk18-1" build was created
     And the "openjdk18-1" build completed
     When I run the :build_logs client command with:

@@ -144,7 +144,9 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
     Then I run the :new_app client command with:
       | template | laravel-mysql-persistent |
     Then the step should succeed
-    And all pods in the project are ready
-    Then the step should succeed
+    Then the "laravel-mysql-persistent-1" build was created
+    And the "laravel-mysql-persistent-1" build completed
+    And a pod becomes ready with labels:
+      | deployment=laravel-mysql-persistent-1 |
     And I wait for the "laravel-mysql-persistent" service to become ready
     Then I wait for a web server to become available via the "laravel-mysql-persistent" route
