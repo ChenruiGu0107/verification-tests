@@ -3,6 +3,8 @@ goto_projects_page_in_new_tab:
   action: goto_projects_page
 goto_projects_page:
   url: /registry#/projects
+goto_one_project_page:
+  url: /registry#/projects/<project_name>
 select_project_dropdown_in_iframe:
   action:
     context:
@@ -66,3 +68,62 @@ check_project_membership_page:
   elements:
   - selector:
       xpath: //span[text()='Membership']
+add_member_to_project_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: add_member_to_project
+add_member_to_project:
+  params:
+    cancel: 'false'
+  elements:
+  - selector:
+      xpath: //span[contains(.,'Add Member')]
+    op: click
+  - selector:
+      xpath: //input[@id='add_member_name']
+    op: send_keys <member_name>
+  - selector:
+      xpath: //button/span[contains(.,'Select Role')]
+    op: click
+  - selector:
+      xpath: //li/a[contains(.,'<role_type>')]
+    op: click
+  action:
+    if_param:
+      cancel: 'false'
+    ref: click_add_button
+  action: 
+    if_param:
+      cancel: 'true'
+    ref: click_cancel_button
+  action:
+    if_param: prompt_msg
+    ref:
+    - check_prompt_msg
+    - click_cancel_button
+remove_member_from_project_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: remove_member_from_project
+remove_member_from_project:
+  params:
+    cancel: 'false'
+  elements:
+  - selector:
+      xpath: //tr[td[contains(.,'<member_name>')]]//i[contains(@ng-click,'removeMemberFromParent')]
+    op: click
+  action:
+    if_param:
+      cancel: 'false'
+    ref: click_delete_button
+  action: 
+    if_param:
+      cancel: 'true'
+    ref: click_cancel_button
+  action:
+    if_param: prompt_msg
+    ref:
+    - check_prompt_msg
+    - click_cancel_button
