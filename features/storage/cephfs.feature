@@ -79,3 +79,40 @@ Feature: CephFS storage plugin testing
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-cephfs-<%= project.name %> |
     Then the step should succeed
     And the pod named "cephfs-<%= project.name %>" becomes ready
+
+  # @author jhou@redhat.com
+  # @case_id OCP-18673
+  @admin
+  Scenario: CephFS dynamic provisioner
+    Given I have a StorageClass named "cephfs"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And I have a project
+
+    # Verify dynamic provisioner
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/dynamic-provisioning/cephfs_claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephfs                  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 60 seconds
+
+    # Verify Pod works
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cephfs/dynamic-provisioning/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | cephfs-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>    |
+    Then the step should succeed
+    And the pod named "cephfs-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | ls | -ld | /mnt/cephfs |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/cephfs/OCP-18673 |
+    Then the step should succeed
+
+    Given I ensure "cephfs-<%= project.name %>" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 120 seconds
+
