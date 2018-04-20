@@ -67,13 +67,13 @@ Feature: oc_delete.feature
     Then the output should match "<%= cb.prj1 %>\s+Terminating"
     When I run the :get admin command with:
       | resource | pods |
-      | all_namespace | true |
+      | all_namespaces | true |
     And the output should match "<%= pod.name %>.*Terminating"
     Given I wait for the steps to pass:
     """
     When I run the :get admin command with:
       | resource | pods |
-      | all_namespace | true |
+      | all_namespaces | true |
     Then the step should succeed
     And the output should not match "<%= pod.name %>.*Terminating"
     """

@@ -249,69 +249,69 @@ Feature: resouces related scenarios
 
     When I run the :get admin command with:
       | resource         | build |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | pod |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | service |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | bc |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | rc |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | template |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | openshift       |
 
     When I run the :get admin command with:
       | resource         | is |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | route |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | dc |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |
 
     When I run the :get admin command with:
       | resource         | all |
-      | all_namespace    | true |
+      | all_namespaces    | true |
     Then the output should contain:
       | <%= cb.proj1 %> |
       | <%= cb.proj2 %> |

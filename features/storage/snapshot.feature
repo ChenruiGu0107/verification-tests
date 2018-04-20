@@ -34,7 +34,7 @@ Feature: snapshot specific scenarios
     Then the step should succeed
     When I run the :get admin command with:
       | resource      | volumesnapshot |
-      | all_namespace | true           |
+      | all_namespaces | true           |
       | o             | yaml           |
     Then the step should succeed
     And the output should contain "ss-<%= project.name %>"

@@ -177,6 +177,7 @@ module CucuShift
       end
     end
 
+    # @param project [Project, :all] when project is any, we list all namespaces
     # @yield block that selects resource items by returning true; block receives
     #   |resource, resource_hash| as parameters where resource is a reloaded
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.
@@ -185,8 +186,17 @@ module CucuShift
       # construct options
       opts = [ [:resource, self::RESOURCE],
                [:output, "yaml"],
-               [:n, project.name]
       ]
+
+      case project
+      when Project
+        opts << [:n, project.name]
+      when :all
+        opts << [:all_namespaces, "true"]
+      else
+        raise "unrecognized project specification: #{project.inspect}"
+      end
+
       get_opts.each { |k,v|
         if [:resource, :n, :namespace, :resource_name,
             :w, :watch, :watch_only].include?(k)
@@ -204,9 +214,18 @@ module CucuShift
       if res[:success]
         # oc 3.5 returns "No resources found." in stderr so we need to ignore it
         res[:parsed] = YAML.load(res[:stdout])
-        res[:items] = res[:parsed]["items"].map { |i|
-          self.from_api_object(project, i)
-        }
+        if Project === project
+          res[:items] = res[:parsed]["items"].map { |i|
+            self.from_api_object(project, i)
+          }
+        else
+          res[:items] = []
+          res[:parsed]["items"].
+            group_by { |i| i["metadata"]["namespace"]}.each { |namespace, items|
+              _project = Project.new(name: namespace, env: user.env)
+              items.each {|i| res[:items] << self.from_api_object(_project, i) }
+            }
+        end
       else
         user.env.logger.error(res[:response])
         raise "cannot get #{self::RESOURCE} for project #{project.name}"
