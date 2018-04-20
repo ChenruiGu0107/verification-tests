@@ -211,7 +211,8 @@ click_done_button:
 click_save_button:
   elements:
   - selector:
-      xpath: //button[contains(text(),'Save') and not(@disabled)]
+      visible_text: !ruby/regexp '/Save/'
+    type: button
     op: click
 click_view_details:
   element:
@@ -294,3 +295,20 @@ cancel_resource_deletion:
       text: Cancel
     type: button
     op: click
+keep_parameters_in_dialog:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /Keep.*parameters/
+  - selector:
+      visible_text: !ruby/regexp /Yes/
+    type: button
+    op: click
+not_keep_parameters_in_dialog:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /Keep.*parameters/
+  - selector:
+      visible_text: !ruby/regexp /No/
+    type: button
+    op: click
+

@@ -762,7 +762,7 @@ Feature: Check deployments function
     When I perform the :select_dc_strategy_type web console action with:
       | strategy_type | Rolling |
     Then the step should succeed
-    When I run the :keep_parameters web console action
+    When I run the :keep_parameters_in_dialog web console action
     Then the step should succeed
     When I run the :check_learn_more_link_for_rolling_strategy web console action
     Then the step should succeed
@@ -811,7 +811,7 @@ Feature: Check deployments function
     When I perform the :select_dc_strategy_type web console action with:
       | strategy_type | Rolling |
     Then the step should succeed
-    When I run the :not_keep_parameters web console action
+    When I run the :not_keep_parameters_in_dialog web console action
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
