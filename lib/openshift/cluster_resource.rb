@@ -8,7 +8,7 @@ module CucuShift
 
     attr_reader :env
 
-    def initialize(name:, env:, props: {})
+    def initialize(name:, env:)
 
       if name.nil? || env.nil?
         raise "ClusterResource needs name and environment to be identified"
@@ -16,7 +16,7 @@ module CucuShift
 
       @name = name.freeze
       @env = env
-      @props = props
+      @props = {}
     end
 
     def default_user(user=nil, optional: false)

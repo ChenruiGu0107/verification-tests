@@ -13,7 +13,7 @@ module CucuShift
     # @param name [String] name of the resource
     # @param project [CucuShift::Project] the project we belong to
     # @param props [Hash] additional properties of the resource
-    def initialize(name:, project:, props: {})
+    def initialize(name:, project:)
       unless String === name
         raise "name should be a string but it is #{name.inspect}"
       end
@@ -22,7 +22,7 @@ module CucuShift
       end
       @name = name
       @project = project
-      @props = props
+      @props = {}
     end
 
     def env
@@ -69,6 +69,8 @@ module CucuShift
     # @param reference [ObjectReference]
     # @param referer [Resource]
     # @return [ProjectResource]
+    # @note that a cluster resource may refer to a project resource as well
+    #   a project resource may refer resources from another project
     def self.from_reference(reference, referer)
       referer_project = referer.project if referer.respond_to?(:project)
       if referer_project &&
