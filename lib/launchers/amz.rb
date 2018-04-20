@@ -51,6 +51,21 @@ module CucuShift
 
     end
 
+    private def client_sts
+      @client_sts ||= Aws::STS::Client.new
+    end
+
+    # @param ecoded_message [String]
+    # @return [String] in JSON format
+    def decode_authorization_message(encoded_message)
+      decoded = client_sts.decode_authorization_message(encoded_message: encoded_message)
+      if decoded.successful?
+        return decoded.data.decoded_message
+      else
+        raise decoded.error
+      end
+    end
+
     def create_instance(image_id=nil)
       launch_instances(image=image_id)
     end
