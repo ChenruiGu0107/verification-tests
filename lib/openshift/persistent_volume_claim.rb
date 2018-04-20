@@ -31,6 +31,11 @@ module CucuShift
       rr.dig('spec', 'volumeName')
     end
 
+    def volume_mode(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('spec', 'volumeMode')
+    end
+
     def capacity(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       # I guess would be nil when not bound

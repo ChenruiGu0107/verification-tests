@@ -743,23 +743,11 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem             |
     Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | pv-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author piqin@redhat.com
@@ -774,23 +762,11 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                  |
     Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | pv-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Block       |
+    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Block"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     Given 120 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
@@ -813,24 +789,12 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | pv-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem              |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author piqin@redhat.com
@@ -844,24 +808,12 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | pv-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Filesystem  |
+    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                   |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | VolumeMode: |
-      | Block       |
+    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
     Given 120 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
@@ -890,26 +842,14 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]          | Block                            |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
     Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | pv-<%= project.name %> |
-    Then the step should succeed
-    And the output should not contain:
-      | VolumeMode: |
-      | Block       |
+    And the expression should be true> pv("pv-<%= project.name %>").volume_mode != "Block"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]                       | Block                   |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should not contain:
-      | VolumeMode: |
-      | Block       |
+    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode != "Block"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |

@@ -21,6 +21,11 @@ module CucuShift
         dig("spec", 'persistentVolumeReclaimPolicy')
     end
 
+    def volume_mode(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", 'volumeMode')
+    end
+
     def storage_class_name(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("spec", 'storageClassName')
