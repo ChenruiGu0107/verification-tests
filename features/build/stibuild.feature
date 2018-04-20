@@ -347,3 +347,54 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should match:
       | Access your application via route 'route-edge[-a-zA-Z0-9_.]+' |
+
+  # @wewang@redhat.com
+  # @case_id OCP-10940
+  @admin
+  @destructive
+  Scenario: Do incremental builds for sti-build after configure BuildDefaults incredentails true
+    Given I have a project
+    And master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            sourceStrategyDefaults:
+              incremental: true 
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build completed 
+    When I run the :logs client command with:
+      | resource_name | bc/ruby22-sample-build |
+    Then the output should contain:
+      | save-artifacts: No such file or directory |
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/application-template-stibuild_incremental_true.json"
+    And I replace lines in "application-template-stibuild_incremental_true.json":
+      | "incremental": true, ||
+    When I run the :new_app client command with:
+      | file | application-template-stibuild_incremental_true.json | 
+    Then the step should succeed
+    And the "ruby-sample-build-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    And the "ruby-sample-build-2" build completed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-sample-build |
+    Then the output should contain:
+      | Restoring artifacts |
