@@ -1,6 +1,7 @@
 require 'openshift/project_resource'
 
 require 'openshift/flakes/container'
+require 'openshift/flakes/pod_volume_spec'
 
 module CucuShift
   # represents an OpenShift pod
@@ -200,8 +201,24 @@ module CucuShift
       return get_cached_prop(prop: :termination_grace_period_seconds, user: user, cached: cached, quiet: quiet)
     end
 
-    def volumes(user: nil, cached: true, quiet: false)
+    private def volumes_raw(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :volumes, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @return [Array<PodVolumeSpec>]
+    def volumes(user: nil, cached: true, quiet: false)
+      unless cached && props[:volume_specs]
+        raw = volumes_raw(user: user, cached: cached, quiet: quiet) || []
+        props[:volume_specs] = raw.map {|vs| PodVolumeSpec.from_spec(vs, self) }
+      end
+      return props[:volume_specs]
+    end
+
+    # @return [Array<PersistentVolumeClaim>]
+    def volume_claims(user: nil, cached: true, quiet: false)
+      volumes(user: user, cached: cached, quiet: quiet).select { |v|
+        PVCPodVolumeSpec === v
+      }.map(&:claim)
     end
 
     def env_var(name, container: nil, user: nil)
