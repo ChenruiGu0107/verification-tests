@@ -67,7 +67,7 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
 
   case op
   when "added to"
-    if CucuShift::ClusterRoleBinding.list(user: _admin).any? { |crb| crb.role.name == role && crb.user_names.include?(_subject_name) }
+    if CucuShift::ClusterRoleBinding.list(user: _admin).any? { |crb| crb.role.name == role && crb.user_names&.include?(_subject_name) }
       logger.info "#{_subject_name} already has role #{role}"
       next
     end
