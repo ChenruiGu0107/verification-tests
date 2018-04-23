@@ -123,6 +123,16 @@ Given /^the#{OPT_QUOTED} PV status is #{SYM}$/ do |pv_name, status|
   end
 end
 
+Given /^the#{OPT_QUOTED} PV becomes terminating(?: within (\d+) seconds)?$/ do |pv_name, timeout|
+  timeout = timeout ? timeout.to_i : 30
+  success = wait_for(timeout) {
+    pv(pv_name).deletion_timestamp(cached: false, quiet: true)
+  }
+  unless success
+    raise "PV #{pv_name} did not become terminating within #{timeout}:\n#{pv.raw_resource.to_yaml}"
+  end
+end
+
 # will create a PV with a random name and updating any requested path within
 #   the object hash with the given value e.g.
 # | ["spec"]["nfs"]["server"] | service("nfs-service").ip |

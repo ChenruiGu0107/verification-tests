@@ -1,4 +1,4 @@
-Feature: pvc protection specific scenarios
+Feature: Storage object in use protection
   # @author lxia@redhat.com
   # @case_id OCP-17253
   Scenario: Delete pvc which is not in active use by pod should be deleted immediately
@@ -38,7 +38,7 @@ Feature: pvc protection specific scenarios
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "Terminating\s+\(since"
+    And the output should match "Terminating\s+\((since|lasts)"
     Given I ensure "mypod" pod is deleted
     And I wait for the resource "pvc" named "pvc-<%= project.name %>" to disappear within 30 seconds
 
@@ -117,3 +117,33 @@ Feature: pvc protection specific scenarios
     Given I ensure "mypod" pod is deleted
     And I ensure "mypvc" pvc is deleted
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18796
+  @admin
+  Scenario: Delete pv which is bind with pvc should postpone deletion
+    Given I have a project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"] | pv-<%= project.name %> |
+    Then the step should succeed
+    And the PV becomes :available
+    And the expression should be true> pv.finalizers&.include? "kubernetes.io/pv-protection"
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    When I run the :delete admin command with:
+      | object_type       | pv                     |
+      | object_name_or_id | pv-<%= project.name %> |
+    Then the step should succeed
+    And the "pv-<%= project.name %>" PV becomes terminating
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should match "Terminating\s+\((since|lasts)"
+    Given I ensure "pvc-<%= project.name %>" pvc is deleted
+    And I switch to cluster admin pseudo user
+    Then I wait for the resource "pv" named "pv-<%= project.name %>" to disappear within 30 seconds
