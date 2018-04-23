@@ -141,6 +141,7 @@ module CucuShift
         raise "hash from a #{shortclass} of a different namespace '#{project}"
       end
 
+      props.clear # remove any lazily initialized cached references to protect
       props[:raw] = Collections.deep_freeze(hash)
 
       return self # mainly to help ::from_api_object

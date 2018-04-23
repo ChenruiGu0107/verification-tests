@@ -35,5 +35,34 @@ module CucuShift
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("metadata", "uid")
     end
+
+    def claim_ref(user: nil, cached: true, quiet: false)
+      unless cached && props.has_key?(:claim)
+        raw =raw_resource(user: user, cached: cached, quiet: quiet).dig(
+          "spec", "claimRef"
+        )
+        props[:claim] = raw.nil? ? nil : ObjectReference.new(raw)
+      end
+      return props[:claim]
+    end
+
+    def claim(user: nil, cached: true, quiet: false)
+      claim_ref(user: user, cached: cached, quiet: quiet)&.resource(self)
+
+      # docs state that authoritative bind is PCV->volume_name
+      # so we may need this code in case `claim_ref` turns out unreliable
+      # https://docs.openshift.org/latest/rest_api/api/v1.PersistentVolume.html#object-schema
+      # props[:pvc] = PersistentVolumeClaim.list(user: default_user(user), project: :all) { |pvc, hash|
+      #   name == pvc.volume_name(user: default_user(user), cached: cached, quiet: quiet)
+      # }.first
+    end
+
+    # @override
+    def ensure_deleted(user: nil, wait: 60)
+      if phase(user: user, cached: false, quiet: true) == :bound
+        claim(cached: true).ensure_deleted(user: default_user(user))
+      end
+      super
+    end
   end
 end

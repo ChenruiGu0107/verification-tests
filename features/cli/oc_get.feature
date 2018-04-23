@@ -21,7 +21,7 @@ Feature: oc get related command
     Then the step should succeed
     When I run the :get admin command with:
       | resource       | all     |
-      | all_namespace  | true    |
+      | all_namespaces  | true    |
     Then the step should succeed
     And the output should match:
       | NAMESPACE                                       |
