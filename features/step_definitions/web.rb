@@ -57,38 +57,42 @@ Given /^I have a browser with:$/ do |table|
   teardown_add { @result = browser.finalize }
 end
 
-Given /^I open (registry|accountant) console in a browser$/ do |console|
+Given /^I open accountant console in a browser$/ do
   base_rules = CucuShift::WebConsoleExecutor::RULES_DIR + "/base/"
   snippets_dir = CucuShift::WebConsoleExecutor::SNIPPETS_DIR
-  case console
-  when "registry"
-    step "default registry-console route is stored in the :reg_console_url clipboard"
-    step "I have a browser with:", table(%{
-      | rules        | #{base_rules}                     |
-      | rules        | lib/rules/web/registry_console/   |
-      | base_url     | https://<%= cb.reg_console_url %> |
-      | snippets_dir | #{snippets_dir}                   |
-    })
-    @result = browser.run_action(:goto_registry_console)
-    step 'I perform login to registry console in the browser'
-  when "accountant"
+
     step "evaluation of `env.web_console_url[/(?<=\\.).*(?=\.openshift)/]` is stored in the :acc_console_url clipboard"
     step "I have a browser with:", table(%{
-      | rules        | #{base_rules}                                           |
-      | rules        | lib/rules/web/accountant_console/                       |
-      | base_url     | https://account.<%= cb.acc_console_url %>.openshift.com |
-      | snippets_dir | #{snippets_dir}                                         |
+      | rules        | #{base_rules}                      |
+      | rules        | lib/rules/web/accountant_console/  |
+      | base_url     | <%= env.web_console_url %>         |
+      | snippets_dir | #{snippets_dir}                    |
     })
-    if user.password?
-      @result = browser.run_action(:login_acc_console,
-                          username: user.name,
-                          password: user.password)
-    else
-      raise "cannot login to accountant console via token"
-    end
-  else
-    raise "Unknown console type"
-  end
+    @result = browser.run_action(:login_acc_console,
+                                 username: user.auth_name,
+                                 password: user.password)
+    raise "cannot login to web console" unless @result[:success]
+    @result = browser.run_action(:click_user_dropdown)
+    raise "cannot click user dropdown menu" unless @result[:success]
+    # we need to open in same tab and I don't know a better way
+    console_url = browser.browser.a(text: "Manage Account").href
+    browser.browser.goto console_url
+    @result = browser.run_action(:navigate_to_subscription)
+    raise "cannot navigate to subscription page" unless @result[:success]
+end
+
+Given /^I open registry console in a browser$/ do
+  base_rules = CucuShift::WebConsoleExecutor::RULES_DIR + "/base/"
+  snippets_dir = CucuShift::WebConsoleExecutor::SNIPPETS_DIR
+  step "default registry-console route is stored in the :reg_console_url clipboard"
+  step "I have a browser with:", table(%{
+    | rules        | #{base_rules}                     |
+    | rules        | lib/rules/web/registry_console/   |
+    | base_url     | https://<%= cb.reg_console_url %> |
+    | snippets_dir | #{snippets_dir}                   |
+                                     })
+  @result = browser.run_action(:goto_registry_console)
+  step 'I perform login to registry console in the browser'
 end
 
 When /^I perform login to registry console in the browser$/ do
