@@ -153,7 +153,7 @@ module CucuShift
     #   the actual OpenShift environment)
     # @note we use a custom getter instead of auto-generated resource getters
     #   to allow generating project names; maybe that can be refactored some day
-    def project(name = nil, env: nil, generate: true, switch: true)
+    def project(name = nil, env: nil, generate: false, switch: true)
       env ||= self.env
       if name.kind_of? Integer
         p = @projects[name]

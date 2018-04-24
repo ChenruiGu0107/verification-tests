@@ -45,16 +45,17 @@ Given /^there should be (\d+) (logging|metrics) services? installed/ do |count, 
 end
 
 # short-hand for the generic uninstall step if we are just using the generic install
-Given /^I remove (logging|metrics) service installed in the#{OPT_QUOTED} project using ansible$/ do | svc_type, proj_name|
-  proj_name = project.name if proj_name.nil?
+Given /^I remove (logging|metrics) service using ansible$/ do | svc_type |
   if cb.install_prometheus
     uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_uninstall_prometheus"
   else
     uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory"
   end
-  step %Q/#{svc_type} service is uninstalled from the "#{proj_name}" project with ansible using:/, table(%{
+  step %Q/#{svc_type} service is uninstalled with ansible using:/, table(%{
     | inventory| #{uninstall_inventory} |
   })
+  @result = admin.cli_exec(:delete, {object_type: 'pod', object_name_or_id: 'base-ansible-pod', n: 'default'})
+  raise "Unable to remove base-ansible-pod" unless @result[:success]
 end
 
 # helper step that does the following:
@@ -91,7 +92,6 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   cb[:metrics] = env.metrics_console_url
   opts = opts_array_to_hash(table.raw)
   raise "required parameter 'path' is missing" unless opts[:path]
-
   bearer_token = opts[:token] ? opts[:token] : user.cached_tokens.first
 
   https_opts = {}
@@ -143,14 +143,13 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
 end
 # unless project name is given we assume all logging pods are installed under the current project
 Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
-  proj_name = project.name if proj_name.nil?
+  cb.target_proj ||= 'openshift-logging'
+  proj_name = cb.target_proj if proj_name.nil?
+  ensure_destructive_tagged
   org_proj_name = project.name
-  org_user = user
-  if proj_name == 'logging'
-    ensure_destructive_tagged
-    step %Q/I switch to cluster admin pseudo user/
-    project(proj_name)
-  end
+
+  step %Q/I switch to cluster admin pseudo user/
+  step %Q/I use the "#{proj_name}" project/
   begin
     # check rc readiness for 3/4 logging components, fluentd does not have rc, so stick with pod readiness for that compoent
     step %Q/a replicationController becomes ready with labels:/, table(%{
@@ -167,8 +166,7 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
       | component=kibana,logging-infra=kibana,openshift.io/deployment-config.name=logging-kibana,provider=openshift |
       })
   ensure
-    @user = org_user
-    project(org_proj_name)
+    step %Q/I use the "#{org_proj_name}" project/ unless org_proj_name.nil?
   end
 end
 
@@ -206,7 +204,6 @@ Given /^all deployer logging pods are running in the#{OPT_QUOTED} project$/ do |
       | component=kibana-ops |
       })
   ensure
-    @user = org_user
     project(org_proj_name)
   end
 end
@@ -214,9 +211,9 @@ end
 # we force all metrics pods to be installed under the project 'openshift-infra'
 Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   if cb.install_prometheus
-    step %Q/all prometheus related pods are running in the project/
+    step %Q/all prometheus related pods are running in the "#{proj_name}" project/
   else
-    step %Q/all hawkular related pods are running in the project/
+    step %Q/all hawkular related pods are running in the "#{proj_name}" project/
   end
 end
 # HOA is short for Hawkular Openshift Agent
@@ -269,7 +266,7 @@ Given /^all hawkular related pods are running in the#{OPT_QUOTED} project$/ do |
     step %Q/I wait until replicationController "hawkular-metrics" is ready/ unless heapster_only
     step %Q/I wait until replicationController "heapster" is ready/
   ensure
-    @user = org_user
+    @user = org_user if org_user
     project(org_proj_name)
   end
 end
@@ -290,7 +287,7 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
       })
     #step %Q/the pod named "prometheus-0" becomes ready/
   ensure
-    @user = org_user
+    @user = org_user if org_user
     project(org_proj_name)
   end
 end
@@ -299,12 +296,11 @@ end
 # if no project name is given, then we assume will use the project mapping of
 # logging ==> current_project_name , metrics ==> 'openshift-infra'
 # step will raise exception if metrics name is not 'openshift-infra'
-Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
+Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:$/ do |svc_type, op, table|
   ensure_destructive_tagged
 
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
-
   # check to see if it's a negative test, skip post installation pod check if it's
   cb.negative_test = !!ansible_opts[:negative_test]
   # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
@@ -358,13 +354,15 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       target_proj = 'openshift-infra'
     end
   else
+    # openshift_logging_namespace parameter has become deprecated, just force
+    # logging to be installed in system project 'openshift-logging'
     if cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace'] == ""
-      target_proj = proj.nil? ? project.name : proj
+      target_proj = "openshift-logging"
     else
       target_proj = cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace']
     end
   end
-
+  org_project = project(generate: false) rescue nil
   cb.metrics_route_prefix = "metrics"
   cb.logging_route_prefix = "logs"
 
@@ -380,13 +378,13 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   logger.info("Performing operation '#{op[0..-3]}' to #{target_proj}...")
   if op == 'installed'
     step %Q/I register clean-up steps:/, table(%{
-      | I remove #{svc_type} service installed in the "#{target_proj}" project using ansible |
+      | I remove #{svc_type} service using ansible |
       })
   end
 
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
   # use ruby instead of step to bypass user restriction
-  cb.subdomain = env.router_default_subdomain(user: user, project: project)
+  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
   step %Q/I store master major version in the :master_version clipboard/
   step %Q/I create the "tmp" directory/
 
@@ -403,7 +401,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     new_path = "tmp/uninstall_inventory"
   end
   cb.target_proj = target_proj
-  org_user = user
+  #org_user = user
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   host = env.master_hosts.first
@@ -479,6 +477,10 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     ### print out the inventory file
     logger.info("***** using the following user inventory *****")
     pod.exec("cat", "/tmp/#{new_path}", as: user)
+    # we need install patch for OCP <= 3.9  to address an error for atomic where patch wasn't available on atomic hosts
+    step %Q/I execute on the pod:/, table(%{
+      | yum | -y | install | patch |
+      })
     step %Q/I execute on the pod:/, table(%{
       | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
@@ -520,7 +522,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       end
     end
   ensure
-    @user = org_user
+    # @user = org_user if org_user
+    project(cb.target_proj)
   end
 end
 
@@ -547,7 +550,8 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
   step %Q/I use the "<%= project.name %>" project/
   step %Q/I store master major version in the :master_version clipboard/
   cb.master_url = env.master_hosts.first.hostname
-  cb.subdomain = env.router_default_subdomain(user: user, project: project)
+  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
+  #env.router_default_subdomain(user: user, project: project)
 
   unless cb.deployer_config
     step %Q/I download a file from "<%= "#{deployer_opts[:deployer_config]}" %>"/
@@ -619,7 +623,7 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
   project(target_proj)
 
   step %Q/I store master major version in the :master_version clipboard/
-  cb.subdomain = env.router_default_subdomain(user: user, project: project)
+  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
 
   # sanity check, fail early if we can't get the master version
   raise "Unable to get subdomain" if cb.subdomain.nil?
@@ -761,7 +765,7 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   # we need to save the original project name for post test cleanup
   cb.org_project_for_ansible ||= project
   # to save time we are going to check if the base-ansible-pod already exists
-  # use admin user to get the information so we don't need to swtich user.
+  # use admin user to get the information so we don't need to switch user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
     proxy_value = nil
     if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
@@ -898,14 +902,14 @@ Given /^(logging|metrics) service is installed in the system using:$/ do | svc, 
     # use ansible
     inventory = params[:inventory]
     logger.info("Installing #{svc} using ansible")
-    step %Q/#{svc} service is installed in the project with ansible using:/, table(%{
+    step %Q/#{svc} service is installed with ansible using:/, table(%{
       | inventory | #{inventory} |
       })
   else
     # use deployer
     deployer_config = params[:deployer_config]
     logger.info("Installing #{svc} using deployer")
-    step %Q/#{svc} service is installed in the project using deployer:/, table(%{
+    step %Q/#{svc} service is installed using deployer:/, table(%{
       | deployer_config | #{deployer_config}|
       })
   end

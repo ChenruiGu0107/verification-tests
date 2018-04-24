@@ -176,7 +176,6 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Heap size limit should be set for Kibana pods
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given a pod becomes ready with labels:
       |  component=kibana,deployment=logging-kibana-1,deploymentconfig=logging-kibana,logging-infra=kibana,provider=openshift |
@@ -196,7 +195,6 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Logging fluentD daemon set should set quota for the pods
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given a pod becomes ready with labels:
       | component=fluentd,logging-infra=fluentd |
@@ -209,7 +207,6 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Logout kibana web console with installation step included
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given I login to kibana logging web console
     When I perform the :logout_kibana web action with:
@@ -558,7 +555,6 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT, BUFFER_SIZE_LIMIT and BUFFER_QUEUE_LIMIT use the default value
     Given the master version >= "3.8"
-    Given I create a project with non-leading digit name
     And logging service is installed in the project with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17235/inventory |
     Given a pod becomes ready with labels:
@@ -578,8 +574,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT, BUFFER_QUEUE_LIMIT and  BUFFER_SIZE_LIMIT use customed value
     Given the master version >= "3.8"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17238/inventory |
     Given a pod becomes ready with labels:
       | component=fluentd,logging-infra=fluentd |
@@ -598,11 +593,10 @@ Feature: logging related scenarios
   @destructive
   Scenario: Scale up kibana pods and elasticsearch pods
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16747/inventory |
     # redeploy with scalling after the initial installation
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16747/inventory_scaling |
     And a pod becomes ready with labels:
       | component=es |

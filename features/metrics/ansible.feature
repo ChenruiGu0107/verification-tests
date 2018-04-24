@@ -5,8 +5,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - fresh deploy with default values
     Given the master version >= "3.5"
-    Given I have a project
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12234/inventory |
 
   # @author pruan@redhat.com
@@ -15,12 +14,13 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - clean and install
     Given the master version >= "3.5"
-    Given I have a project
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |
-    Given I remove metrics service installed in the "openshift-infra" project using ansible
+    Given I remove metrics service using ansible
+    And I use the "default" project
+    And I wait for the resource "pod" named "base-ansible-pod" to disappear
     # reinstall it again
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |
 
   # @author lizhou@redhat.com
@@ -41,13 +41,13 @@ Feature: ansible install related feature
 
     # Deploy metrics
     Given cluster role "cluster-admin" is added to the "first" user
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-14055/inventory |
 
     # Verify the storage are being used
     Given I use the "openshift-infra" project
     And a pod becomes ready with labels:
-    | metrics-infra=hawkular-cassandra |
+      | metrics-infra=hawkular-cassandra |
     And I wait for the steps to pass:
     """
     When I get project pod named "<%= pod.name %>" as YAML
@@ -66,7 +66,7 @@ Feature: ansible install related feature
     Given the master version >= "3.5"
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory |
       | copy_custom_cert | true                                                                                                   |
     # we have to run the curl in the first master because that is where the cert file is located
@@ -85,12 +85,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy standalone heapster
     Given the master version >= "3.5"
-    Given I have a project
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12879/inventory |
-
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-infra" project
     Then status becomes :running of exactly 1 pods labeled:
       | metrics-infra=heapster |
       | name=heapster          |
@@ -102,11 +98,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy set openshift_metrics_hawkular_replicas
     Given the master version >= "3.5"
-    Given I have a project
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11430/inventory |
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-infra" project
     Then status becomes :running of exactly 2 pods labeled:
       | metrics-infra=hawkular-metrics |
       | name=hawkular-metrics          |
@@ -117,9 +110,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: deploy metrics with dynamic volume
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10214/inventory |
+    And I switch to first user
     Given I login via web console
     And I open metrics console in the browser
     Given the metrics service status in the metrics web console is "STARTED"
@@ -131,10 +124,10 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy set user_write_access
     Given the master version >= "3.5"
-    Given I have a project
-    And metrics service is installed in the "openshift-infra" project with ansible using:
+    And I have a project
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12012/inventory |
-
+    And I switch to first user
     Given I wait up to 180 seconds for the steps to pass:
     """
     Given I perform the GET metrics rest request with:
@@ -168,11 +161,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: Undeploy Prometheus via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
-    And I remove metrics service installed in the project using ansible
-    And I switch to cluster admin pseudo user
+    And I remove metrics service using ansible
     # verify the project is gone
     And I wait for the resource "project" named "openshift-metrics" to disappear within 60 seconds
 
@@ -182,14 +173,12 @@ Feature: ansible install related feature
   @destructive
   Scenario: Update Prometheus via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
-    And I switch to cluster admin pseudo user
     And I wait for the "alerts" service to become ready
     Given I ensure "alerts" service is deleted
     # rerun the ansible install again
-    And metrics service is installed in the project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
     # check the service is brought back to life
     Then the expression should be true> service('alerts').name == 'alerts'
@@ -200,10 +189,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with node selector via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
     # inventory file expect cb.node_label to be set
     And evaluation of `"ocp15538"` is stored in the :node_label clipboard
-    And metrics service is installed in the project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15538/inventory |
 
   # @author pruan@redhat.com
@@ -212,8 +200,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus via ansible to non-default namespace
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the project with ansible using:
+    Given I have a project
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15544/inventory |
 
   # @author pruan@redhat.com
@@ -222,10 +210,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with container resources limit via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the project with ansible using:
+    And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15529/inventory |
-    And I switch to cluster admin pseudo user
     And a pod becomes ready with labels:
       | app=prometheus |
     And evaluation of `pod.containers(user: user)` is stored in the :containers clipboard
@@ -258,10 +244,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check terminationGracePeriodSeconds value for hawkular-cassandra pod
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system
-    And I switch to cluster admin pseudo user
-    Given I use the "openshift-infra" project
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-cassandra |
     Then the expression should be true> pod.termination_grace_period_seconds == 1800
@@ -272,11 +255,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: deploy metrics with dynamic volume along with OCP
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17163/inventory |
-    And I switch to cluster admin pseudo user
-    Given I use the "openshift-infra" project
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-cassandra |
     # 3 steps to verify hawkular-cassandra pod using mount correctly
@@ -292,11 +272,11 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: Heapster should use node name instead of external ID to indentify metrics
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     Given I select a random node's host
     And evaluation of `node.external_id` is stored in the :external_id clipboard
     Given cluster role "cluster-admin" is added to the "first" user
+    And I switch to first user
     # it usually take a little while for the query to comeback with contents
     And I wait for the steps to pass:
     """
@@ -315,12 +295,10 @@ Feature: ansible install related feature
   @destructive
   Scenario: Undeploy HOSA via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15860/inventory |
-    And I switch to cluster admin pseudo user
     Then all Hawkular agent related resources exist in the project
-    And metrics service is uninstalled from the project with ansible using:
+    And metrics service is uninstalled with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15860/uninstall_inventory |
     Then no Hawkular agent resources exist in the project
 
@@ -331,11 +309,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy with custom metrics parameter
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12112/inventory |
-    And I switch to cluster admin pseudo user
-    And I use the "openshift-infra" project
     Then the expression should be true> rc('hawkular-cassandra-1').suplemental_groups.include? 65531
     Then the expression should be true> rc('heapster').annotation('kubectl.kubernetes.io/last-applied-configuration').include? '--metric_resolution=15s'
     Then the expression should be true> rc('hawkular-metrics').annotation('kubectl.kubernetes.io/last-applied-configuration').include? "-Dhawkular.metrics.default-ttl=14"
@@ -346,12 +321,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check the default image prefix and version - prometheus
     Given the master version >= "3.4"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18507/inventory |
       | negative_test | true                                                                                                   |
-    And I switch to cluster admin pseudo user
-    And I use the "<%= cb.target_proj %>" project
     And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
     # check all container spec has the expected url
     And the expression should be true> stateful_set('prometheus').containers_spec.all? {|s| s.image.start_with? cb.expected_prefix }
@@ -368,13 +340,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check the default image prefix and version - metrics
     Given the master version >= "3.4"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18506/inventory |
       | negative_test | true                                                                                                   |
-    And I switch to cluster admin pseudo user
-
-    And I use the "<%= cb.target_proj %>" project
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-metrics |
     And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
@@ -394,10 +362,8 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with dynamic pv via ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17206/inventory |
-    Given I switch to cluster admin pseudo user
     And I use the "openshift-metrics" project
     # check pvcs are all BOUND
     Then the expression should be true> pvc('prometheus').ready?[:success]

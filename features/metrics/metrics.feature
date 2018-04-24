@@ -3,11 +3,12 @@ Feature: metrics related scenarios
   # @case_id OCP-11821
   @admin
   @destructive
-  Scenario: User can insert data to hawkular metrics in their own tanent when USER_WRITE_ACCESS parameter is 'true'
-    Given I create a project with non-leading digit name
+  Scenario: User can insert data to hawkular metrics in their own tenant when USER_WRITE_ACCESS parameter is 'true'
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+    And I switch to the first user
+    Given I have a project
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
       | path         | /metrics/gauges                                                                                   |
@@ -15,6 +16,7 @@ Feature: metrics related scenarios
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
       | path         | /metrics/gauges     |
+      | token        | <%= user.cached_tokens.first %> |
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
@@ -23,7 +25,6 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: User can not create metrics in the tenant which owned by other user
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -40,8 +41,9 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: User can only read metrics data when USER_WRITE_ACCESS is specified to false
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system
+    Given I switch to the first user
+    Given I have a project
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
       | path         | /metrics/gauges     |
@@ -58,8 +60,8 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Check hawkular alerts endpoint is accessible
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system
+    And I switch to the first user
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given I store default router subdomain in the :metrics clipboard
     Given cluster role "cluster-admin" is added to the "first" user
@@ -74,7 +76,6 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: User cannot create metrics in _system tenant even if USER_WRITE_ACCESS parameter is 'true'
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -89,11 +90,12 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: User can only read metrics data when USER_WRITE_ACCESS parameter is not specified
-    Given I create a project with non-leading digit name
+    Given I have a project
     Given metrics service is installed in the system
+    Given I switch to the first user
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
-      | path         | /metrics/gauges             |
+      | path         | /metrics/gauges     |
     Then the expression should be true> @result[:exitstatus] == 204
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
@@ -107,7 +109,6 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Access the external Hawkular Metrics API interface as cluster-admin
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -144,7 +145,6 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Insert data into Cassandra DB through external Hawkular Metrics API interface without Hawkular-tenant specified
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -303,11 +303,8 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Metrics Admin Command - fresh deploy with resource limits
-    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12276/inventory |
-    And I switch to cluster admin pseudo user
-    And I use the "openshift-infra" project
     Then the expression should be true> rc('hawkular-cassandra-1').container_spec(name: 'hawkular-cassandra-1').memory_limit_raw == "1G"
     Then the expression should be true> rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_request_raw == "100m"
 
@@ -316,9 +313,10 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Show CPU,memory, network metrics statistics on pod page of openshift web console
+    And metrics service is installed in the system
+    And I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :proj_1_name clipboard
-    And metrics service is installed in the system
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
     Then the step should succeed
