@@ -824,35 +824,29 @@ Feature: change the policy of user/service account
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10465
-  @admin
   Scenario: Basic user could not get pv object info
     Given I have a project
-    And I have a 1 GB volume and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
-      | ["metadata"]["name"]                         | pv-<%= project.name %> |
-      | ["spec"]["capacity"]["storage"]              | 1Gi                    |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce          |
-      | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
-      | ["spec"]["persistentVolumeReclaimPolicy"]    | Retain                 |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-
+    And the "pvc-<%= project.name %>" PVC becomes :bound
     Then I run the :get client command with:
       | resource      | pv                     |
-      | resource_name | pv-<%= project.name %> |
+      | resource_name | <%= pvc.volume_name %> |
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot get persistentvolumes at the cluster scope |
 
     When I run the :describe client command with:
       | resource | pv                     |
-      | name     | pv-<%= project.name %> |
+      | name     | <%= pvc.volume_name %> |
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot get persistentvolumes at the cluster scope |
 
     When I run the :delete client command with:
       | object_type       | pv                     |
-      | object_name_or_id | pv-<%= project.name %> |
+      | object_name_or_id | <%= pvc.volume_name %> |
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot delete persistentvolumes at the cluster scope |
