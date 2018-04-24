@@ -6,7 +6,7 @@ Feature: Check overview page
     Given I have a project
     When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
-    Then the step should succeed  
+    Then the step should succeed
 
     When I run the :new_build client command with:
       | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
@@ -37,11 +37,11 @@ Feature: Check overview page
       | project_name | <%= project.name %> |
       | bc_name      | ruby-ex             |
       | bc_build_id  | ruby-ex-1           |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_alert_info_for_add_health_checks web console action with:
       | app_name | Ruby Ex |
       | dc_name  | ruby-ex |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :click_close_alert web console action
     Then the step should succeed
     # below checks are only valid when the build is completed
@@ -59,7 +59,7 @@ Feature: Check overview page
       | container_name | ruby-ex                     |
       | image_name     | <%= project.name %>/ruby-ex |
       | port           | 8080/TCP                    |
-    Then the step should succeed 
+    Then the step should succeed
 
     When I run the :click_create_route_on_overview web console action
     Then the step should succeed
@@ -190,9 +190,6 @@ Feature: Check overview page
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :check_app_heading_on_overview web console action with:
-      | app_name | ruby-ex |
-    Then the step should succeed
     When I perform the :check_application_block_info_on_overview web console action with:
       | resource_name        | ruby-ex                            |
       | resource_type        | deployment                         |
@@ -202,6 +199,10 @@ Feature: Check overview page
       | route_url            | http://<%= route("ruby-ex").dns %> |
       | route_port_info      | 8080-tcp                           |
       | service_port_mapping | 8080/TCP (8080-tcp) 8080           |
+      | container_image      | ruby-ex                            |
+      | container_source     | Merge pull request                 |
+      | container_ports      | 8080/TCP                           |
+      | bc_name              | ruby-ex                            |
     Then the step should succeed
     When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
       | project_name  | <%= project.name %> |
@@ -211,8 +212,8 @@ Feature: Check overview page
     Then the step should succeed
 
   # @author hasha@redhat.com
-  # @case_id OCP-11684 
-  Scenario: Check ReplicaSet/StatefulSet/k8s deployment on overview page 
+  # @case_id OCP-11684
+  Scenario: Check ReplicaSet/StatefulSet/k8s deployment on overview page
     Given the master version >= "3.6"
     Given I have a project
     # create ReplicaSet
@@ -228,10 +229,10 @@ Feature: Check overview page
     When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
       | project_name  | <%= project.name %> |
       | edityaml_type | ReplicaSet          |
-      | resource_name | frontend            |  
+      | resource_name | frontend            |
       | yaml_name     | frontend            |
       | viewlog_type  | pods                |
-      | log_name      | <%= cb.replica_pod%>| 
+      | log_name      | <%= cb.replica_pod%>|
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicaset |
@@ -241,7 +242,7 @@ Feature: Check overview page
 
     # create StatefulSet
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -256,7 +257,7 @@ Feature: Check overview page
       | log_name      | <%= cb.hello_pod%>  |
     Then the step should succeed
 
-    # create k8s deployment 
+    # create k8s deployment
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
        | ["spec"]["replicas"] | 1 |
     Then the step should succeed
@@ -276,7 +277,7 @@ Feature: Check overview page
 
   # @author hasha@redhat.com
   # @case_id OCP-13649
-  Scenario: Check standalone resources on overview page	
+  Scenario: Check standalone resources on overview page
     Given the master version >= "3.6"
     Given I have a project
     When I run the :run client command with:
@@ -341,11 +342,11 @@ Feature: Check overview page
       | service_name  | service-unsecure   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
       | n | <%= project.name %>                                                                            |
     Then the step should succeed
     When I perform the :check_page_not_contain_text web console action with:
-      | text | ruby-sample-build | 
+      | text | ruby-sample-build |
     Then the step should succeed
     When I perform the :check_bc_exists_in_list web console action with:
       | project_name | <%= project.name%> |
@@ -395,4 +396,38 @@ Feature: Check overview page
       | pipeline_name      | sample-pipeline        |
       | pipeline_build_num | 2                      |
       | jenkins_log_url    | job/<%= project.name %>-sample-pipeline/2/console |
+    Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-18266
+  @admin
+  Scenario: Check Daemon Sets on Overview
+    Given the master version >= "3.10"
+    Given cluster role "cluster-admin" is added to the "first" user
+    And I use the "openshift-template-service-broker" project
+    Given a pod becomes ready with labels:
+      | apiserver=true |
+    When I perform the :goto_overview_page web console action with:
+      | project_name | openshift-template-service-broker |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | resource_name        | apiserver                          |
+      | resource_type        | daemon set                         |
+      | project_name         | openshift-template-service-broker  |
+      | viewlog_type         | pods                               |
+      | log_name             | <%= pod.name %>                    |
+      | edityaml_type        | DaemonSet                          |
+      | yaml_name            | apiserver                          |
+    Then the step should succeed
+    When I perform the :expand_resource_entry web console action with:
+      | resource_name | apiserver |
+    Then the step should succeed
+    When I perform the :check_internal_traffic web console action with:
+      | project_name         | openshift-template-service-broker |
+      | service_name         | apiserver                         |
+      | service_port_mapping | 443/TCP 8443                      |
+    Then the step should succeed
+    When I perform the :check_container_info_on_overview web console action with:
+      | container_image | openshift3/ose-template-service-broker |
+      | container_ports | 8443/TCP                               |
     Then the step should succeed

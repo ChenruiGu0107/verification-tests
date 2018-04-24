@@ -101,7 +101,7 @@ check_route_link_on_overview:
 expand_resource_entry:
   element:
     selector: # translate() used to make case insensitive check for resource_type (always use lower case <resource_type>)
-      xpath: //div[@class='list-pf-container' and div//span[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//div[starts-with(translate(normalize-space(text()), 'DRS', 'drs'),'<resource_type>')]]
+      xpath: //div[contains(.,'<resource_name>')]/ancestor::div[contains(@class,'list-pf-item')]
     op: click
     optional: true
 check_dc_idle_text_on_overview:
@@ -231,20 +231,57 @@ check_application_block_info_on_overview:
     - check_container_info_on_overview
     - check_networking_info_on_overview
     - check_build_info_on_overview
-check_app_heading_on_overview:
-  elements:
-  - selector:
-     xpath: //div[contains(@class,'app-heading')]//h2[div[text()='Application'] and span[text()='<app_name>']]
 check_container_info_on_overview:
+  action: check_container_image
+  action: check_container_build
+  action: check_container_source
+  action: check_container_ports
+check_container_image:
+  action:
+    if_element:
+      selector:
+        xpath: .//span[text()='Image:']
+    ref:
+    - check_container_image_details
+check_container_image_details:
+  element:
+    selector:
+      xpath: .//span[text()='Image:']/following::span[1][contains(.,'<container_image>')]
+check_container_build:
+  action:
+    if_element:
+      selector:
+        xpath: .//span[text()='Build:']
+    ref:
+    - check_container_build_details
+check_container_build_details:
   elements:
   - selector:
-      xpath: .//span[text()='Image:']
+      xpath: .//span[text()='Build:']/following::span[1][contains(.,'<bc_name>')]
   - selector:
-      xpath: .//span[text()='Build:']
-  - selector:
-      xpath: .//span[text()='Source:']
-  - selector:
-      xpath: .//span[text()='Ports:']
+      xpath: .//span[text()='Build:']/following::span[2][contains(.,'<build_num>')]
+check_container_source:
+  action:
+    if_element:
+      selector:
+        xpath: .//span[text()='Source:']
+    ref:
+    - check_container_source_details
+check_container_source_details:
+  element:
+    selector:
+      xpath: .//span[text()='Source:']/following::span[1][contains(.,'<container_source>')]
+check_container_ports:
+  action:
+    if_element:
+      selector:
+        xpath: .//span[text()='Ports:']
+    ref:
+    - check_container_ports_details
+check_container_ports_details:
+  element:
+    selector:
+      xpath: .//span[text()='Ports:']/following::span[1][contains(.,'<container_ports>')]
 check_networking_info_on_overview:
   action:
     if_element:
