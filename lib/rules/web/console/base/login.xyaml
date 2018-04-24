@@ -15,7 +15,7 @@ login_sequence:
     if_element:
       selector: &pre_login_buttons
         # we just choose the first button per OPENSHIFTQ-12062
-        css: .login-redhat:first-of-type
+        css: ".login-redhat:first-of-type, .idp:first-of-type"
       timeout: 1
   action:
     ref: login_console
@@ -92,7 +92,7 @@ login_token:
 login_page_loaded:
   element:
     selector:
-      css: "#password, #inputPassword, .login-redhat"
+      css: "#password, #inputPassword, .login-redhat, .idp"
     timeout: 30
 
 verify_logged_in:
