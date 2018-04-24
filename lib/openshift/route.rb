@@ -15,13 +15,13 @@ module CucuShift
     # @param props [Hash] additional properties of the route
     # @note custom constructor for historical reasons but should be compatible
     #   with ProjectResource@initialize
-    def initialize(name: nil, project: nil, service: nil, props: {})
+    def initialize(name: nil, project: nil, service: nil)
       if service
         @name = name || service.name
         @service = service
-        super(name: name, project: service.project, props: props)
+        super(name: name, project: service.project)
       elsif project
-        super(name: name, project: project, props: props)
+        super(name: name, project: project)
       else
         raise "project or service must be provided here"
       end
