@@ -79,7 +79,9 @@ module CucuShift
     end
 
     private def delete_deps(user: nil, cached: false, quiet: false)
-      if phase(user: user, cached: cached, quiet: quiet) == :bound
+      protection = finalizers(user: user, cached: cached, quiet: quiet).
+        include? "kubernetes.io/pvc-protection"
+      if protection && phase(user: user, cached: true, quiet: quiet) == :bound
         claiming_pods(cached: true)
       else
         []
