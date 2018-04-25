@@ -983,6 +983,12 @@ jenkins_verify_openshift_service:
     type: input
   action: jenkins_click_save_button
 
+check_jenkins_credentials:
+  action: goto_jenkins_global_credentials_page
+  element:
+    selector:
+      xpath: //span[contains(text(),'<credential_name>')]
+
 go_to_advanced_plugin_manage_page:
   url: /pluginManager/advanced
 go_to_available_plugin_manage_page:
@@ -997,3 +1003,5 @@ go_to_updates_plugin_manage_page:
   url: /pluginManager
 goto_jenkins_buildlog_page:
   url: /job/<namespace>/job/<job_name>/<job_num>/consoleFull
+goto_jenkins_global_credentials_page:
+  url: /credentials
