@@ -64,5 +64,15 @@ module CucuShift
         []
       end
     end
+
+    def finalizers(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('metadata', 'finalizers')
+    end
+
+    def deletion_timestamp(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig("metadata", "deletionTimestamp")
+    end
   end
 end
