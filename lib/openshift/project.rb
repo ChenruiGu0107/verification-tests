@@ -15,7 +15,7 @@ module CucuShift
                         "openshift".freeze ]
 
     # @override
-    def visible?(user:, result: {}, quiet: false)
+    def visible?(user: nil, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
@@ -83,7 +83,7 @@ module CucuShift
       return res
     end
 
-    def active?(user:, cached: false)
+    def active?(user: nil, cached: false)
       phase(user: user, cached: cached) == :active
     end
 
@@ -113,7 +113,7 @@ module CucuShift
       Build.list(user: by, project: self, **get_opts)
     end
 
-    def is_user_admin?(user:, cached: true, quiet: false)
+    def is_user_admin?(user: nil, cached: true, quiet: false)
       user ||= default_user(user)
       unless cached && @is_admin_hash&.has_key?(user)
         @is_admin_hash ||= {}

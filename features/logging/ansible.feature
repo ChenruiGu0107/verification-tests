@@ -72,11 +72,9 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy logging via Ansible: clean install with custom cert
     Given the master version >= "3.5"
-    # Given I have a project
     And logging service is installed with ansible using:
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11687/inventory |
       | copy_custom_cert | true                                                                                                   |
-    #And I login to kibana logging web console
     # execute the curl command in a pod to avoid possiblity that the client
     # platform does not have 'curl'
     And a pod becomes ready with labels:
@@ -91,8 +89,8 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: install and uninstalled eventrouter with default values
-   Given the master version >= "3.7"
-   And logging service is installed with ansible using:
+    Given the master version >= "3.7"
+    And logging service is installed with ansible using:
      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15988/inventory |
     Given event logs can be found in the ES pod
     # cb.master_version is set in the installed step.
@@ -102,10 +100,8 @@ Feature: ansible install related feature
     And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
     And the expression should be true> dc('logging-eventrouter').containers_spec[0].image == product_docker_repo + "openshift3/logging-eventrouter:v" + cb.master_version
     # now delete the service and check that pod is removed from the 'default' project
-    #And I switch to the first user
     And I use the "<%= cb.target_proj %>" project
     And I remove logging service using ansible
-    #And I switch to cluster admin pseudo user
     And I use the "default" project
     And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
 

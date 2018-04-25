@@ -54,7 +54,7 @@ Given /^I remove (logging|metrics) service using ansible$/ do | svc_type |
   step %Q/#{svc_type} service is uninstalled with ansible using:/, table(%{
     | inventory| #{uninstall_inventory} |
   })
-  @result = admin.cli_exec(:delete, {object_type: 'pod', object_name_or_id: 'base-ansible-pod', n: 'default'})
+  @result = admin.cli_exec(:delete, {object_type: 'pod', object_name_or_id: 'base-ansible-pod', n: cb.target_proj})
   raise "Unable to remove base-ansible-pod" unless @result[:success]
 end
 
@@ -291,14 +291,12 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
     project(org_proj_name)
   end
 end
-
 # Parameters in the inventory that need to be replaced should be in ERB format
 # if no project name is given, then we assume will use the project mapping of
 # logging ==> current_project_name , metrics ==> 'openshift-infra'
 # step will raise exception if metrics name is not 'openshift-infra'
 Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:$/ do |svc_type, op, table|
   ensure_destructive_tagged
-
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
   # check to see if it's a negative test, skip post installation pod check if it's
@@ -349,7 +347,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   # value)
   if svc_type == 'metrics'
     if cb.install_prometheus
-      target_proj = 'openshift-metrics'
+      target_proj = cb.prometheus_namespace.nil? ? 'openshift-metrics' : cb.prometheus_namespace
     else
       target_proj = 'openshift-infra'
     end
@@ -362,7 +360,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
       target_proj = cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace']
     end
   end
-  org_project = project(generate: false) rescue nil
+  cb.target_proj = target_proj
   cb.metrics_route_prefix = "metrics"
   cb.logging_route_prefix = "logs"
 
@@ -387,7 +385,13 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
   step %Q/I store master major version in the :master_version clipboard/
   step %Q/I create the "tmp" directory/
-
+  # for logging, the target_proj does not exists yet, need to create it
+  unless project(cb.target_proj).exists?
+    step %Q/admin creates a project with:/, table(%{
+        | project_name | <%= cb.target_proj %> |
+        | admin        | <%= user.name %>      |
+    })
+  end
   # prep the inventory file.
   cb.master_url = env.master_hosts.first.hostname
   # get a list of scheduleable nodes and stored it as an array of string
@@ -400,8 +404,10 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   else
     new_path = "tmp/uninstall_inventory"
   end
-  cb.target_proj = target_proj
-  #org_user = user
+
+  # put base-ansible-pod inside the target_proj instead in 'default'
+  project(cb.target_proj)
+
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   host = env.master_hosts.first
