@@ -198,10 +198,8 @@ Feature: Storage of Hostpath plugin testing
   # @author wehe@redhat.com
   # @case_id OCP-14665
   @admin
-  @destructive
   Scenario: Mount propagation test of HostToContainer and Bidirectional 
-    Given feature gate "MountPropagation" is enabled
-    And admin creates a project with a random schedulable node selector
+    Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
     And the "/mnt/disk" path is recursively removed on the host after scenario
     When I run the :create client command with:
@@ -262,10 +260,8 @@ Feature: Storage of Hostpath plugin testing
   # @author wehe@redhat.com
   # @case_id OCP-14673
   @admin
-  @destructive
   Scenario: Bidirectional and HostoContainer mount propagation with unpriviledged pod 
-    Given feature gate "MountPropagation" is enabled
-    And admin creates a project with a random schedulable node selector
+    Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
     And the "/mnt/<%= project.name %>" path is recursively removed on the host after scenario
     And I run commands on the host:
@@ -297,4 +293,3 @@ Feature: Storage of Hostpath plugin testing
       | umount slave           |
       | umount HostToContainer |
     Then the step should succeed
-
