@@ -1,103 +1,44 @@
 Feature: ONLY ONLINE Create related feature's scripts in this file
 
-  # @author etrott@redhat.com
+  # @author bingli@redhat.com
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas templates
     Given I have a project
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %> |
-      | template_name | <template>          |
-      | namespace     | openshift           |
-      | param_one     | :null               |
-      | param_two     | :null               |
-      | param_three   | :null               |
-      | param_four    | :null               |
-      | param_five    | :null               |
+    When I run the :new_app client command with:
+      | template | <template>                                       |
+      | param    | <env_name>=https://repo1.maven.org/non-existing/ |
+      | param    | <parameter_name>=myapp                           |
     Then the step should succeed
-    When I perform the :wait_latest_build_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | <app-name>          |
-      | build_status | complete            |
-    Then the step should succeed
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>     |
-      | bc_and_build_name | <app-name>/<app-name>-1 |
-      | build_status_name | Complete                |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | <default_env_log> |
-    Then the step should succeed
-    Given I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name      | <%= project.name %> |
-      | bc_name           | <app-name>          |
-      | env_variable_name | <env_name>          |
-      | new_env_value     | <env_var_value>     |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I click the following "button" element:
-      | text  | Start Build |
-      | class | btn-default |
-    Then the step should succeed
-    When I run the :check_build_has_started_message web console action
-    Then the step should succeed
-    When I perform the :wait_latest_build_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | <app-name>          |
-      | build_status | complete            |
-    Then the step should succeed
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>     |
-      | bc_and_build_name | <app-name>/<app-name>-2 |
-      | build_status_name | Complete                |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | <custom_env_log> |
-    Then the step should succeed
-    Given I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name  | <%= project.name %>                   |
-      | bc_name       | <app-name>                            |
-      | env_var_key   | <env_name>                            |
-      | env_var_value | https://repo1.maven.org/non-existing/ |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I click the following "button" element:
-      | text  | Start Build |
-      | class | btn-default |
-    Then the step should succeed
-    When I run the :check_build_has_started_message web console action
-    Then the step should succeed
-    When I perform the :wait_latest_build_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | <app-name>          |
-      | build_status | failed              |
-    Then the step should succeed
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>     |
-      | bc_and_build_name | <app-name>/<app-name>-3 |
-      | build_status_name | Failed                  |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | https://repo1.maven.org/non-existing/ |
-    Then the step should succeed
+    Given the "myapp-1" build was created
+    And the "myapp-1" build failed
+    When I run the :logs client command with:
+      | resource_name | build/myapp-1 |
+    Then the output should contain:
+      | https://repo1.maven.org/non-existing/ |
     # @case_id OCP-10106
     @smoke
     Examples: MAVEN
-      | template                             | app-name | env_name         | env_var_value                   | default_env_log                                                       | custom_env_log                               |
-      | jws30-tomcat8-mongodb-persistent-s2i | jws-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
-      | eap64-mysql-persistent-s2i           | eap-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
+      | template                                | parameter_name   | env_name         |
+      | eap71-amq-persistent-s2i                | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | eap71-basic-s2i                         | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | eap71-https-s2i                         | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | eap71-postgresql-persistent-s2i         | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | jws31-tomcat7-https-s2i                 | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | jws31-tomcat8-https-s2i                 | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | jws31-tomcat8-mongodb-persistent-s2i    | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | jws31-tomcat8-mysql-persistent-s2i      | APPLICATION_NAME | MAVEN_MIRROR_URL |
+      | jws31-tomcat8-postgresql-persistent-s2i | APPLICATION_NAME | MAVEN_MIRROR_URL |
     # @case_id OCP-12688
     Examples: CPAN
-      | template                | app-name                | env_name    | env_var_value                                  | default_env_log                       | custom_env_log                                          |
-      | dancer-mysql-persistent | dancer-mysql-persistent | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching http://www.cpan.org/authors/ | Fetching https://mirror.openshift.com/mirror/perl/CPAN/ |
+      | template                | parameter_name | env_name    |
+      | dancer-mysql-persistent | NAME           | CPAN_MIRROR |
     # @case_id OCP-12687
     Examples: PIP
-      | template               | app-name                | env_name      | env_var_value                                          | default_env_log | custom_env_log                                             |
-      | django-psql-persistent | django-psql-persistent  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
+      | template               | parameter_name | env_name      |
+      | django-psql-persistent | NAME           | PIP_INDEX_URL |
     # @case_id OCP-12689
     Examples: RUBYGEM
-      | template               | app-name               | env_name       | env_var_value                | default_env_log                                  | custom_env_log                                          |
-      | rails-pgsql-persistent | rails-pgsql-persistent | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Fetching gem metadata from https://rubygems.org/ | Fetching gem metadata from https://gems.ruby-china.org/ |
+      | template               | parameter_name | env_name       |
+      | rails-pgsql-persistent | NAME           | RUBYGEM_MIRROR |
 
   # @author etrott@redhat.com
   # @case_id OCP-10149
