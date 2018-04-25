@@ -66,5 +66,24 @@ module CucuShift
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig("metadata", "deletionTimestamp")
     end
+
+    # @return [Array<Pod>]
+    def claiming_pods(user: nil, cached: true, quiet: false)
+      unless cached && props[:claiming_pods]
+        props[:claiming_pods] =
+          Pod.list(user: default_user(user), project: project) { |pod, hash|
+          pod.volume_claims(cached: true).include? self
+        }
+      end
+      return props[:claiming_pods]
+    end
+
+    private def delete_deps(user: nil, cached: false, quiet: false)
+      if phase(user: user, cached: cached, quiet: quiet) == :bound
+        claiming_pods(cached: true)
+      else
+        []
+      end
+    end
   end
 end

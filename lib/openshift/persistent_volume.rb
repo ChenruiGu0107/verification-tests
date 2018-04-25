@@ -57,12 +57,12 @@ module CucuShift
       # }.first
     end
 
-    # @override
-    def ensure_deleted(user: nil, wait: 60)
-      if phase(user: user, cached: false, quiet: true) == :bound
-        claim(cached: true).ensure_deleted(user: default_user(user))
+    private def delete_deps(user: nil, cached: false, quiet: false)
+      if phase(user: user, cached: cached, quiet: quiet) == :bound
+        [ claim(cached: true) ]
+      else
+        []
       end
-      super
     end
   end
 end

@@ -166,6 +166,13 @@ module CucuShift
       unless res[:success]
         raise "cannot delete #{self.class} #{name}"
       end
+
+      if self.respond_to? :delete_deps, true
+        delete_deps(user: user, cached: false, quiet: true)&.each { |r|
+          r.ensure_deleted(user: user, wait: wait)
+        }
+      end
+
       unless disappeared?(user, wait)
         raise "#{self.class} #{name} did not disappear within #{wait} sec"
       end
