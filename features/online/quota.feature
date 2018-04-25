@@ -93,7 +93,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And the output should match:
       | create\s*delete\s*get\s*list\s*patch\s*update\s*watch.+resourcequotas |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml |
     Then the step should succeed
     And the output should contain:
       | resourcequota "quota" created |
