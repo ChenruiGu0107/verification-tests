@@ -1253,13 +1253,12 @@ Feature: Testing haproxy router
       | resource | dc/tc-518936   |
       | e | RELOAD_INTERVAL=-100s |
     Then the step should succeed
-    And I wait until number of replicas match "1" for replicationController "tc-518936-2"
-    Given I store in the clipboard the pods labeled:
+    Given a pod is present with labels:
       | deployment=tc-518936-2 |
-    And I wait up to 20 seconds for the steps to pass:
+    And I wait up to 80 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name| <%= cb.pods[0].name%> |
+      | resource_name| <%= pod.name %> |
     Then the output should contain:
       | must be a positive duration |
     """
@@ -1267,13 +1266,12 @@ Feature: Testing haproxy router
       | resource | dc/tc-518936 |
       | e | RELOAD_INTERVAL=abc |
     Then the step should succeed
-    And I wait until number of replicas match "1" for replicationController "tc-518936-3"
-    Given I store in the clipboard the pods labeled:
+    Given a pod is present with labels:
       | deployment=tc-518936-3 |
-    And I wait up to 20 seconds for the steps to pass:
+    And I wait up to 80 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name| <%= cb.pods[0].name%> |
+      | resource_name| <%= pod.name %> |
     Then the output should contain:
       | Invalid RELOAD_INTERVAL |
     """
