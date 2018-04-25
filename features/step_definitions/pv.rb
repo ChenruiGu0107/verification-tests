@@ -40,14 +40,14 @@ Given /^I have a(?: (\d+) GB)? volume and save volume id in the#{OPT_SYM} clipbo
   end
 
   cb.dynamic_pvc_name = rand_str(8, :dns)
-  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
+  step %Q{I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
     | ["metadata"]["name"]                         | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
     | ["spec"]["resources"]["requests"]["storage"] | #{size}Gi                                      |
     })
   step %Q/the step should succeed/
   step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
-  step %Q/admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario/
-  step %Q/I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :#{cbname} clipboard/
+  step %Q/admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario/
+  step %Q/I save volume id from PV named "<%= pvc.volume_name %>" in the :#{cbname} clipboard/
 end
 
 Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_name, status, timeout|
@@ -75,15 +75,15 @@ Given /^I have a(?: (\d+) GB)? volume from provisioner "([^"]*)" and save volume
     | ["provisioner"]      | kubernetes.io/#{provisioner}                   |
     })
   step %Q/the step should succeed/
-  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:}, table(%{
+  step %Q{I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:}, table(%{
     | ["metadata"]["name"]                                                   | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
     | ["spec"]["resources"]["requests"]["storage"]                           | #{size}Gi                                      |
     | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>-<%=cb.storage_class_name%> |
     })
   step %Q/the step should succeed/
   step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
-  step %Q/admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario/
-  step %Q/I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :#{cbname} clipboard/
+  step %Q/admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario/
+  step %Q/I save volume id from PV named "<%= pvc.volume_name %>" in the :#{cbname} clipboard/
 end
 
 Given /^the PVs become #{SYM}(?: within (\d+) seconds) with labels:?$/ do |status, timeout, table|
