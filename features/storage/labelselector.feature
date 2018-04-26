@@ -145,10 +145,6 @@ Feature: Target pvc to a specific pv
       | resource | pv                         |
       | name     | nfspv1-<%= project.name %> |
       | key_val  | aws-availability-zone-     |
-    Then the step should succeed
-    And I run the :label admin command with:
-      | resource | pv                         |
-      | name     | nfspv1-<%= project.name %> |
       | key_val  | ebs-volume-type-           |
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
 
