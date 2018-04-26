@@ -177,7 +177,7 @@ module CucuShift
                                              )
       unless res[:success]
         raise "could not redeploy dc #{name}" +
-          quiet ? ":\n#{res[:response]}" : ", see log"
+          (quiet ? ":\n#{res[:response]}" : ", see log")
       end
     end
   end
