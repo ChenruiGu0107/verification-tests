@@ -89,7 +89,7 @@ Feature: Openshift build and configuration of enviroment variables check
       | ps -ef \| grep gunicorn \| grep -v grep \| wc -l |
     Then the step should succeed
     Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_python_progress clipboard
-    Then the expression should be true> (8 > cb.number_of_cores ? cb.number_of_cores * 2 : 8) == cb.number_of_python_progress - 1
+    Then the expression should be true> (8 > cb.number_of_cores ? cb.number_of_cores : 8) == cb.number_of_python_progress - 1
     When I run the :env client command with:
       | resource | dc/django-ex             |
       | e        | WEB_CONCURRENCY=3        |
