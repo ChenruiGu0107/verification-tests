@@ -112,4 +112,3 @@ Feature: Openshift build and configuration of enviroment variables check
       | https://github.com/openshift/django-ex  | openshift/python:3.4 | # @case_id OCP-11603
       | https://github.com/openshift/django-ex  | openshift/python:3.5 | # @case_id OCP-11806
       | https://github.com/openshift/django-ex  | openshift/python:3.3 | # @case_id OCP-11300
-
