@@ -174,6 +174,6 @@ Given(/^admin recreate storage class #{QUOTED} with:$/) do |sc_name, table|
     }
   else
     logger.error(@result[:response])
-    raise "failed to modify StorageClass : #{sc_name}"
+    raise "failed to recreate StorageClass: #{sc_name}"
   end
 end
