@@ -204,7 +204,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml"
     And I replace lines in "quota.yaml":
       | 750Mi    | 110Mi               |
     Then the step should succeed
@@ -220,7 +220,7 @@ Feature: Quota related scenarios
       | specify.*memory |
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n        | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
@@ -319,18 +319,18 @@ Feature: Quota related scenarios
   Scenario: There is log event for deployment when they fail due to quota limits
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig\\s+"hooks".*reated |
+      | eployment.*onfig.*\\s+"hooks".*reated |
     When I get project pods
     Then the output should match:
       | hooks-1-deploy |
@@ -365,35 +365,35 @@ Feature: Quota related scenarios
   Scenario: Buildconfig should support providing cpu and memory usage
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/application-template-with-resources.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/application-template-with-resources.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample-with-resources |
     Then the step should succeed
     And the output should match:
       | uildconfig\\s+"ruby-sample-build"\\s+created |
     Given the pod named "database-1-deploy" becomes present
-    And the pod named "ruby-sample-build-2-build" becomes present
+    And the pod named "ruby-sample-build-1-build" becomes present
     When I get project pod as YAML
     Then the output should match:
-      |   cpu:\\s+20m     |
-      |   memory:\\s+50Mi |
-      |   cpu:\\s+20m     |
-      |   memory:\\s+50Mi |
+      |   cpu:\\s+120m     |
+      |   memory:\\s+256Mi |
+      |   cpu:\\s+120m     |
+      |   memory:\\s+256Mi |
     When I run the :delete client command with:
       | object_type       | build               |
       | all               | |
     Then the step should succeed
     When I replace resource "bc" named "ruby-sample-build" saving edit to "ruby-sample-build2.yaml":
-      | cpu: 20m          | cpu:    1020m       |
-      | memory: 50Mi      | memory: 760Mi       |
+      | cpu: 120m          | cpu:    1020m       |
+      | memory: 256Mi      | memory: 760Mi       |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
