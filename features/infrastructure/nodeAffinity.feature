@@ -146,7 +146,7 @@ Feature: nodeAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchNodeSelector     |
+      | [Mm]atch\s?[Nn]ode\s?[Ss]elector  |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14480
@@ -162,7 +162,7 @@ Feature: nodeAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchNodeSelector     |
+      | [Mm]atch\s?[Nn]ode\s?[Ss]elector     |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14479
@@ -241,7 +241,7 @@ Feature: nodeAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchNodeSelector     |
+      | [Mm]atch\s?[Nn]ode\s?[Ss]elector      |
     """
 
   # @author wmeng@redhat.com
@@ -263,7 +263,7 @@ Feature: nodeAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchNodeSelector     |
+      | [Mm]atch\s?[Nn]ode\s?[Ss]elector    |
     """
 
   # @author wmeng@redhat.com
@@ -299,7 +299,7 @@ Feature: nodeAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchNodeSelector     |
+      | [Mm]atch\s?[Nn]ode\s?[Ss]elector     |
     """
 
   # @author wmeng@redhat.com

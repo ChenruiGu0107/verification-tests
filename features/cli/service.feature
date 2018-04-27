@@ -212,7 +212,7 @@ Feature: service related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-IP.yaml |
     Then the step should fail
-    And the output should match " spec.clusterIP: Invalid value.*must be empty for ExternalName services"
+    And the output should match "must be empty for ExternalName services"
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-port.yaml |
     Then the step should succeed
