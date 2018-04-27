@@ -1274,11 +1274,11 @@ Feature: deployment related features
   Scenario: DeploymentConfig should allow valid value of resource requirements
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
