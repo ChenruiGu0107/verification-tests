@@ -27,7 +27,7 @@ module CucuShift
       props[:deleted] = m["deletionTimestamp"] # during grace period
       props[:grace_period] = m["deletionGracePeriodSeconds"] # might be nil
       props[:annotations] = m["annotations"]
-      if m.has_keys?("annotations")
+      if m.has_key?("annotations")
         props[:deployment_config_version] = m["annotations"]["openshift.io/deployment-config.latest-version"]
         props[:deployment_config_name] = m["annotations"]["openshift.io/deployment-config.name"]
         props[:deployment_name] = m["annotations"]["openshift.io/deployment.name"]
