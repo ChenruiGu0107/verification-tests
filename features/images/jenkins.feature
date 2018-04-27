@@ -200,7 +200,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_create_openshift_build_trigger web action with:
       | job_name      | <%= project.name %>         |
-      | api_endpoint  | <%= env.api_endpoint_url %> |
       | build_config  | frontend                    |
       | store_project | NAMESPACE                   |
     Then the step should succeed
@@ -242,14 +241,17 @@ Feature: jenkins.feature
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
     When I perform the :jenkins_create_openshift_resources web action with:
       | job_name  | testplugin                                       |
-      | apiurl    | <%= env.api_endpoint_url %>                      |
       | jsonfile  | <%= File.read('hello-pod.json').to_json %>       |
       | namespace | <%= cb.proj2 %>                                  |
     Then the step should succeed
@@ -277,7 +279,11 @@ Feature: jenkins.feature
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
     When I run the :import_image client command with:
       | image_name | ruby                  |
       | from       | aosqe/ruby-22-centos7 |
@@ -295,7 +301,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_tag_openshift_image web action with:
       | job_name               | testplugin                  |
-      | apiurl                 | <%= env.api_endpoint_url %> |
       | curr_img_tag           | <%= cb.shasum %>            |
       | curr_img_tag_is        | ruby                        |
       | new_img_tag            | tag20                       |
@@ -542,7 +547,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_tag_openshift_image web action with:
       | job_name               | testplugin                                       |
-      | apiurl                 | <%= env.api_endpoint_url %>                      |
       | curr_img_tag           | latest                                           |
       | curr_img_tag_is        | ruby                                             |
       | new_img_tag            | newtag                                           |
@@ -589,7 +593,6 @@ Feature: jenkins.feature
     Given evaluation of `@result[:parsed]["spec"]["tags"][0]["from"]["name"].gsub(/ruby@/,'')` is stored in the :imgid clipboard
     When I perform the :jenkins_tag_openshift_image_id_update web action with:
       | job_name             | testplugin                                       |
-      | apiurl               | <%= env.api_endpoint_url %>                      |
       | curr_img_tag         | <%= cb.imgid %>                                  |
       | curr_img_tag_is      | ruby                                             |
       | new_img_tag          | newtag                                           |
@@ -668,7 +671,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_tag_openshift_image web action with:
       | job_name                | testplugin                                       |
-      | apiurl                  | <%= env.api_endpoint_url %>                      |
       | curr_img_tag            | latest                                           |
       | curr_img_tag_is         | ruby                                             |
       | new_img_tag             | newtag                                           |
@@ -891,7 +893,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_create_openshift_build_trigger web action with:
       | job_name | testplugin |
-      | api_endpoint  | <%= env.api_endpoint_url %> |
       | build_config  | frontend                    |
       | store_project | <%= project.name %>         |
     Then the step should succeed
@@ -941,7 +942,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_scale_openshift_deployment web action with:
       | job_name     | test                        |
-      | apiurl       | <%= env.api_endpoint_url %> |
       | depcfg       | frontend                    |
       | namespace    | <%= project.name%>          |
       | replicacount | 3                           |
@@ -992,7 +992,11 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completes
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -1001,7 +1005,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_post_cancel_build_from_job web action with:
       | job_name      |  cancelbuildjob                               |
-      | api_endpoint  | <%= env.api_endpoint_url %>                   |
       | store_project | <%= cb.proj2 %>                               |
       | build_config  | ruby-sample-build                             |
     Then the step should succeed
@@ -1015,7 +1018,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_cancel_deployment_from_job web action with:
       | job_name          | canceldeploymentjob         |
-      | api_endpoint      | <%= env.api_endpoint_url %> |
       | deployment_config | database                    |
       | store_project     | <%= cb.proj2 %>             |
     Then the step should succeed
@@ -1084,7 +1086,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_create_openshift_resources web action with:
       | job_name  | testplugin                                 |
-      | apiurl    | <%= env.api_endpoint_url %>                |
       | jsonfile  | <%= File.read('hello-pod.json').to_json %> |
       | namespace | <%= project.name %>                        |
     Then the step should succeed
@@ -1100,7 +1101,6 @@ Feature: jenkins.feature
       | job_name         | deletesrc                   |
       | steptype         | <steptype>                  |
       | deletertype      | <deletertype>               |
-      | apiurl           | <%= env.api_endpoint_url %> |
       | resourcetype     | <resourcetype>              |
       | resourcekey      | <resourcekey>               |
       | resourceval      | <resourceval>               |
@@ -1144,7 +1144,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_check_build_fields web action with:
       | job_name     | <%= project.name %>         |
-      | api_endpoint | <%= env.api_endpoint_url %> |
       | build_config | frontend                    |
       | name_space   | <%= project.name %>         |
       | token        | 12345                       |
@@ -1153,7 +1152,6 @@ Feature: jenkins.feature
     #update post-build action
     When I perform the :jenkins_check_post_build_fields web action with:
       | job_name      | <%= project.name %>         |
-      | api_endpoint  | <%= env.api_endpoint_url %> |
       | store_project | <%= project.name %>         |
       | build_config  | frontend                    |
     Then the step should succeed
@@ -1292,7 +1290,6 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_create_openshift_build_trigger web action with:
       | job_name      | <%= project.name %>         |
-      | api_endpoint  | <%= env.api_endpoint_url %> |
       | build_config  | frontend                    |
       | store_project | <%= project.name %>         |
     Then the step should succeed
@@ -1333,12 +1330,10 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_create_openshift_build_trigger web action with:
       | job_name      | <%= project.name %>         |
-      | api_endpoint  | <%= env.api_endpoint_url %> |
       | build_config  | frontend                    |
       | store_project | <%= project.name %>         |
     When I perform the :jenkins_create_openshift_deployment_trigger web action with:
       | job_name         | <%= project.name %>         |
-      | api_endpoint     | <%= env.api_endpoint_url %> |
       | deploymentconfig | frontend                    |
       | store_project    | <%= project.name %>         |
     Then the step should succeed
@@ -1407,17 +1402,14 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_verify_openshift_build web action with:
       | job_name  | openshifttest               |
-      | apiurl    | <%= env.api_endpoint_url %> |
       | bldcfg    | ruby-sample-build           |
       | namespace | <%= cb.proj2 %>             |
     When I perform the :jenkins_verify_openshift_deployment web action with:
       | job_name     | openshifttest               |
-      | apiurl       | <%= env.api_endpoint_url %> |
       | deployconfig | frontend                    |
       | namespace    | <%= cb.proj2 %>             |
     When I perform the :jenkins_verify_openshift_service web action with:
       | job_name  | openshifttest               |
-      | apiurl    | <%= env.api_endpoint_url %> |
       | svcname   | frontend                    |
       | namespace | <%= cb.proj2 %>             |
     Then the step should succeed
