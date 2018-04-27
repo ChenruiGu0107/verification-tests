@@ -77,7 +77,7 @@ Feature: podAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchInterPodAffinity |
+      | [Mm]atch\s?(Inter)?[Pp]od\s?[Aa]ffinity |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14688
@@ -132,7 +132,7 @@ Feature: podAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchInterPodAffinity |
+      | [Mm]atch\s?(Inter)?[Pp]od\s?[Aa]ffinity |
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml
     Then the step should succeed
@@ -160,7 +160,7 @@ Feature: podAffinity
     And the output should match:
       | PodScheduled\\s+False |
       | FailedScheduling      |
-      | MatchInterPodAffinity |
+      | [Mm]atch\s?(Inter)?[Pp]od\s?[Aa]ffinity |
     """
 
   # @author wjiang@redhat.com
