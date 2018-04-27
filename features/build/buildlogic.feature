@@ -84,7 +84,7 @@ Feature: buildlogic.feature
       | app_repo | https://github.com/openshift/ruby-hello-world   |
       | D        | FROM centos/ruby-22-centos7:latest\nRUN echo ok |
     Then the step should succeed
-    When I get project bc as YAML
+    When I get project buildconfigs as YAML
     Then the step should succeed
     Then the output should match:
       | dockerfile   |
