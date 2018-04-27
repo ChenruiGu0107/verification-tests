@@ -652,21 +652,15 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_get_token client command with:
       |serviceaccount_name| default|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :serviceaccounts_get_token client command with:
       |serviceaccount_name|builder|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :serviceaccounts_get_token client command with:
       |serviceaccount_name| deployer|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     Given an 8 characters random string of type :dns is stored into the :serviceaccount_name clipboard
     When I run the :create_serviceaccount client command with:
       |serviceaccount_name|<%= cb.serviceaccount_name %>|
@@ -674,9 +668,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_get_token client command with:
       |serviceaccount_name|<%= cb.serviceaccount_name %>|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
 
   # @author wjiang@redhat.com
   # @case_id OCP-10800
@@ -685,9 +677,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|default|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :get client command with:
       |resource|users/~|
       |token   |<%= @result[:response] %>|
@@ -697,9 +687,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|builder|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :get client command with:
       |resource|users/~|
       |token   |<%= @result[:response] %>|
@@ -709,9 +697,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|deployer|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :get client command with:
       |resource|users/~|
       |token   |<%= @result[:response] %>|
@@ -725,9 +711,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|<%= cb.serviceaccount_name %>|
     Then the step should succeed
-    And the output should contain:
-      |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
-      |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    And the output should match "eyJhbGciOiJSUzI1NiIsI.*\.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi"
     When I run the :get client command with:
       |resource|users/~|
       |token   |<%= @result[:response] %>|
