@@ -4,11 +4,6 @@ Feature: oc convert related scenarios
   # @case_id OCP-10892
   Scenario: Convert resource files using oc convert
     Given I have a project
-    When I run the :convert client command
-    Then the step should fail
-    And the output should match:
-      | [Ee]rror                |
-      | must provide.*resources |
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml"
     # didn't specify output version
     When I run the :convert client command with:

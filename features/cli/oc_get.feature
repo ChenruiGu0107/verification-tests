@@ -116,9 +116,6 @@ Feature: oc get related command
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/php-dc.yaml |
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml    |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | all |
-    And the output should contain "hpa/php-apache"
     When I run the :delete client command with:
       | object_type | all  |
       | all         | true |
