@@ -103,7 +103,7 @@ Feature: Postgresql images test
       | grep | -i | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "shared_buffers = 32MB"
     Given I execute on the pod:
-      | grep | -i | effective_cache_size | var/lib/pgsql/openshift-custom-postgresql.conf |
+      | grep | -i | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 128MB"
 
     Examples:
