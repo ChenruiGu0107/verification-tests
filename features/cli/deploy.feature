@@ -802,22 +802,6 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain "erving"
 
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
-    Given I wait until the status of deployment "hooks" becomes :running
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
-    Then the step should succeed
-    Given I wait until the status of deployment "hooks" becomes :failed
-    # When deploy failed by cancelled 3.2 keeps the deploy pod, 3.3 will discard the pod,
-    # logs are different, so better to check by `oc deploy dc` instead of `oc logs`
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And the output should match:
-      | [Cc]ancelled.*user |
     # check for non-existent dc
     When I run the :logs client command with:
       | resource_name | dc/nonexistent |

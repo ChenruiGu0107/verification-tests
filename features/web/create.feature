@@ -577,11 +577,7 @@ Feature: create app on web console related
   # @author etrott@redhat.com
   # @case_id OCP-11621
   Scenario: Labels management in create app from template process on web console
-    When I perform the :new_project web console action with:
-      | project_name | <%= project.name %> |
-      | display_name | test                |
-      | description  | test                |
-    Then the step should succeed
+    Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
@@ -629,27 +625,23 @@ Feature: create app on web console related
       | l        | test=1234updated    |
       | n        | <%= project.name %> |
     And the output should match:
-      | ruby-sample-build          |
-      | ruby-sample-build-1        |
-      | origin-ruby-sample         |
-      | ruby-22-centos7            |
-      | d.*c.*/database            |
-      | d.*c.*/frontend            |
-      | route-edge                 |
-      | s.*v.*c/database           |
-      | s.*v.*c/frontend           |
+      | ruby-sample-build            |
+      | ruby-sample-build-1          |
+      | origin-ruby-sample           |
+      | ruby-22-centos7              |
+      | d[^ ]*c[^ ]*/database        |
+      | d[^ ]*c[^ ]*/frontend        |
+      | route-edge                   |
+      | s[^ ]*v[^ ]*c[^ ]*/database  |
+      | s[^ ]*v[^ ]*c[^ ]*/frontend  |
     And the output should not match:
-      | po.*/ |
+      | po[^ ]*/ |
     """
 
   # @author etrott@redhat.com
   # @case_id OCP-10920
   Scenario: Environment variables and label management in create app from image on web console
-    When I perform the :new_project web console action with:
-      | project_name | <%= project.name %> |
-      | display_name | test                |
-      | description  | test                |
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_from_image_check_label web console action with:
       | project_name | <%= project.name %>                         |
       | image_name   | php                                         |
@@ -784,23 +776,19 @@ Feature: create app on web console related
       | l        | test1=value1        |
       | n        | <%= project.name %> |
     And the output should match:
-      | (bc\|buildconfigs)/php            |
-      | builds/php-1                      |
-      | (is\|imagestreams)/php            |
-      | (dc\|deploymentconfigs)/php       |
-      | (rc\|replicationcontroller)/php-1 |
-      | routes/php                        |
-      | (svc\|service)/php                |
-      | (po\|pod)/<%= pod.name %>         |
+      | (bc\|buildconfig[^ ]*)/php             |
+      | build[^ ]*/php-1                       |
+      | (is\|imagestream[^ ]*)/php             |
+      | (dc\|deploymentconfig[^ ]*)/php        |
+      | (rc\|replicationcontroller[^ ]*)/php-1 |
+      | route[^ ]*/php                         |
+      | (svc\|service[^ ]*)/php                |
+      | (po\|pod[^ ]*)/<%= pod.name %>         |
 
   # @author etrott@redhat.com
   # @case_id OCP-11288
   Scenario: Add resources missing some required fields to project
-    When I perform the :new_project web console action with:
-      | project_name | <%= project.name %> |
-      | display_name | test                |
-      | description  | test                |
-    Then the step should succeed
+    Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     Given I backup the file "application-template-stibuild-without-customize-route.json"
