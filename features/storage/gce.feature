@@ -295,17 +295,6 @@ Feature: GCE specific scenarios
     Then the step should succeed
 
   # @author lxia@redhat.com
-  # @case_id OCP-10310
-  @admin
-  Scenario: PV with invalid gce volume id should be prevented from creating
-    Given admin ensures "gce" pv is deleted after scenario
-    When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-retain-rwx.json |
-    Then the step should fail
-    And the output should contain:
-      | error querying GCE PD volume |
-
-  # @author lxia@redhat.com
   # @case_id OCP-13672
   @admin
   Scenario: PV with annotation storage-class bind PVC with annotation storage-class
