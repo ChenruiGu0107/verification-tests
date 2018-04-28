@@ -41,7 +41,8 @@ module CucuShift
     def id(user: nil, cached: true, quiet: false)
       user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
-      return res['containerID'].split("docker://").last
+      # handle docker:// and cri-o://, basically we are assuming all will have xxx://<container_id>
+      return res['containerID'].split("://").last
     end
 
     def image(user: nil, cached: true, quiet: false)
