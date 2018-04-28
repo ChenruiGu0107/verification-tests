@@ -11,7 +11,7 @@ Feature: hotdeploy.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    Given I wait for the "<buildcfg>" service to become ready
+    Given I wait for the "<buildcfg>" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | sed | -i | <parameter> | <file_name> |
@@ -41,7 +41,7 @@ Feature: hotdeploy.feature
     Then the step should succeed
     And the "hot-deploy-ruby-1" build was created
     And the "hot-deploy-ruby-1" build completed
-    Given I wait for the "hot-deploy-ruby" service to become ready
+    Given I wait for the "hot-deploy-ruby" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | sed | -i | s/Hello/hotdeploy_test/g | app.rb |
@@ -67,7 +67,7 @@ Feature: hotdeploy.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    Given I wait for the "<buildcfg>" service to become ready
+    Given I wait for the "<buildcfg>" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | sed | -i | <parameter> | <file_name> |

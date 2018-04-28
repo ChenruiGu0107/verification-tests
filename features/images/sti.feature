@@ -33,7 +33,7 @@ Feature: sti.feature
     Then the output should not contain "sinatra"
     When I expose the "simple-openshift-sinatra-sti" service
     Then the step should succeed
-    Given I wait for the "simple-openshift-sinatra-sti" service to become ready
+    Given I wait for the "simple-openshift-sinatra-sti" service to become ready up to 300 seconds
     And I wait for a web server to become available via the route
     And the output should contain "Hello, Sinatra!"
     When I run the :scale client command with:
@@ -52,6 +52,6 @@ Feature: sti.feature
       | e | DEV_MODE=true |
     Then the step should succeed
     Given the "nodejs-mongodb-example-1" build completed
-    And I wait for the "nodejs-mongodb-example" service to become ready
+    And I wait for the "nodejs-mongodb-example" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "nodejs-mongodb-example" route
     Then the output should contain "Welcome to your Node.js application on OpenShift"

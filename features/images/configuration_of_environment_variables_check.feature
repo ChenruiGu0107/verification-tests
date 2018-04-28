@@ -10,7 +10,7 @@ Feature: Configuration of environment variables check
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-env-sti.json |
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     When I run the :describe client command with:
       | resource | build |
       | name | ruby-sample-build-1 |
@@ -34,7 +34,7 @@ Feature: Configuration of environment variables check
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/<template> |
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | env |
@@ -55,7 +55,7 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     Given the "php-sample-build-1" build was created
     Given the "php-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | env |
@@ -82,7 +82,7 @@ Feature: Configuration of environment variables check
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     And I wait for the steps to pass:
     """

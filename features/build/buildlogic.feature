@@ -620,7 +620,7 @@ Feature: buildlogic.feature
       | MinSpareServers\\s*1    |
       | MaxRequestWorkers\\s*2  |
       | ServerLimit\\s*2        |
-    When I wait for the "dancer-ex" service to become ready
+    When I wait for the "dancer-ex" service to become ready up to 300 seconds
     And I get the service pods
     Then the step should succeed
     When I execute on the pod:

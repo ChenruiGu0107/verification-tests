@@ -16,7 +16,7 @@ Feature: phpimages.feature
       | resource_name | <%= pod.name %> |
       | target_port | 8080 |
       | name | myservice |
-    Given I wait for the "myservice" service to become ready
+    Given I wait for the "myservice" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |

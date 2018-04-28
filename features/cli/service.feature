@@ -24,7 +24,7 @@ Feature: service related scenarios
       | name                | hello-openshift |
       | tcp                 | <%= rand(6000..9000) %>:8080       |
     Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready
+    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And I select a random node's host
     When I run commands on the host:
       | curl <%= service.url %> |
@@ -41,7 +41,7 @@ Feature: service related scenarios
       | clusterip           | 172.30.250.227  |
       | tcp                 | <%= rand(6000..9000) %>:8080       |
     Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready
+    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And I select a random node's host
     When I run commands on the host:
       | curl <%= service.url %> |
@@ -84,7 +84,7 @@ Feature: service related scenarios
     Then the step should succeed
     And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport)` is stored in the :node_port clipboard
     Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready
+    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And I select a random node's host
     When I run commands on the host:
       | curl <%= cb.hostip %>:<%= cb.node_port %> |
@@ -127,7 +127,7 @@ Feature: service related scenarios
     Then the step should succeed
     And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport2)` is stored in the :node_port2 clipboard
     Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready
+    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And I select a random node's host
     When I run commands on the host:
       | curl <%= cb.hostip %>:<%= cb.node_port %> |
@@ -148,7 +148,7 @@ Feature: service related scenarios
       | name                | hello-openshift                                  |
       | tcp                 | <%= cb.hostport %>:8080,<%= cb.hostport2 %>:8443 |
     Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready
+    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And evaluation of `service('hello-openshift').ip(user: user)` is stored in the :cluster_ip clipboard
     And I select a random node's host
     When I run commands on the host:

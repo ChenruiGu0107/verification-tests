@@ -150,7 +150,7 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins_2/                                   |    
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 

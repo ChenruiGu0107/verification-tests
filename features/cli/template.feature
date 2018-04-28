@@ -185,7 +185,7 @@ Feature: template related scenarios:
       | v | MYSQL_DATABASE=mine                                                                                    |
     And the step succeeded
     Given the "ruby22-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     When I run the :env client command with:
       | resource | pod/<%= pod.name %> |
