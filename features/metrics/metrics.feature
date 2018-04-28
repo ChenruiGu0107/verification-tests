@@ -109,9 +109,11 @@ Feature: metrics related scenarios
   @admin
   @destructive
   Scenario: Access the external Hawkular Metrics API interface as cluster-admin
+    Given I have a project
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+    And I switch to the first user
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given cluster role "cluster-admin" is added to the "first" user
     And I perform the POST metrics rest request with:
