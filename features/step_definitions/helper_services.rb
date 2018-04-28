@@ -482,18 +482,16 @@ Given /^I have a iSCSI setup in the environment$/ do
   if _pod.ready?(user: admin, quiet: true)[:success]
     logger.info "found existing iSCSI pod, skipping config"
     cb.iscsi_ip = _service.ip(user: admin)
-    next
   elsif _pod.exists?(user: admin, quiet: true)
     logger.warn "broken iSCSI pod, will try to recreate keeping other config"
-    pod_only = true
     @result = admin.cli_exec(:delete, n: _project.name, object_type: "pod", object_name_or_id: _pod.name)
     raise "could not delete broken iSCSI pod" unless @result[:success]
+  else
+    @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/iscsi-target.json')
+    raise "could not create iSCSI pod" unless @result[:success]
   end
 
-  @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/iscsi-target.json')
-  raise "could not create iSCSI pod" unless @result[:success]
-
-  unless pod_only
+  if !_service.exists?(user:admin, quiet: true)
     @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/service.json')
     raise "could not create iSCSI service" unless @result[:success]
   end
@@ -503,25 +501,25 @@ Given /^I have a iSCSI setup in the environment$/ do
   raise "iSCSI pod did not become ready" unless @result[:success]
   iscsi_ip = cb.iscsi_ip = _service.ip(user: admin)
   @result = _pod.exec("targetcli", "/iscsi/iqn.2016-04.test.com:storage.target00/tpg1/portals", "create", iscsi_ip, as: admin)
-  raise "could not create portal to iSCSI service" unless @result[:success]
-
-  next if pod_only
+  raise "could not create portal to iSCSI service" unless @result[:success] unless @result[:stderr].include?("This NetworkPortal already exists in configFS")
 
   env.hosts.each do |host|
     setup_commands = [
       "echo 'InitiatorName=iqn.2016-04.test.com:test.img' > /etc/iscsi/initiatorname.iscsi",
+      "sed -i '/^node.session.auth./'d  /etc/iscsi/iscsid.conf",
       "cat >> /etc/iscsi/iscsid.conf << EOF\n" +
         "node.session.auth.authmethod = CHAP\n" +
         "node.session.auth.username = 5f84cec2\n" +
         "node.session.auth.password = b0d324e9\n" +
         "EOF\n",
-      "systemctl --now enable iscsid",
+      "systemctl enable iscsid",
+      "systemctl restart iscsid",
       "iscsiadm -m discovery -t sendtargets -p #{iscsi_ip}",
       "iscsiadm -m node -p #{iscsi_ip}:3260 -T iqn.2016-04.test.com:storage.target00 -I default --login"
     ]
 
     res = host.exec_admin(*setup_commands)
-    raise "iSCSI initiator setup commands error" unless @result[:success]
+    raise "iSCSI initiator setup commands error" unless res[:success]
   end
 end
 
