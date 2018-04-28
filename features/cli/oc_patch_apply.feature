@@ -303,7 +303,8 @@ Feature: oc patch/apply related scenarios
     When I run the :patch client command with:
       | resource      | svc           |
       | resource_name | multi-portsvc |
-      | type          | jso          |
+      | type          | jso           |
+      | p             | anything      |
     Then the step should fail
     And the output should match:
       | type must be one of .*json merge strategic.*|

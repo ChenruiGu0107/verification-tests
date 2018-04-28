@@ -408,6 +408,7 @@ check_pods_number_in_table:
   element:
     selector:
       xpath: //pods-table[count(table/tbody/tr)=<pods_number>]
+    timeout: 30
 check_ready_pods_number_in_table:
   element:
     selector:

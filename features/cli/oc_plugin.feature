@@ -18,10 +18,9 @@ Feature: oc plugin related tests
       | h        |                                   |
       | _env     | KUBECTL_PLUGINS_PATH=plugins-dir  |
     Then the step should succeed
-    And the output by order should contain:
+    And the output should contain:
       | this is the long description field  |
       | Usage:                              |
-      |   oc plugin test [options]          |
       | Examples:                           |
       |   oc plugin test                    |
       | Options:                            |
