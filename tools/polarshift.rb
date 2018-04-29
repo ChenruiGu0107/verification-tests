@@ -85,9 +85,8 @@ module CucuShift
             update_test_case_custom_fields(project_id, updates)
 
           if res[:success]
-            filter = JSON.load(res[:response])["description"].
-              gsub(/\A.*\-\-selector "(.+='.+')"\z/m, '\\1')
-            unless filter =~ /\A[-_.a-zA-Z0-9]+='[-_.a-zA-Z0-9:]+'\z/
+            filter = JSON.load(res[:response])["import_msg_bus_filter"]
+            unless filter && !filter.empty?
               puts "unknown importer response:\n#{res[:response]}"
               exit false
             end
