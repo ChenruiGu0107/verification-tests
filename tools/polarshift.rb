@@ -83,11 +83,9 @@ module CucuShift
           puts "Updating cases: #{updates.keys.join(", ")}.."
           res = polarshift.
             update_test_case_custom_fields(project_id, updates)
-
           if res[:success]
-            filter = JSON.load(res[:response])["description"].
-              gsub(/\A.*\-\-selector "(.+='.+')"\z/m, '\\1')
-            unless filter =~ /\A[-_.a-zA-Z0-9]+='[-_.a-zA-Z0-9:]+'\z/
+            filter = JSON.load(res[:response])["import_msg_bus_filter"]
+            unless filter && !filter.empty?
               puts "unknown importer response:\n#{res[:response]}"
               exit false
             end
@@ -110,7 +108,7 @@ module CucuShift
 
       command :"create-run" do |c|
         c.syntax = "#{$0} create-run [options]"
-        c.description = "Create a new test run\ne.g. " \
+        c.description = "Create a new test run\n\te.g. " \
           'tools/polarshift.rb create-run -f ../polarshift/req.json'
         c.option('-f', "--file FILE", "YAML file with create parameters.")
         c.option('--no-wait', "Skip waiting on message bus for operation to complete.")
@@ -148,6 +146,30 @@ module CucuShift
             end
             bus_client.join
             puts STOMPBus.msg_to_str(message)
+          end
+        end
+      end
+
+      command :"push-run" do |c|
+        c.syntax = "#{$0} push-run [options]"
+        c.description = "Pushes test run results from cache to backend\n\t" \
+          "e.g. tools/polarshift.rb push-run -p my_project my_run_id"
+        c.option("--force", "Force push even without changes since last push.")
+        c.action do |args, options|
+          setup_global_opts(options)
+
+          if args.size != 1
+            raise "command expects exactly one parameter being the test run id"
+            exit false
+          end
+
+          res = polarshift.push_test_run_results(project, args.first,
+                                                 force: !!options.force)
+          if res[:success]
+            puts res[:parsed]["description"]
+          else
+            puts "HTTP Status: #{res[:exitcode]}, Response:\n#{res[:response]}"
+            exit false
           end
         end
       end

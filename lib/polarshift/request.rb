@@ -250,6 +250,22 @@ module CucuShift
         )
       end
 
+      # sends a test run results from cache to server
+      # @param project_id [String]
+      # @param run_id [String]
+      def push_test_run_results(project_id, run_id, force: false)
+        res = Http.request(
+          method: :put,
+          url: "#{base_url}project/#{project_id}/run/#{run_id}/push",
+          payload: {force_uploaded: force}.to_json,
+          **common_opts
+        )
+        if res[:success]
+          res[:parsed] = JSON.load(res[:response])
+        end
+        return res
+      end
+
       # checks result of a PolarShift async operation (like getting test run)
       # @return [Hash] where "status" key denotes status
       # @raise on request failure
