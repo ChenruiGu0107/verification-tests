@@ -398,15 +398,16 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
   cb.api_port = '8443' if cb.api_port.nil?
 
+  # put base-ansible-pod inside the target_proj instead in 'default'
+  # project(cb.target_proj)
+  step %Q/admin uses the "<%= cb.target_proj %>" project/
+
   step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
   if op == 'installed'
     new_path = "tmp/install_inventory"
   else
     new_path = "tmp/uninstall_inventory"
   end
-
-  # put base-ansible-pod inside the target_proj instead in 'default'
-  project(cb.target_proj)
 
   # we may not have the minor version of the image loaded. so just use the
   # major version label
@@ -763,11 +764,14 @@ Given /^openshift-ansible is installed in the #{QUOTED} node$/ do | node_name |
   end
 end
 
-# wrapper step to
-# 1. spin up a openshift-ansible pod
-# 2. install openshift-ansible playbook (via yum or git)
+# wrapper step to spin up a ansible-pod based on ose/ansible docker image
+# To override the image tag from the puddle, we need to do something like
+# export CUCUSHIFT_CONFIG='{"services": {"base_ansible_image_tag": "latest"}}'
 Given /^I have a pod with openshift-ansible playbook installed$/ do
   ensure_admin_tagged
+  img_tag_user = conf[:services, :base_ansible_image_tag]
+  img_tag_puddle = "v#{cb.master_version}"
+  cb.base_ansible_image_tag = img_tag_user ? img_tag_user : img_tag_puddle
   # we need to save the original project name for post test cleanup
   cb.org_project_for_ansible ||= project
   # to save time we are going to check if the base-ansible-pod already exists
@@ -775,65 +779,61 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
     proxy_value = nil
     if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
-      proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
+      cb.proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
     end
-    if proxy_value
-      template_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod_proxy.yaml"
-      step %Q/I run oc create as admin over "#{template_url}" replacing paths:/, table(%{
-        | ['metadata']['namespace']                    | <%= project.name %> |
-        | ['spec']['containers'][0]['env'][0]['value'] | #{proxy_value}  |
-        | ['spec']['containers'][0]['env'][1]['value'] | #{proxy_value}  |
-      })
+    if cb.proxy_value
+      step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_proxy.yaml}
     else
-      step %Q/I run the :create admin command with:/, table(%{
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod.yaml |
-        | n | <%= project.name %>                                                                                     |
-      })
+      step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible.yaml}
     end
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
     # save it for future use
     cb.ansible_runner_pod = pod
-
-    if conf[:openshift_ansible_installer].start_with? 'git#'
-      branch_name = conf[:openshift_ansible_installer][4..-1]
-    end
-    step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
-    # extract the commit id for git checkout later
-    commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-    # with OCP 3.9, ansible rpm has its own channel/repo location, we need to
-    # use ansible >= 2.4.3
-    if env.version_gt("3.7", user: user)
-      repo_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/ansible.repo"
-    else
-      repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
-    end
-    download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{repo_url}"
-    @result = pod.exec("bash", "-c", download_cmd, as: user)
-    step %Q/the step should succeed/
-    install_ansible_cmd = 'yum -y install ansible'
-    @result = pod.exec("bash", "-c", install_ansible_cmd, as: user)
-    step %Q/the step should succeed/
-    # openshift-ansible via rpm or just do git clone from branch name
-    if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
-      install_openshift_ansible_cmd = 'yum -y install openshift-ansible*'
-      step %Q/I execute on the pod:/, table(%{
-        | bash                             |
-        | -c                               |
-        | #{install_openshift_ansible_cmd} |
-        })
-      step %Q/the step should succeed/
-    elsif conf[:openshift_ansible_installer].start_with? "git"
-      if branch_name
-        git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
-      else
-        git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+    # check to see if openshift-ansible is already installed
+    @result = pod.exec("bash", "-c", "ls /usr/share/ansible/openshift-ansible", as: user)
+    unless @result[:success]
+      if conf[:openshift_ansible_installer].start_with? 'git#'
+        branch_name = conf[:openshift_ansible_installer][4..-1]
       end
 
-      @result = pod.exec("bash", "-c", git_cmd, as: user)
+      # with OCP 3.9, ansible rpm has its own channel/repo location, we need to
+      # use ansible >= 2.4.3
+      if env.version_gt("3.7", user: user)
+        repo_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/ansible.repo"
+      else
+        repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
+      end
+      download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{repo_url}"
+      @result = pod.exec("bash", "-c", download_cmd, as: user)
       step %Q/the step should succeed/
-    else
-      raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
+      install_ansible_cmd = 'yum -y install ansible'
+      @result = pod.exec("bash", "-c", install_ansible_cmd, as: user)
+      step %Q/the step should succeed/
+
+      if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
+        install_openshift_ansible_cmd = 'yum -y install openshift-ansible*'
+        step %Q/I execute on the pod:/, table(%{
+          | bash                             |
+          | -c                               |
+          | #{install_openshift_ansible_cmd} |
+          })
+        step %Q/the step should succeed/
+      elsif conf[:openshift_ansible_installer].start_with? "git"
+        step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
+        # extract the commit id for git checkout later
+        commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
+        if branch_name
+          git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
+        else
+          git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+        end
+        # check to see if openshift-ansible is already installed
+        @result = pod.exec("bash", "-c", git_cmd, as: user)
+        step %Q/the step should succeed/
+      else
+        raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
+      end
     end
   end
   @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
