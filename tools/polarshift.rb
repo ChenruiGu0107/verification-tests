@@ -83,7 +83,6 @@ module CucuShift
           puts "Updating cases: #{updates.keys.join(", ")}.."
           res = polarshift.
             update_test_case_custom_fields(project_id, updates)
-
           if res[:success]
             filter = JSON.load(res[:response])["import_msg_bus_filter"]
             unless filter && !filter.empty?
