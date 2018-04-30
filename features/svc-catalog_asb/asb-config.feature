@@ -221,9 +221,10 @@ Feature: Ansible-service-broker related scenarios
   @admin
   @destructive
   Scenario: AnsibleServiceBroker BasicAuth username password
+    Given I switch to cluster admin pseudo user
     #back up and clean env , the recreating will be in reverse order in cleanup process.
-    Given the "ansible-service-broker" cluster service broker is recreated after scenario
-    Given I register clean-up steps:
+    And the "ansible-service-broker" cluster service broker is recreated after scenario
+    And I register clean-up steps:
     """
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
@@ -235,9 +236,8 @@ Feature: Ansible-service-broker related scenarios
     And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     And admin ensures "asb-auth-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
-   
-    # Get the asb route and dc image as key to patch 
-    And I switch to cluster admin pseudo user
+
+    # Get the asb route and dc image as key to patch
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
@@ -258,7 +258,7 @@ Feature: Ansible-service-broker related scenarios
       - type: basic
         enabled: true
     """
-   #Update dc 
+   #Update dc
     When I run the :patch client command with:
       | resource     |  dc/asb                                         |
       | p            | {                                               |
@@ -304,23 +304,23 @@ Feature: Ansible-service-broker related scenarios
     And I have a project
     And I have a pod-for-ping in the project
     When I execute on the pod:
-      | curl                                                                   | 
+      | curl                                                                   |
       | -sk                                                                    |
       | https://admin:admin@<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
     Then the output should match:
-      | services                                                               | 
+      | services                                                               |
       | name.*apb                                                              |
       | description                                                            |
      #Access the ASB api with invalid password
     When I execute on the pod:
-      | curl                                                                   | 
+      | curl                                                                   |
       | -sk                                                                    |
       | https://admin:test@<%= cb.asbUrl %>/ansible-service-broker/v2/catalog  |
      #Access the ASB api with bearer
     Then the output should contain "invalid credentials"
     When I execute on the pod:
-      | curl                                                                   | 
-      | -H                                                                     | 
+      | curl                                                                   |
+      | -H                                                                     |
       | Authorization: Bearer <%= cb.token %>                                  |
       | -sk                                                                    |
       | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog             |
@@ -345,17 +345,17 @@ Feature: Ansible-service-broker related scenarios
       |              |}                                                         |
     Then the step should succeed
     When I run the :get client command with:
-      | resource         | clusterservicebroker                    |                                                       
-      | resource_name    | ansible-service-broker                  | 
-      | o                | jsonpath={.status.conditions[0].status} |    
+      | resource         | clusterservicebroker                    |
+      | resource_name    | ansible-service-broker                  |
+      | o                | jsonpath={.status.conditions[0].status} |
     Then the output should equal "True"
-    
+
 
   # @author zitang@redhat.com
   # @case_id OCP-15397
   @admin
   @destructive
-  Scenario: Check secrets support for ansible-service-broker  
+  Scenario: Check secrets support for ansible-service-broker
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given I register clean-up steps:
     """
@@ -396,15 +396,15 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
-    
+
     #relist clusterserviceplan
     Given the "ansible-service-broker" cluster service broker is recreated
     When I run the :describe client command with:
       | resource           | clusterservicebroker     |
       | name               | ansible-service-broker   |
     And the output should match:
-      | Reason:\\s+FetchedCatalog  | 
-      | Status:\\s+True  | 
+      | Reason:\\s+FetchedCatalog  |
+      | Status:\\s+True  |
     Given cluster service classes are indexed by external name in the :csc clipboard
     And evaluation of `cb.csc['<%= cb.prefix %>-postgresql-apb'].name` is stored in the :postgresql_name clipboard
     When I run the :get client command with:
@@ -418,4 +418,4 @@ Feature: Ansible-service-broker related scenarios
       | resource_name | <%= cb.plan_dev %>                                         |
       | resource_name | <%= cb.plan_prod %>                                        |
       | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties} |
-    Then the output should not contain "postgresql_database"  
+    Then the output should not contain "postgresql_database"
