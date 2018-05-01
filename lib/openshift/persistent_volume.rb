@@ -76,5 +76,10 @@ module CucuShift
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig("metadata", "deletionTimestamp")
     end
+
+    def capacity_raw(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig('spec', 'capacity', 'storage')
+    end
   end
 end

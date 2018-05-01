@@ -312,3 +312,64 @@ Feature: PVC resizing Test
       | volumetype | sc_name            |
       | glusterfs  | glusterprovisioner | # @case_id OCP-16634
       | cinder     | standard           | # @case_id OCP-18395
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-17487 OCP-18395
+  @admin
+  Scenario Outline: Check volumes could resize 
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+
+    Given I have a StorageClass named "<sc_name>"
+    And I have a project
+    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
+    Then the step should succeed
+    And the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | cp | /hello | /mnt/ocp_pv |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | pvc-<%= project.name %>                                |
+      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
+    Then the step should succeed
+    And I wait up to 800 seconds for the steps to pass:
+    """
+    Given the expression should be true> pv(pvc.volume_name).capacity_raw(cached: false) == "2Gi"
+    """
+    # re-create the pod
+    Given I ensures "mypod-<%= project.name %>" pod is deleted
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
+    And the pod named "mypod-<%= project.name %>" status becomes :running 
+
+    And the expression should be true> pvc.capacity(cached: false) == "2Gi"
+
+    When I execute on the pod:
+      | /mnt/ocp_pv/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
+
+    When I execute on the pod:
+      | /bin/dd | if=/dev/zero | of=/mnt/ocp_pv/1 | bs=1M | count=1500 |
+    Then the step should succeed
+    And the output should not contain:
+      | No space left on device |
+
+    Examples:  
+      | sc_name  |
+      | gp2      |  # @case_id OCP-17487
+      | standard |  # @case_id OCP-18395
