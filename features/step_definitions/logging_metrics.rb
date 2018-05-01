@@ -54,8 +54,7 @@ Given /^I remove (logging|metrics) service using ansible$/ do | svc_type |
   step %Q/#{svc_type} service is uninstalled with ansible using:/, table(%{
     | inventory| #{uninstall_inventory} |
   })
-  @result = admin.cli_exec(:delete, {object_type: 'pod', object_name_or_id: 'base-ansible-pod', n: cb.target_proj})
-  raise "Unable to remove base-ansible-pod" unless @result[:success]
+  step %Q/I ensure "base-ansible-pod" pod is deleted/
 end
 
 # helper step that does the following:
