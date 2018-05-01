@@ -17,6 +17,10 @@ module CucuShift
         end
       end
 
+      def self.configured?(service_name, host)
+        host.exec_admin("systemctl is-active '#{service_name}'")[:success]
+      end
+
       def status(quiet: false)
         statuses = {
           active: "active",

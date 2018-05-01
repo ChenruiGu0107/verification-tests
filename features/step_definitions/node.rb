@@ -167,7 +167,7 @@ Given /^the node service is restarted on the host( after scenario)?$/ do |after|
   end
 
   _op = proc {
-    _node.service.restart_all(raise: true)
+    _node.service.restart(raise: true)
   }
 
   if after
@@ -182,7 +182,7 @@ end
 #   ordered in scenario itself, we don't want automatic extra restarts
 Given /^the#{OPT_QUOTED} node service is stopped$/ do |node_name|
   ensure_destructive_tagged
-  node(node_name).service.stop_all(raise: true)
+  node(node_name).service.stop(raise: true)
 end
 
 Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name|
@@ -371,7 +371,7 @@ Given /^the node service is restarted on all( schedulable)? nodes$/ do |schedula
 
   services.each { |service|
     if service.config.exists?
-      service.restart_all(raise: true)
+      service.restart(raise: true)
     else
       raise "The node config file does not exists on this node!"
     end
@@ -380,7 +380,7 @@ end
 
 Given /^the#{OPT_QUOTED} node service is restarted$/ do |node_name|
   ensure_destructive_tagged
-  node(node_name).service.restart_all(raise: true)
+  node(node_name).service.restart(raise: true)
 end
 
 Given /^I try to restart the node service on all( schedulable)? nodes$/ do |schedulable|
@@ -391,7 +391,7 @@ Given /^I try to restart the node service on all( schedulable)? nodes$/ do |sche
 
   services.each { |service|
     if service.config.exists?
-      results.push(@result = service.restart_all)
+      results.push(@result = service.restart)
     else
       raise "The node config file does not exists on this node!"
     end
@@ -402,7 +402,7 @@ end
 
 Given /^I try to restart the node service on node#{OPT_QUOTED}$/ do |node_name|
   ensure_destructive_tagged
-  @result = node(node_name).service.restart_all
+  @result = node(node_name).service.restart
 end
 
 Given /^I have (?:(at least ))?(\d+) nodes?$/ do |quantifier, nodes|

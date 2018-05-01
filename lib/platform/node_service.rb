@@ -2,9 +2,13 @@ module CucuShift
   module Platform
     class NodeService < OpenShiftService
 
+      def self.discover(host)
+        self.new(host)
+      end
+
       def initialize(host)
         super
-        @services = ["atomic-openshift-node.service"]
+        @service = SystemdService.new("atomic-openshift-node.service", host)
       end
 
       def config

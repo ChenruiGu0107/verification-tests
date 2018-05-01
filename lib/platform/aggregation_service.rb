@@ -13,7 +13,7 @@ module CucuShift
         CucuShift::ResultHash.aggregate_results(services.map(&:start))
       end
 
-      def start
+      def stop
         CucuShift::ResultHash.aggregate_results(services.reverse_each.map(&:stop))
       end
 
