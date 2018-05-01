@@ -572,7 +572,7 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
     | I remove logging service installed in the project using deployer |
     })
   # create the configmap
-  step %Q|I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/logging_deployer_configmap.yaml|
+  step %Q|I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/logging_deployer_configmap.yaml |
   step %Q/the step should succeed/
   # must create a label or else installation will fail
   registry_nodes = CucuShift::Node.get_labeled(["registry"], user: user)
@@ -769,9 +769,8 @@ end
 # export CUCUSHIFT_CONFIG='{"services": {"base_ansible_image_tag": "latest"}}'
 Given /^I have a pod with openshift-ansible playbook installed$/ do
   ensure_admin_tagged
-  img_tag_user = conf[:services, :base_ansible_image_tag]
-  img_tag_puddle = "v#{cb.master_version}"
-  cb.base_ansible_image_tag = img_tag_user ? img_tag_user : img_tag_puddle
+  cb.base_ansible_image_tag = conf[:services, :base_ansible_image_tag]
+  cb.base_ansible_image_tag ||= "v#{cb.master_version}"
   # we need to save the original project name for post test cleanup
   cb.org_project_for_ansible ||= project
   # to save time we are going to check if the base-ansible-pod already exists
@@ -781,11 +780,8 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
     if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
       cb.proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
     end
-    if cb.proxy_value
-      step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_proxy.yaml}
-    else
-      step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible.yaml}
-    end
+    # cb.proxy_value will determine if proxy section is enabled.
+    step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_unified.yaml}
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
     # save it for future use
