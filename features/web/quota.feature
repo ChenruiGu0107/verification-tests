@@ -212,7 +212,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -318,7 +318,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -430,7 +430,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -534,7 +534,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
