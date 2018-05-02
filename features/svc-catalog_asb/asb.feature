@@ -168,10 +168,12 @@ Feature: Ansible-service-broker related scenarios
       | Authorization: Bearer <%= cb.token %>                      |
       | -sk                                                        |
       | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
-    Then the output should match:
+    Then the output should contain:
       | services      | 
-      | name.*apb     |
-      | description   |
+      | mediawiki-apb |
+      | postgresql-apb | 
+      | mysql-apb | 
+      | mariadb-apb | 
     #Access the ASB api with invalid token
      When I execute on the pod:
       | curl                                                       | 
@@ -195,10 +197,10 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `cb.csc['<%= cb.prefix %>-postgresql-apb']` is stored in the :postgresql clipboard
     And evaluation of `cb.csc['<%= cb.prefix %>-mariadb-apb']` is stored in the :mariadb clipboard
 
-    Then the expression should be true>  cb.mysql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mysql' } == 2
+    Then the expression should be true>  cb.mysql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mysql' } >= 2
     Then the expression should be true>  cb.mariadb.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mariadb' } >= 2
     Then the expression should be true>  cb.postgresql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/postgresql' } >= 2
-    Then the expression should be true>  cb.media_wiki.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' } == 1
+    Then the expression should be true>  cb.media_wiki.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' } >= 1
     #check provider 
     Then the expression should be true> cb.media_wiki.provider_display_name  == "Red Hat, Inc."
     Then the expression should be true> cb.mysql.provider_display_name  == "Red Hat, Inc."
@@ -212,10 +214,10 @@ Feature: Ansible-service-broker related scenarios
       | name        | <%= cb.mysql.name%>         |
       | name        | <%= cb.postgresql.name%>    |
       | name        | <%= cb.mariadb.name%>       |
-    Then the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/mysql').length == 2
+    Then the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/mysql').length >= 2
     And the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/mariadb').length >= 2
     And the expression should be true> @result[:response].scan('registry.access.redhat.com/rhscl/postgresql').length >= 2
-    And the expression should be true> @result[:response].scan('registry.access.redhat.com/openshift3/mediawiki').length == 1
+    And the expression should be true> @result[:response].scan('registry.access.redhat.com/openshift3/mediawiki').length >= 1
     And the output should match 4 times:
       | Provider\s*Display\s*Name:\s*Red Hat, Inc.     |
 
