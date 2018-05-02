@@ -145,15 +145,14 @@ Feature: ansible install related feature
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
-  # # @author pruan@redhat.com
-  # # @case_id OCP-15527
-  # @admin
-  # @destructive
-  # Scenario: Deploy Prometheus via ansible with default values
-  #   Given the master version >= "3.7"
-  #   Given I create a project with non-leading digit name
-  #   And metrics service is installed in the project with ansible using:
-  #     | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+   # @author pruan@redhat.com
+   # @case_id OCP-15527
+   @admin
+   @destructive
+   Scenario: Deploy Prometheus via ansible with default values
+     Given the master version >= "3.7"
+     And metrics service is installed with ansible using:
+       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
 
   # @author pruan@redhat.com
   # @case_id OCP-15533

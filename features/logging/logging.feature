@@ -409,19 +409,6 @@ Feature: logging related scenarios
     Then the expression should be true> pvc('logging-es-0').ready?[:success]
     Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
 
-  # @author pruan@redhat.com
-  # @case_id OCP-16138
-  @admin
-  @destructive
-  Scenario: Fluentd buffer limit options
-    Given the master version >= "3.4"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16138/inventory |
-    Given a pod becomes ready with labels:
-      | component=fluentd,logging-infra=fluentd |
-    Then the expression should be true> pod.env_var('BUFFER_QUEUE_LIMIT') == "512"
-    Then the expression should be true> pod.env_var('BUFFER_SIZE_LIMIT') == "2m"
 
   # @author pruan@redhat.com
   # @case_id OCP-17248

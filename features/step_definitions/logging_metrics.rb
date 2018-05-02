@@ -284,7 +284,12 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
     step %Q/all existing pods are ready with labels:/, table(%{
       | app=prometheus |
       })
-    #step %Q/the pod named "prometheus-0" becomes ready/
+    # check pods that are only valid for OCP >= 3.9
+    if env.version_ge("3.9", user: user)
+      step %Q/all existing pods are ready with labels:/, table(%{
+        | app=prometheus-node-exporter |
+      })
+    end
   ensure
     @user = org_user if org_user
     project(org_proj_name)

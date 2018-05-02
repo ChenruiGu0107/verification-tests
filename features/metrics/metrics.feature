@@ -223,16 +223,15 @@ Feature: metrics related scenarios
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
-    And I switch to cluster admin pseudo user
     And I use the "openshift-infra" project
     Given a pod becomes ready with labels:
       | metrics-infra=hawkular-metrics |
     And I wait for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name    | pods/<%= pod.name %>|
-    And the output should match:
-      | JBoss EAP .*GA   |
+      | resource_name    | <%= pod.name %>|
+    And the output should contain:
+      | JBoss EAP |
     """
     Given I wait for the steps to pass:
     """
