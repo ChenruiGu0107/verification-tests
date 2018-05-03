@@ -555,6 +555,11 @@ Feature: Check deployments function
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
+    # create imagestream for below use, ensuring the DC can be complete after edit
+    When I run the :tag client command with:
+      | source       | aosqe/ruby-ex    |
+      | dest         | ruby-ex:latest   |
+    Then the step should succeed
     Given I wait until the status of deployment "dctest" becomes :complete
     When I perform the :goto_one_dc_page web console action with:
       | project_name | <%= project.name %> |
@@ -571,10 +576,10 @@ Feature: Check deployments function
       | deployment_autostart | true     |
     Then the step should succeed
     When I perform the :set_image_change_trigger web console action with:
-      | container_name | dctest-2  |
-      | namespace      | openshift |
-      | image_stream   | php       |
-      | tag            | 5.5       |
+      | container_name | dctest-2            |
+      | namespace      | <%= project.name %> |
+      | image_stream   | ruby-ex             |
+      | tag            | latest              |
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
@@ -588,16 +593,16 @@ Feature: Check deployments function
       | project_name   | <%= project.name %>     |
       | dc_name        | dctest                  |
       | container_name | dctest-2                |
-      | image_stream   | openshift3/php-55-rhel7 |
+      | image_stream   | aosqe/ruby-ex           |
     Then the step should succeed
     When I perform the :check_dc_image_trigger web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | dctest              |
-      | dc_image     | openshift/php:5.5   |
+      | project_name | <%= project.name %>                 |
+      | dc_name      | dctest                              |
+      | dc_image     | <%= project.name %>/ruby-ex:latest  |
     Then the step should succeed
 
-    #wait for dc being updated to avoid confliction.
-    Given I wait until the status of deployment "dctest" becomes :running
+    # wait for dc being stable to avoid confliction.
+    Given I wait until the status of deployment "dctest" becomes :complete
     When I run the :click_to_goto_edit_page web console action
     Then the step should succeed
     When I perform the :set_autostart_deployment_checkbox web console action with:

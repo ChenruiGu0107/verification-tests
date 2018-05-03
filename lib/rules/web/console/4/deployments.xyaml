@@ -676,7 +676,7 @@ check_dc_image_stream:
   action: check_dc_loaded_completely
   element:
     selector:
-      xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>"]
+      xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>" or a[text()="<image_stream>"]]
 delete_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page
