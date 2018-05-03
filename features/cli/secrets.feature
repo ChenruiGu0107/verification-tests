@@ -1534,4 +1534,95 @@ Feature: secrets related scenarios
     """
     Then the step should succeed
 
+# @author weinliu@redhat.com
+# @case_id OCP-10797
+Scenario: secret subcommand - docker-registry
+  Given I have a project
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry              |
+    | name               | secret1-with-docker-registry |
+    | docker_server      | https://hub.docker.com       |
+    | docker_username    | weinliu                      |
+    | docker_password    | my_passwd                    |
+    | docker_email       | weinliu@redhat.com           |
+  Then the step should succeed
+  When I run the :describe client command with:
+    | resource | secret                       |
+    | name     | secret1-with-docker-registry |
+  Then the output should contain:
+    | kubernetes.io/dockerconfigjson |
 
+  #Step 2. --dry-run
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry        |
+    | name               | secret2-dryrun         |
+    | docker_server      | https://hub.docker.com |
+    | docker_username    | weinliu                |
+    | docker_password    | my_passwd              |
+    | docker_email       | weinliu@redhat.com     |
+    | dry_run            | true                   |
+  Then the output should match:
+    | secret.*created.*dry.*run.* |
+  And the secret named "secret2-dryrun" does not exist in the project
+
+  #Step 3. --generator
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry               |
+    | name               | secret3-1-generator           |
+    | docker_server      | https://hub.docker.com        |
+    | docker_username    | weinliu                       |
+    | docker_password    | my_passwd                     |
+    | docker_email       | weinliu@redhat.com            |
+    | generator          | secret-for-docker-registry/v3 |
+  Then the output should match:
+    | error.*Generator.*v3.*not.*supported |
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry               |
+    | name               | secret3-2-generator           |
+    | docker_server      | https://hub.docker.com        |
+    | docker_username    | weinliu                       |
+    | docker_password    | my_passwd                     |
+    | docker_email       | weinliu@redhat.com            |
+    | generator          | secret-for-docker-registry/v1 |
+  Then the output should match:
+    | secret.*created |
+
+  #Step 4. --output
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry               |
+    | name               | secret4-1-output              |
+    | docker_server      | https://hub.docker.com        |
+    | docker_username    | weinliu                       |
+    | docker_password    | my_passwd                     |
+    | docker_email       | weinliu@redhat.com            |
+    | output             | json                          |
+  Then the output should contain:
+    | "kind": "Secret" |
+  And I wait for the "secret4-1-output" secret to appear
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry        |
+    | name               | secret4-2-output       |
+    | docker_server      | https://hub.docker.com |
+    | docker_username    | weinliu                |
+    | docker_password    | my_passwd              |
+    | docker_email       | weinliu@redhat.com     |
+    | output             | yaml                   |
+  Then the output should contain:
+    | kind: Secret |
+  And I wait for the "secret4-2-output" secret to appear
+
+  #Step 6. --save-config
+  When I run the :create_secret client command with:
+    | createservice_type | docker-registry        |
+    | name               | secret6-save-config    |
+    | docker_server      | https://hub.docker.com |
+    | docker_username    | weinliu                |
+    | docker_password    | my_passwd              |
+    | docker_email       | weinliu@redhat.com     |
+    | save_config        | true                   |
+  And I run the :get client command with:
+    | resource      | secret              |
+    | resource_name | secret6-save-config |
+    | o             | yaml                |
+  Then the output should contain:
+    | kubectl.kubernetes.io/last-applied-configuration |
