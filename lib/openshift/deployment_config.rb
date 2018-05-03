@@ -173,7 +173,8 @@ module CucuShift
     def rollout_latest(user: nil, quiet: false)
       res = default_user(user).cli_exec(:rollout_latest,
                                               resource: "dc/#{name}",
-                                              _quiet: quiet
+                                              _quiet: quiet,
+                                              n: project.name
                                              )
       unless res[:success]
         raise "could not redeploy dc #{name}" +

@@ -252,3 +252,304 @@ Feature: Ansible-service-broker related scenarios
       | services                                                        |
       | name.*apb                                                       |
       | description                                                     |
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18465
+  @admin
+  @destructive
+  Scenario: [ASB]Check v3.7 APB binding succeed in v3.9 env
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given the "ansible-service-broker" cluster service broker is recreated
+    And admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: rhcc
+        name: old
+        url:  https://registry.access.redhat.com
+        org:  
+        tag:  v3.7
+        white_list: [.*-apb$]
+    """
+    And admin redeploys "asb" dc
+    #update clustserserviceclass
+    When I run the :patch admin command with:
+      | resource | clusterservicebroker/ansible-service-broker |
+      |  p       | {                                           | 
+      |          |  "spec": {                                  | 
+      |          |    "relistDuration": "5m1s"                 | 
+      |          |  }                                          | 
+      |          |}                                            | 
+     Then the step should succeed
+    #provision v3.7
+    Given I switch to the first user
+    And I have a project
+    # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=old-mediawiki-apb                       |
+      | param | CLASS_EXTERNAL_NAME=old-mediawiki-apb                 |
+      | param | SECRET_NAME=old-mediawiki-apb-parameters              |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                |
+    Then the step should succeed
+    And evaluation of `service_instance("old-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=old-mediawiki-apb-parameters              |
+      | param | INSTANCE_NAME=old-mediawiki-apb                       |
+      | param | UID=<%= cb.mediawiki_uid %>                           |
+      | n     | <%= project.name %>                                   |
+    Then the step should succeed
+
+    # Provision DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=old-postgresql-apb                               |
+      | param | CLASS_EXTERNAL_NAME=old-postgresql-apb                         |
+      | param | PLAN_EXTERNAL_NAME=dev                                         |
+      | param | SECRET_NAME=old-postgresql-apb-parameters                      |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                         |
+    Then the step should succeed
+    And evaluation of `service_instance("old-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml     |
+      | param | SECRET_NAME=old-postgresql-apb-parameters                                                                                   |
+      | param | INSTANCE_NAME=old-postgresql-apb                                                                                            |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}|
+      | param | UID=<%= cb.db_uid %>                                                                                                        |
+      | n     | <%= project.name %>                                                                                                         |
+    Then the step should succeed
+    # mediawiki and DB apbs provision succeed
+    Given a pod becomes ready with labels:
+      | deployment=mediawiki123-1 |
+    Given a pod becomes ready with labels:
+      | app=rhscl-postgresql-apb  |
+    Given I wait for the "old-postgresql-apb" service_instance to become ready up to 180 seconds
+    Given I wait for the "old-mediawiki-apb" service_instance to become ready up to 180 seconds
+
+    # Create servicebinding of DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=old-postgresql-apb                                                                             |
+      | param | INSTANCE_NAME=old-postgresql-apb                                                                            |
+      | param | SECRET_NAME=old-postgresql-apb-credentials                                                                  |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | servicebinding |
+    Then the output should match:
+      | Message:\\s+Injected bind result |
+    """
+    # Add credentials to mediawiki application
+    When I run the :patch client command with:
+      | resource      | dc                                                        |
+      | resource_name | mediawiki123                                              |
+      | p             | {                                                         |
+      |               |  "spec": {                                                |
+      |               |    "template": {                                          |
+      |               |      "spec": {                                            |
+      |               |        "containers": [                                    |
+      |               |          {                                                |
+      |               |            "envFrom": [                                   | 
+      |               |              {                                            |
+      |               |                "secretRef": {                             | 
+      |               |                  "name": "old-postgresql-apb-credentials" |
+      |               |                }                                          |
+      |               |              }                                            |
+      |               |            ],                                             |
+      |               |            "name": "mediawiki123"                         |
+      |               |          }                                                |
+      |               |        ]                                                  |
+      |               |      }                                                    |
+      |               |    }                                                      |
+      |               |  }                                                        |
+      |               |}                                                          |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mediawiki123-2                 |
+
+    # Access mediawiki's route
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    Then I wait up to 60 seconds for a web server to become available via the "mediawiki123" route
+    And the output should contain "MediaWiki has been successfully installed"
+    """
+
+  # @author zitang@redhat.com
+  # @case_id OCP-15358
+  @admin
+  @destructive
+  Scenario: ASB should support bootstrap on startup 
+    Given  I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+     # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: rhcc
+        name: rhcc
+        url: wrongregistry.access.stage.redhat.com
+        fail_on_error: true
+    broker:
+      bootstrap_on_startup: false
+    """
+    And admin redeploys "asb" dc
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should contain:
+      | Ansible Service Broker Starting |
+    And the output should not contain:
+      | AnsibleBroker::Bootstrap      |
+
+    #Update configmap
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    broker:
+      bootstrap_on_startup: true
+    """
+    When I run the :rollout_latest client command with:
+      | resource      | dc/asb          |
+    Then the step should succeed
+    Then status becomes :failed of 1 pods labeled:
+      | deploymentconfig=asb            |
+    And I wait up to 180 seconds for the steps to pass:   
+    """
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should contain:
+      | AnsibleBroker::Bootstrap      |
+   """
+
+  # @author zitang@redhat.com
+  # @case_id OCP-17148
+  @admin
+  @destructive
+  Scenario: [ASB]Check APB binding in different process to extract credentials
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    Given evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
+    #Given I save the first service broker registry prefix to :prefix clipboard
+    #Update configmap
+    When value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    openshift:
+      keep_namespace: true
+    """
+    And admin redeploys "asb" dc
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :project_1 clipboard
+     # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                |
+    Then the step should succeed
+    And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | UID=<%= cb.mediawiki_uid %>                           |
+      | n     | <%= project.name %>                                   |
+    Then the step should succeed
+    #provision postgresql apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=mediawiki123-1 |
+    And a pod becomes ready with labels:
+      | deployment=postgresql-9.5-dev-1|
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 180 seconds
+    And  I wait for the "<%= cb.prefix %>-mediawiki-apb" service_instance to become ready up to 180 seconds
+    #check the provision sandbox 
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource | project |
+    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-postgresql-apb.*/)[0].split(" ")[0]` is stored in the :db_prov_prj clipboard
+    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard 
+    Given admin ensure "<%= cb.db_prov_prj %>" project is deleted after scenario
+    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
+    And I use the "<%= cb.db_prov_prj %>" project
+    When I run the :get client command with:
+      | resource | secret | 
+    Then the output should contain 1 times: 
+      | Opaque |
+    Given I switch to the first user
+    And I use the "<%= cb.project_1 %>" project
+    # Create servicebinding of DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | servicebinding                 |
+    Then the output should match:
+      | Message:\\s+Injected bind result  |
+    """
+    # Add credentials to mediawiki application
+    When I run the :patch client command with:
+      | resource      | dc                                                                     |
+      | resource_name | mediawiki123                                                           |
+      | p             | {                                                                      |
+      |               |  "spec": {                                                             |
+      |               |    "template": {                                                       |
+      |               |      "spec": {                                                         |
+      |               |        "containers": [                                                 |
+      |               |          {                                                             |
+      |               |            "envFrom": [                                                | 
+      |               |              {                                                         |
+      |               |                "secretRef": {                                          | 
+      |               |                  "name": "<%= cb.prefix %>-postgresql-apb-credentials" |
+      |               |                }                                                       |
+      |               |              }                                                         |
+      |               |            ],                                                          |
+      |               |            "name": "mediawiki123"                                      |
+      |               |          }                                                             |
+      |               |        ]                                                               |
+      |               |      }                                                                 |
+      |               |    }                                                                   |
+      |               |  }                                                                     |
+      |               |}                                                                       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mediawiki123-2                 |
+    
+    # Access mediawiki's route successfully
+    Then I wait up to 60 seconds for a web server to become available via the "mediawiki123" route
+    And the output should contain "MediaWiki has been successfully installed"
