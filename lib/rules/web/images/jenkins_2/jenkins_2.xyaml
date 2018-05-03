@@ -555,6 +555,7 @@ jenkins_oauth_login:
       value: Allow selected permissions
     op: click
     type: input
+  action: jenkins_verify_logged_in
 
 jenkins_pipeline_create_resource_snippet:
   url: job/<job_name>/pipeline-syntax/
@@ -865,8 +866,8 @@ jenkins_verify_job_text:
 jenkins_verify_logged_in:
   elements:
   - selector:
-      text: Jenkins Admin
-    visible: true
+     xpath: //b[contains(text(),'log out')]
+    timeout: 300
 
 jenkins_verify_openshift_build:
   action: goto_configure_page
