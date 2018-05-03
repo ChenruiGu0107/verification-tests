@@ -53,12 +53,12 @@ Feature: Update sql apb related feature
     # update apb
     # create a update secret
     When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml  |
-      | param | SECRET_NAME=<secret_name_2>                                                                                              |
-      | param | INSTANCE_NAME=<db_name>                                                                                                  |
-      | param | PARAMETERS={"postgresql_version":"<db_version_2>"}                                                                       |
-      | param | UID=<%= cb.db_uid %>                                                                                                     |
-      | n     | <%= project.name %>                                                                                                      |
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | param | SECRET_NAME=<secret_name_2>                                                                                                             |
+      | param | INSTANCE_NAME=<db_name>                                                                                                                 |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version_2>","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                                    |
+      | n     | <%= project.name %>                                                                                                                     |
     Then the step should succeed
     # update instance 
 
@@ -194,11 +194,11 @@ Feature: Update sql apb related feature
     And the output should contain:
       |  Puffball             | 
     Examples:
-     |db_label |pod_label    |parameters_1                                                                                                                          |parameters_2               |db_plan_1 |db_plan_2 |db_version_1 |db_version_2|                       
-     |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                         |{"mysql_version":"5.6"}    |dev       |prod      |5.7          |5.6         | # @case_id OCP-17664
-     |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |{"mysql_version":"5.7"}    |prod      |dev       |5.6          |5.7         | # @case_id OCP-17663
-     |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_version":"10.1"} |prod       |dev      |10.2         |10.1        | # @case_id OCP-17671
-     |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.0","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_version":"10.2"} |dev       |prod      |10.0         |10.2        | # @case_id OCP-17672
+     |db_label |pod_label    |parameters_1                                                                                                                          |parameters_2                                                                                                                          |db_plan_1 |db_plan_2 |db_version_1 |db_version_2|                       
+     |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |dev       |prod      |5.7          |5.6         | # @case_id OCP-17664
+     |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                        |prod      |dev       |5.6          |5.7         | # @case_id OCP-17663
+     |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.1","mariadb_root_password":"test","mariadb_password":"test"} |prod       |dev      |10.2         |10.1        | # @case_id OCP-17671
+     |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.0","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |dev       |prod      |10.0         |10.2        | # @case_id OCP-17672
 
  # @author zitang@redhat.com
   @admin
