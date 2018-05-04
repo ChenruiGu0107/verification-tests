@@ -709,7 +709,7 @@ check_dc_image_stream:
   action: click_on_configuration_tab
   element:
     selector:
-      xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>" or a[text()="<image_stream>"]]
+      xpath: //div[@class='pod-template' and div[contains(text(), '<container_name>')]]//span[text()='<image_stream>' or a[text()='<image_stream>']]
 check_volume_info_in_pod_template:
   element:
     selector:
