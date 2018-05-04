@@ -935,7 +935,8 @@ Given /^I verify metrics service is functioning$/ do
     step %Q/I verify Prometheus metrics service is functioning/
   else
     # assume the other is Hawkular
-    step %Q/I verify Hawkular metrics service is functioning/
+    # XXX: disable this check for now until https://bugzilla.redhat.com/show_bug.cgi?id=1571176  is fixed
+    #step %Q/I verify Hawkular metrics service is functioning/
   end
 end
 
