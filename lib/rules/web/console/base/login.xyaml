@@ -32,6 +32,10 @@ login_sequence:
       selector:
         visible_text: !ruby/regexp '/Red Hat account to log in/'
       timeout: 1
+oauth_proxy_login_with_openshift:
+  action: click_openshift_login
+  action: login_sequence
+  action: allow_all_sso_permission
 
 login_rhsso:
   elements:
@@ -116,3 +120,14 @@ pre_login_buttons_gone:
   element:
     selector: *pre_login_buttons
     missing: true
+click_openshift_login:
+  element:
+    selector:
+      text: Log in with OpenShift
+    type: button
+    op: click
+allow_all_sso_permission:
+  element:
+    selector:
+      xpath: //input[@value='Allow selected permissions']
+    op: click

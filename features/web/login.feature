@@ -61,3 +61,26 @@ Feature: login related scenario
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
     Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
+
+  # @author yapei@redhat.com
+  # @case_id OCP-17241
+  Scenario: Check oauth-proxy login ui
+    Given I log the message> scenario only works when users are specified with passwords
+    Given the master version >= "3.9"
+    Given I have a project
+    And I login via web console
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/OCP-17421/configmap.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/OCP-17421/proxy.yaml     |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | app=proxy |
+    Given I access the "https://<%= route("proxy", service("proxy")).dns(by: user) %>" url in the web browser
+#    Given I wait 30 seconds for the title of the web browser to match "Log In"
+    When I perform the :oauth_proxy_login_with_openshift web console action with:
+      | username  | <%= user.auth_name %>  |
+      | password  | <%= user.password %>   |
+    Then the step should succeed
+    When I perform the :check_page_contain_text web console action with:
+      | text | Hello OpenShift |
+    Then the step should succeed
