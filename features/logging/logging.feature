@@ -654,4 +654,26 @@ Feature: logging related scenarios
     Then the expression should be true> @result[:parsed]['count'] > 0
     """
 
+  # @author pruan@redhat.com
+  # @case_id OCP-17447
+  @smoke
+  @admin
+  @destructive
+  Scenario: access operations index with different roles
+    Given logging service is installed in the system
+    ## wait until the es pod index to show up
+    Then I wait for the ".operations" index to appear in the ES pod with labels "component=es"
+    And cluster role "cluster-admin" is added to the "first" user
+    And cluster role "cluster-reader" is added to the "second" user
+    Given evaluation of `%w[first second]` is stored in the :users clipboard
+    Given I repeat the following steps for each :user in cb.users:
+    """
+    And I switch to the #{cb.user} user
+    And I perform the HTTP request on the ES pod:
+      | relative_url | .operations.*/_count?format=JSON |
+      | op           | GET                              |
+      | token        | <%= user.cached_tokens.first %>  |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]['count'] > 0
+    """
 

@@ -1083,7 +1083,7 @@ Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ d
     query_opts = "--insecure --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key"
   end
   query_cmd = "curl -sk -X #{opts[:op]} #{query_opts} 'https://localhost:9200/#{opts[:relative_url]}'"
-  @result = pod.exec("bash", "-c", query_cmd, as: user, container: 'elasticsearch')
+  @result = pod.exec("bash", "-c", query_cmd, as: admin, container: 'elasticsearch')
   if @result[:success]
     @result[:parsed] = YAML.load(@result[:response])
   else
