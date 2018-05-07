@@ -212,10 +212,10 @@ Feature: scenarios related to catalog page
       | step_number | 6 |
     Then the step should succeed
 
-    ## start tour by top-right drop-down button 
+    ## start tour by top-right drop-down button
     When I run the :click_tour_from_helper web console action
     Then the step should succeed
-    ## check clicking Back button, clicking close button 
+    ## check clicking Back button, clicking close button
     When I perform the :go_tour_guide_steps_and_check_messages web console action with:
       | step_number | 1 |
     Then the step should succeed
@@ -281,7 +281,7 @@ Feature: scenarios related to catalog page
       | item_name | ruby-helloworld-sample |
     Then the step should succeed
 
-    When I run the :clear_keyword_filters web console action
+    When I run the :clear_all_filters web console action
     Then the step should succeed
 
     When I perform the :create_app_with_template_from_user_project web console action with:
