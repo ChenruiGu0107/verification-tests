@@ -211,6 +211,8 @@
     :output: --output=<value>
     :save_config: --save-config=<value>
     :type: --type=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
 :create_service:
   :cmd: oc create service <createservice_type>
   :options:
