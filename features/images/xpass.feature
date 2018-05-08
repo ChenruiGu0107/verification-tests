@@ -125,7 +125,7 @@ Feature: xpass.feature
     Then the step should succeed
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -153,7 +153,7 @@ Feature: xpass.feature
     Then the step should succeed
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -189,7 +189,7 @@ Feature: xpass.feature
     Then the step should succeed
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -225,7 +225,7 @@ Feature: xpass.feature
     Then the step should succeed
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -334,7 +334,7 @@ Feature: xpass.feature
     And the "jws-app-mongodb-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -376,7 +376,7 @@ Feature: xpass.feature
     And the "jws-app-postgresql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods 
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -418,7 +418,7 @@ Feature: xpass.feature
     And the "jws-app-mysql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
-    Given I wait for the "jws-app" service to become ready
+    Given I wait for the "jws-app" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """

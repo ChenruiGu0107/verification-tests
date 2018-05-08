@@ -9,7 +9,7 @@ Feature:Create apps using new_app cmd feature
       | context_dir|tomcat-websocket-chat |
     Then the step should succeed
 
-    Given I wait for the "openshift-quickstarts" service to become ready
+    Given I wait for the "openshift-quickstarts" service to become ready up to 300 seconds up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -41,7 +41,7 @@ Feature:Create apps using new_app cmd feature
       | From Image:\\s+ImageStreamTag openshift/ruby:2.0          |
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds up to 300 seconds
     When I expose the "frontend" service
     Then I wait for a web server to become available via the "frontend" route
     And the output should contain "Hello from OpenShift v3"

@@ -19,7 +19,7 @@ Feature: stibuild.feature
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     When I run the :env client command with:
       | resource | pods |
       | list     | true |
@@ -38,7 +38,7 @@ Feature: stibuild.feature
       | buildconfig | ruby-sample-build |
     And the "ruby-sample-build-2" build was created
     And the "ruby-sample-build-2" build completed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     When I run the :env client command with:
       | resource | pods |
       | list     | true |

@@ -1347,7 +1347,7 @@ Feature: deployment related features
     Then the step should succeed
     Given the "ruby-hello-world-1" build was created
     Given the "ruby-hello-world-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
+    Given I wait for the "ruby-hello-world" service to become ready up to 300 seconds
     When I expose the "ruby-hello-world" service
     Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Demo App!"

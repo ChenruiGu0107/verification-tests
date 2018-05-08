@@ -9,7 +9,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    And I wait for the "<buildcfg>" service to become ready
+    And I wait for the "<buildcfg>" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
@@ -31,7 +31,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "django-example-1" build was created
     And the "django-example-1" build completed
-    And I wait for the "django-example" service to become ready
+    And I wait for the "django-example" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "django-example" route
     Then the output should contain "Django"
 
@@ -57,7 +57,7 @@ Feature: quickstarts.feature
     And the output should contain:
       | database |
       | frontend |
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     And I wait for the steps to pass:
     """
@@ -84,7 +84,7 @@ Feature: quickstarts.feature
     When I use the "cakephp-example" service
     Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "Welcome to OpenShift"
-    Given I wait for the "cakephp-example" service to become ready
+    Given I wait for the "cakephp-example" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
@@ -102,7 +102,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "beego-example-1" build was created
     And the "beego-example-1" build completed
-    Then I wait for the "beego-example" service to become ready
+    Then I wait for the "beego-example" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -121,7 +121,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "dancer-example-1" build was created
     And the "dancer-example-1" build completed
-    Then I wait for the "dancer-example" service to become ready
+    Then I wait for the "dancer-example" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -140,7 +140,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
-    Then I wait for the "cakephp-example" service to become ready
+    Then I wait for the "cakephp-example" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -159,7 +159,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "nodejs-example-1" build was created
     And the "nodejs-example-1" build completed
-    Then I wait for the "nodejs-example" service to become ready
+    Then I wait for the "nodejs-example" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -193,7 +193,7 @@ Feature: quickstarts.feature
       | param | SOURCE_REPOSITORY_URL=https://github.com/openshift/<repo> |
     Then the step should succeed
     Given the "<name>-1" build completes
-    And I wait for the "<name>" service to become ready
+    And I wait for the "<name>" service to become ready up to 300 seconds
     And I wait for a web server to become available via the "<name>" route
     Then the output should match "Welcome to your \w+ application on OpenShift"
 
@@ -245,7 +245,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
-    And I wait for the "<buildcfg>" service to become ready
+    And I wait for the "<buildcfg>" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
@@ -269,7 +269,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "dotnet-example-1" build was created
     And the "dotnet-example-1" build completed
-    And I wait for the "dotnet-example" service to become ready
+    And I wait for the "dotnet-example" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "dotnet-example" route
     Then the output should contain "ASP.NET"
 
@@ -282,7 +282,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "httpd-example-1" build was created
     And the "httpd-example-1" build completed
-    And I wait for the "httpd-example" service to become ready
+    And I wait for the "httpd-example" service to become ready up to 300 seconds
     Then I wait for a web server to become available via the "httpd-example" route
     Then the output should contain "httpd application"
 

@@ -56,7 +56,7 @@ Feature: route related features via cli
       | name | myapp |
     Then the step should succeed
     And the "myapp-1" build completed
-    Given I wait for the "myapp" service to become ready
+    Given I wait for the "myapp" service to become ready up to 300 seconds
     When I expose the "myapp" service
     Then the step should succeed
     Given I get project routes
@@ -91,7 +91,7 @@ Feature: route related features via cli
       | image_stream | openshift/ruby |
     Then the step should succeed
     Then the "ruby-hello-world-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
+    Given I wait for the "ruby-hello-world" service to become ready up to 300 seconds
     When I run the :expose client command with:
       | resource      | svc              |
       | resource name | ruby-hello-world |

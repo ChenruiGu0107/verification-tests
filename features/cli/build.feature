@@ -131,7 +131,7 @@ Feature: build 'apps' with CLI
       | ImageStreamTag <%= Regexp.escape(project.name) %>/ruby:2.0 |
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
+    Given I wait for the "ruby-hello-world" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -142,7 +142,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Demo App"
-    Given I wait for the "ruby-hello-world-1" service to become ready
+    Given I wait for the "ruby-hello-world-1" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -295,7 +295,7 @@ Feature: build 'apps' with CLI
     # test that service becomes accessible
     When I expose the "8080" port of the "#{cb.svc.name}" service
     Then the step should succeed
-    And I wait for the service to become ready up to 360 seconds
+    And I wait for the service to become ready up to 300 seconds
     And I wait for a web server to become available via the route
     And the output should contain "Demo App"
     """
@@ -884,7 +884,7 @@ Feature: build 'apps' with CLI
       | insecure_registry | true                                                |
     Then the step should succeed
 
-    Given I wait for the "mysql" service to become ready
+    Given I wait for the "mysql" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -893,7 +893,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "mysql"
-    Given I wait for the "mongodb" service to become ready
+    Given I wait for the "mongodb" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -903,7 +903,7 @@ Feature: build 'apps' with CLI
     """
     And the output should contain:
       | 2.6 |
-    Given I wait for the "postgresql-94-rhel7" service to become ready
+    Given I wait for the "postgresql-94-rhel7" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1566,7 +1566,7 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | RUN cp -r /sys/fs/cgroup/cpuacct,cpu/cpu* /tmp                     |
       | RUN cp -r /sys/fs/cgroup/memory/memory.limit_in_bytes /tmp/memlimit|
-    Given I wait for the "ruby-cgroup-test" service to become ready
+    Given I wait for the "ruby-cgroup-test" service to become ready up to 300 seconds
     And I get the service pods
     And I wait for the steps to pass:
     """
@@ -1588,7 +1588,7 @@ Feature: build 'apps' with CLI
       | app_repo | https://github.com/openshift/nodejs-ex |
     Then the step should succeed
     And the "nodejs-ex-1" build completed
-    Given I wait for the "nodejs-ex" service to become ready
+    Given I wait for the "nodejs-ex" service to become ready up to 300 seconds
     When I expose the "nodejs-ex" service
     Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
@@ -1644,7 +1644,7 @@ Feature: build 'apps' with CLI
       | context_dir | 0.10/test/test-app                          |
     Then the step should succeed
     And the "sti-nodejs-1" build completed
-    Given I wait for the "sti-nodejs" service to become ready
+    Given I wait for the "sti-nodejs" service to become ready up to 300 seconds
     When I expose the "sti-nodejs" service
     Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
@@ -1700,7 +1700,7 @@ Feature: build 'apps' with CLI
       | strategy    | docker                          |
     Then the step should succeed
     And the "ruby-hello-world-1" build completed
-    Given I wait for the "ruby-hello-world" service to become ready
+    Given I wait for the "ruby-hello-world" service to become ready up to 300 seconds
     When I expose the "ruby-hello-world" service
     Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Welcome to an OpenShift v3 Demo App!"

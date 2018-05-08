@@ -11,7 +11,7 @@ Feature: scaling related scenarios
     Then the step should succeed
     When I expose the "myapp" service
     Then the step should succeed
-    Given I wait for the "myapp" service to become ready
+    Given I wait for the "myapp" service to become ready up to 300 seconds
     When I get project replicationcontroller as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
     # get dc name
@@ -231,7 +231,7 @@ Feature: scaling related scenarios
     And evaluation of `route("php-apache", service("php-apache")).dns(by: user)` is stored in the :route_host clipboard
     Then the step should succeed
     And I wait until the status of deployment "php-apache" becomes :complete
-    Given I wait for the "php-apache" service to become ready
+    Given I wait for the "php-apache" service to become ready up to 300 seconds
     When I perform 500 HTTP GET requests with concurrency 1 to: http://<%= cb.route_host %>
     When I run the :get client command with:
       | resource      | deploymentConfig |

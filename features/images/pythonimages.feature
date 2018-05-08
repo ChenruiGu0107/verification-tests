@@ -7,7 +7,7 @@ Feature: Openshift build and configuration of enviroment variables check
     When I run the :new_app client command with:
       | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-34-rhel7-stibuild.json |
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
+    Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     And I wait for the steps to pass:
     """

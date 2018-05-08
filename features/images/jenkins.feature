@@ -12,7 +12,7 @@ Feature: jenkins.feature
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "jenkins" PVC becomes :bound within 300 seconds
-    Given I wait for the "jenkins" service to become ready
+    Given I wait for the "jenkins" service to become ready up to 300 seconds
     And I get the service pods
     Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     And I wait for the steps to pass:
@@ -48,7 +48,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     When I use the "jenkins" service
     When I open secure web server via the "jenkins" route
     Then the output should contain "hudson"
@@ -133,7 +133,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     When I use the "jenkins" service
     When I open secure web server via the "jenkins" route
     Then the output should contain "hudson"
@@ -169,7 +169,7 @@ Feature: jenkins.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     And I get the service pods
     Given I wait up to 60 seconds for the steps to pass:
     """
@@ -831,7 +831,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     And I get the service pods
     Given I wait up to 60 seconds for the steps to pass:
     """
@@ -1210,7 +1210,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins_<version>/                                   |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
@@ -1911,7 +1911,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins_<version>/                           |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
@@ -1986,7 +1986,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I wait for the "jenkins" service to become ready
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins_<version>/                           |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |

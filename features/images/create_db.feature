@@ -10,7 +10,7 @@ Feature:Create apps using new_app cmd feature
       | env |POSTGRESQL_PASSWORD=pass |
     Then the step should succeed
 
-    Given I wait for the "postgresql" service to become ready
+    Given I wait for the "postgresql" service to become ready up to 300 seconds
     And I get the service pods
     And I wait for the steps to pass:
     """

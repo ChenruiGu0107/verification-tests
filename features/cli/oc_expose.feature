@@ -23,7 +23,7 @@ Feature: oc_expose.feature
       | resource | service |
     Then the output should contain "myservice"
     And the output should contain "80/TCP"
-    Given I wait for the "myservice" service to become ready
+    Given I wait for the "myservice" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
@@ -51,7 +51,7 @@ Feature: oc_expose.feature
       | target port   | 8080             |
       | generator     | service/v1       |
       | name          | myservice        |
-    Given I wait for the "myservice" service to become ready
+    Given I wait for the "myservice" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
@@ -77,7 +77,7 @@ Feature: oc_expose.feature
       | target port   | 8080            |
       | generator     | service/v1      |
       | name          | myservice       |
-    Given I wait for the "myservice" service to become ready
+    Given I wait for the "myservice" service to become ready up to 300 seconds
     And I get the service pods
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
@@ -135,7 +135,7 @@ Feature: oc_expose.feature
       | name         | myapp                                 |
     Then the step should succeed
     And the "myapp-1" build completed
-    Given I wait for the "myapp" service to become ready
+    Given I wait for the "myapp" service to become ready up to 300 seconds
     When I run the :expose client command with:
       | resource      | rc         |
       | resource_name | myapp-1    |
@@ -149,7 +149,7 @@ Feature: oc_expose.feature
     Then the output should contain:
       | myservice |
       | 80/TCP    |
-    Given I wait for the "myservice" service to become ready
+    Given I wait for the "myservice" service to become ready up to 300 seconds
     And I get the service pods
     And I wait up to 900 seconds for the steps to pass:
     """
