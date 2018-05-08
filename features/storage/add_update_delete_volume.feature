@@ -7,7 +7,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6      |
+      | image_stream | openshift/mongodb:latest   |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -17,7 +17,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     # add pvc to dc
@@ -161,7 +161,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6      |
+      | image_stream | openshift/mongodb:latest   |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -275,7 +275,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And SCC "privileged" is added to the "default" user
     And SCC "privileged" is added to the "system:serviceaccounts" group
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6      |
+      | image_stream | openshift/mongodb:latest   |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -413,7 +413,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     # new-app
     When I run the :new_app client command with:
-      | image_stream | openshift/postgresql:9.4   |
+      | image_stream | openshift/postgresql:latest|
       | env          | POSTGRESQL_USER=tester     |
       | env          | POSTGRESQL_PASSWORD=xxx    |
       | env          | POSTGRESQL_DATABASE=testdb |
@@ -462,7 +462,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6                                                                       |
+      | image_stream | openshift/mongodb:latest   |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -663,7 +663,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   Scenario: Check add or remove volume from dc works fine
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6      |
+      | image_stream | openshift/mongodb:latest   |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
