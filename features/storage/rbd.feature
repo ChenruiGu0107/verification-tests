@@ -328,6 +328,16 @@ Feature: Storage of Ceph plugin testing
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
+    # If a volume has no disk format, it can not be mounted readOnly. Ref: https://github.com/kubernetes/kubernetes/blob/master/pkg/util/mount/mount_linux.go#L503
+    # Create a Pod here to have the disk formatted.
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+    And I ensure "pod-<%= project.name %>" pod is deleted
+
     Given I run the steps 2 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pod-inline.json" replacing paths:
@@ -344,8 +354,7 @@ Feature: Storage of Ceph plugin testing
     When I run commands on the host:
       | mount |
     Then the output should match:
-      | .*rbdpd1-<%= project.name %>.*ro.* |
-      | .*rbdpd2-<%= project.name %>.*ro.* |
+      | .*rbd.*ro.* |
 
   # @author jhou@redhat.com
   # @case_id OCP-15839
@@ -357,7 +366,7 @@ Feature: Storage of Ceph plugin testing
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
       | ["metadata"]["name"]            | sc-<%= project.name %>                              |
       | ["parameters"]["monitors"]      | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["parameters"]["imageFormat"]   | 2                                                   |
+      | ["parameters"]["imageFormat"]   | 1                                                   |
       | ["parameters"]["imageFeatures"] | layering                                            |
     Then the step should succeed
 
@@ -378,9 +387,10 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_fstype.yaml" where:
-      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
-      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["parameters"]["fstype"]   | <fstype>                                            |
+      | ["metadata"]["name"]          | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["fstype"]      | <fstype>                                            |
+      | ["parameters"]["imageFormat"] | 1                                                   |
     Then the step should succeed
 
     Given I have a project
@@ -418,9 +428,10 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_retain.yaml" where:
-      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
-      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["reclaimPolicy"]          | Retain                                              |
+      | ["metadata"]["name"]          | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["imageFormat"] | 1                                                   |
+      | ["reclaimPolicy"]             | Retain                                              |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
@@ -449,10 +460,11 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_mount_optins.yaml" where:
-      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
-      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["mountOptions"][0]        | discard                                             |
-      | ["mountOptions"][1]        | noatime                                             |
+      | ["metadata"]["name"]          | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["imageFormat"] | 1                                                   |
+      | ["mountOptions"][0]           | discard                                             |
+      | ["mountOptions"][1]           | noatime                                             |
     Then the step should succeed
 
     Given I have a project
