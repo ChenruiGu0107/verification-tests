@@ -51,7 +51,7 @@ module CucuShift
     end
 
     def service
-      @service ||= CucuShift::Platform::NodeService.new(host)
+      @service ||= CucuShift::Platform::NodeService.discover(host)
     end
 
     def schedulable?(user: nil, cached: true, quiet: false)

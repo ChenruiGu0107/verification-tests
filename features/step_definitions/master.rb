@@ -59,7 +59,7 @@ Given /^the master service is restarted on all master nodes( after scenario)?$/ 
   _master_services = env.master_services
   p = proc {
     _master_services.each { |service|
-      service.restart_all(raise: true)
+      service.restart(raise: true)
     }
   }
 
@@ -75,7 +75,7 @@ Given /^I try to restart the master service on all master nodes$/ do
   results = []
 
   env.master_services.each { |service|
-    results.push(service.restart_all)
+    results.push(service.restart)
   }
   @result = CucuShift::ResultHash.aggregate_results(results)
 end

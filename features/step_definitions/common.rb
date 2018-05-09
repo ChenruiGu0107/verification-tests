@@ -198,7 +198,7 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
     end
     if update_api_controller || update_adm
       step 'master config is merged with the following hash:', config_hash.to_yaml
-      service.restart_all(raise: true)
+      service.restart(raise: true)
     end
   }
 #  step 'the master service is restarted on all master nodes'

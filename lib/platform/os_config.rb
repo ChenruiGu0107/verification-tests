@@ -82,7 +82,7 @@ module CucuShift
                 res = host.exec_admin("rm #{config_file_path}.bak")
                 if res[:success]
                   self.config_modified = false
-                  service.restart_all
+                  service.restart
                 else
                   self.class.res_err_check(res)
                 end

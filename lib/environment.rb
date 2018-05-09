@@ -332,8 +332,9 @@ module CucuShift
     end
 
     def master_services
+      @master_services_type ||= CucuShift::Platform::MasterService.type(self.master_hosts.first)
       @master_services ||= self.master_hosts.map { |host|
-        CucuShift::Platform::MasterService.new(host)
+        @master_services_type&.new(host, self)
       }
     end
 

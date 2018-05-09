@@ -1,16 +1,27 @@
 module CucuShift
   module Platform
     # Class which represents a generic openshift service running on a host
-    class OpenShiftService
+    class SystemdService
       include Common::BaseHelper
 
-      attr_reader :host, :services
+      attr_reader :host, :services, :expected_load_time, :name
 
-      def initialize(host)
+      # @param name [Sting] name of systemd service
+      def initialize(service_name, host, **opts)
+        @name = service_name
         @host = host
+        @expected_load_time = opts[:expected_load_time] || 20
+
+        unless String === service_name && !service_name.empty?
+          raise "No service name provided!"
+        end
       end
 
-      def status(service, quiet: false)
+      def self.configured?(service_name, host)
+        host.exec_admin("systemctl is-active '#{service_name}'")[:success]
+      end
+
+      def status(quiet: false)
         statuses = {
           active: "active",
           activating: "activating",
@@ -20,7 +31,7 @@ module CucuShift
         }
 
         # interesting whether `systemctl is-active svc` is better
-        result = host.exec_admin("systemctl status #{service}", quiet: quiet)
+        result = host.exec_admin("systemctl status #{name}", quiet: quiet)
         if result[:response].include? "Active:"
           result[:success] = true
         else
@@ -44,42 +55,40 @@ module CucuShift
       # Will stop the provided service.
       # @param opts [Hash] see supported options below
       #   :raise [Boolean] raise if stop fails
-      # @param service [String] name of the service running on the host
-      def stop(service, **opts)
-        raise "No service provided to restart!" unless service
+      def stop(**opts)
         results = []
-        current_status = status(service, quiet: true)
+        current_status = status(quiet: true)
 
         case current_status[:status]
         when :inactive, :failed
-          logger.warn "Stop is requested for service #{service} on " \
+          logger.warn "Stop is requested for service #{name} on " \
             "#{host.hostname} but it is already #{current_status[:status]}."
           return current_status
         else
-          logger.info "before stop status of service #{service} on " \
+          logger.info "before stop, status of service #{name} on " \
             "#{host.hostname} is: #{current_status[:status]}"
           results.push(current_status)
         end
 
-        result = host.exec_admin("systemctl stop #{service}")
+        result = host.exec_admin("systemctl stop #{name}")
         results.push(result)
         unless result[:success]
           if opts[:raise]
-            raise "could not stop service #{service} on #{host.hostname}"
+            raise "could not stop service #{name} on #{host.hostname}"
           end
           return CucuShift::ResultHash.aggregate_results(results)
         end
 
         sleep 5 # lets guess some hardcoded sleep after stop for the time being
 
-        result = status(service)
+        result = status
         results.push(result)
 
         # some pre-3.9 versions of OpenShift reported failed status on stop
         # https://bugzilla.redhat.com/show_bug.cgi?id=1557851
         unless [:inactive, :failed].include?(result[:status])
           result[:success] = false
-          err_msg = "service #{service} on #{host.hostname} still " \
+          err_msg = "service #{name} on #{host.hostname} still " \
             "#{result[:status]} 5 seconds after stop command"
           if opts[:raise]
             raise err_msg
@@ -91,21 +100,19 @@ module CucuShift
         return CucuShift::ResultHash.aggregate_results(results)
       end
 
-      # Will restart the provided service.
+      # Will restart the service.
       # @param opts [Hash] see supported options below
       #   :raise [Boolean] raise if restart fails
-      # @param service [String] name of the service running on the host
-      def restart(service, **opts)
-        raise "No service provided to restart!" unless service
+      def restart(**opts)
         results = []
-        logger.info "before restart status of service #{service} on " \
-          "#{host.hostname} is: #{status(service, quiet: true)[:status]}"
+        logger.info "before restart status of service #{name} on " \
+          "#{host.hostname} is: #{status(quiet: true)[:status]}"
 
-        result = host.exec_admin("systemctl restart #{service}")
+        result = host.exec_admin("systemctl restart #{name}")
         results.push(result)
         unless result[:success]
           if opts[:raise]
-            raise "could not restart service #{service} on #{host.hostname}"
+            raise "could not restart service #{name} on #{host.hostname}"
           end
           return CucuShift::ResultHash.aggregate_results(results)
         end
@@ -129,11 +136,11 @@ module CucuShift
         #
         #if result[:status] == :active
           sleep expected_load_time
-          result = status(service)
+          result = status
           results.push(result)
           unless result[:status] == :active
             result[:success] = false
-            err_msg = "service #{service} on #{host.hostname} died after " \
+            err_msg = "service #{name} on #{host.hostname} died after " \
               "#{expected_load_time} seconds"
             if opts[:raise]
               raise err_msg
@@ -155,25 +162,47 @@ module CucuShift
         return CucuShift::ResultHash.aggregate_results(results)
       end
 
-      def expected_load_time
-        20
-      end
-
-      # executes #restart on each of the services configured.
-      def restart_all(**opts)
+      # Will restart the service.
+      # @param opts [Hash] see supported options below
+      #   :raise [Boolean] raise if restart fails
+      def start(**opts)
         results = []
-        services.each { |service|
-          results.push(restart(service, **opts))
-        }
-        return CucuShift::ResultHash.aggregate_results(results)
-      end
+        current_status = status(quiet: true)
 
-      # executes #stop on each of the services configured.
-      def stop_all(**opts)
-        results = []
-        services.each { |service|
-          results.push(stop(service, **opts))
-        }
+        case current_status[:status]
+        when :activating, :active
+          logger.warn "Start is requested for service #{name} on " \
+            "#{host.hostname} but it is already #{current_status[:status]}."
+          return current_status
+        else
+          logger.info "before start, status of service #{name} on " \
+            "#{host.hostname} is: #{current_status[:status]}"
+          results.push(current_status)
+        end
+
+        result = host.exec_admin("systemctl start #{name}")
+        results.push(result)
+        unless result[:success]
+          if opts[:raise]
+            raise "could not start service #{name} on #{host.hostname}"
+          end
+          return CucuShift::ResultHash.aggregate_results(results)
+        end
+
+        sleep expected_load_time
+        result = status
+        results.push(result)
+        unless result[:status] == :active
+          result[:success] = false
+          err_msg = "service #{name} on #{host.hostname} died after " \
+            "#{expected_load_time} seconds"
+          if opts[:raise]
+            raise err_msg
+          else
+            logger.warn err_msg
+          end
+        end
+
         return CucuShift::ResultHash.aggregate_results(results)
       end
     end
