@@ -174,7 +174,6 @@ end
 Given /^all deployer logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   proj_name = project.name if proj_name.nil?
   org_proj_name = project.name
-  org_user = user
   if proj_name == 'logging'
     ensure_destructive_tagged
     step %Q/I switch to cluster admin pseudo user/
@@ -295,21 +294,73 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
     project(org_proj_name)
   end
 end
+
+# default (install|uninstall) inventory is made up of these parts depending on the operation
+# 1. default base inventory
+# 2. extra logging parameters for logging only
+# 3. extra metrics parameters for metrics only
+Given /^I construct the default (install|uninstall) (logging|metrics|prometheus) inventory$/ do |op, svc_type|
+  base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
+  step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
+  # now get the extra parameters for install depending on the svc_type
+  params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
+  step %Q/I parse the INI file "<%= "#{params_inventory_url}" %>" to the :params_inventory clipboard/
+  cb.ini_style_config['OSEv3:vars'].merge!(cb.params_inventory['OSEv3:vars'])
+end
+
 # Parameters in the inventory that need to be replaced should be in ERB format
 # if no project name is given, then we assume will use the project mapping of
-# logging ==> current_project_name , metrics ==> 'openshift-infra'
-# step will raise exception if metrics name is not 'openshift-infra'
+# logging ==> 'openshift-logging', metrics ==> 'openshift-infra|openshift-metrics' (hawkular|prometheus)
+#
+# We divide the inventory loading process into two steps
+# 1. load the default install|uninstall inventoroy depending on the operation.
+# 2. load the inventory specified in the test if given and merge it with the result from step 1.
 Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:$/ do |svc_type, op, table|
   ensure_destructive_tagged
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
   # check to see if it's a negative test, skip post installation pod check if it's
   cb.negative_test = !!ansible_opts[:negative_test]
+  #cb.operation = op
+  cb.svc_type = svc_type
+
+  # prep the inventory file by setting the required clipboard for ERB
+  # interpolation later
+  ### XXX: we have to hardcode the children section due to the pasreconfig gem does not handle INI files that have keys but no values
+
+  cb.metrics_route_prefix = "metrics"
+  cb.logging_route_prefix = "logs"
+  # use ruby instead of step to bypass user restriction
+  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
+  step %Q/I store master major version in the :master_version clipboard/
+
+
+  # get a list of scheduleable nodes and stored it as an array of string
+  cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
   # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
   # specified, we assume we are dealing with non-Prometheus metrics installation
   if ansible_opts.has_key? :inventory
-    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>"/
+    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
+    # figure out what service type we are installing, save it in clipboard for later
+    params = cb.case_inventory.params['OSEv3:vars'].keys
+    cb.svc_type = "prometheus" if params.any? { |p| p.include? 'openshift_prometheus' }
   end
+  # we are enforcing that metrics to be installed into 'openshift-infra' for
+  # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
+  # value) and openshift-logging for logging
+  case cb.svc_type
+  when 'metrics'
+    target_proj = "openshift-infra"
+  when 'logging'
+    target_proj = "openshift-logging"
+  when 'prometheus'
+    target_proj = "openshift-metrics"
+  else
+    raise "Unsupported service type"
+  end
+  cb.target_proj = target_proj
+
+  step %Q"I construct the default #{op[0..-3]} #{cb.svc_type} inventory"
 
   if cb.ini_style_config
     params = cb.ini_style_config.params["OSEv3:vars"]
@@ -346,38 +397,16 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     end
   end
 
-  # we are enforcing that metrics to be installed into 'openshift-infra' for
-  # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
-  # value)
-  if svc_type == 'metrics'
-    if cb.install_prometheus
-      target_proj = cb.prometheus_namespace.nil? ? 'openshift-metrics' : cb.prometheus_namespace
-    else
-      target_proj = 'openshift-infra'
-    end
-  else
-    # openshift_logging_namespace parameter has become deprecated, just force
-    # logging to be installed in system project 'openshift-logging'
-    if cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace'] == ""
-      target_proj = "openshift-logging"
-    else
-      target_proj = cb.ini_style_config["OSEv3:vars"]['openshift_logging_namespace']
-    end
-  end
-  cb.target_proj = target_proj
-  cb.metrics_route_prefix = "metrics"
-  cb.logging_route_prefix = "logs"
-
   unless cb.install_prometheus
     # for hawkular metrics installation, we enforce pods be installed under
     # 'openshift-infra'
-    if svc_type == 'metrics' and target_proj != 'openshift-infra'
+    if svc_type == 'metrics' and cb.target_proj != 'openshift-infra'
       raise ("Metrics must be installed into the 'openshift-infra")
     end
   end
 
   step %Q/I save installation inventory from master to the clipboard/
-  logger.info("Performing operation '#{op[0..-3]}' to #{target_proj}...")
+  logger.info("Performing operation '#{op[0..-3]}' to #{cb.target_proj}...")
   if op == 'installed'
     step %Q/I register clean-up steps:/, table(%{
       | I remove #{svc_type} service using ansible |
@@ -385,9 +414,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   end
 
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
-  # use ruby instead of step to bypass user restriction
-  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
-  step %Q/I store master major version in the :master_version clipboard/
+
   step %Q/I create the "tmp" directory/
   # for logging, the target_proj does not exists yet, need to create it
   unless project(cb.target_proj).exists?
@@ -396,17 +423,16 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
         | admin        | <%= user.name %>      |
     })
   end
-  # prep the inventory file.
-  cb.master_url = env.master_hosts.first.hostname
-  # get a list of scheduleable nodes and stored it as an array of string
-  cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
-  cb.api_port = '8443' if cb.api_port.nil?
+
 
   # put base-ansible-pod inside the target_proj instead in 'default'
   # project(cb.target_proj)
   step %Q/admin uses the "<%= cb.target_proj %>" project/
+  # get testcase specific params into the final inventory file
+  cb.ini_style_config["OSEv3:vars"].merge! cb.case_inventory['OSEv3:vars'] if cb.case_inventory
 
-  step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
+  #step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
+  new_path = nil
   if op == 'installed'
     new_path = "tmp/install_inventory"
   else
@@ -427,9 +453,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     cb.cert_path = "#{base_path}/#{cert_name}"
     cb.ca_crt_path = "#{base_path}/ca.crt"
   end
-  # get the qe-inventory-file early
-  loaded = ERB.new(File.read(@result[:abs_path])).result binding
-  File.write(new_path, loaded)
+
+  File.open(new_path, 'w') { |f| cb.ini_style_config.write(f) }
+  ### XXX: we need to open the file again and replace the V3:children section with the proper values
+  # openshift-ansible parser has trouble with 'value = "xxx"' the spaces needs to be removed
+  text = File.read(new_path).gsub(/\s=\s/, '=')
+  new_text = text.gsub(/children=\"to_be_replaced\"/, "masters\netcd\nnodes\n")
+  File.open(new_path, "w") { |f| f << new_text }
+
   # create a tmp directory which will store the following files to be 'oc rsync to the pod created
   # 1. inventory
   # 2. libra.pem
@@ -488,16 +519,12 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     ### print out the inventory file
     logger.info("***** using the following user inventory *****")
     pod.exec("cat", "/tmp/#{new_path}", as: user)
-    # we need install patch for OCP <= 3.9  to address an error for atomic where patch wasn't available on atomic hosts
-    step %Q/I execute on the pod:/, table(%{
-      | yum | -y | install | patch |
-      })
+
     step %Q/I execute on the pod:/, table(%{
       | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
     # XXX: skip the check for now due to https://bugzilla.redhat.com/show_bug.cgi?id=1512723
     # step %Q/the step should succeed/
-
     # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
     step %Q/the master is operational/
 
@@ -540,7 +567,8 @@ end
 
 # download any ini style config file and translate the ERB and store the result
 # into the clipboard index :ini_style_config
-Given /^I parse the INI file #{QUOTED}$/ do |ini_style_config |
+Given /^I parse the INI file #{QUOTED}(?: to the#{OPT_SYM} clipboard)?$/ do |ini_style_config, cb_name|
+  cb_name ||= :ini_style_config
   # use ruby instead of step to bypass user restriction
   step %Q/I download a file from "<%= "#{ini_style_config}" %>"/
   step %Q/the step should succeed/
@@ -548,9 +576,8 @@ Given /^I parse the INI file #{QUOTED}$/ do |ini_style_config |
   loaded = ERB.new(File.read(@result[:file_name])).result binding
   File.write(@result[:file_name], loaded)
   config = ParseConfig.new(@result[:file_name])
-  cb.ini_style_config = config
+  cb[cb_name] = config
 end
-
 Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:$/ do |proj, table|
   ensure_destructive_tagged
   deployer_opts = opts_array_to_hash(table.raw)
@@ -560,7 +587,6 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
   step %Q/I switch to cluster admin pseudo user/
   step %Q/I use the "<%= project.name %>" project/
   step %Q/I store master major version in the :master_version clipboard/
-  cb.master_url = env.master_hosts.first.hostname
   cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
   #env.router_default_subdomain(user: user, project: project)
 
