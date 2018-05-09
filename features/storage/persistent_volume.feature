@@ -380,10 +380,8 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I get project pvc named "pvc-<%= project.name %>"
-    Then the output should contain:
-      | ROX |
-      | 5Gi |
+    And the expression should be true> pvc.capacity == "5Gi"
+    And the expression should be true> pvc.access_modes[0] == "ReadOnlyMany"
 
   # @author lxia@redhat.com
   # @case_id OCP-10187
