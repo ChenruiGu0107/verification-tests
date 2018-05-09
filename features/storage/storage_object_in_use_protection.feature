@@ -31,9 +31,11 @@ Feature: Storage object in use protection
     When I execute on the pod:
       | touch | /mnt/ocp_pv/testfile |
     Then the step should succeed
-    When I get project pvc named "pvc-<%= project.name %>"
-    Then the step should succeed
-    And the output should contain "Terminating"
+    # Comment out due to below bug closed as NOTABUG
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1534426
+    #When I get project pvc named "pvc-<%= project.name %>"
+    #Then the step should succeed
+    #And the output should contain "Terminating"
     When I run the :describe client command with:
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
