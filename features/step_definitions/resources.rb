@@ -68,7 +68,7 @@ Given /^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the#{OPT_QUOTED}
 
   resource = resource(name, resource_type, project_name: namespace)
 
-  resource.get_checked
+  resource.get_checked(user: _user, quiet: false)
 end
 
 Given /^(I|admin) checks? that there are no (\w+)(?: in the#{OPT_QUOTED} project)?$/ do |who, resource_type, namespace|
