@@ -79,6 +79,7 @@ Given /^I open accountant console in a browser$/ do
     browser.browser.goto console_url
     @result = browser.run_action(:navigate_to_subscription)
     raise "cannot navigate to subscription page" unless @result[:success]
+    browser.base_url = browser.url.sub('/index', '/')
 end
 
 Given /^I open registry console in a browser$/ do
