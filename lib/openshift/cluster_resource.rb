@@ -142,7 +142,7 @@ module CucuShift
     # @param user [CucuShift::User] the user we list resources as
     # @param result [ResultHash] can be used to get full result hash from op
     # @param get_opts [Hash, Array] other options to pass down to oc get
-    # @return [Array<Resource>]
+    # @return [Array<ClusterResource>]
     # @note raises error on issues
     def self.get_matching(user:, result: {}, get_opts: [])
       # construct options

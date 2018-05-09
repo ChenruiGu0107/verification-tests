@@ -35,5 +35,14 @@ module CucuShift
       return rr.dig('spec', 'externalMetadata', 'providerDisplayName')
     end
 
+    # @return [Array<ClusterServicePlan>]
+    def plans(user: nil, cached: true)
+      unless cached && props[:plans]
+        props[:plans] = ClusterServicePlan.list(user: default_user(user)) { |csp, hash|
+          csp.cluster_service_class == self
+        }
+      end
+      return props[:plans]
+    end
   end  # end of class
 end
