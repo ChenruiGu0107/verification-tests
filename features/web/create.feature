@@ -769,7 +769,7 @@ Feature: create app on web console related
       | env_var_key   | DCkey2              |
       | env_var_value | DCvalue2update      |
     Then the step should succeed
-    
+
     # Laste step: Go through all resources and check their labels
     When I run the :get client command with:
       | resource | all                 |
@@ -943,3 +943,38 @@ Feature: create app on web console related
     Then the step should succeed
     Then the output should contain:
       | AAAAAA |
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-11796
+  Scenario: Add resources with unsupported format to project
+    Given the master version >= "3.3"
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-probe.yaml"
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                        |
+      | file_path        | <%= File.join(localhost.workdir, "pod-with-probe.yaml") %> |
+    Then the step should succeed
+    When I perform the :patch_ace_editor_content web console action with:
+      | content_type | YAML |
+      | patch        | {"op":"replace","path":"/kind","value":"PodTest"} |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :check_error_message_on_create_fromfile web console action with:
+      | error_message | The API version v1 for kind PodTest is not supported by this server |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/htpasswd"
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                        |
+      | file_path        | <%= File.join(localhost.workdir, "htpasswd") %> |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :check_error_message_on_create_fromfile web console action with:
+      | error_message | Resource is missing kind field. |
+    Then the step should succeed
+
+
