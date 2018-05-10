@@ -167,7 +167,7 @@ module CucuShift
         raise "cannot delete #{self.class} #{name}"
       end
 
-      if self.respond_to? :delete_deps, true
+      if self.respond_to?(:delete_deps, true) && exists?(user: user, quiet: true)
         delete_deps(user: user, cached: false, quiet: true)&.each { |r|
           r.ensure_deleted(user: user, wait: wait)
         }
