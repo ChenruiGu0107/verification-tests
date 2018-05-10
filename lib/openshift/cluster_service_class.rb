@@ -15,11 +15,6 @@ module CucuShift
       return rr['spec']
     end
 
-    def uid(user: nil, cached: true, quiet: false)
-      rr = raw_resource(user: user, cached: cached, quiet: quiet)
-      return rr.dig("metadata", "uid")
-    end
-
     def external_name(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       return rr.dig("spec", "externalName")

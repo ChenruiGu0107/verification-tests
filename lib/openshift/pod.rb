@@ -20,7 +20,6 @@ module CucuShift
       super
 
       m = pod_hash["metadata"]
-      props[:uid] = m["uid"]
       props[:generateName] = m["generateName"]
       props[:labels] = m["labels"]
       props[:created] = m["creationTimestamp"] # already [Time]
@@ -171,9 +170,6 @@ module CucuShift
       }
     end
 
-    def uid(user: nil, cached: true, quiet: false)
-      return get_cached_prop(prop: :uid, user: user, cached: cached, quiet: quiet)
-    end
     # @note call without parameters only when props are loaded
     def node_hostname(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :node_hostname, user: user, cached: cached, quiet: quiet)

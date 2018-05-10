@@ -11,10 +11,6 @@ module CucuShift
       raw_resource(user: user, cached: cached, quiet: quiet)['secret']
     end
 
-    def uid(user: nil, cached: true, quiet: false)
-      raw_resource(user: user, cached: cached, quiet: quiet).dig('metadata', 'uid')
-    end
-
     def scope_restrictions(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet)['scopeRestrictions']
     end
