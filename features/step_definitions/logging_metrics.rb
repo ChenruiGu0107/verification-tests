@@ -915,7 +915,7 @@ end
 Given /^(logging|metrics) service is installed in the system$/ do | svc |
   if env.version_ge("3.5", user: user)
     param_name = 'inventory'
-    param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory"
+    param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
   else
     param_name = 'deployer_config'
     param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml"
