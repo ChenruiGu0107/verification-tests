@@ -23,7 +23,7 @@ Feature: admin deployment related features
 
     When I run the :run client command with:
       | name      | newdc      |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | image     | <%= project_docker_repo %>aosqe/hello-openshift |
       | dry_run   |            |
       | -o        | yaml       |
     Then the step should succeed
@@ -51,8 +51,6 @@ Feature: admin deployment related features
     Then the step should succeed
     And the output should match:
       | [Dd]ry run enabled |
-      | mydc-1  |
-      | newdc-1 |
 
     When I get project rc
     Then the step should succeed
@@ -79,7 +77,6 @@ Feature: admin deployment related features
       | mydc-3  |
       | mydc-4  |
       | newdc-2 |
-
     # Make deployments orphan
     When I run the :delete client command with:
       | object_type       | dc    |
@@ -114,6 +111,7 @@ Feature: admin deployment related features
       | newdc-2 |
     And the output should contain:
       | mydc-4  |
+
 
   # @author xxia@redhat.com
   # @case_id OCP-11729

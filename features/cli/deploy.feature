@@ -140,9 +140,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should match "hooks.+#1.+waiting for manual"
-    When I get project dc named "hooks"
-    Then the output should match:
-      | hooks\\s+0 |
+    And I check that the "hooks" deployment_config exists in the project
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
@@ -153,9 +151,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should match "hooks.+#1.+deployed"
-    When I get project dc named "hooks"
-    Then the output should match:
-      | hooks\\s+1 |
+    And I check that the "hooks" deployment_config exists in the project
     # Make the edit action
     When I get project dc named "hooks" as JSON
     And I save the output to file>hooks.json
@@ -671,10 +667,7 @@ Feature: deployment related features
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I get project dc named "hooks"
-    Then the output should match:
-      |NAME         |
-      |hooks.*onfig |
+    And I check that the "hooks" deployment_config exists in the project
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
@@ -688,11 +681,7 @@ Feature: deployment related features
       | latest            |       |
     Then the step should succeed
     # Given I wait for the pod named "hooks-2-deploy" to die
-    When I get project dc named "hooks"
-    Then the step should succeed
-    And the output should match:
-      |NAME         |
-      |hooks.*onfig |
+    And I check that the "hooks" deployment_config exists in the project
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
   # @author cryan@redhat.com
@@ -898,16 +887,11 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I get project dc named "hooks"
-    Then the output should match:
-      | hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
     Then the step should succeed
-    When I get project dc named "hooks"
-    Then the output should match:
-      | hooks.*onfig |
+    And I check that the "hooks" deployment_config exists in the project
 
   # @author yinzhou@redhat.com
   # @case_id OCP-12468,510608
@@ -1180,7 +1164,7 @@ Feature: deployment related features
       | replicas | 2                |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
-    And I wait until number of replicas match "0" for replicationController "hooks"
+    And I wait until number of replicas match "0" for replicationController "hooks-1"
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11769
@@ -1882,7 +1866,8 @@ Feature: deployment related features
       | resource | frontend |
     Then the step should succeed
     And I wait until the status of deployment "frontend" becomes :complete
-    Given evaluation of `dc.trigger_by_type(type: 'ImageChange').last_image` is stored in the :imagestreamimage clipboard
+    When I get project imagestream named "origin-ruby-sample" as JSON
+    And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
