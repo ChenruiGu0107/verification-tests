@@ -245,10 +245,10 @@ Feature: Ansible-service-broker related scenarios
 
     #create a client secret
     When I run the :create_secret client command with:
-      | name               | asb-auth-secret   |
-      | createservice_type | generic           |
-      | from_literal       | username=admin    |
-      | from_literal       | password=admin    |
+      | name         | asb-auth-secret   |
+      | secret_type  | generic           |
+      | from_literal | username=admin    |
+      | from_literal | password=admin    |
     Then the step should succeed
     #Update  cm broker-config,
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -374,9 +374,9 @@ Feature: Ansible-service-broker related scenarios
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
     When I run the :create_secret client command with:
-      | name               | test-secret               |
-      | createservice_type | generic                   |
-      | from_literal       | postgresql_database=test  |
+      | name         | test-secret               |
+      | secret_type  | generic                   |
+      | from_literal | postgresql_database=test  |
     Then the step should succeed
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:

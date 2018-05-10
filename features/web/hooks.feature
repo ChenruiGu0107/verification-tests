@@ -1,4 +1,4 @@
-Feature: dc hooks related
+Feature: bc/dc hooks related
 
   # @author xxing@redhat.com
   # @case_id OCP-11652
@@ -250,4 +250,51 @@ Feature: dc hooks related
       | dc_name      | frontend            |
     Then the step should succeed
     When I run the :check_dc_hook_part_missing_from_dc_page web console action
+    Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id OCP-17489
+  @admin
+  Scenario: Webhook secret value should not be seen to viewer in web
+    Given the master version >= "3.9"
+    And I have a project
+    When I run the :create_secret client command with:
+      | secret_type   | generic                   |
+      | name          | mysecret                  |
+      | from_literal  | WebHookSecretKey=1234qwer |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f    |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc-OCP-17489/bc_webhook_triggers.yaml |
+    Then the step should succeed
+
+    # user of role view
+    When I run the :policy_add_role_to_user client command with:
+      | role       | view                               |
+      | user_name  | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    Given I switch to the second user
+    When I perform the :check_bc_webhook_trigger_in_configuration web console action with:
+      | project_name    | <%= project.name %>         |
+      | bc_name         | ruby-ex                     |
+      | webhook_trigger | webhooks/<secret>/bitbucket |
+    Then the step should succeed
+    When I perform the :check_bc_webhook_trigger web console action with:
+      | webhook_trigger | webhooks/<secret>/generic   |
+    Then the step should succeed
+
+    # user of role cluster-reader
+    Given I switch to the first user
+    When I run the :policy_remove_role_from_user client command with:
+      | role       | view                               |
+      | user_name  | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "second" user
+    And I switch to the second user
+    When I perform the :check_bc_webhook_trigger_in_configuration web console action with:
+      | project_name    | <%= project.name %>         |
+      | bc_name         | ruby-ex                     |
+      | webhook_trigger | webhooks/<secret>/github    |
+    Then the step should succeed
+    When I perform the :check_bc_webhook_trigger web console action with:
+      | webhook_trigger | webhooks/<secret>/gitlab    |
     Then the step should succeed

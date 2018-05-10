@@ -573,7 +573,7 @@ Feature: Testing registry
       | docker://<%= cb.reg_svc_url %>/busybox:latest  |
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry           |
+      | secret_type        | docker-registry           |
       | name               | test                      |
       | docker_email       | serviceaccount@redhat.com |
       | docker_password    | <%= cb.reg_pass %>        |
@@ -650,7 +650,7 @@ Feature: Testing registry
       | docker.io/openshift/ruby-22-centos7:latest    | test/test/ruby-22-centos7:latest    |
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry          |
+      | secret_type        | docker-registry          |
       | name               | test                     |
       | docker_email       | serviceaccount@redhat.com|
       | docker_password    | <%= cb.reg_pass %>       |

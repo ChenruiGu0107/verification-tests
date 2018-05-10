@@ -352,9 +352,9 @@ Feature: secrets related scenarios
     And I create a new project
     # Get user1's dockercfg as secret for user2
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry                                      |
-      | name               | user1-dockercfg                                      |
-      | docker_email       | any@any.com                                          |
+      | secret_type  | docker-registry                                      |
+      | name         | user1-dockercfg                                      |
+      | docker_email | any@any.com                                          |
       # Get openshift docker registry. Format is like: 172.31.168.158:5000
       | docker_server      | <%= cb.user1_image[/[^\/]*/] %>                      |
       | docker_username    | <%= user(0, switch: false).name %>                   |

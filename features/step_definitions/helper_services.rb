@@ -114,7 +114,7 @@ Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in 
   #raise "Fail to get aws access id" unless awsid[:success]
   #awskey = host.exec_admin("cat /etc/sysconfig/atomic-openshift-node | grep AWS_SECRET_ACCESS_KEY | awk -F '=' '{print $2}'")
   #raise "Fail to get aws access key" unless awskey[:success]
-  #@result = user.cli_exec(:create_secret, createservice_type: "generic", name: "aws-credentials", from_literal: ["aws-access-key-id=#{awsid[:response].to_s.strip}","aws-secret-access-key=#{awskey[:response].to_s.strip}"], namespace: project.name)
+  #@result = user.cli_exec(:create_secret, secret_type: "generic", name: "aws-credentials", from_literal: ["aws-access-key-id=#{awsid[:response].to_s.strip}","aws-secret-access-key=#{awskey[:response].to_s.strip}"], namespace: project.name)
   #raise "Fail to create secret of efs-provisioner" unless @result[:success]
   step 'I create the serviceaccount "efs-provisioner"'
   step %Q/SCC "hostmount-anyuid" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/

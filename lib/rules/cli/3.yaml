@@ -197,7 +197,7 @@
     :wildcardpolicy: --wildcard-policy=<value>
     :help: --help
 :create_secret:
-  :cmd: oc create secret <createservice_type>
+  :cmd: oc create secret <secret_type>
   :options:
     :name: <value>
     :docker_email: --docker-email=<value>

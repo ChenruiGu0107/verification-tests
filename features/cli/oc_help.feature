@@ -303,24 +303,24 @@ Feature: oc related features
   Scenario: kubectl secret subcommand - help
     Given I have a project
     When I run the :create_secret client command with:
-      | createservice_type | |
-      | h                  | |
+      | secret_type | |
+      | h           | |
     Then the step should succeed
     And the output should contain:
       | Available Commands:                   |
       | docker-registry                       |
       | generic                               |
     When I run the :create_secret client command with:
-      | createservice_type | |
-      | help               | |
+      | secret_type | |
+      | help        | |
     Then the step should succeed
     And the output should contain:
       | Available Commands:                   |
       | docker-registry                       |
       | generic                               |
     When I run the :create_secret client command with:
-      | createservice_type | generic |
-      | h                  |         |
+      | secret_type | generic |
+      | h           |         |
     Then the step should succeed
     And the output should contain:
       | Options:             |
@@ -338,8 +338,8 @@ Feature: oc related features
       | --type=              |
       | --validate=          |
     When I run the :create_secret client command with:
-      | createservice_type | generic |
-      | help               |         |
+      | secret_type | generic |
+      | help        |         |
     Then the step should succeed
     And the output should contain:
       | Options:             |
@@ -357,8 +357,8 @@ Feature: oc related features
       | --type=              |
       | --validate=          |
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry |
-      | h                  |                 |
+      | secret_type | docker-registry |
+      | h           |                 |
     Then the step should succeed
     And the output should contain:
       | Options:             |
@@ -377,8 +377,8 @@ Feature: oc related features
       | --template=          |
       | --validate=          |
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry |
-      | help               |                 |
+      | secret_type | docker-registry |
+      | help        |                 |
     Then the step should succeed
     And the output should contain:
       | Options:             |
