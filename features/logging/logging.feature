@@ -208,6 +208,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Logout kibana web console with installation step included
     And logging service is installed in the system
+    And I switch to the first user
     Given I login to kibana logging web console
     When I perform the :logout_kibana web action with:
       | kibana_url | <%= cb.logging_console_url %> |
@@ -345,12 +346,12 @@ Feature: logging related scenarios
   @destructive
   Scenario: Check fluentd changes for common data model and index naming
     Given I create a project with non-leading digit name
-    And logging service is installed in the system
+    And evaluation of `project.name` is stored in the :org_project_name clipboard
     When I run the :new_app client command with:
       | app_repo | httpd-example |
-    Then the step should succeed
-    When I wait 900 seconds for the "project.<%= project.name %>" index to appear in the ES pod with labels "component=es"
-    And the expression should be true> cb.index_data['index'] == "project.#{project.name}.#{project.uid}.#{Time.new.strftime('%Y.%m.%d')}"
+    And logging service is installed in the system
+    When I wait 900 seconds for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "component=es"
+    And the expression should be true> cb.index_data['index'] == "project.#{cb.org_project.name}.#{project.uid}.#{Time.new.strftime('%Y.%m.%d')}"
     And I wait for the ".operations" index to appear in the ES pod
     And the expression should be true> cb.index_data['index'] == ".operations.#{Time.new.strftime('%Y.%m.%d')}"
 
@@ -359,8 +360,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: send Elasticsearch rootLogger to file
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17445/inventory |
     Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data['logging.yml'])['rootLogger'] == "${es.logger.level}, file"
 
@@ -370,8 +370,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: DC rollback behaviors are disabled for logging project DCs
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17307/inventory |
     And a deploymentConfig becomes ready with labels:
       | component=es |
@@ -383,7 +382,6 @@ Feature: logging related scenarios
   @destructive
   Scenario: max_local_storage_nodes default value should be 1 to prevent permitting multiple nodes to share the same data directory
     Given the master version >= "3.6"
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And evaluation of `YAML.load(config_map('logging-elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
     And the expression should be true> cb.data.dig('node', 'max_local_storage_nodes') == 1
@@ -395,12 +393,11 @@ Feature: logging related scenarios
   @destructive
   Scenario: The pvc are kept by default when uninstall logging via Ansible
     Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17429/inventory |
     Then the expression should be true> pvc('logging-es-0').ready?[:success]
     Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
-    And logging service is uninstalled from the project with ansible using:
+    And logging service is uninstalled with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_uninstall_inventory |
     And I check that there are no dc in the project
     And I check that there are no ds in the project
@@ -417,7 +414,7 @@ Feature: logging related scenarios
   Scenario: Invalid value for FILE_BUFFER_LIMIT
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
       | negative_test | true                                                                                                   |
     Given a pod is present with labels:
@@ -434,9 +431,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for fluentd daemonset
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
-    And I switch to cluster admin pseudo user
     And I ensure "logging-fluentd" daemonset is deleted from the "<%= project.name %>" project
     And I run logging diagnostics
     Then the output should contain:
@@ -448,7 +443,6 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for non-existed Oauthclient
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And I switch to cluster admin pseudo user
     And I ensure "kibana-proxy" oauthclient is deleted from the "<%= project.name %>" project
@@ -462,11 +456,9 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for missing service accounts
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
     And logging service is installed in the system
-    And I switch to cluster admin pseudo user
-    And I ensure "aggregated-logging-elasticsearch" serviceaccounts is deleted from the "<%= project.name %>" project
-    And I ensure "aggregated-logging-fluentd" serviceaccounts is deleted from the "<%= project.name %>" project
+    And I ensure "aggregated-logging-elasticsearch" serviceaccounts is deleted from the "<%= cb.target_proj %>" project
+    And I ensure "aggregated-logging-fluentd" serviceaccounts is deleted from the "<%= cb.target_proj %>" project
     And I run logging diagnostics
     Then the output should contain:
       | Did not find ServiceAccounts: aggregated-logging-elasticsearch,aggregated-logging-fluentd |
@@ -478,7 +470,7 @@ Feature: logging related scenarios
   Scenario: Aggregated logging diagnostics for missing service accounts
     Given the master version >= "3.5"
     Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12229/inventory |
     And logging service is installed in the system
     And I switch to cluster admin pseudo user
@@ -515,14 +507,14 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT is less than BUFFER_SIZE_LIMIT
     Given the master version >= "3.8"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17243/inventory |
       | negative_test | true                                                                                                   |
+    And I use the "<%= cb.target_proj %>" project
     Given a pod is present with labels:
       | component=fluentd,logging-infra=fluentd |
     When I run the :logs client command with:
-      | resource_name    | pods/<%= pod.name %>|
+      | resource_name    | <%= pod.name %> |
     Then the output should contain:
       | ERROR:                                     |
       | TOTAL_BUFFER_SIZE_LIMIT                    |
@@ -530,7 +522,7 @@ Feature: logging related scenarios
     Given a pod is present with labels:
       | component=mux,deploymentconfig=logging-mux,logging-infra=mux,provider=openshift |
     When I run the :logs client command with:
-      | resource_name    | pods/<%= pod.name %>|
+      | resource_name    | <%= pod.name %> |
     Then the output should contain:
       | ERROR:                                     |
       | TOTAL_BUFFER_SIZE_LIMIT                    |
@@ -542,7 +534,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT, BUFFER_SIZE_LIMIT and BUFFER_QUEUE_LIMIT use the default value
     Given the master version >= "3.8"
-    And logging service is installed in the project with ansible using:
+    And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17235/inventory |
     Given a pod becomes ready with labels:
       | component=fluentd,logging-infra=fluentd |
@@ -603,9 +595,9 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: View the project mapping index as different roles
-    Given I create a project with non-leading digit name
-    And evaluation of `project.name` is stored in the :org_project clipboard
     Given logging service is installed in the system
+    And I switch to the first user
+    Given I create a project with non-leading digit name
     # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
     When I run the :new_app client command with:
       | app_repo | httpd-example |
