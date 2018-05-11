@@ -1454,6 +1454,7 @@ Feature: deployment related features
     Then the output should contain:
       | "latestVersion": 2 |
     Given I wait until number of replicas match "0" for replicationController "hooks-1"
+    Then I wait for the "hooks-2" rc to appear
     And I wait until number of replicas match "1" for replicationController "hooks-2"
     When I get project pod
     Then the output should match:
