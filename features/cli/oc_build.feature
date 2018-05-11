@@ -75,7 +75,6 @@ Feature: oc build related scenarios
     Then the step should succeed
     And the output should contain:
       | Pulling image  |
-      | Already exists |
     When I run the :delete client command with:
       | all_no_dash ||
       | all         ||

@@ -794,11 +794,14 @@ Feature: buildlogic.feature
     Then the step should succeed
     """
     Given the "ruby-hello-world-6" build completed
+    Then I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match 5 times:
       | Complete |
     Then the output should not contain:
       |ruby-hello-world-1|
+    """
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -821,6 +824,8 @@ Feature: buildlogic.feature
     Then the step should succeed
     """
     Given the "ruby-hello-world-12" build fails
+    Then I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match 2 times:
       | Git.*Cancelled |
@@ -828,3 +833,4 @@ Feature: buildlogic.feature
       | Git.*Failed |
     Then the output should not contain:
       |ruby-hello-world-7|
+    """

@@ -694,8 +694,8 @@ Feature: build 'apps' with CLI
       | _stdin      | <%= @result[:response] %> |
       | _binmode    |                           |
     Then the step should succeed
-    #since this bug #1466659,build always complete,after bug fix, will change back
-    And the "nodejs-ex-5" build completes
+    # some environment versions have #1466659 and command may succeed
+    And the "nodejs-ex-5" build fails
 
   # @author pruan@redhat.com
   # @case_id OCP-12322
@@ -2121,9 +2121,12 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-8 |
       | build_name | ruby-hello-world-9 |
     Then the step should succeed
+    And I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match <num1> times:
       | Git.*Cancelled |
+    """
     And the output should not contain "New"
     Given I run the steps 3 times:
     """
@@ -2135,9 +2138,12 @@ Feature: build 'apps' with CLI
       | bc_name | bc/ruby-hello-world |
       | state   | pending             |
     Then the step should succeed
+    And I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match <num2> times:
       | Git.*Cancelled |
+    """
     And the output should not contain "New"
     Given I run the steps 3 times:
     """
@@ -2152,9 +2158,12 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-14 |
       | build_name | ruby-hello-world-15 |
     Then the step should succeed
+    And I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match <num3> times:
       | Git.*Cancelled |
+    """
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -2166,9 +2175,12 @@ Feature: build 'apps' with CLI
       | bc_name | bc/ruby-hello-world |
       | state   | running             |
     Then the step should succeed
+    And I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match <num4> times:
       | Git.*Cancelled |
+    """
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -2178,9 +2190,12 @@ Feature: build 'apps' with CLI
     When I run the :cancel_build client command with:
       | bc_name | bc/ruby-hello-world |
     Then the step should succeed
+    And I wait up to 480 seconds for the steps to pass:
+    """
     Given I get project builds
     Then the output should match <num5> times:
       | Git.*Cancelled |
+    """
 
     Examples:
       | num1 | num2 | num3 | num4 | num5 |
