@@ -62,12 +62,6 @@ module CucuShift
       return group_range
     end
 
-    def uid(user: nil, cached: true, quiet: false)
-      rr = raw_resource(user: user, cached: cached, quiet: quiet)
-      return rr.dig('metadata', 'uid')
-    end
-
-
     # creates a new project
     # @param by [CucuShift::APIAccessorOwner, CucuShift::APIAccessor] the user to create project as
     # @param name [String] the name of the project

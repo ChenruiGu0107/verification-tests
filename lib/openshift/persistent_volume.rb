@@ -31,11 +31,6 @@ module CucuShift
         dig("spec", 'storageClassName')
     end
 
-    def uid(user: nil, cached: true, quiet: false)
-      raw_resource(user: user, cached: cached, quiet: quiet).
-        dig("metadata", "uid")
-    end
-
     def claim_ref(user: nil, cached: true, quiet: false)
       unless cached && props.has_key?(:claim)
         raw =raw_resource(user: user, cached: cached, quiet: quiet).dig(

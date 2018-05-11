@@ -23,6 +23,11 @@ module CucuShift
         dig("metadata", "annotations", annotation_name)
     end
 
+    def uid(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, quiet: quiet, cached: cached).
+        dig("metadata", "uid")
+    end
+
     def created_at(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig("metadata", "creationTimestamp")
@@ -208,21 +213,29 @@ module CucuShift
       res = {}
       iterations = 0
       start_time = monotonic_seconds
+      org_created_at = self.created_at if cached?
 
-      wait_for(seconds) {
+      success = wait_for(seconds) {
         exists?(user: user, result: res, quiet: true)
 
         logger.info res[:command] if iterations == 0
         iterations = iterations + 1
 
-        !res[:success]
+        if res[:success]
+          # resource can be recreated, by creation timestamp we know original one is gone
+          # note that first tried with UID but it didn't change for pods of stateful sets
+          org_created_at ||= self.created_at
+          org_created_at != self.created_at
+        else
+          true
+        end
       }
 
       duration = monotonic_seconds - start_time
       logger.info "After #{iterations} iterations and #{duration.to_i} " <<
         "seconds:\n#{res[:response]}"
 
-      return !res[:success]
+      return success
     end
     alias wait_to_disappear disappeared?
 

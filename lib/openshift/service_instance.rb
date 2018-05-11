@@ -3,11 +3,6 @@ module CucuShift
   class ServiceInstance < ProjectResource
     RESOURCE = "serviceinstances"
 
-    def uid(user: nil, cached: true, quiet: false)
-      rr = raw_resource(user: user, cached: cached, quiet: quiet)
-      rr.dig('metadata', 'uid')
-    end
-
     def generation(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig('metadata', 'generation')
