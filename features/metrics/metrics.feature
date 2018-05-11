@@ -353,10 +353,22 @@ Feature: metrics related scenarios
   @destructive
   Scenario: Make sure no password exposed in process command line
     Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     And I select a random node's host
     And I run commands on the host:
       | ps -aux \| grep hawkular |
     Then the output should not contain:
       | password= |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-18805
+  @admin
+  @destructive
+  Scenario: Hawkular Metrics log should include date as part of the timestamp
+    Given the master version >= "3.5"
+    And metrics service is installed in the system
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    Then I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the expression should be true> Date.parse(@result[:response]) rescue false
