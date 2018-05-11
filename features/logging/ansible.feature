@@ -250,12 +250,14 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check Fluentd should write times/timestamps in UTC when logdriver=journald
     Given the master version >= "3.5"
-    Given logging service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project clipboard
     # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
     When I run the :new_app client command with:
       | app_repo | httpd-example |
     Then the step should succeed
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
     When I wait for the ".operation" index to appear in the ES pod with labels "component=es"
     Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
@@ -263,7 +265,7 @@ Feature: ansible install related feature
     And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
     Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
     # query the user project
-    When I wait for the "project.<%= project.name %>" index to appear in the ES pod
+    When I wait for the "project.<%= cb.org_project %>" index to appear in the ES pod
     Then I perform the HTTP request on the ES pod:
       | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
       | op           | GET                                                 |
