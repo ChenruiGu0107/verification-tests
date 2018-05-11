@@ -29,10 +29,11 @@ create_app_from_image:
       show_advanced_option: 'true'
     ref: create_app_from_image_show_advanced_param
   action:
-    if_param:
-    - git_ref
-    - context_dir
-    ref: create_app_from_image_set_git_options
+    if_param: git_ref
+    ref: create_app_from_image_set_git_ref
+  action:
+    if_param: context_dir
+    ref: create_app_from_image_set_git_context_dir
   action:
     if_param: include_routing
     ref: create_app_from_image_include_routing
@@ -163,12 +164,14 @@ create_app_from_image_show_advanced_param:
     selector:
       xpath: //a[text()='advanced options']
     op: click
-create_app_from_image_set_git_options:
+create_app_from_image_set_git_ref:
   elements:
   - selector:
       id: gitref
     op: send_keys <git_ref>
     type: input
+create_app_from_image_set_git_context_dir:
+  elements:
   - selector:
       id: contextdir
     op: send_keys <context_dir>

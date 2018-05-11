@@ -38,8 +38,12 @@ set_project_description:
     type: textarea
 new_project_form:
   action: set_project_name
-  action: set_project_display_name
-  action: set_project_description
+  action:
+    if_param: display_name
+    ref: set_project_display_name
+  action:
+    if_param: description
+    ref: set_project_description
 fail_to_create_new_project:
   action: new_project_navigate
   action: click_create_project

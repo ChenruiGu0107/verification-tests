@@ -34,48 +34,48 @@ fromtemplate_navigate:
 fromtemplate_param_form:
   action:
     if_param: param_one
-    ref: input_first_param_if_exist
+    ref: input_first_param
   action:
     if_param: param_two
-    ref: input_second_param_if_exist
+    ref: input_second_param
   action:
     if_param: param_three
-    ref: input_third_param_if_exist
+    ref: input_third_param
   action:
     if_param: param_four
-    ref: input_forth_param_if_exist
+    ref: input_forth_param
   action:
     if_param: param_five
-    ref: input_fifth_param_if_exist
-input_first_param_if_exist:
-  element:  
+    ref: input_fifth_param
+input_first_param:
+  element:
     selector:
       id: param-0
     op: send_keys <param_one>
     type: input
     optional: true
-input_second_param_if_exist:
+input_second_param:
   element:
     selector:
       id: param-1
     op: send_keys <param_two>
     type: input
     optional: true
-input_third_param_if_exist:
-  element: 
+input_third_param:
+  element:
     selector:
       id: param-2
     op: send_keys <param_three>
     type: input
     optional: true
-input_forth_param_if_exist:
+input_forth_param:
   element:
     selector:
       id: param-3
     op: send_keys <param_four>
     type: input
     optional: true
-input_fifth_param_if_exist:
+input_fifth_param:
   element:
     selector:
       id: param-4

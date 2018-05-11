@@ -96,7 +96,7 @@ Feature: check page info related
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo-ui.json |
     Then the step should succeed
 
-    When I get project PersistentVolumeClaim as JSON
+    When I get project persistentvolumeclaims as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :pvc_name clipboard
 
     Then I perform the :check_pvcs_on_storage_page web console action with:

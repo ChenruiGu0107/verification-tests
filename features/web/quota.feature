@@ -330,11 +330,6 @@ Feature: functions about resourcequotas
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should succeed
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota |
@@ -362,11 +357,6 @@ Feature: functions about resourcequotas
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should fail
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota for CPU (request) on pods |
@@ -392,11 +382,6 @@ Feature: functions about resourcequotas
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should fail
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota of 4 services in this project |
@@ -637,7 +622,7 @@ Feature: functions about resourcequotas
       | notbesteffort  |
       | terminating    |
       | notterminating |
-    
+
   # @author hasha@redhat.com
   # @case_id OCP-12988
   @admin
@@ -651,7 +636,7 @@ Feature: functions about resourcequotas
       | hard | requests.storage=100Gi,persistentvolumeclaims=2 |
       | n    | <%= project.name %>                             |
     Then the step should succeed
-    # Create the first pvc for project 
+    # Create the first pvc for project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-1-<%= project.name %>        |
@@ -695,7 +680,7 @@ Feature: functions about resourcequotas
   # @author hasha@redhat.com
   # @case_id OCP-12990
   @admin
-  Scenario: Show warning info when storage reaches the storage limits of project quota	
+  Scenario: Show warning info when storage reaches the storage limits of project quota
     Given the master version >= "3.6"
     Given I have a project
     # Create quota for current project

@@ -24,51 +24,37 @@ Feature: projects related features via web
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I perform the :new_project web console action with:
       | project_name | <%= cb.proj_name %> |
-      | display_name | :null               |
-      | description  ||
     Then the step should succeed
     Given I switch to the second user
     When I perform the :new_project web console action with:
       | project_name | <%= cb.proj_name %> |
-      | display_name | :null               |
-      | description  ||
     Then the step should fail
     When I get the html of the web page
     Then the output should contain "This name is already in use. Please choose a different name."
     # Create a project with <2 characters name
     When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(1) %> |
-      | display_name | :null              |
-      | description  ||
     Then the step should succeed
     When I run the :get_disabled_project_submit_button web console action
     Then the step should succeed
     # Create a project with uper-case letters
     When I perform the :fail_to_create_new_project web console action with:
       | project_name | ABCDE |
-      | display_name | :null |
-      | description  ||
     Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
     When I perform the :fail_to_create_new_project web console action with:
       | project_name | -<%= rand_str(4,:dns) %> |
-      | display_name | :null                    |
-      | description  ||
     Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
     When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(4,:dns) %>- |
-      | display_name | :null                    |
-      | description  ||
     Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
     When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(4,:dns) %>#% |
-      | display_name | :null                     |
-      | description  ||
     Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
@@ -100,8 +86,6 @@ Feature: projects related features via web
     Then the step should fail
     Given I wait for the :new_project web console action to succeed with:
       | project_name | <%= project.name %> |
-      | display_name | :null               |
-      | description  ||
     When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

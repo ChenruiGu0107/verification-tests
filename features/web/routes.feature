@@ -191,7 +191,7 @@ Feature: Routes related features on web console
 
   # @author yapei@redhat.com
   # @case_id OCP-11210
-  Scenario: Add path when creating edge terminated route on web cosnole
+  Scenario: Add path when creating edge terminated route on web console
     Given I create a new project
 
     # create pod, service and pod used for curl command
@@ -210,7 +210,6 @@ Feature: Routes related features on web console
     Then the step should succeed
     When I perform the :create_route_with_path_and_policy_for_insecure_traffic web console action with:
       | route_name              | edgepathroute   |
-      | hostname                | :null           |
       | path                    | /test           |
       | target_port             | 8080            |
       | tls_termination_type    | Edge            |
@@ -255,7 +254,6 @@ Feature: Routes related features on web console
     Then the step should succeed
     When I perform the :create_unsecure_route_without_path web console action with:
       | route_name              | edgerouteredirect   |
-      | hostname                | :null               |
       | target_port             | 8080                |
       | tls_termination_type    | Edge                |
       | insecure_traffic_policy | Redirect            |
@@ -292,7 +290,6 @@ Feature: Routes related features on web console
     Then the step should succeed
     When I perform the :create_unsecure_route_without_path web console action with:
       | route_name              | edgerouteallow      |
-      | hostname                | :null               |
       | target_port             | 8080                |
       | tls_termination_type    | Edge                |
       | insecure_traffic_policy | Allow               |

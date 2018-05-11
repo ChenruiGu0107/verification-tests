@@ -17,11 +17,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
       | label_key     | label1 |
       | label_value   | test   |
     Then the step should succeed
@@ -63,11 +58,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
@@ -76,25 +66,18 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id OCP-11171
   @smoke
-  Scenario Outline: Create application from image on web console
+  Scenario: Create application from image on web console
     Given I have a project
     Given I wait for the :create_app_from_image web console action to succeed with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |
-      | image_tag    | 3.4                                        |
+      | image_tag    | latest                                     |
       | namespace    | openshift                                  |
       | app_name     | python-sample                              |
       | source_url   | https://github.com/openshift/django-ex.git |
-      | git_ref      | <git_ref>                                  |
-      | context_dir  | :null                                      |
+      | git_ref      | v1.0.1                                     |
     Given the "python-sample-1" build was created
     Given the "python-sample-1" build completed
-    Given I wait for the "python-sample" service to become ready
-    And I wait for a web server to become available via the "python-sample" route
-    Examples:
-      | git_ref |
-      | :null   |
-      | v1.0.1  |
 
   # @author xxing@redhat.com
   # @case_id OCP-11445
@@ -107,11 +90,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
       | label_key     | /%^&   |
       | label_value   | value1 |
     Then the step should fail
@@ -219,11 +197,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should succeed
 
     When I run the :env client command with:
@@ -309,11 +282,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
@@ -331,11 +299,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
@@ -406,11 +369,6 @@ Feature: create app on web console related
       | project_name  | <%= project.name %>    |
       | template_name | test-api               |
       | namespace     | <%= project.name %>    |
-      | param_one     | :null  |
-      | param_two     | :null  |
-      | param_three   | :null  |
-      | param_four    | :null  |
-      | param_five    | :null  |
     Then the step should succeed
     # check resources are created
     When I run the :get client command with:
@@ -446,7 +404,6 @@ Feature: create app on web console related
       | New Project |
     When I perform the :new_project web console action with:
       | project_name | <%= rand_str(5, :dns) %> |
-      | display_name | :null                    |
       | description  ||
     Then the step should fail
     When I perform the :check_error_notification_on_page web console action with:
@@ -464,10 +421,7 @@ Feature: create app on web console related
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
       | param_one     | adminuser  |
-      | param_two     | :null      |
-      | param_three   | :null      |
       | param_four    | mysqlpass  |
-      | param_five    | :null      |
     Then the step should succeed
     When I run the :check_template_message_on_next_page web console action
     Then the step should succeed
@@ -649,8 +603,6 @@ Feature: create app on web console related
       | namespace    | openshift                                   |
       | app_name     | php                                         |
       | source_url   | https://github.com/openshift/cakephp-ex.git |
-      | git_ref      | :null                                       |
-      | context_dir  | :null                                       |
       | bc_env_key   | BCkey1                                      |
       | bc_env_value | BCvalue1                                    |
       | dc_env_key   | DCkey1                                      |
