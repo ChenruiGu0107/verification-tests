@@ -116,6 +116,7 @@ Feature: pipelinebuild.feature
   # @case_id OCP-17229
   Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
     Given I have a project
+    Given I store master major version in the clipboard
     And I have an ephemeral jenkins v2 application      
     When I have an http-git service in the project
     And I run the :env client command with:
@@ -145,8 +146,8 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/maven-pipeline-with-credential.yaml |
-      | p    | GIT_SOURCE_URL=http://git:8080/openshift-jee-sample.git |
-      | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret|
+      | p    | GIT_SOURCE_URL=http://git:8080/openshift-jee-sample.git                                                          |
+      | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                                |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -155,6 +156,10 @@ Feature: pipelinebuild.feature
       | rules    | lib/rules/web/images/jenkins_2/                                   |    
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
     Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7:v<%= cb.master_version %> |
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |

@@ -1115,8 +1115,6 @@ Feature: jenkins.feature
       | time_out   | 300       |
     Then the step should succeed
     Given I wait for the pod named "hello-openshift" to die regardless of current status
-    Given I get project pods
-    Then the output should not contain "hello-openshift"
     Examples:
       | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              | jenkins_version |
       | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 1               |
@@ -1200,10 +1198,10 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
-  # @author cryan@redhat.com
-  # @case_id OCP-10896
+  # @author cryan@redhat.com xiuwang@redhat.com
   Scenario Outline: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
     Given I have a project
+    Given I store master major version in the clipboard
     Given I have an ephemeral jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
@@ -1212,13 +1210,13 @@ Feature: jenkins.feature
       | name=jenkins |
     And I wait for the "jenkins" service to become ready up to 300 seconds
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                                   |
+      | rules    | lib/rules/web/images/jenkins_<version>/                           |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7 |
-      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7  |
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7 |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7:v<%= cb.master_version %>                                                 |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
@@ -1258,8 +1256,8 @@ Feature: jenkins.feature
 
     Examples:
       | version |
-      | 1       |
-      | 2       |
+      | 1       | # @case_id OCP-10896
+      | 2       | # @case_id OCP-10980 
 
   # @author cryan@redhat.com
   # @case_id 529770
@@ -2375,3 +2373,43 @@ Feature: jenkins.feature
       | ver |
       | 1   |
       | 2   |
+
+  # @author xiuwang@redhat.com
+  Scenario Outline: Using nodejs slave when do jenkinspipeline strategy
+    Given I have a project
+    Given I store master major version in the clipboard
+    Given I have an ephemeral jenkins v<version> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<version>/                           |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7 |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-nodejs-rhel7:v<%= cb.master_version %>                                                 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | jenkins/nodejs=true |
+    Given the "sample-pipeline-1" build completes
+    When I perform the :goto_jenkins_buildlog_page web action with:
+      | namespace|<%= project.name %>                 |
+      | job_name| <%= project.name %>-sample-pipeline |
+      | job_num | 1                                   |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | Finished: SUCCESS |
+
+    Examples:
+      | version |
+      | 1       | # @case_id OCP-11308
+      | 2       | # @case_id OCP-11373
