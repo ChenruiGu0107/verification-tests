@@ -6,7 +6,8 @@ require 'watir'
 require "base64"
 
   class Web4Cucumber
-    attr_reader :base_url, :browser_type, :logger, :rules
+    attr_reader :browser_type, :logger, :rules
+    attr_accessor :base_url
 
     @@headless = nil
 
