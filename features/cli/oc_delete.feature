@@ -56,6 +56,7 @@ Feature: oc_delete.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/40.json |
     And a pod becomes ready with labels:
       | name=graceful |
+    And evaluation of `pod.name` is stored in the :pod clipboard
     Given the project is deleted
     Given 10 seconds have passed
     When I run the :get admin command with:
@@ -68,14 +69,14 @@ Feature: oc_delete.feature
     When I run the :get admin command with:
       | resource | pods |
       | all_namespaces | true |
-    And the output should match "<%= pod.name %>.*Terminating"
+    And the output should match "<%= cb.pod %>.*Terminating"
     Given I wait for the steps to pass:
     """
     When I run the :get admin command with:
       | resource | pods |
       | all_namespaces | true |
     Then the step should succeed
-    And the output should not match "<%= pod.name %>.*Terminating"
+    And the output should not match "<%= cb.pod %>.*Terminating"
     """
 
   # @author cryan@redhat.com
