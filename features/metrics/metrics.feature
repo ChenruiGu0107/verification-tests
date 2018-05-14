@@ -372,3 +372,15 @@ Feature: metrics related scenarios
     Then I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the expression should be true> Date.parse(@result[:response]) rescue false
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15535
+  @admin
+  @destructive
+  Scenario: Path for prometheus additional alert rules file is not exist
+    Given the master version >= "3.7"
+    And metrics service is installed with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15535/inventory |
+      | negative_test | true                                                                                                   |
+    Then the output should contain:
+      | Could not find or access 'this_is_bogus_path' |
