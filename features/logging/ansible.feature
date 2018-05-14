@@ -413,3 +413,17 @@ Feature: ansible install related feature
     And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.start_with? cb.expected_prefix
     And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.end_with? cb.master_version
 
+  # @author pruan@redhat.com
+  # @case_id OCP-17427
+  @admin
+  @destructive
+  Scenario: Uninstall logging and remove pvc via Ansible
+    Given the master version >= "3.7"
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17427/inventory |
+    Then the expression should be true> pvc('logging-es-0').ready?[:success]
+    Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
+    And logging service is uninstalled with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17427/uninstall_inventory |
+    And the pvc named "logging-es-0" does not exist in the project
+    And the pvc named "logging-es-ops-0" does not exist in the project
