@@ -15,7 +15,7 @@
     When I run the :create admin command with:
       | f | myquota.yaml        |
       | n | <%= project.name %> |
-    Then the step should succeed 
+    Then the step should succeed
 
     # Check at quota of compute-resource:
     When I run the :run client command with:
@@ -38,11 +38,11 @@
       | total    | 1 core        |
       | resource | CPU (request) |
     Then the step should succeed
-  
+
     # Check at quota of object-count:
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -53,13 +53,13 @@
       | resource | config maps |
     Then the step should succeed
 
-    # Check exceed quota of compute-resource 
+    # Check exceed quota of compute-resource
     When I run the :delete admin command with:
       | object_type       | resourcequota       |
       | object_name_or_id | myquota             |
       | n                 | <%= project.name %> |
     Then the step should succeed
-    When I run the :scale client command with: 
+    When I run the :scale client command with:
       | resource | rc   |
       | name     | myrc |
       | replicas | 3    |
@@ -71,7 +71,7 @@
     When I run the :create admin command with:
       | f | myquota.yaml        |
       | n | <%= project.name %> |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -81,7 +81,7 @@
       | total    | 1 core        |
       | resource | CPU (request) |
     Then the step should succeed
-    
+
     # Check message for exceed object-count quotas:
     When I perform the :check_message_context_in_drawer web console action with:
       | status   | over |
@@ -102,7 +102,7 @@
     # Check dont show me again
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
-    Then the step should succeed  
+    Then the step should succeed
     When I perform the :click_dont_show_me_again_from_kebab web console action with:
       | status   | at          |
       | using    | 1           |
@@ -115,7 +115,7 @@
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -176,10 +176,10 @@
 
   # @author yapei@redhat.com
   # @case_id OCP-15235
-  Scenario: Check build,deployment,pods events in notification drawer  
+  Scenario: Check build,deployment,pods events in notification drawer
     Given the master version >= "3.7"
     Given I have a project
-  
+
     # check build related notification in drawer
     When I run the :new_app client command with:
       | app_repo |   https://github.com/openshift/nodejs-ex |
@@ -212,7 +212,7 @@
       | event_reason | Build Failed |
       | event_object | nodejs-ex-2  |
     Then the step should succeed
-    
+
     # check deployment related notification in drawer
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15235/test-dc.yaml |
@@ -225,11 +225,20 @@
       | event_resource_type   | Deployment Config  |
       | event_object          | php-apache         |
     Then the step should succeed
+    # make sure cancel succeed
     When I run the :rollout_cancel client command with:
       | resource      | dc         |
       | resource_name | php-apache |
     Then the step should succeed
-    And I wait until the status of deployment "php-apache" becomes :failed
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | dc         |
+      | name     | php-apache |
+    Then the step should succeed
+    And the output should match:
+      | [Cc]ancelled |
+    """
     When I perform the :open_notification_drawer_for_one_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -238,7 +247,7 @@
       | event_resource_type   | Deployment Config |
       | event_object          | php-apache        |
     Then the step should succeed
-    
+
     # check pod related notification in drawer
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod-bad.json |

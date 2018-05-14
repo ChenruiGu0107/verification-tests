@@ -599,7 +599,7 @@ Feature: create app on web console related
     When I perform the :create_app_from_image_check_label web console action with:
       | project_name | <%= project.name %>                         |
       | image_name   | php                                         |
-      | image_tag    | 5.5                                         |
+      | image_tag    | latest                                      |
       | namespace    | openshift                                   |
       | app_name     | php                                         |
       | source_url   | https://github.com/openshift/cakephp-ex.git |
@@ -692,7 +692,7 @@ Feature: create app on web console related
       | env_var_value | DCvalue2update      |
     Then the step should succeed
 
-    Given a pod becomes ready with labels:
+    Given a pod is present with labels:
       | deploymentconfig=php |
     When I perform the :check_deployment_environment web console action with:
       | project_name  | <%= project.name %> |

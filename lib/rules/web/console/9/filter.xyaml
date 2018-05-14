@@ -90,7 +90,7 @@ clear_one_filter:
 clear_all_filters:
   elements:
   - selector:
-      xpath: //a/span[text()='Clear filters']
+      visible_text: !ruby/regexp /Clear.*Filter.*/i
     op: click
 click_filter_box:
   elements:

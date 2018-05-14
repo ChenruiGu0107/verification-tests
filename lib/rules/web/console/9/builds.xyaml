@@ -312,3 +312,10 @@ check_one_build_status:
   - selector:
       xpath:  //a[contains(., "#<number>")]/ancestor::tr/td[contains(., "<status>")]
     timeout: 270
+edit_buildconfig_dockerfile_content:
+  action: goto_buildconfig_edit_page
+  element:
+    selector:
+      class: ace_content
+    type: div
+  action: set_ace_editor_content
