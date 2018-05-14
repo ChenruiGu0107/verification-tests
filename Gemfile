@@ -29,6 +29,7 @@ gem 'term-ansicolor'
 ## Webauto
 gem 'watir', '>= 6.6.0'
 gem 'headless'
+gem 'selenium-webdriver', "~>3.11.0" # limit webdriver to support legacy ff
 ## Docs
 # beware https://github.com/pry/pry/issues/1465
 #        https://bugzilla.redhat.com/show_bug.cgi?id=1257578
