@@ -1,3 +1,5 @@
+# --- subscription index related page (no detail sub pages)
+
 check_account_page:
   elements:
   - selector:
@@ -40,6 +42,11 @@ check_current_plan_part:
   - selector:
       xpath: //*[contains(@href,'subscription') and contains(.,'Change')]
   - selector:
+      xpath: //*[contains(.,'Your plan has been customized with:')] 
+  action: check_current_plan_content
+check_current_plan_content:
+  elements:
+  - selector:
       xpath: //*[contains(.,'Plan includes')] 
   - selector:
       xpath: //*[contains(.,'10 projects')]
@@ -55,8 +62,6 @@ check_current_plan_part:
       xpath: //*[contains(.,'Supports custom domains')]
   - selector:
       xpath: //*[contains(.,'Ability to schedule jobs')]
-  - selector:
-      xpath: //*[contains(.,'Your plan has been customized with:')] 
 check_primary_contact_part:
   elements:
   - selector:
