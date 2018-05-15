@@ -987,10 +987,10 @@ Feature: storageClass related feature
     Examples:
       | provisioner    | keyword |
       | vsphere-volume | vsphere | # @case_id OCP-17224
-      | gce-pd         | gce     | # @case_id OCP-17273
-      | aws-ebs        | ebs     | # @case_id OCP-17271
-      | cinder         | cinder  | # @case_id OCP-17270
-      | azure-disk     | azure   | # @case_id OCP-17274
+      | gce-pd         | gce     | # @case_id OCP-17259
+      | aws-ebs        | ebs     | # @case_id OCP-17260
+      | cinder         | cinder  | # @case_id OCP-17258
+      | azure-disk     | azure   | # @case_id OCP-17490
 
   # @author chaoyang@redhat.com
   # @case_id OCP-17272
