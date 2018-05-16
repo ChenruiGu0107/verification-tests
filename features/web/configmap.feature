@@ -7,28 +7,28 @@ Feature: ConfigMap related features
     Given I have a project
     When I perform the :check_unable_to_create_config_map_without_value web console action with:
       | project_name           | <%= project.name %> |
-      | config_map_key         | my.key              |
+      | item_key               | my.key              |
       | target_config_map_name | -my                 |
     Then the step should succeed
     When I run the :confirm_error_for_invalid_config_map_name web console action
     Then the step should succeed
     When I perform the :check_unable_to_create_config_map_without_value web console action with:
       | project_name           | <%= project.name %> |
-      | config_map_key         | my.key              |
+      | item_key               | my.key              |
       | target_config_map_name | my-                 |
     Then the step should succeed
     When I run the :confirm_error_for_invalid_config_map_name web console action
     Then the step should succeed
     When I perform the :check_unable_to_create_config_map_without_value web console action with:
       | project_name           | <%= project.name %> |
-      | config_map_key         | my.key              |
+      | item_key               | my.key              |
       | target_config_map_name | TEST                |
     Then the step should succeed
     When I run the :confirm_error_for_invalid_config_map_name web console action
     Then the step should succeed
     When I perform the :check_unable_to_create_config_map_without_value web console action with:
       | project_name           | <%= project.name %> |
-      | config_map_key         | my.key              |
+      | item_key               | my.key              |
       | target_config_map_name | test##              |
     Then the step should succeed
     When I run the :confirm_error_for_invalid_config_map_name web console action
@@ -36,7 +36,7 @@ Feature: ConfigMap related features
     Given an 254 characters random string of type :dns is stored into the :long_configmap clipboard
     When I perform the :check_unable_to_create_config_map_without_value web console action with:
       | project_name           | <%= project.name %>      |
-      | config_map_key         | my.key                   |
+      | item_key               | my.key                   |
       | target_config_map_name | <%= cb.long_configmap %> |
     Then the step should succeed
     When I run the :confirm_error_for_long_config_map_name web console action
@@ -44,7 +44,7 @@ Feature: ConfigMap related features
     When I perform the :create_config_map_without_value_from_configmaps_page web console action with:
        | project_name           | <%= project.name %> |
        | target_config_map_name | test                |
-       | config_map_key         | my.key              |
+       | item_key               | my.key              |
     Then the step should succeed
     When I perform the :check_config_map_with_empty_value web console action with:
        | project_name           | <%= project.name %> |
@@ -352,20 +352,20 @@ Feature: ConfigMap related features
       | target_config_map_name | specific-config-map |
     Then the step should succeed
     When I perform the :add_configmap_key_value_pairs web console action with:
-      | config_map_key   | special.how |
-      | config_map_value | very        |
+      | item_key   | special.how |
+      | item_value | very        |
     Then the step should succeed
     When I run the :click_to_add_configmap_item web console action
     Then the step should succeed
     When I perform the :add_configmap_key_value_pairs_from_file web console action with:
-      | config_map_key | special.type                        |
-      | file_path      | <%= expand_path("configmap.txt") %> |
+      | item_key  | special.type                        |
+      | file_path | <%= expand_path("configmap.txt") %> |
     Then the step should succeed
     When I run the :click_to_add_configmap_item web console action
     Then the step should succeed
     When I perform the :add_configmap_key_value_pairs web console action with:
-      | config_map_key   | special.who |
-      | config_map_value | you         |
+      | item_key   | special.who |
+      | item_value | you         |
     Then the step should succeed
     When I run the :click_create_button web console action
     Then the step should succeed
@@ -425,8 +425,8 @@ Feature: ConfigMap related features
     When I run the :click_to_add_configmap_item web console action
     Then the step should succeed
     When I perform the :add_configmap_key_value_pairs web console action with:
-      | config_map_key   | special.how |
-      | config_map_value | very        |
+      | item_key   | special.how |
+      | item_value | very        |
     Then the step should succeed
     When I run the :check_configmap_error_indicating_duplicate_key web console action
     Then the step should succeed
@@ -686,7 +686,7 @@ Feature: ConfigMap related features
     When I perform the :create_config_map_without_value web console action with:
        | project_name           | <%= project.name %> |
        | target_config_map_name | test12232           |
-       | config_map_key         | my.key              |
+       | item_key               | my.key              |
     Then the step should succeed
 
     When I run the :click_create_secret_link web console action

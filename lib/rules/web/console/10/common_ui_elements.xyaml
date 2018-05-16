@@ -316,4 +316,15 @@ not_keep_parameters_in_dialog:
       visible_text: !ruby/regexp /No/
     type: button
     op: click
-
+set_item_key:
+  elements:
+  - selector:
+      xpath: (//div[@ng-repeat='item in data'])[last()]//input[contains(@id,'key')]
+    op: send_keys <item_key>
+type_item_value:
+  element:
+    selector:
+      xpath: (//div[contains(@id,'value')])[last()]//textarea
+    type: textarea
+    visible: false
+    op: set <item_value>
