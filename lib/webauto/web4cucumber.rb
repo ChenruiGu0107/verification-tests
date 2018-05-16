@@ -123,6 +123,14 @@ require "base64"
           chrome_switches.concat %w[--no-sandbox --disable-setuid-sandbox --disable-gpu --disable-infobars]
         end
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_caps, switches: chrome_switches
+      elsif @browser_type == :safari
+        logger.info "Launching Safari"
+        caps = Selenium::WebDriver::Remote::Capabilities.safari ACCEPT_SSL_CERTS: true
+        if Integer === @scroll_strategy
+          caps[:element_scroll_behavior] = @scroll_strategy
+        end
+        driver = Selenium::WebDriver.for :safari, desired_capabilities: caps
+        @browser = Watir::Browser.new driver
       else
         raise "Not implemented yet"
       end
@@ -434,7 +442,6 @@ require "base64"
         url = URI.join(base_url, url).to_s
       end
       logger.info("Navigating to: #{url}")
-      browser.window.move_to 0, 0 # go to safe position to avoid hover actions
       browser.goto url
       return {
         instruction: "opening #{url}",
