@@ -1959,3 +1959,36 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+0\\s+10                                |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi   |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-11797,OCP-11963
+  @admin
+  Scenario Outline: Image with multiple layers and sumed up size slightly exceed the openshift.io/image-size will push failed
+    Given I have a project
+    And I have a skopeo pod in the project
+    And master CA is added to the "skopeo" dc
+    Given admin uses the "<%= project.name %>" project
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml" replacing paths:
+      | ["spec"]["limits"][0]["max"]["storage"] | "100Mi" |
+    Then the step should succeed
+    And evaluation of `"docker-registry.default.svc:5000"` is stored in the :integrated_reg_ip clipboard 
+    Given status becomes :running of 1 pods labeled:
+      | deployment=skopeo-2 |
+    When I execute on the pod:
+      | skopeo                                                                    |
+      | --debug                                                                   |
+      | --insecure-policy                                                         |
+      | copy                                                                      |
+      | --dest-cert-dir                                                           |
+      | /opt/qe/ca                                                                |
+      | --dcreds                                                                  |
+      | dnm:<%= user.cached_tokens.first %>                                       |
+      | docker://docker.io/<image>                                                |
+      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest  |
+    Then the step should fail
+    And the output should contain "denied"
+
+    Examples:
+      | image                       |
+      | aosqe/fedora_base:latest    | # @case_id OCP-11797
+      | aosqe/singlelayer:latest    | # @case_id OCP-11963
