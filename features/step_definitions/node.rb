@@ -66,8 +66,19 @@ Given /^I run( background)? commands on the host:$/ do |bg, table|
   ensure_admin_tagged
 
   raise "You must set a host prior to running this step" unless host
-
   @result = host.exec(*table.raw.flatten, background: !!bg)
+end
+
+Given /^I run commands on the host after scenario:$/ do |table|
+  _host = @host
+  _command = *table.raw.flatten
+  logger.info "Will run the command #{_command} after scenario on #{_host.hostname}"
+  teardown_add {
+    @result = _host.exec_admin(_command)
+    unless @result[:success]
+      raise "could not execute comands #{_command} on #{_host.hostname}"
+    end
+  }
 end
 
 Given /^I run( background)? commands on the hosts in the#{OPT_SYM} clipboard:$/ do |bg, cbname, table|

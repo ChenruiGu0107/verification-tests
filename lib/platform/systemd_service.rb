@@ -31,7 +31,7 @@ module CucuShift
         }
 
         # interesting whether `systemctl is-active svc` is better
-        result = host.exec_admin("systemctl status #{name}", quiet: quiet)
+        result = host.exec_admin("systemctl --lines=0 status #{name}", quiet: quiet)
         if result[:response].include? "Active:"
           result[:success] = true
         else

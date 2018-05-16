@@ -69,7 +69,7 @@ module CucuShift
 
     # @return [Integer} capacity cpu in 'm'
     def capacity_cpu(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       cpu = obj.dig("status", "capacity", "cpu")
       return unless cpu
       parsed = cpu.match(/\A(\d+)([a-zA-Z]*)\z/)
@@ -86,13 +86,13 @@ module CucuShift
     end
 
     def capacity_pods(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       return obj.dig("status", "capacity", "pods")&.to_i
     end
 
     # @return [Integer] memory in bytes
     def capacity_memory(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       mem = obj.dig("status", "capacity", "memory")
       return unless mem
       return convert_to_bytes(mem)
@@ -100,20 +100,32 @@ module CucuShift
 
     # @return [Integer} capacity cpu in 'm'
     def allocatable_cpu(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       cpu = obj.dig("status", "allocatable", "cpu")
       return unless cpu
       return convert_cpu(cpu)
     end
 
     def allocatable_pods(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       return obj.dig("status", "allocatable", "pods")&.to_i
+    end
+
+    # now only write for x86_64 arch
+    def allocatable_hugepages(user: nil, cached: true, quiet: false, size: "2Mi")
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
+      hp = obj.dig("status", "allocatable", "hugepages-"+size)
+      return hp ? convert_to_bytes(hp) : 0
+    end
+    
+    def hugepages_supported?(user: nil, cached: true, quiet: false)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
+      return obj.dig("status", "allocatable")&.keys&.any? {|k| k.start_with? "hugepages-"}
     end
 
     # @return [Integer] memory in bytes
     def allocatable_memory(user: nil, cached: true, quiet: false)
-      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      obj = raw_resource(user: user, cached: cached, quiet: quiet)
       mem = obj.dig("status", "allocatable", "memory")
       return unless mem
       return convert_to_bytes(mem)

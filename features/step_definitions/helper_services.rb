@@ -656,3 +656,32 @@ Given /^I have a registry with htpasswd authentication enabled in my project$/ d
        | deploymentconfig=registry |
   })
 end
+
+Given /^nodes have #{NUMBER} #{WORD} hugepages configured$/ do |num, word|
+  ensure_destructive_tagged
+  ensure_admin_tagged
+  unless word == "2Mi"
+    raise "only 2Mi pages are supported ATM because 1Gi pages " \
+      "may need additional kernel parameters and reboot"
+  end
+  unless env.version_ge("3.10", user: user)
+    steps %Q{
+      Given feature gate "HugePages" is enabled
+    }
+  end
+  steps %Q{
+    Given I select a random node's host
+    Given the node service is restarted on the host after scenario
+    Given I run commands on the host after scenario:
+      | sysctl vm.nr_hugepages=0 && sysctl vm.nr_hugepages  |
+    When I run commands on the host:
+      | sysctl vm.nr_hugepages=#{num} |
+    Then the step should succeed
+    When I run commands on the host:
+     | sysctl vm.nr_hugepages    |
+    Then the step should succeed
+    Then the output should contain:
+      | #{num}                    |
+    Given the node service is restarted on the host
+  }
+end
