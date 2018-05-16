@@ -498,3 +498,15 @@ Given /^I run commands on all nodes:$/ do |table|
     host.exec_admin(table.raw.flatten)
   }
 end
+
+Given /^node schedulable status should be restored after scenario$/ do
+  ensure_destructive_tagged
+  _org_schedulable = env.nodes.map {|n| [n, n.schedulable?]}
+  _admin = admin
+  teardown_add {
+    _org_schedulable.each do |node, schedulable|
+      opts = { :node_name =>  node.name, :schedulable => schedulable  }
+      _admin.cli_exec(:oadm_manage_node, opts)
+    end
+  } 
+end
