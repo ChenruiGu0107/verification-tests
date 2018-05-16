@@ -2,7 +2,6 @@ require 'find'
 require 'psych'
 require 'uri'
 require 'watir'
-
 require "base64"
 
   class Web4Cucumber
@@ -70,17 +69,17 @@ require "base64"
       return @browser if @browser && @browser.exists?
       firefox_profile = Selenium::WebDriver::Firefox::Profile.new
       chrome_caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+      safari_caps = Selenium::WebDriver::Remote::Capabilities.safari()
       chrome_switches = []
       if ENV.has_key? "http_proxy"
         proxy = ENV["http_proxy"].scan(/[\w\.\d\_\-]+\:\d+/)[0] # to get rid of the heading "http://" that breaks the profile
-        firefox_profile.proxy = chrome_caps.proxy = Selenium::WebDriver::Proxy.new({:http => proxy, :ssl => proxy})
+        firefox_profile.proxy = chrome_caps.proxy = safari_caps.proxy = Selenium::WebDriver::Proxy.new({:http => proxy, :ssl => proxy})
         firefox_profile['network.proxy.no_proxies_on'] = "localhost, 127.0.0.1"
         chrome_switches.concat %w[--proxy-bypass-list=127.0.0.1]
         ENV['no_proxy'] = '127.0.0.1'
       end
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.open_timeout = 180
-
       headless
       # Selenium::WebDriver.logger.level = :debug
       if @browser_type == :firefox_marionette
@@ -125,11 +124,11 @@ require "base64"
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_caps, switches: chrome_switches
       elsif @browser_type == :safari
         logger.info "Launching Safari"
-        caps = Selenium::WebDriver::Remote::Capabilities.safari ACCEPT_SSL_CERTS: true
+        safari_caps[:accept_insecure_certs] = true
         if Integer === @scroll_strategy
-          caps[:element_scroll_behavior] = @scroll_strategy
+          safari_caps[:element_scroll_behavior] = @scroll_strategy
         end
-        driver = Selenium::WebDriver.for :safari, desired_capabilities: caps
+        driver = Selenium::WebDriver.for :safari, desired_capabilities: safari_caps
         @browser = Watir::Browser.new driver
       else
         raise "Not implemented yet"
