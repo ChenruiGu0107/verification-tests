@@ -76,5 +76,10 @@ module CucuShift
       raw_resource(user: user, cached: cached, quiet: quiet).
         dig('spec', 'capacity', 'storage')
     end
+
+    def local_path(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig('spec', 'local', 'path')
+    end
   end
 end
