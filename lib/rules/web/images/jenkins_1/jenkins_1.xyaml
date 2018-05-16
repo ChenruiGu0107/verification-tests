@@ -593,7 +593,6 @@ jenkins_pipeline_insert_script:
   element:
     selector:
       xpath: //div[contains(@id,"workflow-editor-1")]
-    type: textarea
     visible: true
   scripts:
     - command: |
