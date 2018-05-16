@@ -863,6 +863,14 @@ jenkins_verify_job_text:
     timeout: <time_out>
     visible: true
 
+jenkins_verify_project_job:
+  url: /job/<namespace>
+  elements:
+  - selector:
+      xpath: //a[@href='<job_name>']
+    timeout: <time_out>
+    visible: true
+
 jenkins_verify_logged_in:
   elements:
   - selector:

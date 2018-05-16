@@ -2413,3 +2413,61 @@ Feature: jenkins.feature
       | version |
       | 1       | # @case_id OCP-11308
       | 2       | # @case_id OCP-11373
+
+  # @author wewang@redhat.com
+  # @case_id OCP-11372
+  Scenario: Sync builds from jenkins to openshift
+    Given I store master major version in the clipboard
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>:v<%= cb.master_version %> |
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8-rhel7" : "jenkins-slave-nodejs-rhel7" %>                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8-rhel7" : "jenkins-slave-nodejs-rhel7" %>:v<%= cb.master_version %> |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When the "sample-pipeline-1" build becomes :running
+    And the "nodejs-mongodb-example-1" build becomes :running
+    Then the "nodejs-mongodb-example-1" build completed
+    Then the "sample-pipeline-1" build completed
+    And I run the steps 2 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    """
+    Given I get project builds 
+    Then the output should contain 3 times:
+      | sample-pipeline |
+    When the "sample-pipeline-3" build becomes :running
+    And I perform the :jenkins_verify_job_text web action with:
+      | namespace  | <%= project.name %>                    |
+      | job_name   | <%= project.name %>-sample-pipeline    |
+      | checktext  | <%= project.name %>/sample-pipeline-3  |
+      | job_num    | 3                                      |
+      | time_out   | 300                                    |
+    Then the step should succeed 
+    When I run the :delete client command with:
+      | object_type           | buildconfig     |
+      | object_name_or_id     | sample-pipeline |
+    Then the step should succeed
+    When I perform the :jenkins_verify_project_job web action with:
+      | namespace  | <%= project.name %>                 |
+      | job_name   | <%= project.name %>-sample-pipeline |
+      | time_out   | 300                                 |
+    Then the step should fail
