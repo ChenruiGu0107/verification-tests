@@ -27,3 +27,13 @@ Feature: StorageClass testing scenarios
     # Multi times
     Given as admin I successfully patch resource "storageclass/standard" with:
       | {"allowVolumeExpansion":true,"metadata":{"annotations":{"updatedBy":"<%=project.name%>-<%=Time.new%>"}}} |
+
+  @admin
+  Scenario: Clone storage class
+    Given admin clones storage class "test" from ":default" with:
+      | ["parameters"]["resturl"] | http://error.address.com |
+    When I run the :get admin command with:
+      | resource      | storageclass |
+      | resource_name | test         |
+      | o             | yaml         |
+    Then the step should succeed

@@ -109,45 +109,21 @@ end
 Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with volume expansion (enabled|disabled)$/) do |target_sc, src_sc, expand|
   ensure_admin_tagged
 
-  step %Q/I run the :export admin command with:/, table(%{
-    | resource | StorageClass |
-    | name     | #{src_sc}    |
+  _expand = (expand == "enabled")
+  step %Q/admin clones storage class "#{target_sc}" from "#{src_sc}" with:/, table(%{
+    | allowVolumeExpansion | #{_expand} |
   })
-  sc_hash = YAML.load @result[:response]
-
-  sc_hash["metadata"]["name"] = "#{target_sc}"
-  if expand == "enabled"
-    sc_hash["allowVolumeExpansion"] = true
-  else
-    sc_hash["allowVolumeExpansion"] = false
-  end
-  if sc_hash["metadata"]["annotations"] && sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"]
-    sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] = "false"
-  end
-
-  logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
-  @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
-
-  if @result[:success]
-    cache_resources *@result[:resource]
-
-    # register mandatory clean-up
-    _sc = @result[:resource]
-    _admin = admin
-    teardown_add { _sc.ensure_deleted(user: _admin) }
-  else
-    logger.error(@result[:response])
-    raise "failed to clone StorageClass from: #{src_sc}"
-  end
 end
 
 Given(/^admin recreate storage class #{QUOTED} with:$/) do |sc_name, table|
   ensure_admin_tagged
   ensure_destructive_tagged
 
-  step %Q/I run the :export admin command with:/, table(%{
+  step %Q/I run the :get admin command with:/, table(%{
     | resource | StorageClass |
     | name     | #{sc_name}   |
+    | o        | yaml         |
+    | export   | true         |
   })
   sc_org = YAML.load @result[:response]
 
@@ -175,5 +151,45 @@ Given(/^admin recreate storage class #{QUOTED} with:$/) do |sc_name, table|
   else
     logger.error(@result[:response])
     raise "failed to recreate StorageClass: #{sc_name}"
+  end
+end
+
+Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_sc, src_sc, table|
+  ensure_admin_tagged
+
+  # Use :default to comment out the different storage class names on AWS/GCE/OpenStack
+  if "#{src_sc}" == ":default"
+    _sc = CucuShift::StorageClass.get_matching(user: user) { |sc, sc_hash| sc.default? }.first
+    src_sc = _sc.raw_resource.dig("metadata", "name")
+  end
+  step %Q/I run the :get admin command with:/, table(%{
+    | resource      | StorageClass |
+    | resource_name | #{src_sc}    |
+    | o             | json         |
+    | export        | true         |
+  })
+  sc_hash = YAML.load @result[:response]
+
+  sc_hash["metadata"]["name"] = "#{target_sc}"
+  table.raw.each do |path, value|
+    eval "sc_hash#{path} = value" unless path == ''
+  end
+  if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class")
+    sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] = "false"
+  end
+
+  logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
+  @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
+
+  if @result[:success]
+    cache_resources *@result[:resource]
+
+    # register mandatory clean-up
+    _sc = @result[:resource]
+    _admin = admin
+    teardown_add { _sc.ensure_deleted(user: _admin) }
+  else
+    logger.error(@result[:response])
+    raise "failed to clone StorageClass from: #{src_sc}"
   end
 end
