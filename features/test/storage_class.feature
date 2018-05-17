@@ -30,10 +30,12 @@ Feature: StorageClass testing scenarios
 
   @admin
   Scenario: Clone storage class
-    Given admin clones storage class "test" from ":default" with:
+    Given admin clones storage class "test1" from ":default" with:
       | ["parameters"]["resturl"] | http://error.address.com |
+    And admin clones storage class "test2" from ":default" with volume expansion enabled
     When I run the :get admin command with:
       | resource      | storageclass |
-      | resource_name | test         |
+      | resource_name | test1        |
+      | resource_name | test2        |
       | o             | yaml         |
     Then the step should succeed

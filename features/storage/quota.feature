@@ -118,15 +118,8 @@ Feature: ResourceQuata for storage
       | limited: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims=3   |
 
     # StorageClass without quota should not be limited
-    Given I run the :export admin command with:
-      | resource | storageclass                        |
-      | name     | nfs-provisioner-<%= project.name %> |
-    Then the step should succeed
-    And I save the output to file> storageclass_nfs_provisioner.json
-
-    When admin creates a StorageClass from "storageclass_nfs_provisioner.json" where:
-      | ["metadata"]["name"] | nfs-provisioner1-<%= project.name %> |
-    Then the step should succeed
+    Given admin clones storage class "nfs-provisioner1-<%= project.name %>" from "nfs-provisioner-<%= project.name %>" with:
+      | | |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %>             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner1-<%= project.name %> |

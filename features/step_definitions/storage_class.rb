@@ -119,15 +119,13 @@ Given(/^admin recreate storage class #{QUOTED} with:$/) do |sc_name, table|
   ensure_admin_tagged
   ensure_destructive_tagged
 
-  step %Q/I run the :get admin command with:/, table(%{
+  step %Q/I run the :export admin command with:/, table(%{
     | resource | StorageClass |
     | name     | #{sc_name}   |
-    | o        | yaml         |
-    | export   | true         |
   })
-  sc_org = YAML.load @result[:response]
+  sc_org = YAML.load @result[:stdout]
 
-  sc_hash = YAML.load @result[:response]
+  sc_hash = YAML.load @result[:stdout]
   table.raw.each do |path, value|
     eval "sc_hash#{path} = value" unless path == ''
   end
@@ -162,13 +160,11 @@ Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_
     _sc = CucuShift::StorageClass.get_matching(user: user) { |sc, sc_hash| sc.default? }.first
     src_sc = _sc.raw_resource.dig("metadata", "name")
   end
-  step %Q/I run the :get admin command with:/, table(%{
-    | resource      | StorageClass |
-    | resource_name | #{src_sc}    |
-    | o             | json         |
-    | export        | true         |
+  step %Q/I run the :export admin command with:/, table(%{
+    | resource | StorageClass |
+    | name     | #{src_sc}    |
   })
-  sc_hash = YAML.load @result[:response]
+  sc_hash = YAML.load @result[:stdout]
 
   sc_hash["metadata"]["name"] = "#{target_sc}"
   table.raw.each do |path, value|
