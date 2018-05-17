@@ -1,5 +1,17 @@
 Feature: ONLY Accountant console related feature's scripts in this file
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-13630
+  Scenario: the user's usernames are same in the openshift web console and the accountant web console
+    Given I open accountant console in a browser
+    When I perform the :check_account_name web action with:
+      | account_name | <%= user.name.sub("-", "_") %> |
+    Then the step should succeed
+    Given I login via web console
+    When I perform the :check_user_name web action with:
+      | user_name | <%= user.name .sub("-", "_") %> |
+    Then the step should succeed
+
   # @author etrott@redhat.com
   # @case_id OCP-10546
   # @note this scenario requires a user that has NOT already subscribed

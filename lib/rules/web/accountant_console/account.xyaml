@@ -1,5 +1,9 @@
 # --- subscription index related page (no detail sub pages)
-
+check_account_name:
+  elements: 
+  - selector: 
+      xpath: //*[@class="dropdown-toggle" and contains(., "<account_name>")]
+    timeout: 50
 check_account_page:
   elements:
   - selector:

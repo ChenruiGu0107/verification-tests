@@ -22,3 +22,7 @@ check_project_number_on_home_page:
   - command: return document.querySelectorAll('div[class~="project-tile"]').length == <project_number>
     expect_result: true
     timeout: 30
+check_user_name:
+  elements:
+  - selector:
+      xpath: //*[contains(@class, "username") and contains(., "<user_name>")]
