@@ -669,3 +669,32 @@ Feature: logging related scenarios
     Then the expression should be true> @result[:parsed]['count'] > 0
     """
 
+  # @author pruan@redhat.com
+  # @case_id OCP-18199
+  @admin
+  @destructive
+  Scenario: Couldn't access .operations index without permit
+    Given the master version >= "3.5"
+    Given logging service is installed in the system
+    Given I switch to the first user
+    And I perform the HTTP request on the ES pod:
+      | relative_url | .operations.*/_count?format=JSON |
+      | op           | GET                              |
+      | token        | <%= user.cached_tokens.first %>  |
+    Then the expression should be true> [401, 403].include? @result[:exitstatus]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-18201
+  @admin
+  @destructive
+  Scenario: Couldn't View the project mapping index without permit
+    And logging service is installed in the system
+    And I switch to the first user
+    Given I create a project with non-leading digit name
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    And I perform the HTTP request on the ES pod:
+      | relative_url | project.<%= project.name %>/_count?format=JSON |
+      | op           | GET                              |
+      | token        | <%= user.cached_tokens.first %>  |
+    Then the expression should be true> [401, 403].include? @result[:exitstatus]
