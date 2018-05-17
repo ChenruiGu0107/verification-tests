@@ -404,3 +404,17 @@ Feature: ansible install related feature
       | exec_command_arg | -h              |
     Then the output should contain "/#{cb.container}"
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11686
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - Deploy set PV type 'dynamic'
+    Given the master version >= "3.5"
+    And metrics service is installed with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11686/inventory |
+    Then the expression should be true> pvc('metrics-cassandra-1').wait_to_appear(user, 60)
+    Then the expression should be true> pvc('metrics-cassandra-1').ready?[:success]
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And the expression should be true> pod.volumes.find { |v| v.name == 'cassandra-data' && v.kind_of?(CucuShift::PVCPodVolumeSpec) && v.claim.name == 'metrics-cassandra-1' }
