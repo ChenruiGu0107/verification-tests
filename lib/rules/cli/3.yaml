@@ -703,6 +703,7 @@
     :no_tty: --no-tty=<value>
     :c: --container=<value>
     :command: <value>
+    :command_arg: <value>
     :pod: <value>
     :shell: --shell=<value>
 :rsync:
