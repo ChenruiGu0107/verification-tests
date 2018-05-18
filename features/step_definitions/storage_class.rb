@@ -167,11 +167,11 @@ Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_
   sc_hash = YAML.load @result[:stdout]
 
   sc_hash["metadata"]["name"] = "#{target_sc}"
-  table.raw.each do |path, value|
-    eval "sc_hash#{path} = value" unless path == ''
-  end
   if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class")
     sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] = "false"
+  end
+  table.raw.each do |path, value|
+    eval "sc_hash#{path} = value" unless path == ''
   end
 
   logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
