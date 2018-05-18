@@ -173,6 +173,9 @@ Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_
   table.raw.each do |path, value|
     eval "sc_hash#{path} = value" unless path == ''
   end
+  if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class") == "true"
+    ensure_destructive_tagged
+  end
 
   logger.info("Creating StorageClass:\n#{sc_hash.to_yaml}")
   @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)

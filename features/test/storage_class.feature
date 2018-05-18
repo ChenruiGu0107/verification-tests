@@ -29,6 +29,7 @@ Feature: StorageClass testing scenarios
       | {"allowVolumeExpansion":true,"metadata":{"annotations":{"updatedBy":"<%=project.name%>-<%=Time.new%>"}}} |
 
   @admin
+  @destructive
   Scenario: Clone storage class
     Given admin clones storage class "test1" from ":default" with:
       | ["parameters"]["resturl"] | http://error.address.com |
