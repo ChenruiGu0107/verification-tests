@@ -16,7 +16,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -406,7 +406,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a NFS service in the project
 
     # Creating PV
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv.json" where:
       | ["metadata"]["name"]      | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then the step should succeed
@@ -473,12 +473,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
 
     # create 2 pvc
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
@@ -550,7 +550,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   @admin
   Scenario Outline: oc set volume with claim-class parameter test
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
@@ -638,7 +638,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And the "pvcsc" PVC status is :pending
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 

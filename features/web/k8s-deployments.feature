@@ -8,7 +8,7 @@ Feature: Features about k8s deployments
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo-ui.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo-ui.json |
     Then the step should succeed
     When I perform the :click_to_goto_one_deployment_page web console action with:
       | project_name         | <%= project.name %> |

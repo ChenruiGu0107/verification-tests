@@ -8,25 +8,25 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a project
 
     #Create a invalid endpoint
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/endpoints.json"
     And I replace content in "endpoints.json":
       | /\d{2}/ | 11 |
     And I run the :create client command with:
       | f | endpoints.json |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pv-retain-rwo.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pv-retain-rwo.json" where:
       | ["metadata"]["name"] | gluster-<%= project.name %> |
     Then the step should succeed
 
     #Create gluster pvc
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | glusterc |
     Then the step should succeed
     And the PV becomes :bound
 
     #Create the pod
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pod.json |
     Then the step should succeed
     And I wait up to 500 seconds for the steps to pass:
     """
@@ -51,26 +51,26 @@ Feature: Storage of GlusterFS plugin testing
       | chmod | g+w | /vol |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/endpoints.json" replacing paths:
       | ["metadata"]["name"]                 | glusterfs-cluster             |
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pv-retain-rwo.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pv-retain-rwo.json" where:
       | ["metadata"]["name"]                      | pv-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce                  |
       | ["spec"]["glusterfs"]["endpoints"]        | glusterfs-cluster              |
       | ["spec"]["glusterfs"]["path"]             | testvol                        |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                         |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
       | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %>  |
     Then the step should succeed
@@ -107,13 +107,13 @@ Feature: Storage of GlusterFS plugin testing
       | chmod | -R | 770 | /vol |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/endpoints.json" replacing paths:
       | ["metadata"]["name"]                 | glusterfs-cluster             |
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/security/gluster_pod_sg.json" replacing paths:
       | ["metadata"]["name"] | glusterpd-<%= project.name %> |
     Then the step should succeed
 
@@ -135,7 +135,7 @@ Feature: Storage of GlusterFS plugin testing
     And the output should contain:
       | Hello OpenShift Storage |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/security/gluster_pod_sg.json" replacing paths:
       | ["metadata"]["name"]                              | glusterpd-negative-<%= project.name %> |
       | ["spec"]["securityContext"]["supplementalGroups"] | [123460]                               |
     Then the step should succeed
@@ -182,7 +182,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
@@ -192,7 +192,7 @@ Feature: Storage of GlusterFS plugin testing
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1 |
     Then the step should succeed
     And the pod named "gluster" status becomes :running
@@ -222,7 +222,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
       | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi               |
@@ -239,7 +239,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
     Then the step should succeed
@@ -263,7 +263,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin checks that the "heketi-secret" secret exists in the "default" project
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner1 |
     Then the step should succeed
@@ -273,7 +273,7 @@ Feature: Storage of GlusterFS plugin testing
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1 |
     Then the step should succeed
     And the pod named "gluster" status becomes :running
@@ -286,7 +286,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
@@ -316,10 +316,10 @@ Feature: Storage of GlusterFS plugin testing
     And evaluation of `@result[:parsed]["parameters"]["resturl"]` is stored in the :heketi_url clipboard
 
     # Create a tmp storageclass using the url
-    Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %> |
       | ["parameters"]["resturl"] | <%= cb.heketi_url %>             |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -353,13 +353,13 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     # Create a StorageCLass for GlusterFS provisioner where gidMin > gidMax
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 2001                                                             |
       | ["parameters"]["gidMax"]  | 2000                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -375,13 +375,13 @@ Feature: Storage of GlusterFS plugin testing
     """
 
     # Create a StorageCLass for GlusterFS provisioner where gidMin/gidMax has negative values
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-neg-<%= project.name %>                             |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | -10000                                                           |
       | ["parameters"]["gidMax"]  | -1000                                                            |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-neg-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-neg-<%= project.name %> |
     Then the step should succeed
@@ -402,13 +402,13 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 3333                                                             |
       | ["parameters"]["gidMax"]  | 33333                                                            |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -424,7 +424,7 @@ Feature: Storage of GlusterFS plugin testing
       | pv.beta.kubernetes.io/gid: "3333" |
 
     # Verify Pod is assigned gid 3333
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
     Then the step should succeed
@@ -442,7 +442,7 @@ Feature: Storage of GlusterFS plugin testing
 
     # Pod should work as well having its supplementalGroups set to 3333 explicitly
     Given I ensure "pod-<%= project.name %>" pod is deleted
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
       | ["metadata"]["name"]                                         | pod1-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                     |
       | ["spec"]["securityContext"]["supplementalGroups"]            | [3333]                   |
@@ -466,11 +466,11 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -493,13 +493,13 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 5555                                                             |
       | ["parameters"]["gidMax"]  | 5555                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -507,7 +507,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # The 2nd PVC can't provision any because GID range is full
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -536,14 +536,14 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | disperse:4:2                                                     |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 16Gi                             |
@@ -566,14 +566,14 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | none                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
@@ -595,14 +595,14 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     # Setting replica to 2
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:2                                                      |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
@@ -618,14 +618,14 @@ Feature: Storage of GlusterFS plugin testing
       | Distributed+Replica: 2     |
 
     # Setting replica to 0
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass1-<%= project.name %>                                |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:0                                                      |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2                              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                              |
@@ -646,7 +646,7 @@ Feature: Storage of GlusterFS plugin testing
   Scenario: Provisioned GlusterFS volume should be replicated with 3 replicas
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
@@ -742,8 +742,8 @@ Feature: Storage of GlusterFS plugin testing
 
     # Prepare service for endpoints
     Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/service-endpoints.yaml |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json" replacing paths:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/service-endpoints.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/endpoints.json" replacing paths:
       | ["metadata"]["name"]                 | glusterfs-cluster             |
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
@@ -756,14 +756,14 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["glusterfs"]["path"]                                          | testvol                        |
       | ["spec"]["persistentVolumeReclaimPolicy"]                              | Retain                         |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
       | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %>  |
     Then the step should succeed
@@ -784,13 +784,13 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_retain.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_retain.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                                           |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["reclaimPolicy"]         | Retain                                                           |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1                       |
@@ -814,19 +814,19 @@ Feature: Storage of GlusterFS plugin testing
 
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_mount_options.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_mount_options.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                              |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["mountOptions"][0]       | ro                                                  |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1                       |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed

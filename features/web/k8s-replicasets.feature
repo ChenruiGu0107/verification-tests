@@ -8,7 +8,7 @@ Feature: Features about k8s replicasets
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536589/replica-set.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo-ui.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo-ui.json |
     Then the step should succeed
     When I perform the :click_to_goto_one_replicaset_page web console action with:
       | project_name         | <%= project.name %> |

@@ -26,21 +26,21 @@ Feature: Storage of Hostpath plugin testing
       | chmod -R 777 /etc/origin/<%= cb.hostpath %> |
     Then the step should succeed
 
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/local.yaml" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local.yaml" where:
       | ["metadata"]["name"]         | local-<%= cb.proj_name %>      |
       | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
       | ["spec"]["accessModes"][0]   | <access_mode>                  |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>  |
     Then the step should succeed
 
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/claim.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/claim.yaml" replacing paths:
       | ["metadata"]["name"]       | localc-<%= cb.proj_name %> |
       | ["spec"]["volumeName"]     | local-<%= cb.proj_name %>  |
       | ["spec"]["accessModes"][0] | <access_mode>              |
     Then the step should succeed
     And the "localc-<%= cb.proj_name %>" PVC becomes bound to the "local-<%= cb.proj_name %>" PV
 
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/pod.yaml" replacing paths:
+    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | localpd-<%= cb.proj_name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %>  |
     Then the step should succeed
@@ -93,7 +93,7 @@ Feature: Storage of Hostpath plugin testing
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/security/hostpath.yaml" replacing paths:
+    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/security/hostpath.yaml" replacing paths:
       | ["metadata"]["name"]                       | localpd-<%= cb.proj_name %>    |
       | ["spec"]["volumes"][0]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
     Then the step should succeed
@@ -190,7 +190,7 @@ Feature: Storage of Hostpath plugin testing
   Scenario: Setting mount options for volume plugins that doesn't support it
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/hostpath_invalid_mount_options.yaml |
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/hostpath_invalid_mount_options.yaml |
     Then the step should fail
     And the output should contain:
       | may not specify mount options for this volume type |
@@ -203,7 +203,7 @@ Feature: Storage of Hostpath plugin testing
     And I use the "<%= node.name %>" node
     And the "/mnt/disk" path is recursively removed on the host after scenario
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propashare.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/propashare.yaml | 
       | n | <%= project.name %>                                                                                            |
     Then the step should succeed
     Given the pod named "propashare" becomes ready
@@ -221,7 +221,7 @@ Feature: Storage of Hostpath plugin testing
     Then the output should contain:
       | masterdata |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propaslave.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/propaslave.yaml |
       | n | <%= project.name %>                                                                                            |
     Then the step should succeed
     Given the pod named "propaslave" becomes ready
@@ -268,12 +268,12 @@ Feature: Storage of Hostpath plugin testing
       | mkdir -p /mnt/<%= project.name %>                         |
       | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propashare.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/propashare.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false |
     Then the step should fail 
     And the output should contain:
       | Bidirectional mount propagation is available only to privileged containers |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/propaslave.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/propaslave.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false                    |
       | ["spec"]["volumes"][0]["hostPath"]["path"]                 | /mnt/<%= project.name %> |
     Then the step should succeed

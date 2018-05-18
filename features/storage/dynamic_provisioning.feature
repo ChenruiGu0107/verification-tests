@@ -15,7 +15,7 @@ Feature: Dynamic provisioning
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
@@ -31,7 +31,7 @@ Feature: Dynamic provisioning
 
     And I save volume id from PV named "<%= cb.pv_name1 %>" in the :volumeID1 clipboard
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod1                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
@@ -74,13 +74,13 @@ Feature: Dynamic provisioning
   @admin
   Scenario: azure disk dynamic provisioning
     Given admin creates a project with a random schedulable node selector
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 1 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
@@ -88,7 +88,7 @@ Feature: Dynamic provisioning
     Then the step should succeed
     And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
     And I save volume id from PV named "#{ pvc.volume_name }" in the :disk clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvcpod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
       | ["metadata"]["name"]                                         | mypod#{cb.i} |
     Then the step should succeed
@@ -119,7 +119,7 @@ Feature: Dynamic provisioning
   @admin
   Scenario: dynamic provisioning with multiple access modes
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
       | ["spec"]["accessModes"][1]                   | ReadWriteMany                   |
@@ -139,7 +139,7 @@ Feature: Dynamic provisioning
       | ROX |
       | RWX |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>       |
     Then the step should succeed
@@ -167,10 +167,10 @@ Feature: Dynamic provisioning
   @admin
   Scenario: azure disk dynamic provisioning with multiple access modes
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce          |
       | ["spec"]["accessModes"][1]                                             | ReadWriteMany          |
@@ -188,7 +188,7 @@ Feature: Dynamic provisioning
       | ROX |
       | RWX |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -212,7 +212,7 @@ Feature: Dynamic provisioning
     Given I have a project
     And I run the steps 30 times:
     """
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-ERB.json
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-ERB.json
     Then the step should succeed
     """
     Given 30 PVCs become :bound within 600 seconds with labels:
@@ -226,7 +226,7 @@ Feature: Dynamic provisioning
   @admin
   Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
@@ -254,13 +254,13 @@ Feature: Dynamic provisioning
   @admin
   Scenario: azure disk dynamic pvc shows lost after pv is deleted
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 1 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
@@ -282,7 +282,7 @@ Feature: Dynamic provisioning
       dynamicProvisioningEnabled: False
     """
     And the master service is restarted on all master nodes
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc-<%= project.name %> |
     Then the step should succeed
     When 30 seconds have passed
@@ -300,12 +300,12 @@ Feature: Dynamic provisioning
   @smoke
   Scenario: Dynamic provision smoke test
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
@@ -331,13 +331,13 @@ Feature: Dynamic provisioning
   Scenario Outline: Specify a file system type for dynamically provisioned volume
     Given I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-fstype.yml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-fstype.yml" where:
       | ["metadata"]["name"]     | storageclass-<%= project.name %> |
       | ["provisioner"]          | kubernetes.io/<provisioner>      |
       | ["parameters"]["fstype"] | <fstype>                         |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                              |
@@ -345,7 +345,7 @@ Feature: Dynamic provisioning
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt                    |
@@ -371,16 +371,16 @@ Feature: Dynamic provisioning
   @admin
   Scenario: User can dynamic created encryted ebs volume
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/sc_encrypted.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/sc_encrypted.yaml" where:
     | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
     Then the step should succeed
     And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/aws                        |

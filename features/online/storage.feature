@@ -58,7 +58,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
   # @case_id OCP-13108
   Scenario: Basic user could not get pv object info
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/claim.json" replacing paths:
       | ["metadata"]["name"]                           | ebsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]   | 1Gi                      |
     And the step should succeed
@@ -208,7 +208,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And evaluation of `project.supplemental_groups(user: user).begin` is stored in the :supplemental_groups clipboard
     And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/emptydir/emptydir_pod_selinux_test.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/emptydir/emptydir_pod_selinux_test.json" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | <%= cb.uid_range %>             |
       | ["spec"]["containers"][1]["securityContext"]["runAsUser"] | <%= cb.uid_range %>             |
       | ["spec"]["securityContext"]["fsGroup"]                    | <%= cb.supplemental_groups %>   |
@@ -258,7 +258,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | Error.*storageclasses.* at the cluster scope |
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass-io1.yaml |
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |

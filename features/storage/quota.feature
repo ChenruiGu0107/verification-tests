@@ -8,7 +8,7 @@ Feature: ResourceQuata for storage
     And I use the "<%= project.name %>" project
 
     # Admin could create ResourceQuata
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/quota-pvc-storage.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota-pvc-storage.yaml" replacing paths:
       | ["spec"]["hard"]["persistentvolumeclaims"] | 5    |
       | ["spec"]["hard"]["requests.storage"]       | 12Gi |
     Then the step should succeed
@@ -16,7 +16,7 @@ Feature: ResourceQuata for storage
     # Consume 9Gi storage in the namespace
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-#{ cb.i } |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo           |
       | ["spec"]["resources"]["requests"]["storage"]                            | 3Gi           |
@@ -25,7 +25,7 @@ Feature: ResourceQuata for storage
     """
 
     # Try to exceed the 12Gi storage
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                     |
       | ["spec"]["resources"]["requests"]["storage"]                            | 4Gi                     |
@@ -39,7 +39,7 @@ Feature: ResourceQuata for storage
     # Try to exceed total number of PVCs
     And I run the steps 2 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvci-#{ cb.i } |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo            |
       | ["spec"]["resources"]["requests"]["storage"]                            | 1Gi            |
@@ -47,7 +47,7 @@ Feature: ResourceQuata for storage
     And the "pvc-#{ cb.i }" PVC becomes :bound
     """
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | foo                     |
       | ["spec"]["resources"]["requests"]["storage"]                            | 1Gi                     |
@@ -68,7 +68,7 @@ Feature: ResourceQuata for storage
     And I use the "<%= project.name %>" project
 
     # Add ResourceQuata for the StorageClass
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/quota_for_storageclass.yml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota_for_storageclass.yml" replacing paths:
       | ["spec"]["hard"]["nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 3    |
       | ["spec"]["hard"]["nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage"]       | 10Mi |
     Then the step should succeed
@@ -76,7 +76,7 @@ Feature: ResourceQuata for storage
     # Consume 8Mi storage in the namespace
     And I run the steps 2 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                       |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
@@ -86,7 +86,7 @@ Feature: ResourceQuata for storage
     """
 
     # Try to exceed the 10Mi storage
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
@@ -98,7 +98,7 @@ Feature: ResourceQuata for storage
       | limited: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage=10Mi  |
 
     # Try to exceed total number of PVCs
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvcnew                              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
@@ -106,7 +106,7 @@ Feature: ResourceQuata for storage
     And the "pvcnew" PVC becomes :bound
     And admin ensures "<%= pvc('pvcnew').volume_name %>" pv is deleted after scenario
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvcnew2                             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
@@ -120,7 +120,7 @@ Feature: ResourceQuata for storage
     # StorageClass without quota should not be limited
     Given admin clones storage class "nfs-provisioner1-<%= project.name %>" from "nfs-provisioner-<%= project.name %>" with:
       | | |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %>             |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 11Mi                                 |

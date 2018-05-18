@@ -7,7 +7,7 @@ Feature: Azure disk and Azure file specific scenarios
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/<azpodname>-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/<azpodname>-pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
@@ -35,7 +35,7 @@ Feature: Azure disk and Azure file specific scenarios
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azrwro-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azrwro-pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
@@ -54,16 +54,16 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Persistent Volume with azureDisk volume plugin
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpv.yaml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpv.yaml" where:
       | ["metadata"]["name"]              | ad-<%= project.name %>        |
       | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["metadata"]["name"] | azpvc |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | azpvcpo    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -83,14 +83,14 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario Outline: azureDisk dynamic provisioning with storage class
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-<sctype>.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | azpvcpo    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -133,16 +133,16 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: azureDisk volume with RWO access mode and Delete policy
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvdelete.yaml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvdelete.yaml" where:
       | ["metadata"]["name"]              | ad-<%= project.name %>        |
       | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["metadata"]["name"] | azpvc |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | azpvcpo    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -166,11 +166,11 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario Outline: Negative test of azureDisk with storage class
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-<sctype>.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-<sctype>.yaml" where:
       | ["metadata"]["name"]   | sc-<%= project.name %> |
       | ["parameters"]["kind"] | Dedicated              |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :pending
@@ -196,17 +196,17 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: pre-bound still works with storage class on Azure
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpv.yaml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpv.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %>        |
       | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>   |
       | ["provisioner"]                                                                 | kubernetes.io/azure-disk |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                     |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["volumeName"] | pv-<%= project.name %>  |
     Then the step should succeed
     And the "azpvc" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -218,15 +218,15 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Azure disk should be detached and attached again for scale down and up
     Given I have a project
     And environment has at least 2 schedulable nodes
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/dc.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/dc.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | run=hello-openshift |
@@ -266,12 +266,12 @@ Feature: Azure disk and Azure file specific scenarios
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azcaro-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azcaro-pod.yaml" replacing paths:
       | ["metadata"]["name"]                            | baddiskpod                                             |
       | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | noneexist.vhd                                          |
       | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid.split("vhds").first+"vhds/noneexist.vhd" %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azcaro-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azcaro-pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
       | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
@@ -292,19 +292,19 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Azure file persistent volume plugin test
     Given I have a project
     And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azure-secret.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
       | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azf-pv.yml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
       | ["metadata"]["name"] | azpv-<%= project.name %> |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["accessModes"][0] | ReadWriteMany |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready
@@ -324,20 +324,20 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Azure file persistent volume parameters negative test 
     Given I have a project
     And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azure-secret.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
       | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azf-pv.yml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
       | ["metadata"]["name"]               | azpv-<%= project.name %> |
       | ["spec"]["azureFile"]["shareName"] | azfnoexist               |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["accessModes"][0] | ReadWriteMany |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -355,21 +355,21 @@ Feature: Azure disk and Azure file specific scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azure-secret.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
       | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
     Then the step should succeed
     Given I create a new project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azf-pv.yml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
       | ["metadata"]["name"]                     | azpv-<%= project.name %> |
       | ["spec"]["azureFile"]["secretNamespace"] | <%= cb.proj1 %>          |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["accessModes"][0] | ReadWriteMany |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready
@@ -389,20 +389,20 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Azure file with secretNamespace parameter of current project 
     Given I have a project
     And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azure-secret.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
       | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azf-pv.yml" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
       | ["metadata"]["name"]                     | azpv-<%= project.name %> |
       | ["spec"]["azureFile"]["secretNamespace"] | <%= project.name %>      |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["accessModes"][0] | ReadWriteMany |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready
@@ -420,15 +420,15 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario Outline: azureFile dynamic provisioning with storage class
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfsc-<sctype>.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/azfpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure-file/<podname>pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/<podname>pod.yaml | 
       | n | <%= project.name %>                                                                                                |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready

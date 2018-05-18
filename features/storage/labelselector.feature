@@ -9,14 +9,14 @@ Feature: Target pvc to a specific pv
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv1.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv1.json"
     Then I replace lines in "pv1.json":
       | nfs-pv-1a | nfspv1-<%= project.name %> |
       | nfs-pv-1b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv1.json |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc1.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc1.json" replacing paths:
       | ["metadata"]["name"]| nfsc-<%= project.name %> |
     Then the step should succeed
     Then the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -29,10 +29,10 @@ Feature: Target pvc to a specific pv
   Scenario: PVC could not bind PV with label selector matches but binding requirements are not met
     Given I have a project
     Given default storage class is deleted
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv2.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"] | nfspv-<%= project.name %> |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc2.json" replacing paths:
+    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc2.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
     Then the step should succeed
@@ -50,14 +50,14 @@ Feature: Target pvc to a specific pv
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv3.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv3.json"
     Then I replace lines in "pv3.json":
       | nfs-pv-3a | nfspv1-<%= project.name %> |
       | nfs-pv-3b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv3.json |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc3.json" replacing paths:
+    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc3.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
       | ["items"][2]["metadata"]["name"] | nfsc3-<%= project.name %> |
@@ -76,14 +76,14 @@ Feature: Target pvc to a specific pv
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv4.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv4.json"
     Then I replace lines in "pv4.json":
       | nfs-pv-4a | nfspv1-<%= project.name %> |
       | nfs-pv-4b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv4.json |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc4.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc4.json" replacing paths:
       | ["metadata"]["name"] | nfsc1-<%= project.name %> |
     Then the step should succeed
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -95,12 +95,12 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC could bind prebound PV with mismatched label
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv5.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv5.json" where:
       | ["metadata"]["name"]              | nfspv1-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>        |
       | ["spec"]["claimRef"]["name"]      | nfsc1-<%= project.name %>  |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc5.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc5.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -114,14 +114,14 @@ Feature: Target pvc to a specific pv
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv6.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv6.json"
     Then I replace lines in "pv6.json":
       | nfs-pv-6a | nfspv1-<%= project.name %> |
       | nfs-pv-6b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv6.json |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc6.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc6.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
       | ["spec"]["volumeName"] | nfspv2-<%= project.name %> |
     Then the step should succeed
@@ -134,10 +134,10 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC and PV still bound after remove the pv label
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv7.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv7.json" where:
       | ["metadata"]["name"] | nfspv1-<%= project.name %> |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc7.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc7.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -159,7 +159,7 @@ Feature: Target pvc to a specific pv
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv3-<%= project.name %>" pv is deleted after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv8.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv8.json"
     Then I replace lines in "pv8.json":
       | nfs-pv-8a | nfspv1-<%= project.name %> |
       | nfs-pv-8b | nfspv2-<%= project.name %> |
@@ -167,7 +167,7 @@ Feature: Target pvc to a specific pv
     Then I run the :new_app admin command with:
       | file | pv8.json |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc8.json" replacing paths:
+    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc8.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
       | ["items"][2]["metadata"]["name"] | nfsc3-<%= project.name %> |
@@ -182,10 +182,10 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC without any VolumeSelector could bind a PV with any labels
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv2.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"] | nfspv1-<%= project.name %> |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/claim.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                       |
     Then the step should succeed

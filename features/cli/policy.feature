@@ -615,7 +615,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: Basic user could not get deeper storageclass object info
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/aws-ebs  |
     Then the step should succeed
@@ -648,7 +648,7 @@ Feature: change the policy of user/service account
       | Error.*storageclasses.* at the cluster scope |
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass-io1.yaml |
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |
@@ -667,7 +667,7 @@ Feature: change the policy of user/service account
     And admin ensures "sc-<%= project.name %>" storageclasses is deleted after scenario
     Given cluster role "storage-admin" is added to the "first" user
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass-io1.yaml"
     Then I replace lines in "storageclass-io1.yaml":
       | foo | sc-<%= project.name %> |
     Then I run the :create client command with:
@@ -723,7 +723,7 @@ Feature: change the policy of user/service account
     Given cluster role "storage-admin" is added to the "first" user
     And I have a 1 GB volume and save volume id in the :volumeID clipboard
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/pv-rwo.yaml"
     Then I replace lines in "pv-rwo.yaml":
       | ebs                           | pv-<%= project.name %> |
       | 10Gi                          | 1Gi                    |
@@ -779,7 +779,7 @@ Feature: change the policy of user/service account
     Given I have a project
     And evaluation of `project.name` is stored in the :project clipboard
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/pvc.yaml"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/pvc.yaml"
     And I replace lines in "pvc.yaml":
       | ebsc | pvc-<%= cb.project %> |
     And the step should succeed
@@ -826,7 +826,7 @@ Feature: change the policy of user/service account
   # @case_id OCP-10465
   Scenario: Basic user could not get pv object info
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound

@@ -9,7 +9,7 @@ Feature: Cinder Persistent Volume
     #create test pod
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/cinder-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/cinder-pod.yaml" replacing paths:
       | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinder" becomes ready
@@ -32,7 +32,7 @@ Feature: Cinder Persistent Volume
     #create test pod
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/cinder-pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/cinder-pod.yaml" replacing paths:
       | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinder" becomes ready
@@ -57,7 +57,7 @@ Feature: Cinder Persistent Volume
     Given I have a project
     Given I have a 1 GB volume and save volume id in the :vid clipboard
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pv-rwx-default.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pv-rwx-default.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
       | ["spec"]["capacity"]["storage"]           | 5Gi                    |
@@ -65,13 +65,13 @@ Feature: Cinder Persistent Volume
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
     Then the step should succeed
 
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pvc-rwx.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storaeg"] | 5Gi                      |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-a-<%= project.name %>                                  |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
       | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
@@ -88,7 +88,7 @@ Feature: Cinder Persistent Volume
       | object_type       | pod                         |
       | object_name_or_id | mypod-a-<%= project.name %> |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-b-<%= project.name %>                                  |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
       | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
