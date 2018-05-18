@@ -7,7 +7,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
@@ -17,7 +17,7 @@ Feature: kubelet restart and node restart
       | resource | pv |
     Then the output should contain:
       | dynamic-pvc-#{cb.i} |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i} |
       | ["metadata"]["name"]                                         | mypod#{cb.i}        |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>     |
@@ -59,7 +59,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
@@ -69,7 +69,7 @@ Feature: kubelet restart and node restart
       | resource | pv |
     Then the output should contain:
       | dynamic-pvc-#{cb.i} |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i} |
       | ["metadata"]["name"]                                         | mypod#{cb.i}        |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>     |
@@ -108,7 +108,7 @@ Feature: kubelet restart and node restart
   @destructive
   Scenario Outline: kubelet restart should not affect attached/mounted volumes on IaaS
     Given admin creates a project with a random schedulable node selector
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
@@ -116,14 +116,14 @@ Feature: kubelet restart and node restart
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
       | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dpvc-#{cb.i}" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
       | ["metadata"]["name"]                                         | mypod#{cb.i} |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas    |
@@ -164,7 +164,7 @@ Feature: kubelet restart and node restart
   Scenario Outline: node restart should not affect attached/mounted volumes on IaaS
     Given admin creates a project with a random schedulable node selector
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
@@ -172,7 +172,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                 |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>        |
       | ["spec"]["accessModes"][0]                                             | #{ cb.accessmodes[ cb.i-1 ] } |
@@ -180,7 +180,7 @@ Feature: kubelet restart and node restart
     Then the step should succeed
     And the "pvc-#{ cb.i }" PVC becomes :bound
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod#{ cb.i } |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-#{ cb.i }  |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas      |

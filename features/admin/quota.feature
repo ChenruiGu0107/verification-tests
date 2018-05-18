@@ -1491,7 +1491,7 @@ Feature: Quota related scenarios
   Scenario: Quota requests.storage with PVC existing
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json |
       | n | <%= project.name %>                                                                                      |
     Then the step should succeed
     # Create requests.storage of quota < existing PVC capacity
@@ -1506,7 +1506,7 @@ Feature: Quota related scenarios
       | n        | <%= project.name %> |
     Then the output should match:
       | requests.storage\\s+5Gi\\s+2Gi    |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json" replacing paths:
       | ["metadata"]["name"] | pvc-2 |
     Then the step should fail
     And the output should contain:
@@ -1547,7 +1547,7 @@ Feature: Quota related scenarios
     Then the step should succeed
     # Create PVC (here request 5Gi storage)
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json |
       | n | <%= project.name %>                                                                                      |
     Then the step should fail
     And the output should contain:
@@ -1570,7 +1570,7 @@ Feature: Quota related scenarios
     Then the step should succeed
     # Create PVC (here request 5Gi storage)
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json |
       | n | <%= project.name %>                                                                                      |
     Then the step should succeed
     When I run the :describe client command with:
@@ -1580,7 +1580,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+50 |
       | requests.storage\\s+5Gi\\s+8Gi    |
     # Create PVC again (here request 5Gi storage > avaliable quota 3Gi)
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json" replacing paths:
       | ["metadata"]["name"] | pvc-2 |
     Then the step should fail
     And the output should contain:

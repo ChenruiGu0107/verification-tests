@@ -7,7 +7,7 @@ Feature: storage security check
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-selinux-fsgroup-test.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<type>/security/<type>-selinux-fsgroup-test.json" replacing paths:
       | ["metadata"]["name"]                                      | pod-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt                    |
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"]    | s0:c13,c2               |
@@ -50,7 +50,7 @@ Feature: storage security check
     And the output should contain "Hello OpenShift Storage"
     Given I ensure "pod-<%= project.name %>" pod is deleted
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-privileged-test.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<type>/security/<type>-privileged-test.json" replacing paths:
       | ["metadata"]["name"]                                      | pod2-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt                     |
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"]    | s0:c13,c2                |
@@ -105,7 +105,7 @@ Feature: storage security check
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/security/azure-selinux-fsgroup-test.yml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/security/azure-selinux-fsgroup-test.yml" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2                     |
       | ["spec"]["securityContext"]["fsGroup"]                 | 24680                         |
       | ["spec"]["securityContext"]["runAsUser"]               | 1000160000                    |
@@ -145,7 +145,7 @@ Feature: storage security check
       | /mnt/azure/hello |
     Then the step should succeed
     Given I ensure "azdsecurity" pod is deleted
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/security/azure-privileged-test.yml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/security/azure-privileged-test.yml" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2                     |
       | ["spec"]["securityContext"]["fsGroup"]                 | 24680                         |
       | ["spec"]["volumes"][0]["azureDisk"]["diskName"]        | <%= cb.vid.split("/").last %> |
@@ -190,13 +190,13 @@ Feature: storage security check
   Scenario: secret volume security check
     Given I have a project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/secret/secret.yaml |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/secret/secret-pod-test.json |
     Then the step should succeed
 
     Given the pod named "secretpd" becomes ready
@@ -281,7 +281,7 @@ Feature: storage security check
     And I use the "<%= project.name %>" project
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
     Then the step should succeed
     Given the pod named "gitrepo" becomes ready
 
@@ -319,7 +319,7 @@ Feature: storage security check
 
     #Create two pods for selinux testing
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/emptydir/emptydir_pod_selinux_test.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/emptydir/emptydir_pod_selinux_test.json |
     Then the step should succeed
     Given the pod named "emptydir" becomes ready
 

@@ -7,7 +7,7 @@ Feature: testing for parameter fsType
     And I have a 1 GB volume and save volume id in the :vid clipboard
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-selinux-fsgroup-test.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<type>/security/<type>-selinux-fsgroup-test.json" replacing paths:
       | ["metadata"]["name"]                                      | pod-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt                    |
       | ["spec"]["securityContext"]["fsGroup"]                    | 24680                   |

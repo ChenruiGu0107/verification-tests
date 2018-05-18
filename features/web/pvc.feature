@@ -11,23 +11,23 @@ Feature: Add pvc to pod from web related
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-1-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-1-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-1-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc-1-<%= project.name %>" PVC becomes bound to the "nfs-1-<%= project.name %>" PV
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-2-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-2-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-2-<%= project.name %>  |
     Then the step should succeed
@@ -91,12 +91,12 @@ Feature: Add pvc to pod from web related
     Given I have a project
     And I have a NFS service in the project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
@@ -212,23 +212,23 @@ Feature: Add pvc to pod from web related
     Given I have a project
     And I have a NFS service in the project
     And default storage class is deleted
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-2-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-2-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-2-<%= project.name %>  |
     Then the step should succeed
@@ -448,7 +448,7 @@ Feature: Add pvc to pod from web related
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
     And default storage class is deleted
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | <%= project.name %>         |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed

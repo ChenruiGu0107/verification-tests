@@ -88,29 +88,29 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     # Create RW PV/PVC for LUN 0
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-write.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pv-read-write.json" where:
       | ["metadata"]["name"]                      | iscsi-rw-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-write.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pvc-read-write.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-rw-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-rw-<%= project.name %> |
     Then the step should succeed
     And the "iscsi-rw-<%= project.name %>" PVC becomes bound to the "iscsi-rw-<%= project.name %>" PV
 
     # Create RO PV/PVC for LUN 1
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-only.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pv-read-only.json" where:
       | ["metadata"]["name"]                      | iscsi-ro-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-only.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pvc-read-only.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-ro-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-ro-<%= project.name %> |
     Then the step should succeed
     And the "iscsi-ro-<%= project.name %>" PVC becomes bound to the "iscsi-ro-<%= project.name %>" PV
 
     # Create the pod with 2 containers mounting RW and RO PVCs
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pod-two-luns.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pod-two-luns.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | iscsi-rw-<%= project.name %> |
       | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | iscsi-ro-<%= project.name %> |
     Then the step should succeed
@@ -402,11 +402,11 @@ Feature: ISCSI volume plugin testing
 
     Given I use the "<%= cb.prj %>" project
     When I run the :create client command with:
-      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/chap-secret-auto.yml |
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/chap-secret-auto.yml |
     Then the step should succeed
 
     # Create PV/PVC
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-chap.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pv-chap.json" where:
       | ["metadata"]["name"]                        | pv-iscsi-<%= cb.prj %>  |
       | ["spec"]["iscsi"]["targetPortal"]           | <%= cb.iscsi_ip %>:3260 |
       | ["spec"]["iscsi"]["secretRef"]["name"]      | chap-secret             |
@@ -425,7 +425,7 @@ Feature: ISCSI volume plugin testing
     And the "pvc-iscsi-<%= cb.prj_new %>" PVC becomes bound to the "pv-iscsi-<%= cb.prj %>" PV
 
     # Create tester pod
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | iscsi-<%= cb.prj_new %>     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= cb.prj_new %> |
     Then the step should succeed

@@ -637,7 +637,7 @@ Feature: functions about resourcequotas
       | n    | <%= project.name %>                             |
     Then the step should succeed
     # Create the first pvc for project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-1-<%= project.name %>        |
     Then the step should succeed
@@ -658,7 +658,7 @@ Feature: functions about resourcequotas
       | dc_name        | myrun                  |
     Then the step should succeed
     # Create the second pvc
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-2-<%= project.name %>        |
     Then the step should succeed
@@ -798,7 +798,7 @@ Feature: functions about resourcequotas
     Given I have a project
 
     #check warning info when create pv
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-default.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-default.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:

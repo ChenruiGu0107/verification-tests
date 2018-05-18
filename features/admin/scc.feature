@@ -670,7 +670,7 @@ Feature: SCC policy related scenarios
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
     Given the following scc policy is created: scc_tc521575_c.yaml
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-test.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gitrepo/gitrepo-selinux-fsgroup-test.json"
     And I replace lines in "gitrepo-selinux-fsgroup-test.json":
       | "runAsUser": 1000130000, | "runAsUser": <%= cb.scc_limit %>, |
       | "fsGroup": 123456        | "fsGroup":  <%= cb.scc_limit %>   |
