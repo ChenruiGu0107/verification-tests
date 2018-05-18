@@ -480,3 +480,59 @@ Given /^the cluster network plugin type and version and stored in the clipboard$
     version: of_note[3,2]
   }
 end
+
+Given /^I wait for the networking components of the node to be terminated$/ do
+  ensure_admin_tagged
+
+  if env.version_ge("3.10", user: user)
+    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+
+    ovs_pod = CucuShift::Pod.get_labeled("app=ovs", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+
+    unless sdn_pod.nil?
+      @result = sdn_pod.wait_till_not_ready(user, 3 * 60)
+      unless @result[:success]
+        logger.error(@result[:response])
+        raise "sdn pod on the node did not die"
+      end
+    end
+
+    unless ovs_pod.nil?
+      @result = ovs_pod.wait_till_not_ready(user, 60)
+      unless @result[:success]
+        logger.error(@result[:response])
+        raise "ovs pod on the node did not die"
+      end
+    end
+  end
+end
+
+Given /^I wait for the networking components of the node to become ready$/ do
+  ensure_admin_tagged
+
+  if env.version_ge("3.10", user: user)
+    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+
+    ovs_pod = CucuShift::Pod.get_labeled("app=ovs", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+
+    @result = sdn_pod.wait_till_ready(user, 3 * 60)
+    unless @result[:success]
+      logger.error(@result[:response])
+      raise "sdn pod on the node did not become ready"
+    end
+
+    @result = ovs_pod.wait_till_ready(user, 60)
+    unless @result[:success]
+      logger.error(@result[:response])
+      raise "ovs pod on the node did not become ready"
+    end
+  end
+end

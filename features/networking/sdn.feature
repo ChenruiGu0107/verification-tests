@@ -355,9 +355,10 @@ Feature: SDN related networking scenarios
   Scenario: The openshift master should handle the node subnet when the node added/removed
     Given environment has at least 2 nodes
     And I select a random node's host
-    And the node labels are restored after scenario
+    Given I switch to cluster admin pseudo user
     And the node network is verified
     And the node service is verified
+    And the node labels are restored after scenario
     When I run the :get admin command with:
       | resource | hostsubnet |
     Then the step should succeed
@@ -366,11 +367,14 @@ Feature: SDN related networking scenarios
       | object_type | node |
       | object_name_or_id | <%= node.name %> |
     Then the step should succeed
+    Given I wait for the networking components of the node to be terminated
     When I run the :get admin command with:
       | resource | hostsubnet |
     Then the step should succeed
     And the output should not contain "<%= node.name %>"
+
     Given the node service is restarted on the host
+    And I wait for the networking components of the node to become ready
     When I run the :get admin command with:
       | resource | hostsubnet |
     Then the step should succeed
@@ -672,17 +676,23 @@ Feature: SDN related networking scenarios
     Given environment has at least 3 nodes
     And environment has at least 2 schedulable nodes
     And I store the schedulable nodes in the clipboard
+    Given I switch to cluster admin pseudo user
 
     # Delete the nodes[0]
     Given I use the "<%= cb.nodes[0].name %>" node
-    And the node service is verified
     And the node network is verified
+    And the node service is verified
+    And I register clean-up steps:
+    """
+    Given I wait for the networking components of the node to become ready
+    """
     And the node labels are restored after scenario
     And the node service is restarted on the host after scenario
     When I run the :delete admin command with:
       | object_type       | node                    |
       | object_name_or_id | <%= cb.nodes[0].name %> |
     Then the step should succeed
+    Given I wait for the networking components of the node to be terminated
     When I run the :get admin command with:
       | resource | hostsubnet |
     Then the step should succeed
@@ -693,6 +703,7 @@ Feature: SDN related networking scenarios
     And evaluation of `IPAddr.new(host_subnet.subnet).succ` is stored in the :nodeA_ip clipboard
     And evaluation of `IPAddr.new(host_subnet(-2).subnet).succ` is stored in the :nodeB_ip clipboard
 
+    Given I switch to the first user
     And I have a project
     And I have a pod-for-ping in the project
     When I execute on the pod:
@@ -703,6 +714,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
 
     # Check if connections between nodes are reachable
+    Given I switch to cluster admin pseudo user
     Given I use the "<%= cb.nodes[1].name %>" node
     When I run commands on the host:
       | ping -c 2 <%= cb.nodeA_ip %> |
@@ -810,11 +822,16 @@ Feature: SDN related networking scenarios
   Scenario: The openflow list will be cleaned after deleted the node
     Given environment has at least 2 nodes
     And I store the nodes in the :nodes clipboard
+    Given I switch to cluster admin pseudo user
 
     # get node_1's host IP and save to clipboard
     Given I use the "<%= cb.nodes[1].name %>" node
     And the node network is verified
     And the node service is verified
+    And I register clean-up steps:
+    """
+    Given I wait for the networking components of the node to become ready
+    """
     And the node labels are restored after scenario
     And the node service is restarted on the host after scenario
     And evaluation of `host_subnet(cb.nodes[1].name).ip` is stored in the :hostip clipboard
@@ -831,12 +848,15 @@ Feature: SDN related networking scenarios
       | table=111,.*set_field:<%= cb.hostip %>->tun_dst,.*goto_table:120 |
 
     # delete the node_1
+    Given I use the "<%= cb.nodes[1].name %>" node
     When I run the :delete admin command with:
       | object_type       | node                    |
       | object_name_or_id | <%= cb.nodes[1].name %> |
     Then the step should succeed
+    Given I wait for the networking components of the node to be terminated
 
     # again, check ovs rule in node_0
+    Given I use the "<%= cb.nodes[0].name %>" node
     When I run the ovs commands on the host:
       | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null |
     Then the step should succeed
