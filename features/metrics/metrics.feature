@@ -384,3 +384,19 @@ Feature: metrics related scenarios
       | negative_test | true                                                                                                   |
     Then the output should contain:
       | Could not find or access 'this_is_bogus_path' |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-18546
+  @admin
+  @destructive
+  Scenario: hawkular-alerts war packages are removed from hawkular-metrics
+    Given the master version >= "3.10"
+    And metrics service is installed in the system
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I execute on the pod:
+      | bash | -c | ls -alR /opt/eap/standalone/deployments/hawkular*.war |
+    Then the output should contain:
+      | hawkular-metrics.war |
+    And the output should not contain:
+      | hawkular-alert |
