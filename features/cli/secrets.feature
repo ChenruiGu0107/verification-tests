@@ -1538,7 +1538,7 @@ Feature: secrets related scenarios
   Scenario: secret subcommand - docker-registry
     Given I have a project
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry              |
+      | secret_type | docker-registry              |
       | name               | secret1-with-docker-registry |
       | docker_server      | https://hub.docker.com       |
       | docker_username    | weinliu                      |
@@ -1553,7 +1553,7 @@ Feature: secrets related scenarios
   
     #Step 2. --dry-run
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry        |
+      | secret_type | docker-registry        |
       | name               | secret2-dryrun         |
       | docker_server      | https://hub.docker.com |
       | docker_username    | weinliu                |
@@ -1566,7 +1566,7 @@ Feature: secrets related scenarios
   
     #Step 3. --generator
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry               |
+      | secret_type | docker-registry               |
       | name               | secret3-1-generator           |
       | docker_server      | https://hub.docker.com        |
       | docker_username    | weinliu                       |
@@ -1576,7 +1576,7 @@ Feature: secrets related scenarios
     Then the output should match:
       | error.*Generator.*v3.*not.*supported |
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry               |
+      | secret_type | docker-registry               |
       | name               | secret3-2-generator           |
       | docker_server      | https://hub.docker.com        |
       | docker_username    | weinliu                       |
@@ -1588,7 +1588,7 @@ Feature: secrets related scenarios
   
     #Step 4. --output
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry               |
+      | secret_type | docker-registry               |
       | name               | secret4-1-output              |
       | docker_server      | https://hub.docker.com        |
       | docker_username    | weinliu                       |
@@ -1599,7 +1599,7 @@ Feature: secrets related scenarios
       | "kind": "Secret" |
     And I wait for the "secret4-1-output" secret to appear
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry        |
+      | secret_type | docker-registry        |
       | name               | secret4-2-output       |
       | docker_server      | https://hub.docker.com |
       | docker_username    | weinliu                |
@@ -1612,7 +1612,7 @@ Feature: secrets related scenarios
   
     #Step 6. --save-config
     When I run the :create_secret client command with:
-      | createservice_type | docker-registry        |
+      | secret_type | docker-registry        |
       | name               | secret6-save-config    |
       | docker_server      | https://hub.docker.com |
       | docker_username    | weinliu                |
@@ -1648,7 +1648,7 @@ Feature: secrets related scenarios
       """
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               |secret1-from-file |
       | from_file          |./testfolder      |
     Then the step should succeed
@@ -1664,7 +1664,7 @@ Feature: secrets related scenarios
       """
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               |secret2-from-file |
       | from_file          | ./testfolder2    |
     Then the step should succeed
@@ -1681,7 +1681,7 @@ Feature: secrets related scenarios
       """
     Then the step should succeed
     When I run the :create_secret client command with:
-      | createservice_type | generic                                |
+      | secret_type | generic                                |
       | name               | secret3-from-file                      |
       | from_file          | ssh-privatekey=./testfolder2/id_rsa    |
       | from_file          | ssh-publickey=./testfolder2/id_rsa.pub |
@@ -1690,7 +1690,7 @@ Feature: secrets related scenarios
   
     #Step 4. --from-literal
     When I run the :create_secret client command with:
-      | createservice_type | generic              |
+      | secret_type | generic              |
       | name               | secret4-from-literal |
       | from_literal       | key1=abc             |
       | from_literal       | key2=adbdefg         |
@@ -1699,7 +1699,7 @@ Feature: secrets related scenarios
   
     #Step 5. --dry-run
     When I run the :create_secret client command with:
-      | createservice_type | generic         |
+      | secret_type | generic         |
       | name               | secret5-dry-run |
       | from_literal       | key3=aaa        |
       | dry_run            | true            |
@@ -1711,13 +1711,13 @@ Feature: secrets related scenarios
 
     #Step 6. --generator
     When I run the :create_secret client command with:
-      | createservice_type | generic             |
+      | secret_type | generic             |
       | name               | secret6-1-generator |
       | from_literal       | key1=aaa            |
       | generator          | secret/v2           |
     Then the step should fail
     When I run the :create_secret client command with:
-      | createservice_type | generic             |
+      | secret_type | generic             |
       | name               | secret6-2-generator |
       | from_literal       | key1=aaa            |
       | generator          | secret/v1           |
@@ -1726,7 +1726,7 @@ Feature: secrets related scenarios
     #Step 7. --output
     # --output=json
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               | secret7-1-output |
       | from_literal       | key1=aaa         |
       | output             | json             |
@@ -1735,7 +1735,7 @@ Feature: secrets related scenarios
     And I wait for the "secret7-1-output" secret to appear
     # --output=yaml
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               | secret7-2-output |
       | from_literal       | key1=aaa         |
       | output             | yaml             |
@@ -1746,7 +1746,7 @@ Feature: secrets related scenarios
     And I wait for the "secret7-2-output" secret to appear
     # --output=wide
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               | secret7-3-output |
       | from_literal       | key1=aaa         |
       | output             | wide             |
@@ -1758,7 +1758,7 @@ Feature: secrets related scenarios
     And I wait for the "secret7-3-output" secret to appear
     # --output=name
     When I run the :create_secret client command with:
-      | createservice_type | generic          |
+      | secret_type | generic          |
       | name               | secret7-4-output |
       | from_literal       | key1=aaa         |
       | output             | name             |
@@ -1768,7 +1768,7 @@ Feature: secrets related scenarios
   
     #Step 9. --save-config
     When I run the :create_secret client command with:
-      | createservice_type | generic             |
+      | secret_type | generic             |
       | name               | secret9-save-config |
       | from_literal       | key1=aaa            |
       | save_config        | true                |
@@ -1781,13 +1781,13 @@ Feature: secrets related scenarios
   
     #Step 12. --type
     When I run the :create_secret client command with:
-      | createservice_type | generic           |
+      | secret_type | generic           |
       | name               | secret12-validate |
       | from_literal       | key1=aaa          |
       | type               | Opaque            |
     Then the expression should be true> secret("secret12-validate").type == "Opaque"
     When I run the :create_secret client command with:
-      | createservice_type | generic           |
+      | secret_type | generic           |
       | name               | secret13-validate |
       | from_literal       | key1=aaa          |
       | type               | dockercfg         |
