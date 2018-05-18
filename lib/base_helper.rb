@@ -236,6 +236,11 @@ module CucuShift
         end
       end
 
+      def last_day_of_month(time=nil)
+        time ||= Time.now
+        return (Time.new(time.year, time.month + 1) - 1).day
+      end
+
       # supports only sane camel case strings
       def camel_to_snake_case(str)
         str.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
