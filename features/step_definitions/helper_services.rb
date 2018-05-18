@@ -705,7 +705,7 @@ Given /^I deploy local storage provisioner(?: under path #{QUOTED})?$/ do |path|
   })
   step %Q/the step should succeed/
 
-  step %Q{I download a file from "https://raw.githubusercontent.com/qinpingli/v3-testfiles/localvolume/persistent-volumes/localvolume/configmap.yaml"}
+  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/localvolume/configmap.yaml"}
   cfm = YAML.load(@result[:response])
   filepath = @result[:abs_path]
   scmap = cfm["data"]["storageClassMap"].gsub("/mnt/local-storage", path)
