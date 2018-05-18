@@ -748,7 +748,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
     Then the step should succeed
-    When admin creates a PV from "https://github.com/openshift-qe/v3-testfiles/raw/master/persistent-volumes/gluster/pv-mount-options.json" where:
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pv-mount-options.json" where:
       | ["metadata"]["name"]                                                   | pv-gluster-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro                             |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                  |
