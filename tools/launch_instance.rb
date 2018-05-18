@@ -465,7 +465,7 @@ module CucuShift
             if !host.has_hostname?
               dyn ||= get_dyn
               changed = true
-              dns_record = host[:cloud_instance_name] || rand_str(3, :dns)
+              dns_record = host[:cloud_instance_name] || rand_str(5, :dns)
               dns_record = dns_record.gsub("_","-")
               dns_record = "#{dns_record}.#{dns_component}"
               host.update_hostname dyn.dyn_replace_a_records(dns_record, host.ip)
@@ -475,6 +475,28 @@ module CucuShift
           dyn.publish if changed
         ensure
           dyn.close if dyn
+        end
+      when "dns_internal_ips"
+        if erb_binding.local_variable_defined?(:internal_subdomain)
+          int_subdomain = erb_binding.local_variable_get(:internal_subdomain)
+        else
+          int_subdomain = task[:subdomain] || "int"
+          int_subdomain += ".#{dns_component}"
+        end
+        begin
+          dyn = get_dyn
+          erb_binding.local_variable_set(:internal_subdomain, dyn.fqdn(int_subdomain))
+          erb_binding.local_variable_get(:hosts).each do |host|
+            dns_record = host[:cloud_instance_name] || rand_str(5, :dns)
+            dns_record = dns_record.gsub("_","-")
+            dns_record = "#{dns_record}.#{int_subdomain}"
+            host[:internal_fqdn] = dyn.dyn_replace_a_records(dns_record, host.local_ip)
+            logger.info "Creating '#{dns_record}' record for: internal IP " \
+              "#{host.local_ip} of host #{host.hostname}"
+          end
+          dyn.publish
+        ensure
+          dyn&.close
         end
       when "wildcard_dns"
         begin

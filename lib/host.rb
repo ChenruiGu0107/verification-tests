@@ -252,23 +252,24 @@ module CucuShift
     end
 
     # @return String local ip based on default route
-    def get_local_ip
-      return @local_ip if @local_ip
-      return properties[:local_ip] if properties[:local_ip]
-      return @local_ip = get_local_ip_platform
+    def local_ip
+      properties[:local_ip] ||= get_local_ip_platform
     end
 
-    def get_local_hostname
-      return @local_hostname if @local_hostname
-      return properties[:local_hostname] if properties[:local_hostname]
-      return @local_hostname = get_local_hostname_platform
+    # @param value [String]
+    def local_ip=(value)
+      properties[:local_ip] = value
+    end
+
+    def local_hostname
+      properties[:local_hostname] ||= get_local_hostname_platform
     end
 
     private def get_local_hostname_platform
       raise "#{__method__} method not implemented"
     end
 
-    # see @get_local_ip
+    # see #local_ip
     private def get_local_ip_platform
       raise "#{__method__} method not implemented"
     end
@@ -379,7 +380,7 @@ module CucuShift
       end
     end
 
-    # see @get_local_ip
+    # see #local_ip
     private def get_local_ip_platform
       get_src_ip("10.10.10.10")
     end
@@ -397,7 +398,7 @@ module CucuShift
 
     def local_ip?(host_or_ip)
       # I think src ip approach is more reliable than hostname checking
-      # if get_local_hostname == host_or_ip
+      # if local_hostname == host_or_ip
       #   return true
       # else
 
