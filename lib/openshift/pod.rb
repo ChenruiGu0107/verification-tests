@@ -44,7 +44,6 @@ module CucuShift
       props[:securityContext] = spec["securityContext"]
       props[:service_account] = spec["serviceAccount"]
       props[:service_account_name] = spec["serviceAccountName"]
-      props[:containers] = spec["containers"]
       props[:termination_grace_period_seconds] = spec['terminationGracePeriodSeconds']
       props[:volumes] = spec["volumes"]
       s = pod_hash["status"]
@@ -149,25 +148,25 @@ module CucuShift
       return spec["supplementalGroups"]
     end
 
-    # returns [Hash] of Container objects belonging to a pod, keyed by container name
-    #
+    # @return [Array] Container objects belonging to a pod
     def containers(user: nil, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :containers, user: user, cached: cached, quiet: quiet)
-      containers = {}
-      spec.each do | container |
-        cname = container['name']
-        containers[cname] = CucuShift::Container.new( name: cname,
-                                                      pod: self,
-                                                      default_user: user)
+      unless cached && props[:containers]
+        spec = raw_resource(user: user, cached: cached, quiet: quiet).
+          dig("spec", "containers")
+        props[:containers] = spec.map do | container |
+        CucuShift::Container.new( name: container['name'],
+                                 pod: self,
+                                 default_user: user)
+        end
       end
-      return containers
+      return props[:containers]
     end
 
     # return the Container object matched by the lookup parameter
     def container(user: nil, name:, cached: true, quiet: false)
-      self.containers(user:user, cached: cached, quiet: quiet).fetch(name) {
-        raise "No container with name #{name} found."
-      }
+      c = containers(user:user, cached: cached, quiet: quiet).find { |c|
+        c.name == name
+      } or raise "No container with name #{name} found."
     end
 
     # @note call without parameters only when props are loaded

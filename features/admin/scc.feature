@@ -716,9 +716,4 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
     Then the step should succeed
     And the pod named "pod-uid-outrange" status becomes :running
-    When I run the :get client command with:
-      | resource      | pod              |
-      | resource_name | pod-uid-outrange |
-      | o             | yaml             |
-    Then the step should succeed
-    And the expression should be true> pod.containers(user: user)["pod-uid-outrange"].spec.scc["runAsUser"] == 1000
+    And the expression should be true> pod.container(name: "pod-uid-outrange").spec.scc["runAsUser"] == 1000
