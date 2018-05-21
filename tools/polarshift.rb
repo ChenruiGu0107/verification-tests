@@ -77,7 +77,14 @@ module CucuShift
 
           ## prepare user/password to the bus early to catch message
           if options.no_wait.nil?
-            bus_client = msgbus.new_client
+            begin
+              bus_client = msgbus.new_client
+            rescue => e
+              options.no_wait = true
+              logger.warn "Connection to message bus failed, progress won't " \
+                "be tracked"
+              logger.info e
+            end
           end
 
           puts "Updating cases: #{updates.keys.join(", ")}.."
@@ -128,7 +135,14 @@ module CucuShift
 
           ## prepare user/password to the bus early to catch message
           if options.no_wait.nil?
-            bus_client = msgbus.new_client
+            begin
+              bus_client = msgbus.new_client
+            rescue => e
+              options.no_wait = true
+              logger.warn "Connection to message bus failed, progress won't " \
+                "be tracked"
+              logger.info e
+            end
           end
 
           pr = polarshift.create_run_smart(project_id: project, **params)
