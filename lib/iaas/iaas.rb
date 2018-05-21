@@ -48,7 +48,16 @@ module CucuShift
     def self.init_aws(env)
       aws_cred = {}
 
-      conn_cred = env.master_hosts[0].exec_admin("cat /etc/sysconfig/atomic-openshift-master | grep AWS_")[:response].split("\n")
+      search_command = %{
+        if [ -f /etc/origin/master/master.env ] ; then
+          cat /etc/origin/master/master.env | grep AWS_
+        elif [ -f /etc/sysconfig/atomic-openshift-master ] ; then
+          cat /etc/sysconfig/atomic-openshift-master | grep AWS_
+        elif [ -f /etc/sysconfig/atomic-openshift-node ] ; then
+          cat /etc/sysconfig/atomic-openshift-node | grep AWS_
+        fi
+      }
+      conn_cred = env.master_hosts[0].exec_admin(search_command)[:response].split("\n")
 
       conn_cred.each { |c|
         cred = c.split("=")
