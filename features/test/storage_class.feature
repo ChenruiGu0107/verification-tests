@@ -29,13 +29,17 @@ Feature: StorageClass testing scenarios
       | {"allowVolumeExpansion":true,"metadata":{"annotations":{"updatedBy":"<%=project.name%>-<%=Time.new%>"}}} |
 
   @admin
+  @destructive
   Scenario: Clone storage class
     Given admin clones storage class "test1" from ":default" with:
       | ["parameters"]["resturl"] | http://error.address.com |
     And admin clones storage class "test2" from ":default" with volume expansion enabled
+    And admin clones storage class "my-default" from ":default" with:
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true |
     When I run the :get admin command with:
       | resource      | storageclass |
       | resource_name | test1        |
       | resource_name | test2        |
+      | resource_name | my-default   |
       | o             | yaml         |
     Then the step should succeed
