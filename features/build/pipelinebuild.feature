@@ -117,7 +117,7 @@ Feature: pipelinebuild.feature
   Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
     Given I have a project
     Given I store master major version in the clipboard
-    And I have an ephemeral jenkins v2 application      
+    And I have a persistent jenkins v2 application      
     When I have an http-git service in the project
     And I run the :env client command with:
       | resource | dc/git                            |
@@ -205,4 +205,60 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |
+    Then the step should fail
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-17315
+  Scenario: Sync openshift secret to credential in jenkins with ssh-auth type 
+    Given I have a project
+    Given I store master major version in the clipboard
+    And I have a persistent jenkins v2 application
+    When I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %> |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                                                                 |
+      | -c                                                                                                                   |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/openshift-jee-sample.git sample.git |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/maven-pipeline-with-credential.yaml |
+      | p    | GIT_SOURCE_URL=<%= cb.git_repo %>                                                                                |
+      | p    | OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                               |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | secret                                    |
+      | name     | mysecret                                  |
+      | key_val  | credential.sync.jenkins.openshift.io=true |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready up to 300 seconds
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_2/                                   | 
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7:v<%= cb.master_version %> |
+    Then the step should succeed
+    When I perform the :check_jenkins_credentials web action with:
+      | credential_name  | <%= project.name %>-mysecret |
+    Then the step should succeed
+
+    And I run the :start_build client command with:
+      | buildconfig | openshift-jee-sample |
+    Then the step should succeed
+    Then the "openshift-jee-sample-1" build completed
+    When I run the :delete client command with:
+      | object_type       | secret   |
+      | object_name_or_id | mysecret |
+    Then the step should succeed
+    When I perform the :check_jenkins_credentials web action with:
+      | credential_name | <%= project.name %>-mysecret |
     Then the step should fail
