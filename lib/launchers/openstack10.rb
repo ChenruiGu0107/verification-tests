@@ -688,6 +688,7 @@ module CucuShift
         host_opts[:cloud_instance_name] = instance.name
         host_opts[:cloud_instance] = instance
         res[name] = Host.from_ip(instance.floating_ip, host_opts)
+        res[name].local_ip = instance.internal_ip
       }
       return res
     end
