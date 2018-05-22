@@ -46,14 +46,16 @@ Given /^I log in to jenkins$/ do
   #Determine the server version for later jenkins template manipulation
   lt34 = env.version_lt("3.4", user: user)
 
-  #Check if 3.4 and not online environment. if so, use oauth
+  # On v3.4 and above, if we can login to OpenShift via password, then
+  #   we can use SSO login.
+  # On 3.3 and earlier, or if we only know user token, then we must use
+  #   non-SSO login.
+  # Installation step also installs based on this.
   if !lt34 && user.password?
     step %Q/I perform the :jenkins_oauth_login web action with:/, table(%{
       | username | <%= user.name %>     |
       | password | <%= user.password %> |
       })
-  #If less than 3.4, use passwd auth (admin/password). The auth
-  #version is set in the create step above.
   else
     step %Q/I perform the :jenkins_standard_login web action with:/, table(%{
       | username | admin    |
