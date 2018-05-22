@@ -777,3 +777,219 @@ Feature: Service-catalog related scenarios
       | UID                              |
       | Username                         |
     """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-15602
+  @admin
+  @destructive
+  Scenario: Create/get/update/delete for Clusterserviceclass/Clusterserviceplan resource
+    Given I have a project
+
+    # Deploy ups broker
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+
+    When I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= project.name %>                                                                  |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | clusterservicebroker/ups-broker |
+    Then the output should contain "Successfully fetched catalog entries from broker"
+    """
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['user-provided-service'].name` is stored in the :class_id clipboard
+
+    # Check clusterserviceclass yaml
+    When I run the :get client command with:
+      | resource | clusterserviceclass/<%= cb.class_id %> |
+      | o        | yaml                                   |
+    Then the output should match:
+      | bindable                                |
+      | clusterServiceBrokerName:\\s+ups-broker |
+      | description                             |
+      | externalID                              |
+      | externalName                            |
+      | planUpdatable                           |
+
+    # Check clusterserviceplan yaml
+    When I run the :get client command with:
+      | resource | clusterserviceplan                                                                                                 |
+      | o        | custom-columns=NAME:.metadata.name,CLASS\ NAME:.spec.clusterServiceClassRef.name,EXTERNAL\ NAME:.spec.externalName |
+    Then the output should contain "<%= cb.class_id %>"
+    And evaluation of `cluster_service_class(cb.class_id).plans.first.name` is stored in the :plan_id clipboard
+    When I run the :get client command with:
+      | resource | clusterserviceplan/<%= cb.plan_id %> |
+      | o        | yaml                                 |
+    Then the output should match:
+      | clusterServiceBrokerName:\\s+ups-broker |
+      | clusterServiceClassRef                  |
+      | description                             |
+      | externalID                              |
+      | externalName                            |
+      | free                                    |
+
+    # Update clusterserviceclasses and clusterserviceplans
+    Given I successfully patch resource "clusterserviceclass/<%= cb.class_id %>" with:
+      | {"metadata":{"labels":{"app":"test-class"}}} |
+    And I successfully patch resource "clusterserviceplan/<%= cb.plan_id %>" with:
+      | {"metadata":{"labels":{"app":"test-plan"}}} |
+
+    # Delete the clusterserviceclass/clusterserviceplan/clusterservicebroker
+    Given I ensures "<%= cb.class_id %>" clusterserviceclasses is deleted
+    And I ensures "<%= cb.plan_id %>" clusterserviceplans is deleted
+    And I ensures "ups-broker" clusterservicebroker is deleted
+    When I run the :get client command with:
+      | resource | clusterserviceclass                                        |
+      | o        | custom-columns=BROKER\ NAME:.spec.clusterServiceBrokerName |
+    Then the output should not contain "ups-broker"
+    When I run the :get client command with:
+      | resource | clusterserviceplan                                         |
+      | o        | custom-columns=BROKER\ NAME:.spec.clusterServiceBrokerName |
+    Then the output should not contain "ups-broker"
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-16413
+  @admin
+  @destructive
+  Scenario: Use generation instead of checksum for ServiceInstance
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And the "ansible-service-broker" cluster service broker is recreated
+    And I save the first service broker registry prefix to :prefix clipboard
+    And I switch to the first user
+    Given I have a project
+    # Provision DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    # Check instance yaml while provisioning
+    When I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
+      | o        | yaml                                            |
+    Then the output should contain:
+      | generation: 1           |
+      | reason: Provisioning    |
+      | reconciledGeneration: 0 |
+    """
+
+    # Check instance yaml when provision succeed
+    Given a pod becomes ready with labels:
+      | app=rhscl-postgresql-apb |
+    When I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
+      | o        | yaml                                            |
+    Then the output should contain:
+      | generation: 1                   |
+      | reason: ProvisionedSuccessfully |
+      | reconciledGeneration: 1         |
+    """
+
+    # Update spec.url of clusterservicebroker to a to a invalid value
+    When I run the :patch admin command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                          |
+      | p        | {"spec":{"url": "https://testasb.openshift-ansible-service-broker.svc:1338/ansible-service-broker"}} |
+    Then the step should succeed
+
+    # update plan of serviceinstance to "prod"
+    When I run the :patch client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb     |
+      | p        | {"spec":{"clusterServicePlanExternalName": "prod"}} |
+    Then the step should succeed
+
+    # Check instance yaml when provision updating fail 
+    When I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
+      | o        | yaml                                            |
+    Then the output by order should match:
+      | generation: 2                        |
+      | message.*The update call failed      |
+      | reason: ErrorCallingUpdateInstance   |
+      | currentOperation: Update             |
+      | externalProperties                   |
+      | clusterServicePlanExternalID         |
+      | clusterServicePlanExternalName: dev  |
+      | parameters                           |
+      | userInfo                             |
+      | inProgressProperties:                |
+      | clusterServicePlanExternalID         |
+      | clusterServicePlanExternalName: prod |
+      | parameters                           |
+      | userInfo                             |
+      | reconciledGeneration: 1              |
+    """
+
+    # Update spec.url of clusterservicebroker to a to a valid value
+    When I run the :patch admin command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                      |
+      | p        | {"spec":{"url": "https://asb.openshift-ansible-service-broker.svc:1338/ansible-service-broker"}} |
+    Then the step should succeed
+
+    # Check instance yaml when provision updating
+    When I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
+      | o        | yaml                                            |
+    Then the output by order should contain:
+      | generation: 2                                         |
+      | message: The instance is being updated asynchronously |
+      | reason: UpdatingInstance                              |
+      | status: "False"                                       |
+      | currentOperation: Update                              |
+      | externalProperties                                    |
+      | clusterServicePlanExternalID                          |
+      | clusterServicePlanExternalName: dev                   |
+      | parameters                                            |
+      | userInfo                                              |
+      | inProgressProperties:                                 |
+      | clusterServicePlanExternalID                          |
+      | clusterServicePlanExternalName: prod                  |
+      | parameters                                            |
+      | userInfo                                              |
+      | reconciledGeneration: 1                               |
+    """
+
+    # Check instance yaml when provision updated succeed
+    Given a pod becomes ready with labels:
+      | app=rhscl-postgresql-apb |
+    When I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
+      | o        | yaml                                            |
+    Then the output should contain:
+      | generation: 2                                      |
+      | message: The instance was updated successfully     |
+      | reason: InstanceUpdatedSuccessfully                |
+      | status: "True"                                     |
+      | externalProperties                                 |
+      | clusterServicePlanExternalID                       |
+      | clusterServicePlanExternalName: prod               |
+      | parameters                                         |
+      | userInfo                                           |
+      | reconciledGeneration: 2                            |
+    """
