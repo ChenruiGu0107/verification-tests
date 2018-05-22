@@ -313,10 +313,10 @@ Feature: buildlogic.feature
   Scenario: Check labels info in built images when do sti build in openshift
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo     | https://github.com/openshift-qe/ruby-hello-world-context |
-      | image_stream | openshift/ruby:latest                                    |
-      | context_dir  | test                                                     |
-      | name         | ruby-hello-world                                         |
+      | app_repo     | https://github.com/sclorg/s2i-ruby-container |
+      | context_dir  | 2.5/test/puma-test-app/                      |
+      | image_stream | openshift/ruby:latest                        |
+      | name         | ruby-hello-world                             |
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -327,22 +327,22 @@ Feature: buildlogic.feature
       | docker inspect <%= cb.built_image %> |
     Then the step should succeed
     And the output should match:
-      | .*io.openshift.build.commit.author.*                 |
-      | .*io.openshift.build.commit.date.*                   |
-      | .*io.openshift.build.commit.id.*                     |
-      | .*io.openshift.build.commit.message.*                |
-      | .*io.openshift.build.commit.ref.*master.*            |
-      | .*io.openshift.build.image.*ruby.*                   |
-      | .*io.openshift.build.source-context-dir.*test.*      |
-      | .*io.openshift.build.source-location.*openshift-qe.* |
-      | .*io.openshift.expose-services.*                     |
-      | .*io.openshift.s2i.scripts-url.*                     |
-      | .*io.openshift.tags.*                                |
-      | .*io.s2i.scripts-url.*                               |
-      | .*OPENSHIFT_BUILD_NAME.*                             |
-      | .*OPENSHIFT_BUILD_NAMESPACE.*                        |
-      | .*OPENSHIFT_BUILD_SOURCE.*                           |
-      | .*OPENSHIFT_BUILD_COMMIT.*                           |
+      | .*io.openshift.build.commit.author.*                       |
+      | .*io.openshift.build.commit.date.*                         |
+      | .*io.openshift.build.commit.id.*                           |
+      | .*io.openshift.build.commit.message.*                      |
+      | .*io.openshift.build.commit.ref.*master.*                  |
+      | .*io.openshift.build.image.*ruby.*                         |
+      | .*io.openshift.build.source-context-dir.*test.*            |
+      | .*io.openshift.build.source-location.*s2i-ruby-container.* |
+      | .*io.openshift.expose-services.*                           |
+      | .*io.openshift.s2i.scripts-url.*                           |
+      | .*io.openshift.tags.*                                      |
+      | .*io.s2i.scripts-url.*                                     |
+      | .*OPENSHIFT_BUILD_NAME.*                                   |
+      | .*OPENSHIFT_BUILD_NAMESPACE.*                              |
+      | .*OPENSHIFT_BUILD_SOURCE.*                                 |
+      | .*OPENSHIFT_BUILD_COMMIT.*                                 |
 
   # @author yantan@redhat.com
   # @case_id OCP-12031

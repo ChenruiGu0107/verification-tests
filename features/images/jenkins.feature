@@ -63,12 +63,23 @@ Feature: jenkins.feature
   # @case_id OCP-10884 OCP-10979
   Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
+    Given I store master major version in the clipboard
     And I have an persistent jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7 |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7:v<%= cb.master_version %> |
+    Then the step should succeed
     Given I get project buildconfigs
     Then the output should contain:
       | ruby-sample-build |
