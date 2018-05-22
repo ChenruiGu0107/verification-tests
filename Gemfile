@@ -27,7 +27,7 @@ gem 'azure_mgmt_network', '~>0.11.0'
 ## Logging
 gem 'term-ansicolor'
 ## Webauto
-gem 'watir', '>= 6.6.0'
+gem 'watir', '~> 6.10.3' # undefined methodnew' for nil:NilClass in #6276
 gem 'headless'
 gem 'selenium-webdriver', "~>3.11.0" # limit webdriver to support legacy ff
 ## Docs
