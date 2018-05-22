@@ -1,5 +1,5 @@
 module CucuShift
-  # represents a trigger structure inside a deployment config
+  # represents a trigger structure inside a deployment/build config
   class ImageRef
     attr_reader :uri, :hash_type, :hash_value, :docker_repo, :name
 
