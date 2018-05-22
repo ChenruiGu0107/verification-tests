@@ -155,31 +155,30 @@ Feature: oc run related scenarios
       | image | aosqe/hello-openshift |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | dc |
+      | resource | dc/test-a |
     Then the step should succeed
-    And the output should contain:
-      | test-a |
     When I run the :run client command with:
       | name    | test-b                |
       | image   | aosqe/hello-openshift |
       | restart | OnFailure             |
     Then the step should succeed
+    # Track bug 1577770
     When I run the :get client command with:
-      | resource | pod |
+      | resource | job/test-b |
     Then the step should succeed
-    And the output should contain:
-      | test-b |
-    Given I ensure "test-b" pod is deleted
+    Given I ensure "test-b" job is deleted
+    # dc test-a may still be deploying and job test-b's pod may still be terminating.
+    # In OSO Starter this will reach quota compute-resources-timebound, making below fail for test-c
+    And all existing pods die with labels:
+      | run=test-b |
     When I run the :run client command with:
       | name    | test-c                |
       | image   | aosqe/hello-openshift |
       | restart | Never                 |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | pod |
+      | resource | pod/test-c |
     Then the step should succeed
-    And the output should contain:
-      | test-c |
     Given I ensure "test-c" pod is deleted
     # Negative test
     When I run the :run client command with:
@@ -204,10 +203,8 @@ Feature: oc run related scenarios
       | replicas | 1                     |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | pod |
+      | resource | pod/test-m |
     Then the step should succeed
-    And the output should contain:
-      | test-m |
 
   # @author yadu@redhat.com
   # @case_id OCP-11759
