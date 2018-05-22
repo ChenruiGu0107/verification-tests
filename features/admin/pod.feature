@@ -400,9 +400,9 @@ Feature: pod related features
       | resource_name | pod-hostname |
       | o             | yaml         |
     Then the output should match:
-      | - containerID: docker://                                                                                 |
+      | - containerID: (cri-o\|docker)://                                                                        |
       | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
-      | imageID: docker-pullable.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f        |
+      | imageID: docker.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f                 |
 
   # @author chezhang@redhat.com
   # @case_id OCP-10598
