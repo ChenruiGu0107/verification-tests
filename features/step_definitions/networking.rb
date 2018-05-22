@@ -18,7 +18,7 @@ Given /^I run the ovs commands on the host:$/ do | table |
     ovs_pod = CucuShift::Pod.get_labeled("app=ovs", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
       pod.node_name == node.name
     }.first
-    container_id = ovs_pod.containers.first[1].id
+    container_id = ovs_pod.containers.first.id
     ovs_cmd = "runc exec #{container_id} " + ovs_cmd
   else
     raise "Cannot find the ovs command"
@@ -426,7 +426,7 @@ Given /^admin adds( and overwrites)? following annotations to the "(.+?)" netnam
 
   teardown_add {
     current_annotations = _netnamespace.annotations(cached: false)
-    
+
     unless current_annotations == _annotations
       current_annotations.keys.each do |annotation|
         @result = _admin.cli_exec(:annotate, resource: "netnamespaces", resourcename: netnamespace, keyval: "#{annotation}-")
@@ -445,7 +445,7 @@ Given /^admin adds( and overwrites)? following annotations to the "(.+?)" netnam
         raise "The restoration of netnamespace '#{netnamespace}' was not successfull!"
       end
     end
-  } 
+  }
 end
 
 Given /^the DefaultDeny policy is applied to the "(.+?)" namespace$/ do | project_name |

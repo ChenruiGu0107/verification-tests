@@ -106,26 +106,25 @@ Feature: test logging and metrics related steps
       | inventory | https://raw.githubusercontent.com/pruan-rht/v3-testfiles/new_inventory_format/logging_metrics/OCP-15529/inventory |
     And a pod becomes ready with labels:
       | app=prometheus |
-    And evaluation of `pod.containers(user: user)` is stored in the :containers clipboard
-    # check the parameter for the 5 pods
+    # check the parameter for the 5 containers
     #  ["prom-proxy", "prometheus", "alerts-proxy", "alert-buffer", "alertmanager"]
-    # check prometheus pod
-    And the expression should be true> cb.containers['prometheus'].spec.cpu_limit_raw == '400m'
-    And the expression should be true> cb.containers['prometheus'].spec.memory_limit_raw == '512Mi'
-    And the expression should be true> cb.containers['prometheus'].spec.cpu_request_raw == '200m'
-    And the expression should be true> cb.containers['prometheus'].spec.memory_request_raw == '256Mi'
-    # check alertmanager pod
-    And the expression should be true> cb.containers['alertmanager'].spec.cpu_limit_raw == '500m'
-    And the expression should be true> cb.containers['alertmanager'].spec.memory_limit_raw == '1Gi'
-    And the expression should be true> cb.containers['alertmanager'].spec.cpu_request_raw == '256m'
-    And the expression should be true> cb.containers['alertmanager'].spec.memory_request_raw == '512Mi'
-    # check alertbuffer pod
-    And the expression should be true> cb.containers['alert-buffer'].spec.cpu_limit_raw == '400m'
-    And the expression should be true> cb.containers['alert-buffer'].spec.memory_limit_raw == '1Gi'
-    And the expression should be true> cb.containers['alert-buffer'].spec.cpu_request_raw == '256m'
-    And the expression should be true> cb.containers['alert-buffer'].spec.memory_request_raw == '512Mi'
-    # check oauth_proxy pod
-    And the expression should be true> cb.containers['prom-proxy'].spec.cpu_limit_raw == '200m'
-    And the expression should be true> cb.containers['prom-proxy'].spec.memory_limit_raw == '500Mi'
-    And the expression should be true> cb.containers['prom-proxy'].spec.cpu_request_raw == '200m'
-    And the expression should be true> cb.containers['prom-proxy'].spec.memory_request_raw == '500Mi'
+    # check prometheus container
+    And the expression should be true> pod.container(name: 'prometheus').spec.cpu_limit_raw == '400m'
+    And the expression should be true> pod.container(name: 'prometheus').spec.memory_limit_raw == '512Mi'
+    And the expression should be true> pod.container(name: 'prometheus').spec.cpu_request_raw == '200m'
+    And the expression should be true> pod.container(name: 'prometheus').spec.memory_request_raw == '256Mi'
+    # check alertmanager container
+    And the expression should be true> pod.container(name: 'alertmanager').spec.cpu_limit_raw == '500m'
+    And the expression should be true> pod.container(name: 'alertmanager').spec.memory_limit_raw == '1Gi'
+    And the expression should be true> pod.container(name: 'alertmanager').spec.cpu_request_raw == '256m'
+    And the expression should be true> pod.container(name: 'alertmanager').spec.memory_request_raw == '512Mi'
+    # check alertbuffer container
+    And the expression should be true> pod.container(name: 'alert-buffer').spec.cpu_limit_raw == '400m'
+    And the expression should be true> pod.container(name: 'alert-buffer').spec.memory_limit_raw == '1Gi'
+    And the expression should be true> pod.container(name: 'alert-buffer').spec.cpu_request_raw == '256m'
+    And the expression should be true> pod.container(name: 'alert-buffer').spec.memory_request_raw == '512Mi'
+    # check oauth_proxy container
+    And the expression should be true> pod.container(name: 'prom-proxy').spec.cpu_limit_raw == '200m'
+    And the expression should be true> pod.container(name: 'prom-proxy').spec.memory_limit_raw == '500Mi'
+    And the expression should be true> pod.container(name: 'prom-proxy').spec.cpu_request_raw == '200m'
+    And the expression should be true> pod.container(name: 'prom-proxy').spec.memory_request_raw == '500Mi'

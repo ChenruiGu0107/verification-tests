@@ -369,9 +369,9 @@ Feature: ansible install related feature
     And a pod becomes ready with labels:
       | component=es |
     # make sure containers are there regardless of ordering
-    Then the expression should be true> ["proxy", "elasticsearch"] - pod.containers.keys == []
-    And the expression should be true> pod.containers['elasticsearch'].spec.memory_limit_raw == "1024M"
-    And the expression should be true> pod.containers['elasticsearch'].spec.cpu_limit_raw == "200m"
+    Then the expression should be true> ["proxy", "elasticsearch"] - pod.containers.map(&:name) == []
+    And the expression should be true> pod.container(name: 'elasticsearch').spec.memory_limit_raw == "1024M"
+    And the expression should be true> pod.container(name: 'elasticsearch').spec.cpu_limit_raw == "200m"
     # check fluentd limits
     Given a pod becomes ready with labels:
       | component=fluentd |
