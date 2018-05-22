@@ -2471,3 +2471,38 @@ Feature: jenkins.feature
       | job_name   | <%= project.name %>-sample-pipeline |
       | time_out   | 300                                 |
     Then the step should fail
+
+  # @author wewang@redhat.com
+  # @case_id OCP-15197
+    @admin
+  Scenario: Using jenkins slave maven image to do pipeline build with limited resource
+    Given I store master major version in the clipboard
+    And I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-15196/limitrange.json |
+      | n | <%= project.name %>                                                                                    |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml | 
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>:v<%= cb.master_version %> |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | openshift-jee-sample |
+    Then the step should succeed
+    When the "openshift-jee-sample-1" build becomes :running
+    And the "openshift-jee-sample-docker-1" build becomes :running
+    Then the "openshift-jee-sample-docker-1" build completed
+    Then the "openshift-jee-sample-1" build completed
+    And a pod becomes ready with labels:
+      | app=openshift-jee-sample | 
