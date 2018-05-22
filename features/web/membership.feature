@@ -87,7 +87,7 @@ Feature: memberships related features via web
     And I run the :get client command with:
       | resource      | rolebinding |
     Then the output should not contain:
-      | basic-user | 
+      | basic-user |
       | test_user  |
     When I perform the :check_entry_content_on_membership_with_namespace web console action with:
       | project_name | <%= project.name %>  |
@@ -278,3 +278,31 @@ Feature: memberships related features via web
     When I run the :edit_membership web console action
     Then the step should succeed
 
+  # @author yapei@redhat.com
+  # @case_id OCP-11992
+  Scenario: Manage project membership with project-local role
+    Given the master version >= "3.4"
+    Given I log the message> no scripts for <3.6
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/OCP-12989/role.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rolebinding |
+    Then the step should succeed
+    Then the output should not contain:
+      | <%= project.name %>/deleteservices |
+      | bob |
+    When I perform the :add_role_on_membership web console action with:
+      | project_name | <%= project.name %> |
+      | tab_name     | Users               |
+      | name         | bob                 |
+      | role         | deleteservices      |
+      | save_changes | true                |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rolebinding |
+    Then the step should succeed
+    Then the output should contain:
+      | <%= project.name %>/deleteservices |
+      | bob |
