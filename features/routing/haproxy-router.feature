@@ -2249,24 +2249,24 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | i                |                 |
-      | oc_opts_end      |                 |
-      | exec_command     | nc              |
-      | exec_command_arg | -i16            |
-      | exec_command_arg | 127.0.0.1       |
-      | exec_command_arg | 80              |
-      | _stdin           | :empty          |
+      | pod              | <%= pod.name %>  |
+      | i                |                  |
+      | oc_opts_end      |                  |
+      | exec_command     | socat            |
+      | exec_command_arg | -T16             |
+      | exec_command_arg | -                |     
+      | exec_command_arg | tcp:127.0.0.1:80 |
+      | _stdin           | :empty           |
     Then the output should contain "408 Request Time-out"
     When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | i                |                 |
-      | oc_opts_end      |                 |
-      | exec_command     | nc              |
-      | exec_command_arg | -i11            |
-      | exec_command_arg | 127.0.0.1       |
-      | exec_command_arg | 80              |
-      | _stdin           | :empty          |
+      | pod              | <%= pod.name %>  |
+      | i                |                  |
+      | oc_opts_end      |                  |
+      | exec_command     | socat            |
+      | exec_command_arg | -T11             |
+      | exec_command_arg | -                |
+      | exec_command_arg | tcp:127.0.0.1:80 |
+      | _stdin           | :empty           |
     Then the output should not contain "408 Request Time-out"
     Given default router deployment config is restored after scenario
     When I run the :env client command with:
@@ -2277,14 +2277,14 @@ Feature: Testing haproxy router
     When a pod becomes ready with labels:
       | deploymentconfig=router |
     When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | i                |                 |
-      | oc_opts_end      |                 |
-      | exec_command     | nc              |
-      | exec_command_arg | -i11            |
-      | exec_command_arg | 127.0.0.1       |
-      | exec_command_arg | 80              |
-      | _stdin           | :empty          |
+      | pod              | <%= pod.name %>  |
+      | i                |                  |
+      | oc_opts_end      |                  |
+      | exec_command     | socat            |
+      | exec_command_arg | -T11             |
+      | exec_command_arg | -                |
+      | exec_command_arg | tcp:127.0.0.1:80 |
+      | _stdin           | :empty           |
     Then the output should contain "408 Request Time-out"
 
   # @author zzhao@redhat.com
@@ -4175,13 +4175,14 @@ Feature: Testing haproxy router
     """
     #Check the http request will be timetout in 7 seconds > 6s ( timeout connect 5s + timeout http-request 1s )
     When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | oc_opts_end      |                 |
-      | exec_command     | nc              |
-      | exec_command_arg | -i7             |
-      | exec_command_arg | 127.0.0.1       |
-      | exec_command_arg | 80              |
-      | _stdin           | :empty          |
+      | pod              | <%= pod.name %>  |
+      | i                |                  |
+      | oc_opts_end      |                  |
+      | exec_command     | socat            |
+      | exec_command_arg | -T7              |
+      | exec_command_arg | -                |
+      | exec_command_arg | tcp:127.0.0.1:80 |
+      | _stdin           | :empty           |
     Then the output should contain "408 Request Time-out"
 
   # @author zzhao@redhat.com
