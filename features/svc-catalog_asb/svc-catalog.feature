@@ -993,3 +993,75 @@ Feature: Service-catalog related scenarios
       | userInfo                                           |
       | reconciledGeneration: 2                            |
     """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-16646
+  @admin
+  @destructive
+  Scenario: ServiceBinding should be deleted succeed while broker not started
+    Given I have a project
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-3.7.yaml |
+    Then the step should succeed
+    #Provision a serviceinstance
+    Given I switch to the first user
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And I check that the "ups-instance" serviceinstance exists
+
+    # Create servicebinding and Check yaml of servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= project.name %>                                                                      |
+    Then the step should succeed
+    Given I check that the "ups-binding" servicebinding exists
+    And I ensure "ups-binding" servicebinding is deleted
+    And I ensure "ups-instance" serviceinstance is deleted
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-16644
+  @admin
+  @destructive
+  Scenario: ServiceBinding should be deleted succeed while bind to a unbindable clusterserviceclass
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    Then I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | clusterservicebroker/ups-broker |
+    Then the output should contain "Successfully fetched catalog entries from broker"
+    """
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['user-provided-service'].name` is stored in the :class_id clipboard
+    Given I successfully patch resource "clusterserviceclass/<%= cb.class_id %>" with:
+      | spec:\n  bindable: false |
+
+    #Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+    And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
+
+    # Create servicebinding and Check yaml of servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+    Given I check that the "ups-binding" servicebinding exists
+    And I ensure "ups-binding" servicebinding is deleted
+And I ensure "ups-instance" serviceinstance is deleted
