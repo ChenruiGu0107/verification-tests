@@ -113,7 +113,7 @@ module CucuShift
         dig("spec", "selector")
     end
 
-    # @return [CucuShift::Trigger]
+    # @return [Array<DeploymentConfigTrigger>]
     def triggers(user: nil, cached: true, quiet: false)
       if cached && props[:triggers]
         return props[:triggers]

@@ -30,7 +30,7 @@ class STOMPBus
     service_hosts = service_opts.delete(:hosts)
 
     # see http://www.rubydoc.info/github/stompgem/stomp/Stomp/Client#initialize-instance_method
-    default_opts = {:connect_timeout => 15, :start_timeout => 15, :reliable => false}
+    default_opts = {:connect_timeout => 10}
     param_hosts = opts.delete(:hosts) if Array === opts[:hosts]
 
     if param_hosts

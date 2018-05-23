@@ -1,7 +1,7 @@
 module CucuShift
-  # represents a trigger structure inside a deployment config
+  # represents a trigger structure inside a deployment/build config
   class ImageRef
-    attr_reader :uri, :hash_type, :hash_value, :docker_repo, :name
+    attr_reader :uri, :hash_type, :hash_value, :name
 
     # @param spec [String] similar to
     #   docker-registry.default.svc:5000/xplbz/ruby-hello-world-3@sha256:3980c036bc6d63fd432dcbf42cfeac41275253bd493820f2c0613e119b220d55
@@ -21,7 +21,7 @@ module CucuShift
 
     # @return [Image]
     def image
-      @image ||= Image.new(name: name, env: owner.env)
+      @image ||= Image.new(name: name, env: @owner.env)
     end
 
     # this is not as reliable as #image.repository but does not require
@@ -29,7 +29,12 @@ module CucuShift
     def repo
       unless @repo
         host_port = uri.split("/", 2).first
-        @repo = host_port ? "#{host_port}/" : ""
+        if host_port&.include? "."
+          @repo = host_port
+        else
+          # without dot the image is likely in form "openshift/something"
+          @repo = ""
+        end
       end
       return @repo
     end

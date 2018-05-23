@@ -1,3 +1,4 @@
+require 'openshift/object_reference'
 require_relative 'image_ref'
 
 module CucuShift
@@ -59,27 +60,23 @@ module CucuShift
     def initialize(spec, dc)
       super
       @dc = dc
-      set_from(dc)
     end
 
-    private def set_from(dc)
-      case params.dig("from", "kind")
-      when "ImageStreamTag"
-        project_name = params.dig("from", "namespace")
-        if dc && project_name == dc.project.name
-          project = dc.project
+    def from
+      from_ref.resource(dc)
+    end
+
+    def from_ref
+      unless defined? @from_ref
+        case params.dig("from", "kind")
+        when "ImageStreamTag"
+          @from_ref = ObjectReference.new params["from"]
         else
-          project = Project.new(name: project_name, env: dc.env)
+          raise "unknown image change trigger from type " \
+            "#{params.dig("from", "kind").inspect}"
         end
-        @from = ImageStreamTag.new(
-          name: params.dig("from", "name"),
-          project: project
-        )
-        @from.default_user(dc.default_user(optional: true), optional: true)
-      else
-        raise "unknown image change trigger from type " \
-          "#{params.dig("from", "kind")}"
       end
+      return @from_ref
     end
 
     def last_image
