@@ -79,6 +79,7 @@ Feature: metrics related scenarios
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+    And I switch to the first user
     And I perform the POST metrics rest request with:
       | project_name | _system                                                                                           |
       | path         | /metrics/gauges                                                                                   |
