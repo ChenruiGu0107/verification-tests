@@ -22,8 +22,10 @@ navigate_to_subscription:
   action: click_current_subscription
 # current cluster would mean the first cluster button per OPENSHIFTQ-12062
 click_current_subscription:
-  element:
-    selector:
+  elements:
+  - selector:
       xpath: "(//a[. = 'Manage Subscription'])[1]"
     type: a
     op: click
+  - selector:
+      text: Back to Account Overview

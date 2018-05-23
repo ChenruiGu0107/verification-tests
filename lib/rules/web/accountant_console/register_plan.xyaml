@@ -1,3 +1,23 @@
+check_free_plan_info:
+  elements:
+  - selector:
+      xpath: //*[contains(text(),'Starter')]
+  - selector:
+      text: 1 Project
+  - selector:
+      text: 1GiB Memory Included
+  - selector:
+      text: 1GiB Terminating Memory Included
+  - selector:
+      text: 1GiB Storage Included
+  - selector:
+      text: Resource Hibernation
+  - selector:
+      xpath: //*[contains(@data-content,"terminating resource quota applies to pods with an active deadline") and contains(@data-content, "usually include builds, deployers, and jobs")]
+  - selector:
+      xpath: //*[contains(@data-content,"project resources sleep after 30 minutes of inactivity") and contains(@data-content, "must sleep 18 hours in a 72 hour")]
+  - selector:
+      xpath: //*[@href="/register/confirm" and contains(., "FREE")]
 check_pro_plan_info:
   elements:
   - selector:
@@ -7,11 +27,13 @@ check_pro_plan_info:
   - selector:
       text: 10 Projects
   - selector:
-      text: 2GiB Memory and 2GiB Terminating Memory Included
+      text: 2GiB Memory Included 
+  - selector:
+      text: 2GiB Terminating Memory Included
   - selector:
       text: Up to 48GiB Memory
   - selector:
-      text: Up to 100GiB Storage
+      text: Up to 150GiB Storage
   - selector:
       text: Up to 20GiB Terminating Memory
   - selector:
@@ -28,3 +50,8 @@ click_starting_at_fifty_dollars_per_month_button:
       text: Starting at $50.00/month
     type: button
     op: click
+go_to_register_plan:
+  url: ../../register/plan
+  element:
+    selector:
+      text:  Select a Plan
