@@ -405,9 +405,9 @@ Feature: SDN related networking scenarios
     Then I use the "<%= pod.node_name(user: user) %>" node
     And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
     When I run commands on the host:
-      | docker inspect <%= cb.container_id %> \|grep Pid |
+      | docker inspect <%= cb.container_id %> \|grep Pid \|\| runc state <%= cb.container_id %> \|grep pid|
     Then the step should succeed
-    And evaluation of `/"Pid":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
+    And evaluation of `/"[Pp]id":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
     When I run commands on the host:
       | nsenter -n -t <%= cb.user_container_pid %> -- ethtool -S eth0 \| sed -n -e 's/.*peer_ifindex: //p' |
     Then the step should succeed
@@ -423,7 +423,7 @@ Feature: SDN related networking scenarios
       | object_type       | pods      |
       | object_name_or_id | hello-pod |
     Then the step should succeed
-    Then I wait for the resource "pod" named "hello-pod" to disappear within 12 seconds
+    Then I wait for the resource "pod" named "hello-pod" to disappear within 20 seconds
     When I run commands on the host:
       | ip a s <%= cb.veth_index %>: |
     Then the step should fail
@@ -439,8 +439,7 @@ Feature: SDN related networking scenarios
     Given I have a project
     And I have a pod-for-ping in the project
     Then I use the "<%= pod.node_name(user: user) %>" node
-    When I run commands on the host:
-      | systemctl restart openvswitch |
+    Given I restart the openvswitch service on the node
     Then the step should succeed
     #check the pod can access external network
     And I wait up to 300 seconds for the steps to pass:
