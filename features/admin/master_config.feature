@@ -1795,3 +1795,39 @@ Feature: test master config related steps
       | latest            |                    |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-19027
+  @admin
+  @destructive
+  Scenario: Build keeps pending if set nodeSelector with BuildDefaults admission plugin
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            nodeSelector:
+              key1: value1
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+    """
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :new_build client command with:
+      | image_stream | openshift/ruby:latest                |
+      | app_repo     | https://github.com/openshift/ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    And the "ruby-ex-1" build becomes :pending
+    Given 60 seconds have passed
+    Then the "ruby-hello-world-1" build status is any of:
+      | pending |

@@ -2875,3 +2875,18 @@ Feature: build 'apps' with CLI
       | env |
     Then the output should contain:
       | S2I_TEST_FOO=bar |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-17523
+  Scenario: io.openshift.build.commit.ref displays correctly in build reference on imagestreamtag if building from git branch reference
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world#beta4 |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I run the :describe client command with:
+      | resource | imagestreamtag |
+    Then the output should contain:
+      | io.openshift.build.commit.ref=beta4 |
+      | OPENSHIFT_BUILD_REFERENCE=beta4     | 
