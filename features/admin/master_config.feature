@@ -1830,4 +1830,4 @@ Feature: test master config related steps
     And the "ruby-ex-1" build becomes :pending
     Given 60 seconds have passed
     Then the "ruby-hello-world-1" build status is any of:
-      | pending |
+      | pending |
