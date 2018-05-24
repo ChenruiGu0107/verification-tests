@@ -1,6 +1,5 @@
 Feature: dockerbuild.feature
   # @author wewang@redhat.com
-  @admin
   Scenario Outline: Store commit id in sti build
     Given I have a project
     When I download a file from "<file>"
@@ -19,7 +18,6 @@ Feature: dockerbuild.feature
     Then the output should match:
       | Commit:.*[a-zA-Z0-9]+                         |
       | Output to:.*ImageStreamTag origin-ruby22-sample:latest |
-
     When I replace resource "bc" named "ruby22-sample-build":
       | github.com/openshift/ruby-hello-world.git | github.com/v3test/ruby-hello-world.git |
     Then the step should succeed
@@ -37,7 +35,6 @@ Feature: dockerbuild.feature
     Then the output should match:
       | Commit:.*[a-zA-Z0-9]+                         |
       | Output to:.*ImageStreamTag origin-ruby22-sample:latest |
-
     When I run the :patch client command with:
       | resource      | bc                      |
       | resource_name | ruby22-sample-build       |
@@ -49,43 +46,15 @@ Feature: dockerbuild.feature
       | template      | {{.spec.output.to.kind}} |
     Then the step should succeed
     And the output should contain "DockerImage"
-
-    When I run the :get admin command with:
-      | resource      | service                 |
-      | resource_name | docker-registry         |
-      | template      | {{.spec.clusterIP}} |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :host_yaml clipboard
+    Given evaluation of `"docker-registry.default.svc:5000"` is stored in the :integrated_reg_ip clipboard 
     When I run the :patch client command with:
-      | resource      | bc                      |
-      | resource_name | ruby22-sample-build     |
-      | p             |{"spec":{"output":{"to":{"name":"<%= cb.host_yaml %>"}}}} |
+      | resource      | bc                                                                                                        |
+      | resource_name | ruby22-sample-build                                                                                       |
+      | p             |{"spec":{"output":{"to":{"name":"<%= cb.integrated_reg_ip %>/<%= project.name %>/origin-ruby22-sample"}}}} |
     Then the step should succeed
-
-    When I run the :get admin command with:
-      | resource      | service                 |
-      | resource_name | docker-registry         |
-      | template      | {{.spec.clusterIP}} |
-    Then the step should succeed
-    And the output should contain "<%= cb.host_yaml %>"
-
-    When I run the :get admin command with:
-      | resource      | service                 |
-      | resource_name | docker-registry         |
-      | template      | {{(index .spec.ports 0).port}} |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :port_yaml clipboard
-
-    When I run the :patch client command with:
-      | resource      | bc                      |
-      | resource_name | ruby22-sample-build     |
-      | p             |{"spec":{"output":{"to":{"name":"<%= cb.host_yaml %>:<%= cb.port_yaml %>/<%= project.name %>/origin-ruby22-sample"}}}} |
-    Then the step should succeed
-
     When I get project build_config named "ruby22-sample-build" as YAML
     Then the step should succeed
-    And the output should contain "<%= cb.host_yaml %>:<%= cb.port_yaml %>"
-
+    And the output should contain "<%= cb.integrated_reg_ip %>"
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     And the "ruby22-sample-build-3" build was created
