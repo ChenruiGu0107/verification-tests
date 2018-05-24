@@ -373,14 +373,18 @@ Feature: template related scenarios:
       | dest        | mongodb:latest            |
       | source_type | docker                    |
     Then the step should succeed
-    When I run the :export client command with:
-      | resource    | is/mongodb         |
-      | as_template | mongodb-persistent |
+    When I run the :get client command with:
+      | resource      | template           |
+      | resource_name | mongodb-persistent |
+      | n             | openshift          |
+      | export        | true               |
+      | output        | yaml               |
     Then the step should succeed
     Given I save the output to file> newtemplate.yaml
     When I run the :create client command with:
       | f | newtemplate.yaml |
     Then the step should succeed
+    # imagestream from exact namespace
     When I run the :new_app client command with:
       | app_repo | openshift/mongodb:latest |
       | dry_run  | true                     |
@@ -391,6 +395,7 @@ Feature: template related scenarios:
       | dry_run  | true                               |
     Then the step should succeed
     And the output should contain "<%= project.name %>"
+    # template from exact namespace
     When I run the :new_app client command with:
       | app_repo | openshift/mongodb-persistent |
       | dry_run  | true                         |

@@ -4,58 +4,36 @@ Feature: oc exports related scenarios
   # @case_id OCP-12576
   Scenario: Export resource as json or yaml format by oc export
     Given I have a project
-    And I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-centos7.json|
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-centos7.json|
     Then the step should succeed
-    And I create a new application with:
-      | template | php-helloworld-sample |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource | service |
-    Then the step should succeed
-    And the output should contain:
-      | database |
-      | frontend |
-    And I run the :get client command with:
-      | resource | dc |
-    Then the step should succeed
-    And the output should match:
-      | database.*[Cc]onfig           |
-      | frontend.*[Cc]onfig.*[Ii]mage |
-    And I run the :export client command with:
+    When I run the :get client command with:
       | resource      | svc      |
-      | name          | frontend |
-      | output_format | json     |
-    And evaluation of `JSON.parse(@result[:response])` is stored in the :export_svc clipboard
-    Then the expression should be true> cb.export_svc['metadata']['labels']['template'] == "application-template-stibuild"
-    Given I save the response to file> svc_output.json
-    And I run the :export client command with:
+      | resource_name | frontend |
+      | export        | true     |
+      | output        | json     |
+    Then the step should succeed
+    And I save the response to file> svc_output.json
+    When I run the :get client command with:
       | resource      | dc       |
-      | name          | frontend |
-      | output_format | json     |
-    And evaluation of `JSON.parse(@result[:response])` is stored in the :export_dc clipboard
-    Then the expression should be true> cb.export_dc['spec']['triggers'].to_s.include? 'ConfigChange'
-    Then the expression should be true> cb.export_dc['spec']['triggers'].to_s.include? 'ImageChange'
-    Given I save the response to file> dc_output.json
-    When I delete the project
+      | resource_name | frontend |
+      | export        | true     |
+      | output        | json     |
     Then the step should succeed
-    Given I create a new project
-    And I run the :create client command with:
+    And I save the response to file> dc_output.json
+
+    Given I delete the project
+    And I create a new project
+    When I run the :create client command with:
       | f | svc_output.json |
-    Then the step should succeed
-    And I run the :create client command with:
       | f | dc_output.json |
     Then the step should succeed
-    And I run the :get client command with:
-      | resource | svc |
+    When I run the :get client command with:
+      | resource | svc/frontend |
     Then the step should succeed
-    And the output should contain:
-      | frontend |
-    And I run the :get client command with:
-      | resource | dc |
+    When I run the :get client command with:
+      | resource | dc/frontend |
     Then the step should succeed
-    And the output should match:
-      | frontend.*[Cc]onfig.*[Ii]mage |
 
     # Export other various APIs resources, like extensions/v1beta1, autoscaling/v1, batch/v1
     # Cover bug 1546443 1553696 1552325 densely reported same issue
@@ -69,8 +47,10 @@ Feature: oc exports related scenarios
     Then the step should succeed
     And I wait for the "hello-openshift" hpa to appear
 
-    When I run the :export client command with:
+    When I run the :get client command with:
       | resource  | deployment,hpa,job |
+      | export    | true               |
+      | output    | yaml               |
     Then the step should succeed
     # check for capitalized and missing fields (bug 1546443)
     And the output should not match "^ *[A-Z]"
@@ -143,57 +123,31 @@ Feature: oc exports related scenarios
   # @case_id OCP-12594
   Scenario: Negative test for oc export
     Given I have a project
-    And I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-centos7.json|
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-centos7.json|
     Then the step should succeed
-    And I create a new application with:
-      | template | php-helloworld-sample |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource | service |
-    Then the step should succeed
-    And the output should contain:
-      | database |
-      | frontend |
-    And I run the :export client command with:
-      | resource | svc |
-      | name     | nonexist |
+    When I run the :get client command with:
+      | resource       | svc      |
+      | resource_name  | nonexist |
+      | export         | true     |
     Then the step should fail
     And the output should match:
       | [Ee]rror.*[Ss]ervices.*not found |
-    And I run the :export client command with:
-      | resource | dc |
-      | name     | nonexist |
+    When I run the :get client command with:
+      | resource        | dc       |
+      | resource_name   | nonexist |
+      | export          | true     |
     Then the step should fail
     And the output should match:
       | eployment.*"nonexist" not found |
-    And I run the :export client command with:
-      | resource | svc |
-      | l | name=nonexist|
-    Then the step should fail
-    And the output should contain:
-      | no resources found - nothing to export |
-    And I run the :export client command with:
-      | resource | dc |
-      | name     | frontend |
-      | output_format | xyz |
+    When I run the :get client command with:
+      | resource      | dc       |
+      | resource_name | frontend |
+      | output        | xyz      |
+      | export        | true     |
     Then the step should fail
     And the output should contain:
       | error: output format "xyz" not recognized |
-
-    # For sake of Online test in which one user can only create 1 project
-    Given I ensure "<%= project.name %>" project is deleted
-    And I create a new project
-    And I run the :get client command with:
-      | resource | svc |
-    Then the step should succeed
-    And the output should not contain:
-      | template |
-    And I run the :export client command with:
-      | resource | svc |
-      | all | true |
-    Then the output should contain:
-      | error: no resources found - nothing to export |
 
   # @author pruan@redhat.com
   # @case_id OCP-12598
