@@ -1,5 +1,8 @@
 # --- plan quota detail setting related page (manage resource quota)
 
+goto_crq_and_set_resource_amount:
+  action: goto_resource_settings_page
+  action: set_resource_amount_by_input_and_update
 goto_resource_settings_page:
   url: <resource>
   elements:

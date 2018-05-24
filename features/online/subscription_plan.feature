@@ -96,3 +96,49 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | storage            | 149           | 148     | 150   | noncompute | storage            | 0        | storage_requests | # @case_id OCP-10426
       | memory             | 47            | 46      | 48    | compute    | memory             | 0        | memory_limit     | # @case_id OCP-10427
       | terminating_memory | 19            | 18      | 20    | timebound  | terminating memory | 0        | memory_limit     | # @case_id OCP-13347
+
+  # @author xiaocwan@redhat.com
+  Scenario Outline: clusterresourcequota add-ons can be upgraded and downgraded
+    Given I open accountant console in a browser
+    ## set addon and check
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | <resource> |
+      | amount   | <addon>    |
+    Then the step should succeed
+    Given I have a project
+    And I register clean-up steps:
+    """
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | <resource> |
+      | amount   | 0          |
+    Then the step should succeed
+    When the "<acrq_name>" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).<type>_raw  == "2Gi"
+    """
+    When the "<acrq_name>" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).<type>_raw  == "<adn_total>"
+
+    ## downgrade and check
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | <resource>  |
+      | amount   | <downgrade> |
+    Then the step should succeed
+    When the "<acrq_name>" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).<type>_raw  == "<dng_total>"
+
+    ## upgrade and check
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | <resource>|
+      | amount   | <upgrade> |
+    Then the step should succeed
+    When I perform the :check_additional_value_for_plan web action with:
+      | cur_amount         | <upgrade> |
+      | resource_page_name | <page>    |
+    When the "<acrq_name>" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).<type>_raw  == "<upg_total>"
+
+    Examples:
+    | resource           | acrq_name  | addon | adn_total | downgrade | dng_total | upgrade | upg_total | page               | type             |  
+    | memory             | compute    | 4     | 6Gi       | 2         | 4Gi       | 8       | 10Gi      | memory             | memory_limit     | # @case_id OCP-10431
+    | storage            | noncompute | 5     | 7Gi       | 2         | 4Gi       | 10      | 12Gi      | storage            | storage_requests | # @case_id OCP-10432
+    | terminating_memory | timebound  | 4     | 6Gi       | 2         | 4Gi       | 8       | 10Gi      | terminating_memory | memory_limit     | # @case_id OCP-14146
