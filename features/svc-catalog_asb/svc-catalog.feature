@@ -1064,4 +1064,150 @@ Feature: Service-catalog related scenarios
     Then the step should succeed
     Given I check that the "ups-binding" servicebinding exists
     And I ensure "ups-binding" servicebinding is deleted
-And I ensure "ups-instance" serviceinstance is deleted
+    And I ensure "ups-instance" serviceinstance is deleted
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-18595
+  @admin
+  @destructive
+  Scenario: Serviceinstance/Servicebinding/UserProject can be deleted after lost broker
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    Then I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | clusterservicebroker/ups-broker |
+    Then the output should contain "Successfully fetched catalog entries from broker"
+    """
+    Given I ensure "ups-broker" deployment is deleted
+    And I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    And I register clean-up steps:
+    """
+    I run the :patch client command with:
+      | resource | serviceinstance/ups-instance     |
+      | p        | {"metadata":{"finalizers":null}} |
+      | n        | <%= cb.user_project %>           |
+    the step should succeed
+    I ensure "ups-instance" serviceinstance is deleted
+    """
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+Then the step should succeed
+    Given I check that the "ups-instance" serviceinstance exists
+    And I check that the "ups-binding" servicebinding exists
+    And I ensure "ups-binding" servicebinding is deleted
+    When I run the :delete client command with:
+      | object_type | serviceinstance/ups-instance |
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance |
+    Then the output should match "Error deprovisioning.*no route to host"
+    """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-15921
+  @admin
+  @destructive
+  Scenario: Controller should give up retry after a timeout configured on the controller
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+
+    # Update daemonset/controller-manager in kube-service-catalog project
+    Given I switch to cluster admin pseudo user
+    And I use the "kube-service-catalog" project
+    And the "ansible-service-broker" cluster service broker is recreated after scenario
+    And the "controller-manager" daemonset is recreated by admin in the "kube-service-catalog" project after scenario
+    When I run the :patch client command with:
+      | resource | daemonset/controller-manager |
+      | type     | json                         |
+      | p        | [{"op": "add", "path": "/spec/template/spec/containers/0/args/1", "value": "--reconciliation-retry-duration"}, {"op": "add", "path": "/spec/template/spec/containers/0/args/2", "value": "30s"} ] |
+    Then the step should succeed
+    And "controller-manager" daemonset becomes ready in the "kube-service-catalog" project
+
+    # Deploy ups-broker
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | clusterservicebroker/ups-broker |
+    Then the output should contain "Successfully fetched catalog entries from broker"
+    """
+
+    # Provision serviceinstance/servicebinding by TCs
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    And I register clean-up steps:
+    """
+    I run the :patch client command with:
+      | resource | servicebinding/ups-binding       |
+      | p        | {"metadata":{"finalizers":null}} |
+      | n        | <%= cb.user_project %>           |
+    the step should succeed
+    I run the :patch client command with:
+      | resource | serviceinstance/ups-instance     |
+      | p        | {"metadata":{"finalizers":null}} |
+      | n        | <%= cb.user_project %>           |
+    the step should succeed
+    I ensure "ups-binding" servicebinding is deleted
+    I ensure "ups-instance" serviceinstance is deleted
+    """
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+    And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
+    When I run the :patch admin command with:
+      | resource | clusterservicebroker/ups-broker                                                          |
+      | p        | {"spec":{"url": "http://testups-broker.<%= cb.ups_broker_project %>.svc.cluster.local"}} |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+
+    # check "ErrorReconciliationRetryTimeout" event in description
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource | clusterservicebroker/ups-broker |
+    Then the output should match "ErrorReconciliationRetryTimeout.*Stopping reconciliation retries"
+    When I run the :describe client command with:
+      | resource | servicebinding/ups-binding |
+    Then the output should match "ErrorReconciliationRetryTimeout.*Stopping reconciliation retries"
+    """
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+      | param | INSTANCE_NAME=ups-instance-1                                                                              |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance/ups-instance-1 |
+    Then the output should match "ErrorReconciliationRetryTimeout.*Stopping reconciliation retries"
+    """
+    And I ensure "ups-instance-1" serviceinstance is deleted
