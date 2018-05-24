@@ -23,7 +23,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=postgresql-<db_version_1>-<db_plan_1>  |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds  
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds  
 
     #Add data to postgresql
     And I wait up to 60 seconds for the steps to pass:
@@ -81,7 +81,9 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=postgresql-<db_version_2>-<db_plan_2>    |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds     
+    #checking the old dc is deleted.  
+    Given I wait for the resource "dc" named "postgresql-<db_version_1>-<db_plan_1>" to disappear within 120 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds     
     
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -125,7 +127,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=<pod_label>-<db_version_1>-<db_plan_1>  |
-    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 80 seconds
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 120 seconds
     #Add data to postgresql
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -184,7 +186,9 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=<pod_label>-<db_version_2>-<db_plan_2>    |
-    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 80 seconds
+    #checking the old dc is deleted.  
+    Given I wait for the resource "dc" named "<pod_label>-<db_version_1>-<db_plan_1>" to disappear within 120 seconds
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 120 seconds
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -195,6 +199,7 @@ Feature: Update sql apb related feature
     """
     And the output should contain:
       |  Puffball             | 
+
     Examples:
      |db_label |pod_label    |parameters_1                                                                                                                          |parameters_2                                                                                                                          |db_plan_1 |db_plan_2 |db_version_1 |db_version_2|                       
      |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |dev       |prod      |5.7          |5.6         | # @case_id OCP-17664
@@ -229,7 +234,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | <pod_label_1>  |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds
 
     # update instance 
      When I run the :patch client command with:
@@ -242,7 +247,9 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | <pod_label_2>    |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+     #checking the old dc is deleted.  
+    Given I wait for the resource "dc" named "postgresql-<db_version>-<db_plan_1>" to disappear within 120 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds
     
      Examples:
       |db_name                         |db_plan_1 |db_plan_2 |secret_name                                |db_version |pod_label_1                      |pod_label_2                      |                                 
@@ -275,7 +282,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=postgresql-<db_version>-<db_plan_1>-1  |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds
 
     # update an invalid plan
      When I run the :patch client command with:
@@ -303,7 +310,7 @@ Feature: Update sql apb related feature
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds
 
     # update an invalid plan again
      When I run the :patch client command with:
@@ -333,7 +340,9 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=postgresql-<db_version>-<db_plan_3>-1  |
-    Given I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    #checking the old dc is deleted.  
+    Given I wait for the resource "dc" named "postgresql-<db_version>-<db_plan_1>" to disappear within 120 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 120 seconds
 
      Examples:
       |db_name                         |db_plan_1 |db_plan_2 |db_plan_3|secret_name                                |db_version |                                 
