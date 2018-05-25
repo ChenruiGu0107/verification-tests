@@ -536,3 +536,24 @@ Given /^I wait for the networking components of the node to become ready$/ do
     end
   end
 end
+
+Given /^I restart the openvswitch service on the node$/ do
+  ensure_admin_tagged
+  _host = node.host
+  _admin = admin
+
+  # For 3.10 version, should delete the ovs container to restart service 
+  if env.version_ge("3.10", user: user)
+    logger.info("OCP version >= 3.10")
+    ovs_pod = CucuShift::Pod.get_labeled("app=ovs", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+    @result = ovs_pod.ensure_deleted(user: _admin)
+  else
+    @result = _host.exec_admin("systemctl restart openvswitch")
+  end
+
+  unless @result[:success]
+    raise "Fail to restart the openvswitch service"
+  end
+end
