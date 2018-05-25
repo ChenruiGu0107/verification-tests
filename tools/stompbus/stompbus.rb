@@ -84,7 +84,7 @@ class STOMPBus
       host[:ssl] = to_bool(host[:ssl]) if String === host[:ssl]
       case host[:ssl]
       when false
-        SSL_OPTS.each { |k| host.deletea(k) }
+        SSL_OPTS.each { |k| host.delete(k) }
         next
       when true, nil
         host[:ssl] = {}
