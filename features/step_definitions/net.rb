@@ -124,6 +124,14 @@ When /^I perform the HTTP request:$/ do |yaml_request|
     opts[:cookies] = cb[opts[:cookies]]
   end
   @result = CucuShift::Http.request(opts)
+  begin
+    # only parse it if we are dealing with JSON/YAML return type
+    if (['json', 'yaml'].any? { |word| @result[:headers]['content-type'][0].include?(word) })
+      @result[:parsed] = YAML.load(@result[:response])
+    end
+  rescue
+    logger.warn ("Failed to parse response, #{@result[:response]}")
+  end
 end
 
 # note that we do not guarantee exact number of invocations, there might be a
