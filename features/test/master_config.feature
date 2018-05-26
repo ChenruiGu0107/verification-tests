@@ -17,7 +17,6 @@ Feature: test master config related steps
     volumeConfig:
       dynamicProvisioningEnabled: False
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
 
   @admin
@@ -28,14 +27,12 @@ Feature: test master config related steps
     volumeConfig:
       dynamicProvisioningEnabled: False
     """
-    Then the step should succeed
 
     Given master config is merged with the following hash:
     """
     volumeConfig:
       dynamicProvisioningEnabled: BadValue
     """
-    Then the step should succeed
 
   @admin
   @destructive
@@ -45,7 +42,6 @@ Feature: test master config related steps
     volumeConfig:
       dynamicProvisioningEnabled: BadValue
     """
-    Then the step should succeed
     And I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -58,7 +54,6 @@ Feature: test master config related steps
     volumeConfig:
       dynamicProvisioningEnabled: BadValue
     """
-    Then the step should succeed
 
     Given the value with path " " in master config is stored into the :changedcfg clipboard
     Then the expression should be true> cb.fullcfg != cb.changedcfg

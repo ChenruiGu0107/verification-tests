@@ -16,7 +16,6 @@ Feature: test node config related steps
     """
     iptablesSyncPeriod: "35s"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
 
   @admin
@@ -26,25 +25,21 @@ Feature: test node config related steps
     """
     iptablesSyncPeriod: "35s"
     """
-    Then the step should succeed
 
     Given config of all nodes is merged with the following hash:
     """
     iptablesSyncPeriod: "40s"
     """
-    Then the step should succeed
 
   @admin
   @destructive
   Scenario: the node service will fail to restart and return result
     Given config of all schedulable nodes is merged with the following hash:
     """
-    iptablesSyncPeriod: BadValue
+    apiVersion: BadValue
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
-    And the expression should be true> @result[:success] == false
 
   @admin
   @destructive

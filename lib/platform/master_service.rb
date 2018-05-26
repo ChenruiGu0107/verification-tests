@@ -7,21 +7,14 @@ module CucuShift
     class MasterService < OpenShiftService
       include Common::Helper
 
-      attr_reader :env
-
       IMPLEMENTATIONS = [MasterSystemdService, MasterScriptedStaticPodService]
 
       def self.type(host)
         IMPLEMENTATIONS.find { |i| i.detected_on?(host) }
       end
 
-      def initialize(host, env)
-        super(host)
-        @env = env
-      end
-
       def config
-        @config ||= CucuShift::Platform::MasterConfig.new(self)
+        @config ||= CucuShift::Platform::MasterConfig.for(self)
       end
 
       private def expected_load_time

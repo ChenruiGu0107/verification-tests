@@ -10,6 +10,9 @@ module CucuShift
     autoload :AggregationService, "platform/aggregation_service"
     autoload :SystemdService, "platform/systemd_service"
     autoload :ScriptService, "platform/script_service"
-    autoload :OpenShiftConfig, "platform/os_config"
+    autoload :RestorableFile, "platform/restorable_file"
+    autoload :YAMLRestorableFile, "platform/yaml_restorable_file"
+    autoload :SimpleServiceYAMLConfig, "platform/simple_service_yaml_config"
+    autoload :NodeConfigMapSyncConfig, "platform/node_config_map_sync_config"
   end
 end
