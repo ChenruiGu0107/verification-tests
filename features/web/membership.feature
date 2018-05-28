@@ -281,8 +281,8 @@ Feature: memberships related features via web
   # @author yapei@redhat.com
   # @case_id OCP-11992
   Scenario: Manage project membership with project-local role
-    Given the master version >= "3.4"
-    Given I log the message> no scripts for <3.6
+    Given I log the message> scenario not supported on version < 3.6
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/OCP-12989/role.json |
@@ -292,7 +292,7 @@ Feature: memberships related features via web
     Then the step should succeed
     Then the output should not contain:
       | <%= project.name %>/deleteservices |
-      | bob |
+      | bob                                |
     When I perform the :add_role_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Users               |
@@ -305,4 +305,4 @@ Feature: memberships related features via web
     Then the step should succeed
     Then the output should contain:
       | <%= project.name %>/deleteservices |
-      | bob |
+      | bob                                |
