@@ -225,15 +225,15 @@ end
 
 Given /^I check feature gate #{QUOTED}(?: with admission #{QUOTED})? is enabled$/ do |fg, adm|
   feature_gates_3_9 = Set[
-    'ExpandPersistentVolumes',
-    'PersistentLocalVolumes',
     'BlockVolume',
-    'PVCProtection',
-    'MountPropagation'
+    'ExpandPersistentVolumes',
+    'MountPropagation',
+    'PersistentLocalVolumes',
+    'PVCProtection'
   ]
   feature_gates_3_10 = Set[
-    'ToBeUpdated1',
-    'ToBeUpdated2'
+    'BlockVolume',
+    'ExpandPersistentVolumes'
   ]
   if (env.version_eq("3.9", user: user) && feature_gates_3_9.include?("#{fg}")) ||
      (env.version_eq("3.10", user: user) && feature_gates_3_10.include?("#{fg}"))
