@@ -8,6 +8,11 @@ module CucuShift
       rr.dig('metadata', 'generation')
     end
 
+    def external_id(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('spec', 'externalID')
+    end
+
     def cluster_service_class_external_name(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig('spec', 'clusterServiceClassExternalName')
