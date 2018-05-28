@@ -217,6 +217,7 @@ Feature: oc_set_env.feature
       | configMapKeyRef:           |
       | key: special.how           |
       | name: special-config       |
+    And the output by order should match:
       | - name: MYSQL_SPECIAL_TYPE |
       | valueFrom:                 |
       | configMapKeyRef:           |
