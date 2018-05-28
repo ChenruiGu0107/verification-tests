@@ -1831,3 +1831,109 @@ Feature: test master config related steps
     Given 60 seconds have passed
     Then the "ruby-hello-world-1" build status is any of:
       | pending |
+
+ # @author scheng@redhat.com
+  # @case_id OCP-17481
+  @admin
+  Scenario: AccessTokenInactivityTimeoutSeconds should greater than 300s
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                     |
+      | resource_name | openshift-challenging-client                    |
+      | p             | {"accessTokenInactivityTimeoutSeconds": 200}    |
+    Then the step should fail
+    And the output should contain "The minimum valid timeout value is 300 seconds"
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                       |
+      | resource_name | openshift-challenging-client                      |
+      | p             | {"accessTokenInactivityTimeoutSeconds": abcde}    |
+    Then the step should fail
+    And the output should contain "invalid character 'a' looking for beginning of value"
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                         |
+      | resource_name | openshift-challenging-client                        |
+      | p             | {"accessTokenInactivityTimeoutSeconds": !@#$$%#}    |
+    Then the step should fail
+    And the output should contain "invalid character '!' looking for beginning of value"
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                         |
+      | resource_name | openshift-challenging-client                        |
+      | p             | {"accessTokenInactivityTimeoutSeconds": 500.123}    |
+    Then the step should fail
+    And the output should contain "cannot convert float64 to int32"
+
+  # @author scheng@redhat.com
+  # @case_id OCP-17482 OCP-17475
+  @admin
+  @destructive
+  Scenario: AccessTokenInactivityTimeoutSeconds will take effective in oauthclient and master-config
+    Given the expression should be true> user.password?
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                     |
+      | resource_name | openshift-challenging-client                    |
+      | p             | {"accessTokenInactivityTimeoutSeconds": 300}    |
+    Then the step should succeed
+    Given I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+         | resource      | oauthclient                                   |
+         | resource_name | openshift-challenging-client                  |
+         | p             | {"accessTokenInactivityTimeoutSeconds": null} |
+    """    
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | u               | <%= user.name %>            |
+      | p               | <%= user.password %>        |
+    Then the step should succeed
+    And the output should match "Login successful|Logged into"
+    When I run the :whoami client command
+    Then the step should succeed
+    Given 320 seconds have passed
+    When I run the :whoami client command
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      tokenConfig:
+        accessTokenInactivityTimeoutSeconds: 400
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | u               | <%= user.name %>            |
+      | p               | <%= user.password %>        |
+    Then the step should succeed
+    And the output should match "Login successful|Logged into"
+    Given 320 seconds have passed
+    When I run the :whoami client command
+    Then the step should fail
+    When I run the :patch admin command with:
+      | resource      | oauthclient                                      |
+      | resource_name | openshift-challenging-client                     |
+      | p             | {"accessTokenInactivityTimeoutSeconds": null}    |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | u               | <%= user.name %>            |
+      | p               | <%= user.password %>        |
+    Then the step should succeed
+    And the output should match "Login successful|Logged into"
+    Given 320 seconds have passed
+    When I run the :whoami client command
+    Then the step should succeed
+    Given 450 seconds have passed
+    When I run the :whoami client command
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      tokenConfig:
+        accessTokenInactivityTimeoutSeconds: 0
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | u               | <%= user.name %>            |
+      | p               | <%= user.password %>        |
+    Then the step should succeed
