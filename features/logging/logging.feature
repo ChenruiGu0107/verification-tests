@@ -688,7 +688,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Couldn't View the project mapping index without permit
-    And logging service is installed in the system
+    Given logging service is installed in the system
     And I switch to the first user
     Given I create a project with non-leading digit name
     When I run the :new_app client command with:
@@ -698,3 +698,128 @@ Feature: logging related scenarios
       | op           | GET                              |
       | token        | <%= user.cached_tokens.first %>  |
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17529
+  @admin
+  @destructive
+  Scenario: Expose Elasticsearch service
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17529/inventory |
+    And I wait until the ES cluster is healthy
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And evaluation of `%w(es es-ops)` is stored in the :prefixes clipboard
+    Given I repeat the following steps for each :prefix in cb.prefixes:
+    """
+    And I perform the HTTP request:
+    <%= '"""' %>
+      :url: https://#{cb.prefix}.<%= cb.subdomain %>/_count?output=JSON
+      :method: get
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    <%= '"""' %>
+    Then the step should succeed
+    And the expression should be true> YAML.load(@result[:response])['count'] > 0
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16850
+  @admin
+  @destructive
+  Scenario: Check the existence of index template named "viaq"
+    Given logging service is installed in the system
+    And I wait until the ES cluster is healthy
+    And evaluation of `%w(project operations)` is stored in the :urls clipboard
+    Given I repeat the following steps for each :url in cb.urls:
+    """
+    And I perform the HTTP request on the ES pod:
+      | relative_url | _template/com.redhat.viaq-openshift-#{cb.url}.template.json |
+      | op           | GET                                                         |
+    Then the step should succeed
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16299
+  @admin
+  @destructive
+  Scenario: install eventrouter with sink=glog
+    Given the master version >= "3.7"
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16299/inventory |
+    And I register clean-up steps:
+      | logging service is uninstalled with ansible using: |
+      |   ! inventory ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16299/uninstall_inventory ! |
+    And I use the "default" project
+    Then the expression should be true> eval(config_map('logging-eventrouter').data['config.json'])[:sink] == "glog"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-18806
+  @admin
+  @destructive
+  Scenario: Deploy logging with replicas Elasticsearch
+    Given the master version >= "3.7"
+    Given environment has at least 3 nodes
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18806/inventory |
+    And a pod becomes ready with labels:
+      | component=es |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then I perform the HTTP request on the ES pod:
+      | relative_url | /project.install_test.*/_settings?output=JSON |
+      | op           | GET                                          |
+    Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_replicas') == "1"
+    Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_shards') == "1"
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16898
+  @admin
+  @destructive
+  Scenario: Use index names of project.project_name.project_uuid.xxx in Elasticsearch
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project_name clipboard
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
+    And logging service is installed in the system
+    And a pod becomes ready with labels:
+      | component=es |
+    # index takes over 10 minutes to come up initially
+    And I use the "<%= cb.org_project_name %>" project
+
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    And I execute on the pod:
+      | bash                                                                    |
+      | -c                                                                      |
+      | ls /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
+    And the output should contain:
+      | project.<%= project.name %>.<%= project.uid %>.<%= Time.now.strftime('%Y')%>.<%= Time.now.strftime('%m')%>.<%= Time.now.strftime('%d')%> |
+    """
+
+
+  # @author pruan@redhat.com
+  # @case_id OCP-18090
+  @admin
+  @destructive
+  Scenario: Cluster-admin view Elasticsearch cluster/monitor endpoints
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18090/inventory |
+    And I wait until the ES cluster is healthy
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And evaluation of `%w(_cat/indices _cat/aliases _cat/nodes _cluster/health)` is stored in the :urls clipboard
+    Given I repeat the following steps for each :url in cb.urls:
+    """
+    And I perform the HTTP request:
+    <%= '"""' %>
+      :url: https://<%= route('logging-es').dns %>/#{cb.url}?output=JSON
+      :method: get
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    <%= '"""' %>
+    Then the expression should be true> @result[:exitstatus] == 200
+    """
