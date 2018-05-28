@@ -539,3 +539,17 @@ Given /^nodes have #{NUMBER} #{WORD} hugepages configured$/ do |num, word|
     Given the node service is restarted on the host
   }
 end
+
+Given /^(schedulable )?nodes matching default nodes selector are stored in the#{OPT_SYM} clipboard$/ do |schedulable, cbname|
+  ensure_admin_tagged
+  step %Q{the value with path "['projectConfig']['defaultNodeSelector']" in master config is stored into the :defaultnodeselector clipboard}
+  opts = []
+  if cb[:defaultnodeselector]
+    opts << [:l, cb[:defaultnodeselector]]
+  end
+  if schedulable
+    cb[cbname] = env.nodes(opts: opts).select { |n| n.schedulable? }
+  else
+    cb[cbname] = env.nodes(opts: opts)
+  end
+end
