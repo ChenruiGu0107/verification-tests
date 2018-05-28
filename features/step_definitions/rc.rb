@@ -22,7 +22,7 @@ ready_timeout = 300
     user: user,
     state: state,
     seconds: ready_timeout,
-    replica_count: number.to_i
+    ready: number.to_i
   )
 
   unless @result[:success]
