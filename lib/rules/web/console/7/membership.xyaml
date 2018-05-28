@@ -124,6 +124,7 @@ add_role_on_membership:
     save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
+  action: click_show_hidden_roles
   action: select_role_on_membership
   action: add_name_on_membership
   action: click_add_button_on_membership
@@ -204,3 +205,9 @@ check_restrict_rolebinding_message_on_membership:
     selector:
        xpath: >-
          //div//span[contains(text(),'rolebindings "<role>" is forbidden: rolebindings to <output_word> "<name>" are not allowed in project "<project_name>"')]
+click_show_hidden_roles:
+  element:
+    selector:
+      class: toggle-hidden
+    type: input
+    op: click
