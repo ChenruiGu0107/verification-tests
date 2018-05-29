@@ -118,6 +118,7 @@ Feature: Storage object in use protection
     Given feature gate "PVCProtection" is disabled with admission "PVCProtection" disabled
     Given I ensure "mypod" pod is deleted
     And I ensure "mypvc" pvc is deleted
+    Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear
 
   # @author lxia@redhat.com
