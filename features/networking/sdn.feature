@@ -860,3 +860,20 @@ Feature: SDN related networking scenarios
       | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null |
     Then the step should succeed
     And the output should not contain "<%= cb.hostip %>"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-18535
+  @admin
+  Scenario: should not show "No such device" message when run "ovs-vsctl show" command
+    Given I have a project
+    And I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
+    When I run the :delete client command with:
+      | object_type       | pods      |
+      | object_name_or_id | hello-pod |
+    Then the step should succeed
+    Given I wait for the resource "pod" named "hello-pod" to disappear
+    When I run the ovs commands on the host:
+      | ovs-vsctl show |
+    Then the step should succeed
+    And the output should not contain "No such device"
