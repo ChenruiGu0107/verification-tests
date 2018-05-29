@@ -46,6 +46,7 @@ Feature: groups and users related features
   # @case_id OCP-12198
   @admin
   Scenario: Create/Edit/delete the cluster group
+    Given I have a project
     When I run the :oadm_groups_new admin command with:
       | group_name | <%= project.name %>group |
     Then the step should succeed

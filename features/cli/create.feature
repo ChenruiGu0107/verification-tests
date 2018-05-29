@@ -109,17 +109,17 @@ Feature: creating 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
       | n | noproject |
     Then the step should fail
-    Then the output should contain "User "<%=@user.name%>" cannot create deploymentconfigs in project "noproject""
+    Then the output should match "User "<%=@user.name%>" cannot create deploymentconfigs.* in project "noproject""
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
       | n | noproject |
     Then the step should fail
-    Then the output should contain "User "<%=@user.name%>" cannot create imagestreams in project "noproject""
+    Then the output should match "User "<%=@user.name%>" cannot create imagestreams.* in project "noproject""
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
       | n | noproject |
     Then the step should fail
-    Then the output should contain "User "<%=@user.name%>" cannot create templates in project "noproject""
+    Then the output should match "User "<%=@user.name%>" cannot create templates.* in project "noproject""
 
   # @author anli@redhat.com
   # @case_id OCP-11075
