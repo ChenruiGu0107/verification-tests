@@ -11,17 +11,26 @@ Feature: containers related features
     When I run the :exec client command with:
       | pod | <%= cb.pod_name %>  |
     #| c | hello-openshift |
-      | exec_command | cat  |
+      | exec_command     | cat               |
       | exec_command_arg |/etc/redhat-release|
     Then the output should contain:
       | CentOS Linux release 7.0.1406 (Core) |
     When I run the :exec client command with:
-      | pod | <%= cb.pod_name %>  |
-      | c | hello-openshift-fedora |
-      | exec_command | cat         |
-      | exec_command_arg |/etc/redhat-release|
+      | pod              | <%= cb.pod_name %>     |
+      | c                | hello-openshift-fedora |
+      | exec_command     | cat                    |
+      | exec_command_arg | /etc/redhat-release    |
     Then the output should contain:
       | Fedora release 21 (Twenty One) |
+    # cover bug #1517212
+    When I run the :exec client command with:
+      | pod              | <%= cb.pod_name %>  |
+      | t                |                     |
+      | i                |                     |
+      | exec_command     | cat                 |
+      | exec_command_arg | /etc/redhat-release |
+    Then the output should contain:
+      | CentOS Linux release 7.0.1406 (Core) |
 
   # @author xxing@redhat.com
   # @case_id OCP-12378
