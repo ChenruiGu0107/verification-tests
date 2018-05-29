@@ -56,7 +56,7 @@ Feature: Upgrade images feature
     Then the step should succeed
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json"
     And I replace lines in "postgresql-persistent-template.json":
-      | "value": "9.5"       | "value": "<version>"           |
+      | "value": "9.6"       | "value": "<version>"           |
       | "value": "openshift" | "value": "<%= project.name %>" |
     Then the step should succeed
     When I run the :new_app client command with:
