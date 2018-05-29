@@ -127,4 +127,5 @@ Feature: ResourceQuata for storage
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound
     Given I ensure "pvc1-<%= project.name %>" pvc is deleted
+    Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds

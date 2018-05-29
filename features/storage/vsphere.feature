@@ -47,6 +47,7 @@ Feature: vSphere test scenarios
     # Testing reclaim policy
     Given I ensure "mypod" pod is deleted
     And I ensure "pvc-<%= project.name %>" pvc is deleted
+    Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 60 seconds
 
     Examples:

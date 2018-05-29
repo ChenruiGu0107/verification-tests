@@ -114,5 +114,6 @@ Feature: CephFS storage plugin testing
 
     Given I ensure "cephfs-<%= project.name %>" pod is deleted
     And I ensure "pvc-<%= project.name %>" pvc is deleted
+    Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 120 seconds
 
