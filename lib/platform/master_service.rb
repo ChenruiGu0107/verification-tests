@@ -40,23 +40,26 @@ module CucuShift
         @api_url ||= "https://#{host.hostname}:#{local_api_port}"
       end
 
-      private def wait_start
+      private def wait_start(**opts)
         res = {}
         success = wait_for(expected_load_time, interval: 5) {
           (res = Http.get(url: api_url))[:success]
         }
+        if opts[:raise] && !success
+          raise "API did not start responding on #{host.hostname}"
+        end
         return res
       end
 
       def start(**opts)
-        CucuShift::ResultHash.aggregate_results([super, wait_start])
+        CucuShift::ResultHash.aggregate_results([super, wait_start(**opts)])
       end
 
       def restart(**opts)
-        super
+        res = super
         # no better idea than hardcoding time needed for node to react on master restart command
         sleep 10
-        CucuShift::ResultHash.aggregate_results([super, wait_start])
+        CucuShift::ResultHash.aggregate_results([res, wait_start(**opts)])
       end
     end
   end

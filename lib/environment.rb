@@ -175,6 +175,9 @@ module CucuShift
         is = ImageStream.new(name: "jenkins",
                              project: Project.new(name: "openshift", env: self))
         @system_docker_repo = is.latest_tag_status(user: users[0]).imageref.repo
+        unless @system_docker_repo.empty? || @system_docker_repo.end_with?("/")
+          @system_docker_repo = "#{@system_docker_repo}/"
+        end
       end
       return @system_docker_repo
     end
