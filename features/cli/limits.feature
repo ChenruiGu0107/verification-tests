@@ -308,11 +308,14 @@ Feature: limit range related scenarios:
       | source_type  | docker                    |
       | source       | openshift/hello-openshift |
       | dest         | mystream:v2               |
+    And I wait for the steps to pass:
+    """
     And I run the :describe client command with:
       |resource | imagestream |
       | name    | mystream    |
     And the output should contain:
       | Import failed |
+    """
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I select a random node's host
     When I run commands on the host:

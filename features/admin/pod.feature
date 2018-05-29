@@ -889,7 +889,8 @@ Feature: pod related features
       | name     | hello-statefulset |
       | replicas | 5                 |
     Then the step should succeed
-    Given I wait until number of replica_count match "5" for StatefulSet "hello-statefulset"
+    Given 5 pods become ready with labels:
+      | app=hello-pod  |
     When I run the :label client command with:
       | resource  | pods     |
       | all       | true     |

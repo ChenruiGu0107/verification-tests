@@ -84,7 +84,8 @@ Feature: oc_env.feature
       | e        | pe#cial%=1234 |
     Then the step should fail
     And the output should match:
-      | can only contain letters, numbers, and underscores |
+      | error: environment variables must be of the form |
+
   # @author yapei@redhat.com
   # @case_id OCP-11715
   Scenario: Update environment variables for resources
