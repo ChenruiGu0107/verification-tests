@@ -1,13 +1,9 @@
-require_relative 'container_spec'
-
 module CucuShift
   class Container
     include Common::Helper
-    attr_reader :default_user
 
-    def initialize(name:, pod:, default_user:)
+    def initialize(name:, pod:)
       @name = name
-      @default_user = default_user
       if pod.kind_of? Pod
         @pod = pod
       else
@@ -17,8 +13,7 @@ module CucuShift
 
     # return @Hash information of container status matching the @name variable
     def status(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      container_statuses = @pod.get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)['containerStatuses']
+      container_statuses = @pod.status_raw(user: user, cached: cached, quiet: quiet)['containerStatuses']
       stat = {}
       container_statuses.each do | cs |
         stat = cs if cs['name'] == @name
@@ -28,44 +23,35 @@ module CucuShift
 
     # return @Hash information of container spec matching the @name variable
     def spec(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      container_spec = @pod.get_cached_prop(prop: :containers, user: user, cached: cached, quiet: quiet)
-      spec = {}
-      container_spec.each do | cs |
-        spec = cs if cs['name'] == @name
-      end
-      return ContainerSpec.new spec
+      @pod.container_specs(user: user, cached: cached, quiet: quiet).find { |cs|
+        cs.name == name
+      }
     end
 
     ## status related information for the container @name
     def id(user: nil, cached: true, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       # handle docker:// and cri-o://, basically we are assuming all will have xxx://<container_id>
       return res['containerID'].split("://").last
     end
 
     def image(user: nil, cached: true, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['image'].split('@sha256:')[0]
     end
 
     def image_id(user: nil, cached: true, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['imageID'].split('sha256:').last
     end
 
     def name(user: nil, cached: true, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['name']
     end
 
     # returns @Boolean representation of the container state
     def ready?(user: nil, cached: true, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['ready']  # return @status['ready']
     end
@@ -124,16 +110,13 @@ module CucuShift
 
     # containterStatuses related methods, need to keyed off by container name
     def restart_count(user: nil, cached: false, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['restartCount']
     end
 
     def state(user: nil, cached: false, quiet: false)
-      user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
       return res['state']
     end
-
   end
 end

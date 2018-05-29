@@ -1,6 +1,7 @@
 require 'openshift/project_resource'
 
 require 'openshift/flakes/container'
+require 'openshift/flakes/container_spec'
 require 'openshift/flakes/pod_volume_spec'
 
 module CucuShift
@@ -148,18 +149,28 @@ module CucuShift
       return spec["supplementalGroups"]
     end
 
-    # @return [Array] Container objects belonging to a pod
+    # @return [Array<Container>] container objects belonging to a pod
     def containers(user: nil, cached: true, quiet: false)
       unless cached && props[:containers]
-        spec = raw_resource(user: user, cached: cached, quiet: quiet).
-          dig("spec", "containers")
-        props[:containers] = spec.map do | container |
-        CucuShift::Container.new( name: container['name'],
-                                 pod: self,
-                                 default_user: user)
-        end
+        props[:containers] = container_specs(user: user,
+                                             cached: cached,
+                                             quiet: quiet).map { |spec|
+          CucuShift::Container.new(name: spec.name, pod: self)
+        }
       end
       return props[:containers]
+    end
+
+    # @return [Array<ContainerSpec>]
+    def container_specs(user: nil, cached: true, quiet: false)
+      unless cached && props[:container_specs]
+        specs = raw_resource(user: user, cached: cached, quiet: quiet).
+          dig("spec", "containers")
+        props[:container_specs] = specs.map { |spec|
+          ContainerSpec.new spec
+        }
+      end
+      return props[:container_specs]
     end
 
     # return the Container object matched by the lookup parameter
@@ -218,18 +229,16 @@ module CucuShift
       }.map(&:claim)
     end
 
-    def env_var(name, container: nil, user: nil)
-      if props[:containers].nil?
-        self.get(user: user)
-      end
-      if props[:containers].length == 1 && !container
-        env_var = props[:containers][0]["env"].find { |env_var| env_var["name"] == name }
+    def env_var(name, container: nil, user: nil, cached: true, quiet: false)
+      if containers(user: user, cached: cached, quiet: quiet).length == 1 &&
+          !container
+        env_var = containers.first.spec.env.find { |e| e["name"] == name }
       elsif container
-        container_hash = props[:containers].find { |c| c["name"] == container }
-        if container_hash.nil?
-          raise "No container with name #{container} found..."
-        end
-        env_var = container_hash["env"].find { |env_var| env_var["name"] == name }
+        env_var = container(cached: true, name: container).spec.env.find { |e|
+          e["name"] == name
+        }
+      else
+        raise "please specify container to get variable of"
       end
       return env_var && env_var["value"]
     end

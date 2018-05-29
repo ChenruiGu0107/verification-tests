@@ -1,4 +1,3 @@
-require 'openshift/pod_replicator'
 require 'base_helper'
 
 module CucuShift

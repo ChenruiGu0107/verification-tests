@@ -2327,7 +2327,7 @@ Feature: deployment related features
       | ready | 1 |
     And status becomes :running of 1 pods labeled:
       | app=deployment-example |
-    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    And the expression should be true> pod.containers[0].spec.image == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
     And current replica set name of "deployment-example" deployment stored into :rs2 clipboard
     When I run the :tag client command with:
       | source_type | docker                          |
@@ -2339,7 +2339,7 @@ Feature: deployment related features
       | ready | 1 |
     Given status becomes :running of 1 pods labeled:
       | app=deployment-example |
-    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+    And the expression should be true> pod.containers[0].spec.image == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
 
   # @author chuyu@redhat.com
   # @case_id OCP-15155
@@ -2361,7 +2361,7 @@ Feature: deployment related features
     Given status becomes :running of 1 pods labeled:
       | run=app |
     And current replica set name of "app" deployment stored into :rs1 clipboard
-    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    And the expression should be true> pod.containers[0].spec.image == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
     When I run the :tag client command with:
       | source_type | docker                          |
       | source      | openshift/deployment-example:v2 |
@@ -2377,7 +2377,7 @@ Feature: deployment related features
       | ready | 1 |
     Given status becomes :running of 1 pods labeled:
       | run=app |
-    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+    And the expression should be true> pod.containers[0].spec.image == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
 
   # @author chuyu@redhat.com
   # @case_id OCP-15156
