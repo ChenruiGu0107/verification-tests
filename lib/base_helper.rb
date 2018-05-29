@@ -236,9 +236,9 @@ module CucuShift
         end
       end
 
-      def last_day_of_month(time=nil)
+      def last_second_of_month(time=nil)
         time ||= Time.now
-        return (Time.new(time.year, time.month + 1) - 1).day
+        return (Time.new(time.year, time.month + 1) - 1)
       end
 
       # supports only sane camel case strings

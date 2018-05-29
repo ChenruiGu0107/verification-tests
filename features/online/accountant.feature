@@ -56,3 +56,23 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | console_url | <%= env.web_console_url %> |
       | email       | <%= user.name %>           |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-12754
+  Scenario: Cancel and resume service - UI
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I run the :cancel_your_service_with_wrong_username web action
+    Then the step should succeed
+    When I run the :check_keep_current_plan web action
+    Then the step should succeed
+
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |
+    Then the step should succeed
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+    Then the step should succeed
