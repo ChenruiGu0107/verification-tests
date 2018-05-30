@@ -224,19 +224,19 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
 end
 
 Given /^I check feature gate #{QUOTED}(?: with admission #{QUOTED})? is enabled$/ do |fg, adm|
-  feature_gates_3_9 = Set[
+  non_default_feature_gates_3_9 = Set[
     'BlockVolume',
     'ExpandPersistentVolumes',
     'MountPropagation',
     'PersistentLocalVolumes',
     'PVCProtection'
   ]
-  feature_gates_3_10 = Set[
+  non_default_feature_gates_3_10 = Set[
     'BlockVolume',
     'ExpandPersistentVolumes'
   ]
-  if (env.version_eq("3.9", user: user) && feature_gates_3_9.include?("#{fg}")) ||
-     (env.version_eq("3.10", user: user) && feature_gates_3_10.include?("#{fg}"))
+  if (env.version_eq("3.9", user: user) && non_default_feature_gates_3_9.include?("#{fg}")) ||
+     (env.version_eq("3.10", user: user) && non_default_feature_gates_3_10.include?("#{fg}"))
     env.master_services.each { |service|
       master_config = service.config
       config_hash = master_config.as_hash()
