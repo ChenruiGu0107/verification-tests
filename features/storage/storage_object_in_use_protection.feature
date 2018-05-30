@@ -95,7 +95,7 @@ Feature: Storage object in use protection
       | resource | pod    |
       | name     | newpod |
     Then the step should succeed
-    And the output should contain "already used"
+    And the output should contain "being delete"
     """
 
   # @author lxia@redhat.com
