@@ -37,6 +37,7 @@ click_confirm_plan_change_button:
   elements:
   - selector:
       xpath: //button[contains(.,"Confirm Plan Change")]
+    timeout: 60
     op: click
 check_error_message_for_quota:
   elements:
