@@ -319,6 +319,48 @@ check_image_configuration_on_bc_edit_page:
   #     image_type: Docker Image
   #     ref: check_docker_image_on_bc_edit_page
 
+# Triggers
+add_webhook_on_bc_edit_page:
+  action: click_to_goto_edit_bc_page
+  action: click_to_show_advanced_options
+  action: click_add_webhook
+  action: select_webhook_type
+  action: select_webhook_secret
+add_webhook_by_create_new_secret:
+  params:
+    secret_name: <new_secret_name>
+  action: click_add_webhook
+  action: select_webhook_type
+  action: click_create_new_webhook_secret
+  action: create_webhook_secret_in_modal
+  action: select_webhook_secret
+click_add_webhook:
+  element:
+    selector:
+      xpath: //button[contains(text(),'Add Webhook')]
+    op: click
+click_create_new_webhook_secret:
+  element:
+    selector:
+      xpath: //button[contains(text(),'Create New Webhook Secret')]
+    op: click
+select_webhook_type:
+  elements:
+  - selector:
+      xpath: //div[contains(@ng-repeat, 'trigger in')][last()]//span[text()='Webhook type']
+    op: click
+  - selector:
+      xpath: //ul[contains(@class,'ui-select-choices')]//span[contains(text(), '<webhook_type>')]
+    op: click
+select_webhook_secret:
+  elements:
+  - selector:
+      xpath: //div[contains(@ng-repeat, 'trigger in')][last()]//span[text()='Webhook secret reference']
+    op: click
+  - selector:
+      xpath: //ul[contains(@class,'ui-select-choices')]//div[contains(text(), '<secret_name>')]
+    op: click
+
 # Environment Variables
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
@@ -326,11 +368,6 @@ change_env_vars_on_buildconfig_edit_page:
 delete_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: delete_env_var
-add_webhook_type_on_bc_edit_page:
-  action: click_to_goto_edit_bc_page
-  action: click_to_show_advanced_options
-  action: add_webhook_type
-  action: click_save_button
 check_bc_github_webhook_trigger_on_bc_edit_page: {}
 check_bc_generic_webhook_trigger_on_bc_edit_page: {}
 check_bc_webhook_trigger_on_bc_edit_page:
@@ -350,17 +387,6 @@ toggle_bc_image_change:
 toggle_bc_cache:
   action: check_buildconfig_edit_page_loaded_completely
   action: toggle_cache_on_bc_edit_page
-add_webhook_type:
-  elements:
-  - selector:
-       xpath: //span[text()="Select a webhook type"]
-    op: click
-  - selector:
-       xpath: //ul[contains(@class,'ui-select-choices')]//span[contains(text(),"<webhook_type>")]
-    op: click
-  - selector:
-       xpath: //div[@class="add-webhook"]//a[@role="button" and contains(text(),"Add")]
-    op: click
 enable_webhook_build_trigger:
   action: check_buildconfig_edit_page_loaded_completely
   elements:

@@ -132,6 +132,7 @@ module CucuShift
     alias hpa horizontal_pod_autoscaler
     alias rc replication_controller
     alias rs replica_set
+    alias bc build_config
     alias dc deployment_config
     alias istag image_stream_tag
     alias pvc persistent_volume_claim
