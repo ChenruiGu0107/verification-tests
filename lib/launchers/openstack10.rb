@@ -125,7 +125,7 @@ module CucuShift
       if self.os_token && self.token_valid?
         return @os_token
       else
-        params = self.os_url.include?("/v3/") ? auth_payload_v3 : auth_payload_v2
+        res = self.os_url.include?("/v3/") ? auth_payload_v3 : auth_payload_v2
         unless @os_token
           logger.error res.to_yaml
           raise "Could not obtain proper token"
@@ -616,7 +616,7 @@ module CucuShift
       res = self.rest_run(url, "GET", params, self.os_token)
       result = res[:parsed]
       result['floatingips'].shuffle.each do | ip |
-        if ip['port_id'] == nil
+        if ip['port_id'] == nil && self.os_tenant_id == ip["tenant_id"]
           assigning_ip = ip
           logger.info("The floating ip is #{assigning_ip["floating_ip_address"]}")
           break

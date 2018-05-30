@@ -3,29 +3,20 @@
 Given /^master config is merged with the following hash:$/ do |yaml_string|
   ensure_destructive_tagged
 
-  yaml_hash = YAML.load(yaml_string)
-
-
   env.master_services.each { |service|
-    master_config = service.config
-    config_hash = master_config.as_hash()
-    CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
-    config = config_hash.to_yaml
-    logger.info config
-    master_config.backup()
-    @result = master_config.update(config)
+    service_config = service.config
+    service_config.merge! yaml_string
 
     teardown_add {
-      master_config.restore()
+      service_config.restore
     }
   }
-
 end
 
 Given /^master config is restored from backup$/ do
-  env.master_services.each { |service|
-    @result = service.config.restore()
-  }
+  @result = CucuShift::ResultHash.aggregate_results(
+    *env.master_services.map { |s| s.config.restore() }
+  )
 end
 
 #Given(/^admin will download the master config to "(.+?)" file$/) do |file|

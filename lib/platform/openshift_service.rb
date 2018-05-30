@@ -1,11 +1,14 @@
 module CucuShift
   module Platform
     class OpenShiftService
-      attr_reader :service, :host
+      attr_reader :service, :host, :env
       private :service
 
-      def initialize(host)
+      # @param host [Host]
+      # @param env [Environment]
+      def initialize(host, env)
         @host = host
+        @env = env
       end
 
       def start(**opts)

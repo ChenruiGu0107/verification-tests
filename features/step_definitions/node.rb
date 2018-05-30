@@ -311,26 +311,16 @@ end
 Given /^config of all( schedulable)? nodes is merged with the following hash:$/ do |schedulable, yaml_string|
   ensure_destructive_tagged
 
-  yaml_hash = YAML.load(yaml_string)
   nodes = env.nodes.select { |n| !schedulable || n.schedulable? }
   services = nodes.map(&:service)
 
   services.each { |service|
     service_config = service.config
-    if service_config.exists?
-      config_hash = service_config.as_hash()
-      CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
-      config = config_hash.to_yaml
-      logger.info config
-      service_config.backup()
-      @result = service_config.update(config)
+    service_config.merge! yaml_string
 
-      teardown_add {
-        service_config.restore()
-      }
-    else
-      raise "The node config file does not exists on this node!"
-    end
+    teardown_add {
+      service_config.restore()
+    }
   }
 end
 
@@ -338,33 +328,23 @@ Given /^node#{OPT_QUOTED} config is merged with the following hash:$/ do |node_n
   ensure_destructive_tagged
 
   service_config = node(node_name).service.config
-  if service_config.exists?
-    config_hash = service_config.as_hash()
-    CucuShift::Collections.deep_merge!(config_hash, YAML.load(yaml_string))
-    config = config_hash.to_yaml
-    logger.info config
-    service_config.backup()
-    @result = service_config.update(config)
+  service_config.merge! yaml_string
 
-    teardown_add {
-      service_config.restore()
-    }
-  else
-    raise "The node config file does not exists on this node!"
-  end
-
+  teardown_add {
+    service_config.restore()
+  }
 end
 
 Given /^all nodes config is restored$/ do
-  ensure_admin_tagged
-  env.nodes.map(&:service).each { |service|
-    @result = service.config.restore()
-  }
+  ensure_destructive_tagged
+  CucuShift::ResultHash.aggregate_results(
+    *env.nodes.map(&:service).each { |s| s.config.restore() }
+  )
 end
 
 
 Given /^node#{OPT_QUOTED} config is restored from backup$/ do |node_name|
-  ensure_admin_tagged
+  ensure_destructive_tagged
   @result = node(node_name).service.config.restore()
 end
 
@@ -381,11 +361,7 @@ Given /^the node service is restarted on all( schedulable)? nodes$/ do |schedula
   services = nodes.map(&:service)
 
   services.each { |service|
-    if service.config.exists?
-      service.restart(raise: true)
-    else
-      raise "The node config file does not exists on this node!"
-    end
+    service.restart(raise: true)
   }
 end
 
@@ -401,11 +377,7 @@ Given /^I try to restart the node service on all( schedulable)? nodes$/ do |sche
   services = nodes.map(&:service)
 
   services.each { |service|
-    if service.config.exists?
-      results.push(@result = service.restart)
-    else
-      raise "The node config file does not exists on this node!"
-    end
+    results.push(@result = service.restart)
   }
 
   @result = CucuShift::ResultHash.aggregate_results(results)

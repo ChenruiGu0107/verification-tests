@@ -51,7 +51,7 @@ module CucuShift
     end
 
     def service
-      @service ||= CucuShift::Platform::NodeService.discover(host)
+      @service ||= CucuShift::Platform::NodeService.discover(host, env)
     end
 
     def schedulable?(user: nil, cached: true, quiet: false)
@@ -117,7 +117,7 @@ module CucuShift
       hp = obj.dig("status", "allocatable", "hugepages-"+size)
       return hp ? convert_to_bytes(hp) : 0
     end
-    
+
     def hugepages_supported?(user: nil, cached: true, quiet: false)
       obj = raw_resource(user: user, cached: cached, quiet: quiet)
       return obj.dig("status", "allocatable")&.keys&.any? {|k| k.start_with? "hugepages-"}
