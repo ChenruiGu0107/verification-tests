@@ -63,3 +63,28 @@ Given /^I log in to jenkins$/ do
       })
   end
 end
+
+Given /^I update #{QUOTED} slave image for jenkins #{NUMBER} server$/ do |slave_name,jenkins_version|
+  le39 = env.version_le("3.9", user: user)
+
+  step 'I store master major version in the clipboard'
+  if le39 or jenkins_version == '1'
+    step %Q/I perform the :jenkins_update_cloud_image web action with:/, table(%{
+      | currentimgval | registry.access.redhat.com/openshift3/jenkins-slave-#{slave_name}-rhel7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-#{slave_name}-rhel7:v<%= cb.master_version %> |
+      })
+    step 'the step should succeed'
+  elsif slave_name == 'maven'
+    step %Q/I perform the :jenkins_update_cloud_image web action with:/, table(%{
+      | currentimgval | registry.access.redhat.com/openshift3/jenkins-agent-maven-35-rhel7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-agent-maven-35-rhel7:v<%= cb.master_version %> |
+      })
+    step 'the step should succeed'
+  elsif slave_name == 'nodejs'
+    step %Q/I perform the :jenkins_update_cloud_image web action with:/, table(%{
+      | currentimgval | registry.access.redhat.com/openshift3/jenkins-agent-nodejs-8-rhel7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-agent-nodejs-8-rhel7:v<%= cb.master_version %> |
+      })
+    step 'the step should succeed'
+  end
+end

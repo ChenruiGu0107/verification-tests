@@ -33,9 +33,16 @@ Feature: pipelinebuild.feature
       | resource_name | sample-pipeline                                                                                                           |
       | p             | {"spec": {"source": { "git": {"uri": "http://git:8080/jenkins-pipeline-test.git"},"sourceSecret": {"name": "mysecret"}}}} |
     Then the step should succeed
-    When a pod becomes ready with labels:
-      | deploymentconfig=jenkins |
-      | deployment=jenkins-1     |
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready up to 300 seconds
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<tag>/                               |    
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
+    Given I log in to jenkins
+    Then the step should succeed
+    Given I update "nodejs" slave image for jenkins <tag> server
+    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -87,9 +94,16 @@ Feature: pipelinebuild.feature
       | resource_name | sample-pipeline                                          |
       | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"}}}} |
     Then the step should succeed
-    When a pod becomes ready with labels:
-      | deploymentconfig=jenkins |
-      | deployment=jenkins-1     |
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready up to 300 seconds
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<tag>/                               |    
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
+    Given I log in to jenkins
+    Then the step should succeed
+    Given I update "nodejs" slave image for jenkins <tag> server
+    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -116,7 +130,6 @@ Feature: pipelinebuild.feature
   # @case_id OCP-17229
   Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
     Given I have a project
-    Given I store master major version in the clipboard
     And I have a persistent jenkins v2 application      
     When I have an http-git service in the project
     And I run the :env client command with:
@@ -157,9 +170,7 @@ Feature: pipelinebuild.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7:v<%= cb.master_version %> |
+    Given I update "maven" slave image for jenkins "2" server
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |
@@ -211,7 +222,6 @@ Feature: pipelinebuild.feature
   # @case_id OCP-17315
   Scenario: Sync openshift secret to credential in jenkins with ssh-auth type 
     Given I have a project
-    Given I store master major version in the clipboard
     And I have a persistent jenkins v2 application
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
@@ -243,9 +253,7 @@ Feature: pipelinebuild.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7:v<%= cb.master_version %> |
+    Given I update "maven" slave image for jenkins "2" server
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret |

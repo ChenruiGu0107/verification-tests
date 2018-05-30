@@ -63,7 +63,6 @@ Feature: jenkins.feature
   # @case_id OCP-10884 OCP-10979
   Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
-    Given I store master major version in the clipboard
     And I have an persistent jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
@@ -76,9 +75,9 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7 |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7:v<%= cb.master_version %> |
+    Given I update "maven" slave image for jenkins <ver> server
+    Then the step should succeed
+    Given I update "nodejs" slave image for jenkins <ver> server
     Then the step should succeed
     Given I get project buildconfigs
     Then the output should contain:
@@ -1212,7 +1211,6 @@ Feature: jenkins.feature
   # @author cryan@redhat.com xiuwang@redhat.com
   Scenario Outline: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
     Given I have a project
-    Given I store master major version in the clipboard
     Given I have an ephemeral jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
@@ -1225,9 +1223,7 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35" : "jenkins-slave-maven" %>-rhel7 |
-      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7:v<%= cb.master_version %>                                                 |
+    Given I update "maven" slave image for jenkins <version> server
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
@@ -2386,7 +2382,6 @@ Feature: jenkins.feature
   # @author xiuwang@redhat.com
   Scenario Outline: Using nodejs slave when do jenkinspipeline strategy
     Given I have a project
-    Given I store master major version in the clipboard
     Given I have an ephemeral jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
@@ -2399,9 +2394,7 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8" : "jenkins-slave-nodejs" %>-rhel7 |
-      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-nodejs-rhel7:v<%= cb.master_version %>                                                 |
+    Given I update "nodejs" slave image for jenkins <version> server
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -2426,7 +2419,6 @@ Feature: jenkins.feature
   # @author wewang@redhat.com
   # @case_id OCP-11372
   Scenario: Sync builds from jenkins to openshift
-    Given I store master major version in the clipboard
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
@@ -2439,13 +2431,9 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>:v<%= cb.master_version %> |
+    Given I update "maven" slave image for jenkins "2" server
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8-rhel7" : "jenkins-slave-nodejs-rhel7" %>                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-nodejs-8-rhel7" : "jenkins-slave-nodejs-rhel7" %>:v<%= cb.master_version %> |
+    Given I update "nodejs" slave image for jenkins "2" server
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -2485,7 +2473,6 @@ Feature: jenkins.feature
   # @case_id OCP-15197
     @admin
   Scenario: Using jenkins slave maven image to do pipeline build with limited resource
-    Given I store master major version in the clipboard
     And I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-15196/limitrange.json |
@@ -2502,9 +2489,7 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    When I perform the :jenkins_update_cloud_image web action with:
-      | currentimgval | registry.access.redhat.com/openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>                          |
-      | cloudimage    | <%= product_docker_repo %>openshift3/<%= env.version_ge("3.10", user: user) ? "jenkins-agent-maven-35-rhel7" : "jenkins-slave-maven-rhel7" %>:v<%= cb.master_version %> |
+    Given I update "maven" slave image for jenkins "2" server
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
