@@ -120,9 +120,7 @@ Feature: Egress-ingress related networking scenarios
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "2 min ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "2m" ago
     And the output should contain:
       | multiple EgressNetworkPolicies in same network namespace |
       | dropping all traffic                                     |
