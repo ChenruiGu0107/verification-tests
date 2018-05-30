@@ -609,56 +609,33 @@ Feature: deployment related features
 
   # @author cryan@redhat.com
   # @case_id OCP-10648
-  Scenario: Roll back via CLI
+  Scenario: Rollback via CLI when previous version failed
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    When I run the :new_app client command with:
+      | app_repo | aosqe/hello-openshift |
+      | name     | mydc                  |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
-    Then the step should succeed
-    And I replace lines in "deployment1.json":
-      | user8Y2      | usernew                         |
-      | "status": {} | "status": {"latestVersion":"2"} |
-    Given I wait until the status of deployment "hooks" becomes :complete
-    When I run the :replace client command with:
-      | f | deployment1.json |
-    Then the step should succeed
-    Given I wait until the status of deployment "hooks" becomes :complete
+    And I wait until the status of deployment "mydc" becomes :complete
 
     # Workaround: the below steps make a failed deployment instead of --cancel
-    Given I successfully patch resource "dc/hooks" with:
-      | {"spec":{"strategy":{"recreateParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
+    Given I successfully patch resource "dc/mydc" with:
+      | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ]}, "failurePolicy": "Abort" }}}}} |
     When I run the :deploy client command with:
-      | deployment_config | hooks |
+      | deployment_config | mydc  |
       | latest            |       |
     Then the step should succeed
-    And the output should contain "Started deployment #3"
-    And I wait until the status of deployment "hooks" becomes :failed
+    And the output should contain "Started deployment #2"
+    And I wait until the status of deployment "mydc" becomes :failed
 
     # Remove the pre-hook introduced by the above workaround,
     # otherwise later deployment will always fail
-    Given I successfully patch resource "dc/hooks" with:
-      | {"spec":{"strategy":{"recreateParams":{"pre":null}}}} |
+    Given I successfully patch resource "dc/mydc" with:
+      | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
     When I run the :rollback client command with:
-      | deployment_name   | hooks |
+      | deployment_name   | mydc |
     Then the step should succeed
-    # Deployment #4
-    And the output should contain "rolled back to hooks-2"
-
-    Given I wait until the status of deployment "hooks" becomes :complete
-    When I run the :rollback client command with:
-      | deployment_name   | hooks |
-      | to_version        | 1     |
-    Then the step should succeed
-    # Deployment #5
-    And the output should contain "rolled back to hooks-1"
-
-    Given I wait until the status of deployment "hooks" becomes :complete
-    When I run the :rollback client command with:
-      | deployment_name | dc/hooks |
-    Then the step should succeed
-    # Deployment #6
-    And the output should contain "rolled back to hooks-4"
+    # Deployment #3
+    And the output should contain "rolled back to mydc-1"
 
   # @author pruan@redhat.com
   # @case_id OCP-12528

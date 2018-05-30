@@ -321,7 +321,7 @@ Feature: oc global options (oc options) related scenarios
       | f                | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
       | request-timeout  | 1ms                                                                                               |
     Then the step should fail
-    And the output should match "request canceled.*imeout"
+    And the output should match "([Tt]imeout|[Uu]nable to connect)"
 
     Given a pod becomes ready with labels:
       | deployment=mydc-1 |
@@ -331,14 +331,14 @@ Feature: oc global options (oc options) related scenarios
       | replicas         | 2     |
       | request-timeout  | 1ms   |
     Then the step should fail
-    And the output should match "request canceled.*imeout"
+    And the output should match "([Tt]imeout|[Uu]nable to connect)"
 
     When I run the :oadm_add_role_to_user client command with:
       | role_name        | view               |
       | user_name        | <%= user.name %>   |
       | request-timeout  | 1ms                |
     Then the step should fail
-    And the output should match "request canceled.*imeout"
+    And the output should match "([Tt]imeout|[Uu]nable to connect)"
 
     When I run the :port_forward client command with:
       | request-timeout  | 60s                |
