@@ -4,6 +4,7 @@ module CucuShift
   # represents a tag status within an ImageStream, nothing to do with the
   #   ImageStreamTag resource
   class ImageStreamTagStatus
+    include Common::Helper
     attr_reader :raw, :name, :owner
     private :raw, :owner
 
@@ -24,16 +25,21 @@ module CucuShift
     end
 
     def imageref
-      events.first.imageref
+      # using the safe operator &. http://mitrev.net/ruby/2015/11/13/the-operator-in-ruby/
+      events.first&.imageref
     end
 
     # the method returns `items` element but `event` name was chosen as in
     #   documentation, these items are described as "TagEvent array"
     # https://docs.openshift.org/latest/rest_api/apis-image.openshift.io/v1.ImageStream.html
     def events
-      @events ||= raw["items"].map { |event_spec|
-        ImageStreamTagEvent.new(event_spec, self, owner)
-      }
+      if raw['items'].nil?
+        return []
+      else
+        @events ||= raw["items"].map { |event_spec|
+          ImageStreamTagEvent.new(event_spec, self, owner)
+        }
+      end
     end
   end
 end

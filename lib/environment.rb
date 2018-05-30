@@ -174,7 +174,9 @@ module CucuShift
       unless @system_docker_repo
         is = ImageStream.new(name: "jenkins",
                              project: Project.new(name: "openshift", env: self))
-        @system_docker_repo = is.latest_tag_status(user: users[0]).imageref.repo
+        imageref = is.latest_tag_status(user: users[0]).imageref
+        raise "image stream #{is.name} does not have image for latest tag" if imageref.nil?
+        @system_docker_repo = imageref.repo
         unless @system_docker_repo.empty? || @system_docker_repo.end_with?("/")
           @system_docker_repo = "#{@system_docker_repo}/"
         end
