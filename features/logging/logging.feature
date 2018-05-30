@@ -768,7 +768,7 @@ Feature: logging related scenarios
     """
     Then I perform the HTTP request on the ES pod:
       | relative_url | /project.install_test.*/_settings?output=JSON |
-      | op           | GET                                          |
+      | op           | GET                                           |
     Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_replicas') == "1"
     Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_shards') == "1"
     """
@@ -823,3 +823,21 @@ Feature: logging related scenarios
     <%= '"""' %>
     Then the expression should be true> @result[:exitstatus] == 200
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19205
+  @admin
+  @destructive
+  Scenario: Add .all alias when index is created
+    Given logging service is installed in the system
+    And I wait for the "project.install-test" index to appear in the ES pod with labels "component=es"
+    And I wait for the ".operations" index to appear in the ES pod
+    And a pod becomes ready with labels:
+      | component=es |
+    Then I perform the HTTP request on the ES pod:
+      | relative_url | /*/_alias?output=JSON |
+      | op           | GET                   |
+    And evaluation of ` @result[:parsed].select { |k, v| v.dig('aliases', '.all').is_a? Hash and k.start_with? 'project' }` is stored in the :res_proj clipboard
+    And evaluation of ` @result[:parsed].select { |k, v| v.dig('aliases', '.all').is_a? Hash and k.start_with? '.operation' }` is stored in the :res_op clipboard
+    Then the expression should be true> cb.res_proj.count > 0
+    Then the expression should be true> cb.res_op.count > 0
