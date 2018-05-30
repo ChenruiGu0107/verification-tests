@@ -126,7 +126,7 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZd | /mnt/azure |
     Then the step should succeed
-    And the output should contain:
+    And the output should match:
       | 24680                                    |
       | (svirt_sandbox_file_t\|container_file_t) |
       | s0:c2,c13                                |
@@ -173,7 +173,7 @@ Feature: storage security check
     When I execute on the pod:
       | ls | -lZ | /mnt/azure/testfile |
     Then the step should succeed
-    And the output should contain:
+    And the output should match:
       | 24680                                    |
       | (svirt_sandbox_file_t\|container_file_t) |
       | s0:c2,c13                                |
@@ -296,16 +296,20 @@ Feature: storage security check
     And the output should contain "123456"
     When I execute on the pod:
       | ls | -lZd | /mnt/git |
-    Then the outputs should contain:
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    Then the outputs should match:
+      | system_u:object_r                        |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0                                       |
     When I execute on the pod:
       | touch | /mnt/git/gitrepoVolume/file1 |
     Then the step should succeed
     When I execute on the pod:
       | ls | -lZ | /mnt/git/gitrepoVolume/file1 |
-    Then the outputs should contain:
-      | 1000130000 123456 |
-      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    Then the outputs should match:
+      | 1000130000 123456                        |
+      | system_u:object_r                        |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0                                       |
 
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
@@ -337,9 +341,10 @@ Feature: storage security check
       | exec_command     | ls              |
       | exec_command_arg | -lZd            |
       | exec_command_arg | /tmp/           |
-    Then the output should contain:
-      | 123456                         |
-      | svirt_sandbox_file_t:s0:c2,c13 |
+    Then the output should match:
+      | 123456                                   |
+      | s0:c2,c13                                |
+      | (svirt_sandbox_file_t\|container_file_t) |
     When I run the :exec client command with:
       | pod              | <%= pod.name %> |
       | c                | c1              |
@@ -353,9 +358,10 @@ Feature: storage security check
       | exec_command     | ls              |
       | exec_command_arg | -lZ             |
       | exec_command_arg | /tmp/           |
-    Then the output should contain:
-      | 1000160000 123456                    |
-      | svirt_sandbox_file_t:s0:c2,c13 file1 |
+    Then the output should match:
+      | 1000160000 123456                        |
+      | s0:c2,c13                                |
+      | (svirt_sandbox_file_t\|container_file_t) |
    When I run the :exec client command with:
       | pod              | <%= pod.name %> |
       | c                | c1              |
@@ -386,9 +392,10 @@ Feature: storage security check
       | exec_command     | ls              |
       | exec_command_arg | -lZd            |
       | exec_command_arg | /tmp/           |
-    Then the output should contain:
-      | 123456                         |
-      | svirt_sandbox_file_t:s0:c2,c13 |
+    Then the output should match:
+      | 123456                                   |
+      | s0:c2,c13                                |
+      | (svirt_sandbox_file_t\|container_file_t) |
     When I run the :exec client command with:
       | pod              | <%= pod.name %> |
       | c                | c2              |
@@ -402,7 +409,8 @@ Feature: storage security check
       | exec_command     | ls              |
       | exec_command_arg | -lZ             |
       | exec_command_arg | /tmp/           |
-    Then the output should contain:
-      | 1000160200 123456              |
-      | svirt_sandbox_file_t:s0:c2,c13 |
-      | file2                          |
+    Then the output should match:
+      | 1000160200 123456                        |
+      | s0:c2,c13                                |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | file2                                    |

@@ -80,10 +80,10 @@ Feature: Storage of Ceph plugin testing
     # Verify SELinux context is set properly
     When I execute on the "rbd-<%= project.name %>" pod:
       | ls | -lZd | /mnt/rbd |
-    Then the output should contain:
-      | 123456               |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+    Then the output should match:
+      | 123456                                   |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
 
     # Verify created file belongs to supplemental group
     Given I execute on the "rbd-<%= project.name %>" pod:
@@ -246,9 +246,9 @@ Feature: Storage of Ceph plugin testing
     # Test creating files
     When I execute on the pod:
       | ls | -lZd | /mnt/rbd/ |
-    Then the output should contain:
-      | 123456               |
-      | svirt_sandbox_file_t |
+    Then the output should match:
+      | 123456                                   |
+      | (svirt_sandbox_file_t\|container_file_t) |
 
     When I execute on the pod:
       | touch | /mnt/rbd/rbd_testfile |
