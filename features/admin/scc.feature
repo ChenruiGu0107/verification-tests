@@ -679,7 +679,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13573
+  # @case_id OCP-13573
   @admin
   Scenario: Verify the privileged SCC allow to request any capabilities
     Given I have a project
