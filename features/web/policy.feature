@@ -107,18 +107,13 @@ Feature:policy related features on web console
   @destructive
   Scenario: Cluster-admin disable access to project by remove cluster role from group
     Given I log the message> this scenario is only valid for oc >= 3.4
-    Given cluster roles are restored after scenario
     Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
-
-    Given I login via web console
-    When I get the html of the web page
-    Then the output should match:
-      | cluster admin can create a project for you    |
+    # Check in CLI
     When I run the :login client command with:
-      | server   | <%= env.api_endpoint_url %>        |
-      | token    | <%= user.cached_tokens.first %> |
-      | skip_tls_verify | true                        |
-      | config   | new.config                         |
+      | server          | <%= env.api_endpoint_url %>     |
+      | token           | <%= user.cached_tokens.first %> |
+      | skip_tls_verify | true                            |
+      | config          | new.config                      |
     Then the step should succeed
     And the output should not contain:
       | oc new-project                                |
@@ -130,6 +125,17 @@ Feature:policy related features on web console
       | oc new-project                                |
     And the output should match:
       | [Yy]ou may not request a new project          |
+
+    # Check in web
+    Given I login via web console
+    When I get the visible text on web html page
+    Then the output should contain:
+      | cluster admin can create a project for you    |
+    And the output should not contain:
+      | New Project |
+    When I perform the :check_help_info_when_user_have_no_permission web console action with:
+      | user_name | <%= user.name %> |
+    Then the step should succeed
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11321

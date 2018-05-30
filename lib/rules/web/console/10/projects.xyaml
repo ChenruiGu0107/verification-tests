@@ -15,7 +15,6 @@ check_help_info_when_user_have_no_permission:
   elements:
   - selector:
       xpath: //code[contains(.,'oc adm new-project <projectname> --admin=<user_name>')]
-check_policy_command: {}
 click_delete_project:
   action: click_one_project_kebab_in_project_list
   elements:
