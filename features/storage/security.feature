@@ -127,9 +127,9 @@ Feature: storage security check
       | ls | -lZd | /mnt/azure |
     Then the step should succeed
     And the output should contain:
-      | 24680                |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+      | 24680                                    |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
     When I execute on the pod:
       | touch | /mnt/azure/testfile |
     Then the step should succeed
@@ -174,9 +174,9 @@ Feature: storage security check
       | ls | -lZ | /mnt/azure/testfile |
     Then the step should succeed
     And the output should contain:
-      | 24680                |
-      | svirt_sandbox_file_t |
-      | s0:c2,c13            |
+      | 24680                                    |
+      | (svirt_sandbox_file_t\|container_file_t) |
+      | s0:c2,c13                                |
     When I execute on the pod:
       | cp | /hello | /mnt/azure |
     Then the step should succeed

@@ -8,8 +8,8 @@ Feature: negative testing
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo.json" replacing paths:
       | ["apiVersion"] | invalidVersion |
     Then the step should fail
-    And the output should contain:
-      | no kind "PersistentVolumeClaim" is registered for version "invalidVersion" |
+    And the output should match:
+      | no (matches for )?kind "PersistentVolumeClaim" (is registered for \|in )version "invalidVersion" |
     And there is no pvc in the project
     And the project is deleted
     # metadata.name

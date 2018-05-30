@@ -162,7 +162,6 @@ Feature: Azure disk and Azure file specific scenarios
     And I wait for the resource "pv" named "<%= pv.name %>" to disappear within 1200 seconds
 
   # @author wehe@redhat.com
-  # @case_id OCP-10260 OCP-10407
   @admin
   Scenario Outline: Negative test of azureDisk with storage class
     Given I have a project
@@ -181,13 +180,13 @@ Feature: Azure disk and Azure file specific scenarios
     Then the output should contain:
       | ProvisioningFailed |
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
-      | failed to find a matching storage account |
+      | could not get storage key for storage account |
     """
 
     Examples:
       | sctype  |
-      | invalid |
-      | noext   |
+      | invalid | # @case_id OCP-10260 
+      | noext   | # @case_id OCP-10407 
 
   # @author wehe@redhat.com
   # @case_id OCP-13486

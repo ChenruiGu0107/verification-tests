@@ -42,9 +42,8 @@ Feature: storageClass related feature
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-invalidAPI.yaml |
     Then the step should fail
-    And the output should contain:
-      | StorageClass in version "invalid" cannot be handled                       |
-      | no kind "StorageClass" is registered for version "storage.k8s.io/invalid" |
+    And the output should match:
+      | no (matches for )?kind "StorageClass" (is registered for \|in )version "storage.k8s.io/invalid" |
 
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-emptyName.yaml |
