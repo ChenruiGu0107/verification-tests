@@ -391,3 +391,24 @@ Feature: volumeMounts should be able to use subPath
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
 
+  # @author piqin@redhat.com
+  # @case_id OCP-18737
+  @admin
+  Scenario: Subpath with sock file
+    Given SCC "privileged" is added to the "default" user
+    When I run commands on all nodes:
+      | rm -f /run/test.sock                                                                    |
+      | python -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('/run/test.sock')" |
+    Then the step should succeed
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/subpath/sock-subpath.json" replacing paths:
+      | ["metadata"]["name"]                                      | pod-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt/run/test.sock      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["subPath"]   | run/test.sock           |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | stat | /mnt/run/test.sock |
+    Then the step should succeed
+    And the output should contain "socket"
