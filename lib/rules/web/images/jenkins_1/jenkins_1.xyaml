@@ -539,7 +539,7 @@ jenkins_oauth_login:
   url: /securityRealm/commenceLogin?from=%2F
   elements:
   - selector:
-      text: Login with OpenShift
+      xpath: //a[contains(text(),'with OpenShift')]
     op: click
     type: a
   - selector:
