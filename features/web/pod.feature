@@ -139,7 +139,7 @@ Feature: Pod related features on web console
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>  |
       | image_name   | python               |
-      | image_tag    | 3.3                  |
+      | image_tag    | latest               |
       | namespace    | openshift            |
       | app_name     | python-sample        |
       | source_url   | https://github.com/openshift/django-ex.git |
@@ -147,16 +147,16 @@ Feature: Pod related features on web console
     Given I use the "<%= project.name %>" project
     Given a pod is present with labels:
       | deployment=python-sample-1 |
-    Given evaluation of `pod.labels` is stored in the :label_from_ui clipboard    
+    Given evaluation of `pod.labels` is stored in the :label_from_ui clipboard
     # check labels via cli
     Given I create a new project
     When I run the :new_app client command with:
-      | image_stream | python:3.3    |
+      | image_stream | python:latest                              |
       | code         | https://github.com/openshift/django-ex.git |
-      | name         | python-sample |
+      | name         | python-sample                              |
     Then the step should succeed
     Given a pod is present with labels:
-      | deployment=python-sample-1 |    
+      | deployment=python-sample-1 |
     Given evaluation of `pod.labels` is stored in the :label_from_cli clipboard
     Then the expression should be true> cb.label_from_ui == cb.label_from_cli
 
