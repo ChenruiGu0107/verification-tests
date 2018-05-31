@@ -266,19 +266,24 @@ Feature: templates.feature
       | job_name | <%= project.name %> |
     Then the step should succeed
 
-  # @author bingli@redhat.com
+  # @author yuwei@redhat.com
   # @case_id OCP-9885
-  Scenario: Check online installed templates
+  Scenario: Check online Starter installed templates
     When I run the :get client command with:
       | resource      | template  |
       | n             | openshift |
     Then the step should succeed
     And the output should contain:
+      | 3scale-gateway |
       | cakephp-mysql-persistent |
       | dancer-mysql-persistent  |
       | django-psql-persistent   |
       | jenkins-persistent       |
-      | jws30-tomcat8-basic-s2i  |
+      | jws31-tomcat7-https-s2i |
+      | jws31-tomcat8-https-s2i |
+      | jws31-tomcat8-mongodb-persistent-s2i |
+      | jws31-tomcat8-mysql-persistent-s2i |
+      | jws31-tomcat8-postgresql-persistent-s2i |
       | laravel-mysql-persistent |
       | mariadb-persistent       |
       | mongodb-persistent       |
@@ -289,11 +294,71 @@ Feature: templates.feature
       | rails-pgsql-persistent   |
       | redis-ephemeral          |
       | redis-persistent         |
+      | sso72-x509-https |
     When I run the :get client command with:
       | resource      | template  |
       | n             | openshift |
       | o             | yaml      |
     Then the step should succeed
     # make sure there's no extra templates
-    And the output should contain 15 times:
+    And the output should contain 22 times:
+      | kind: Template |
+
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-19151
+  Scenario: Check online Pro installed templates
+    When I run the :get client command with:
+      | resource      | template  |
+      | n             | openshift |
+    Then the step should succeed
+    And the output should contain:
+      | 3scale-gateway |
+      | amq63-basic |
+      | amq63-ssl |
+      | caching-service |
+      | cakephp-mysql-persistent |
+      | dancer-mysql-persistent  |
+      | datagrid71-basic |
+      | datagrid71-https |
+      | datagrid71-mysql-persistent |
+      | datagrid71-postgresql-persistent |
+      | django-psql-persistent   |
+      | eap-cd-amq-persistent-s2i |
+      | eap-cd-basic-s2i |
+      | eap-cd-postgresql-persistent-s2i |
+      | eap71-amq-persistent-s2i |
+      | eap71-basic-s2i |
+      | eap71-https-s2i |
+      | eap71-postgresql-persistent-s2i |
+      | eap71-sso-s2i |
+      | httpd-example |
+      | jenkins-persistent       |
+      | jws31-tomcat7-https-s2i |
+      | jws31-tomcat8-https-s2i |
+      | jws31-tomcat8-mongodb-persistent-s2i |
+      | jws31-tomcat8-mysql-persistent-s2i |
+      | jws31-tomcat8-postgresql-persistent-s2i |
+      | laravel-mysql-persistent |
+      | mariadb-persistent       |
+      | mongodb-persistent       |
+      | mysql-persistent         |
+      | nodejs-mongo-persistent  |
+      | openjdk18-web-basic-s2i  |
+      | postgresql-persistent    |
+      | rails-pgsql-persistent   |
+      | redis-ephemeral          |
+      | redis-persistent         |
+      | rhdm70-full-persistent |
+      | rhdm70-kieserver-https-s2i |
+      | s2i-spring-boot-camel-xml |
+      | s2i-spring-boot-camel |
+      | sso72-x509-https |
+    When I run the :get client command with:
+      | resource      | template  |
+      | n             | openshift |
+      | o             | yaml      |
+    Then the step should succeed
+    # make sure there's no extra templates
+    And the output should contain 41 times:
       | kind: Template |
