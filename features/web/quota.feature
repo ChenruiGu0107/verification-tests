@@ -629,7 +629,6 @@ Feature: functions about resourcequotas
   Scenario: Show warning info when storage reaches the pvc number limits of project quota
     Given the master version >= "3.6"
     Given I have a project
-    Given I have a NFS service in the project
     # Create quota for current project
     When I run the :create_quota admin command with:
       | name | myquota                                         |
@@ -637,10 +636,6 @@ Feature: functions about resourcequotas
       | n    | <%= project.name %>                             |
     Then the step should succeed
     # Create the first pvc for project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]       | nfs-1-<%= project.name %>        |
-    Then the step should succeed
     When I perform the :create_pvc_from_storage_page web console action with:
       | project_name    | <%= project.name %>       |
       | pvc_name        | pvc-1                     |
@@ -658,10 +653,6 @@ Feature: functions about resourcequotas
       | dc_name        | myrun                  |
     Then the step should succeed
     # Create the second pvc
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]       | nfs-2-<%= project.name %>        |
-    Then the step should succeed
     When I perform the :create_pvc_from_storage_page web console action with:
       | project_name    | <%= project.name %>        |
       | pvc_name        | pvc-2                      |
