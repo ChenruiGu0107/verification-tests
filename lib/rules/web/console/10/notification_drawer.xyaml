@@ -8,10 +8,6 @@ click_notification_drawer:
   - selector:
       xpath: //span[@class="fa fa-bell"]
     op: click
-  - selector:
-      text: View All Events
-    type: a
-    timeout: 5
 check_message_context_in_drawer:
   elements:
   - selector: &op_context
@@ -29,10 +25,10 @@ click_dont_show_me_again_from_kebab:
     ref:
     - click_kebab_button_for_drawer_message
     - click_dont_show_me_again
-click_kebab_button_for_drawer_message: 
+click_kebab_button_for_drawer_message:
   elements:
   - selector:
-      xpath: .//button[@type="button"] 
+      xpath: .//button[@type="button"]
     op: click
 click_view_quota:
   elements:

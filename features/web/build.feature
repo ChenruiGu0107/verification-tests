@@ -680,14 +680,6 @@ Feature: build related feature on web console
       | image_stream   | openshift/ruby                                |
     Then the step should succeed
 
-# Since pending status is hard to catch, consider to move this check to
-# another manual case.
-#    When I perform the :check_build_log_tab web console action with:
-#      | project_name      | <%= project.name %> |
-#      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-#      | build_status_name | Pending             |
-#    Then the step should succeed
-
     Given the "ruby-hello-world-1" build becomes :running
     When I perform the :check_build_log_tab web console action with:
       | project_name      | <%= project.name %>                 |
@@ -887,11 +879,7 @@ Feature: build related feature on web console
       | code         | https://github.com/openshift/nodejs-ex |
       | name         | nodejs-app                             |
     Then the step should succeed
-    When I perform the :wait_latest_build_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | nodejs-app          |
-      | build_status | running             |
-    Then the step should succeed
+    Given the "nodejs-app-1" build becomes :running
     When I perform the :set_resource_type_on_monitoring web console action with:
       | project_name  | <%= project.name %> |
       | resource_type | All                 |
