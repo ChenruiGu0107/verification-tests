@@ -27,91 +27,64 @@ Given /^I run the ovs commands on the host:$/ do | table |
 end
 
 Given /^I run ovs dump flows commands on the host$/ do
-  ensure_admin_tagged
-  _host = node.host
-
   step %Q/I run the ovs commands on the host:/, table(%{
     | ovs-ofctl dump-flows br0 -O openflow13 |
   })
 end
 
 Given /^the env is using multitenant network$/ do
-  ensure_admin_tagged
-
-  _host = node.host rescue nil
-  unless _host
-    step "I store the schedulable nodes in the clipboard"
-    _host = node.host
-  end
-
-  step "I run ovs dump flows commands on the host"
-  unless @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
-    raise "The env is not using multitenant network."
-  end
+  step 'the env is using one of the listed network plugins:', table([["multitenant"]])
 end
 
 Given /^the env is using networkpolicy plugin$/ do
-  ensure_admin_tagged
-
-  _host = node.host rescue nil
-  unless _host
-    step "I store the schedulable nodes in the clipboard"
-    _host = node.host
-  end
-
-  step "I run ovs dump flows commands on the host"
-  unless @result[:success] && @result[:response] =~ /table=253.*actions=note:02/
-    raise "The env is not using networkpolicy plugin."
-  end
+  step 'the env is using one of the listed network plugins:', table([["networkpolicy"]])
 end
 
 Given /^the env is using multitenant or networkpolicy network$/ do
-  ensure_admin_tagged
-
-  _host = node.host rescue nil
-  unless _host
-    step "I store the schedulable nodes in the clipboard"
-    _host = node.host
-  end
-
-  step "I run ovs dump flows commands on the host"
-  unless @result[:success] && @result[:response] =~ /table=253.*actions=note:0[1|2]/
-    raise "The env is not using multitenant or networkpolicy network."
-  end
+  step 'the env is using one of the listed network plugins:', table([["multitenant","networkpolicy"]])
 end
 
 Given /^the env is using one of the listed network plugins:$/ do |table|
   ensure_admin_tagged
   plugin_list = table.raw.flatten
+  _admin = admin
 
-  _host = node.host rescue nil
-  unless _host
-    step "I store the schedulable nodes in the clipboard"
-    _host = node.host
-  end
-
-  step %Q/I run the ovs commands on the host:/, table([[
-    "ovs-ofctl dump-flows br0 -O openflow13 | grep table=253"
-  ]])
-  unless @result[:success]
-    raise "failed to get table 253 from the open flows."
-  end
-
-  plugin_type = @result[:response][-17]
-  case plugin_type
-  when "0"
-    plugin_name = "subnet"
-  when "1"
-    plugin_name = "multitenant"
-  when "2"
-    plugin_name = "networkpolicy"
+  @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: '{{.pluginName}}')
+  if @result[:success] then
+    plugin_name = @result[:response].split("-").last
+    unless plugin_list.include? plugin_name
+      raise "the env network plugin is #{plugin_name} but expecting #{plugin_list}."
+    end
   else
-    raise "unknow network plugins."
-  end
-  logger.info("environment network plugin name: #{plugin_name}")
+    _host = node.host rescue nil
+    unless _host
+      step "I store the schedulable nodes in the clipboard"
+      _host = node.host
+    end
 
-  unless plugin_list.include? plugin_name
-    raise "the env network plugin is #{plugin_name} but expecting #{plugin_list}."
+    step %Q/I run the ovs commands on the host:/, table([[
+      "ovs-ofctl dump-flows br0 -O openflow13 | grep table=253"
+    ]])
+    unless @result[:success]
+      raise "failed to get table 253 from the open flows."
+    end
+
+    plugin_type = @result[:response][-17]
+    case plugin_type
+    when "0"
+      plugin_name = "subnet"
+    when "1"
+      plugin_name = "multitenant"
+    when "2"
+      plugin_name = "networkpolicy"
+    else
+      raise "unknown network plugins."
+    end
+    logger.info("environment network plugin name: #{plugin_name}")
+
+    unless plugin_list.include? plugin_name
+      raise "the env network plugin is #{plugin_name} but expecting #{plugin_list}."
+    end
   end
 end
 
