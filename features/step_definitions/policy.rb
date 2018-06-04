@@ -74,7 +74,7 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
     _command = _add_command
     _teardown_command = _remove_command
   when "removed from"
-    if CucuShift::ClusterRoleBinding.list(user: _admin).none? { |crb| crb.role.name == role && crb.user_names.include?(_subject_name) }
+    if CucuShift::ClusterRoleBinding.list(user: _admin).none? { |crb| crb.role.name == role && crb.user_names&.include?(_subject_name) }
       logger.info "#{_subject_name} does not have role #{role}"
       next
     end
