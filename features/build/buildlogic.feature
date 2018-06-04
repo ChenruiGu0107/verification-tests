@@ -834,3 +834,36 @@ Feature: buildlogic.feature
     Then the output should not contain:
       |ruby-hello-world-7|
     """
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-13906
+  Scenario: Check the events for started/completed/failed builds
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:2.2                   |
+      | app_repo     | https://github.com/openshift/ruby-ex |
+    Then the step should succeed
+    Given the "ruby-ex-1" build completed
+    When I run the :describe client command with:
+      | resource     | build     |
+      | name         | ruby-ex-1 |
+    Then the step should succeed
+    And the output should contain:
+      | Created        |
+      | Started        |
+      | BuildCompleted |
+    When I run the :patch client command with:
+      | resource      | buildconfig  |
+      | resource_name | ruby-ex      |
+      | p             | {"spec":{"source":{"git":{"uri":"http://github.com/openshift/incorrect"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    Given the "ruby-ex-2" build fails
+    When I run the :describe client command with:
+      | resource     | build     |
+      | name         | ruby-ex-2 |
+    Then the step should succeed
+    And the output should contain:
+      | BuildFailed |
