@@ -373,3 +373,146 @@ Feature: PVC resizing Test
       | sc_name  |
       | gp2      |  # @case_id OCP-17487
       | standard |  # @case_id OCP-18395
+
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16655
+  @admin
+  Scenario: Resize PVC will fail when PVC size exceed namespace storage quota
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+
+    # Admin could create ResourceQuata
+    Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota-pvc-storage.yaml" replacing paths:
+      | ["spec"]["hard"]["persistentvolumeclaims"] | 5   |
+      | ["spec"]["hard"]["requests.storage"]       | 1Gi |
+    Then the step should succeed
+
+    Given I have a StorageClass named "glusterprovisioner"
+    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | pvc-<%= project.name %>                                |
+      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16657
+  @admin
+  Scenario: Resize PVC will fail when PVC size exceed storageclass storage quota
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota_for_storageclass.yml" replacing paths:
+      | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/requests.storage"]       | 1Gi |
+      | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 1   |
+    Then the step should succeed
+
+    Given admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | pvc-<%= project.name %>                                |
+      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16618
+  @admin
+  Scenario: Resize a static PVC
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+    And I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pv-retain-rwo.json" where:
+      | ["metadata"]["name"] | gluster-<%= project.name %> |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"] | glusterc |
+    Then the step should succeed
+    And the PV becomes :bound
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | glusterc                                               |
+      | p             | {"spec":{"resources":{"requests":{"storage":"20Gi"}}}} |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    Given the expression should be true> pv.capacity_raw(cached: false) == "5Gi"
+    """
+    When I get project events
+    Then the step should succeed
+    And the output should contain:
+      | Volume has no storage class |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16622
+  @admin
+  Scenario: Resize a pending PVC
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+    And I have a project
+
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"] | glusterc |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | glusterc                                               |
+      | p             | {"spec":{"resources":{"requests":{"storage":"20Gi"}}}} |
+    Then the step should fail
+    And the output should contain:
+      | immutable |
+      | bound     |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16633
+  @admin
+  @destructive
+  Scenario: Resize PVC should be successful after node service restart
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+
+    Given I have a StorageClass named "glusterprovisioner"
+    And admin creates a project with a random schedulable node selector
+
+    Given admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    # Resize PVC
+    Given I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | pvc-<%= project.name %>                                |
+      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
+    And I use the "<%= node.name %>" node
+    And the node service is restarted on the host
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Given the expression should be true> pv(pvc.volume_name).capacity_raw(cached: false) == "2Gi"
+    """
