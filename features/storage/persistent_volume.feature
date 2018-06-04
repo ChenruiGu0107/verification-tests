@@ -645,9 +645,13 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-16531
   @admin
   Scenario: Two pods work well on different node with access mode ReadWriteMany
-    Given I have a project
+    Given admin creates a project with:
+      | node_selector |                  |
+      | admin         | <%= user.name %> |
+    And I use the "<%= project.name %>" project
     And environment has at least 2 schedulable nodes
     And I have a NFS service in the project
+
     Given I store the ready and schedulable nodes in the clipboard
     And label "accessmodes=rwx1" is added to the "<%= cb.nodes[0].name %>" node
     And label "accessmodes=rwx2" is added to the "<%= cb.nodes[1].name %>" node
