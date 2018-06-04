@@ -202,6 +202,9 @@ Feature: Pod related features on web console
   Scenario: Pod details should show information about init containers.
     Given the master version >= "3.6"
     Given I have a project
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/initContainer.yaml  |
     Then the step should succeed
