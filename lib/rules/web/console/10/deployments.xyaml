@@ -35,11 +35,8 @@ wait_latest_deployments_to_deployed:
     timeout: 600
 manually_deploy:
   action: goto_one_dc_page
+  action: click_deploy_button
   elements:
-  - selector:
-      xpath: //button[contains(text(),"Deploy") and not(@disabled)]
-    type: button
-    op: click
   - selector:
       xpath: //span[contains(text(),'has started')]
 cancel_deployment_on_one_deployment_page:

@@ -1,5 +1,6 @@
 deploy_from_image_stream_tag_with_normal_image_stream:
-  action: deploy_image_navigate
+  action: goto_home_page
+  action: click_deploy_image
   action: select_namespace
   action: select_image_stream
   action: select_image_stream_tag
@@ -77,10 +78,8 @@ click_to_search:
     op: click
 deploy_image_navigate:
   url: /console/project/<project_name>/create
+  action: click_deploy_image
   elements:
-  - selector:
-      xpath: //uib-tab-heading[contains(.,'Deploy Image')]
-    op: click
   - selector:
       xpath: //*[contains(.,'Deploy an existing image from')]
 select_namespace:
@@ -89,7 +88,7 @@ select_namespace:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Namespace")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Namespace")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<namespace>']
+      xpath: //div[contains(.,'<namespace>')]/parent::span[contains(@class,'select-choice')]
     op: click
 select_image_stream:
   elements:
@@ -97,7 +96,7 @@ select_image_stream:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Image Stream")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Image Stream")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<image_stream_name>']
+      xpath: //div[contains(.,'<image_stream_name>')]/parent::span[contains(@class,'select-choice')]
     op: click
 select_image_stream_tag:
   elements:

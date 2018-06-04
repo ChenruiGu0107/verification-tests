@@ -118,6 +118,24 @@ click_on_terminal_tab:
     selector:
       xpath: //uib-tab-heading[contains(.,'Terminal')]
     op: click
+click_deploy_image:
+  element:
+    selector:
+      text: Deploy Image
+    type: a
+    op: click
+click_deploy_button:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Deploy") and not(@disabled)]
+    type: button
+    op: click
+click_import_yaml_json:
+  element:
+    selector:
+      text: Import YAML / JSON
+    type: a
+    op: click
 click_somewhere_out_of_focus:
   action: click_help_menu
 click_somewhere_out_of_focus_for_wizard:
