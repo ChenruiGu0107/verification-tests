@@ -54,7 +54,6 @@ Given /^I remove (logging|metrics) service using ansible$/ do | svc_type |
   step %Q/#{svc_type} service is uninstalled with ansible using:/, table(%{
     | inventory| #{uninstall_inventory} |
   })
-  step %Q/I ensure "base-ansible-pod" pod is deleted/
 end
 
 # helper step that does the following:
@@ -323,15 +322,15 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   cb.negative_test = !!ansible_opts[:negative_test]
   #cb.operation = op
   cb.svc_type = svc_type
-
   # prep the inventory file by setting the required clipboard for ERB
   # interpolation later
   ### XXX: we have to hardcode the children section due to the pasreconfig gem does not handle INI files that have keys but no values
 
   cb.metrics_route_prefix = "metrics"
   cb.logging_route_prefix = "logs"
-  # use ruby instead of step to bypass user restriction
-  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default'))
+  # save user project where we'll instantiate the base-ansible-pod
+  cb.org_project_for_ansible ||= project
+  cb.subdomain = env.router_default_subdomain(user: admin, project: project('default', switch: false))
   step %Q/I store master major version in the :master_version clipboard/
 
 
@@ -425,9 +424,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   end
 
 
-  # put base-ansible-pod inside the target_proj instead in 'default'
-  # project(cb.target_proj)
-  step %Q/admin uses the "<%= cb.target_proj %>" project/
   # get testcase specific params into the final inventory file
   cb.ini_style_config["OSEv3:vars"].merge! cb.case_inventory['OSEv3:vars'] if cb.case_inventory
 
@@ -477,8 +473,10 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   end
 
   begin
-    step %Q/I switch to cluster admin pseudo user/
+    # put base-ansible-pod in user project instead of system project per OPENSHIFTQ-12408
     step %Q/I have a pod with openshift-ansible playbook installed/
+    step %Q/admin uses the "<%= cb.target_proj %>" project/
+    step %Q/I switch to cluster admin pseudo user/
     # we need to scp the key and crt and ca.crt to the ansible installer pod
     # prior to the ansible install operation
     if ansible_opts[:copy_custom_cert]
@@ -802,7 +800,6 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   cb.base_ansible_image_tag = conf[:services, :base_ansible_image_tag]
   cb.base_ansible_image_tag ||= "v#{cb.master_version}"
   # we need to save the original project name for post test cleanup
-  cb.org_project_for_ansible ||= project
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to switch user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
@@ -811,11 +808,12 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       cb.proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
     end
     # cb.proxy_value will determine if proxy section is enabled.
+    step %Q/I switch to cluster admin pseudo user/
+    step %Q{I use the "<%= cb.org_project_for_ansible.name %>" project}
     step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_unified.yaml}
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
-    # save it for future use
-    cb.ansible_runner_pod = pod
+
     # check to see if openshift-ansible is already installed
     @result = pod.exec("bash", "-c", "ls /usr/share/ansible/openshift-ansible", as: user)
     unless @result[:success]

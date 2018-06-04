@@ -4,6 +4,7 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: Deploy logging via Ansible: clean install when OPS cluster is enabled
+    Given I create a project with non-leading digit name
     Given the master version >= "3.5"
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11061/inventory |
@@ -20,6 +21,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Uninstall logging via Ansible
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     # the clean up steps registered with the install step will be using uninstall
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12377/inventory |
@@ -30,6 +32,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy logging via Ansible - clean install when OPS cluster is not enabled
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11431/inventory |
     And I run the :get client command with:
@@ -48,6 +51,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: kibana status is red when the es pod is not running
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And a replicationController becomes ready with labels:
       | component=es |
@@ -72,6 +76,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy logging via Ansible: clean install with custom cert
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11687/inventory |
       | copy_custom_cert | true                                                                                                   |
@@ -90,6 +95,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: install and uninstalled eventrouter with default values
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15988/inventory |
     Given event logs can be found in the ES pod
@@ -111,6 +117,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: deploy logging with dynamic volume
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10104/inventory |
     And I run the :volume client command with:
@@ -127,6 +134,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Scale up curator, kibana and elasticsearch pods
     Given the master version <= "3.4"
+    Given I create a project with non-leading digit name
     Given logging service is installed using deployer:
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11385/deployer.yaml |
     # check DC values
@@ -229,6 +237,7 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: Make sure the searchguard index that is created upon pod start worked fine
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     And a deploymentConfig becomes ready with labels:
       | component=es |
@@ -335,6 +344,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: fluentd ops feature checking
     Given the master version >= "3.6"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17424/inventory |
     # check fluentd pod
@@ -364,6 +374,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy logging via Ansible: clean install with json-file log driver + CEFK pod limits
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12113/inventory |
     And a pod becomes ready with labels:
@@ -398,6 +409,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check the default image prefix and version - logging
     Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18504/inventory |
     And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
@@ -419,6 +431,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Uninstall logging and remove pvc via Ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17427/inventory |
     Then the expression should be true> pvc('logging-es-0').ready?[:success]

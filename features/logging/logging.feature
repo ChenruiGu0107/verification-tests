@@ -176,6 +176,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Heap size limit should be set for Kibana pods
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given a pod becomes ready with labels:
       |  component=kibana,deployment=logging-kibana-1,deploymentconfig=logging-kibana,logging-infra=kibana,provider=openshift |
@@ -195,6 +196,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Logging fluentD daemon set should set quota for the pods
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given a pod becomes ready with labels:
       | component=fluentd,logging-infra=fluentd |
@@ -207,6 +209,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Logout kibana web console with installation step included
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And I switch to the first user
     Given I login to kibana logging web console
@@ -221,6 +224,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Use index names of project.project_name.project_uuid.xxx in Elasticsearch
+    Given I create a project with non-leading digit name
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
     And logging service is installed in the system
@@ -360,6 +364,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: send Elasticsearch rootLogger to file
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17445/inventory |
     Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data['logging.yml'])['rootLogger'] == "${es.logger.level}, file"
@@ -370,6 +375,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: DC rollback behaviors are disabled for logging project DCs
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17307/inventory |
     And a deploymentConfig becomes ready with labels:
@@ -382,6 +388,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: max_local_storage_nodes default value should be 1 to prevent permitting multiple nodes to share the same data directory
     Given the master version >= "3.6"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And evaluation of `YAML.load(config_map('logging-elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
     And the expression should be true> cb.data.dig('node', 'max_local_storage_nodes') == 1
@@ -393,6 +400,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: The pvc are kept by default when uninstall logging via Ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17429/inventory |
     Then the expression should be true> pvc('logging-es-0').ready?[:success]
@@ -431,6 +439,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for fluentd daemonset
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And I ensure "logging-fluentd" daemonset is deleted from the "<%= project.name %>" project
     And I run logging diagnostics
@@ -443,6 +452,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for non-existed Oauthclient
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And I switch to cluster admin pseudo user
     And I ensure "kibana-proxy" oauthclient is deleted from the "<%= project.name %>" project
@@ -456,6 +466,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Aggregated logging diagnostics for missing service accounts
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed in the system
     And I ensure "aggregated-logging-elasticsearch" serviceaccounts is deleted from the "<%= cb.target_proj %>" project
     And I ensure "aggregated-logging-fluentd" serviceaccounts is deleted from the "<%= cb.target_proj %>" project
@@ -507,6 +518,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT is less than BUFFER_SIZE_LIMIT
     Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17243/inventory |
       | negative_test | true                                                                                                   |
@@ -534,6 +546,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT, BUFFER_SIZE_LIMIT and BUFFER_QUEUE_LIMIT use the default value
     Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17235/inventory |
     Given a pod becomes ready with labels:
@@ -553,6 +566,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: FILE_BUFFER_LIMIT, BUFFER_QUEUE_LIMIT and  BUFFER_SIZE_LIMIT use customed value
     Given the master version >= "3.8"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17238/inventory |
     Given a pod becomes ready with labels:
@@ -572,6 +586,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Scale up kibana pods and elasticsearch pods
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16747/inventory |
     # redeploy with scalling after the initial installation
@@ -595,6 +610,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: View the project mapping index as different roles
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     And I switch to the first user
     Given I create a project with non-leading digit name
@@ -652,6 +668,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: access operations index with different roles
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     ## wait until the es pod index to show up
     Then I wait for the ".operations" index to appear in the ES pod with labels "component=es"
@@ -675,6 +692,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Couldn't access .operations index without permit
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     Given I switch to the first user
     And I perform the HTTP request on the ES pod:
@@ -688,6 +706,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Couldn't View the project mapping index without permit
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     And I switch to the first user
     Given I create a project with non-leading digit name
@@ -704,6 +723,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Expose Elasticsearch service
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17529/inventory |
     And I wait until the ES cluster is healthy
@@ -728,6 +748,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Check the existence of index template named "viaq"
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     And I wait until the ES cluster is healthy
     And evaluation of `%w(project operations)` is stored in the :urls clipboard
@@ -745,6 +766,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: install eventrouter with sink=glog
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16299/inventory |
     And I register clean-up steps:
@@ -760,6 +782,7 @@ Feature: logging related scenarios
   Scenario: Deploy logging with replicas Elasticsearch
     Given the master version >= "3.7"
     Given environment has at least 3 nodes
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18806/inventory |
     And a pod becomes ready with labels:
@@ -806,6 +829,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Cluster-admin view Elasticsearch cluster/monitor endpoints
+    Given I create a project with non-leading digit name
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18090/inventory |
     And I wait until the ES cluster is healthy
@@ -829,6 +853,7 @@ Feature: logging related scenarios
   @admin
   @destructive
   Scenario: Add .all alias when index is created
+    Given I create a project with non-leading digit name
     Given logging service is installed in the system
     And I wait for the "project.install-test" index to appear in the ES pod with labels "component=es"
     And I wait for the ".operations" index to appear in the ES pod

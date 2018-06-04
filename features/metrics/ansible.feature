@@ -4,6 +4,7 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: Metrics Admin Command - fresh deploy with default values
+    Given I create a project with non-leading digit name
     Given the master version >= "3.5"
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12234/inventory |
@@ -14,6 +15,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - clean and install
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |
     Given I remove metrics service using ansible
@@ -85,6 +87,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy standalone heapster
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12879/inventory |
     Then status becomes :running of exactly 1 pods labeled:
@@ -98,6 +101,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy set openshift_metrics_hawkular_replicas
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11430/inventory |
     Then status becomes :running of exactly 2 pods labeled:
@@ -110,6 +114,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: deploy metrics with dynamic volume
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10214/inventory |
     And I switch to first user
@@ -151,6 +156,7 @@ Feature: ansible install related feature
    @destructive
    Scenario: Deploy Prometheus via ansible with default values
      Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
      And metrics service is installed with ansible using:
        | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
 
@@ -160,6 +166,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Undeploy Prometheus via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
     And I remove metrics service using ansible
@@ -172,6 +179,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Update Prometheus via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
     And I wait for the "alerts" service to become ready
@@ -188,6 +196,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with node selector via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     # inventory file expect cb.node_label to be set
     And evaluation of `"ocp15538"` is stored in the :node_label clipboard
     And metrics service is installed with ansible using:
@@ -209,6 +218,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with container resources limit via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15529/inventory |
     And a pod becomes ready with labels:
@@ -242,6 +252,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check terminationGracePeriodSeconds value for hawkular-cassandra pod
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-cassandra |
@@ -253,6 +264,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: deploy metrics with dynamic volume along with OCP
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17163/inventory |
     And a pod becomes ready with labels:
@@ -270,6 +282,7 @@ Feature: ansible install related feature
   @admin
   @destructive
   Scenario: Heapster should use node name instead of external ID to indentify metrics
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     Given I select a random node's host
     And evaluation of `node.external_id` is stored in the :external_id clipboard
@@ -293,6 +306,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Undeploy HOSA via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15860/inventory |
     Then all Hawkular agent related resources exist in the project
@@ -307,6 +321,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy with custom metrics parameter
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12112/inventory |
     Then the expression should be true> rc('hawkular-cassandra-1').suplemental_groups.include? 65531
@@ -319,6 +334,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check the default image prefix and version - prometheus
     Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18507/inventory |
       | negative_test | true                                                                                                   |
@@ -338,6 +354,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Check the default image prefix and version - metrics
     Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18506/inventory |
       | negative_test | true                                                                                                   |
@@ -360,6 +377,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Deploy Prometheus with dynamic pv via ansible
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17206/inventory |
     And I use the "openshift-metrics" project
@@ -410,6 +428,7 @@ Feature: ansible install related feature
   @destructive
   Scenario: Metrics Admin Command - Deploy set PV type 'dynamic'
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11686/inventory |
     Then the expression should be true> pvc('metrics-cassandra-1').wait_to_appear(user, 60)
