@@ -290,7 +290,7 @@ Feature: web console customization related features
     Then the step should succeed
 
     ## Scenario 4: Check defined category by tag
-    Given admin ensures "myhttpd" istag is deleted
+    Given admin ensures "myhttpd" image_stream is deleted from the "openshift" project after scenario
     When I run the :create admin command with:
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/httpd-istag.yaml |
       | n    | openshift  |

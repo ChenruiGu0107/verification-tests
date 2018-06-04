@@ -1197,7 +1197,7 @@ Feature: build related feature on web console
     When I run the :new_app client command with:
       | app_repo     | https://github.com/openshift/cakephp-ex.git |
       | name         | php                                         |
-      | image_stream | openshift/php:5.5                           |
+      | image_stream | openshift/php:latest                        |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | bc/php         |
