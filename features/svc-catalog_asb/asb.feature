@@ -624,3 +624,85 @@ Feature: Ansible-service-broker related scenarios
       | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | rhscl-postgresql-apb | # @case_id OCP-15328
       | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-16086
       | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-16087
+
+
+  # @author zhsun@redhat.com  
+  @admin
+  Scenario Outline:: [ASB] The serviceinstaces/servicebinddings should be deleted after deleted project
+    Given I save the first service broker registry prefix to :prefix clipboard
+    Given I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<db_name>                               |
+      | param | CLASS_EXTERNAL_NAME=<db_name>                         |
+      | param | PLAN_EXTERNAL_NAME=<db_plan>                          |
+      | param | SECRET_NAME=<db_secret_name>                          |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                |
+    Then the step should succeed
+    And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
+
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<db_secret_name>                                                                                            |
+      | param | INSTANCE_NAME=<db_name>                                                                                                 |
+      | param | PARAMETERS=<db_parameters>                                                                                              |
+      | param | UID=<%= cb.db_uid %>                                                                                            |
+      | n     | <%= project.name %>                                                                                                     |
+    Then the step should succeed
+    # DB apbs provision succeed
+    Given a pod becomes ready with labels:
+      | app=<db_label>            |
+    And I wait up to 80 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance                            |
+    Then the step should succeed
+    And the output should match:
+      | Message:\\s+The instance was provisioned successfully |
+    """
+
+   # Create servicebinding of DB apb
+   When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<db_name>                                                                                      |
+      | param | INSTANCE_NAME=<db_name>                                                                                     |
+      | param | SECRET_NAME=<db_credentials>                                                                                |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | servicebinding                 |
+    Then the output should match:
+      | Message:\\s+Injected bind result          |
+    """
+    Given I ensure "<db_name>" servicebinding is deleted
+    And I ensure "<db_name>" serviceinstance is deleted
+    And I ensure "<%= project.name %>" project is deleted
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= project.name %>   |
+
+    Examples:
+      | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                            | db_label             |
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}     | rhscl-mysql-apb      | # @case_id OCP-16661
+
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-16520
+  @admin
+  @destructive
+  Scenario: [ASB] Add authentication to etcd using certificate
+    Given the master version <= "3.9"
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+
+    When admin redeploys "asb" dc
+    And I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should contain "Endpoints: [https://asb-etcd.openshift-ansible-service-broker.svc:2379]"
+
+

@@ -419,3 +419,58 @@ Feature: Ansible-service-broker related scenarios
       | resource_name | <%= cb.plan_prod %>                                        |
       | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties} |
     Then the output should not contain "postgresql_database"
+
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-15939
+  @admin
+  @destructive
+  Scenario: [ASB] Support concurrent, multiple APB source adapters
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+
+    Given admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
+    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: dh
+        url:  https://registry.hub.docker.com
+        org:  ansibleplaybookbundle
+        tag:  latest
+        white_list: ['.*-apb$']
+      - type: rhcc
+        name: rh
+        url:  registry.access.stage.redhat.com
+        tag:  v3.7.0
+        white_list: ['.*-apb$']
+    """
+    And admin redeploys "asb" dc
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should match:
+      | Type: dockerhub      |
+      | Type: rhcc           |
+
+    #And admin redeploys "asb" dc
+    Given I switch to the first user
+    And I have a project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl                                                             |
+      | -H                                                               |
+      | Authorization: Bearer <%= cb.asb_token %>                        |
+      | -sk                                                              |
+      | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+    Then the output should match:
+      | rh  |
+      | dh  |
+
