@@ -2136,9 +2136,7 @@ Feature: jenkins.feature
       | job_number | 1              |
       | time_out   | 300            |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | dc |
-    And I wait until number of replicas match "3" for replicationController "frontend"
+    And I wait until number of replicas match "3" for replicationController "frontend-1"
     Examples:
       | ver |
       | 1   |
