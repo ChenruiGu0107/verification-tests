@@ -206,3 +206,48 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | amount   | 0       |
       | quota    | 4.0 GiB |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  Scenario Outline: User can not use the no-positive-integer value to set subscription
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | <resource> |
+    Then the step should succeed
+
+    When I perform the :set_resource_amount_by_input web action with:
+      | resource | <resource> |
+      | amount   | -1         |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web action with:
+      | text | -1 |
+    Then the step should succeed
+
+    When I perform the :set_resource_amount_by_input web action with:
+      | resource | <resource> |
+      | amount   | 1.7        |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web action with:
+      | text | 1.7 |
+    Then the step should succeed
+
+    When I perform the :set_resource_amount_by_input web action with:
+      | resource | <resource> |
+      | amount   | abc        |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web action with:
+      | text | abc |
+    Then the step should succeed
+
+    When I perform the :set_resource_amount_by_input web action with:
+      | resource | <resource> |
+      | amount   | 1 3        |
+    Then the step should succeed
+    When I perform the :check_page_not_contain_text web action with:
+      | text | 1 3 |
+    Then the step should succeed
+
+    Examples:
+    | resource            |  
+    | storage             | # @case_id OCP-15842
+    | memory              | # @case_id OCP-15843
+    | terminating_memory  | # @case_id OCP-15844

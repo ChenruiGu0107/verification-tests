@@ -1,0 +1,11 @@
+check_page_contain_text:
+  element:
+    selector:
+      xpath: //*[contains(.,'<text>')]
+    timeout: 30
+check_page_not_contain_text:
+  element:
+    selector:
+      visible_text: !ruby/regexp /<text>/
+    missing: true
+    timeout: 20
