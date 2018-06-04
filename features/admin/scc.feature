@@ -728,10 +728,10 @@ Feature: SCC policy related scenarios
       | n | <%= project.name %>                                                     |
     Then the step should succeed
     When I run the :create_rolebinding admin command with:
-      | rolebinding_name  | scc-rolebinding                     |
-      | user              | <%= user(0, switch: false).name %>  |
-      | role              | role-18828                          |
-      | n                 | <%= project.name %>                 |
+      | name  | scc-rolebinding                     |
+      | user  | <%= user(0, switch: false).name %>  |
+      | role  | role-18828                          |
+      | n     | <%= project.name %>                 |
     Then the step should succeed
     Given I switch to the first user
     When I run the :create client command with:
@@ -749,13 +749,14 @@ Feature: SCC policy related scenarios
    # @case_id OCP-18836
    @admin
    Scenario: Allow scc access via RBAC at cluster level
+    Given admin ensures "crole-18836" cluster_role is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml |
     Then the step should succeed
     When I run the :create_clusterrolebinding admin command with:
-      | clusterrolebinding_name  | scc-crolebinding                     |
-      | user                     | <%= user(0, switch: false).name %>   |
-      | clusterrole              | crole-18836                          |
+      | name         | scc-crolebinding                     |
+      | user         | <%= user(0, switch: false).name %>   |
+      | clusterrole  | crole-18836                          |
     Then the step should succeed
     Given I switch to the first user
     Given I have a project
@@ -768,7 +769,3 @@ Feature: SCC policy related scenarios
       | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json | 
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
-    And I run the :delete admin command with:                                                                                                    
-      | object_type       |  clusterrole  |
-      | object_name_or_id |  crole-18836  |
-    Then the step should succeed
