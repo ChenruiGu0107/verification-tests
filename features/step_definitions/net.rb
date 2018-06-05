@@ -180,10 +180,12 @@ Given /^I verify server HTTP keep-alive with:$/ do |table|
   continue_timeout = nil
 
   Socket.tcp(hostname, 80, connect_timeout: 5) do |sock|
-    buffered_socket = Net::BufferedIO.new(sock,
-                                          read_timeout: read_timeout,
-                                          continue_timeout: continue_timeout,
-                                          debug_output: logger)
+    # BufferedIO is not for direct use, not documented, see source
+    buffered_socket = Net::BufferedIO.new(sock)
+    buffered_socket.read_timeout = read_timeout
+    buffered_socket.continue_timeout = continue_timeout
+    buffered_socket.debug_output = logger
+
     ## preform one simple HTTP request
     begin
       # sock.sendmsg request_string
