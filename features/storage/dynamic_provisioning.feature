@@ -20,48 +20,32 @@ Feature: Dynamic provisioning
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
 
-    When I run the :get admin command with:
-      | resource | pv |
-    Then the output should contain:
-      | dynamic-pvc1-<%= project.name %> |
-
-    When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
-    Then the step should succeed
-    And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name1 clipboard
-
-    And I save volume id from PV named "<%= cb.pv_name1 %>" in the :volumeID1 clipboard
+    And I save volume id from PV named "<%= pvc.volume_name %>" in the :volumeID clipboard
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod1                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | <%= pvc.name %>       |
+      | ["metadata"]["name"]                                         | mypod1                |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider> |
     Then the step should succeed
     And the pod named "mypod1" becomes ready
     When I execute on the pod:
       | touch | /mnt/<cloud_provider>/testfile_1 |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type | pod |
-      | all         |     |
-    Then the step should succeed
-
-    When I run the :delete client command with:
-      | object_type | pvc |
-      | all         |     |
-    Then the step should succeed
+    Given I ensure "<%= pod.name %>" pod is deleted
+    And I ensure "<%= pvc.name %>" pvc is deleted
 
     Given I switch to cluster admin pseudo user
-    Then I wait for the resource "pv" named "<%= cb.pv_name1 %>" to disappear within 1200 seconds
+    Then I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
     Given I use the "<%= cb.nodes[0].name %>" node
     When I run commands on the host:
       | mount |
     Then the step should succeed
     And the output should not contain:
-      | <%= cb.pv_name1 %> |
-      | <%= cb.volumeID1 %> |
-    And I verify that the IAAS volume with id "<%= cb.volumeID1 %>" was deleted
+      | <%= pvc.volume_name %> |
+      | <%= cb.volumeID %>     |
+    And I verify that the IAAS volume with id "<%= cb.volumeID %>" was deleted
 
     Examples:
       | cloud_provider |
