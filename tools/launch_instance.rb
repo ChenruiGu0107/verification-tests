@@ -608,6 +608,7 @@ module CucuShift
 
       # finally execute and normalize template
       template_result = template.result(erb_binding)
+      puts "Loading Template:\n#{template_result}"
       begin
         template = YAML.load(template_result)
       rescue
