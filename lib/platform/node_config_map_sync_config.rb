@@ -11,7 +11,7 @@ module CucuShift
           service,
           "/etc/origin/node/node-config.yaml"
         )
-        sync_running = true
+        @sync_permitted = true
       end
 
       def merge!(yaml)
@@ -20,8 +20,7 @@ module CucuShift
       end
 
       def restore
-        simple_config.restore
-        ret = apply
+        ret = simple_config.restore
         sync_start!
         return ret
       end
@@ -74,23 +73,45 @@ module CucuShift
         #end
       end
 
-      private def sync_running?
-        @sync_running
+      protected def sync_permitted?
+        @sync_permitted
       end
 
-      private def sync_start!
-        return if sync_running?
-        patch_daemon_set(@node_selector_orig)
-        @sync_running = true
+      protected def node_selector_orig
+        @node_selector_orig
       end
 
-      private def sync_stop!
-        @node_selector_orig ||= sync_daemon_set.node_selector(
+      protected def node_selector_orig=(value)
+        @node_selector_orig ||= value
+      end
+
+      private def sync_permitted_by_all?
+        service.env.nodes.all? { |n| n.service.config.sync_permitted? }
+      end
+
+      private def set_node_selector_orig_for_all
+        return if node_selector_orig
+        selector = sync_daemon_set.node_selector(
           user: service.env.admin,
           cached: false
         )
-        patch_daemon_set({"disabled" => "for-testing"})
-        @sync_running = false
+        service.env.nodes.each { |node|
+          node.service.config.node_selector_orig = selector
+        }
+      end
+
+      private def sync_start!
+        @sync_permitted = true
+        patch_daemon_set(node_selector_orig) if sync_permitted_by_all?
+      end
+
+      private def sync_stop!
+        if sync_permitted_by_all?
+          # sync should be running ATM
+          set_node_selector_orig_for_all
+          patch_daemon_set({"disabled" => "for-testing"})
+        end
+        @sync_permitted = false
       end
     end
   end

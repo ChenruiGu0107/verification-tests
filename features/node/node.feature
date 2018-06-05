@@ -13,7 +13,7 @@ Feature: Node management
   # @author yinzhou@redhat.com
   # @case_id OCP-11706
   @admin
-  Scenario: The valid client cert and key should be accepted when connect to kubelet	
+  Scenario: The valid client cert and key should be accepted when connect to kubelet
     Given I use the first master host
     And I run commands on the host:
       | curl https://<%= host.hostname %>:10250/spec/ --cert /etc/origin/master/master.kubelet-client.crt  --cacert /etc/origin/master/ca.crt --key /etc/origin/master/master.kubelet-client.key |
@@ -74,9 +74,8 @@ Feature: Node management
       experimental-allowed-unsafe-sysctls:
       - 'kernel.shm*,kernel.msg*,kernel.sem,fs.mqueue.*,net.*'
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
-    Given I have a project
+    And I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe-invalid1.yaml |
     Then the step should fail
@@ -233,7 +232,7 @@ Feature: Node management
   # @case_id OCP-10472
   @admin
   @destructive
-  Scenario: enable pods-per-core and max-pods in node configuration	
+  Scenario: enable pods-per-core and max-pods in node configuration
     Given I store the schedulable nodes in the :nodes clipboard
     Given config of all nodes is merged with the following hash:
     """
@@ -748,7 +747,7 @@ Feature: Node management
       | requests   | cpu=300m,memory=300Mi                                          |
       | restart    | Never                                                          |
       | command    | true                                                           |
-      | oc_opt_end |                                                                | 
+      | oc_opt_end |                                                                |
       | cmd        | stress                                                         |
       | cmd        | --vm                                                           |
       | cmd        | 1                                                              |
@@ -785,7 +784,7 @@ Feature: Node management
     Then the output should match:
       | pod-stress-bu-more\\s+.*OOMKilled |
     """
- 
+
 
   # @author qwang@redhat.com
   # @case_id OCP-14638
@@ -798,7 +797,7 @@ Feature: Node management
     And evaluation of `cb.nodes[0].capacity_cpu(user: admin)` is stored in the :node_capacity_cpu clipboard
     And evaluation of `cb.nodes[0].capacity_memory` is stored in the :node_capacity_memory clipboard
     And evaluation of `cb.nodes[0].allocatable_cpu` is stored in the :node_allocate_cpu clipboard
-    And evaluation of `cb.nodes[0].allocatable_memory` is stored in the :node_allocate_memory clipboard    
+    And evaluation of `cb.nodes[0].allocatable_memory` is stored in the :node_allocate_memory clipboard
     And the expression should be true> <%= cb.node_capacity_cpu %> == <%= cb.node_allocate_cpu %>
     And the expression should be true> <%= cb.node_capacity_memory %> - <%= cb.node_allocate_memory %> == 100 * 1024 * 1024
     When I run commands on the host:
