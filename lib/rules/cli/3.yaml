@@ -470,6 +470,7 @@
     :template: --template=<value>
     :param_file: --param-file=<value>
     :env_file: --env-file <value>
+    :source_secret: --source-secret=<value>
 :new_build:
   :cmd: oc new-build
   :options:
@@ -498,6 +499,7 @@
     :to : --to=<value>
     :no-output: --no-output=<value>
     :env_file: --env-file=<value>
+    :source_secret: --source-secret=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:

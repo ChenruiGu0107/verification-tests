@@ -398,3 +398,103 @@ Feature: stibuild.feature
       | resource_name | bc/ruby-sample-build |
     Then the output should contain:
       | Restoring artifacts |
+
+  # @wewang@redhat.com
+  # @case_id OCP-15506
+  Scenario: Create a build configuration based on a private remote git repository
+    Given I have a project
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %> |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo      | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | source_secret | mysecret |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    Then I run the :delete client command with:
+      | object_type       | buildConfig      |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo      | https://github.com/openshift/ruby-hello-world |
+      | source_secret | nonsecret                                     |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    Then the "ruby-hello-world-1" build becomes :pending
+    Given 60 seconds have passed
+    Given I get project builds
+    Then the output should contain "Pending"
+    Then I run the :delete client command with:
+      | object_type       | buildConfig      |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo     | openshift/ruby:2.3~<%= cb.git_repo %> |
+      | source_secret| mysecret                              | 
+    Then the step should succeed
+    And the "sample-1" build was created
+    And the "sample-1" build completed
+
+  # @wewang@redhat.com
+  # @case_id OCP-15507
+  Scenario: Creates a new application based on the source code in a private remote repository
+    Given I have a project
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %> |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo      | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | source_secret | mysecret |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    Then I run the :delete client command with:
+      | object_type       | buildConfig      |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    Then I run the :delete client command with:
+      | object_type       | deploymentConfig |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    Then I run the :delete client command with:
+      | object_type       | service          |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo      | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | source_secret | nonsecret |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    Then the "ruby-hello-world-1" build becomes :pending
+    Given 60 seconds have passed
+    Given I get project builds
+    Then the output should contain "Pending"
+    When I run the :delete client command with:
+      | object_type       | buildConfig      |
+      | object_name_or_id | ruby-hello-world |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo     | openshift/ruby:2.3~<%= cb.git_repo %> |
+      | source_secret| mysecret                              |
+    Then the step should succeed
+    And the "sample-1" build was created
+    And the "sample-1" build completed
