@@ -353,7 +353,6 @@ Feature: Node management
       keep-terminated-pod-volumes:
       - "invalid"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all schedulable nodes is merged with the following hash:
@@ -362,7 +361,6 @@ Feature: Node management
       keep-terminated-pod-volumes:
       - "12345"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all schedulable nodes is merged with the following hash:
@@ -371,7 +369,6 @@ Feature: Node management
       keep-terminated-pod-volumes:
       - "$%^&*!@#"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
 
