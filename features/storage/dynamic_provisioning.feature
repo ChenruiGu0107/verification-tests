@@ -311,15 +311,10 @@ Feature: Dynamic provisioning
 
   # @author jhou@redhat.com
   @admin
-  @destructive
   Scenario Outline: Specify a file system type for dynamically provisioned volume
     Given I have a project
-
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-fstype.yml" where:
-      | ["metadata"]["name"]     | storageclass-<%= project.name %> |
-      | ["provisioner"]          | kubernetes.io/<provisioner>      |
-      | ["parameters"]["fstype"] | <fstype>                         |
-    Then the step should succeed
+    And admin clones storage class "storageclass-<%= project.name %>" from ":default" with:
+      | ["parameters"]["fstype"] | <fstype> |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
@@ -343,12 +338,10 @@ Feature: Dynamic provisioning
       | <fstype> |
 
     Examples:
-      | provisioner    | fstype |
-      | aws-ebs        | xfs    | # @case_id OCP-16058
-      | gce-pd         | xfs    | # @case_id OCP-16059
-      | cinder         | xfs    | # @case_id OCP-16060
-      | azure-disk     | xfs    | # @case_id OCP-16061
-      | vsphere-volume | xfs    | # @case_id OCP-16057
+      | fstype |
+      | xfs    | # @case_id OCP-16058
+      | ext3   | # @case_id OCP-16059
+      | ext4   | # @case_id OCP-16060
 
   # @author chaoyang@redhat.com
   # @case_id OCP-17188
@@ -356,7 +349,7 @@ Feature: Dynamic provisioning
   Scenario: User can dynamic created encryted ebs volume
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/sc_encrypted.yaml" where:
-    | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
