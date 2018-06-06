@@ -67,7 +67,7 @@ check_event_message_missing:
 check_all_events_hidden_by_filter:
   element:
     selector:
-      xpath: //span[normalize-space(text())="All events hidden by filter." and a[text()="Clear Filter"]]
+      xpath: //span[normalize-space(text())="All events hidden by filter." and *[contains(.,'Clear')]]
 filter_by_keyword:
   elements:
   - selector:

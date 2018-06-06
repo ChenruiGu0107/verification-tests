@@ -30,9 +30,8 @@ Feature: check page info related
     Then the output should contain "Test"
     When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
-    And I get the "text" attribute of the "element" web element:
-      | xpath | //div/ul/li[1]/a[@tabindex="0"] |
-    Then the output should contain "Test"
+      | text         | Test                |
+    Then the step should succeed
     When I perform the :check_project_without_quota_settings web console action with:
       | project_name | <%= project.name %> |
     When I get the html of the web page

@@ -85,6 +85,7 @@ Feature: oc plugin related tests
   # @case_id OCP-14849
   @admin @destructive
   Scenario: check search order and list folders for oc plugins
+    Given I log the message> this auto script is not suitable for container installed env
     Given I select a random node's host
     When I run commands on the host:
       | mkdir -p kubectl_plugins_path/mytestplugin                 |

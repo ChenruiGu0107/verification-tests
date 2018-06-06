@@ -5,10 +5,13 @@ check_project_overview_without_resource:
   elements:
   - selector:
       text: Get started with your project.
+  action:
+    if_param: text 
+    ref: check_project_text
+check_project_text:
+  elements:
   - selector:
-      class: dropdown-toggle
-    type: button
-    op: click
+      xpath: //button/span[contains(.,'<text>')]
 check_autoscaler_min_pod_on_overview_page:
   action: goto_overview_page
   action: expand_resource_entry

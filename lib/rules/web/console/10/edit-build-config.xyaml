@@ -133,7 +133,7 @@ choose_image_source_from:
 choose_image_source_namespace:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.namespace"]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(@ng-model,'istag.namespace')]
     op: click
   - selector:
       xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_namespace>")]
@@ -141,7 +141,7 @@ choose_image_source_namespace:
 choose_image_source_is:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.imageStream"]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(@ng-model,'istag.imageStream')]
     op: click
   - selector:
       xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_is>")]
@@ -149,7 +149,7 @@ choose_image_source_is:
 choose_image_source_tag:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.tagObject"]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(@ng-model,'istag.tagObject')]
     op: click
   - selector:
       xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_tag>")]
@@ -212,7 +212,7 @@ choose_bc_output_image_option_to_none:
 choose_output_image_namespace:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.namespace"]
+      xpath: //istag-select[@model='imageOptions.to.imageStreamTag']//div[contains(@ng-model,'istag.namespace')]
     op: click
   - selector:
       xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,'<output_image_namespace>')]
@@ -220,7 +220,7 @@ choose_output_image_namespace:
 choose_output_image_is:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.imageStream"]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(@ng-model,'istag.imageStream')]
     op: click
   - selector:
       xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,'<output_image_is>')]
@@ -228,10 +228,10 @@ choose_output_image_is:
 set_output_image_tag:
   elements:
   - selector:
-      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.tagObject"]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(@ng-model,'istag.tagObject')]
     op: click
   - selector:
-      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.tagObject"]//input[@placeholder="Tag"]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(@ng-model,'istag.tagObject')]//input[@placeholder="Tag"]
     op: send_keys <output_image_tag>
   - selector:
       xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,"<output_image_tag>")]

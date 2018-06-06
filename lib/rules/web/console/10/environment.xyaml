@@ -64,12 +64,12 @@ click_add_environment_variable:
 add_env_var_key:
   element:
     selector:
-      xpath: //div[@ng-repeat="entry in entries"][count(//osc-form-section[@header='Environment Variables']//div[@ng-repeat="entry in entries"])]/div[1]/input
+      xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[1]/input
     op: send_keys <env_var_key>
 add_env_var_value:
   element:
     selector:
-      xpath: //div[@ng-repeat="entry in entries"][count(//osc-form-section[@header='Environment Variables']//div[@ng-repeat="entry in entries"])]/div[2]//input
+      xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[2]//input
     op: send_keys <env_var_value>
 add_env_var_for_dc_container:
   action: add_env_var_key_for_dc_container
