@@ -23,12 +23,14 @@ module CucuShift
       end
 
       def restore
-        config_file.restore
-        apply
+        if config_file.modified?
+          config_file.restore
+          apply
+        end
       end
 
       def apply
-        service.restart
+        service.restart(raise: true)
       end
     end
   end

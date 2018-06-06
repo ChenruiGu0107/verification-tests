@@ -25,6 +25,7 @@ module CucuShift
       def config_modified?
         @config_modified
       end
+      alias modified? config_modified?
 
       def config_file_path_bak
         "#{config_file_path}.bak"

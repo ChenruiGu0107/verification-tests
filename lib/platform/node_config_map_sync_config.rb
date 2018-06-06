@@ -20,9 +20,8 @@ module CucuShift
       end
 
       def restore
-        ret = simple_config.restore
+        simple_config.restore
         sync_start!
-        return ret
       end
 
       def apply
@@ -101,8 +100,11 @@ module CucuShift
       end
 
       private def sync_start!
-        @sync_permitted = true
-        patch_daemon_set(node_selector_orig) if sync_permitted_by_all?
+        unless sync_permitted?
+          # only try to start sync if we had changes
+          @sync_permitted = true
+          patch_daemon_set(node_selector_orig) if sync_permitted_by_all?
+        end
       end
 
       private def sync_stop!
