@@ -826,16 +826,19 @@ end
 ## Standalone test
 if __FILE__ == $0
   extend CucuShift::Common::Helper
+  require 'pry'
   test_res = {}
+  service_matcher = ARGV.first || ""
   conf[:services].each do |name, service|
     if service[:cloud_type] == 'openstack' &&
-        name.to_s.end_with?("_snvl2") &&
+        name.to_s.include?(service_matcher) &&
         service[:password]
       os = CucuShift::OpenStack10.new(service_name: name)
       res = true
       test_res[name] = res
       begin
         os.launch_instances(names: ["test_terminate"])
+        binding.pry if ARGV[1] == "true"
         os.delete_instance "test_terminate"
         test_res[name] = false
       rescue => e
@@ -848,5 +851,5 @@ if __FILE__ == $0
     puts "OpenStack instance #{name} failed: #{res}"
   end
 
-  require 'pry'; binding.pry
+  binding.pry
 end
