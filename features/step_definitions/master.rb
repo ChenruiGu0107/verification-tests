@@ -94,8 +94,15 @@ end
 Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   ensure_admin_tagged
   cb_name ||= :etcd_version
-  @result = env.master_hosts.first.exec("openshift version")
-  etcd_version = @result[:response].match(/etcd (.+)$/)[1]
+  # get etcd version depending if we have that executable installed or not
+  @result = env.master_hosts.first.exec("etcd --version")
+  if @result[:success]
+    etcd_regex = /etcd Version:\s+(.+)$/
+  else
+    etcd_regex = /etcd (.+)$/
+    @result = env.master_hosts.first.exec('openshift version')
+  end
+  etcd_version = @result[:response].match(etcd_regex)[1]
   raise "Can not retrieve the etcd version" if etcd_version.nil?
   cb[cb_name] = etcd_version
 end

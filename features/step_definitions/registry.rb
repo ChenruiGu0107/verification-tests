@@ -333,8 +333,14 @@ Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |c
   # save the orignial project name
   org_proj_name = project(generate: false).name rescue nil
   cb_name ||= :registry_ip
-  cb[cb_name] = service("docker-registry", project('default')).url(user: admin)
-  project(org_proj_name) if org_proj_name
+  # XXX: TODO verify which OCP version the dns name does not resolve 
+  # Error response from daemon: Get https://docker-registry.default:5000/v1/users/: dial tcp: lookup docker-registry.default on 172.16.120.63:53: no such host
+  if env.version_ge("3.10", user: user)
+    cb[cb_name] = "docker-registry.default.svc:5000"
+  else
+    cb[cb_name] = service("docker-registry", project('default')).url(user: admin)
+    project(org_proj_name) if org_proj_name
+  end
 end
 
 Given /^default (docker-registry|registry-console) route is stored in the#{OPT_SYM} clipboard$/ do |route_name, cb_name|
@@ -349,7 +355,9 @@ end
 Given /^I store the default registry scheme to the#{OPT_SYM} clipboard$/ do |cb_name|
   ensure_admin_tagged
   cb_name ||= :registry_scheme
-  @result = admin.cli_exec(:get, resource: 'dc', resource_name: 'docker-registry', o: 'yaml')
+  @result = admin.cli_exec(:get, resource: 'dc', resource_name: 'docker-registry', n: 'default', o: 'yaml')
+  # try ds if we got nothing from dc
+  @result = admin.cli_exec(:get, resource: 'ds', resource_name: 'docker-registry', n: 'default', o: 'yaml') unless @result[:success]
   @result[:parsed] = YAML.load(@result[:response])
   cb[cb_name] = @result[:parsed].dig('spec', 'template', 'spec', 'containers')[0].dig('livenessProbe','httpGet','scheme').downcase
 end
