@@ -163,5 +163,9 @@ module CucuShift
       @executors.values.each(&:finalize)
       @executors.clear
     end
+
+    def set_executor_for_user(user, executor)
+      @executors[user.name] = executor
+    end
   end
 end

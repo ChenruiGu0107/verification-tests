@@ -25,13 +25,29 @@ When /^I access the "(.*?)" (?:path|url) in the web (?:console|browser)$/ do |ur
 end
 
 Given /^I login via web console$/ do
-  step "I run the :null web console action"
+  @result = env.webconsole_executor.login(user)
 
   unless @result[:success]
     logger.error(@result[:response])
     raise "#{user.name} login via web console failed"
   end
 end
+
+Given /^I logout via web console$/ do
+  env.webconsole_executor.logout(user)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{user.name} logout via web console failed"
+  end
+end
+
+Given /^the (.*) user is using same web console browser as (.*)$/ do |who, from_who|
+  new_user = user(word_to_num(who))
+  base_user = user(word_to_num(from_who))
+  env.webconsole_executor.set_executor_for_user(new_user, base_user.webconsole_executor)
+end
+
 
 # @author cryan@redhat.com
 # @params the table is to be populated with values from the initialization

@@ -80,3 +80,30 @@ goto_edit_project_page:
   element:
     selector:
       xpath: //h1[contains(text(),"<project_name>")]
+set_home_page:
+  action: click_user_dropdown
+  action: click_set_homepage
+  action: set_homepage_in_modal
+set_homepage_in_modal:
+  element:
+    selector:
+      xpath: //input[@value="<prefered_homepage>"]
+    op: click
+    timeout: 30
+  action:
+    if_param: project_name
+    ref:      select_project_for_homepage
+  action: click_save_button
+select_project_for_homepage:
+  elements:
+  - selector:
+      xpath: //span[contains(@class,'ui-select-toggle')]
+    op: click
+  - selector:
+      xpath: //span/span[contains(text(),"<project_name>")]
+    op: click
+click_set_homepage:
+  elements:
+  - selector:
+      text: Set Home Page
+    op: click
