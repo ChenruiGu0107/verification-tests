@@ -233,10 +233,10 @@ Feature: mysql_images.feature
     And the output should contain:
       | 10 |
     Examples:
-      | sclname    |image                     | org_image                  | template            | file                                                                                             |
-      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json | # @case_id OCP-11177
-      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json | # @case_id OCP-11747
-      | rh-mysql57 |centos/mysql-57-centos7   | rhscl/mysql-57-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.7/examples/replica/mysql_replica.json | # @case_id OCP-11837
+      | sclname    |image                     | org_image                  | template            | file                                                                                                |
+      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json    | # @case_id OCP-11177
+      | rh-mysql56 |centos/mysql-57-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/sclorg/mysql-container/master/examples/replica/mysql_replica.json | # @case_id OCP-11747
+      | rh-mysql57 |centos/mysql-57-centos7   | rhscl/mysql-57-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/sclorg/mysql-container/master/examples/replica/mysql_replica.json | # @case_id OCP-11837
 
   # @author haowang@redhat.com
   Scenario Outline: Data remains after pod being scaled up from 0 for clustered mysql - mysql-55-rhel7 mysql-57-rhel7
