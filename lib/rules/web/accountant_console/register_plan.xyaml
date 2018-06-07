@@ -1,3 +1,5 @@
+# --- This is register different cluster plans related page
+
 check_free_plan_info:
   elements:
   - selector:

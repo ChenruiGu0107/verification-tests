@@ -76,3 +76,14 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I perform the :click_resume_your_subscription_confirm web action with:
       | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-12752
+  Scenario: Check 'Manage Subscription' page
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :check_page_logo_banner web action
+    Then the step should succeed
+    When I run the :check_addon_resources web action
+    Then the step should succeed

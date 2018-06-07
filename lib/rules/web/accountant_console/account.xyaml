@@ -1,16 +1,30 @@
-# --- subscription index related page (no detail sub pages)
+# --- subscription overview page (current plan page, no detail sub pages) 
+
+check_page_logo_banner:
+  elements:
+  - selector:
+      xpath: //a[@href='/']/img[@alt='OpenShift Online']
+check_page_title:
+  scripts:
+  - command: return document.title=="Manage Subscription - Openshift Online"
+    expect_result: true
+check_page_dropdown:
+  element: &dropdown
+    selector:
+      xpath: //a[@class='dropdown-toggle']
+click_page_dropdown:
+  element:
+    <<: *dropdown
+    op: click
 check_account_name:
   elements: 
   - selector: 
       xpath: //*[@class="dropdown-toggle" and contains(., "<account_name>")]
     timeout: 50
 check_account_page:
+  action: check_page_logo_banner
+  action: click_page_dropdown
   elements:
-  - selector:
-      xpath: //a[@href='/']/img[@alt='OpenShift Online']
-  - selector:
-      xpath: //a[@class='dropdown-toggle']
-    op: click
   - selector:
       xpath: //a[@href='<console_url>' and text()='Go to OpenShift console']
   - selector:
@@ -110,87 +124,43 @@ check_cancel_your_service_notice:
   - selector:
       xpath: //*[contains(.,'automatically renew on the 1st day of each month')]
   action: check_cancel_your_service_link
-check_cancel_your_service_link:    
-  element: &cancel_service
-    selector: 
-      xpath: //a[contains(@href, '/cancel') and contains(.,'cancel your service')]
-click_cancel_your_service:
-  element:
-    <<: *cancel_service
-    op: click
-  action: check_cancel_service_warning
-check_cancel_service_warning:
+  action: check_keep_current_plan_to_index
+check_keep_current_plan_to_index:
   elements:
   - selector:
-      xpath: //*[contains(., 'will delete all resources') and contains(.,'Red Hat account, products, and services will not be impacted')]
-  - selector:
-      xpath: //*[contains(., 'continue to use your OpenShift Online service until') and contains(.,'deletion of account data cannot be undone')]
-  - selector:
-      xpath: //*[contains(@href, '/basic_cli_operations.html') and contains(.,'back up your project data')]  
-  - selector:
-      xpath: //*[contains(., 'additional storage, application memory, or terminating memory will also be canceled') and contains(.,'lose any outstanding credit balance')]
-cancel_your_service_with_wrong_username:
+      xpath: //*[contains(@href, "/index") and contains(.,"Keep Current Plan")] 
+check_addon_resources:
+  action: check_addon_memory
+  action: check_addon_storage
+  action: check_addon_terminating_memory
+check_addon_memory:
   params:
-    username: fake
-  action: input_username
+    resource_icon: memory
+    resource_type: memory
+    resource_name: Memory
+    resource_url: memory
+  action: check_addon_resource_elements
+check_addon_storage:
+  params:
+    resource_icon: volume
+    resource_type: storage
+    resource_name: Storage
+    resource_url: storage
+  action: check_addon_resource_elements
+check_addon_terminating_memory:
+  params:
+    resource_icon: build
+    resource_type: terminating memory
+    resource_name: Terminating Memory
+    resource_url: terminating_memory
+  action: check_addon_resource_elements
+check_addon_resource_elements:
   elements:
   - selector:
-      xpath: //*[@value="Cancel Subscription" and @disabled="disabled"]
-cancel_your_service_correctly:
-  action: input_username
-  action: confirm_cancel_service
-  action: check_cancel_service_post_message
-input_username:
-  elements:
+      xpath: //*[contains(@class, "card-pf-icon-circle pficon pficon-<resource_icon>")]
   - selector:
-      id: username_confirm
-    type: input
-    op: clear
+      text: <resource_name>
   - selector:
-      id: username_confirm
-    type: input
-    op: send_keys <username>
-confirm_cancel_service:
-  elements:
+      xpath: //*[contains(., "Purchase") and contains(.,"<resource_name>")]
   - selector:
-      xpath: //*[@value="Cancel Subscription"]
-    op: click
-check_cancel_service_post_message:
-  elements:
-  - selector:
-      xpath: //*[contains(., 'subscription has been cancelled') and contains(., 'will not be charged')]
-  - selector:
-      xpath: //*[contains(., 'will be deactivated') and contains(.,'will be deleted')]
-  - selector:
-      xpath: //*[contains(@href, "/basic_cli_operations.html") and contains(.,"back up your project data")] 
-  - selector:
-      xpath: //*[contains(@href, "/resume") and contains(.,"resume your subscription")] 
-check_keep_current_plan:
-  elements:
-  - selector:
-      xpath: //*[contains(@href, "/overview") and contains(.,"Keep Current Plan")]
-click_resume_your_subscription_confirm:
-  action: click_resume_your_subscription
-  elements:
-  - selector:
-      xpath: //*[@value="Resume Subscription"]
-    op: click
-  - selector:
-      xpath: //*[contains(., 'Subscription successfully resumed')]
-    timeout: 30
-  - selector:
-      xpath: //*[contains(@href, '/overview') and contains(.,'Change')]
-click_resume_your_subscription:
-  elements:
-  - selector:
-      xpath: //*[contains(.,"use your OpenShift Online service until") and contains(.,"<last_date>")]
-  - selector:
-      xpath: //*[contains(@href, "/resume") and contains(.,"resume your subscription")] 
-    op: click
-  - selector: 
-      xpath: //*[@value="Resume Subscription"]
-  - selector: 
-      xpath: //*[contains(., 'Changed your mind?')]   
-  - selector:
-      xpath: //*[contains(@href, "/index") and contains(.,"still want to cancel")]     
-  action: check_plan_includes_content
+      xpath: //*[@role="button" and contains(@href, "<resource_url>") and contains(.,"Manage <resource_name>")]
