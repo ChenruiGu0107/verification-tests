@@ -31,7 +31,7 @@ check_pro_plan_info:
   - selector:
       text: 2GiB Memory Included 
   - selector:
-      text: 2GiB Terminating Memory Included
+      xpath: //*[contains(., '2GiB Terminating Memory Included') and contains(., 'terminating resource quota applies to pods with an active deadline')]
   - selector:
       text: Up to 48GiB Memory
   - selector:
@@ -46,6 +46,8 @@ check_pro_plan_info:
       text: Supports Custom Domains
   - selector:
       text: Scheduled Jobs
+  - selector:
+      xpath: //*[@href="/register/pro_cluster" and contains(., "Starting at $50.00/Month")]
 click_starting_at_fifty_dollars_per_month_button:
   element:
     selector:
