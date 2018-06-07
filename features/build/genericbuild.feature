@@ -256,3 +256,28 @@ Feature: genericbuild.feature
       | buildconfig | ruby22-sample-build |
     Then the step should succeed
     And the "ruby22-sample-build-2" build completed 
+
+  # @author wewang@redhat.com
+  # @case_id OCP-10965
+  @admin
+  @destructive
+  Scenario: Configure the noproxy BuildDefaults when build
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://error.rdu.redhat.com:3128
+            gitHTTPSProxy: https://error.rdu.redhat.com:3128
+            gitNoProxy: github.com 
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build completed
