@@ -25,6 +25,7 @@ When /^I access the "(.*?)" (?:path|url) in the web (?:console|browser)$/ do |ur
 end
 
 Given /^I login via web console$/ do
+  cache_browser(user.webconsole_executor)
   @result = env.webconsole_executor.login(user)
 
   unless @result[:success]
