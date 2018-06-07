@@ -169,7 +169,7 @@ Feature: Route test in online environments
       | o             | template                                |
       | template      | {{range .rules}} {{.resources}} {{end}} |
     Then the step should succeed
-    And the output should not contain "routes/custom-host"
+    And the output should contain "cicd-is-disabling-routes/custom-host"
 
     When I run the :get client command with:
       | resource      | clusterrole                             |
@@ -177,7 +177,7 @@ Feature: Route test in online environments
       | o             | json                                    |
       | template      | {{range .rules}} {{.resources}} {{end}} |
     Then the step should succeed
-    And the output should not contain "routes/custom-host"
+    And the output should contain "cicd-is-disabling-routes/custom-host"
 
   # @author zhaliu@redhat.com
   # @case_id OCP-16321
