@@ -7,7 +7,11 @@ check_internal_registry_in_about_page_online:
   action: goto_about_page
   elements:
   - selector:
-      xpath: //input[@id='clipboardJs1' and @value='<internal_registry>']/..//a[@role='button' and @data-clipboard-text='<internal_registry>']
+      xpath: //input[@value="docker login <internal_registry> -u $(oc whoami) -p $(oc whoami -t)"]/..//a[@data-original-title="Copy to Clipboard"]
+  - selector:
+      xpath: //input[@value="docker push <internal_registry>/<project>/<image>:<tag>"]/..//a[@data-original-title="Copy to Clipboard"]
+  - selector:
+      xpath: //input[@value="docker pull <internal_registry>/<project>/<image>:<tag>"]/..//a[@data-original-title="Copy to Clipboard"]
 check_web_console_version:
   element:
     selector:
