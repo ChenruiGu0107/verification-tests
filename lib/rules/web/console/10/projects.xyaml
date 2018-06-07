@@ -54,8 +54,6 @@ get_disabled_project_submit_button:
     type: button
 goto_projects_page:
   url: /console/projects
-goto_project_list_page:
-  url: /console/projects
 type_project_delete_string:
   action: check_project_list
   action: click_delete_project
