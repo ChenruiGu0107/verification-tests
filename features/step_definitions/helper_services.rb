@@ -49,6 +49,8 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
   step 'I create the serviceaccount "nfs-provisioner"'
   step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
   step %Q/SCC "nfs-provisioner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
+  # To make sure the nfs-provisioner role is deleted which is created mannually by user
+  step %Q/admin ensures "nfs-provisioner-runner" clusterrole is deleted/
   step %Q{I download a file from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/clusterrole.yaml"}
   cr = YAML.load(@result[:response])
   path = @result[:abs_path]
@@ -75,8 +77,9 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
   else
     cb.nfsprovisioner = rand_str(5, :dns)
     step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/pod.yaml" replacing paths:}, table(%{
-      | ["spec"]["serviceAccount"] | nfs-provisioner                          |
-      | ["metadata"]["name"]       | nfs-provisioner-<%= cb.nfsprovisioner %> |
+      | ["spec"]["serviceAccount"]         | nfs-provisioner                                     |
+      | ["metadata"]["name"]               | nfs-provisioner-<%= cb.nfsprovisioner %>            |
+      | ["spec"]["containers"][0]["image"] | quay.io/kubernetes_incubator/nfs-provisioner:v1.0.9 |
       })
     step %Q/the pod named "nfs-provisioner-<%= cb.nfsprovisioner %>" becomes ready/
   end
@@ -108,16 +111,10 @@ Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in 
   File.write(path, cm.to_yaml)
   @result = user.cli_exec(:create, f: path)
   raise "Could not create efs-provisioner configmap" unless @result[:success]
-  #Obtain the aws id and key, simpler way, optional now
-  #host = env.master_hosts.first
-  #awsid = host.exec_admin("cat /etc/sysconfig/atomic-openshift-node | grep AWS_ACCESS_KEY_ID | awk -F '=' '{print $2}'")
-  #raise "Fail to get aws access id" unless awsid[:success]
-  #awskey = host.exec_admin("cat /etc/sysconfig/atomic-openshift-node | grep AWS_SECRET_ACCESS_KEY | awk -F '=' '{print $2}'")
-  #raise "Fail to get aws access key" unless awskey[:success]
-  #@result = user.cli_exec(:create_secret, secret_type: "generic", name: "aws-credentials", from_literal: ["aws-access-key-id=#{awsid[:response].to_s.strip}","aws-secret-access-key=#{awskey[:response].to_s.strip}"], namespace: project.name)
-  #raise "Fail to create secret of efs-provisioner" unless @result[:success]
   step 'I create the serviceaccount "efs-provisioner"'
   step %Q/SCC "hostmount-anyuid" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
+  # To make sure the efs-provisioner role is deleted which is created mannually by user
+  step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted/
   @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/auth/openshift-clusterrole.yaml")
   raise "could not create efs-provisioner ClusterRole" unless @result[:success]
   step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted after scenario/

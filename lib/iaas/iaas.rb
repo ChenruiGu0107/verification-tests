@@ -57,7 +57,7 @@ module CucuShift
           cat /etc/sysconfig/atomic-openshift-node | grep AWS_
         fi
       }
-      conn_cred = env.master_hosts[0].exec_admin(search_command)[:response].split("\n")
+      conn_cred = env.master_hosts[0].exec_admin(search_command, quiet: true)[:response].split("\n")
 
       conn_cred.each { |c|
         cred = c.split("=")
