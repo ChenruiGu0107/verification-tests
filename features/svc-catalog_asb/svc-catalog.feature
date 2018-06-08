@@ -1219,15 +1219,7 @@ Then the step should succeed
   Scenario: A user who has access to get the auth secret can create a broker resource successfully
     # 1. Login as an ordinary user1
     Given I have a project
-    When I run the :get client command with:
-      | resource | secret              |
-      | n        | <%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | <%= "default-token-"+@result[:response].split("default-token-")[1].split(" ")[0] %> |
-      | <%= "default-token-"+@result[:response].split("default-token-")[2].split(" ")[0] %> |
-    Given evaluation of `"default-token-"+@result[:response].split("default-token-")[1].split(" ")[0]` is stored in the :secret1a clipboard
-    And evaluation of `"default-token-"+@result[:response].split("default-token-")[2].split(" ")[0]` is stored in the :secret1b clipboard
+    Given secret with name matching /default-token-.*/ are stored in the :secret1 clipboard
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
@@ -1254,31 +1246,23 @@ Then the step should succeed
     And I ensure "abroker" cluster_service_broker is deleted after scenario
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/broker.yaml" replacing paths:
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | <%= project.name %> |
-      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1a %>  |
+      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1.first.name %>  |
     Then the step should succeed
     # 5. Login as another ordinary user2
     Given I switch to the second user
     When I run the :new_project client command with:
       | project_name | atestproject2 |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | secret        |
-      | n        | atestproject2 |
-    Then the step should succeed
-    And the output should contain:
-      | <%= "default-token-"+@result[:response].split("default-token-")[1].split(" ")[0] %> |
-      | <%= "default-token-"+@result[:response].split("default-token-")[2].split(" ")[0] %> |
-    Given evaluation of `"default-token-"+@result[:response].split("default-token-")[1].split(" ")[0]` is stored in the :secret2a clipboard
-    And evaluation of `"default-token-"+@result[:response].split("default-token-")[1].split(" ")[0]` is stored in the :secret2b clipboard
+    Given secret in the "atestproject2" project with name matching /default-token-.*/ are stored in the :secret2 clipboard
     # 6. Verify user1 doesn't have access to user2's auth secret, so user1 can't create a broker with user2's auth secret
     Given I switch to the first user
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/broker.yaml" replacing paths:
       | ["metadata"]["name"]                                     | bbroker            |
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | atestproject2      |
-      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret2a %> |
+      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret2.first.name %> |
     Then the step should fail
     And the output should contain:
-      | clusterservicebrokers.servicecatalog.k8s.io "bbroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2a %>) |
+      | clusterservicebrokers.servicecatalog.k8s.io "bbroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
       | Reason: User "<%= user(0).name %>" cannot get secrets in project "atestproject2" |
  
 
@@ -1289,15 +1273,7 @@ Then the step should succeed
   Scenario: A user who has access to get the auth secret can upate a broker resource successfully
     # 1. Login as an ordinary user1
     Given I have a project
-    When I run the :get client command with:
-      | resource | secret              |
-      | n        | <%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | <%= "default-token-"+@result[:response].split("default-token-")[1].split(" ")[0] %> |
-      | <%= "default-token-"+@result[:response].split("default-token-")[2].split(" ")[0] %> |
-    Given evaluation of `"default-token-"+@result[:response].split("default-token-")[1].split(" ")[0]` is stored in the :secret1a clipboard
-    And evaluation of `"default-token-"+@result[:response].split("default-token-")[2].split(" ")[0]` is stored in the :secret1b clipboard
+    Given secret with name matching /default-token-.*/ are stored in the :secret1 clipboard
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
@@ -1324,7 +1300,7 @@ Then the step should succeed
     And I ensure "abroker" cluster_service_broker is deleted after scenario
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/broker.yaml" replacing paths:
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | <%= project.name %> |
-      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1a %>  |
+      | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1.first.name %>  |
     Then the step should succeed
     # 5. User1 update the broker with user1's another secret
     When I run the :policy_can_i client command with:
@@ -1334,15 +1310,22 @@ Then the step should succeed
     And the output should contain "yes"
     When I run the :patch client command with:
       | resource | clusterservicebrokers/abroker                                                 |
-      | p        | {"spec":{"authInfo":{"bearer":{"secretRef":{"name": "<%= cb.secret1b %>"}}}}} |
+      | p        | {"spec":{"authInfo":{"bearer":{"secretRef":{"name": "<%= cb.secret1.last.name %>"}}}}} |
       | n        | <%= project.name %>                                                           |
     Then the step should succeed
+    # 5. Login as another ordinary user2
+    Given I switch to the second user
+    When I run the :new_project client command with:
+      | project_name | atestproject2 |
+    Then the step should succeed
+    Given secret in the "atestproject2" project with name matching /default-token-.*/ are stored in the :secret2 clipboard
     # 6. User1 update the broker with user2's secret 
+    Given I switch to the first user
     When I run the :patch client command with:
       | resource | clusterservicebrokers/abroker                                                                              |
-      | p        | {"spec":{"authInfo":{"bearer":{"secretRef":{"namespace": "atestproject2","name": "<%= cb.secret2b %>"}}}}} |
+      | p        | {"spec":{"authInfo":{"bearer":{"secretRef":{"namespace": "atestproject2","name": "<%= cb.secret2.first.name %>"}}}}} |
       | n        | <%= project.name %>                                                                                        |
     Then the step should fail
     And the output should contain:
-      | clusterservicebrokers.servicecatalog.k8s.io "abroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2b %>) |
+      | clusterservicebrokers.servicecatalog.k8s.io "abroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
       | Reason: User "<%= user(0).name %>" cannot get secrets in project "atestproject2" |
