@@ -316,10 +316,10 @@ module CucuShift
       return @api_version = api_paths[idx][5..-1]
     end
 
-    def nodes(user: admin, refresh: false, opts: [])
+    def nodes(user: admin, refresh: false)
       return @nodes if @nodes && !refresh
 
-      @nodes = Node.list(user: user, get_opts: opts)
+      @nodes = Node.list(user: user)
     end
 
     # selects the correct configured IAAS provider

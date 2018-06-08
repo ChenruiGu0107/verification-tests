@@ -540,16 +540,24 @@ Given /^nodes have #{NUMBER} #{WORD} hugepages configured$/ do |num, word|
   }
 end
 
-Given /^(schedulable )?nodes matching default nodes selector are stored in the#{OPT_SYM} clipboard$/ do |schedulable, cbname|
+Given /^a node that can run pods in the#{OPT_QUOTED} project is selected$/ do |project_name|
   ensure_admin_tagged
-  step %Q{the value with path "['projectConfig']['defaultNodeSelector']" in master config is stored into the :defaultnodeselector clipboard}
-  opts = []
-  if cb[:defaultnodeselector]
-    opts << [:l, cb[:defaultnodeselector]]
+  selector = project(project_name, generate: false).defined_node_selector
+  unless selector
+    step %Q{the value with path "['projectConfig']['defaultNodeSelector']" } \
+      "in master config is stored into the :defaultnodeselector clipboard"
+    selector = cb[:defaultnodeselector].split(",")&.
+      map { |l| l.split("=") }&.
+      to_h
   end
-  if schedulable
-    cb[cbname] = env.nodes(opts: opts).select { |n| n.schedulable? }
+  selector ||= {} # if no node selector in project and master config
+  node = env.nodes.find { |node|
+    node.schedulable? && substruct?(selector, node.labels || {})
+  }
+  if node
+    @host = node.host
+    cache_resources node
   else
-    cb[cbname] = env.nodes(opts: opts)
+    raise "no suitable node found"
   end
 end
