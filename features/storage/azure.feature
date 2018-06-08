@@ -290,6 +290,7 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario: Azure file persistent volume plugin test
     Given I have a project
+    And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
@@ -304,7 +305,7 @@ Feature: Azure disk and Azure file specific scenarios
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
-      | n | <%= project.name %>                                                                                             |
+      | n | <%= project.name %>                                                                                  |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready
     When I execute on the pod:
@@ -322,6 +323,7 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario: Azure file persistent volume parameters negative test 
     Given I have a project
+    And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
       | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
@@ -352,6 +354,7 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario: Azure file with secretNamespace parameter of different project
     Given I have a project
+    And azure file dynamic provisioning is enabled in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     And the azure file secret name and key are stored to the clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
@@ -419,6 +422,7 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario Outline: azureFile dynamic provisioning with storage class
     Given I have a project
+    And azure file dynamic provisioning is enabled in the project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed

@@ -920,6 +920,7 @@ Feature: storageClass related feature
   @admin
   Scenario Outline: Configure 'Retain' reclaim policy for StorageClass
     Given I have a project
+    And azure file dynamic provisioning is enabled in the project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-reclaim-policy.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
