@@ -137,6 +137,7 @@
 :cp:
   :cmd: oc cp
   :options:
+    :c: -c=<value>
     :source: <value>
     :dest: <value>
 :create:
