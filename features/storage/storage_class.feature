@@ -556,9 +556,9 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc3-<%= project.name %> |
     Then the step should succeed
-    And the output should contain:
-      | ProvisioningFailed                     |
-      | does not manage zone "<region2_zone1>" |
+    And the output should match:
+      | ProvisioningFailed                                       |
+      | does not (manage\|have a node in) zone "<region2_zone1>" |
 
     Examples:
       | provisioner | region1_zone1 | region1_zone2 | region2_zone1  |
