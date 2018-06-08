@@ -5,7 +5,7 @@ Feature: deployment related features
   Scenario: Restart a failed deployment by oc deploy
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
     Then the step should succeed
     # Wait and make the cancel succeed stably
     And I wait until the status of deployment "hooks" becomes :running
@@ -466,7 +466,7 @@ Feature: deployment related features
   Scenario: Stop a "Pending" deployment
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
     And I wait until the status of deployment "hooks" becomes :running
     And I run the :deploy client command with:
       | deployment_config | hooks |
@@ -493,7 +493,7 @@ Feature: deployment related features
   Scenario: Stop a "Running" deployment
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
     And I wait until the status of deployment "hooks" becomes :running
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -1823,10 +1823,10 @@ Feature: deployment related features
   Scenario: Deployment config with automatic=false in ICT
     #Given the master version >= "3.4"
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/application-template-with-resources.json"
-    And I replace lines in "application-template-with-resources.json":
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
       |"automatic": true|"automatic": false|
-    When I process and create "application-template-with-resources.json"
+    When I process and create "application-template-stibuild.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And 20 seconds have passed

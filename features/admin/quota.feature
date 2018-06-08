@@ -129,7 +129,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml"
     And I replace lines in "quota.yaml":
       | memory: 750Mi | memory: 20Mi        |
     And I run the :create admin command with:
@@ -156,11 +156,11 @@ Feature: Quota related scenarios
   Scenario: DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     # This template does not include bc, which does not need to create in case step, do not need to take care of AEP
@@ -168,7 +168,7 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig\\s+"hooks".*reated |
+      | "hooks".*reated |
     When I get project pods
     Then the output should contain:
       | hooks-1-deploy |

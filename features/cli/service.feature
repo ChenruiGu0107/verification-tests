@@ -44,7 +44,7 @@ Feature: service related scenarios
     Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And I select a random node's host
     When I run commands on the host:
-      | curl <%= service.url %> |
+      | curl <%= service.url(cached: false) %> |
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift! |
@@ -149,10 +149,10 @@ Feature: service related scenarios
       | tcp                 | <%= cb.hostport %>:8080,<%= cb.hostport2 %>:8443 |
     Then the step should succeed
     Given I wait for the "hello-openshift" service to become ready up to 300 seconds
-    And evaluation of `service('hello-openshift').ip(user: user)` is stored in the :cluster_ip clipboard
+    And evaluation of `service('hello-openshift').ip(user: user,cached: false)` is stored in the :cluster_ip clipboard
     And I select a random node's host
     When I run commands on the host:
-      | curl <%= service.url %> |
+      | curl <%= service.url(cached: false) %> |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 http-8080 |
