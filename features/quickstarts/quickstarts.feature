@@ -21,6 +21,7 @@ Feature: quickstarts.feature
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     | # @case_id OCP-12296
       | dotnet-example            | dotnet-example           | ASP.NET | 1     | # @case_id OCP-13749
+      | openjdk18-web-basic-s2i   | openjdk-app          | Hello World | 1     | # @case_id OCP-17826
 
   # @author shiywang@redhat.com
   # @case_id OCP-12824
