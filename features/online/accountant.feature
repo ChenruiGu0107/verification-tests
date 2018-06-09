@@ -47,6 +47,16 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :check_free_plan_info web action
     Then the step should succeed   
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-19002
+  # @note this scenario requires a user who have at least one available pro cluster to resigster
+  Scenario: Check Pro plan on 'Select a Plan' page
+    Given I open accountant console in a browser
+    When I run the :go_to_register_plan web action
+    Then the step should succeed
+    When I run the :check_pro_plan_info web action
+    Then the step should succeed   
+
   # @author etrott@redhat.com
   # @case_id OCP-12751
   # @note this scenario requires a user that HAS already subscribed
@@ -87,3 +97,4 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     When I run the :check_addon_resources web action
     Then the step should succeed
+
