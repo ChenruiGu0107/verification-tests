@@ -263,7 +263,7 @@ Feature: projects related features via web
   # @case_id OCP-15256
   Scenario: Use kebab to create/edit project on project list page
     Given the master version >= "3.7"
-    When I run the :goto_project_list_page web console action
+    When I run the :goto_projects_page web console action
     Then the step should succeed
     Given a 5 characters random string of type :dns is stored into the :project_name clipboard
     When I perform the :create_project_on_project_list_page web console action with:
@@ -271,7 +271,7 @@ Feature: projects related features via web
       | display_name | <%= cb.project_name %>_display     |
       | description  | <%= cb.project_name %>_description |
     Then the step should succeed
-    When I run the :goto_project_list_page web console action
+    When I run the :goto_projects_page web console action
     Then the step should succeed
     When I perform the :edit_save_for_project_in_project_list_kebab web console action with:
       | project_name | <%= cb.project_name %>        |

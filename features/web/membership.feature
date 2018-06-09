@@ -203,13 +203,15 @@ Feature: memberships related features via web
       | user name | star                |
       | n         | <%= project.name %> |
     Then the step should succeed
-    And I run the :export client command with:
+    And I run the :get client command with:
       | resource      | rolebinding |
-      | name          | view        |
+      | resource_name | view        |
+      | o             | yaml        |
     Then the step should succeed
     And I save the output to file> rolebinding_view.yaml
     When I run oc create over "rolebinding_view.yaml" replacing paths:
-      | ["metadata"]["name"] | view2nd |
+      | ["metadata"]["name"]              | view2nd |
+      | ["metadata"]["creationTimestamp"] | null    |
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |

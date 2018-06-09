@@ -23,7 +23,8 @@ Feature: oc exports related scenarios
     And I save the response to file> dc_output.json
 
     Given I delete the project
-    And I create a new project
+    When I create a new project
+    Then the step should succeed
     When I run the :create client command with:
       | f | svc_output.json |
       | f | dc_output.json |
@@ -65,6 +66,14 @@ Feature: oc exports related scenarios
     And I wait for the "hello-openshift" deployments to appear
     And I wait for the "hello-openshift" hpa to appear
     And I wait for the "pi" jobs to appear
+    # bug 1581585
+    When I run the :get client command with:
+      | resource       | clusterrole    |
+      | resource_name  | cluster-reader |
+      | export         | true           |
+      | output         | yaml           |
+    Then the step should succeed
+    And the output should contain "kind: ClusterRole"
 
   # @author pruan@redhat.com
   # @case_id OCP-12577
