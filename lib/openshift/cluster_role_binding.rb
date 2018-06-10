@@ -1,4 +1,5 @@
 require 'openshift/cluster_resource'
+require 'openshift/flakes/unknown_role_binding_subject'
 
 module CucuShift
   # @note represents an OpenShift environment Persistent Volume
@@ -20,9 +21,28 @@ module CucuShift
     end
 
     # @return [Array<User, Group, ServiceAccount, Systemuser, SystemGroup>]
-    # def subjects(user: nil, cached: true, quiet: false)
-    #   TODO
-    # end
+    def subjects(user: nil, cached: true, quiet: false)
+      unless cached && props[:subjects]
+        rbs = raw_resource(user: user, cached: cached, quiet: quiet)["subjects"]
+        props[:subjects] = rbs.map { |rb|
+          case rb["kind"]
+          when "SystemUser", "SystemGroup", "User", "Group"
+            Object.const_get("::CucuShift::#{rb['kind']}")
+              .new(name: rb["name"], env: env)
+          when "ServiceAccount"
+            ServiceAccount.new(
+              name: rb["name"],
+              project: Project.new(name: rb["namespace"], env: env)
+            )
+          else
+            logger.warn("ClusterRoleBinding #{name.inspect} has unknown " \
+                        "subject kind #{rb["name"].inspect}")
+            UnknownRoleBindingSubject.new
+          end
+        }
+      end
+      return props[:subjects]
+    end
 
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
