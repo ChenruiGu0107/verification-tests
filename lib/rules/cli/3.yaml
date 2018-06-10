@@ -799,6 +799,14 @@
     :script: --script=<value>
     :f: -f <value>
     :o: -o <value>
+:set_build_secret:
+  :cmd: oc set build-secret <options> <bc_name> <secret_name>
+  :options:
+    :pull: --pull=<value>
+    :push: --push=<value>
+    :remove: --remove=<value>
+    :l: --selector=<value>
+    :source: --source=<value>
 :set_deployment_hook:
   :cmd: oc set deployment-hook <global_options> <options>
   :options:

@@ -1792,3 +1792,215 @@ Feature: secrets related scenarios
       | from_literal | key1=aaa          |
       | type         | dockercfg         |
     Then the expression should be true> secret("secret13-validate").type == "dockercfg"    
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-10982
+  Scenario: oc new-app to gather git creds	
+    Given I have a project
+    When I have an http-git service in the project
+    And I run the :env client command with:
+      | resource | dc/git                            |
+      | e        | REQUIRE_SERVER_AUTH=              |
+      | e        | REQUIRE_GIT_AUTH=openshift:redhat |
+      | e        | BUILD_STRATEGY=source             |
+      | e        | ALLOW_ANON_GIT_PULL=false         |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    And I execute on the pod:
+      | bash                                                                                                    |
+      | -c                                                                                                      |
+      | cd /var/lib/git/ && git clone --bare https://github.com/openshift/ruby-hello-world ruby-hello-world.git |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+    Then the step should succeed
+    When I run the :oc_secrets_new_basicauth client command with:
+      | secret_name | mysecret  |
+      | username    | openshift |
+      | password    | redhat    |
+    Then the step should succeed
+    When I run the :secret_link client command with:
+      | secret_name | mysecret  |
+      | sa_name     | builder   |
+    Then the step should succeed
+    And I run the :set_build_secret client command with:
+      | bc_name     | ruby-hello-world |
+      | secret_name | mysecret         |
+      | source      | true             |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build fails
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+
+    When I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %> |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret    |
+      | secret_name    | sshsecret |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                                                         |
+      | -c                                                                                                           |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo |ruby~<%= cb.git_repo %>|
+    Then the step should succeed
+    When I run the :secret_link client command with:
+      | secret_name | sshsecret |
+      | sa_name     | builder   |
+    Then the step should succeed
+    And I run the :set_build_secret client command with:
+      | secret_name | sshsecret |
+      | bc_name     | sample    |
+      | source      | true      |
+    Then the step should succeed
+    Given the "sample-1" build fails
+    And I run the :start_build client command with:
+      | buildconfig | sample |
+    Then the step should succeed
+    And the "sample-2" build completed
+
+  # @author shiywang@redhat.com xiuwang@redhat.com
+  # @case_id OCP-12838
+  Scenario: Use build source secret based on annotation on Secret --http
+    Given I have a project
+    When I have an http-git service in the project
+    And I run the :env client command with:
+      | resource | dc/git                            |
+      | e        | REQUIRE_SERVER_AUTH=              |
+      | e        | REQUIRE_GIT_AUTH=openshift:redhat |
+      | e        | BUILD_STRATEGY=source             |
+      | e        | ALLOW_ANON_GIT_PULL=false         |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    And I execute on the pod:
+      | bash                                                                                                    |
+      | -c                                                                                                      |
+      | cd /var/lib/git/ && git clone --bare https://github.com/openshift/ruby-hello-world ruby-hello-world.git |
+    Then the step should succeed
+    When I run the :oc_secrets_new_basicauth client command with:
+      | secret_name | mysecret  |
+      | username    | openshift |
+      | password    | redhat    |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | secret                                                                   |
+      | resourcename | mysecret                                                                 |
+      | keyval       | build.openshift.io/source-secret-match-uri-1=http://<%= cb.git_route%>/* |
+    Then the step should succeed
+
+    When I run the :new_app client command with:
+      | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret   |
+      | name: mysecret |
+    Given the "ruby-hello-world-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+
+    When I run the :new_build client command with:
+      | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret   |
+      | name: mysecret |
+    Given the "ruby-hello-world-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+
+    When I run the :oc_secrets_new_basicauth client command with:
+      | secret_name | override  |
+      | username    | openshift |
+      | password    | redhat    |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | secret                                                                       |
+      | resourcename | override                                                                     |
+      | keyval       | build.openshift.io/source-secret-match-uri-1=http://<%= cb.git_route%>/ruby* |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+    Then the step should succeed
+    #Multiple Secrets match the Git URI of a particular BuildConfig, the secret with the longest match will be took
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret   |
+      | name: override |
+    And the output should not contain "mysecret"
+    Given the "ruby-hello-world-1" build completed
+
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret   |
+      | name: override |
+    And the output should not contain "mysecret"
+    Given the "ruby-hello-world-1" build completed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-14264
+  Scenario: Use build source secret based on annotation on Secret --ssh
+    Given I have a project
+    When I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %> |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret    |
+      | secret_name    | sshsecret |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | secret                                                                         |
+      | resourcename | sshsecret                                                                      |
+      | keyval       | build.openshift.io/source-secret-match-uri-1=ssh://<%= cb.git_pod_ip_port %>/* |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                                                             |
+      | -c                                                                                                               |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world.git sample.git |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | ruby~<%= cb.git_repo_pod %> |
+      | l        | app=newapp1                 |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret    |
+      | name: sshsecret |
+    Given the "sample-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash |             |
+      | l           | app=newapp1 |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo | ruby~<%= cb.git_repo_pod %> |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should match:
+      | sourceSecret    |
+      | name: sshsecret |
+    Given the "sample-1" build completed
