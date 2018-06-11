@@ -49,13 +49,24 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
   when "group"
     _add_command = :oadm_add_cluster_role_to_group
     _remove_command = :oadm_remove_cluster_role_from_group
-    _subject_name = which
-    _opts = {role_name: role, group_name: _subject_name}
+    if which.start_with? "system:"
+      _subject = ::CucuShift::SystemGroup.new(name: which, env: env)
+    else
+      _subject = group(which)
+    end
+    _subject_name = _subject.name
+    _opts = {role_name: role, group_name: _subject.name}
   when "user", "service account"
     if type == "user"
-      _subject_name = user(word_to_num(which), switch: false).name
+      if which.start_with? "system:"
+        _subject = ::CucuShift::SystemUser.new(name: which, env: env)
+      else
+        _subject = user(word_to_num(which), switch: false)
+      end
+      _subject_name = _subject.name
     else
-      _subject_name = service_account(which).full_id
+      _subject = service_account(which)
+      _subject_name = _subject.full_id
     end
 
     _add_command = :oadm_add_cluster_role_to_user
@@ -67,14 +78,14 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
 
   case op
   when "added to"
-    if CucuShift::ClusterRoleBinding.list(user: _admin).any? { |crb| crb.role.name == role && crb.user_names&.include?(_subject_name) }
+    if CucuShift::ClusterRoleBinding.list(user: _admin).any? { |crb| crb.role.name == role && crb.subjects.include?(_subject) }
       logger.info "#{_subject_name} already has role #{role}"
       next
     end
     _command = _add_command
     _teardown_command = _remove_command
   when "removed from"
-    if CucuShift::ClusterRoleBinding.list(user: _admin).none? { |crb| crb.role.name == role && crb.user_names&.include?(_subject_name) }
+    if CucuShift::ClusterRoleBinding.list(user: _admin).none? { |crb| crb.role.name == role && crb.subjects.include?(_subject) }
       logger.info "#{_subject_name} does not have role #{role}"
       next
     end
