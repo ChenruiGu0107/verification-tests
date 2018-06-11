@@ -359,6 +359,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   end
   cb.target_proj = target_proj
 
+  # for scenarios that do reployed, we have registered clean-up so check if we are doing uninstall, then just skip uninstall if the project is gone
+  if op == 'uninstalled'
+    unless @projects.find { |p| p.name == cb.target_proj }
+      logger.info("Target project #{cb.target_proj} already removed, skipping removal call")
+      next
+    end
+  end
+
   step %Q"I construct the default #{op[0..-3]} #{cb.svc_type} inventory"
 
   if cb.ini_style_config

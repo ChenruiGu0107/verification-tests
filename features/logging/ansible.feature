@@ -440,3 +440,52 @@ Feature: ansible install related feature
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17427/uninstall_inventory |
     And the pvc named "logging-es-0" does not exist in the project
     And the pvc named "logging-es-ops-0" does not exist in the project
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15646
+  @admin
+  @destructive
+  Scenario: Add and redeploy eventrouter on logging
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project_name clipboard
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
+    Given logging service is installed in the system
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15646/inventory |
+    And I wait for the ".operations" index to appear in the ES pod with labels "component=es"
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod:
+      | relative_url | _search?pretty&size=5000&q=kubernetes.event.verb:* |
+      | op           | GET                                                |
+    Then the expression should be true> @result[:parsed]['hits']['total'] > 0
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15644
+  @admin
+  @destructive
+  Scenario: uninstall logging and reserve eventrouter
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15644/inventory |
+    And I wait for the ".operations" index to appear in the ES pod with labels "component=es"
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod:
+      | relative_url | _search?pretty&size=5000&q=kubernetes.event.verb:* |
+      | op           | GET                                                |
+    Then the expression should be true> @result[:parsed]['hits']['total'] > 0
+    """
+    And logging service is uninstalled with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15644/uninstall_inventory |
+    And I ensure "<%= cb.target_proj %>" project is deleted
+    # check eventrouter pod is preserved.
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | component=eventrouter |
+    Then the expression should be true> pod.exists?
