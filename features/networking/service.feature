@@ -218,7 +218,6 @@ Feature: Service related networking scenarios
       externalIPNetworkCIDRs:
       - 10.5.0.0/24
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
@@ -253,7 +252,6 @@ Feature: Service related networking scenarios
       externalIPNetworkCIDRs:
       - 10.5.0.0/24
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
@@ -274,7 +272,6 @@ Feature: Service related networking scenarios
       - 10.5.0.0/24
       - 10.6.0.0/24
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:

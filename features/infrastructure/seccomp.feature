@@ -23,7 +23,6 @@ Feature: Features of seccomp
       seccomp-profile-root:
       - "/etc/origin/node"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should succeed
     When I run commands on the host:
@@ -83,7 +82,6 @@ Feature: Features of seccomp
       seccomp-profile-root:
       - "/etc/origin/node"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should succeed
     When I run commands on the host:
@@ -143,7 +141,6 @@ Feature: Features of seccomp
       seccomp-profile-root:
       - "/etc/origin/node"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should succeed
     When I run commands on the host:
@@ -202,7 +199,6 @@ Feature: Features of seccomp
       seccomp-profile-root:
       - "/etc/origin/node"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should succeed
     Given scc policy "restricted" is restored after scenario

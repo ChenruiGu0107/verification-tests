@@ -21,7 +21,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create admin command with:
@@ -61,7 +60,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create client command with:
@@ -109,7 +107,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create admin command with:
@@ -148,7 +145,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
@@ -188,7 +184,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
@@ -225,7 +220,6 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:

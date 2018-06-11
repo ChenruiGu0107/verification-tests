@@ -20,7 +20,6 @@ Feature: test master config related steps
                 admin: "true"
             - maxProjects: 1
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
@@ -85,7 +84,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldap://<%= cb.ldap_pod.ip %>/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -125,7 +123,6 @@ Feature: test master config related steps
               cpuRequestToLimitPercent: 6
               memoryRequestToLimitPercent: 60
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
 
     Given I have a project
@@ -170,7 +167,6 @@ Feature: test master config related steps
               cpuRequestToLimitPercent: 6
               memoryRequestToLimitPercent: 60
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
 
     Given I have a project
@@ -227,7 +223,6 @@ Feature: test master config related steps
           preferredUsernameHeaders:
           - X-Remote-User-Login
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     And I select a random node's host
     When I run commands on the host:
@@ -302,7 +297,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -386,7 +380,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -447,7 +440,6 @@ Feature: test master config related steps
           - X-Remote-User
           - SSO-User
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     And I select a random node's host
     When I run commands on the host:
@@ -474,7 +466,6 @@ Feature: test master config related steps
           - X-Remote-User
           - SSO-User
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     And I select a random node's host
     When I run commands on the host:
@@ -623,7 +614,6 @@ Feature: test master config related steps
                 admin: "true"
               maxProjects: -1
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -641,7 +631,6 @@ Feature: test master config related steps
                 admin: "true"
               maxProjects: 1.23
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -659,7 +648,6 @@ Feature: test master config related steps
                 admin: "true"
               maxProjects: -2.3
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -682,7 +670,6 @@ Feature: test master config related steps
             - selector: {}
               maxProjects: 1
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I switch to the first user
     Given I create a new project
@@ -710,7 +697,6 @@ Feature: test master config related steps
                 level: "platinum"
               maxProjects: 1
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
@@ -761,7 +747,6 @@ Feature: test master config related steps
             - selector: {}
               maxProjects: 1
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I switch to the first user
     Given I create a new project
@@ -805,7 +790,6 @@ Feature: test master config related steps
                 tag: golden
               maxProjects: 2
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
@@ -848,7 +832,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -884,7 +867,6 @@ Feature: test master config related steps
           insecure: false
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -914,7 +896,6 @@ Feature: test master config related steps
           insecure: false
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -944,7 +925,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldaps://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -974,7 +954,6 @@ Feature: test master config related steps
           insecure: false
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -1004,7 +983,6 @@ Feature: test master config related steps
           insecure: false
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
     Given master config is merged with the following hash:
@@ -1033,7 +1011,6 @@ Feature: test master config related steps
           insecure: false
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -1070,7 +1047,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -1103,7 +1079,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
 
@@ -1224,7 +1199,6 @@ Feature: test master config related steps
         feature-gates:
         - AllAlpha=true,TaintBasedEvictions=true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     Given I store the schedulable nodes in the :nodes clipboard
@@ -1420,7 +1394,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1474,7 +1447,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1505,7 +1477,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1554,7 +1525,6 @@ Feature: test master config related steps
           apiVersion: v1
           kind: AllowAllPasswordIdentityProvider
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1624,7 +1594,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldap://<%= cb.ldap_pod.ip %>/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
     And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
     When I run commands on the host:
@@ -1690,7 +1659,6 @@ Feature: test master config related steps
           insecure: true
           url: "ldap://<%= cb.ldap_pod.ip %>/dc=example,dc=com?uid"
     """
-    Then the step should succeed
     And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
     And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
     When I run commands on the host:
@@ -1726,7 +1694,6 @@ Feature: test master config related steps
             cpuRequestToLimitPercent: 6
             memoryRequestToLimitPercent: 60
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
 
     Given I have a project
@@ -1771,7 +1738,6 @@ Feature: test master config related steps
             cpuRequestToLimitPercent: 6
             memoryRequestToLimitPercent: 60
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
@@ -1896,7 +1862,6 @@ Feature: test master config related steps
       tokenConfig:
         accessTokenInactivityTimeoutSeconds: 400
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server          | <%= env.api_endpoint_url %> |
@@ -1930,7 +1895,6 @@ Feature: test master config related steps
       tokenConfig:
         accessTokenInactivityTimeoutSeconds: 0
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server          | <%= env.api_endpoint_url %> |

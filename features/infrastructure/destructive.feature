@@ -98,7 +98,6 @@ Feature: relate with destructive features
       minimum-container-ttl-duration:
       - 10s
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given I have a project
     Given I store the schedulable nodes in the :nodes clipboard

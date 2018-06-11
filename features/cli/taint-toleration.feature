@@ -193,9 +193,7 @@ Feature: taint toleration related scenarios
       register-with-taints:
       - "node.alpha.kubernetes.io/ismaster=:NoSchedule"
     """
-    Then the step should succeed
     When I try to restart the node service on node
-    Then the step should succeed
     When I run the :describe admin command with:
       | resource | node             |
       | name     | <%= node.name %> |
@@ -208,7 +206,6 @@ Feature: taint toleration related scenarios
       register-with-taints:
       - "node.alpha.kubernetes.io/ismaster=no:invalid"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should fail
     Given I use the "<%= node.name %>" node
@@ -517,7 +514,6 @@ Feature: taint toleration related scenarios
             apiVersion: v1
             disable: false
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
@@ -553,7 +549,6 @@ Feature: taint toleration related scenarios
             apiVersion: v1
             disable: true
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/hpa/hello-pod.yaml |
@@ -579,7 +574,6 @@ Feature: taint toleration related scenarios
             apiVersion: v1
             disable: false
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:

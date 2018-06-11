@@ -321,7 +321,6 @@ Feature: Testing ingress object
             kind: IngressAdmissionConfig
           location: ''
     """
-    And the step should succeed
     And the master service is restarted on all master nodes
 
     Given I switch to cluster admin pseudo user

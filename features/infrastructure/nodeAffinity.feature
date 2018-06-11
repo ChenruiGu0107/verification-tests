@@ -400,7 +400,6 @@ Feature: nodeAffinity
     kubernetesMasterConfig:
       schedulerConfigFile: /etc/origin/master/<scheduler_file>
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     And I store the schedulable nodes in the :nodes clipboard
     And label "<label>" is added to the "<%= cb.nodes[0].name %>" node

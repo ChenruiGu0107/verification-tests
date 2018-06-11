@@ -223,7 +223,6 @@ Feature: stibuild.feature
             - name: BUILD_LOGLEVEL
               value: "8"
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :new_app client command with:
@@ -365,7 +364,6 @@ Feature: stibuild.feature
             sourceStrategyDefaults:
               incremental: true 
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
