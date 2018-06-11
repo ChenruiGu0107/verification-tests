@@ -278,3 +278,44 @@ Feature: oc_rsync.feature
     And the output should not contain:
       | cannot use rsync |
       | cannot use tar   |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-15029
+  Scenario: Copy files and directories to and from containers via oc cp
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo   | openshift/mysql-55-centos7   |
+      | env        | MYSQL_USER=user              |
+      | env        | MYSQL_PASSWORD=pass          |
+      | env        | MYSQL_DATABASE=db            |
+      | name       | myapp                        |
+    Then the step should succeed
+    Given I create the "local/foo_dir" directory
+    Given a pod becomes ready with labels:
+      | app=myapp |
+    # File
+    When I run the :cp client command with:
+      | source | <%= pod.name %>:/etc/hosts  |
+      | dest   | local/foo_dir               |
+    Then the step should succeed
+    When I read the "local/foo_dir/hosts" file
+    Then the step should succeed
+    And the output should contain "localhost"
+    # Directory
+    When I run the :cp client command with:
+      | source | <%= pod.name %>:/etc/sysconfig  |
+      | dest   | local/foo_dir                   |
+    Then the step should succeed
+    And the "local/foo_dir/network" file is present
+
+    # From local to pod. Cover project/ and -c usage as well
+    When I run the :cp client command with:
+      | source   | local/foo_dir                             |
+      | dest     | <%= project.name %>/<%= pod.name %>:/tmp  |
+      | c        | myapp                                     |
+    Then the step should succeed
+    When I execute on the pod:
+      | cat  | /tmp/foo_dir/hosts |
+    Then the step should succeed
+    And the output should contain "localhost"
+
