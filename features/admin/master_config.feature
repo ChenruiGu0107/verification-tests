@@ -494,7 +494,7 @@ Feature: test master config related steps
   # @case_id OCP-12155
   @admin
   @destructive
-  Scenario: Apply an external file in config file	
+  Scenario: Apply an external file in config file
     Given the user has all owned resources cleaned
     And I use the first master host
     When I run commands on the host:
@@ -548,7 +548,7 @@ Feature: test master config related steps
   # @case_id OCP-12261
   @admin
   @destructive
-  Scenario: Apply env var in the config file	
+  Scenario: Apply env var in the config file
     Given the user has all owned resources cleaned
     And I use the first master host
     And master config is merged with the following hash:
@@ -1365,7 +1365,7 @@ Feature: test master config related steps
   # @case_id OCP-14102
   @admin
   @destructive
-  Scenario: Set env vars via build defaults	
+  Scenario: Set env vars via build defaults
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -1878,7 +1878,7 @@ Feature: test master config related steps
          | resource      | oauthclient                                   |
          | resource_name | openshift-challenging-client                  |
          | p             | {"accessTokenInactivityTimeoutSeconds": null} |
-    """    
+    """
     When I run the :login client command with:
       | server          | <%= env.api_endpoint_url %> |
       | u               | <%= user.name %>            |
@@ -1937,3 +1937,194 @@ Feature: test master config related steps
       | u               | <%= user.name %>            |
       | p               | <%= user.password %>        |
     Then the step should succeed
+
+  # @author scheng@redhat.com
+  # @case_id OCP-10713
+  @admin
+  @destructive
+  Scenario: Config provision strategy as "add"
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: add
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    And the master service is restarted on all master nodes
+    Given admin ensures "my_htpasswd_provider:user_add" identity is deleted after scenario
+    Given admin ensures "anypassword:user_add" identity is deleted after scenario
+    Given admin ensures "user_add" user is deleted after scenario
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_add                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | user |
+    And the output should contain:
+      | NAME | anypassword:user_add |
+    Then the step should succeed
+    And evaluation of `env.master_hosts` is stored in the :hosts clipboard
+    Given the "/etc/origin/master/htpasswd.auto" file is restored on all hosts in the clipboard after scenario
+    Given I run commands on all masters:
+      | echo 'user_add:$apr1$M8uB6lNb$RC0rOu7WZXBa7gdIrX6Zp/' > /etc/origin/master/htpasswd.auto |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_htpasswd_provider
+        challenge: true
+        login: true
+        mappingMethod: add
+        provider:
+          apiVersion: v1
+          kind: HTPasswdPasswordIdentityProvider
+          file: /etc/origin/master/htpasswd.auto
+    """
+    And the master service is restarted on all master nodes
+    Then the step should succeed
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_add                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | user |
+    And the output should contain:
+      | NAME | anypassword:user_add, my_htpasswd_provider:user_add |
+    Then the step should succeed
+
+  # @author scheng@redhat.com
+  # @case_id OCP-11191 OCP-11756
+  @admin
+  @destructive
+  Scenario: mappingMethod "claim" && "generate"
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: claim
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    And the master service is restarted on all master nodes
+    Given admin ensures "my_htpasswd_provider:user_generate" identity is deleted after scenario
+    Given admin ensures "anypassword:user_generate" identity is deleted after scenario
+    Given admin ensures "user_claim" user is deleted after scenario
+    Given admin ensures "user_generate" user is deleted after scenario
+    Given admin ensures "user_generate2" user is deleted after scenario
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_claim                  |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_generate               |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | user |
+    And the output should contain:
+      | NAME       | anypassword:user_claim |
+    Then the step should succeed
+    And evaluation of `env.master_hosts` is stored in the :hosts clipboard
+    Given the "/etc/origin/master/htpasswd.auto" file is restored on all hosts in the clipboard after scenario
+    Given I run commands on all masters:
+      | echo 'user_generate:$apr1$sfBMP5Bk$AyYS0JHZLZlDRbzCYO/rH1' > /etc/origin/master/htpasswd.auto |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_htpasswd_provider
+        challenge: true
+        login: true
+        mappingMethod: generate
+        provider:
+          apiVersion: v1
+          kind: HTPasswdPasswordIdentityProvider
+          file: /etc/origin/master/htpasswd.auto
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_generate               |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_htpasswd_provider
+        challenge: true
+        login: true
+        mappingMethod: claim
+        provider:
+          apiVersion: v1
+          kind: HTPasswdPasswordIdentityProvider
+          file: /etc/origin/master/htpasswd.auto
+    """
+    Then the step should succeed
+    Given I run commands on all masters:
+      | echo 'user_claim:$apr1$DN4V/N8S$3mQX19WKDewfwrhG1arKU1' > /etc/origin/master/htpasswd.auto |
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_claim                  |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should fail
+    When I run the :get admin command with:
+      | resource | user |
+    And the output should contain:
+      | NAME | anypassword:user_claim |
+    And I run the :delete admin command with:
+      | object_type       | identity               |
+      | object_name_or_id | anypassword:user_claim |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_claim                  |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+      | config          | test.kubeconfig             |
+    Then the step should fail

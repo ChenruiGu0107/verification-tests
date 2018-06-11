@@ -149,6 +149,27 @@ Given /^the #{QUOTED} file is restored on host after scenario$/ do |path|
   }
 end
 
+# if clipboard is not specified step will try :hosts and :nodes
+# the content of clipboard can either be Array<Host> or Array<Node>
+Given /^the #{QUOTED} file is restored on all hosts in the#{OPT_QUOTED} clipboard after scenario$/ do |path, cb_name|
+  unless cb_name
+    if cb.hosts
+      cb_name = :hosts
+    elsif cb.nodes
+      cb_name = :nodes
+    else
+      raise "couldn't find the clipboard with the nodes"
+    end
+  end
+
+  orig_host = @host
+  cb[cb_name].each { |h|
+    @host = CucuShift::Host === h ? h : h.host
+    step %{the "#{path}" file is restored on host after scenario}
+  }
+  @host = orig_host
+end
+
 # restore particular file after scenario
 Given /^the #{QUOTED} path is( recursively)? removed on the host after scenario$/ do |path, recurse|
   _host = @host
