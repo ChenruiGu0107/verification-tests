@@ -12,7 +12,7 @@ module CucuShift
 
     # @param [Object] rules might be parsed rules, file, directory or array of any of these. All rules are merged and error is raised on duplicate rules. If directory string ends with slash `/` character, then it is loaded recursively.
     # @param [CucuShift::Host] host host to execute the commands on
-    # @param [CucuShift::User] user host os user to execute command as (e.g. sudo)
+    # @param [String] user host os user to execute command as (e.g. sudo)
     def initialize(host:, user: nil, rules:)
       @host = host
       @user = user

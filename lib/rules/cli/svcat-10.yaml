@@ -1,0 +1,12 @@
+:global_options:
+  :config: --kubeconfig <value>
+  :logtostderr: --logtostderr
+  :context: --context <value>
+  :h: -h
+  :v: -v
+:get:
+  :cmd: svcat get <resource>
+  :options:
+    :all_namespace: --all-namespaces
+    :n: -n <value>
+    :o: -o <value>

@@ -17,17 +17,35 @@ module CucuShift
       @opts = opts
     end
 
-    # @param [CucuShift::User] user user to execute command with
+    # @param [CucuShift::User, CucuShift::APIAccessor] user user to execute
+    #   command with
     # @param [Symbol] key command key
     # @param [Hash] opts command options
     # @return [CucuShift::ResultHash]
-    def exec(user, key, **opts)
+    def exec(user, key, opts={})
       raise
     end
 
     private def version
       return opts[:cli_version]
       # this method needs to be overwriten per executor to find out version
+    end
+
+    private def tool_from_opts!(opts)
+      case opts
+      when Hash
+        return opts.delete(:_tool)
+      when Array
+        index = opts.find_index{ |k,v| k == :_tool }
+        if index
+          tool = opts[index].last
+          opts.delete_at(index)
+        end
+        return tool
+      else
+        raise ArgumentError,
+          "opts must be Array or Hash but they are #{opts.inspect}"
+      end
     end
 
     # get `oc` version on some host running as some username
@@ -159,23 +177,24 @@ module CucuShift
 
     # @param [CucuShift::APIAccessor] api accessor to execute command with
     # @return rules executor, separate one per user
-    def executor(user)
-      return @executors[user.id] if @executors[user.id]
+    private def executor(user, cli_tool: nil)
+      executor_id = "#{cli_tool}:#{user}"
+      return @executors[executor_id] if @executors[executor_id]
 
       host = user.env.api_host
-      if user.id == "admin"
-        # we avoid touching root kubeconfig on muster as much as possible
-        version = version_for_user(:admin, host)
-        executor = RulesCommandExecutor.new(host: host, user: :admin, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
-      else
-        version = version_for_user(user.id, host)
-        executor = RulesCommandExecutor.new(host: host, user: user.id, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
+      file_prefix = cli_tool ? "#{cli_tool}-" : nil
+      os_user = user.id == "admin" ? :admin : user.id
+      version = version_for_user(os_user, host)
+      rules_file = "#{RULES_DIR}/#{file_prefix}#{rules_version(version)}.yaml"
+      executor = RulesCommandExecutor.new(host: host, user: os_user, rules: File.expand_path(rules_file))
 
+      if os_user != :admin && !cli_tool
+        # we avoid touching root kubeconfig on master as much as possible
         config_setup(user: user, executor: executor, opts: {ca: "/etc/openshift/master/ca.crt"})
       end
 
       # this executor is ready to be used, set it early to allow caching token
-      @executors[user.id] = executor
+      @executors[executor_id] = executor
 
       return executor
     end
@@ -188,9 +207,10 @@ module CucuShift
       opts[:cli_version] ||= CliExecutor.get_version_for(user.name, host)
     end
 
-    # @param [Hash, Array] opts the options to pass down to executor
+    # see CliExecutor#exec
     def exec(user, key, opts={})
-      executor(user).run(key, opts)
+      cli_tool = tool_from_opts!(opts)
+      executor(user, cli_tool: cli_tool).run(key, opts)
     end
 
     def clean_up
@@ -209,15 +229,21 @@ module CucuShift
       super
       @host = localhost
       @logged_users = {}
+      @executors = {}
     end
 
     # @return [RulesCommandExecutor] executor to run commands with
-    private def executor
-      return @executor if @executor
+    private def executor(cli_tool: nil)
+      return @executors[cli_tool] if @executors[cli_tool]
 
-      # clean_old_config
+      file_prefix = cli_tool ? "#{cli_tool}-" : nil
+      rules_file = "#{RULES_DIR}/#{file_prefix}#{rules_version(version)}.yaml"
 
-      @executor = RulesCommandExecutor.new(host: host, user: nil, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
+      @executors[cli_tool] = RulesCommandExecutor.new(
+        host: host,
+        user: nil,
+        rules: File.expand_path(rules_file)
+      )
     end
 
     private def version
@@ -258,22 +284,24 @@ module CucuShift
       return logged_users[user.id]
     end
 
-    # @param [Hash, Array] opts the options to pass down to executor
+    # see CliExecutor#exec
     def exec(user, key, opts={})
       unless logged_users[user.id]
         user_opts(user)
       end
 
-      executor.run(key, Common::Rules.merge_opts(logged_users[user.id], opts))
+      cli_tool = tool_from_opts!(opts)
+      executor(cli_tool: cli_tool).
+        run(key, Common::Rules.merge_opts(logged_users[user.id], opts))
     end
 
     def clean_up
-      @executor.clean_up if @executor
+      @executors.values.each(&:clean_up)
+      @executors.clear
       logged_users.clear
       # do not remove local kube/openshift config file, workdir should be
       #   cleaned automatically between scenarios
       # we do not logout, see {CliExecutor#clean_up}
     end
-
   end
 end
