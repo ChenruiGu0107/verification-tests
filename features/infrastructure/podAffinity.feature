@@ -200,7 +200,6 @@ Feature: podAffinity
     kubernetesMasterConfig:
       schedulerConfigFile: /etc/origin/master/<scheduler_file>
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:

@@ -37,7 +37,6 @@ Feature: Node management
       authorizationCacheSize: 1000
       authorizationCacheTTL: "1m"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given cluster role "system:node-reader" is added to the "system:unauthenticated" group
     And 62 seconds have passed
@@ -131,7 +130,6 @@ Feature: Node management
       experimental-allowed-unsafe-sysctls:
       - 'kernel.shm*,kernel.msg*,kernel.sem,fs.mqueue.*,net.*'
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
@@ -153,7 +151,6 @@ Feature: Node management
       eviction-hard:
       - "memory.available<-100Mi"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all schedulable nodes is merged with the following hash:
@@ -162,7 +159,6 @@ Feature: Node management
       eviction-hard:
       - "memory.available<100xMix"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all nodes is merged with the following hash:
@@ -171,7 +167,6 @@ Feature: Node management
       eviction-hard:
       - "memory.available<1000000Gi"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given config of all nodes is merged with the following hash:
     """
@@ -179,7 +174,6 @@ Feature: Node management
       eviction-hard:
       - "memory.available<0.00000000001Mi"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given config of all schedulable nodes is merged with the following hash:
     """
@@ -187,7 +181,6 @@ Feature: Node management
       eviction-hard:
       - "memory.available<0Mi"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
 
@@ -206,7 +199,6 @@ Feature: Node management
       minimum-container-ttl-duration:
       - 1m
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given I have a project
     When I run the :create client command with:
@@ -240,7 +232,6 @@ Feature: Node management
       pods-per-core:
       - '10'
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     When I run the :get admin command with:
       | resource      | node                    |
@@ -256,7 +247,6 @@ Feature: Node management
       pods-per-core:
       - '0'
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     When I run the :get admin command with:
       | resource      | node                    |
@@ -289,7 +279,6 @@ Feature: Node management
       kube-reserved:
       - "cpu=0m,memory=0G"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     When I run the :describe admin command with:
       | resource | node   |
@@ -308,7 +297,6 @@ Feature: Node management
       kube-reserved:
       - "cpu=-200m,memory=-1G"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all schedulable nodes is merged with the following hash:
@@ -319,7 +307,6 @@ Feature: Node management
       kube-reserved:
       - "cpu=-200km,memory=-1Gk"
     """
-    Then the step should succeed
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
     Given config of all nodes is merged with the following hash:
@@ -330,7 +317,6 @@ Feature: Node management
       kube-reserved:
       - "cpu=200,memory=1000G"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     When I run the :describe admin command with:
       | resource | node                    |
@@ -409,7 +395,6 @@ Feature: Node management
       keep-terminated-pod-volumes:
       - "true"
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/emtydir-host.yaml |
@@ -450,7 +435,6 @@ Feature: Node management
     podManifestConfig:
       fileCheckIntervalSeconds: 30
     """
-    Then the step should succeed
     And I try to restart the node service on node
     And the step should fail
     When I run commands on the host:
@@ -462,7 +446,6 @@ Feature: Node management
       path: "/etc/origin/node/no-such-path"
       fileCheckIntervalSeconds: 30
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should fail
     When I run commands on the host:
@@ -474,7 +457,6 @@ Feature: Node management
       path: "/etc/origin/node"
       fileCheckIntervalSeconds: -30
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should fail
     When I run commands on the host:
@@ -486,7 +468,6 @@ Feature: Node management
       path: "/etc/origin/node"
       fileCheckIntervalSeconds: test
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should fail
     When I run commands on the host:
@@ -507,7 +488,6 @@ Feature: Node management
       eviction-soft-grace-period:
       - "memory.available=-30s"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -524,7 +504,6 @@ Feature: Node management
       eviction-max-pod-grace-period:
       - "xf10fs"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -541,7 +520,6 @@ Feature: Node management
       eviction-max-pod-grace-period:
       - "3000000000000"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -558,7 +536,6 @@ Feature: Node management
       eviction-max-pod-grace-period:
       - "0.00000000001"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -575,7 +552,6 @@ Feature: Node management
       eviction-max-pod-grace-period:
       - "0"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -597,7 +573,6 @@ Feature: Node management
       cgroup-driver:
       - 'system'
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -612,7 +587,6 @@ Feature: Node management
       cgroup-driver:
       - 'cgroupfs'
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should fail
     And the output should contain "atomic-openshift-node.service failed"
@@ -627,7 +601,6 @@ Feature: Node management
       cgroup-driver:
       - 'systemd'
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should succeed
 
@@ -639,7 +612,6 @@ Feature: Node management
       cgroup-driver:
       - ''
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should succeed
 
@@ -658,7 +630,6 @@ Feature: Node management
       minimum-container-ttl-duration:
       - 10s
     """
-    Then the step should succeed
     And the node service is restarted on all nodes
     Given I have a project
     Given I store the schedulable nodes in the :nodes clipboard
@@ -809,7 +780,6 @@ Feature: Node management
       experimental-allocatable-ignore-eviction:
       - "true"
     """
-    Then the step should succeed
     When I try to restart the node service on node
     Then the step should succeed
     And the expression should be true> cb.nodes[0].capacity_cpu(user: admin, cached: false) == cb.nodes[0].allocatable_cpu

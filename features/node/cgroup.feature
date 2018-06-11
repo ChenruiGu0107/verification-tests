@@ -26,7 +26,6 @@ Feature: Cgroup related scenario
       enforce-node-allocatable:
       - "pods"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should fail
     When I run commands on the host:
@@ -49,7 +48,6 @@ Feature: Cgroup related scenario
       system-reserved:
       - "cpu=200m,memory=200Mi"
     """
-    Then the step should succeed
     And I try to restart the node service on node
     Then the step should succeed
     When I run the :describe admin command with:

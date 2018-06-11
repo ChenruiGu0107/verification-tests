@@ -121,7 +121,6 @@ Feature: Diagnostics system and clients
       bindAddress: 0.0.0.0:7777
       bindNetwork: tcp4
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
 
     Given I have a project

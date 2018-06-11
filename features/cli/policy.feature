@@ -1038,7 +1038,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     Given I run the :policy_add_role_to_user client command with:
       | role           | view                |
       | serviceaccount | deployer            |
@@ -1066,7 +1065,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | template | postgresql-persistent |
@@ -1111,7 +1109,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | template | postgresql-persistent |
@@ -1156,7 +1153,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | template | postgresql-persistent |
@@ -1197,7 +1193,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | template | postgresql-persistent |
@@ -1233,7 +1228,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
@@ -1266,7 +1260,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given admin ensures "groups-rolebindingrestriction" group is deleted after scenario
     Given I run the :oadm_groups_new admin command with:
@@ -1302,7 +1295,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
@@ -1335,7 +1327,6 @@ Feature: change the policy of user/service account
             apiversion: v1
             kind: DefaultAdmissionConfig
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | template | postgresql-persistent |

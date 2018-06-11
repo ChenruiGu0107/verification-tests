@@ -44,7 +44,6 @@ Feature:CRI related features
      enable-cri:
      - 'false'
     """
-    Then the step should succeed
     And the node service is restarted on all nodes 
     Given I have a project
     When I run the :create client command with:

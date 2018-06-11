@@ -494,7 +494,6 @@ Feature: SDN related networking scenarios
     networkConfig:
       serviceNetworkCIDR: null
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
 
 

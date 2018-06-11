@@ -79,7 +79,6 @@ Feature: genericbuild.feature
               effect: NoSchedule
               operator: Equal
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes	
     Given I have a project
     When I run the :new_build client command with:
@@ -146,7 +145,6 @@ Feature: genericbuild.feature
             - name: CUSTOM_VAR
               value: custom_value
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:                                                          
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
@@ -187,7 +185,6 @@ Feature: genericbuild.feature
             - name: CUSTOM_VAR
               value: custom_value
     """
-    Then the step should succeed                                                                          
     Given the master service is restarted on all master nodes                                            
     When I run the :start_build client command with:                                                     
       | buildconfig | ruby22-sample-build |
@@ -211,7 +208,6 @@ Feature: genericbuild.feature
             - name: CUSTOM_VAR
               value: custom_value
     """
-    Then the step should succeed                                                                          
     Given the master service is restarted on all master nodes                                             
     When I run the :start_build client command with:                                                      
       | buildconfig | ruby22-sample-build                         |
@@ -241,7 +237,6 @@ Feature: genericbuild.feature
             gitHTTPProxy: http://error.rdu.redhat.com:3128
             gitHTTPSProxy: https://error.rdu.redhat.com:3128
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
@@ -275,7 +270,6 @@ Feature: genericbuild.feature
             gitHTTPSProxy: https://error.rdu.redhat.com:3128
             gitNoProxy: github.com 
     """
-    Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
