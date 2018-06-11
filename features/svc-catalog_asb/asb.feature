@@ -706,3 +706,30 @@ Feature: Ansible-service-broker related scenarios
     And the output should contain "Endpoints: [https://asb-etcd.openshift-ansible-service-broker.svc:2379]"
 
 
+  # @author zitang@redhat.com
+  # @case_id OCP-16137
+  @admin
+  @destructive
+  Scenario: [ASB] Ansible-service-broker check APBs version correctly
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: rhcc
+        name: rh
+        url:  https://registry.access.redhat.com
+        org:  
+        tag:  v3.6
+        white_list: [.*-apb$]
+    """
+    When admin redeploys "asb" dc
+    And I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should match:
+      |  failed validation for the following reason:.*version.*out of bounds 1.0 <= 1.0 |
