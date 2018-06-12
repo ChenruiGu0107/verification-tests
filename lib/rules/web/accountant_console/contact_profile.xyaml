@@ -1,0 +1,53 @@
+# --- subscription contact info related page
+update_contact_greeting_on_index_page:
+  action: click_edit_contact
+  action: set_greeting_value
+  action: submit_contact
+  params: 
+    text: <new_greeting>
+  action: check_page_contain_text
+check_greeting_value:
+  element: &greeting
+    selector: 
+      xpath: //select[@id='greeting' and contains(@data-value,'<current_greeting>')]
+click_select_greeting:
+  element:
+    <<: *greeting
+    op: click
+set_greeting_value:
+  action: click_select_greeting
+  elements: 
+  - selector: 
+      xpath: //select[@id='greeting']/option[@value='<new_greeting>']
+    op: click
+submit_contact:
+  element: 
+    selector: 
+      xpath: //*[@type="submit" and contains(.,"Update <contact_cap> Contact")]
+    op: click
+
+update_contact_middle_name_on_index_page:
+  action: click_edit_contact
+  action: clear_middle_name
+  action:
+    if_param: middle_name
+    ref: set_middle_name
+  action: submit_contanct
+  action:
+    if_param: middle_name
+    ref: check_middle_name
+check_middle_name:
+  elements:
+  - selector:
+      xpath: //*[contains(., '<middle_name>')]
+clear_middle_name:
+  elements:
+  - selector:
+      xpath: //input[@id='middle_initial']
+    op: clear
+set_middle_name:
+  elements:
+  - selector:
+      xpath: //input[@id='middle_initial']
+    op: send_keys <middle_name>
+

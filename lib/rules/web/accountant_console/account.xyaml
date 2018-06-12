@@ -16,6 +16,14 @@ click_page_dropdown:
   element:
     <<: *dropdown
     op: click
+click_edit_contact:
+  elements: 
+  - selector: 
+      xpath: //*[contains(@href, "contact/<contact>") and contains(., "Edit")]
+    op: click
+  - selector:
+      text: <contact_cap> Contact
+    timeout: 30
 check_account_name:
   elements: 
   - selector: 
@@ -69,7 +77,7 @@ check_plan_includes_content:
   - selector:
       xpath: //*[contains(.,'2GiB memory for your applications')]
   - selector:
-      xpath: //*[contains(.,'2GiB Terminating memory for your applications')]
+      xpath: //*[contains(.,'2GiB terminating memory for your applications')]
   - selector:
       xpath: //*[contains(.,'Always on, unlimited usage')]
   - selector:
