@@ -185,3 +185,20 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+)
     raise "#{resource_name} #{resource_type} did not terminate"
   end
 end
+
+Given /^#{WORD}( in the#{OPT_QUOTED} project)? with name matching #{RE} are stored in the#{OPT_SYM} clipboard$/ do |type, in_project, pr_name, pattern, cb_name|
+  cb_name ||= "resources"
+  project(pr_name, generate: false)
+  re = Regexp.new(pattern)
+  clazz = resource_class(type)
+
+  if in_project && !(CucuShift::ProjectResource > clazz)
+    raise "#{clazz} is not a ProjectResource"
+  end
+
+  list = clazz.list(user: user, project: project)
+  logger.info("#{clazz::RESOURCE}: #{list.map(&:name)}")
+  cb[cb_name] = list.select { |r| re =~ r.name }
+  cache_resources *list
+  cache_resources cb[cb_name].first if cb[cb_name].first
+end
