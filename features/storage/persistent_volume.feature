@@ -769,7 +769,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
-    Given 120 seconds have passed
+    Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
     When I run the :describe client command with:
@@ -816,7 +816,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"] | Block                   |
     Then the step should succeed
     And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
-    Given 120 seconds have passed
+    Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
     When I run the :describe client command with:
@@ -912,7 +912,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]       | Block                   |
       | <pvc_key>                    | <pvc_value>             |
     Then the step should succeed
-    Given 120 seconds have passed
+    Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
     When I run the :describe client command with:
@@ -944,7 +944,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | <pvc_volumeMode>        |
     Then the step should succeed
-    Given 120 seconds have passed
+    Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
     When I run the :describe client command with:
