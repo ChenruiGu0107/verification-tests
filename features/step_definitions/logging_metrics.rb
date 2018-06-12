@@ -71,6 +71,8 @@ Given /^I login to kibana logging web console$/ do
     | password   | <%= user.password %>          |
     | kibana_url | <%= cb.logging_console_url %> |
     })
+  # change the base url so we don't need to specifiy kibana url every time afterward in the rule file
+  browser.base_url = env.logging_console_url
 end
 
 # ##  curl

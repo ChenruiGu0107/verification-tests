@@ -11,7 +11,6 @@ Feature: logging related scenarios
     Given I wait until the status of deployment "java-mainclass" becomes :complete
     Given I login to kibana logging web console
     When I perform the :kibana_verify_app_text web action with:
-      | kibana_url | https://<%= cb.logging_route %> |
       | checktext  | java-mainclass                  |
       | time_out   | 300                             |
     Then the step should succeed
@@ -39,7 +38,6 @@ Feature: logging related scenarios
       | password   | <%= user.password %>            |
       | kibana_url | https://<%= cb.logging_route %> |
     When I perform the :kibana_verify_app_text web action with:
-       | kibana_url | https://<%= cb.logging_route %> |
        | checktext  | cakephp                         |
        | time_out   | 300                             |
     Then the step should succeed
