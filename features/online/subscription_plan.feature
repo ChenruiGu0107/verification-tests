@@ -251,3 +251,61 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     | storage             | # @case_id OCP-15842
     | memory              | # @case_id OCP-15843
     | terminating_memory  | # @case_id OCP-15844
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-17480
+  Scenario: Check the error message when there is no add-on update during doing resource change
+    Given I open accountant console in a browser
+    When I perform the :set_additional_resources_to_same_value_by_url web action with:
+      | resource | memory |
+      | size     | 0      |
+    Then the step should succeed
+    When I perform the :set_additional_resources_to_same_value_by_url web action with:
+      | resource | storage |
+      | size     | 0       |
+    Then the step should succeed
+    When I perform the :set_additional_resources_to_same_value_by_url web action with:
+      | resource | terminating_memory |
+      | size     | 0                  |
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-16738
+  Scenario: User can not use invalid addon type to subscribe resource add-on through the subscription url
+    Given I open accountant console in a browser
+    When I perform the :set_additional_resources_to_invalid_value_by_url web action with:
+      | resource | memory_1 |
+      | size     | 1        |
+    Then the step should succeed
+    When I perform the :set_additional_resources_to_invalid_value_by_url web action with:
+      | resource | storage_1 |
+      | size     | 1         |
+    Then the step should succeed
+    When I perform the :set_additional_resources_to_invalid_value_by_url web action with:
+      | resource | terminating_memory_1 |
+      | size     | 1                    |
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-15154
+  Scenario: Trying to upgrade addon to same value should be successful
+    Given I open accountant console in a browser
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 3      |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    """
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 1      |
+    Then the step should succeed
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 3      |
+    Then the step should succeed
