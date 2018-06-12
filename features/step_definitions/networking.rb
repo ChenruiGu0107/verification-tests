@@ -530,3 +530,16 @@ Given /^I restart the openvswitch service on the node$/ do
     raise "Fail to restart the openvswitch service"
   end
 end
+
+Given /^I get the networking components logs of the node since "(.+)" ago$/ do | duration |
+  ensure_admin_tagged
+
+  if env.version_ge("3.10", user: user)
+    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+      pod.node_name == node.name
+    }.first
+    @result = admin.cli_exec(:logs, resource_name: sdn_pod.name, n: "openshift-sdn", since: duration)
+  else
+    @result = node.host.exec_admin("journalctl -l -u atomic-openshift-node --since \"#{duration} ago\" \| grep -E 'controller.go\|network.go'")
+  end
+end
