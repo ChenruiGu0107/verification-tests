@@ -1,14 +1,16 @@
 Feature: PVC resizing Test
 
   # @author piqin@redhat.com
-  # @case_id OCP-16613
+  # @case_id OCP-19331
   @admin
-  Scenario: Resize PVC online and with data
+  Scenario: Resize PVC online and with data on it
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
 
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
+      | ["allowVolumeExpansion"]        | true                     |
+      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -55,7 +57,9 @@ Feature: PVC resizing Test
 
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
+      | ["allowVolumeExpansion"]        | true                     |
+      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -95,7 +99,9 @@ Feature: PVC resizing Test
 
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
+      | ["allowVolumeExpansion"]        | true                     |
+      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -143,7 +149,7 @@ Feature: PVC resizing Test
 
 
   # @author piqin@redhat.com
-  # @case_id OCP-16616
+  # @case_id OCP-19332
   @admin
   @destructive
   Scenario: Resize PVC when glusterfs outage
@@ -178,12 +184,12 @@ Feature: PVC resizing Test
     """
 
   # @author piqin@redhat.com
+  # @case_id OCP-19333
   @admin
-  Scenario Outline: Resize PVC using StorageClass without allowVolumeExpansion enable
+  Scenario: Resize PVC using StorageClass without allowVolumeExpansion enable
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "<sc_name>"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion disabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion disabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -199,18 +205,13 @@ Feature: PVC resizing Test
     Then the step should fail
     And the output should contain "storageclass that provisions the pvc must support resize"
 
-    Examples:
-      | volume_type | sc_name            |
-      | glusterfs   | glusterprovisioner | # @case_id OCP-16617
-      | cinder      | standard           | # @case_id OCP-18379
-
   # @author piqin@redhat.com
+  # @case_id OCP-16619
   @admin
-  Scenario Outline: Resize PVC to a size less than the current size
+  Scenario: Resize PVC to a size less than the current size
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "<sc_name>"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -226,18 +227,13 @@ Feature: PVC resizing Test
     Then the step should fail
     And the output should contain "field can not be less than previous value"
 
-    Examples:
-      | volume_type | sc_name            |
-      | glusterfs   | glusterprovisioner | # @case_id OCP-16619
-      | cinder      | standard           | # @case_id OCP-18381
-
   # @author piqin@redhat.com
+  # @case_id OCP-16620
   @admin
-  Scenario Outline: Resize PVC to a size is the same with current size
+  Scenario: Resize PVC to a size is the same with current size
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "<sc_name>"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -253,18 +249,13 @@ Feature: PVC resizing Test
     Then the step should fail
     And the output should contain "not patched"
 
-    Examples:
-      | volumetype | sc_name            |
-      | glusterfs  | glusterprovisioner | # @case_id OCP-16620
-      | cinder     | standard           | # @case_id OCP-18382
-
   # @author piqin@redhat.com
+  # @case_id OCP-16621
   @admin
-  Scenario Outline: Modify PVC other field than Spec.Resources.Requests.storage
+  Scenario: Modify PVC other field than Spec.Resources.Requests.storage
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "<sc_name>"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -280,18 +271,13 @@ Feature: PVC resizing Test
     Then the step should fail
     And the output should contain "is immutable"
 
-    Examples:
-      | volumetype | sc_name            |
-      | glusterfs  | glusterprovisioner | # @case_id OCP-16621
-      | cinder     | standard           | # @case_id OCP-18383
-
   # @author piqin@redhat.com
+  # @case_id OCP-16634
   @admin
-  Scenario Outline: Resize PVC when it's PV was deleted
+  Scenario: Resize PVC when it's PV was deleted
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "<sc_name>"
     And I have a project
-    And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -307,11 +293,6 @@ Feature: PVC resizing Test
       | p             | {"spec":{"resources":{"requests":{"storage":"3Gi"}}}} |
     Then the step should fail
     And the output should contain "except resources.requests for bound claims"
-
-    Examples:
-      | volumetype | sc_name            |
-      | glusterfs  | glusterprovisioner | # @case_id OCP-16634
-      | cinder     | standard           | # @case_id OCP-18395
 
   # @author chaoyang@redhat.com
   # @case_id OCP-17487 OCP-18395
@@ -390,8 +371,7 @@ Feature: PVC resizing Test
       | ["spec"]["hard"]["requests.storage"]       | 1Gi |
     Then the step should succeed
 
-    Given I have a StorageClass named "glusterprovisioner"
-    And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
@@ -413,7 +393,6 @@ Feature: PVC resizing Test
   Scenario: Resize PVC will fail when PVC size exceed storageclass storage quota
     Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
 
-    Given I have a StorageClass named "glusterprovisioner"
     And I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
@@ -422,7 +401,7 @@ Feature: PVC resizing Test
       | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 1   |
     Then the step should succeed
 
-    Given admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
+    Given admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
@@ -457,15 +436,8 @@ Feature: PVC resizing Test
       | resource      | pvc                                                    |
       | resource_name | glusterc                                               |
       | p             | {"spec":{"resources":{"requests":{"storage":"20Gi"}}}} |
-    Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    Given the expression should be true> pv.capacity_raw(cached: false) == "5Gi"
-    """
-    When I get project events
-    Then the step should succeed
-    And the output should contain:
-      | Volume has no storage class |
+    Then the step should fail
+    And the output should contain "storageclass that provisions the pvc must support resize"
 
   # @author jhou@redhat.com
   # @case_id OCP-16622
@@ -486,6 +458,30 @@ Feature: PVC resizing Test
     And the output should contain:
       | immutable |
       | bound     |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-16623
+  @admin
+  Scenario: Resize PVC to a very large size
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+    And I have a project
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                              |
+      | resource_name | pvc-<%= project.name %>                                          |
+      | p             | {"spec":{"resources":{"requests":{"storage":"100000000000Gi"}}}} |
+    Then the step should succeed
+    When I get project events
+    Then the output should match:
+      | VolumeSizeExceedsAvailableQuota |
 
   # @author jhou@redhat.com
   # @case_id OCP-16633
