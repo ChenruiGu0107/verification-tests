@@ -16,11 +16,11 @@ Feature: NoDiskConflict
     And I use the "<%= cb.proj_name %>" project
 
     Given I have a 1 GB volume and save volume id in the :volumeID clipboard
-    When I run oc create over "https://raw.githubusercontent.com/<path_to_file>" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<path_to_file>" replacing paths:
       | ["metadata"]["name"]                                      | pod1-<%= project.name %> |
       | ["spec"]["volumes"][0]["<storage_type>"]["<volume_name>"] | <%= cb.volumeID %>       |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/<path_to_file>" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<path_to_file>" replacing paths:
       | ["metadata"]["name"]                                      | pod2-<%= project.name %> |
       | ["spec"]["volumes"][0]["<storage_type>"]["<volume_name>"] | <%= cb.volumeID %>       |
     Then the step should succeed
@@ -29,17 +29,17 @@ Feature: NoDiskConflict
       | resource | pod                      |
       | name     | pod2-<%= project.name %> |
     Then the step should succeed
-    And the output should contain:
-      | Pending          |
-      | FailedScheduling |
-      | NoDiskConflict   |
+    And the output should match:
+      | Pending                             |
+      | FailedScheduling                    |
+      | (NoDiskConflict\|no available disk) |
     When I get project events
     Then the step should succeed
-    And the output should contain:
-      | FailedScheduling |
-      | NoDiskConflict   |
+    And the output should match:
+      | FailedScheduling                    |
+      | (NoDiskConflict\|no available disk) |
 
     Examples:
       | storage_type         | volume_name | path_to_file |
-      | gcePersistentDisk    | pdName      | openshift-qe/v3-testfiles/master/storage/gce/pod-NoDiskConflict-1.json              | # @case_id OCP-9927
-      | awsElasticBlockStore | volumeID    | openshift-qe/v3-testfiles/master/storage/ebs/security/ebs-selinux-fsgroup-test.json | # @case_id OCP-9929
+      | gcePersistentDisk    | pdName      | gce/pod-NoDiskConflict-1.json              | # @case_id OCP-9927
+      | awsElasticBlockStore | volumeID    | ebs/security/ebs-selinux-fsgroup-test.json | # @case_id OCP-9929
