@@ -350,8 +350,10 @@ module CucuShift
       launched = case iaas
       when CucuShift::Amz_EC2
         launch_opts[:user_data] = Base64.encode64(user_data_string)
+        host_opts = launch_opts.delete(:host_opts) || {}
         res = iaas.launch_instances(tag_name: host_names,
                                     image: launch_opts.delete(:image),
+                                    host_opts: host_opts,
                                     create_opts: launch_opts)
       when CucuShift::Azure
         unless user_data_string.empty?
@@ -372,7 +374,10 @@ module CucuShift
         if user_data_string && !user_data_string.empty?
           logger.warn "user-data not implemented for VSphere yet"
         end
-        res = iaas.create_instances(host_names, create_opts: launch_opts)
+        host_opts = launch_opts.delete(:host_opts) || {}
+        res = iaas.create_instances(host_names,
+                                    host_opts: host_opts,
+                                    create_opts: launch_opts)
       else
         raise "Unknown IaaS class #{iaas.class}."
       end

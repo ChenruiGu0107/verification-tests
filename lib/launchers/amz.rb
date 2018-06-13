@@ -446,6 +446,7 @@ module CucuShift
     def launch_instances(image: nil,
                          tag_name: nil,
                          create_opts: nil,
+                         host_opts: {},
                          max_retries: 1,
                          wait_accessible: false)
       # default to use rhel if no filter is specified
@@ -518,7 +519,7 @@ module CucuShift
         inst.create_tags({ tags: inst_tags })
         inst.tags.concat inst_tags # odd that we need this
         # make sure we can ssh into the instance
-        host = get_host(inst, wait: wait_accessible)
+        host = get_host(inst, host_opts, wait: wait_accessible)
         res << [inst, host]
       end
       return res

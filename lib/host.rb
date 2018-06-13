@@ -714,13 +714,16 @@ module CucuShift
     end
 
     # @return [String] host line suitable for use in ansible inventory
-    def ansible_host_str(opts={})
-      sshopts = ssh_opts(opts)
+    def ansible_host_str(admin: true)
+      sshopts = ssh_opts({})
       str = hostname.dup
       if sshopts[:user]
         str << ' ansible_user=' << sshopts[:user]
         # stay compatible with ansible 1.9
         str << ' ansible_ssh_user=' << sshopts[:user]
+        if admin && sshopts[:user] != "root"
+          str << " ansible_become=yes"
+        end
       end
       if sshopts[:private_key]
         # we chmod ssh key upon ssh to machine, but make sure it is done
