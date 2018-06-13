@@ -148,9 +148,7 @@ Feature: Egress-ingress related networking scenarios
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "120s" ago
     And the output should contain:
       | EgressNetworkPolicy not allowed in shared NetNamespace |
       | <%= cb.proj1 %>                                        |
@@ -187,12 +185,10 @@ Feature: Egress-ingress related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj3 %> |
     Then the step should succeed
+    Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
     """
-    Given I select a random node's host
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "120s" ago
     And the output should contain:
       | EgressNetworkPolicy not allowed in shared NetNamespace |
       | <%= cb.proj3 %>                                        |
@@ -235,9 +231,7 @@ Feature: Egress-ingress related networking scenarios
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "120s" ago
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj1 %>:policy1) |
     """
@@ -253,9 +247,7 @@ Feature: Egress-ingress related networking scenarios
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "30s" ago
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj2 %>:policy1) |
     """
@@ -464,9 +456,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I select a random node's host
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "30s" ago
     And the output should contain:
       | Correcting CIDRSelector '0.0.0.0/32' to '0.0.0.0/0' |
 
