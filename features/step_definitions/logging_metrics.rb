@@ -804,11 +804,18 @@ end
 
 # wrapper step to spin up a ansible-pod based on ose/ansible docker image
 # To override the image tag from the puddle, we need to do something like
-# export CUCUSHIFT_CONFIG='{"services": {"base_ansible_image_tag": "latest"}}'
+# export CUCUSHIFT_CONFIG='{"global":
+#                             {"base_ansible_image_tag": "latest",
+#                             {"ansible_image_src: "openshift3/ose-ansible"}}'
+# possible 'image_src' values are openshift/origin-ansible (master) or
+# openshift3/ose-ansible (official released image for OCP).  Please note that
+# the ose-ansible won't have WIP release labels
 Given /^I have a pod with openshift-ansible playbook installed$/ do
   ensure_admin_tagged
-  cb.base_ansible_image_tag = conf[:services, :base_ansible_image_tag]
+  cb.base_ansible_image_tag = conf[:base_ansible_image_tag]
   cb.base_ansible_image_tag ||= "v#{cb.master_version}"
+  cb.ansible_image_src = conf[:ansible_image_src]
+  cb.ansible_image_src ||= "openshift/origin-ansible"
   # we need to save the original project name for post test cleanup
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to switch user.
@@ -820,7 +827,7 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
     # cb.proxy_value will determine if proxy section is enabled.
     step %Q/I switch to cluster admin pseudo user/
     step %Q{I use the "<%= cb.org_project_for_ansible.name %>" project}
-    step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_unified.yaml}
+    step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_configurable.yaml}
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
 
