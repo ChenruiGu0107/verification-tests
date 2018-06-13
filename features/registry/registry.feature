@@ -439,6 +439,7 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
     Given I switch to the first user
+    Given I have a project
     When I run the :import_image client command with:
       | from       | docker.io/openshift/ruby-20-centos7:latest |
       | image_name | ruby-20-centos7:latest                     |
@@ -447,7 +448,6 @@ Feature: Testing registry
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
 
-    Given I have a project
     And I have a skopeo pod in the project
     When I execute on the pod:
       | skopeo                     |
@@ -506,9 +506,9 @@ Feature: Testing registry
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
     Given I switch to the first user
+    And I have a project
     And I find a bearer token of the builder service account
     And default docker-registry route is stored in the :registry_ip clipboard
-    And I have a project
     And I have a skopeo pod in the project
     When I execute on the pod:
       | skopeo                     |
