@@ -541,7 +541,187 @@ Feature: job.feature
     And the output should contain:
        | NAME     | sjd                    |
        | SCHEDULE | noescap: @daily        |
-
+     
+  # @author geliu@redhat.com
+  # @case_id OCP-17515
+  Scenario: User can schedule a Cronjob execution with cron format time
+    Given I have a project
+    When I run the :run client command with:
+       | name     | sj3       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | * * * * * |
+       | sleep    | 300	     |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj3        |
+       | SCHEDULE | * * * * *  |
+    When I run the :run client command with:
+       | name     | sj4       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | 0 * * * * |
+       | sleep    | 300       |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj4       |
+       | SCHEDULE | 0 * * * * |
+    When I run the :run client command with:
+       | name     | sj5        |
+       | image    | busybox    |
+       | restart  | Never      |
+       | schedule | * 12 * * * |
+       | sleep    | 300        |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj5        |
+       | SCHEDULE | * 12 * * * |
+    When I run the :run client command with:
+       | name     | sj6       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | * * 1 * * |
+       | sleep    | 300       |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj6       |
+       | SCHEDULE | * * 1 * * |
+    When I run the :run client command with:
+       | name     | sj7       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | * * * 4 * |
+       | sleep    | 300       |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj7       |
+       | SCHEDULE | * * * 4 * |
+    When I run the :run client command with:
+       | name     | sj8       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | * * * * 3 |
+       | sleep    | 300       |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj8       |
+       | SCHEDULE | * * * * 3 |
+    When I run the :run client command with:
+       | name     | sja        |
+       | image    | busybox    |
+       | restart  | Never      |
+       | schedule | 0 12 * * * |
+       | sleep    | 300        |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sja        |
+       | SCHEDULE | 0 12 * * * |
+    When I run the :run client command with:
+       | name     | sjb          |
+       | image    | busybox      |
+       | restart  | Never        |
+       | schedule | 0 12 15 11 3 |
+       | sleep    | 300          |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjb          |
+       | SCHEDULE | 0 12 15 11 3 |
+    When I run the :run client command with:
+       | name     | sjc           |
+       | image    | busybox       |
+       | restart  | Never         |
+       | schedule | 70 12 15 11 3 |
+       | sleep    | 300           |
+    Then the step should fail
+    And the output should contain:
+       | Invalid value: "70 12 15 11 3": End of range (70) above maximum (59): 70 |
+    When I run the :run client command with:
+       | name     | sjc          |
+       | image    | busybox      |
+       | restart  | Never        |
+       | schedule | 30 25 15 1 3 |
+       | sleep    | 300          |
+    Then the step should fail
+    And the output should contain: 
+       | Invalid value: "30 25 15 1 3": End of range (25) above maximum (23): 25 |
+    When I run the :run client command with:
+       | name     | sjc          |
+       | image    | busybox      |
+       | restart  | Never        |
+       | schedule | 30 8 35 11 3 |
+       | sleep    | 300          |
+    Then the step should fail
+    And the output should contain:
+       | Invalid value: "30 8 35 11 3": End of range (35) above maximum (31): 35 |
+    When I run the :run client command with:
+       | name     | sjc         |
+       | image    | busybox     |
+       | restart  | Never       |
+       | schedule | 30 8 1 13 3 |
+       | sleep    | 300         |
+    Then the step should fail
+    And the output should contain:
+       | Invalid value: "30 8 1 13 3": End of range (13) above maximum (12): 13 |
+    When I run the :run client command with:
+       | name     | sjc        |
+       | image    | busybox    |
+       | restart  | Never      |
+       | schedule | 30 8 1 8 7 |
+       | sleep    | 300        |
+    Then the step should fail
+    And the output should contain:
+       | Invalid value: "30 8 1 8 7": End of range (7) above maximum (6): 7 |
+    When I run the :run client command with:
+       | name     | sjd       |
+       | image    | busybox   |
+       | restart  | Never     |
+       | schedule | @every 5m |
+       | sleep    | 300       |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjd       |
+       | SCHEDULE | @every 5m |
+    When I run the :run client command with:
+       | name     | sje     |
+       | image    | busybox |
+       | restart  | Never   |
+       | schedule | @daily  |
+       | sleep    | 300     |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjd    |
+       | SCHEDULE | @daily |
+       
   # @author geliu@redhat.com
   # @case_id OCP-11363
   Scenario: The subsequent scheduled job should be suspend when set suppend flag to true
@@ -578,6 +758,39 @@ Feature: job.feature
       | run=sj1 |
     
   # @author geliu@redhat.com
+  # @case_id OCP-17514
+  Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
+    Given I have a project
+    When I run the :run client command with:
+      | name     | sj1       |
+      | image    | busybox   |
+      | restart  | Never     |
+      | schedule | * * * * * |
+      | sleep    | 30        |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:  
+      | run=sj1 | 
+    When I run the :patch client command with:
+      | resource      | cronjob                   |
+      | resource_name | sj1                       |
+      | p             | {"spec":{"suspend":true}} |
+    Then the step should succeed
+    Given 60 seconds have passed
+    When I run the :delete client command with:
+      | object_type | pod             |
+      | l           | run=sj1         |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And I check that there are no pods in the project
+    When I run the :patch client command with:
+      | resource      | cronjob                    |
+      | resource_name | sj1                        |
+      | p             | {"spec":{"suspend":false}} |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
+
+  # @author geliu@redhat.com
   # @case_id OCP-10968
   Scenario: Schedule job with spec.startingDeadlineSeconds
     Given I have a project
@@ -600,7 +813,29 @@ Feature: job.feature
     When I get project pods as JSON
     And evaluation of `@result[:parsed]['items']` is stored in the :podlist clipboard
     And the expression should be true> cb.podlist.empty? 
-  
+
+  # @author geliu@redhat.com
+  # @case_id OCP-17511
+  Scenario: Cronjob with spec.startingDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/cronjob_3.9_with_startingDeadlineSeconds.yaml |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj3 |
+    When I run the :patch client command with:
+      | resource      | cronjob                           |
+      | resource_name | sj3                                    |
+      | p             | {"spec":{"startingDeadlineSeconds":1}} |
+    Then the step should succeed
+    Given 70 seconds have passed
+    When I run the :delete client command with:
+      | object_type | pod             |
+      | l           | run=sj3         |
+    Then the step should succeed
+    Given 70 seconds have passed
+    And I check that there are no pods in the project
+
   # @author geliu@redhat.com
   # @case_id OCP-11835
   Scenario: User can schedule a job execution with different concurrencypolicy
@@ -653,3 +888,56 @@ Feature: job.feature
     Given I store in the clipboard the pods labeled:
       | run=sj1 |
     Then the expression should be true> cb.pods.length > 1
+
+  # @author geliu@redhat.com
+  # @case_id OCP-17513
+  Scenario: User can schedule(Cronjob) a job execution with different concurrencypolicy
+    Given I have a project
+    When I run the :run client command with:
+      | name     | sj1       |
+      | image    | busybox   |
+      | restart  | Never     |
+      | schedule | * * * * * |
+      | sleep    | 180       |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
+    Given a pod becomes ready with labels:
+      | run=sj1 |
+    And evaluation of `pod.name` is stored in the :podname1 clipboard
+    When I run the :patch client command with:
+      | resource      | cronjob                                  |
+      | resource_name | sj1                                      |
+      | p             | {"spec":{"concurrencyPolicy":"Replace"}} |
+    Then the step should succeed
+    Given 90 seconds have passed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
+    And evaluation of `pod.name` is stored in the :podname2 clipboard
+    And the expression should be true> cb.podname1 != cb.podname2
+    When I run the :delete client command with:
+      | object_type | pod     |
+      | l           | run=sj1 |
+    Then the step should succeed
+    When status becomes :running of 1 pods labeled:
+      | run=sj1 |
+    And evaluation of `pod.name` is stored in the :podname3 clipboard
+    When I run the :patch client command with:
+      | resource      | cronjob                                 |
+      | resource_name | sj1                                     |
+      | p             | {"spec":{"concurrencyPolicy":"Forbid"}} |
+    Then the step should succeed
+    Given 90 seconds have passed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
+    And evaluation of `pod.name` is stored in the :podname4 clipboard
+    And the expression should be true> cb.podname3 == cb.podname4
+    When I run the :patch client command with:
+      | resource      | cronjob                                |
+      | resource_name | sj1                                    |
+      | p             | {"spec":{"concurrencyPolicy":"Allow"}} |
+    Then the step should succeed
+    Given 90 seconds have passed
+    Then status becomes :running of 2 pods labeled:
+      | run=sj1 |     
+  
