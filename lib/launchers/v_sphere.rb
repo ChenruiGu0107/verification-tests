@@ -248,11 +248,11 @@ module CucuShift
 
       groups.each do |instance_opts|
         names = instance_opts[:names]
-
         create_opts = deep_merge(
           config.fetch(:create_opts, {}),
-          instance_opts.dig(:launch_opts, :create_opts)
+          instance_opts[:launch_opts]
         )
+
         case create_opts[:type]
         when :clone
           folder = create_opts.dig(:clone_opts, :folder)
