@@ -940,10 +940,6 @@ Feature: create app on web console related
       | namespace         | openshift           |
       | image_stream_name | python              |
     Then the step should succeed
-    When I perform the :add_env_vars web console action with:
-      | env_var_key   | testenv |
-      | env_var_value | 1234    |
-    Then the step should succeed
     When I perform the :add_new_label web console action with:
       | label_key   | testname  |
       | label_value | testvalue |
@@ -954,6 +950,7 @@ Feature: create app on web console related
     And I wait for the "python" dc to appear
     And a pod is present with labels:
       | deployment=python-1 |
+      | testname=testvalue  |
 
     # Import YAML/JSON
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"

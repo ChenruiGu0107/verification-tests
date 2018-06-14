@@ -31,13 +31,16 @@ deploy_from_image_stream_name_search_image:
   action: set_image_name
   action: click_to_search
 change_deploy_image_name_to_another:
+  action: clear_deploy_image_name
   elements:
   - selector:
       xpath: //input[@id="name"]
-    op: clear
-  - selector:
-      xpath: //input[@id="name"]
     op: send_keys <new_deploy_image_name>
+clear_deploy_image_name:
+  element:
+    selector:
+      xpath: //input[@id="name"]
+    op: clear
 check_deploy_image_name:
   scripts:
   - command: return document.getElementById("name").value == "<image_name>"
@@ -116,26 +119,26 @@ set_image_name:
     op: send_keys <image_deploy_from>
 set_name_with_1_char:
   action: change_deploy_image_name_to_another
-  action: click_somewhere_out_of_focus
+  action: click_somewhere_out_of_focus_for_wizard
   action: check_error_for_less_than_2_chars
-  action: check_create_button_disabled
+  action: check_next_step_button_disabled
 set_name_with_invalid_chars:
   action: change_deploy_image_name_to_another
-  action: click_somewhere_out_of_focus
+  action: click_somewhere_out_of_focus_for_wizard
   action: check_error_for_invalid_chars
-  action: check_create_button_disabled
+  action: check_next_step_button_disabled
 set_name_to_blank:
-  action: change_deploy_image_name_to_another
-  action: click_somewhere_out_of_focus
+  action: clear_deploy_image_name
+  action: click_somewhere_out_of_focus_for_wizard
   action: check_error_for_empty_name
-  action: check_create_button_disabled
+  action: check_next_step_button_disabled
 set_name_to_dash_started_string:
   action: change_deploy_image_name_to_another
-  action: click_somewhere_out_of_focus
+  action: click_somewhere_out_of_focus_for_wizard
   action: check_error_for_dash_started_or_end_with_dash
-  action: check_create_button_disabled
+  action: check_next_step_button_disabled
 set_name_to_string_end_with_dash:
   action: change_deploy_image_name_to_another
-  action: click_somewhere_out_of_focus
+  action: click_somewhere_out_of_focus_for_wizard
   action: check_error_for_dash_started_or_end_with_dash
-  action: check_create_button_disabled
+  action: check_next_step_button_disabled

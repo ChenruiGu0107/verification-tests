@@ -7,6 +7,10 @@ check_create_button_disabled:
   elements:
   - selector:
       xpath: //button[@disabled='disabled' and normalize-space(text())='Create']
+check_next_step_button_disabled:
+  element:
+    selector:
+      xpath: //button[@disabled='disabled' and @id='nextButton']
 check_error_for_invalid_value:
   elements:
     - selector:
@@ -117,6 +121,24 @@ click_on_terminal_tab:
   element:
     selector:
       xpath: //uib-tab-heading[contains(.,'Terminal')]
+    op: click
+click_deploy_image:
+  element:
+    selector:
+      text: Deploy Image
+    type: a
+    op: click
+click_deploy_button:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Deploy") and not(@disabled)]
+    type: button
+    op: click
+click_import_yaml_json:
+  element:
+    selector:
+      text: Import YAML / JSON
+    type: a
     op: click
 click_somewhere_out_of_focus:
   action: click_help_menu
