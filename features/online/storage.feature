@@ -141,11 +141,11 @@ Feature: ONLY ONLINE Storage related scripts in this file
 
     Examples: create pvc with annotation in aws
       |  pvc-name               | status  | output                                                                     |
-      | pvc-annotation-default  | bound   | StorageClass:\\t+ebs                                                       |
+      | pvc-annotation-default  | bound   | StorageClass:\s+ebs                                                        |
       | pvc-annotation-notexist | pending | "yasun-test-class-not-exist" not found                                     |
       | pvc-annotation-blank    | pending | no persistent volumes available for this claim and no storage class is set |
-      | pvc-annotation-alpha    | bound   | StorageClass:\\t+ebs                                                       |
-      | pvc-annotation-ebs      | bound   | StorageClass:\\t+ebs                                                       |
+      | pvc-annotation-alpha    | bound   | StorageClass:\s+ebs                                                        |
+      | pvc-annotation-ebs      | bound   | StorageClass:\s+ebs                                                        |
 
   # @author yasun@redhat.com
   # @case_id OCP-13969
