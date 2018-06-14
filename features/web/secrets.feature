@@ -721,6 +721,7 @@ Feature: web secrets related
       | item_key        | my.key              |
       | item_value      | my.value            |
     Then the step should succeed
+    Given I wait for the "secretone" secret to appear
     When I perform the :goto_one_secret_page web console action with:
       | project_name    | <%= project.name %> |
       | secret          | secretone           |
@@ -741,6 +742,7 @@ Feature: web secrets related
       | item_key        | my.key2             |
       | file_path       | <%= File.join(localhost.workdir, "ca.pem") %> |
     Then the step should succeed
+    Given I wait for the "secrettwo" secret to appear
     When I perform the :goto_one_secret_page web console action with:
       | project_name    | <%= project.name %> |
       | secret          | secrettwo           |
