@@ -37,7 +37,7 @@ module CucuShift
     def create_instance( names,
                          user_data: nil,
                          create_opts: {},
-                         host_connect_opts: {})
+                         host_opts: {})
 
       names = [ names ].flatten.map {|n| normalize_instance_name(n)}
       create_opts = deep_merge(config[:create_opts] || {}, create_opts)
@@ -58,7 +58,7 @@ module CucuShift
       end
 
       return vms.map.with_index do |vm, index|
-        host_opts = host_connect_opts.merge({cloud_instance_name: names[index]})
+        host_opts = host_opts.merge({cloud_instance_name: names[index]})
         return_val = [vm, get_vm_host(vm, host_opts)]
         logger.info "started #{return_val[0].name}: #{return_val[1].hostname}"
         return_val
