@@ -49,13 +49,18 @@ Feature: Ansible-service-broker related scenarios
       | param | UID=<%= cb.db_uid %>                                                                                            |
       | n     | <%= project.name %>                                                                                                     |
     Then the step should succeed
+    And I wait for all service_instance in the project to become ready up to 360 seconds
 
-    # mediawiki and DB apbs provision succeed
-    Given a pod becomes ready with labels:
-      | deployment=mediawiki123-1 |
-    Given a pod becomes ready with labels:
-      | app=<db_label>            |
-    And I wait up to 80 seconds for the steps to pass:
+    Given dc with name matching /mediawiki-/ are stored in the :app clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.app.first.name %>-1 |
+    And evaluation of `pod` is stored in the :app_pod clipboard
+    And dc with name matching /<db_pattern>/ are stored in the :db clipboard
+
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+
+    Then I wait up to 80 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | serviceinstance                            |
@@ -82,17 +87,17 @@ Feature: Ansible-service-broker related scenarios
     # Add credentials to mediawiki application
     When I run the :patch client command with:
       | resource      | dc                        |
-      | resource_name | mediawiki123              |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"envFrom": [ {"secretRef":{ "name": "<db_credentials>"}}],"name": "mediawiki123"}]}}}} |
+      | resource_name | <%= cb.app.first.name %>  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"envFrom": [ {"secretRef":{ "name": "<db_credentials>"}}],"name": "<%= cb.app_pod.containers.first.name %>"}]}}}} |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=mediawiki123-2                 |
+      | deployment=<%= cb.app.first.name %>-2     |
 
     # Access mediawiki's route
     And I wait up to 60 seconds for the steps to pass:
     """
-    When I open web server via the "http://<%= route("mediawiki123", service("mediawiki123")).dns(by: user) %>/index.php/Main_Page" url
-    And the output should contain "MediaWiki has been successfully installed"
+    When I open web server via the "http://<%= route(cb.app.first.name).dns %>/index.php/Main_Page" url
+    And the output should match "MediaWiki has been(?: successfully)? installed"
     """
 
     # Delete the servicebinding
@@ -122,20 +127,20 @@ Feature: Ansible-service-broker related scenarios
     And I check that there are no routes in the project
 
     Examples:
-      | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                                         | db_label             |
-      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  dev    | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | rhscl-postgresql-apb | # @case_id OCP-15648
-      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  prod   | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | rhscl-postgresql-apb | # @case_id OCP-17363
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-16071
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  prod   | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-17361
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-15350
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-17362
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | rhscl-mariadb-apb    | # @case_id OCP-18241
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | rhscl-mariadb-apb    | # @case_id OCP-18240
+      | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                                         | db_pattern           |
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  dev    | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql- | # @case_id OCP-15648
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  prod   | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql- | # @case_id OCP-17363
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql-      | # @case_id OCP-16071
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  prod   | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql-      | # @case_id OCP-17361
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb-    | # @case_id OCP-15350
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb-    | # @case_id OCP-17362
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb-    | # @case_id OCP-18241
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb-    | # @case_id OCP-18240
 
   # @author zitang@redhat.com
   # @case_id OCP-15354
   @admin
-  Scenario: Check multiple broker support for service catalog 
+  Scenario: Check multiple broker support for service catalog
     Given admin checks that the "ansible-service-broker" cluster_service_broker exists
     And admin checks that the "template-service-broker" cluster_service_broker exists
 
@@ -152,7 +157,7 @@ Feature: Ansible-service-broker related scenarios
   # @case_id OCP-15395
   @admin
   Scenario: Check the ASB with bearer token authn
-    #Get asb route and ansible service broker  client secret 
+    #Get asb route and ansible service broker  client secret
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
@@ -163,21 +168,21 @@ Feature: Ansible-service-broker related scenarios
     And I have a project
     And I have a pod-for-ping in the project
     When I execute on the pod:
-      | curl                                                       | 
-      | -H                                                         | 
+      | curl                                                       |
+      | -H                                                         |
       | Authorization: Bearer <%= cb.token %>                      |
       | -sk                                                        |
       | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
     Then the output should contain:
-      | services      | 
+      | services      |
       | mediawiki-apb |
-      | postgresql-apb | 
-      | mysql-apb | 
-      | mariadb-apb | 
+      | postgresql-apb |
+      | mysql-apb |
+      | mariadb-apb |
     #Access the ASB api with invalid token
      When I execute on the pod:
-      | curl                                                       | 
-      | -H                                                         | 
+      | curl                                                       |
+      | -H                                                         |
       | Authorization: Bearer XXXXXXXXXXXX                         |
       | -sk                                                        |
       | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
@@ -201,16 +206,16 @@ Feature: Ansible-service-broker related scenarios
     Then the expression should be true>  cb.mariadb.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/mariadb' } >= 2
     Then the expression should be true>  cb.postgresql.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/rhscl/postgresql' } >= 2
     Then the expression should be true>  cb.media_wiki.dependencies.count { |e| e.start_with? 'registry.access.redhat.com/openshift3/mediawiki' } >= 1
-    #check provider 
+    #check provider
     Then the expression should be true> cb.media_wiki.provider_display_name  == "Red Hat, Inc."
     Then the expression should be true> cb.mysql.provider_display_name  == "Red Hat, Inc."
     Then the expression should be true> cb.postgresql.provider_display_name  == "Red Hat, Inc."
     Then the expression should be true> cb.mariadb.provider_display_name  == "Red Hat, Inc."
- 
+
     #Check dependencies and providerDisplayName in oc describe client classId
     When I run the :describe client command with:
       | resource  | clusterserviceclass           |
-      | name        | <%= cb.media_wiki.name%>    | 
+      | name        | <%= cb.media_wiki.name%>    |
       | name        | <%= cb.mysql.name%>         |
       | name        | <%= cb.postgresql.name%>    |
       | name        | <%= cb.mariadb.name%>       |
@@ -272,7 +277,7 @@ Feature: Ansible-service-broker related scenarios
       - type: rhcc
         name: old
         url:  https://registry.access.redhat.com
-        org:  
+        org:
         tag:  v3.7
         white_list: [.*-apb$]
     """
@@ -280,11 +285,11 @@ Feature: Ansible-service-broker related scenarios
     #update clustserserviceclass
     When I run the :patch admin command with:
       | resource | clusterservicebroker/ansible-service-broker |
-      |  p       | {                                           | 
-      |          |  "spec": {                                  | 
-      |          |    "relistDuration": "5m1s"                 | 
-      |          |  }                                          | 
-      |          |}                                            | 
+      |  p       | {                                           |
+      |          |  "spec": {                                  |
+      |          |    "relistDuration": "5m1s"                 |
+      |          |  }                                          |
+      |          |}                                            |
      Then the step should succeed
     #provision v3.7
     Given I switch to the first user
@@ -356,9 +361,9 @@ Feature: Ansible-service-broker related scenarios
       |               |      "spec": {                                            |
       |               |        "containers": [                                    |
       |               |          {                                                |
-      |               |            "envFrom": [                                   | 
+      |               |            "envFrom": [                                   |
       |               |              {                                            |
-      |               |                "secretRef": {                             | 
+      |               |                "secretRef": {                             |
       |               |                  "name": "old-postgresql-apb-credentials" |
       |               |                }                                          |
       |               |              }                                            |
@@ -385,7 +390,7 @@ Feature: Ansible-service-broker related scenarios
   # @case_id OCP-15358
   @admin
   @destructive
-  Scenario: ASB should support bootstrap on startup 
+  Scenario: ASB should support bootstrap on startup
     Given  I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And admin redeploys "asb" dc after scenario
@@ -423,7 +428,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     Then status becomes :failed of 1 pods labeled:
       | deploymentconfig=asb            |
-    And I wait up to 180 seconds for the steps to pass:   
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I run the :logs client command with:
       | resource_name | dc/asb          |
@@ -495,18 +500,18 @@ Feature: Ansible-service-broker related scenarios
       | deployment=postgresql-9.5-dev-1|
     Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 180 seconds
     And  I wait for the "<%= cb.prefix %>-mediawiki-apb" service_instance to become ready up to 180 seconds
-    #check the provision sandbox 
+    #check the provision sandbox
     Given I switch to cluster admin pseudo user
     When I run the :get client command with:
       | resource | project |
     Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-postgresql-apb.*/)[0].split(" ")[0]` is stored in the :db_prov_prj clipboard
-    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard 
+    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
     Given admin ensure "<%= cb.db_prov_prj %>" project is deleted after scenario
     And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
     And I use the "<%= cb.db_prov_prj %>" project
     When I run the :get client command with:
-      | resource | secret | 
-    Then the output should contain 1 times: 
+      | resource | secret |
+    Then the output should contain 1 times:
       | Opaque |
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
@@ -534,9 +539,9 @@ Feature: Ansible-service-broker related scenarios
       |               |      "spec": {                                                         |
       |               |        "containers": [                                                 |
       |               |          {                                                             |
-      |               |            "envFrom": [                                                | 
+      |               |            "envFrom": [                                                |
       |               |              {                                                         |
-      |               |                "secretRef": {                                          | 
+      |               |                "secretRef": {                                          |
       |               |                  "name": "<%= cb.prefix %>-postgresql-apb-credentials" |
       |               |                }                                                       |
       |               |              }                                                         |
@@ -551,7 +556,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=mediawiki123-2                 |
-    
+
     # Access mediawiki's route successfully
     Then I wait up to 60 seconds for a web server to become available via the "mediawiki123" route
     And the output should contain "MediaWiki has been successfully installed"
@@ -626,7 +631,7 @@ Feature: Ansible-service-broker related scenarios
       | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-16087
 
 
-  # @author zhsun@redhat.com  
+  # @author zhsun@redhat.com
   @admin
   Scenario Outline:: [ASB] The serviceinstaces/servicebinddings should be deleted after deleted project
     Given I save the first service broker registry prefix to :prefix clipboard
@@ -722,7 +727,7 @@ Feature: Ansible-service-broker related scenarios
       - type: rhcc
         name: rh
         url:  https://registry.access.redhat.com
-        org:  
+        org:
         tag:  v3.6
         white_list: [.*-apb$]
     """
