@@ -170,8 +170,10 @@ module CucuShift
           @projects << @projects.delete(p) if switch
           return p
         else
-          @projects << Project.new(name: name, env: env)
-          return @projects.last
+          method = switch ? :push : :unshift
+          requested_project = Project.new(name: name, env: env)
+          @projects.send method, requested_project
+          return requested_project
         end
       elsif @projects.empty?
         if generate
