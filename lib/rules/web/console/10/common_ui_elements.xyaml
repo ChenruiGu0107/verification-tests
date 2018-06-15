@@ -10,7 +10,7 @@ check_create_button_disabled:
 check_next_step_button_disabled:
   element:
     selector:
-      xpath: //button[@disabled='disabled' and @id='nextButton']
+      xpath: //button[@id='nextButton' and @disabled='disabled']
 check_error_for_invalid_value:
   elements:
     - selector:

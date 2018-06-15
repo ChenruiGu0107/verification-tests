@@ -160,7 +160,6 @@ Feature: Routes related features on web console
   # @case_id OCP-12149
   Scenario: Create passthrough terminated route on web console
     Given I create a new project
-    And I store default router IPs in the :router_ip clipboard
     # create pod, service and pod used for curl command
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
@@ -169,11 +168,14 @@ Feature: Routes related features on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
-    Given I have a pod-for-ping in the project
+
     # create passthrough route on web console
     When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-secure     |
+    Then the step should succeed
+    When I perform the :set_route_name web console action with:
+      | route_name | passthrough-route |
     Then the step should succeed
     When I perform the :select_tls_termination_type web console action with:
       | tls_termination_type | Passthrough |
@@ -181,13 +183,20 @@ Feature: Routes related features on web console
     When I run the :click_create_button web console action
     Then the step should succeed
     # check route is accessible
-    When I execute on the pod:
-      | curl                                                                                     |
-      | -k                                                                                       |
-      | --resolve                                                                                |
-      | <%= route("service-secure", service("service-secure")).dns %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("service-secure", service("service-secure")).dns %>/                   |
-    Then the output should contain "Hello-OpenShift"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the HTTP request:
+      <%= '"""' %>
+      :url: https://<%= route("passthrough-route").dns %>
+      :method: :get
+      :ssl_ca_file: <%= localhost.absolutize("ca.pem") %>
+      <%= '"""' %>
+    Then the step should succeed
+    Then the output should contain:
+      | Hello-OpenShift |
+    """
+
 
   # @author yapei@redhat.com
   # @case_id OCP-11210
