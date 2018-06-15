@@ -593,6 +593,9 @@ Feature: projects related features via cli
     And the output should not match:
       | <%= cb.project1 %> |
       | <%= cb.project2 %> |
+    # A fix: need wait to be robuster because the projects were just created quickly
+    Given I wait for the steps to pass:
+    """
     When I run the :projects client command with:
       | short | true |
     Then the step should succeed
@@ -600,17 +603,13 @@ Feature: projects related features via cli
       | <%= cb.project1 %> |
       | <%= cb.project2 %> |
       | <%= cb.project3 %> |
+    """
     ## delete the latest project and check
     When I run the :delete client command with:
       | object_type       | project            |
       | object_name_or_id | <%= cb.project3 %> |
     Then the step should succeed
     And I wait for the resource "project" named "<%= cb.project3 %>" to disappear
-    When I run the :get client command with:
-      | resource | projects |
-    Then the step should succeed
-    And the output should not match:
-      | <%= cb.project3 %>   |
     When I run the :projects client command with:
       | short | true |
     Then the step should succeed

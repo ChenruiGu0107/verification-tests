@@ -25,11 +25,11 @@ Feature: pipeline related
     Then the step should succeed
 
     Given the "sample-pipeline-1" build becomes :running
+    # A fix, 'finished' is robuster
+    And the "nodejs-mongodb-example-1" build finished
     When I perform the :check_pipeline_stage_appear web console action with:
       | stage_name | build |
     Then the step should succeed
-
-    Given the "nodejs-mongodb-example-1" build was created
     When I perform the :check_build_trigger web console action with:
       | project_name      | <%= project.name %>                             |
       | bc_and_build_name | nodejs-mongodb-example/nodejs-mongodb-example-1 |
