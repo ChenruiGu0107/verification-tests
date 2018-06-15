@@ -402,6 +402,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     if cb.install_prometheus and prometheus_state == 'present'
       # for prometheus installation, we need to label the target node
       step %Q/I select a random node's host/
+      # for 3.10 prometheus installation need the label 'node-role.kubernetes.io/infra'
+      step %Q{label "node-role.kubernetes.io/infra=true" is added to the node}
       step %Q/label "#{node_selector}" is added to the node/
     end
   end
