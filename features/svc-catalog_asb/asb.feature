@@ -51,7 +51,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 360 seconds
 
-    Given dc with name matching /mediawiki-/ are stored in the :app clipboard
+    Given dc with name matching /mediawiki/ are stored in the :app clipboard
     And a pod becomes ready with labels:
       | deployment=<%= cb.app.first.name %>-1 |
     And evaluation of `pod` is stored in the :app_pod clipboard
@@ -128,14 +128,14 @@ Feature: Ansible-service-broker related scenarios
 
     Examples:
       | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                                         | db_pattern           |
-      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  dev    | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql- | # @case_id OCP-15648
-      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  prod   | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql- | # @case_id OCP-17363
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql-      | # @case_id OCP-16071
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  prod   | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql-      | # @case_id OCP-17361
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb-    | # @case_id OCP-15350
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb-    | # @case_id OCP-17362
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb-    | # @case_id OCP-18241
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb-    | # @case_id OCP-18240
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  dev    | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql | # @case_id OCP-15648
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-credentials |  prod   | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql | # @case_id OCP-17363
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql      | # @case_id OCP-16071
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  prod   | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql      | # @case_id OCP-17361
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb    | # @case_id OCP-15350
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb    | # @case_id OCP-17362
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  dev    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb    | # @case_id OCP-18241
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-credentials    |  prod   | <%= cb.prefix %>-mariadb-apb-parameters    | {"mysql_database":"admin","mysql_user":"admin","mariadb_version":"10.2","mysql_root_password":"test","mysql_password":"test"}         | mariadb    | # @case_id OCP-18240
 
   # @author zitang@redhat.com
   # @case_id OCP-15354
