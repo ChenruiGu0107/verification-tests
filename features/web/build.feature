@@ -675,6 +675,9 @@ Feature: build related feature on web console
   # @case_id OCP-11258
   Scenario: View build logs when build status are pending/running/complete/failed/cancelled from web console
     Given I have a project
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I run the :new_build client command with:
       | code           | https://github.com/openshift/ruby-hello-world |
       | image_stream   | openshift/ruby                                |

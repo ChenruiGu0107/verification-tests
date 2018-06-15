@@ -391,6 +391,7 @@ Feature: Check overview page
 
     When I run the :click_start_pipeline web console action
     Then the step should succeed
+    Given the "sample-pipeline-2" build was created
     When I perform the :check_pipeline_info_on_overview web console action with:
       | project_name       | <%= project.name %>    |
       | pipeline_name      | sample-pipeline        |

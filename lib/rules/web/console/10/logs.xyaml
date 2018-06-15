@@ -14,12 +14,12 @@ check_log_tab_on_deployed_deployment_page:
 check_log_context:
   elements:
   - selector:
-      xpath: //table//td[contains(text(),'<log_context>')]
+      xpath: //table//td[contains(.,'<log_context>')]
     timeout: 180
 check_log_context_nonexist:
   elements:
   - selector:
-      xpath: //table//td[contains(text(),'<log_context>')]
+      xpath: //table//td[contains(.,'<log_context>')]
     missing: true
 check_running_log_context:
   elements:
