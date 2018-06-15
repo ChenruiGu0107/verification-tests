@@ -170,7 +170,7 @@ Feature: pipelinebuild.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
     Given I log in to jenkins
     Then the step should succeed
-    Given I update "maven" slave image for jenkins "2" server
+    Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |
@@ -253,7 +253,7 @@ Feature: pipelinebuild.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
     Given I log in to jenkins
     Then the step should succeed
-    Given I update "maven" slave image for jenkins "2" server
+    Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret |
