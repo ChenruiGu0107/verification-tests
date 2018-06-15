@@ -156,7 +156,7 @@ Feature: ansible install related feature
    @destructive
    Scenario: Deploy Prometheus via ansible with default values
      Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
+     Given I create a project with non-leading digit name
      And metrics service is installed with ansible using:
        | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
 
