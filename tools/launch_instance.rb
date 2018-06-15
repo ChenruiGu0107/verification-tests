@@ -319,11 +319,14 @@ module CucuShift
       return host_names
     end
 
-    # This method will merge common launch opts with host group launch opts and
-    #   launch it. The meaning of launch opts and what van be set by it
-    #   varies between service providers. See below how they are passed to
-    #   the create method, then check individual service provider method for
-    #   more understanding.
+    # This method will:
+    # - merge common launch opts with host group launch opts
+    # - process user-data so it is passed to IaaSes as they expect
+    # - pass merged launch opts, user-data and host_opts to
+    #     IaaS#create_instances in the proper way
+    # The meaning of launch opts and what can be set by it
+    #   varies between service providers. See #create_instances of the
+    #   different IaaSes understanding.
     # @return [Array<Host>]
     def launch_host_group(host_group, common_launch_opts,
                           user_data_vars: {}, existing_hosts: nil)

@@ -676,12 +676,13 @@ module CucuShift
 
     # launch multiple instances in OpenStack
     # @param os_opts [Hash] options to pass to [OpenStack::new]
+    # @param host_opts [Hash<Symbol, Object>] options for connecting the host
     # @param names [Array<String>] array of names to give to new machines
     # @return [Hash] a hash of name => hostname pairs
     # TODO: make this return a [Hash] of name => CucuShift::Host pairs
     def launch_instances(names:, **create_opts)
       res = {}
-      host_opts = create_opts[:host_opts] || {}
+      host_opts = create_opts.delete(:host_opts) || {}
       host_opts = opts[:host_opts].merge(host_opts) # merge with global opts
       names.each { |name|
         instance = create_instance(name, **create_opts)
