@@ -1212,6 +1212,65 @@ Then the step should succeed
     """
     And I ensure "ups-instance-1" serviceinstance is deleted
 
+  # @author zitang@redhat.com
+  # @case_id OCP-18847
+  @admin
+  @destructive
+  Scenario: [svc-catalog] controller doesn't send multiple provision/deprovison/etc requests to ups-broker  
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+   
+    Given admin ensures "user-provided" cluster_service_class is deleted after scenario 
+    Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
+
+    When I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And the expression should be true> cb.csc["user-provided-service"]!=nil
+
+    #Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+    And I wait for all service_instance in the project to become ready up to 60 seconds
+
+    # Create servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+    Given I check that the "my-secret" secret exists
+    And I wait for the "ups-binding" service_binding to become ready up to 60 seconds
+
+    # Delete the resources
+    Given I ensure "ups-binding" service_binding is deleted
+    And I ensure "ups-instance" service_instance is deleted
+    Then I wait for the resource "secret" named "my-secret" to disappear within 60 seconds
+    
+    #check the ups-broker  pod log 
+    When I switch to cluster admin pseudo user
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker        |
+      | n             | <%= cb.ups_broker_project %> |
+      | since         | 3m                           |
+    Then the step should succeed
+    And the output should match 1 times:
+      | \s+CreateServiceInstance\(\) |
+      | \s+Bind\(\)                  |
+      | \s+UnBind\(\)                |
+      | \s+RemoveServiceInstance\(\) | 
+
+
   # @author qwang@redhat.com
   # @case_id OCP-16458
   @admin
