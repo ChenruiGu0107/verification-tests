@@ -609,9 +609,9 @@ Feature: logging related scenarios
   @destructive
   Scenario: View the project mapping index as different roles
     Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :project clipboard
     Given logging service is installed in the system
     And I switch to the first user
-    Given I create a project with non-leading digit name
     # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
     When I run the :new_app client command with:
       | app_repo | httpd-example |
@@ -628,7 +628,7 @@ Feature: logging related scenarios
       | ls                                                                   |
       | /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
     And the output should contain:
-      | project.<%= project.name %>.<%= project.uid %> |
+      | project.<%= cb.project.name %>.<%= cb.project.uid %> |
     """
     # Give user1 admin role
     When I run the :policy_add_role_to_user client command with:
@@ -653,9 +653,9 @@ Feature: logging related scenarios
     """
     And I switch to the #{cb.user} user
     And I perform the HTTP request on the ES pod:
-      | relative_url | project.<%= cb.org_project %>.*/_count?format=JSON |
-      | op           | GET                                                |
-      | token        | <%= user.cached_tokens.first %>                    |
+      | relative_url | project.<%= cb.project.name %>.*/_count?format=JSON |
+      | op           | GET                                                 |
+      | token        | <%= user.cached_tokens.first %>                     |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]['count'] > 0
     """
