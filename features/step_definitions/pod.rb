@@ -1,23 +1,17 @@
 Given /^a pod becomes ready with labels:$/ do |table|
   labels = table.raw.flatten # dimentions irrelevant
-  pod_timeout = 10 * 60
-  ready_timeout = 15 * 60
+  pod_timeout = 15 * 60
 
-  @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
+  @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout) { |p,h| p.ready?(cached: true)[:success] }
 
   if @result[:matching].empty?
     # logger.info("Pod list:\n#{@result[:response]}")
     # logger.error("Waiting for labeled pods futile: #{labels.join(",")}")
-    raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
+    raise "See log, timeout waiting for ready pods with " \
+      "labels: #{labels.join(',')}"
   end
 
   cache_pods(*@result[:matching])
-  @result = pod.wait_till_ready(user, ready_timeout)
-
-  unless @result[:success]
-    logger.error(@result[:response])
-    raise "#{pod.name} pod did not become ready"
-  end
 end
 
 Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|

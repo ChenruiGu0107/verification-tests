@@ -58,7 +58,7 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :success depending on pod
     #   condition type=Ready and status=True; only `Running` pods with all
     #   containers probes succeeding appear to have this
-    def ready?(user:, quiet: false, cached: false)
+    def ready?(user: nil, quiet: false, cached: false)
       if cached && props[:raw]
         res = { instruction: "get cached pod #{name} readiness",
                 response: props[:raw].to_yaml,
