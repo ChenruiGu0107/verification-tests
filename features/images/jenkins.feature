@@ -2431,9 +2431,9 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    Given I update "maven" slave image for jenkins "2" server
+    Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
-    Given I update "nodejs" slave image for jenkins "2" server
+    Given I update "nodejs" slave image for jenkins 2 server
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -2489,7 +2489,7 @@ Feature: jenkins.feature
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     Given I log in to jenkins
     Then the step should succeed
-    Given I update "maven" slave image for jenkins "2" server
+    Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
@@ -2500,3 +2500,61 @@ Feature: jenkins.feature
     Then the "openshift-jee-sample-1" build completed
     And a pod becomes ready with labels:
       | app=openshift-jee-sample | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-15196
+  @admin
+  Scenario: Using jenkins slave nodejs image to do pipeline build with limited resource
+    And I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-15196/limitrange.json |
+      | n | <%= project.name %>                                                                                    |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
+    Then the step should succeed
+    Given I update "nodejs" slave image for jenkins 2 server
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When the "sample-pipeline-1" build becomes :running
+    And the "nodejs-mongodb-example-1" build becomes :running
+    Then the "nodejs-mongodb-example-1" build completed
+    Then the "sample-pipeline-1" build completed
+    And a pod becomes ready with labels:
+      | name=nodejs-mongodb-example | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-15384
+  Scenario: Jenkins pipeline build with OpenShift Client Plugin Example
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/openshift-client-plugin-pipeline.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Then evaluation of `pod.name` is stored in the :jenkins_pod clipboard
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline-openshift-client-plugin |
+    Then the step should succeed
+    When the "sample-pipeline-openshift-client-plugin-1" build becomes :running
+    And the "ruby-1" build becomes :running
+    Then the "ruby-1" build completed
+    Then the "sample-pipeline-openshift-client-plugin-1" build completed
+    And a pod becomes ready with labels:
+      | deploymentconfig=jenkins-second-deployment | 
+    When I execute on the "<%= cb.jenkins_pod %>" pod:
+      | ps | ax | --columns | 1000 |
+    Then the step should succeed
+    And the output should contain:
+      | /usr/bin/dumb-init -- /usr/libexec/s2i/run                             | 
+      | java -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 | 
