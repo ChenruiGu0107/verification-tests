@@ -1903,6 +1903,7 @@ Feature: secrets related scenarios
 
     When I run the :new_app client command with:
       | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+      | l        | app=newapp1                                          |
     Then the step should succeed
     When I get project buildconfig as YAML
     And the output should match:
@@ -1910,12 +1911,13 @@ Feature: secrets related scenarios
       | name: mysecret |
     Given the "ruby-hello-world-1" build completed
     When I run the :delete client command with:
-      | all_no_dash ||
-      | all         ||
+      | all_no_dash |             |
+      | l           | app=newapp1 |
     Then the step should succeed
 
     When I run the :new_build client command with:
       | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+      | l        | app=newapp2                                          |
     Then the step should succeed
     When I get project buildconfig as YAML
     And the output should match:
@@ -1923,8 +1925,8 @@ Feature: secrets related scenarios
       | name: mysecret |
     Given the "ruby-hello-world-1" build completed
     When I run the :delete client command with:
-      | all_no_dash ||
-      | all         ||
+      | all_no_dash |             |
+      | l           | app=newapp2 |
     Then the step should succeed
 
     When I run the :oc_secrets_new_basicauth client command with:
@@ -1939,6 +1941,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |
+      | l        | app=newapp3                                          |
     Then the step should succeed
     #Multiple Secrets match the Git URI of a particular BuildConfig, the secret with the longest match will be took
     When I get project buildconfig as YAML
@@ -1949,8 +1952,8 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-1" build completed
 
     When I run the :delete client command with:
-      | all_no_dash ||
-      | all         ||
+      | all_no_dash |             |
+      | l           | app=newapp3 |
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo | ruby~http://<%= cb.git_route %>/ruby-hello-world.git |

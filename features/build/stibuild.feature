@@ -156,7 +156,7 @@ Feature: stibuild.feature
   Scenario: Start build with PR ref for an app using sourcestrategy
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo     | https://github.com/openshift/ruby-hello-world#refs/pull/60/head | 
+      | app_repo     | https://github.com/openshift/ruby-hello-world#refs/pull/73/head | 
       | image_stream | ruby:latest                                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -165,11 +165,11 @@ Feature: stibuild.feature
       | app=ruby-hello-world |
     When I expose the "ruby-hello-world" service
     Then I wait for a web server to become available via the "ruby-hello-world" route
-    And  the output should contain "Welcome to an OpenShift v3 Demo App! - QE Test"
+    And  the output should contain "Hello from OpenShift v3!!! CUSTOM DEMORRRR"
     When I run the :patch client command with:
       | resource      | buildconfig                                        |
       | resource_name | ruby-hello-world                                   |
-      | p | {"spec":{"source":{"git":{"ref":"refs/pull/60/head:master"}}}} | 
+      | p | {"spec":{"source":{"git":{"ref":"refs/pull/73/head:master"}}}} | 
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -189,7 +189,7 @@ Feature: stibuild.feature
     When I run the :get client command with:
       | resource | build |
     Then the output should match:
-      | ruby-hello-world-2.*Git@refs/pull/60/head:master.*FetchSourceFailed |
+      | ruby-hello-world-2.*Git@refs/pull/73/head:master.*FetchSourceFailed |
       | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
 
   # @author wzheng@redhat.com
