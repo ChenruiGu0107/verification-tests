@@ -62,6 +62,15 @@ module CucuShift
       return group_range
     end
 
+    # @return [Hash<String, String>] of node selector if specified
+    def defined_node_selector(user: nil, cached: true, quiet: false)
+      annotation("openshift.io/node-selector",
+                 user: user, cached: cached, quiet: quiet)&.
+                split(",")&.
+                map { |l| l.split("=") }&.
+                to_h
+    end
+
     # creates a new project
     # @param by [CucuShift::APIAccessorOwner, CucuShift::APIAccessor] the user to create project as
     # @param name [String] the name of the project
@@ -95,16 +104,6 @@ module CucuShift
       end
       res[:project] = self
       return res
-    end
-
-    ############### related to objects owned by this project ###############
-    def get_pods(by:, **get_opts)
-      Pod.list(user: by, project: self, **get_opts)
-    end
-    alias_method :pods, :get_pods
-
-    def get_builds(by:, **get_opts)
-      Build.list(user: by, project: self, **get_opts)
     end
 
     def is_user_admin?(user: nil, cached: true, quiet: false)
@@ -143,6 +142,16 @@ module CucuShift
         end
       end
       return @is_admin_hash[user]
+    end
+
+    ############### related to objects owned by this project ###############
+    def get_pods(by:, **get_opts)
+      Pod.list(user: by, project: self, **get_opts)
+    end
+    alias_method :pods, :get_pods
+
+    def get_builds(by:, **get_opts)
+      Build.list(user: by, project: self, **get_opts)
     end
 
     #oc delete all -l app=hi -n ie2yc
