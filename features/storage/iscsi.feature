@@ -262,9 +262,9 @@ Feature: ISCSI volume plugin testing
       | resource | pod                         |
       | name     | iscsi-2-<%= project.name %> |
     Then the step should succeed
-    And the output should contain:
-      | FailedScheduling |
-      | NoDiskConflict   |
+    And the output should match:
+      | FailedScheduling                    |
+      | (NoDiskConflict\|no available disk) |
 
   # @author piqin@redhat.com
   # @case_id OCP-13394
