@@ -717,6 +717,68 @@ Feature: logging related scenarios
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
   # @author pruan@redhat.com
+  # @case_id OCP-15988
+  @admin
+  @destructive
+  Scenario: The Openshift Event can be understood by fluentd
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15988/inventory |
+    And I wait until the ES cluster is healthy
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | component=eventrouter,deploymentconfig=logging-eventrouter,logging-infra=eventrouter,provider=openshift |
+    And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
+    And I use the "<%= cb.target_proj %>" project
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "component=es":
+      | relative_url | /_search?pretty&size=50&q=kubernetes.pod_name:"<%= cb.eventrouter_pod_name %>" |
+      | op           | GET                                                                            |
+    Then the expression should be true> @result[:parsed]['hits']['hits'].count > 0
+    """
+    # check eventrouter logs include kubelete metadata
+    Then the expression should be true> cb.expected_kubelete_metadata = ["container_name", "namespace_name", "pod_name", "pod_id", "labels", "host", "master_url", "namespace_id"]
+    And the expression should be true> (cb.expected_kubelete_metadata - @result[:parsed]['hits']['hits'].first['_source']['kubernetes'].keys).empty?
+
+    # check expected kubelete event metata data
+    And the expression should be true> cb.expected_keys = ["metadata", "involvedObject", "reason", "source", "firstTimestamp", "lastTimestamp", "count", "type", "verb"]
+    And the expression should be true> (cb.expected_keys - @result[:parsed]['hits']['hits'].last["_source"]['kubernetes']['event'].keys).empty?
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19431
+  @admin
+  @destructive
+  Scenario: the string event are sent to ES
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19431/inventory |
+    # register the message
+    And the first user is cluster-admin
+    And I switch to the first user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | component=eventrouter |
+    When I run the :debug client command with:
+      | resource         | pod/<%= pod.name %>                              |
+      | oc_opts_end      |                                                  |
+      | exec_command     | echo                                             |
+      | exec_command_arg | '{ "event": "anlieventevent", "verb": "ADDED" }' |
+    Then the step should succeed
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    And I perform the HTTP request:
+    <%= '"""' %>
+      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :method: post
+      :payload: '{"query": { "match": {"message" : "anlieventevent" }}}'
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    <%= '"""' %>
+    Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? "anlieventevent"
+    """
+
+  # @author pruan@redhat.com
   # @case_id OCP-17529
   @admin
   @destructive
