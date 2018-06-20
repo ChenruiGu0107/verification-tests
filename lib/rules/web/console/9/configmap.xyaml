@@ -178,11 +178,6 @@ set_config_map_name:
       id: config-map-name
     type: input
     op: send_keys <target_config_map_name>
-set_config_map_key:
-  elements:
-  - selector:
-      xpath: (//div[@ng-repeat='item in data'])[last()]//input[contains(@id,'key')]
-    op: send_keys <config_map_key>
 set_config_mount_path:
   elements:
   - selector:
@@ -193,13 +188,6 @@ toggle_select_specific_keys_and_paths:
     selector:
       xpath: //label[contains(.,'Select specific keys and paths')]
     op: click
-type_config_map_value:
-  element:
-    selector:
-      xpath: (//div[contains(@id,'value')])[last()]//textarea
-    type: textarea
-    visible: false
-    op: set <config_map_value>
 upload_config_map_value_from_file:
   element:
     selector:
@@ -208,10 +196,10 @@ upload_config_map_value_from_file:
     type: filefield
     op: set <file_path>
 add_configmap_key_value_pairs:
-  action: set_config_map_key
-  action: type_config_map_value
+  action: set_item_key
+  action: type_item_value
 add_configmap_key_value_pairs_from_file:
-  action: set_config_map_key
+  action: set_item_key
   action: upload_config_map_value_from_file
 add_values_from_configmap_as_volume:
   action: select_config_map_from_list
@@ -264,7 +252,7 @@ create_config_map_without_value_from_configmaps_page:
 create_config_map_without_value:
   action: click_create_config_map_link
   action: set_config_map_name
-  action: set_config_map_key
+  action: set_item_key
   action: click_create_button
 check_config_map_entry:
   element:
@@ -274,7 +262,7 @@ check_unable_to_create_config_map_without_value:
   action: goto_configmaps_page
   action: click_create_config_map_link
   action: set_config_map_name
-  action: set_config_map_key
+  action: set_item_key
   action: check_create_button_disabled
 pick_key_and_set_path:
   action: pick_key_from_list
