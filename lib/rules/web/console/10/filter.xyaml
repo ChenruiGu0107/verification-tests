@@ -90,7 +90,7 @@ clear_one_filter:
 clear_all_filters:
   elements:
   - selector:
-      xpath: //a/span[text()='Clear filters']
+      xpath: //*[starts-with(text(),'Clear')]
     op: click
 click_filter_box:
   elements:

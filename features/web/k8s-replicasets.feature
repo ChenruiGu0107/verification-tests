@@ -45,7 +45,7 @@ Feature: Features about k8s replicasets
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/replicas-set.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11653/replicas-set.yaml |
     Then the step should succeed
     When I perform the :add_autoscaler_set_max_pod_from_k8s_rs_page web console action with:
       | project_name         | <%= project.name %> |
@@ -85,7 +85,7 @@ Feature: Features about k8s replicasets
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/replicas-set.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11653/replicas-set.yaml |
     Then the step should succeed
     When I perform the :click_to_goto_one_replicaset_page web console action with:
       | project_name         | <%= project.name %> |
