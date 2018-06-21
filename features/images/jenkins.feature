@@ -63,17 +63,12 @@ Feature: jenkins.feature
   # @case_id OCP-10884 OCP-10979
   Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
-    And I have an persistent jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins <ver> server
     Then the step should succeed
@@ -175,23 +170,12 @@ Feature: jenkins.feature
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    And I get the service pods
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
-    Then the output should contain "Jenkins"
-    And the output should not contain "ready to work"
-    """
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
-    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
     Given I wait up to 60 seconds for the steps to pass:
     """
     Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
@@ -238,16 +222,12 @@ Feature: jenkins.feature
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I give project admin role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -280,12 +260,8 @@ Feature: jenkins.feature
   Scenario Outline: jenkins plugin can tag image in the same project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    And I have an ephemeral jenkins v<ver> application
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I have a jenkins v<ver> application
+    Given I have a jenkins browser
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -351,7 +327,7 @@ Feature: jenkins.feature
   # @case_id OCP-11156 OCP-11368
   Scenario Outline: Trigger build of application from jenkins job with ephemeral volume
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     When I give project edit role to the default service account
@@ -364,9 +340,7 @@ Feature: jenkins.feature
     #Check that the user is not root, or 0 id
     #The regex below should match any number greater than 0
     And the output should match "^[1-9][0-9]*$"
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
@@ -430,7 +404,7 @@ Feature: jenkins.feature
   @smoke
   Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
-    And I have a persistent jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
       | resource_name | jenkins                                                                         |
@@ -448,9 +422,7 @@ Feature: jenkins.feature
     Then the step should succeed
     #Check that the user is not root, or 0 id
     Then the expression should be true> Integer(@result[:response]) > 0
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
@@ -514,17 +486,13 @@ Feature: jenkins.feature
   Scenario Outline: jenkins plugin can tag image in different projects use destination project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    And I have an ephemeral jenkins v<ver> application
-    Given a pod becomes ready with labels:
-      | name=jenkins |
+    And I have a jenkins v<ver> application
     When I run the :import_image client command with:
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -655,16 +623,12 @@ Feature: jenkins.feature
   Scenario Outline: jenkins plugin can tag image in different projects use jenkins project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    And I have an ephemeral jenkins v<ver> application
-    Given a pod becomes ready with labels:
-      | name=jenkins |
+    And I have a jenkins v<ver> application
     When I run the :import_image client command with:
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Given evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
@@ -774,16 +738,12 @@ Feature: jenkins.feature
     Given I have a project
     When I give project admin role to the default service account
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %> |
     Then the step should succeed
@@ -850,9 +810,7 @@ Feature: jenkins.feature
     And the output should not contain "ready to work"
     """
     Then the step should succeed
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I run the :jenkins_install_kubernetes_plugin web action
     Then the step should succeed
@@ -883,7 +841,7 @@ Feature: jenkins.feature
   # @case_id OCP-12389 OCP-12392
   Scenario Outline: Show annotation when build triggered by jenkins pipeline
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -892,11 +850,7 @@ Feature: jenkins.feature
       | serviceaccountraw | system:serviceaccount:<%= project.name %>:default |
       | n                 | <%= project.name%>                                |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
@@ -933,19 +887,14 @@ Feature: jenkins.feature
       | serviceaccountraw | system:serviceaccount:<%= project.name %>:default |
       | n                 | <%= project.name%>                                |
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completes
-    And a pod becomes ready with labels:
-      | name=jenkins |
     And I get project routes
-    Then the output should contain "jenkins"
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | test |
@@ -983,17 +932,13 @@ Feature: jenkins.feature
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=jenkins |
     And I get project routes
     Then the output should contain "jenkins"
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -1051,7 +996,7 @@ Feature: jenkins.feature
   # @case_id OCP-11344
   Scenario Outline: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
-    Given I have an ephemeral jenkins v<jenkins_version> application
+    And I have a jenkins v<jenkins_version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11344/samplepipeline.yaml |
     Then the step should succeed
@@ -1083,13 +1028,9 @@ Feature: jenkins.feature
   # @case_id OCP-11355 OCP-11356 OCP-11357
   Scenario Outline: Delete openshift resources in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
-    Given I have an ephemeral jenkins v<jenkins_version> application
+    And I have a jenkins v<jenkins_version> application
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<jenkins_version>/                   |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
@@ -1140,12 +1081,8 @@ Feature: jenkins.feature
     Given I have a project
     When I give project admin role to the default service account
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
-    And a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I have a jenkins v<ver> application
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
@@ -1211,17 +1148,12 @@ Feature: jenkins.feature
   # @author cryan@redhat.com xiuwang@redhat.com
   Scenario Outline: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
     Given I have a project
-    Given I have an ephemeral jenkins v<version> application
+    And I have a jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                           |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins <version> server
     Then the step should succeed
@@ -1270,9 +1202,7 @@ Feature: jenkins.feature
   # @case_id 529770
   Scenario: Show annotation when deployment triggered by image built from jenkins pipeline
     Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have a jenkins v2 application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1280,16 +1210,8 @@ Feature: jenkins.feature
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                           |
-      | password | <%= cb.jenkins_password %>      |
-    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
     Then the step should succeed
@@ -1316,7 +1238,7 @@ Feature: jenkins.feature
   # @case_id OCP-12425 OCP-12426
   Scenario Outline: Show annotation when deployment triggered by jenkins pipeline
     Given I have a project
-    Given I have a persistent jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1324,11 +1246,7 @@ Feature: jenkins.feature
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
@@ -1378,15 +1296,11 @@ Feature: jenkins.feature
       | serviceaccount | jenkins         |
       | n              | <%= cb.proj1 %> |
     Then the step should succeed
-    Given I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     Given I switch to the second user
     And I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -1435,7 +1349,7 @@ Feature: jenkins.feature
   # @case_id OCP-11807
   Scenario Outline: Using jenkinsfile field with jenkinspipeline strategy
     Given I have a project
-    And I have a persistent jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11344/samplepipeline.yaml |
     Then the step should succeed
@@ -1478,16 +1392,12 @@ Feature: jenkins.feature
   # @case_id OCP-11968 OCP-11989
   Scenario Outline: Create resource using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :policy_add_role_to_user client command with:
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -1522,7 +1432,7 @@ Feature: jenkins.feature
   # @case_id OCP-12075 OCP-12094
   Scenario Outline: Delete resource using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1533,11 +1443,7 @@ Feature: jenkins.feature
     When I run the :start_build client command with:
       | buildconfig | frontend |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -1576,7 +1482,7 @@ Feature: jenkins.feature
   # @case_id OCP-12325 OCP-12328
   Scenario Outline: Verify build using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1589,11 +1495,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "frontend-1" build was created
     And the "frontend-1" build completed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -1626,7 +1528,7 @@ Feature: jenkins.feature
   # @case_id OCP-12347 OCP-12349
   Scenario Outline: Verify deployment using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1642,11 +1544,7 @@ Feature: jenkins.feature
     When I run the :rollout_latest client command with:
       | resource | frontend |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -1683,7 +1581,7 @@ Feature: jenkins.feature
   # @case_id OCP-12371 OCP-12374
   Scenario Outline: Verify service using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1699,11 +1597,7 @@ Feature: jenkins.feature
     When I run the :rollout_latest client command with:
       | resource | frontend |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -1910,17 +1804,12 @@ Feature: jenkins.feature
   # @case_id OCP-13109
   Scenario Outline: Add/override env vars to pipeline buildconfigs when start-build pipeline build with -e
     Given I have a project
-    And I have an persistent jenkins v<version> application
+    And I have a jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-13259/samplepipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                           |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
       | namespace| <%= project.name %>                 |
@@ -1985,17 +1874,12 @@ Feature: jenkins.feature
   # @case_id OCP-13259
   Scenario Outline: Add/update env vars to pipeline buildconfigs using jenkinsfile field
     Given I have a project
-    And I have an persistent jenkins v<version> application
+    And I have a jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-13259/samplepipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                           |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -2060,7 +1944,7 @@ Feature: jenkins.feature
   # @case_id OCP-12163 OCP-12174
   Scenario Outline: Scale deployment using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -2076,11 +1960,7 @@ Feature: jenkins.feature
     When I run the :rollout_latest client command with:
       | resource | frontend |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -2142,7 +2022,7 @@ Feature: jenkins.feature
   # @case_id OCP-12219 OCP-12225
   Scenario Outline: Tag image using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -2155,11 +2035,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "frontend-1" build was created
     And the "frontend-1" build completed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -2197,7 +2073,7 @@ Feature: jenkins.feature
   # @case_id OCP-12267 OCP-12271
   Scenario Outline: Trigger build using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -2205,11 +2081,7 @@ Feature: jenkins.feature
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -2289,7 +2161,7 @@ Feature: jenkins.feature
   # @case_id OCP-12297 OCP-12300
   Scenario Outline: Trigger deployment using jenkins pipeline DSL
     Given I have a project
-    And I have an ephemeral jenkins v<ver> application
+    And I have a jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -2302,11 +2174,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "frontend-1" build was created
     And the "frontend-1" build completed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I have a jenkins browser
     And I log in to jenkins
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
@@ -2415,16 +2283,12 @@ Feature: jenkins.feature
   # @case_id OCP-11372
   Scenario: Sync builds from jenkins to openshift
     Given I have a project
+    And I have a jenkins v2 application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
@@ -2473,16 +2337,12 @@ Feature: jenkins.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-15196/limitrange.json |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
+    Given I have a jenkins v2 application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
@@ -2505,16 +2365,12 @@ Feature: jenkins.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-15196/limitrange.json |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
+    Given I have a jenkins v2 application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "nodejs" slave image for jenkins 2 server
     Then the step should succeed
