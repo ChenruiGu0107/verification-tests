@@ -241,7 +241,7 @@ Feature: oc idle
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
-    And I wait for the steps to pass:
+    And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :exec client command with:
       | pod              | caddy-docker              |
