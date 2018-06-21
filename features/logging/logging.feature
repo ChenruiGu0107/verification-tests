@@ -771,11 +771,11 @@ Feature: logging related scenarios
     <%= '"""' %>
       :url: https://es.<%= cb.subdomain %>/_search?output=JSON
       :method: post
-      :payload: '{"query": { "match": {"message" : "anlieventevent" }}}'
+      :payload: '{"query": { "match": {"event" : "anlieventevent" }}}'
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>
     <%= '"""' %>
-    Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? "anlieventevent"
+    Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["event"].include? "anlieventevent"
     """
 
   # @author pruan@redhat.com
