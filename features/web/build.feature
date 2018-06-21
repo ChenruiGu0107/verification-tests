@@ -43,25 +43,24 @@ Feature: build related feature on web console
   # @case_id OCP-10674
   Scenario: Cancel the New/Pending/Running build on web console
     Given I have a project
-    Given I wait for the :create_app_from_image web console action to succeed with:
-      | project_name | <%= project.name %> |
-      | image_name   | ruby                |
-      | image_tag    | 2.2                 |
-      | namespace    | openshift           |
-      | app_name     | ruby-sample         |
-      | source_url   | https://github.com/openshift/ruby-ex.git |
+    # Delay build for robust cancel to avoid too quick image pushing via source code
+    When I run the :new_app client command with:
+      | app_repo      | ruby:latest~https://github.com/openshift-qe/v3-testfiles.git |
+      | context_dir   | cases/OCP-10674/ruby-ex                                      |
+      | name          | ruby-sample                                                  |
+    Then the step should succeed
     When I perform the :cancel_build_from_pending_status web console action with:
       | project_name           | <%= project.name %>       |
       | bc_and_build_name      | ruby-sample/ruby-sample-1 |
     Then the step should succeed
     When I perform the :start_build_base_on_buildconfig web console action with:
       | project_name  | <%= project.name %> |
-      | bc_name       | ruby-sample |
+      | bc_name       | ruby-sample         |
     Then the step should succeed
     # Wait build to become running
     Given the "ruby-sample-2" build becomes :running
     When I perform the :cancel_build_from_running_status web console action with:
-      | project_name           | <%= project.name %> |
+      | project_name           | <%= project.name %>       |
       | bc_and_build_name      | ruby-sample/ruby-sample-2 |
     Then the step should succeed
     Given I wait for the resource "pod" named "ruby-sample-2-build" to disappear
@@ -75,7 +74,7 @@ Feature: build related feature on web console
     Then the step should succeed
     Given the "ruby-sample-another-1" build failed
     When I perform the :check_one_build_inside_bc_page web console action with:
-      | project_name           | <%= project.name %> |
+      | project_name           | <%= project.name %>                       |
       | bc_and_build_name      | ruby-sample-another/ruby-sample-another-1 |
     Then the step should succeed
     When I get the html of the web page
@@ -83,11 +82,11 @@ Feature: build related feature on web console
       | >Cancel Build</button> |
     When I perform the :start_build_base_on_buildconfig web console action with:
       | project_name  | <%= project.name %> |
-      | bc_name       | ruby-sample |
+      | bc_name       | ruby-sample         |
     Then the step should succeed
     Given the "ruby-sample-3" build completed
     When I perform the :check_one_build_inside_bc_page web console action with:
-      | project_name           | <%= project.name %> |
+      | project_name           | <%= project.name %>       |
       | bc_and_build_name      | ruby-sample/ruby-sample-3 |
     Then the step should succeed
     When I get the html of the web page
@@ -95,9 +94,9 @@ Feature: build related feature on web console
       | >Cancel Build</button> |
     When I get project builds
     Then the output by order should match:
-      | ruby-sample-1.+Cancelled |
-      | ruby-sample-2.+Cancelled |
-      | ruby-sample-3.+Complete  |
+      | ruby-sample-1.+Cancelled      |
+      | ruby-sample-2.+Cancelled      |
+      | ruby-sample-3.+Complete       |
       | ruby-sample-another-1.+Failed |
 
   # @author yapei@redhat.com
