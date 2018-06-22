@@ -289,10 +289,9 @@ check_build_failure_reason_on_one_build_page:
   action: goto_one_build_page
   action: check_build_failure_reason
 check_build_failure_reason:
-  elements:
-  - selector:
-      visible_text: !ruby/regexp /<build_failure_reason>/
-    type: span
+  element:
+    selector:
+      xpath: //*[contains(text(),'<build_failure_reason>')]
 check_bc_source_ref:
   action: goto_buildconfig_configuration_tab
   elements:
