@@ -338,3 +338,16 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     Then the step should fail  
     And the output should contain:
       | not authorized to read from destination repository |
+
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-18765
+  Scenario: quickstart for imagestream eap-cd-openshift-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | eap-cd-openshift:latest |
+    Then the step should succeed
+    And I wait for the "eap-cd-openshift" is to appear
+    When I expose the "eap-cd-openshift" service
+    Then the step should succeed
+    And I wait for a web server to become available via the route
