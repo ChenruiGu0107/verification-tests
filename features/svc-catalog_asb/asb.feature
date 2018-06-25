@@ -494,12 +494,16 @@ Feature: Ansible-service-broker related scenarios
       | param | UID=<%= cb.db_uid %>                                                                                                         |
       | n     | <%= project.name %>                                                                                                          |
     Then the step should succeed
+
+    And I wait for all service_instance in the project to become ready up to 360 seconds
+    Given dc with name matching /mediawiki/ are stored in the :app clipboard
     And a pod becomes ready with labels:
-      | deployment=mediawiki123-1 |
+      | deployment=<%= cb.app.first.name %>-1 |
+    And evaluation of `pod` is stored in the :app_pod clipboard
+    And dc with name matching /postgresql/ are stored in the :db clipboard
     And a pod becomes ready with labels:
-      | deployment=postgresql-9.5-dev-1|
-    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 180 seconds
-    And  I wait for the "<%= cb.prefix %>-mediawiki-apb" service_instance to become ready up to 180 seconds
+      | deployment=<%= cb.db.first.name %>-1 |
+
     #check the provision sandbox
     Given I switch to cluster admin pseudo user
     When I run the :get client command with:
@@ -532,7 +536,7 @@ Feature: Ansible-service-broker related scenarios
     # Add credentials to mediawiki application
     When I run the :patch client command with:
       | resource      | dc                                                                     |
-      | resource_name | mediawiki123                                                           |
+      | resource_name | <%= cb.app.first.name %>                        |
       | p             | {                                                                      |
       |               |  "spec": {                                                             |
       |               |    "template": {                                                       |
@@ -546,7 +550,7 @@ Feature: Ansible-service-broker related scenarios
       |               |                }                                                       |
       |               |              }                                                         |
       |               |            ],                                                          |
-      |               |            "name": "mediawiki123"                                      |
+      |               |            "name": "<%= cb.app_pod.containers.first.name %>"         |
       |               |          }                                                             |
       |               |        ]                                                               |
       |               |      }                                                                 |
@@ -555,11 +559,11 @@ Feature: Ansible-service-broker related scenarios
       |               |}                                                                       |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=mediawiki123-2                 |
+      | deployment=<%= cb.app.first.name %>-2 |
 
     # Access mediawiki's route successfully
-    Then I wait up to 60 seconds for a web server to become available via the "mediawiki123" route
-    And the output should contain "MediaWiki has been successfully installed"
+    Then I wait up to 60 seconds for a web server to become available via the "<%= cb.app.first.name %>" route
+    And the output should match "MediaWiki has been(?: successfully)?installed"
 
   # @author chezhang@redhat.com
   @admin
