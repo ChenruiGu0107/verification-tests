@@ -76,7 +76,7 @@ Feature: Return description with cli
       | resource | buildConfig |
       | name | abc |
      #Then the output should contain:
-    Then the output should match "buildconfigs? "abc" not found"
+    Then the output should match "buildconfigs.* "abc" not found"
      # | buildconfigs "abc" not found |
 
     When  I run the :describe client command with:
@@ -89,7 +89,7 @@ Feature: Return description with cli
       | resource | builds |
       | name | abc |
       #Then the output should contain:
-    Then the output should match "builds? "abc" not found"
+    Then the output should match "builds.* "abc" not found"
       #| builds "abc" not found |
 
     When  I run the :describe client command with:
