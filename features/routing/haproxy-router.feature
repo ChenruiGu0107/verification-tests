@@ -1476,7 +1476,7 @@ Feature: Testing haproxy router
     And CA trust is added to the pod-for-ping
     When I execute on the pod:
       | curl |
-      | https:// <%= route("edge-route", service("service-unsecure")).dns(by: user) %> |
+      | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %> |
       | -k |
     Then the output should contain "Hello-OpenShift"
 
