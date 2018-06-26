@@ -36,7 +36,7 @@ module CucuShift
                           payload: nil,
                           user: nil, password: nil,
                           max_redirects: 10,
-                          verify_ssl: OpenSSL::SSL::VERIFY_NONE,
+                          verify_ssl: nil,
                           ssl_ca_path: nil,
                           ssl_ca_file: nil,
                           ssl_client_cert: nil,
@@ -54,12 +54,18 @@ module CucuShift
       rc_opts[:headers][:params] = params if params
       rc_opts[:payload] = payload if payload
       rc_opts[:max_redirects] = max_redirects
-      rc_opts[:verify_ssl] = verify_ssl
       rc_opts[:method] = method
       rc_opts[:user] = user if user
       rc_opts[:password] = password if password
       rc_opts[:ssl_ca_file] = ssl_ca_file if ssl_ca_file
       rc_opts[:ssl_ca_path] = ssl_ca_path if ssl_ca_path
+      if verify_ssl
+        rc_opts[:verify_ssl] = verify_ssl
+      elsif ssl_ca_path || ssl_ca_file
+        rc_opts[:verify_ssl] = OpenSSL::SSL::VERIFY_PEER
+      else
+        rc_opts[:verify_ssl] = OpenSSL::SSL::VERIFY_NONE
+      end
       rc_opts[:ssl_client_cert] = ssl_client_cert if ssl_client_cert
       rc_opts[:ssl_client_key] = ssl_client_key if ssl_client_key
       rc_opts[:read_timeout] = read_timeout
