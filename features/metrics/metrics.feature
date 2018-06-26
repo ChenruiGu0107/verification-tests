@@ -401,3 +401,27 @@ Feature: metrics related scenarios
       | hawkular-metrics.war |
     And the output should not contain:
       | hawkular-alert |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19040
+  @admin
+  @destructive
+  Scenario: DeleteExpiredMetrics job is already dropped from code
+    Given the master version >= "3.6"
+    Given I create a project with non-leading digit name
+    And metrics service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12234/inventory |
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And I execute on the pod:
+      | bash | -c | cqlsh --ssl -e "select * from hawkular_metrics.scheduled_jobs_idx" |
+    Then the step should succeed
+    And the output should not contain "DELETE_EXPIRED_METRICS"
+    And I execute on the pod:
+      | bash | -c | cqlsh --ssl -e "select table_name from system_schema.tables where keyspace_name = 'hawkular_metrics'"|
+    Then the step should succeed
+    And the output should not contain "metrics_expiration_idx"
+    And I execute on the pod:
+      | bash | -c | cqlsh --ssl -e "select * from hawkular_metrics.sys_config where config_id = 'org.hawkular.metrics.jobs.DELETE_EXPIRED_METRICS'" |
+    Then the step should succeed
+    And the output should contain "0 rows"
