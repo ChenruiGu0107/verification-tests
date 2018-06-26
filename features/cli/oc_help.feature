@@ -195,6 +195,12 @@ Feature: oc related features
     When I run the :explain client command with:
       | resource  | dc |
     Then the step should succeed
+    # Check the links in the oc explain output are valid
+    # The links look like https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
+    When I open web server via the "<%= URI.extract(@result[:response], %w{http https})[0] %>" url
+    Then the step should succeed
+    And the output should match:
+      | apiVersion.*version |
     When I run the :explain client command with:
       | resource  | no-this |
     Then the step should fail

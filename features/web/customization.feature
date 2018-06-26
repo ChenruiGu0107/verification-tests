@@ -81,23 +81,38 @@ Feature: web console customization related features
   @destructive
   @admin
   Scenario: Support other external logging solution via extension file
-    Given I log the message> Case is low importance so no scripts for 3.5 and 3.6
-    Given the master version >= "3.7"
-    And I use the first master host
-    And the "/etc/origin/master/external-logging.js" file is restored on host after scenario
-    When I run commands on all masters:
-      | curl -o /etc/origin/master/external-logging.js https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/extensions/external-logging.js |
+    Given I log the message> Case is low importance so no scripts for 3.5 to 3.8
+    And the master version >= "3.9"
+    And system verification steps are used:
+    """
+    I switch to cluster admin pseudo user
+    I use the "openshift-web-console" project
+    I wait up to 360 seconds for the steps to pass:
+      | Given a pod becomes ready with labels:                      |
+      |  \| webconsole=true \|                                      |
+      | When admin executes on the pod:                             |
+      |  \| cat \| /var/webconsole-config/webconsole-config.yaml \| |
+      | Then the step should succeed                                |
+      | And the output should not contain "external-logging.js"     |
+    """
+    And the "webconsole-config" configmap is recreated by admin in the "openshift-web-console" project after scenario
+    And value of "webconsole-config.yaml" in configmap "webconsole-config" as YAML is merged with:
+    """
+    extensions:
+      scriptURLs:
+      - https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/external-logging.js
+    """
+    Then I wait up to 360 seconds for the steps to pass:
+    """
+    Given a pod becomes ready with labels:
+      | webconsole=true |
+    When admin executes on the pod:
+      | cat | /var/webconsole-config/webconsole-config.yaml |
     Then the step should succeed
-    When master config is merged with the following hash:
+    And the output should contain "external-logging.js"
     """
-    assetConfig:
-      extensionScripts:
-      - external-logging.js
-      - /etc/origin/master/openshift-ansible-catalog-console.js
-    """
-    Then the master service is restarted on all master nodes
-
-    Given I have a project
+    Given I switch to the first user
+    And I have a project
     When I run the :new_app client command with:
       | app_repo  | docker.io/openshift/hello-openshift |
       | name      | hello                               |
@@ -227,7 +242,6 @@ Feature: web console customization related features
       |  \| cat \| /var/webconsole-config/webconsole-config.yaml \| |
       | Then the step should succeed                                |
       | And the output should not contain "project-left-nav.js"     |
-      | And the output should not contain "external-logging.js"     |
       | And the output should not contain "saas-offering.js"        |
       | And the output should not contain "application-launcher.js" |
       | And the output should not contain "catalog-categore.js"     |

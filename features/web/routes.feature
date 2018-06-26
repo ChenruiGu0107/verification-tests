@@ -179,11 +179,7 @@ Feature: Routes related features on web console
     # check route is accessible
     And I wait up to 60 seconds for the steps to pass:
     """
-    When I perform the HTTP request:
-      <%= '"""' %>
-      :url: https://<%= route("service-secure").dns %>
-      :method: :get
-      <%= '"""' %>
+    When I open web server via the "https://<%= route("service-secure").dns %>" url
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
