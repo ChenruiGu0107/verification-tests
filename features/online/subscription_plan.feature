@@ -309,3 +309,93 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | resource | memory |
       | amount   | 3      |
     Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-14145
+  Scenario: Terminating memory add-ons can't be downgraded to the value lower than the occupied memory quota
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 0                  |
+    the step should succeed
+    """
+    Given I have a project
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).memory_limit_raw == "4Gi"
+    When I run the :run client command with:
+      | name    | run-once-pod-1   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | cpu=2,memory=2Gi |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name    | run-once-pod-2   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | cpu=2,memory=1Gi |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name    | run-once-pod-3   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | cpu=2,memory=1Gi |
+    Then the step should succeed
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "4Gi"
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory       |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_check_error_message web action with:
+      | resource | terminating_memory        |
+      | amount   | 1                         |
+      | quota    | 4.0 GiB                   |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | pod            |
+      | object_name_or_id | run-once-pod-3 |
+    Then the step should succeed
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 1                  |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_check_error_message web action with:
+      | resource | terminating_memory  |
+      | amount   | 0                   |
+      | quota    | 3.0 GiB             |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | pod            |
+      | object_name_or_id | run-once-pod-2 |
+    Then the step should succeed
+    Given I ensure "run-once-pod-2" pod is deleted
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "2Gi"
