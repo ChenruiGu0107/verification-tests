@@ -1,0 +1,11 @@
+:global_options:
+  :token: --token <value>
+  :project: --project <value>
+  :debug: --debug
+  :h: -h
+:list:
+  :cmd: KUBECONFIG=<config> apb <global_options> list
+  :options:
+    :broker: --broker <value>
+:bootstrap:
+  :cmd: KUBECONFIG=<config> apb <global_options> bootstrap
