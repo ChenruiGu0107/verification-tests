@@ -1388,3 +1388,135 @@ Then the step should succeed
     And the output should contain:
       | clusterservicebrokers.servicecatalog.k8s.io "abroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
       | Reason: User "<%= user(0).name %>" cannot get secrets in project "atestproject2" |
+
+  # @author jiazha@redhat.com
+  # @case_id OCP-16420
+  @admin
+  @destructive
+  Scenario: Orphan mitigation for bindings
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard 
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
+    Given admin ensures "user-provided" cluster_service_class is deleted after scenario
+
+    # Set up the ups-broker
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+
+    # Changed the bind return code to 205
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--bind", "205"], "name": "ups-broker", "image": "docker.io/aosqe/user-broker:latest"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+
+    # Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+    And I wait for all service_instance in the project to become ready up to 60 seconds
+
+    # Create a servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+
+    # Check the logs, 205 is an orphan resource
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | bind operation, the fake status code is: 205   |
+      | Unbind operation, the fake status code is: 200 |
+
+    # Delete servicebinding
+    Given I use the "<%= cb.user_project %>" project
+    And I ensure "ups-binding" service_binding is deleted
+    
+    # Changed the bind return code to 408
+    Given I use the "<%= cb.ups_broker_project %>" project
+    Given pod with name matching /ups-broker/ are stored in the :pod clipboard
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker  |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--bind", "408"], "name": "ups-broker"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+    
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    # Create a servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+
+    # Check the logs, 408 is not orphan resource
+    Given I switch to cluster admin pseudo user
+    Given I use the "<%= cb.ups_broker_project %>" project
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | bind operation, the fake status code is: 408   |
+    And the output should not match:
+      | Unbind operation, the fake status code is: 200 |
+
+    # Delete servicebinding
+    Given I use the "<%= cb.user_project %>" project
+    And I ensure "ups-binding" service_binding is deleted
+
+    # Changed the bind return code to 500
+    Given I use the "<%= cb.ups_broker_project %>" project
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker  |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--bind", "500"], "name": "ups-broker"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    # Create a servicebinding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    Then the step should succeed
+
+    # Check the logs, 500 is an orphan resource
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | bind operation, the fake status code is: 500   |
+      | Unbind operation, the fake status code is: 200 |
+
+    # Delete servicebinding and serviceinstance
+    Given I use the "<%= cb.user_project %>" project
+    And I ensure "ups-binding" service_binding is deleted
+    And I ensure "ups-instance" service_instance is deleted
