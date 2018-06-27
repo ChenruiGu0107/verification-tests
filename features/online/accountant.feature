@@ -9,7 +9,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     Given I login via web console
     When I perform the :check_user_name web action with:
-      | user_name | <%= user.name .sub("-", "_") %> |
+      | user_name | <%= user.name.sub("-", "_") %> |
     Then the step should succeed
 
   # @author etrott@redhat.com
@@ -105,7 +105,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting ||  
+      | current_greeting |         |  
       | new_greeting     | Mr.     |  
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
@@ -148,13 +148,13 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | contact_cap      | Primary |
       | contact          | primary |
       | current_greeting | Sr.     |  
-      | new_greeting     ||  
+      | new_greeting     |         |  
     Then the step should succeed
 
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting ||  
+      | current_greeting |         |  
       | new_greeting     | Mr.     |  
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
@@ -197,7 +197,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | contact_cap      | Billing |
       | contact          | billing |
       | current_greeting | Sr.     |  
-      | new_greeting     ||  
+      | new_greeting     |         |  
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
@@ -217,26 +217,350 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I perform the :click_resume_your_subscription_confirm web action with:
       | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
     Then the step should succeed
-    When I perform the :update_contact_middle_name_on_index_page web action with:
-      | contact_cap      | Primary |
-      | contact          | primary |
+    When I perform the :update_contact_item_input_on_index_page web action with:
+      | contact_cap | Primary        |
+      | contact     | primary        |
+      | input_id    | middle_initial |
     Then the step should succeed
-    When I perform the :update_contact_middle_name_on_index_page web action with:
-      | contact_cap      | Billing |
-      | contact          | billing |
+    When I perform the :update_contact_item_input_on_index_page web action with:
+      | contact_cap | Billing        |
+      | contact     | billing        |
+      | input_id    | middle_initial |
+     Then the step should succeed
+    """
+    When I perform the :update_contact_item_input_on_index_page web action with:
+      | contact_cap | Primary        |
+      | contact     | primary        |
+      | input_id    | middle_initial |
+      | text        | p              |
+    Then the step should succeed
+    When I run the :check_cancel_service_post_message web action
+    Then the step should succeed
+    When I perform the :update_contact_item_input_on_index_page web action with:
+      | contact_cap | Billing        |
+      | contact     | billing        |
+      | input_id    | middle_initial |
+      | text        | b              |
+    Then the step should succeed
+    When I run the :check_cancel_service_post_message web action
+    Then the step should succeed
+
+  # @case_id OCP-10558
+  # @note this scenario requires a user who have at least one available pro cluster to resigster
+  Scenario: Check expanded countries on Profile page
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary                              |
+      | spelling     | UM                                   |
+      | autocomplete | United States Minor Outlying Islands |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary                  |
+      | spelling     | United States            |
+      | autocomplete | United States of America |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary          |
+      | spelling     | 中国             |
+      | autocomplete | China            |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input_nation_code web action with:
+      | profile      | Primary         |
+      | nation_code  | CZ              |
+      | autocomplete | Czechia         |
+    Then the step should succeed  
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary         |
+      | spelling     | Česká           |
+      | autocomplete | Czechia         |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary         |
+      | spelling     | Беларусь        |
+      | autocomplete | Belarus         |
+    Then the step should succeed 
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary         |
+      | spelling     | 한국             |
+      | autocomplete | Korea           |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary         |
+      | spelling     | Κύπρος          |
+      | autocomplete | Cyprus          |
+    Then the step should succeed
+    When I perform the :check_autocomplete_from_country_input web action with:
+      | profile      | Primary         |
+      | spelling     | عمان            |
+      | autocomplete | Oman            |
+    Then the step should succeed
+    When I perform the :check_unsupported_country_not_exist web action with:
+      | country      | Cuba |
+    Then the step should succeed    
+    When I perform the :check_unsupported_country_not_exist web action with:
+      | country      | Iran |
+    Then the step should succeed
+    When I perform the :check_unsupported_country_not_exist web action with:
+      | country      | N. Korea |
+    Then the step should succeed
+    When I perform the :check_unsupported_country_not_exist web action with:
+      | country      | Sudan |
+    Then the step should succeed
+    When I perform the :check_unsupported_country_not_exist web action with:
+      | country      | Syria |
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-19429
+  # @note this scenario requires a user who have at least one available pro cluster to resigster
+  Scenario: Check expanded countries without postcode on Profile page
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+    Given I saved following keys to list in :countries clipboard:
+      | Angola  | |
+      | Antigua and Barbuda | | 
+      | Aruba | | 
+      | Bahamas | | 
+      | Belize  | | 
+      | Benin | | 
+      | Bolivia | | 
+      | Botswana  | | 
+      | Burkina Faso  | | 
+      | Burundi | | 
+      | Cameroon  | | 
+      | Central African Republic  | | 
+      | Comoros | | 
+      | Congo | | 
+      | Congo (Democratic Republic of the)  | | 
+      | Cook Islands  | | 
+      # #| Cote D | | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739 
+      | Djibouti  | | 
+      | Dominica  | | 
+      | Equatorial Guinea | | 
+      | Eritrea | | 
+      | Fiji  | | 
+      | Ghana | | 
+      | Grenada | | 
+      | Guinea  | | 
+      | Guyana  | | 
+      | Ireland | | 
+      | Jamaica | | 
+      | Kenya | | 
+      | Kiribati  | | 
+      | Malawi  | | 
+      | Mali  | | 
+      | Mauritania  | | 
+      | Mauritius | | 
+      | Montserrat  | | 
+      | Nauru | | 
+      | Niue  | | 
+      | Panama  | | 
+      | Qatar | | 
+      | Rwanda  | | 
+      | Saint Kitts and Nevis | | 
+      | Saint Lucia | | 
+      | Sao Tome and Principe | | 
+      | Saudi Arabia  | | 
+      | Seychelles  | | 
+      | Sierra Leone  | | 
+      | Solomon Islands | | 
+      | Somalia | | 
+      | South Africa  | | 
+      | Suriname  | | 
+      | Tanzania, United Republic of  | | 
+      | Timor-Leste | | 
+      | Tokelau | | 
+      | Tonga | | 
+      | Trinidad and Tobago | | 
+      | Tuvalu  | | 
+      | Uganda  | | 
+      | United Arab Emirates  | | 
+      | Vanuatu | | 
+      | Yemen | | 
+      | Zimbabwe | |   
+    When I repeat the following steps for each :country in cb.countries:
+    """
+    When I perform the :check_country_related_item_hide web action with:
+      | country    | #{cb.country}  |
+      | item       | data-postcode  | 
     Then the step should succeed
     """
-    When I perform the :update_contact_middle_name_on_index_page web action with:
-      | contact_cap      | Primary |
-      | contact          | primary |
-      | middle_name      | p       |
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-19425
+  # @note this scenario requires a user who have at least one available pro cluster to resigster
+  Scenario: Check expanded countries without subdivision on Profile page
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
     Then the step should succeed
-    When I run the :check_cancel_service_post_message web action
+    Given I saved following keys to list in :countries clipboard:
+      | American Samoa  | |
+      | Anguilla  |  | 
+      | Antarctica  |  | 
+      | Aruba  |  | 
+      | Bermuda  |  | 
+      | Bouvet Island  |  | 
+      | British Indian Ocean Territory  |  | 
+      | Cayman Islands  |  | 
+      | Christmas Island  |  | 
+      | Cocos (Keeling) Islands  |  | 
+      | Cook Islands  |  | 
+      | Falkland Islands (Malvinas)  |  | 
+      | Faroe Islands  |  | 
+      | Gibraltar  |  | 
+      | Greenland  |  | 
+      | Guadeloupe  |  | 
+      | Guam  |  | 
+      | Heard Island and McDonald Islands  |  | 
+      | Holy See  |  | 
+      | Martinique  |  | 
+      | Mayotte  |  | 
+      | Monaco  |  | 
+      | Montserrat  |  | 
+      | New Caledonia  |  | 
+      | Niue  |  | 
+      | Norfolk Island  |  | 
+      | Northern Mariana Islands  |  | 
+      | Pitcairn  |  | 
+      | Puerto Rico  |  | 
+    #  | Reunion  |  | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739 
+      | Saint Lucia  |  | 
+      | Saint Pierre and Miquelon  |  | 
+      | Saint Vincent and the Grenadines  |  | 
+      | South Georgia and the South Sandwich Islands  |  | 
+      | Svalbard and Jan Mayen  |  | 
+      | Tajikistan  |  | 
+      | Tokelau  |  | 
+      | Turks and Caicos Islands  |  | 
+      | Virgin Islands (British)  |  | 
+      | Virgin Islands (U.S.)  |  | 
+      | Wallis and Futuna  |  | 
+      | Åland Islands  |  |
+    When I repeat the following steps for each :country in cb.countries:
+    """
+    When I perform the :check_country_related_item_hide web action with:
+      | country    | #{cb.country} |
+      | item       | data-region   | 
     Then the step should succeed
-    When I perform the :update_contact_middle_name_on_index_page web action with:
-      | contact_cap      | Billing |
-      | contact          | billing |
-      | middle_name      | b       |
+    """
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-13129
+  Scenario: Check contact data format validation
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
     Then the step should succeed
-    When I run the :check_cancel_service_post_message web action
+    Given I saved following keys to list in :profiles clipboard:
+      | Billing  | |
+      | Primary  | | 
+    When I repeat the following steps for each :profile in cb.profiles:
+    """
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | first           |
+      | maxlength | 32              |
+      | required  | yes             |
     Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | middle          |
+      | maxlength | 1               |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | last            |
+      | maxlength | 32              |
+      | required  | yes             |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | address1        |
+      | maxlength | 100             |
+      | required  | yes             |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | address2        |
+      | maxlength | 100             |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile             | #{cb.profile}   |
+      | name                | country         |
+      | required_invisible  | yes             |
+    Then the step should succeed   
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | city            |
+      | maxlength | 32              |
+      | required  | yes             |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | zip             |
+      | maxlength | 14              |
+      | required  | yes             |
+    Then the step should succeed
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | #{cb.profile}   |
+      | name      | phone           |
+      | maxlength | 25              |
+    Then the step should succeed
+    """
+    When I perform the :check_maxlength_or_required web action with:
+      | profile   | Primary         |
+      | name      | tax             |
+      | maxlength | 17              |
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-12759
+  Scenario: user can change the contact information after pre-populated during registration
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+    
+    ## check select elements on the page - each has at least two options
+    When I perform the :check_select_item_have_at_least_two_options web action with:
+      | select_id | contact_greeting |
+    Then the step should succeed
+    When I perform the :check_select_item_have_at_least_two_options web action with:
+      | select_id | contact_region |
+    Then the step should succeed
+    When I perform the :check_select_item_have_at_least_two_options web action with:
+      | select_id | billing_greeting |
+    Then the step should succeed
+    When I perform the :check_select_item_have_at_least_two_options web action with:
+      | select_id | billing_region |
+    Then the step should succeed
+
+    ## check input box could be edited on the page
+    Given I saved following keys to list in :input_ids clipboard:
+      | contact_first_name     | |
+      | contact_middle_initial | |
+      | contact_last_name      | |
+      | contact_company_name   | |
+      | contact_address1       | |
+      | contact_address2       | |
+      | contact_address3       | |
+      | contact_city           | |
+      | contact_phone_number   | |
+      | tax_id                 | |
+      | billing_first_name     | |
+      | billing_middle_initial | |
+      | billing_last_name      | |
+      | billing_company_name   | |
+      | billing_address1       | |
+      | billing_address2       | |
+      | billing_address3       | |
+      | billing_city           | |
+      | billing_phone_number   | |
+    When I repeat the following steps for each :id in cb.input_ids:
+    """
+    When I perform the :check_input_could_be_edited_on_current_page web action with:
+      | input_id | #{cb.id} |
+    Then the step should succeed
+    """

@@ -9,3 +9,22 @@ check_page_not_contain_text:
       visible_text: !ruby/regexp /<text>/
     missing: true
     timeout: 20
+clear_input:
+  elements:
+  - selector:
+      xpath: //input[@id='<input_id>']
+    op: clear
+set_input:
+  elements:
+  - selector:
+      xpath: //input[@id='<input_id>']
+    op: send_keys <text>
+check_select_item_have_at_least_two_options:
+  element:
+    selector: 
+      xpath: //select[@id="<select_id>"]/option[2]
+check_input_could_be_edited_on_current_page:
+  elements: 
+  - selector: 
+      xpath: //input[not(contains(@readonly, "readOnly")) and contains(@id, "<input_id>")]
+      
