@@ -555,7 +555,7 @@ require "base64"
 
       begin
         case op
-      when "click", "hover"
+        when "click", "hover"
           if val.empty?
             with_hook(:click) { element.send(op.to_sym) }
           else
