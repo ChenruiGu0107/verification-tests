@@ -4,11 +4,18 @@
   :context: --context <value>
   :h: -h
   :v: -v
+:describe:
+  :cmd: svcat describe <resource>
+  :options:
+    :name: <value>
+    :uuid: --uuid <value>
 :get:
   :cmd: svcat get <resource>
   :options:
     :all_namespace: --all-namespaces
     :o: -o <value>
+    :name: <value>
+    :uuid: --uuid <value>
 :install:
   :cmd: svcat install <command>
 :relist:
