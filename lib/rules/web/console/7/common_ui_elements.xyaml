@@ -211,8 +211,7 @@ click_done_button:
 click_save_button:
   elements:
   - selector:
-      visible_text: !ruby/regexp '/Save/'
-    type: button
+      xpath: //button[contains(text(),'Save')]
     op: click
 click_view_details:
   element:

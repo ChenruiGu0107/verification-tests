@@ -60,8 +60,7 @@ check_drawer_info_for_empty_notifications:
 check_project_name_in_drawer:
   elements:
   - selector:
-      visible_text: !ruby/regexp /<project_name>/
-    type: div
+      xpath: //div[contains(text(),'<project_name>')]
 check_drawer_notification_content:
   action:
     if_param: event_resource_type

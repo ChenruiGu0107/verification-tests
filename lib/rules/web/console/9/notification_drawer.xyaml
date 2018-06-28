@@ -29,10 +29,10 @@ click_dont_show_me_again_from_kebab:
     ref:
     - click_kebab_button_for_drawer_message
     - click_dont_show_me_again
-click_kebab_button_for_drawer_message: 
+click_kebab_button_for_drawer_message:
   elements:
   - selector:
-      xpath: .//button[@type="button"] 
+      xpath: .//button[@type="button"]
     op: click
 click_view_quota:
   elements:
@@ -64,8 +64,7 @@ check_drawer_info_for_empty_notifications:
 check_project_name_in_drawer:
   elements:
   - selector:
-      visible_text: !ruby/regexp /<project_name>/
-    type: div
+      xpath: //div[contains(text(),'<project_name>')]
 check_drawer_notification_content:
   action:
     if_param: event_resource_type
