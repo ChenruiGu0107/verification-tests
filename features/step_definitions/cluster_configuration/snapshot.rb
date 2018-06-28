@@ -14,7 +14,8 @@ Given /^volume snapshot controller and provisioner is deployed$/ do
     "#{path}/ClusterRole-controller.yaml",
     "#{path}/ClusterRoleBinding-controller.yaml",
     "#{path}/ClusterRole-admin.yaml",
-    "#{path}/ClusterRoleBinding-admin.yaml"
+    "#{path}/ClusterRoleBinding-admin.yaml",
+    "#{path}/storageclass.yaml"
   ]
   all_files = []
 

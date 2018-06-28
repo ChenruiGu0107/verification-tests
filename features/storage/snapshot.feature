@@ -26,9 +26,6 @@ Feature: snapshot specific scenarios
       | ["metadata"]["namespace"]             | <%= cb.proj %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc               |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/storageclass.yaml" where:
-      | ["metadata"]["name"] | snapshot-promoter-<%= cb.proj %> |
-    Then the step should succeed
     And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready
 
     Given I switch to the default user
@@ -39,11 +36,10 @@ Feature: snapshot specific scenarios
       | touch | /mnt/gce/testfile3 |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                 | snapshot-pvc                     |
-      | ["metadata"]["namespace"]                                            | <%= cb.proj %>                   |
-      | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= cb.proj %>                |
-      | ["spec"]["storageClassName"]                                         | snapshot-promoter-<%= cb.proj %> |
-      | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi                              |
+      | ["metadata"]["name"]                                                 | snapshot-pvc      |
+      | ["metadata"]["namespace"]                                            | <%= cb.proj %>    |
+      | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= cb.proj %> |
+      | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi               |
     Then the step should succeed
     And the "snapshot-pvc" PVC becomes :bound within 120 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pod.json" replacing paths:
@@ -92,9 +88,6 @@ Feature: snapshot specific scenarios
       | ["metadata"]["namespace"]             | <%= project.name %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc                    |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/storageclass.yaml" where:
-      | ["metadata"]["name"] | snapshot-promoter-<%= project.name %> |
-    Then the step should succeed
     And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready
 
     When I execute on the pod:
@@ -104,11 +97,10 @@ Feature: snapshot specific scenarios
       | touch | /mnt/gce/testfile3 |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                 | snapshot-pvc                          |
-      | ["metadata"]["namespace"]                                            | <%= project.name %>                   |
-      | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= project.name %>                |
-      | ["spec"]["storageClassName"]                                         | snapshot-promoter-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi                                   |
+      | ["metadata"]["name"]                                                 | snapshot-pvc           |
+      | ["metadata"]["namespace"]                                            | <%= project.name %>    |
+      | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi                    |
     Then the step should succeed
     And the "snapshot-pvc" PVC becomes :bound within 120 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pod.json" replacing paths:
