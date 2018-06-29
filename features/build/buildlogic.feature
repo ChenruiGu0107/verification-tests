@@ -312,6 +312,9 @@ Feature: buildlogic.feature
   @admin
   Scenario: Check labels info in built images when do sti build in openshift
     Given I have a project
+    Given default docker-registry route is stored in the :registry_hostname clipboard
+    And I have a skopeo pod in the project
+    Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:
       | app_repo     | https://github.com/sclorg/s2i-ruby-container |
       | context_dir  | 2.5/test/puma-test-app/                      |
@@ -320,12 +323,15 @@ Feature: buildlogic.feature
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
-    And evaluation of `pod("ruby-hello-world-1-build").node_name(user: user)` is stored in the :build_pod_node clipboard
-    Then I use the "<%= cb.build_pod_node %>" node
-    And evaluation of `image_stream("ruby-hello-world").docker_image_repository(user: user)` is stored in the :built_image clipboard
-    And I run commands on the host:
-      | docker inspect <%= cb.built_image %> |
-    Then the step should succeed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
     And the output should match:
       | .*io.openshift.build.commit.author.*                       |
       | .*io.openshift.build.commit.date.*                         |
@@ -339,10 +345,6 @@ Feature: buildlogic.feature
       | .*io.openshift.s2i.scripts-url.*                           |
       | .*io.openshift.tags.*                                      |
       | .*io.s2i.scripts-url.*                                     |
-      | .*OPENSHIFT_BUILD_NAME.*                                   |
-      | .*OPENSHIFT_BUILD_NAMESPACE.*                              |
-      | .*OPENSHIFT_BUILD_SOURCE.*                                 |
-      | .*OPENSHIFT_BUILD_COMMIT.*                                 |
 
   # @author yantan@redhat.com
   # @case_id OCP-12031
@@ -867,3 +869,73 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the output should contain:
       | BuildFailed |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-19736
+  Scenario: Add arbitrary labels to builder images
+    Given I have a project
+    Given default docker-registry route is stored in the :registry_hostname clipboard
+    And I have a skopeo pod in the project
+    Given I find a bearer token of the deployer service account
+    When I run the :new_build client command with:
+      | app_repo | http://github.com/openshift/ruby-hello-world.git |
+      | strategy | docker                                           |
+      | l        | app=newbuild1                                    |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc               |
+      | resource_name | ruby-hello-world |
+      | p             | {"spec":{"output":{"imageLabels":[{"name":"apple","value":"yummy"}]}}} |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Then the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
+    And the output should match:
+      | apple.*yummy |
+    When I run the :delete client command with:
+      | all_no_dash |               |
+      | l           | app=newbuild1 |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world.git |
+      | image_stream | ruby                                              |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc               |
+      | resource_name | ruby-hello-world |
+      | p             | {"spec":{"output":{"imageLabels":[{"name":"pineapple","value":"soyummy"}]}}} |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Then the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
+    And the output should match:
+      | pineapple.*soyummy |
+    Then the step should succeed

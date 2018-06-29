@@ -190,6 +190,11 @@ module CucuShift
       return get_cached_prop(prop: :node_name, user: user, cached: cached, quiet: quiet)
     end
 
+    def nodeselector(user: nil, cached: true, quiet: false)
+      raw_resource(user: user, cached: cached, quiet: quiet).
+        dig("spec", "nodeSelector")
+    end
+
     # @note call without parameters only when props are loaded
     def node_ip(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)["hostIP"]
