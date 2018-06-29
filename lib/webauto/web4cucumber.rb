@@ -80,6 +80,7 @@ require "base64"
       end
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.open_timeout = 180
+      client.read_timeout = 600 # ff legacy vs `I have a jenkins v2 application`
       headless
       # Selenium::WebDriver.logger.level = :debug
       if @browser_type == :firefox_marionette

@@ -47,6 +47,7 @@ global:
 
   # select browser different from default (firefox)
   # browser: chrome
+  # browser: firefox_marionette
 
 environments:
   ded_int_gcp:

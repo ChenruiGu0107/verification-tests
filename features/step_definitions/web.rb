@@ -65,6 +65,15 @@ Given /^I have a browser with:$/ do |table|
   else
     init_params[:rules] = [expand_path(init_params[:rules])]
   end
+  browser_opts = [
+    File.expand_path('browser_opts.yml', init_params[:rules].first),
+    File.expand_path('../browser_opts.yml', init_params[:rules].first)
+  ]
+  browser_opts.any? do |file|
+    if File.exists? file
+      init_params.merge! YAML.load_file(file)
+    end
+  end
   if conf[:browser]
     init_params[:browser_type] ||= conf[:browser].to_sym
   end

@@ -1076,7 +1076,7 @@ Feature: jenkins.feature
 
     Examples:
       | jenkins_version |
-      | 1               | # @case_id OCP-11344 
+      | 1               | # @case_id OCP-11344
       | 2               | # @case_id OCP-11374
 
   # @author cryan@redhat.com
@@ -1264,7 +1264,7 @@ Feature: jenkins.feature
     Examples:
       | version |
       | 1       | # @case_id OCP-10896
-      | 2       | # @case_id OCP-10980 
+      | 2       | # @case_id OCP-10980
 
   # @author cryan@redhat.com
   # @case_id 529770
@@ -1459,7 +1459,7 @@ Feature: jenkins.feature
   # @case_id OCP-10746 OCP-10975
   Scenario Outline: Use Jenkins as S2I builder with plugins
     Given I have a project
-    Given I have a custom jenkins v<ver> application from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc515317_536388/jenkins-with-plugins.json"
+    Given I have a jenkins v<ver> application from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc515317_536388/jenkins-with-plugins.json"
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
     When I run the :build_logs client command with:
@@ -2382,17 +2382,12 @@ Feature: jenkins.feature
   # @author xiuwang@redhat.com
   Scenario Outline: Using nodejs slave when do jenkinspipeline strategy
     Given I have a project
-    Given I have an ephemeral jenkins v<version> application
+    Given I have a jenkins v<version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<version>/                           |
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "nodejs" slave image for jenkins <version> server
     Then the step should succeed
@@ -2421,7 +2416,7 @@ Feature: jenkins.feature
   Scenario: Sync builds from jenkins to openshift
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -2448,7 +2443,7 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     """
-    Given I get project builds 
+    Given I get project builds
     Then the output should contain 3 times:
       | sample-pipeline |
     When the "sample-pipeline-3" build becomes :running
@@ -2458,7 +2453,7 @@ Feature: jenkins.feature
       | checktext  | <%= project.name %>/sample-pipeline-3  |
       | job_num    | 3                                      |
       | time_out   | 300                                    |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :delete client command with:
       | object_type           | buildconfig     |
       | object_name_or_id     | sample-pipeline |
@@ -2479,7 +2474,7 @@ Feature: jenkins.feature
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml | 
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -2499,7 +2494,7 @@ Feature: jenkins.feature
     Then the "openshift-jee-sample-docker-1" build completed
     Then the "openshift-jee-sample-1" build completed
     And a pod becomes ready with labels:
-      | app=openshift-jee-sample | 
+      | app=openshift-jee-sample |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-15196
@@ -2511,7 +2506,7 @@ Feature: jenkins.feature
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -2531,7 +2526,7 @@ Feature: jenkins.feature
     Then the "nodejs-mongodb-example-1" build completed
     Then the "sample-pipeline-1" build completed
     And a pod becomes ready with labels:
-      | name=nodejs-mongodb-example | 
+      | name=nodejs-mongodb-example |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-15384
@@ -2551,10 +2546,10 @@ Feature: jenkins.feature
     Then the "ruby-1" build completed
     Then the "sample-pipeline-openshift-client-plugin-1" build completed
     And a pod becomes ready with labels:
-      | deploymentconfig=jenkins-second-deployment | 
+      | deploymentconfig=jenkins-second-deployment |
     When I execute on the "<%= cb.jenkins_pod %>" pod:
       | ps | ax | --columns | 1000 |
     Then the step should succeed
     And the output should contain:
-      | /usr/bin/dumb-init -- /usr/libexec/s2i/run                             | 
-      | java -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 | 
+      | /usr/bin/dumb-init -- /usr/libexec/s2i/run                             |
+      | java -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 |
