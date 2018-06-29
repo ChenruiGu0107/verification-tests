@@ -563,7 +563,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Access mediawiki's route successfully
     Then I wait up to 60 seconds for a web server to become available via the "<%= cb.app.first.name %>" route
-    And the output should match "MediaWiki has been(?: successfully)?installed"
+    And the output should match "MediaWiki has been(?: successfully)? installed"
 
   # @author chezhang@redhat.com
   @admin

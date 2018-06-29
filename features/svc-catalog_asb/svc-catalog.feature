@@ -668,7 +668,7 @@ Feature: Service-catalog related scenarios
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
       | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | servicebinding/ups-binding |
@@ -684,7 +684,7 @@ Feature: Service-catalog related scenarios
       | resource | clusterservicebroker/ups-broker                                                      |
       | p        | {"spec":{"url": "http://ups-broker.<%= cb.ups_broker_project %>.svc.cluster.local"}} |
     Then the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get admin command with:
       | resource | clusterservicebroker/ups-broker |
