@@ -243,10 +243,8 @@ Feature: oc idle
     And the pod named "caddy-docker" becomes ready
     And I wait up to 60 seconds for the steps to pass:
     """
-    When I run the :exec client command with:
-      | pod              | caddy-docker              |
-      | exec_command     | curl                      |
-      | exec_command_arg | <%= cb.service_ip %>:8000 |
+    When I execute on the pod:
+      | curl | --max-time | 60 | <%= cb.service_ip %>:8000 |
     Then the output should contain "Hello Pod!"
     """
     Given I ensure "caddy-docker" pod is deleted
