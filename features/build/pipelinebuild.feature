@@ -3,7 +3,7 @@ Feature: pipelinebuild.feature
   # @author dyan@redhat.com
   Scenario Outline: Jenkins pipeline build from private repo with/without secret of password with http-gitserver
     Given I have a project
-    And I have an ephemeral jenkins v<tag> application      
+    Given I have a jenkins v<tag> application
     When I have an http-git service in the project
     And I run the :env client command with:
       | resource | dc/git                            |
@@ -33,13 +33,8 @@ Feature: pipelinebuild.feature
       | resource_name | sample-pipeline                                                                                                           |
       | p             | {"spec": {"source": { "git": {"uri": "http://git:8080/jenkins-pipeline-test.git"},"sourceSecret": {"name": "mysecret"}}}} |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<tag>/                               |    
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "nodejs" slave image for jenkins <tag> server
     Then the step should succeed
@@ -73,7 +68,7 @@ Feature: pipelinebuild.feature
   # @author dyan@redhat.com
   Scenario Outline: Jenkins pipeline build from private git repo with/without ssh key
     Given I have a project
-    And I have an ephemeral jenkins v<tag> application
+    Given I have a jenkins v<tag> application
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
@@ -94,13 +89,8 @@ Feature: pipelinebuild.feature
       | resource_name | sample-pipeline                                          |
       | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"}}}} |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<tag>/                               |    
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "nodejs" slave image for jenkins <tag> server
     Then the step should succeed
@@ -130,7 +120,7 @@ Feature: pipelinebuild.feature
   # @case_id OCP-17229
   Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
     Given I have a project
-    And I have a persistent jenkins v2 application      
+    Given I have a jenkins v2 application
     When I have an http-git service in the project
     And I run the :env client command with:
       | resource | dc/git                            |
@@ -162,13 +152,8 @@ Feature: pipelinebuild.feature
       | p    | GIT_SOURCE_URL=http://git:8080/openshift-jee-sample.git                                                          |
       | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                                |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |    
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
@@ -222,7 +207,7 @@ Feature: pipelinebuild.feature
   # @case_id OCP-17315
   Scenario: Sync openshift secret to credential in jenkins with ssh-auth type 
     Given I have a project
-    And I have a persistent jenkins v2 application
+    Given I have a jenkins v2 application
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
@@ -245,13 +230,8 @@ Feature: pipelinebuild.feature
       | name     | mysecret                                  |
       | key_val  | credential.sync.jenkins.openshift.io=true |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   | 
-      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> | 
-    Given I log in to jenkins
+    Given I have a jenkins browser
+    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
     Then the step should succeed
