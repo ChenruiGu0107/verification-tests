@@ -44,8 +44,7 @@ choose_resource_type:
 click_actions_button:
   elements:
   - selector:
-      visible_text: !ruby/regexp '/Actions/'
-    type: button
+      xpath: //button[contains(text(),'Actions')]
     op: click
 click_add:
   element:
@@ -325,18 +324,12 @@ cancel_resource_deletion:
 keep_parameters_in_dialog:
   elements:
   - selector:
-      visible_text: !ruby/regexp /Keep.*parameters/
-  - selector:
-      visible_text: !ruby/regexp /Yes/
-    type: button
+      xpath: //button[contains(text(),'Yes')]
     op: click
 not_keep_parameters_in_dialog:
   elements:
   - selector:
-      visible_text: !ruby/regexp /Keep.*parameters/
-  - selector:
-      visible_text: !ruby/regexp /No/
-    type: button
+      xpath: //button[contains(text(),'No')]
     op: click
 set_item_key:
   elements:
