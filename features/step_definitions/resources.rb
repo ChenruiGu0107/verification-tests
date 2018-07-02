@@ -188,15 +188,17 @@ end
 
 Given /^#{WORD}( in the#{OPT_QUOTED} project)? with name matching #{RE} are stored in the#{OPT_SYM} clipboard$/ do |type, in_project, pr_name, pattern, cb_name|
   cb_name ||= "resources"
-  project(pr_name, generate: false)
   re = Regexp.new(pattern)
   clazz = resource_class(type)
+  list_opts = {user: user}
 
   if in_project && !(CucuShift::ProjectResource > clazz)
     raise "#{clazz} is not a ProjectResource"
+  elsif CucuShift::ProjectResource > clazz
+    list_opts[:project] = project(pr_name, generate: false)
   end
 
-  list = clazz.list(user: user, project: project)
+  list = clazz.list(**list_opts)
   logger.info("#{clazz::RESOURCE}: #{list.map(&:name)}")
   cb[cb_name] = list.select { |r| re =~ r.name }
   cache_resources *list
