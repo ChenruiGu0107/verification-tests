@@ -393,6 +393,8 @@ Feature: Ansible-service-broker related scenarios
   Scenario: ASB should support bootstrap on startup
     Given  I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
+
+    Given the "ansible-service-broker" cluster service broker is recreated
     And admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -445,6 +447,8 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB]Check APB binding in different process to extract credentials
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
+
+    Given the "ansible-service-broker" cluster service broker is recreated
     And admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -722,6 +726,8 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB] Ansible-service-broker check APBs version correctly
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
+    
+    Given the "ansible-service-broker" cluster service broker is recreated
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     # Update the configmap settings
@@ -742,3 +748,36 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And the output should match:
       |  failed validation for the following reason:.*version.*out of bounds 1.0 <= 1.0 |
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18648
+  @admin
+  @destructive
+  Scenario: [ASB] check apb bundle resource in crd when asb refresh
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+
+    Given the "ansible-service-broker" cluster service broker is recreated
+    Given admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    "broker":
+      "refresh_interval": 90s
+    """
+    And admin redeploys "asb" dc
+
+    When bundles with qualified name matching /postgresql-apb/ are stored in the :psql clipboard
+    And bundles with qualified name matching /mediawiki-apb/ are stored in the :mediawiki clipboard
+    Then evaluation of `cb.psql.first.name` is stored in the :bundle_id_1 clipboard
+    And evaluation of `cb.mediawiki.first.name` is stored in the :bundle_id_2 clipboard
+
+    #delete two bundles
+    And admin ensure "<%= cb.bundle_id_1 %>" bundle is deleted
+    And admin ensure "<%= cb.bundle_id_2 %>" bundle is deleted
+
+    # asb will refresh after 'refresh_interval' and the bundles will come back
+    Given admin wait for the "<%= cb.bundle_id_1 %>" bundle to appear in the "openshift-ansible-service-broker" project up to 90 seconds
+    And admin wait for the "<%= cb.bundle_id_2 %>" bundle to appear in the "openshift-ansible-service-broker" project
