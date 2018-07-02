@@ -467,7 +467,9 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   # openshift-ansible parser has trouble with 'value = "xxx"' the spaces needs to be removed
   text = File.read(new_path).gsub(/\s=\s/, '=')
   new_text = text.gsub(/children=\"to_be_replaced\"/, "masters\netcd\nnodes\n")
-  File.open(new_path, "w") { |f| f << new_text }
+  # take out all double quotes
+  new_text = new_text.gsub(/"/, '')
+  File.write(new_path, new_text)
 
   # create a tmp directory which will store the following files to be 'oc rsync to the pod created
   # 1. inventory

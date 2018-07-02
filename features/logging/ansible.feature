@@ -489,3 +489,30 @@ Feature: ansible install related feature
     And a pod becomes ready with labels:
       | component=eventrouter |
     Then the expression should be true> pod.exists?
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17443
+  @admin
+  @destructive
+  Scenario: send the Elasticsearch rootLogger to console and file
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17443/inventory |
+    Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data["logging.yml"])['rootLogger'] == "${es.logger.level}, console, file"
+    And evaluation of `pod.labels['deploymentconfig']` is stored in the :dc_name clipboard
+    And I execute on the pod:
+      | tail | -1 | /elasticsearch/persistent/logging-es/logs/logging-es.log |
+    And evaluation of `@result[:response]` is stored in the :es_log_output clipboard
+    # check the oc logs output
+    When I run the :logs client command with:
+      | c             | elasticsearch   |
+      | resource_name | <%= pod.name %> |
+    And evaluation of `@result[:response]` is stored in the :oc_logs_output clipboard
+    Then the output should match:
+      | \[INFO\s+\]\[cluster\.metadata\s+\] |
+    And the output should contain:
+      | <%= cb.dc_name %>  |
+
+    ## compare the two logs
+    And the expression should be true> cb.es_log_output.include? cb.oc_logs_output.split("\n")[-1]
