@@ -1,6 +1,7 @@
 # helper step for logging and metrics scenarios
 require 'oga'
 require 'parseconfig'
+require 'stringio'
 
 # since the logging and metrics module can be deployed and used in any namespace, this step is used to determine
 # under what namespace the logging/metrics module is deployed under by getting all of the projects as admin and
@@ -462,16 +463,16 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     cb.ca_crt_path = "#{base_path}/ca.crt"
   end
 
-  File.open(new_path, 'w') { |f| cb.ini_style_config.write(f) }
-  ### XXX: we need to open the file again and replace the V3:children section with the proper values
-  # openshift-ansible parser has trouble with 'value = "xxx"' the spaces needs to be removed
-  text = File.read(new_path).gsub(/\s=\s/, '=')
-  new_text = text.gsub(/children=\"to_be_replaced\"/, "masters\netcd\nnodes\n")
-  # take out all double quotes
-  new_text = new_text.gsub(/"/, '')
+  inventory_io = StringIO.new
+  # don't double quote values which cause some issues with arrays in openshift-ansible
+  cb.ini_style_config.write(inventory_io, false)
+  # due to limitation of ParseConfig library, it won't allow key without value,
+  # so we hack this with 'children=to_be_replace'
+  new_text = inventory_io.string.gsub(/\s=\s/, '=').
+    gsub(/children=to_be_replaced/, "masters\netcd\nnodes\n")
   File.write(new_path, new_text)
 
-  # create a tmp directory which will store the following files to be 'oc rsync to the pod created
+  # create a tmp directory for files to be `oc rsync` to the pod created
   # 1. inventory
   # 2. libra.pem
   # 3. admin.kubeconfig from the master node

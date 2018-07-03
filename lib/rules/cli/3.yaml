@@ -439,6 +439,7 @@
     :p: -p
     :since: --since <value>
     :since-time: --since-time <value>
+    :tail: --tail <value>
     :timestamps: --timestamps
     :version: --version <value>
 :new_app:

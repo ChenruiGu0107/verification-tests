@@ -516,3 +516,32 @@ Feature: ansible install related feature
 
     ## compare the two logs
     And the expression should be true> cb.es_log_output.include? cb.oc_logs_output.split("\n")[-1]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17430
+  @admin
+  @destructive
+  Scenario: send Elasticsearch rootLogger to file
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17430/inventory |
+    Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data["logging.yml"])['rootLogger'] == "${es.logger.level}, file"
+    And evaluation of `pod.labels['deploymentconfig']` is stored in the :dc_name_es clipboard
+    # check the oc logs output
+    When I run the :logs client command with:
+      | c             | elasticsearch   |
+      | resource_name | <%= pod.name %> |
+      | tail          | 10              |
+    And the output should not contain:
+      | <%= cb.dc_name_es %>  |
+    # dc name should be in es.log and es_ops.log
+    And I execute on the pod:
+      | tail | -10 | /elasticsearch/persistent/logging-es/logs/logging-es.log |
+    And the expression should be true> @result[:response].include? cb.dc_name_es
+    And a pod becomes ready with labels:
+      | component=es-ops |
+    And evaluation of `pod.labels['deploymentconfig']` is stored in the :dc_name_es_ops clipboard
+    And I execute on the pod:
+      | tail | -10 | /elasticsearch/persistent/logging-es/logs/logging-es-ops.log |
+    And the expression should be true> @result[:response].include? cb.dc_name_es_ops
