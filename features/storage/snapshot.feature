@@ -116,3 +116,36 @@ Feature: snapshot specific scenarios
       | testfile2 |
     And the output should not contain:
       | testfile3 |
+
+
+  # @author lxia@redhat.com
+  # @case_id OCP-15911
+  @admin
+  Scenario: Restore from non-exist volume snapshot should not restore the pv
+    Given I check volume snapshot is deployed
+    And cluster role "volumesnapshot-admin" is added to the "default" user
+
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | pvc |
+    Then the step should succeed
+    And the "pvc" PVC becomes :bound
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc |
+      | ["metadata"]["name"]                                         | pod |
+    Then the step should succeed
+    Given the pod named "pod" becomes ready
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                 | snapshot-pvc                  |
+      | ["metadata"]["namespace"]                                            | <%= project.name %>           |
+      | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | non-exist-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi                           |
+    Then the step should succeed
+    And the "snapshot-pvc" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc          |
+      | name     | snapshot-pvc |
+    Then the step should succeed
+    And the output should contain:
+      | "non-exist-<%= project.name %>" not found |
