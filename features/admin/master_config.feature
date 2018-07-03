@@ -2040,7 +2040,6 @@ Feature: test master config related steps
           kind: HTPasswdPasswordIdentityProvider
           file: /etc/origin/master/htpasswd.auto
     """
-    Then the step should succeed
     And the master service is restarted on all master nodes
     When I run the :login client command with:
       | server          | <%= env.api_endpoint_url %> |
@@ -2065,7 +2064,6 @@ Feature: test master config related steps
           kind: HTPasswdPasswordIdentityProvider
           file: /etc/origin/master/htpasswd.auto
     """
-    Then the step should succeed
     Given I run commands on all masters:
       | echo 'user_claim:$apr1$DN4V/N8S$3mQX19WKDewfwrhG1arKU1' > /etc/origin/master/htpasswd.auto |
     Then the step should succeed
@@ -2091,4 +2089,94 @@ Feature: test master config related steps
       | password        | redhat                      |
       | skip_tls_verify | true                        |
       | config          | test.kubeconfig             |
+    Then the step should fail
+
+  # @author scheng@redhat.com
+  # @case_id OCP-15816
+  @admin
+  Scenario: accessTokenMaxAgeSeconds in oauthclient could not be set to other than positive integer number
+    When I run the :patch admin command with:
+      | resource      | oauthclient                         |
+      | resource_name | openshift-browser-client            |
+      | p             | {"accessTokenMaxAgeSeconds": abcde} |
+    Then the step should fail
+    And the output should contain "invalid character 'a' looking for beginning of value"
+    When I run the :patch admin command with:
+      | resource      | oauthclient                          |
+      | resource_name | openshift-browser-client             |
+      | p             | {"accessTokenMaxAgeSeconds": !@#$$%# |
+    Then the step should fail
+    And the output should contain "invalid character '!' looking for beginning of value"
+    When I run the :patch admin command with:
+      | resource      | oauthclient                          |
+      | resource_name | openshift-browser-client             |
+      | p             | {"accessTokenMaxAgeSeconds": 12.345} |
+    Then the step should fail
+    And the output should contain "cannot convert float64 to int32"
+
+  # @author scheng@redhat.com
+  # @case_id OCP-15814 OCP-15815
+  @admin
+  @destructive
+  Scenario: The accessTokenMaxAgeSeconds will take effective in Oauthclient and master-config
+    And I restore user's context after scenario
+    Given admin ensures "anypassword:age_test" identity is deleted after scenario
+    Given admin ensures "age_test" user is deleted after scenario
+    Given the "openshift-challenging-client" oauth client is recreated after scenario
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: claim
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    When I run the :patch admin command with:
+      | resource      | oauthclient                        |
+      | resource_name | openshift-challenging-client       |
+      | p             | {"accessTokenMaxAgeSeconds": null} |
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      tokenConfig:
+        accessTokenMaxAgeSeconds: 100
+        authorizeTokenMaxAgeSeconds: 500
+    """
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | age_test                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    And the output should match "Login successful|Logged into"
+    Given 50 seconds have passed
+    When I run the :whoami client command
+    Then the step should succeed
+    Given 120 seconds have passed
+    When I run the :whoami client command
+    Then the step should fail
+    When I run the :patch admin command with:
+      | resource      | oauthclient                      |
+      | resource_name | openshift-challenging-client     |
+      | p             | {"accessTokenMaxAgeSeconds": 30} |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | age_test                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    And the output should match "Login successful|Logged into"
+    When I run the :whoami client command
+    Then the step should succeed
+    Given 50 seconds have passed
+    When I run the :whoami client command
     Then the step should fail
