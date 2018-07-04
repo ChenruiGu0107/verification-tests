@@ -597,4 +597,71 @@ Feature: Update sql apb related feature
     Then the step should succeed
     """
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-18590
+  @admin
+  Scenario: Servicebinding can be deleted when serviceinstance update to a invalid plan	
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+
+    # Create servicebinding of DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | servicebinding                 |
+    Then the output should match:
+      | Message:\\s+Injected bind result          |
+    """
+
+    # update to an invalid plan
+    When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "invalid-plan"  | 
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance |
+    Then the step should succeed
+    And the output should match:
+      | Message:.*ClusterServicePlan.*not exist |
+    """
+
+    # Check related resources can be removed succeed.  
+    Given I ensure "<%= cb.prefix %>-postgresql-apb" servicebinding is deleted
+    And I ensure "<%= cb.prefix %>-postgresql-apb" serviceinstance is deleted
+    And I ensure "<%= project.name %>" project is deleted
