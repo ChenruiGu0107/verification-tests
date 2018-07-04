@@ -201,6 +201,68 @@ Feature: svcat related command
       | unable to get broker                 |
 
   # @author zhsun@redhat.com
+  # @case_id OCP-18653
+  @admin
+  Scenario: Check svcat subcommand - touch
+    Given I save the first service broker registry prefix to :prefix clipboard
+    And I have a project
+    #get help info
+    When I run the :touch_instance admin command with:
+      | _tool       | svcat                  |
+      | name        | :false                 |
+      | h           |                        |
+    Then the step should succeed
+    And the output by order should contain:
+      | Usage:                               |
+      |   svcat touch instance [flags]       |
+    #Provision a serviceinstance
+    When I run the :provision client command with:
+      | _tool            | svcat                           |
+      | instance_name    | postgresql-instance             |
+      | class            | <%= cb.prefix %>-postgresql-apb |
+      | plan             | dev                             |
+      | n                | <%= project.name %>             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool            | svcat                           |
+      | resource         | instances                       |
+      | n                | <%= project.name %>             |
+    Then the step should succeed
+    And I wait for the "postgresql-instance" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %>         |
+    When I run the :describe client command with:
+      | resource | serviceinstance/postgresql-instance     |
+    Then the output should match:
+      | Update Requests:  0                                |
+      | Message.*The instance was provisioned successfully |
+    #svcat touch instance postgresql-instance
+    When I run the :touch_instance admin command with:
+      | _tool           | svcat                            |
+      | name            | postgresql-instance              |
+      | n               | <%= project.name %>              |
+    Then the step should succeed
+    And I wait for the "postgresql-instance" service_instance to become ready up to 360 seconds
+    When I run the :describe client command with:
+      | resource | serviceinstance/postgresql-instance     |
+    Then the output should match:
+      | Update Requests:  1                                |
+      | Message.* The instance was updated successfully    |
+    #negative test
+    When I run the :touch_instance admin command with:
+      | _tool       | svcat                  |
+      | name        | :false                 |
+    Then the step should fail
+    And the output should match:
+      | an instance name is required         |
+    When I run the :touch_instance admin command with:
+      | _tool       | svcat                  |
+      | name        | invalid-instance       |
+    Then the step should fail
+    And the output should match:
+      | unable to get instance               |
+
   # @case_id OCP-18685
   @admin
   @destructive
