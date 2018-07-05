@@ -1,4 +1,4 @@
-Feature: ansible install related feature
+Feature: install and uninstall related scenarios
   # @author pruan@redhat.com
   # @case_id OCP-11061
   @admin
@@ -491,31 +491,79 @@ Feature: ansible install related feature
     Then the expression should be true> pod.exists?
 
   # @author pruan@redhat.com
-  # @case_id OCP-17443
+  # @case_id OCP-17445
   @admin
   @destructive
-  Scenario: send the Elasticsearch rootLogger to console and file
+  Scenario: send Elasticsearch rootLogger to file
+    Given I create a project with non-leading digit name
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17445/inventory |
+    Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data['logging.yml'])['rootLogger'] == "${es.logger.level}, file"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17429
+  @admin
+  @destructive
+  Scenario: The pvc are kept by default when uninstall logging via Ansible
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
-    And logging service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17443/inventory |
-    Then the expression should be true> YAML.load(config_map('logging-elasticsearch').data["logging.yml"])['rootLogger'] == "${es.logger.level}, console, file"
-    And evaluation of `pod.labels['deploymentconfig']` is stored in the :dc_name clipboard
-    And I execute on the pod:
-      | tail | -1 | /elasticsearch/persistent/logging-es/logs/logging-es.log |
-    And evaluation of `@result[:response]` is stored in the :es_log_output clipboard
-    # check the oc logs output
-    When I run the :logs client command with:
-      | c             | elasticsearch   |
-      | resource_name | <%= pod.name %> |
-    And evaluation of `@result[:response]` is stored in the :oc_logs_output clipboard
-    Then the output should match:
-      | \[INFO\s+\]\[cluster\.metadata\s+\] |
-    And the output should contain:
-      | <%= cb.dc_name %>  |
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17429/inventory |
+    Then the expression should be true> pvc('logging-es-0').ready?[:success]
+    Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
+    And logging service is uninstalled with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_uninstall_inventory |
+    And I check that there are no dc in the project
+    And I check that there are no ds in the project
+    # XXX: check check will fail unless https://bugzilla.redhat.com/show_bug.cgi?id=1549220 is fixed
+    And I check that there are no configmap in the project
+    Then the expression should be true> pvc('logging-es-0').ready?[:success]
+    Then the expression should be true> pvc('logging-es-ops-0').ready?[:success]
 
-    ## compare the two logs
-    And the expression should be true> cb.es_log_output.include? cb.oc_logs_output.split("\n")[-1]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15988
+  @admin
+  @destructive
+  Scenario: The Openshift Event can be understood by fluentd
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15988/inventory |
+    And I wait until the ES cluster is healthy
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | component=eventrouter,deploymentconfig=logging-eventrouter,logging-infra=eventrouter,provider=openshift |
+    And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
+    And I use the "<%= cb.target_proj %>" project
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "component=es":
+      | relative_url | /_search?pretty&size=50&q=kubernetes.pod_name:"<%= cb.eventrouter_pod_name %>" |
+      | op           | GET                                                                            |
+    Then the expression should be true> @result[:parsed]['hits']['hits'].count > 0
+    """
+    # check eventrouter logs include kubelete metadata
+    Then the expression should be true> cb.expected_kubelete_metadata = ["container_name", "namespace_name", "pod_name", "pod_id", "labels", "host", "master_url", "namespace_id"]
+    And the expression should be true> (cb.expected_kubelete_metadata - @result[:parsed]['hits']['hits'].first['_source']['kubernetes'].keys).empty?
+
+    # check expected kubelete event metata data
+    And the expression should be true> cb.expected_keys = ["metadata", "involvedObject", "reason", "source", "firstTimestamp", "lastTimestamp", "count", "type", "verb"]
+    And the expression should be true> (cb.expected_keys - @result[:parsed]['hits']['hits'].last["_source"]['kubernetes']['event'].keys).empty?
+
+  # @author pruan@redhat.com
+  # @case_id OCP-16299
+  @admin
+  @destructive
+  Scenario: install eventrouter with sink=glog
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16299/inventory |
+    And I register clean-up steps:
+      | logging service is uninstalled with ansible using: |
+      |   ! inventory ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16299/uninstall_inventory ! |
+    And I use the "default" project
+    Then the expression should be true> eval(config_map('logging-eventrouter').data['config.json'])[:sink] == "glog"
 
   # @author pruan@redhat.com
   # @case_id OCP-17430
