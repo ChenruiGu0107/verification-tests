@@ -234,15 +234,17 @@ Feature: Testing ingress to route object
             kind: IngressAdmissionConfig
           location: ''
     """
-    And the step should succeed
     And the master service is restarted on all master nodes
 
     Given I switch to the first user
     And I have a project
     And I store default router IPs in the :router_ip clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
+    """
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
@@ -280,11 +282,13 @@ Feature: Testing ingress to route object
     Then the step should succeed
     And the output should contain "new.hostname.com"
     Given I have a pod-for-ping in the project
-    When I execute on the "hello-pod" pod:
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
       | curl |
       | --resolve |
       | new.hostname.com:80:<%= cb.router_ip[0] %> |
       | http://new.hostname.com/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
-
+    """
