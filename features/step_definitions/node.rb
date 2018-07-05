@@ -554,3 +554,8 @@ Given /^a node that can run pods in the#{OPT_QUOTED} project is selected$/ do |p
     raise "no suitable node found"
   end
 end
+
+Given /^#{QUOTED} is copied to the host(?: under #{QUOTED} path)?$/ do |local_path, remote_path|
+  @host ||= node.host
+  @host.copy_to(local_path, remote_path || "./")
+end
