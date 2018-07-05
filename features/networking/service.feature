@@ -220,9 +220,12 @@ Feature: Service related networking scenarios
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json  |
     Then the step should succeed
+    """
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
@@ -274,9 +277,12 @@ Feature: Service related networking scenarios
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
+    """
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
