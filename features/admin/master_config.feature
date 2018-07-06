@@ -1907,6 +1907,7 @@ Feature: test master config related steps
   @admin
   @destructive
   Scenario: Config provision strategy as "add"
+    And I restore user's context after scenario
     Given master config is merged with the following hash:
     """
     oauthConfig:
@@ -1931,7 +1932,6 @@ Feature: test master config related steps
       | username        | user_add                    |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | user |
@@ -1966,7 +1966,6 @@ Feature: test master config related steps
       | username        | user_add                    |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | user |
@@ -1979,6 +1978,7 @@ Feature: test master config related steps
   @admin
   @destructive
   Scenario: mappingMethod "claim" && "generate"
+    And I restore user's context after scenario
     Given master config is merged with the following hash:
     """
     oauthConfig:
@@ -2005,14 +2005,12 @@ Feature: test master config related steps
       | username        | user_claim                  |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should succeed
     When I run the :login client command with:
       | server          | <%= env.api_endpoint_url %> |
       | username        | user_generate               |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | user |
@@ -2046,7 +2044,6 @@ Feature: test master config related steps
       | username        | user_generate               |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -2073,7 +2070,6 @@ Feature: test master config related steps
       | username        | user_claim                  |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should fail
     When I run the :get admin command with:
       | resource | user |
@@ -2088,7 +2084,6 @@ Feature: test master config related steps
       | username        | user_claim                  |
       | password        | redhat                      |
       | skip_tls_verify | true                        |
-      | config          | test.kubeconfig             |
     Then the step should fail
 
   # @author scheng@redhat.com
