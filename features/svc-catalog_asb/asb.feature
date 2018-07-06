@@ -781,3 +781,35 @@ Feature: Ansible-service-broker related scenarios
     # asb will refresh after 'refresh_interval' and the bundles will come back
     Given admin wait for the "<%= cb.bundle_id_1 %>" bundle to appear in the "openshift-ansible-service-broker" project up to 90 seconds
     And admin wait for the "<%= cb.bundle_id_2 %>" bundle to appear in the "openshift-ansible-service-broker" project
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-15704
+  @admin
+  @destructive
+  Scenario: Sandbox APB Service Account using 'edit' scoped to the target namespace	
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+
+    # Check rolebindings in user project
+    Given I check that the "<%= cb.prefix %>-postgresql-apb" serviceinstance exists
+    And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
+    And rolebindings with name matching /apb-/ are stored in the :rb1 clipboard
+    And the expression should be true> role_binding("<%= cb.rb1.first.name %>").role_names(cached: false).include? "edit"
