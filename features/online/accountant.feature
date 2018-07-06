@@ -564,3 +564,15 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | input_id | #{cb.id} |
     Then the step should succeed
     """
+
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-17678
+  Scenario: Check the coupon block - UI 
+    Given I open accountant console in a browser
+    When I run the :goto_coupons_webpage web action
+    Then the step should succeed
+    When I run the :click_apply_new_coupon web action
+    Then the step should succeed
+    When I run the :check_apply_new_coupon_page web action
+    Then the step should succeed

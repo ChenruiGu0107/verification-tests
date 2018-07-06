@@ -172,3 +172,25 @@ check_addon_resource_elements:
       xpath: //*[contains(., "Purchase") and contains(.,"<resource_name>")]
   - selector:
       xpath: //*[@role="button" and contains(@href, "<resource_url>") and contains(.,"Manage <resource_name>")]
+goto_coupons_webpage:
+  url: coupons
+  elements:
+  - selector:
+      xpath: //*[contains(.,"Subscription Coupons")]
+  - selector:
+      xpath: //*[contains(.,"No coupons have been applied to this subscription")]
+click_apply_new_coupon:
+  elements:
+  - selector:
+      xpath: //*[contains(text(),"Apply New Coupon")]
+    op: click
+check_apply_new_coupon_page:
+  elements:
+  - selector:
+      xpath: //*[contains(.,"Coupon token")]
+  - selector:
+      xpath:  //input[contains(@id,"coupon_token")]
+  - selector:
+      xpath: //input[contains(@class,"btn btn-primary apply_coupon") and contains(@value,"Apply Coupon")]
+  - selector:
+      xpath: //a[contains(@href,"/coupons") and contains(text(),"Cancel")]
