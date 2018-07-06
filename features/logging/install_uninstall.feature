@@ -593,3 +593,15 @@ Feature: install and uninstall related scenarios
     And I execute on the pod:
       | tail | -10 | /elasticsearch/persistent/logging-es/logs/logging-es-ops.log |
     And the expression should be true> @result[:response].include? cb.dc_name_es_ops
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19463
+  @admin
+  @destructive
+  Scenario: Deploy Logging on non-default namespace
+    Given the master version >= "3.7"
+    And the master version <= "3.9"
+    And I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19463/inventory |
+    Then the expression should be true> project.name == "openshift-logging"
