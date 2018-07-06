@@ -103,3 +103,111 @@ Feature: Upgrade images feature
       | version | image               |
       | 9.5     | postgresql-95-rhel7 | # @case_id OCP-17136
       | 9.4     | postgresql-94-rhel7 | # @case_id OCP-9680
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-17128
+  Scenario: Image upgrade test for mariadb-101-rhel7  
+    Given I have a project
+    And I run the :import_image client command with:
+      | image_name | mariadb                                            |
+      | from       | registry.access.redhat.com/rhscl/mariadb-101-rhel7 |
+      | confirm    | true                                               |
+      | insecure   | true                                               |
+      | all        | true                                               |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | mariadb-persistent            |
+      | param    | MYSQL_USER=user               |
+      | param    | MYSQL_PASSWORD=user           |
+      | param    | NAMESPACE=<%= project.name %> |
+      | param    | MARIADB_VERSION=latest        |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=mariadb |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'create table test (age INTEGER(32));' |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      |mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'insert into test VALUES(10);' |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | 10 |
+    Then I run the :import_image client command with:
+      | image_name | mariadb                                           |
+      | from       | <%= product_docker_repo %>rhscl/mariadb-101-rhel7 |
+      | confirm    | true                                              |
+      | insecure   | true                                              |
+      | all        | true                                              |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=mariadb-2 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'select * from  test;' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 10 |
+  
+  # @author wzheng@redhat.com
+  # @case_id OCP-17129
+  Scenario: Image upgrade test for redis-32-rhel7
+    Given I have a project
+    And I run the :import_image client command with:
+      | image_name | redis                                           |
+      | from       | registry.access.redhat.com/rhscl/redis-32-rhel7 |
+      | confirm    | true                                            |
+      | insecure   | true                                            |
+      | all        | true                                            |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | redis-persistent              |
+      | param    | REDIS_PASSWORD=redhat         |
+      | param    | NAMESPACE=<%= project.name %> |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=redis |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash                                                                      |
+      | -c                                                                        |
+      | redis-cli -h redis -p 6379 -c 'auth redhat; set mykey "hello"; get mykey' |
+    Then the step should succeed
+    And the output should contain: 
+      | hello |
+    """
+    Then I run the :import_image client command with:
+      | image_name | redis                                          |
+      | from       | <%= product_docker_repo %>rhscl/redis-32-rhel7 |
+      | confirm    | true                                           |
+      | insecure   | true                                           |
+      | all        | true                                           |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=redis-2 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash                                                                      |
+      | -c                                                                        |
+      | redis-cli -h redis -p 6379 -c 'auth redhat; set mykey "hello"; get mykey' |
+    Then the step should succeed
+    And the output should contain: 
+      | hello |
+    """
