@@ -195,15 +195,12 @@ Feature: idle service related scenarios
     # modify node-config to disable unidling
     Given I select a random node's host
     And the node network is verified
-    Given the node service is restarted on the host after scenario
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    When I run commands on the host:
-      | sed -i '/enableUnidling/d' /etc/origin/node/node-config.yaml |
-    Then the step should succeed
-    When I run commands on the host:
-      | echo "enableUnidling: false" >> /etc/origin/node/node-config.yaml |
-    Then the step should succeed
-    Given the node service is restarted on the host
+    Given I restart the network components on the node after scenario
+    Given node config is merged with the following hash:
+    """
+      enableUnidling: false
+    """
+    Given I restart the network components on the node
 
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
@@ -234,6 +231,7 @@ Feature: idle service related scenarios
       | curl |
       | <%= cb.service_ip %>:27017 |
     Then the output should not contain "Hello OpenShift!"
+    And the output should contain "is unreachable"
     """
     When I run the :get client command with:
       | resource | endpoints |
