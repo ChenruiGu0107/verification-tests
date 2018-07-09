@@ -22,15 +22,25 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   # now we seem to need setting policy on user, not project
   step %Q@the following scc policy is created: #{path}@
 
-  @result = user.cli_exec(:create, n: project.name, f: 'https://github.com/openshift-qe/v3-testfiles/raw/master/storage/nfs/nfs-server.yaml')
+  step %Q{I run oc create over "https://github.com/openshift-qe/v3-testfiles/raw/master/storage/nfs/nfs-server.yaml" replacing paths:}, table(%{
+      | ["items"][0]["spec"]["volumes"][0]["hostPath"]["path"] | /mnt/#{project.name} |
+  })
+  step %Q/the step should succeed/
 
-  raise "could not create NFS Server service" unless @result[:success]
-
-  step 'I wait for the "nfs-service" service to become ready'
+  step 'I wait for the "nfs-service" service to become ready up to 300 seconds'
   # now you have NFS running, to get IP, call `service.ip` or
   #   `service("nfs-service").ip`
 
   cb.nfs_pod = pod("nfs-server")
+  teardown_add {
+    step %/I use the "#{cb.nfs_pod.node_name(user: user)}" node/
+    step %Q{I run commands on the host:}, table(%{
+        | rm -rf /mnt/#{project.name} |
+     })
+    step %Q/the step should succeed/
+  }
+  @result = cb.nfs_pod.exec("bash", "-c", "chmod g+w /mnt/data", as: user)
+  step %Q/the step should succeed/
 end
 
 #This is a step to create nfs-provisioner pod or dc in the project
