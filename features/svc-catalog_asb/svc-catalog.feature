@@ -893,8 +893,11 @@ Feature: Service-catalog related scenarios
     """
 
     # Check instance yaml when provision succeed
-    Given a pod becomes ready with labels:
-      | app=rhscl-postgresql-apb |
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.dc_1.first.name %>-1 |
+
     When I wait up to 60 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -974,8 +977,12 @@ Feature: Service-catalog related scenarios
     """
 
     # Check instance yaml when provision updated succeed
-    Given a pod becomes ready with labels:
-      | app=rhscl-postgresql-apb |
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 360 seconds
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_2.first.name %> |
+
     When I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get client command with:

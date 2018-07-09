@@ -600,10 +600,10 @@ Feature: Ansible-service-broker related scenarios
       | n     | <%= project.name %>                                                                                                  |
     Then the step should succeed
 
-    # Checking provision succeed with dev plan
-    Given a pod becomes ready with labels:
-      | app=<db_label> |
-    And I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 360 seconds
+    And dc with name matching /<db_pattern>/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
 
     # Create another project
     Given I create a new project
@@ -627,16 +627,16 @@ Feature: Ansible-service-broker related scenarios
       | n     | <%= project.name %>                                                                                                  |
     Then the step should succeed
 
-    # Checking provision succeed with prod plan
-    Given a pod becomes ready with labels:
-      | app=<db_label> |
-    And I wait for the "<db_name>" service_instance to become ready up to 80 seconds
+    Given I wait for the "<db_name>" service_instance to become ready up to 360 seconds
+    And dc with name matching /<db_pattern>/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
 
     Examples:
-      | db_name                         | db_secret_name                             | db_parameters                                                                                                                         | db_label             |
-      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | rhscl-postgresql-apb | # @case_id OCP-15328
-      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | rhscl-mariadb-apb    | # @case_id OCP-16086
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | rhscl-mysql-apb      | # @case_id OCP-16087
+      | db_name                         | db_secret_name                             | db_parameters                                                                                                                         | db_pattern |
+      | <%= cb.prefix %>-postgresql-apb | <%= cb.prefix %>-postgresql-apb-parameters | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}                     | postgresql | # @case_id OCP-15328
+      | <%= cb.prefix %>-mariadb-apb    | <%= cb.prefix %>-mariadb-apb-parameters    | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} | mariadb    | # @case_id OCP-16086
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}                  | mysql      | # @case_id OCP-16087
 
 
   # @author zhsun@redhat.com

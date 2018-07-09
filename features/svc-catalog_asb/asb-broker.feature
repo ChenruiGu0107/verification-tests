@@ -107,6 +107,8 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | resource_name | <%= pod.name %> |
       | since         | 1000s           |
     Then the output should contain "AnsibleBroker::Catalog"
+    And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb'].name` is stored in the :class_id clipboard
+    And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
   # @author chezhang@redhat.com
   # @case_id OCP-16635
