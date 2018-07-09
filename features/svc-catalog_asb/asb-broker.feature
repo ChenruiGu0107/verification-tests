@@ -117,7 +117,6 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   Scenario: Should prevent relistDuration change to negative value in servicebroker
     Given I switch to cluster admin pseudo user
     And the "ansible-service-broker" cluster service broker is recreated after scenario
-    And I save the first service broker registry prefix to :prefix clipboard
 
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                 |
@@ -137,18 +136,18 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 0.5m |
     Then the step should succeed
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
-    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw == "30s"
+    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw(cached: false) == "30s"
 
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                |
-      | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 0s15m |
+      | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 0s11m |
     Then the step should succeed
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
-    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw == "15m0s"
+    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw(cached: false) == "11m0s"
 
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker               |
       | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 600s |
     Then the step should succeed
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
-    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw == "10m0s"
+    And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw(cached: false) == "10m0s"
