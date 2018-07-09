@@ -229,6 +229,86 @@ Feature: fluentd related tests
     And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.end_with? cb.master_version
 
   # @author pruan@redhat.com
+  # @case_id OCP-16176
+  @admin
+  @destructive
+  Scenario: Enable/disable docker event collection by playbook
+    Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16176/inventory |
+    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').env_var('AUDIT_CONTAINER_ENGINE') == 'true'
+    And a pod becomes ready with labels:
+      | component=fluentd |
+    And the expression should be true> pod.env_var('AUDIT_CONTAINER_ENGINE') == 'true'
+
+    # reinstall logging with docker event collection disabled
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-16176/inventory_disable_dockerevent |
+    # need to refresh the cached data
+    And the expression should be true> daemon_set.pods
+    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').env_var('AUDIT_CONTAINER_ENGINE').nil?
+    And a pod becomes ready with labels:
+      | component=fluentd |
+    And the expression should be true> pod.env_var('AUDIT_CONTAINER_ENGINE').nil?
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19207
+  @admin
+  @destructive
+  Scenario: Turn off JSON payload by default
+    Given the master version >= "3.9"
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project clipboard
+    And cluster role "cluster-admin" is added to the "first" user
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19207/inventory |
+    When I run the :set_env client command with:
+      | resource | ds/logging-fluentd   |
+      | e        | MERGE_JSON_LOG=false |
+    Then the step should succeed
+
+    And I switch to the first user
+    And I use the "<%= cb.org_project %>" project
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    And a pod becomes ready with labels:
+      | name=hello-openshift |
+    When I run the :debug client command with:
+      | resource         | pod/<%= pod.name %>                                |
+      | oc_opts_end      |                                                    |
+      | exec_command     | echo                                               |
+      | exec_command_arg | '{ "message": "OCP-19207", "level": "OCP-19207" }' |
+    Then the step should succeed
+    And I switch to cluster admin pseudo user
+    And I use the "<%= cb.target_proj %>" project
+    When I wait 900 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "component=es"
+    And a pod becomes ready with labels:
+      | component=fluentd |
+    And I switch to the first user
+    And I perform the HTTP request:
+    """
+      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :method: post
+      :payload: '{"query": { "match": {"message" : "OCP-19207" }}}'
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    """
+    And the step should succeed
+    And the expression should be true> @result[:parsed].dig('hits', 'total') > 0
+    And the expression should be true> @result[:parsed]['hits']['hits'].first['_source']['level'] == 'info'
+    And I perform the HTTP request:
+    """
+      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :method: post
+      :payload: '{"query": { "match": {"level" : "OCP-19207" }}}'
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    """
+    And the step should succeed
+    And the expression should be true> @result[:parsed].dig('hits', 'total') == 0
+
+  # @author pruan@redhat.com
   # @case_id OCP-19431
   @admin
   @destructive

@@ -98,8 +98,15 @@ module CucuShift
       def cpu_request
         return convert_cpu(self.cpu_request_raw)
       end
+
+      # helper methods
+      def env_var(name, cached: true, quiet: false)
+        env_var = env.find { |e| e["name"] == name }
+        return env_var && env_var["value"]
+      end
     end
 
     include ExportMethods
+
   end
 end

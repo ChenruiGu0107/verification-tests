@@ -98,5 +98,6 @@ module CucuShift
       raise "No container spec found matching '#{name}'!" if target_spec.is_a? Hash
       return target_spec
     end
+
   end
 end
