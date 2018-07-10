@@ -2175,3 +2175,90 @@ Feature: test master config related steps
     Given 50 seconds have passed
     When I run the :whoami client command
     Then the step should fail
+
+  # @author scheng@redhat.com
+  # @case_id OCP-12448
+  @admin
+  @destructive
+  Scenario: check authentication via htpasswd file
+    Given I restore user's context after scenario
+    And admin ensures "OCP12448_htpasswd:user_bcrypt" identity is deleted after scenario
+    And admin ensures "OCP12448_htpasswd:user_default" identity is deleted after scenario
+    And admin ensures "OCP12448_htpasswd:user_md5" identity is deleted after scenario
+    And admin ensures "OCP12448_htpasswd:user_sha" identity is deleted after scenario
+    And admin ensures "OCP12448_htpasswd:user_crypt" identity is deleted after scenario
+    And admin ensures "OCP12448_htpasswd:user_plain" identity is deleted after scenario
+    And admin ensures "user_crypt" user is deleted after scenario
+    And admin ensures "user_plain" user is deleted after scenario
+    And admin ensures "user_bcrypt" user is deleted after scenario
+    And admin ensures "user_default" user is deleted after scenario
+    And admin ensures "user_md5" user is deleted after scenario
+    And admin ensures "user_sha" user is deleted after scenario
+    
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: OCP12448_htpasswd
+        challenge: true
+        login: true
+        mappingMethod: claim
+        provider:
+          apiVersion: v1
+          kind: HTPasswdPasswordIdentityProvider
+          file: /etc/origin/master/htpasswd.enc
+    """
+    And evaluation of `env.master_hosts` is stored in the :hosts clipboard
+    Given the "/etc/origin/master/htpasswd.enc" file is restored on all hosts in the clipboard after scenario
+    Given I run commands on all masters:
+      | echo 'user_default:$apr1$Dczb9VVj$eNT3WL8h4T2rPKD1ixBWE.' > /etc/origin/master/htpasswd.enc |
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_default                |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    Given I run commands on all masters:
+      | echo 'user_md5:$apr1$019ePuy4$7Hw/RzIQqNy5xmj3uv8xQ.' > /etc/origin/master/htpasswd.enc |
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_md5                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    Given I run commands on all masters:
+      | echo 'user_bcrypt:$2y$05$3LEJaT9wtLE0a1B8vpq.yeJRKpjF2yt70RyvunR3RqIDl51v5X/nW' > /etc/origin/master/htpasswd.enc |
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_bcrypt                 |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    Given I run commands on all masters:
+      | echo 'user_crypt:n7L.ka5Hv86VA' > /etc/origin/master/htpasswd.enc |
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_crypt                  |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should fail
+    Given I run commands on all masters:
+      | echo 'user_sha:{SHA}PHZ8Qa+xKtoUAZDtgts/2TDi76M=' > /etc/origin/master/htpasswd.enc |
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_sha                    |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    Given I run commands on all masters:
+      | echo 'user_plain:redhat' > /etc/origin/master/htpasswd.enc |
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | user_plain                  |
+      | password        | redhat                      |
+      | skip_tls_verify | true                        |
+    Then the step should fail
