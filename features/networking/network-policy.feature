@@ -1541,3 +1541,202 @@ Feature: Network policy plugin scenarios
       | namespace | <%= cb.proj1 %> |
     Then the step should fail
     And the output should contain "cannot create networkpolicies.extensions in project"
+
+  #author bmeng@redhat.com
+  #case_id OCP-19397
+  @admin
+  Scenario: Egress type rule in network policy should not affect the policy function
+    Given the master version >= "3.9"
+    And the env is using networkpolicy plugin
+
+    # create project and pods
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
+    
+    # create network policy with both ingress and egress field in project 1
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/ignore-egress-policy.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # access the pod via port 8080 in project 1 from project 1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod via other port in project 1 from project 1
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8888 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    # access the pod via port 8080 in project 2 from project 1, the egress rule will be ignored
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p2pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod via other port in project 2 from project 1, the egress rule will be ignored
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p2pod1ip %>:8888 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod via port 8080 in project 1 from project 2
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod via other port in project 1 from project 2
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8888 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+
+  #author bmeng@redhat.com
+  #case_id OCP-19399
+  @admin
+  Scenario: If only egress type of rule appears in the networkpolicy then the networkpolicy will not take effect    
+    Given the master version >= "3.9"
+    And the env is using networkpolicy plugin
+
+    # create project and pods
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
+
+    # create network policy with only egress policy in project 1
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/egress-default-deny.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # access pod in project 1 from project 1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access pod in project 2 from project 1
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p2pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access pod in project 1 from project 2
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+
+  #author bmeng@redhat.com
+  #case_id OCP-19400
+  @admin
+  Scenario: A policy with an ingress rule with an ipBlock element behaves like it would if that rule was removed
+    Given the master version >= "3.9"
+    And the env is using networkpolicy plugin
+
+    # create project and pods
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p1pod1 %> |
+      | key_val  | type=red |
+    Then the step should succeed
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
+    And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p2pod2 %> |
+      | key_val  | type=red |
+    Then the step should succeed
+
+    # create network policy with ingress.from.ipBlock element in project 1
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/ipblock.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # access the pod in project 1 from pod with label in project1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod in project 1 from pod without label in project1
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    # access the pod in project 2 from pod in project1
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p2pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    # access the pod in project 1 from pod with label in project2
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    # access the pod in project 1 from pod without label in project2
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
