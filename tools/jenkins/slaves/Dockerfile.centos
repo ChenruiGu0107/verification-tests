@@ -43,7 +43,7 @@ RUN set -x && \
     CHROMEDRIVER_VERSION=`curl -sSL "$CHROMEDRIVER_URL/LATEST_RELEASE"` && \
     curl -sSL "$CHROMEDRIVER_URL/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"  | bsdtar xvf - -C /usr/local/bin && \
     GECKODRIVER_DOWNLOAD_URL="$(curl -sSL https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -E 'browser_download_url.*linux64' | sed -E 's/.*(https[^"]*).*/\1/')" && \
-    curl -sSL "$GECKODRIVER_DOWNLOAD_URL" | tar -xvf - -C /usr/local/bin && \
+    curl -sSL "$GECKODRIVER_DOWNLOAD_URL" | bsdtar -xvf - -C /usr/local/bin && \
     chmod +x /usr/local/bin/chromedriver /usr/local/bin/geckodriver && \
     rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
     yum clean all -y && \
