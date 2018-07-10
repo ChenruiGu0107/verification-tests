@@ -194,3 +194,10 @@ check_apply_new_coupon_page:
       xpath: //input[contains(@class,"btn btn-primary apply_coupon") and contains(@value,"Apply Coupon")]
   - selector:
       xpath: //a[contains(@href,"/coupons") and contains(text(),"Cancel")]
+check_nav_link:
+  action: click_page_dropdown
+  elements:
+  - selector:
+      xpath: //a[contains(text(),"Account info") and contains(@href,"https://developers.redhat.com/auth/realms/rhd/account/")]  
+  - selector:
+      xpath: //a[contains(text(),"Change password") and contains(@href,"https://developers.redhat.com/auth/realms/rhd/account/password")]
