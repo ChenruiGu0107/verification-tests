@@ -2409,3 +2409,34 @@ Feature: jenkins.feature
     And the output should contain:
       | /usr/bin/dumb-init -- /usr/libexec/s2i/run                             |
       | java -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-11400
+  Scenario: Add env in the build steps of jenkins
+    Given I have a project
+    Given I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_create_openshift_build_trigger web action with:
+      | job_name      | openshifttest       |
+      | build_config  | frontend            |
+      | store_project | <%= project.name %> |
+      | var_key       | env1                |
+      | var_value     | value1              |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given the "frontend-1" build completes
+    When I run the :export client command with:
+      | resource | build/frontend-1 |
+    Then the step should succeed
+    Then the output should contain:
+      | env1   |
+      | value1 |

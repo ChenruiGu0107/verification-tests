@@ -422,6 +422,27 @@ jenkins_create_openshift_build_trigger:
       xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkNamespace")]
     type: input
     op: send_keys <store_project>
+  scripts:
+  - command: |
+        var found = false;
+        var tnlist = document.querySelectorAll('button');
+        for (var i=0; i<tnlist.length; i++ ){
+          if(tnlist[i].innerHTML == 'Add'){
+            tnlist[i].click();
+            found = true;
+          }
+        }
+        return found;
+    expect_result: true
+  elements:
+  - selector:
+      xpath: //input[contains(@checkurl,"NameValuePair/checkName")]
+    type: input
+    op: send_keys <var_key>
+  - selector:
+      xpath: //td[@class="setting-main"]/input[@name="_.value"]
+    type: input
+    op: send_keys <var_value>
   action: jenkins_click_save_button
 
 jenkins_create_openshift_deployment_trigger:
