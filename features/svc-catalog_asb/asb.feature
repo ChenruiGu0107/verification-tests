@@ -59,6 +59,7 @@ Feature: Ansible-service-broker related scenarios
 
     And a pod becomes ready with labels:
       | deployment=<%= cb.db.first.name %>-1 |
+    And evaluation of `pod.name` is stored in the :db_pod_name clipboard
 
     Then I wait up to 80 seconds for the steps to pass:
     """
@@ -92,9 +93,10 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=<%= cb.app.first.name %>-2     |
+    And evaluation of `pod.name` is stored in the :app_pod_name clipboard
 
     # Access mediawiki's route
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route(cb.app.first.name).dns %>/index.php/Main_Page" url
     And the output should match "MediaWiki has been(?: successfully)? installed"
@@ -120,6 +122,9 @@ Feature: Ansible-service-broker related scenarios
     And I wait for the resource "serviceinstance" named "<%= cb.prefix %>-mediawiki-apb" to disappear within 300 seconds
     And I wait for the resource "secret" named "<%= cb.prefix %>-mediawiki-apb-parameters" to disappear within 120 seconds
     And I wait for the resource "secret" named "<db_secret_name>" to disappear within 120 seconds
+    And I wait for the resource "pod" named "<%= cb.app_pod_name %>" to disappear within 120 seconds
+    And I wait for the resource "pod" named "<%= cb.db_pod_name %>" to disappear within 120 seconds
+
     Then I check that there are no pods in the project
     And I check that there are no dc in the project
     And I check that there are no rc in the project
