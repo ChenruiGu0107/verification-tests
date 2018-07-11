@@ -1075,3 +1075,23 @@ Feature: networking isolation related scenarios
       | curl | --connect-timeout | 5 | <%= cb.proj1p2 %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+
+
+  # @author bmeng@redhat.com
+  # @case_id OCP-19809
+  @admin
+  Scenario: Do not allow default namespace to be isolated
+    Given the env is using multitenant network
+    And the master version >= "3.9"
+
+    Given I switch to cluster admin pseudo user
+    When I run the :oadm_pod_network_isolate_projects admin command with:
+      | project | default |
+    Then the step should fail
+    And the output should contain "forbidden"
+
+    When I run the :get admin command with:
+      | resource | netnamespace |
+      | resource_name | default |
+    Then the step should succeed
+    And the output should contain "0"
