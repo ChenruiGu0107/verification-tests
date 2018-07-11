@@ -21,7 +21,7 @@ Given /^I have an?( ephemeral| persistent)? jenkins v#{NUMBER} application(?: fr
       if scs.size != 1
         type = "ephemeral"
       else
-        t = template("openshift-persistent", project("openshift", switch: false))
+        t = template("jenkins-persistent", project("openshift", switch: false))
         type = template.exists?(user: user) ? "persistent" : "ephemeral"
       end
 
@@ -107,11 +107,13 @@ Given /^I log in to jenkins$/ do
       | username | <%= user.name %>     |
       | password | <%= user.password %> |
       })
+    step 'the step should succeed'
   else
     step %Q/I perform the :jenkins_standard_login web action with:/, table(%{
       | username | admin    |
       | password | password |
       })
+    step 'the step should succeed'
   end
 end
 
