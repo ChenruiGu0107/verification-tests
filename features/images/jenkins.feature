@@ -2440,3 +2440,46 @@ Feature: jenkins.feature
     Then the output should contain:
       | env1   |
       | value1 |
+
+  # @case_id OCP-18220
+  Scenario: Jenkins API authentication should success until the first web access
+    When I have a project
+    And I have a persistent jenkins v2 application 
+    When I perform the HTTP request:
+    """
+    :url: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login
+    :method: :get
+    :headers:
+      :Authorization: Bearer <%= cb.user_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | <title>Jenkins</title> |
+    And I ensure "<%= cb.jenkins_pod %>" pod is deleted
+    And I wait for the "jenkins" service to become ready up to 300 seconds 
+    #Non-browser access to jenkins API with a Bearer
+    When I perform the HTTP request:
+    """
+    :url: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login
+    :method: :get
+    :headers:
+      :Authorization: Bearer <%= cb.user_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | <title>Jenkins</title> |
+    #Browser access to jenkins
+    Given I have a jenkins browser
+    Then I log in to jenkins
+    Then the step should succeed
+    #Non-browser access to jenkins API with a Bearer
+    When I perform the HTTP request:
+    """
+    :url: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login
+    :method: :get
+    :headers:
+      :Authorization: Bearer <%= cb.user_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | <title>Jenkins</title> |
