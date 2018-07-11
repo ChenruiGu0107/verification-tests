@@ -2262,3 +2262,183 @@ Feature: test master config related steps
       | password        | redhat                      |
       | skip_tls_verify | true                        |
     Then the step should fail
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-10972
+  @destructive
+  @admin
+  Scenario: Add arbitrary labels to docker images via default/overides-buildconfig
+    Given I have a project
+    Given default docker-registry route is stored in the :registry_hostname clipboard
+    And I have a skopeo pod in the project
+    Given I find a bearer token of the deployer service account
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            imageLabels:
+            - name: pineapple
+              value: default-more-yummy
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+    """
+    And the master service is restarted on all master nodes
+    When I run the :new_build client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world.git |
+      | image_stream | ruby                                              |
+    Then the step should succeed
+    Then the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
+    And the output should match:
+      | pineapple.*default-more-yummy |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource      | bc               |
+      | resource_name | ruby-hello-world |
+      | p             | {"spec":{"output":{"imageLabels":[{"name":"pineapple","value":"soyummy"}]}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Then the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
+    And the output should match:
+      | pineapple.*soyummy |
+    And the output should not contain "default-more-yummy"
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            imageLabels:
+            - name: pineapple
+              value: default-more-yummy
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+            imageLabels:
+            - name: pineapple
+              value: override-more-yummy
+    """
+    And the master service is restarted on all master nodes
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Then the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build completed
+    When I execute on the pod:
+      | skopeo             |
+      | --debug            |
+      | --insecure-policy  |
+      | inspect            |
+      | --tls-verify=false |
+      | --creds            |
+      | dnm:<%= service_account.cached_tokens.first %>                                   |
+      | docker://<%= cb.registry_hostname %>/<%= project.name %>/ruby-hello-world:latest |
+    And the output should match:
+      | pineapple.*override-more-yummy |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-10992
+  @destructive
+  @admin
+  Scenario: Allow for a separate set of build nodes via node selectors
+    Given I have a project
+    And environment has at least 2 schedulable nodes
+    Given I store the ready and schedulable nodes in the clipboard
+    And label "label=test1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "label=test2" is added to the "<%= cb.nodes[1].name %>" node
+
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            nodeSelector:
+              label: test1
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+    """
+    And the master service is restarted on all master nodes
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/rails-ex |
+    Then the step should succeed
+    When the pod named "rails-ex-1-build" becomes present
+    Then the expression should be true> pod("rails-ex-1-build").nodeselector["label"] == "test1"
+
+    When I run the :cancel_build client command with:
+      | build_name | rails-ex-1 |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            nodeSelector:
+              label: test1
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+            nodeSelector:
+              label: test2
+    """
+    And the master service is restarted on all master nodes
+    When I run the :start_build client command with:
+      | buildconfig | rails-ex |
+    Then the step should succeed
+    When the pod named "rails-ex-2-build" becomes present
+    Then the expression should be true> pod("rails-ex-1-build").nodeselector["label"] == "test2"
