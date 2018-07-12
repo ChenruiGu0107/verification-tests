@@ -565,7 +565,6 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     """
 
-
   # @author yuwei@redhat.com
   # @case_id OCP-17678
   Scenario: Check the coupon block - UI 
@@ -575,4 +574,69 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :click_apply_new_coupon web action
     Then the step should succeed
     When I run the :check_apply_new_coupon_page web action
+    Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-14891
+  Scenario: Subscription will be re-activated when there's a pending cancellation and then update "Payment Method"
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |
+    Then the step should succeed
+    When I run the :goto_payment_setting_page web action
+    Then the step should succeed
+    When I perform the :check_cancellation_warning_message_on_payment_page web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y")%> |
+    Then the step should succeed
+    When I run the :update_payment_method web action
+    Then the step should succeed
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |    
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I access the "./" url in the web browser
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y")%> |
+    Then the step should succeed
+    """
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-19557
+  Scenario: Select all button and show count in collaborator manage
+    Given I open accountant console in a browser
+    When I run the :goto_collaboration_setting_page web action
+    Then the step should succeed
+    When I perform the :add_collaborator_by_input web action with:
+       | username | <%= user(1).name  %> |
+    Then the step should succeed
+    When I perform the :add_collaborator_by_input web action with:
+       | username | <%= user(2).name  %> |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I run the :click_select_all_button web action
+    Then the step should succeed
+    When I run the :remove_all_collaborator web action
+    Then the step should succeed
+    When I perform the :check_collaboration_info web action with:
+      | total         | 50       |
+      | current_used  | 0        |
+    Then the step should succeed
+    """
+    When I perform the :check_collaboration_info web action with:
+       | total         | 50      |
+       | current_used  | 2       |
+    Then the step should succeed
+    When I run the :click_select_all_button web action
+    Then the step should succeed
+    When I run the :click_deselect_all_button web action
     Then the step should succeed

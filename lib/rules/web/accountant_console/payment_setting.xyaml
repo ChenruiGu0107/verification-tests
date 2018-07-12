@@ -1,0 +1,87 @@
+# --- payment setting page
+
+goto_payment_setting_page:
+  url: payment
+  elements:
+  - selector:
+      xpath: //*[contains(.,"Payment Method")]
+input_the_credit_card_number:
+  action: input_first_four_numbers
+  action: input_second_four_numbers
+  action: input_third_four_numbers
+  action: input_fourth_four_numbers
+input_first_four_numbers:
+  params:
+    credit_card_first_four_numbers: 4111
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <credit_card_first_four_numbers>
+input_second_four_numbers:
+  params: 
+    credit_card_second_four_numbers: 1111
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <credit_card_second_four_numbers>
+input_third_four_numbers:
+  params: 
+    credit_card_third_four_numbers: 1111
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <credit_card_third_four_numbers>
+input_fourth_four_numbers:
+  params: 
+    credit_card_fourth_four_numbers: 1111
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <credit_card_fourth_four_numbers>
+set_the_expiry_date:
+  params:
+    cc_exp_mm_option: 10
+    cc_exp_yyyy_option: 2033
+  elements:
+  - selector:
+      xpath: //select[@id='cc_exp_mm']/option[@value='<cc_exp_mm_option>']
+    op: click
+  elements:
+  - selector:
+      xpath: //select[@id='cc_exp_yyyy']/option[@value='<cc_exp_yyyy_option>']
+    op: click
+input_the_security_code:
+  params:
+    security_code_number: 456
+  elements:
+  - selector:
+      xpath: //*[contains(@name,"cvv")]
+    op: send_keys <security_code_number>
+update_payment_method:
+  action: input_the_credit_card_number
+  action: set_the_expiry_date
+  action: input_the_security_code
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Update Payment Method")]
+    op: click
+  action: check_payment_method_update_message
+  action: check_subscription_resumed_message
+check_cancellation_warning_message_on_payment_page:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp '/subscription is pending cancellation and will not be available after <last_date>/'
+  - selector:
+      visible_text: !ruby/regexp '/update the payment method associated with your account, your subscription will be automatically reactivated/'
+check_payment_method_update_message:
+  elements:
+  - selector:
+      xpath: //*[contains(.,'Payment method succesfully updated')]
+check_subscription_resumed_message:
+  elements:
+  - selector:
+      xpath: //*[contains(.,'Subscription successfully resumed')]
