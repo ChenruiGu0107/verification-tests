@@ -160,12 +160,32 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
       | component=es,logging-infra=elasticsearch |
       })
     step %Q/I wait until the ES cluster is healthy/
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | component=fluentd,logging-infra=fluentd |
-      })
+    # use daemon-set for flutentd check due to something fluentd pods can
+    # redeploy and the original names are gone and we would stuck in a loop
+    # waiting for pods that are no longer there.  Unfortunately daemonset for logging is only support for OCP >= 3.4
+    if env.version_ge("3.4", user: user)
+      step %Q/"logging-fluentd" daemonset becomes ready in the project/
+    else
+     step %Q/all existing pods are ready with labels:/, table(%{
+       | component=fluentd,logging-infra=fluentd |
+       })
+    end
     step %Q/a replicationController becomes ready with labels:/, table(%{
-      | component=kibana,logging-infra=kibana,openshift.io/deployment-config.name=logging-kibana,provider=openshift |
+      | component=kibana,logging-infra=kibana,provider=openshift |
       })
+    # we need to check to see if ops is enabled, if enabled we need to do more
+    # checking
+    if cb.ini_style_config['OSEv3:vars'].dig('openshift_logging_use_ops') == 'true'
+      step %Q/a replicationController becomes ready with labels:/, table(%{
+        | component=kibana-ops,logging-infra=kibana,provider=openshift |
+      })
+      step %Q/a replicationController becomes ready with labels:/, table(%{
+        | component=curator-ops,logging-infra=curator,provider=openshift |
+      })
+      step %Q/a replicationController becomes ready with labels:/, table(%{
+        | component=es-ops,logging-infra=elasticsearch |
+      })
+    end
   ensure
     step %Q/I use the "#{org_proj_name}" project/ unless org_proj_name.nil?
   end
@@ -339,14 +359,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
 
   # get a list of scheduleable nodes and stored it as an array of string
   cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
-  # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
-  # specified, we assume we are dealing with non-Prometheus metrics installation
-  if ansible_opts.has_key? :inventory
-    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
-    # figure out what service type we are installing, save it in clipboard for later
-    params = cb.case_inventory.params['OSEv3:vars'].keys
-    cb.svc_type = "prometheus" if params.any? { |p| p.include? 'openshift_prometheus' }
-  end
   # we are enforcing that metrics to be installed into 'openshift-infra' for
   # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
   # value) and openshift-logging for logging
@@ -361,6 +373,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     raise "Unsupported service type"
   end
   cb.target_proj = target_proj
+  # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
+  # specified, we assume we are dealing with non-Prometheus metrics installation
+  if ansible_opts.has_key? :inventory
+    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
+    # figure out what service type we are installing, save it in clipboard for later
+    params = cb.case_inventory.params['OSEv3:vars'].keys
+    cb.svc_type = "prometheus" if params.any? { |p| p.include? 'openshift_prometheus' }
+  end
 
   # for scenarios that do reployed, we have registered clean-up so check if we are doing uninstall, then just skip uninstall if the project is gone
   if op == 'uninstalled'

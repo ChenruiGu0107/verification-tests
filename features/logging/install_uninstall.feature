@@ -605,3 +605,74 @@ Feature: install and uninstall related scenarios
     And logging service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19463/inventory |
     Then the expression should be true> project.name == "openshift-logging"
+
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17294
+  @admin
+  @destructive
+  Scenario: Add ops-es to logging
+    Given the master version >= "3.7"
+    And I create a project with non-leading digit name
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17294/inventory |
+    And a pod becomes ready with labels:
+      | component=fluentd |
+    And evaluation of `pod` is stored in the :fluentd_pod clipboard
+    And the expression should be true> pod.env_var('OPS_HOST') == 'logging-es'
+    And the expression should be true> pod.env_var('ES_HOST') == 'logging-es'
+    Then I execute on the pod:
+      | ls | /etc/fluent/configs.d/openshift/filter-post-z-retag-one.conf |
+    Then the step should succeed
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17294/inventory_with_ops |
+    # check non-ops pod didn't have restart
+    Then the expression should be true> pod.container(name: 'elasticsearch').restart_count == 0
+    And a pod becomes ready with labels:
+      | component=curator |
+    Then the expression should be true> pod.container(name: 'curator').restart_count == 0
+    And a pod becomes ready with labels:
+      | component=kibana |
+    Then the expression should be true> pod.container(name: 'kibana').restart_count == 0
+    And a pod becomes ready with labels:
+      | component=fluentd |
+    And I execute on the pod:
+      | ls | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
+    Then the step should succeed
+    Then the expression should be true> pod.env_var('ES_HOST') == 'logging-es'
+    Then the expression should be true> pod.env_var('OPS_HOST') == 'logging-es-ops'
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15645
+  @admin
+  @destructive
+  Scenario: install and uninstalled with eventrouter appoint values
+    Given the master version >= "3.7"
+    And I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project_name clipboard
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15645/inventory |
+    And a pod becomes ready with labels:
+      | component=es |
+    And I wait up to 200 seconds for the steps to pass:
+    """
+    And I perform the HTTP request on the ES pod:
+      | relative_url | _search?pretty&size=5000&q=kubernetes.event.verb:* |
+      | op           | GET                                                |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed].dig('hits','total') > 0
+    """
+    And I use the "<%= cb.org_project_name %>" project
+    # verify eventrouter settings match those in the inventory
+    And a pod becomes ready with labels:
+      |  component=eventrouter |
+    And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
+    And the expression should be true> pod.container_specs.first.memory_limit_raw == "256Mi"
+    And the expression should be true> rc('logging-eventrouter-1').replica_counters[:ready] == 2
+    And the expression should be true> dc('logging-eventrouter').containers_spec.first.image.include? product_docker_repo + "openshift3/logging-eventrouter:v" + cb.master_version
+    And logging service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15645/uninstall_inventory |
+    And I use the "<%= cb.org_project_name %>" project
+    And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
+
+
