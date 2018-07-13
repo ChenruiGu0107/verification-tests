@@ -116,3 +116,28 @@ Feature: oc_portforward.feature
       :method: :get
     """
     Then the step should fail
+
+  # @author xxia@redhat.com
+  # @case_id OCP-12387
+  Scenario: Check race condition in port forward connection handling logic
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
+    And evaluation of `rand(5000..7999)` is stored in the :port clipboard
+    And I run the :port_forward background client command with:
+      | pod       | hello-openshift        |
+      | port_spec | <%= cb[:port] %>:8080  |
+      | _timeout  | 100                    |
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "http://127.0.0.1:<%= cb[:port] %>" url
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift |
+    """
+    When I perform 100 HTTP GET requests with concurrency 25 to: http://127.0.0.1:<%= cb[:port] %>/
+    Then the step should succeed
+
