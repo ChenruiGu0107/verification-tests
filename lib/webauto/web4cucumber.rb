@@ -83,7 +83,7 @@ require "base64"
       client.read_timeout = 600 # ff legacy vs `I have a jenkins v2 application`
       headless
       # Selenium::WebDriver.logger.level = :debug
-      if @browser_type == :firefox_marionette
+      if @browser_type == :firefox
         logger.info "Launching Firefox Marionette/Geckodriver"
         caps = Selenium::WebDriver::Remote::Capabilities.firefox accept_insecure_certs: true
         if Integer === @scroll_strategy
@@ -101,7 +101,7 @@ require "base64"
         # options.log_level = 'trace'
 
         @browser = Watir::Browser.new :firefox, :http_client=>client, desired_capabilities: caps, options: options
-      elsif @browser_type == :firefox
+      elsif @browser_type == :firefox_legacy
         # legacy driver usage https://github.com/watir/watir/issues/634
         # we should switch to marionette once FF ESR becomes version  54+
         logger.info "Launching Firefox Legacy"
