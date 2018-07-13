@@ -20,7 +20,7 @@ Feature: Storage of Ceph plugin testing
 
     #Create ceph pvc
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pvc-rwo.json" replacing paths:
-      | ["metadata"]["name"]                         | rbdc |
+      | ["metadata"]["name"] | rbdc |
     Then the step should succeed
     And the PV becomes :bound
 
@@ -37,8 +37,7 @@ Feature: Storage of Ceph plugin testing
       | resource | pods  |
       | name     | rbdpd |
     Then the output should contain:
-      | FailedMount     |
-      | rbd: map failed |
+      | Connection timed out |
     """
 
   # @author jhou@redhat.com
