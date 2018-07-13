@@ -818,3 +818,110 @@ Feature: Ansible-service-broker related scenarios
     And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
     And rolebindings with name matching /apb-/ are stored in the :rb1 clipboard
     And the expression should be true> role_binding("<%= cb.rb1.first.name %>").role_names(cached: false).include? "edit"
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18690
+  @admin
+  Scenario: [ASB] check crd resource bundlebindings.automationbroker.io
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision mariadb
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_1 clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                   |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                             |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                          |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
+    And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                         |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                                             |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                                      |
+      | param | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}|
+      | param | UID=<%= cb.db_uid %>                                                                                                                            |
+      | n     | <%= project.name %>                                                                                                                             |
+    Then the step should succeed
+    And I wait for the service_instance to become ready up to 240 seconds
+    And dc with name matching /mariadb/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+    # Create servicebinding of DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-1                                                         |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-1                                                      |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-1" service_binding to become ready up to 120 seconds
+    And evaluation of `service_binding.external_id` is stored in the :binding_id_1 clipboard
+    #check bundlebinding
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    When I run the :describe client command with:
+      | resource  | bundlebinding/<%= cb.binding_id_1 %>  |
+    Then the step should succeed
+    And the output by order should match:
+      | Bundle Instance                    |
+      |    Name:\\s+<%= cb.instance_id %>  |
+      | Parameters                         |
+    #create another 2 bindings
+    Given I switch to the first user
+    And I use the "<%= cb.project_1 %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-2                                                         |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-2                                                      |
+      | n     | <%= project.name %>    |
+    And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding to become ready up to 120 seconds
+    And evaluation of `service_binding.external_id` is stored in the :binding_id_2 clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-3                                                         |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-3                                                      |
+      | n     | <%= project.name %>    |
+    And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-3" service_binding to become ready up to 120 seconds
+    And evaluation of `service_binding.external_id` is stored in the :binding_id_3 clipboard
+   
+    #check binding ref in bundeinstance
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    When I run the :describe client command with:
+      | resource  | bundleinstance/<%= cb.instance_id %>  |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.binding_id_1 %>   |
+      | <%= cb.binding_id_2 %>   |
+      | <%= cb.binding_id_3 %>   |
+    
+    #delete 2 binding 
+    Given I switch to the first user
+    And I use the "<%= cb.project_1 %>" project
+    And I ensure "<%= cb.prefix %>-mariadb-apb-binding-1" service_binding is deleted
+    And I ensure "<%= cb.prefix %>-mariadb-apb-binding-3" service_binding is deleted
+    #check bundlebindings and binding  ref in bundeinstance
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_1 %>" to disappear within 60 seconds 
+    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_3 %>" to disappear within 60 seconds 
+    When I run the :describe client command with:
+      | resource  | bundleinstance/<%= cb.instance_id %>  |
+    And the output should contain:
+      | <%= cb.binding_id_2 %>    |
+    And the output should not contain:
+      | <%= cb.binding_id_1 %>    |
+      | <%= cb.binding_id_3 %>    |
+    #deprovision should succeed.
+    Given I switch to the first user
+    And I use the "<%= cb.project_1 %>" project
+    And I ensure "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding is deleted
+    And I ensure "<%= cb.prefix %>-mariadb-apb" service_instance is deleted  
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_2 %>" to disappear within 60 seconds
+    And I wait for the resource "bundleinstance" named "<%= cb.instance_id %>" to disappear within 60 seconds
