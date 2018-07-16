@@ -876,3 +876,67 @@ Feature: SDN related networking scenarios
       | ovs-vsctl show |
     Then the step should succeed
     And the output should not contain "No such device"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19807
+  @admin
+  @destructive
+  Scenario: The stale flows can be deleted when the new br0 created
+    Given the master version >= "3.9"
+    And I select a random node's host
+    And the node service is verified
+    And the node network is verified
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 add-flow br0 "table=99, actions=drop" |
+    Then the step should succeed
+    #Delete the table=253 and make the sdn re-setup
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 del-flows br0 "table=253" |
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should succeed
+    Given I wait up to 120 seconds for the steps to pass:
+    """ 
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 dump-flows br0 "table=253" |
+    Then the output should contain "table=253"
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 dump-flows br0 "table=99" |
+    Then the output should not contain "table=99"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19806
+  @admin
+  @destructive
+  Scenario: Node service will not be stopped when the dnsmasq service is stopped
+    Given the master version >= "3.9"
+    And I select a random node's host
+    And the node service is verified
+    And the node network is verified
+    When I run commands on the host:
+      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
+    Then the step should succeed
+    And the output by order should contain:
+      |   Active: active (running) |
+      |   Active: active (running) |
+    Given I restart the network components on the node after scenario
+    When I run commands on the host:
+      | systemctl stop dnsmasq |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
+    Then the step should succeed
+    Then the output by order should contain:
+      |   Active: inactive (dead)  |
+      |   Active: active (running) |
+    Given I restart the network components on the node
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
+    Then the step should succeed
+    Then the output by order should contain:
+      |   Active: active (running) |
+      |   Active: active (running) |
+    """
