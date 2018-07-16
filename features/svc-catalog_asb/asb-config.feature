@@ -7,7 +7,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: Set the ASB fresh time
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -34,7 +34,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: Configure multiple registries for an adapter in one broker
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     # Update the configmap settings
@@ -116,7 +116,7 @@ Feature: Ansible-service-broker related scenarios
     Scenario: [ASB] Filter APB images by whitelist/blacklist
       When I switch to cluster admin pseudo user
       And I use the "openshift-ansible-service-broker" project
-      Given the "ansible-service-broker" cluster service broker is recreated
+      Given the "ansible-service-broker" cluster service broker is recreated after scenario
       Given admin redeploys "asb" dc after scenario
       And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -428,7 +428,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB] Support concurrent, multiple APB source adapters
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
