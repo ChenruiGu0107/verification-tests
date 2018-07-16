@@ -925,3 +925,34 @@ Feature: Ansible-service-broker related scenarios
     And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "bundlebinding" named "<%= cb.binding_id_2 %>" to disappear within 60 seconds
     And I wait for the resource "bundleinstance" named "<%= cb.instance_id %>" to disappear within 60 seconds
+
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-18591
+  @admin
+  @destructive
+  Scenario: Broker bootstrap succeed if one of the APB's contains bad base64 data
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
+    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: aosqe
+        url: https://registry.hub.docker.com
+        org:  aosqe
+        tag:  latest
+        white_list:
+          - ".*-apb$"
+    """
+    And admin redeploys "asb" dc
+    When I run the :logs client command with:
+      | resource_name | dc/asb |
+    Then the step should succeed
+    And the output should match:
+      | Failed to retrieve spec data for image.*illegal base64 data at input |
