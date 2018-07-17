@@ -36,6 +36,8 @@ module CucuShift
           CucuShift::GCE.new(service_name: service_name)
         when "vsphere"
           CucuShift::VSphere.new(service_name: service_name)
+        when "alibaba"
+          CucuShift::Alicloud.new(service_name: service_name)
         else
           raise "unknown service type " \
             "#{conf[:services, service_name, :cloud_type]} for cloud " \

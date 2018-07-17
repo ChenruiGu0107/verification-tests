@@ -85,6 +85,8 @@ module CucuShift
         c.syntax = "#{__FILE__} fiddle"
         c.description = 'enter a pry shell to play with API'
         c.action do |args, options|
+          # you can try creating a host group like:
+          # hosts.concat launch_host_group({num:1, roles:["master"]}, {name_prefix: "test-terminate-", service_name: "alicloud"}, existing_hosts: hosts)
           require 'pry'
           binding.pry
         end
@@ -289,7 +291,7 @@ module CucuShift
       max_index = name_list.select { |name|
         name =~ pattern
       }.map { |n|
-        Integer(n[prefix.size..-1])
+        Integer(n[prefix.size..-1], 10)
       }.max
       max_index ? max_index + 1 : 1
     end
@@ -363,6 +365,41 @@ module CucuShift
           raise "RHEL does not support user-data in Azure yet"
         end
         res = iaas.create_instances(host_names, **launch_opts)
+      when CucuShift::Alicloud
+        logger.debug "Creating a host group in Alibaba Cloud"
+        host_opts = launch_opts.delete(:host_opts) || {}
+        launch_opts = Collections.map_hash(launch_opts) { |k, v|
+          [k.to_s, v]
+        }.to_hash
+        unless user_data_string.empty?
+          launch_opts["UserData"] = user_data_string
+        end
+
+        prefix = host_names.first.gsub(/\d+$/, "")
+        num = Integer(host_names.first[prefix.length..-1], 10)
+        if num == 1
+          launch_opts["InstanceName"] = prefix
+        else
+          idx = (2..100).find { |i|
+            existing_hosts.none? { |h|
+              h[:cloud_instance_name].start_with? "#{prefix}#{i}-"
+            }
+          }
+          launch_opts["InstanceName"] = "#{prefix}#{idx}-"
+        end
+
+        if host_names.size == 1
+          launch_opts["InstanceName"] = "#{launch_opts["InstanceName"]}001"
+        else
+          launch_opts["Amount"] = host_names.size
+        end
+        launch_opts["UniqueSuffix"] = true
+        logger.debug("Launch Options: #{launch_opts}")
+        logger.debug("Host Options: #{host_opts}")
+        res = iaas.create_instances(
+          create_opts: launch_opts.dup,
+          host_opts: host_opts
+        )
       when CucuShift::OpenStack, CucuShift::OpenStack4, CucuShift::OpenStack10
         create_opts = {}
         res = iaas.launch_instances(
