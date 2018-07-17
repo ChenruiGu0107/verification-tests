@@ -588,3 +588,14 @@ Feature: dockerbuild.feature
     Then the step should fail
     And the output should contain:
       | Error: invalid argument "abc"   |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-18501
+  Scenario: Support additional EXPOSE values in new-app
+    Given I have a project
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift-qe/oc_newapp_expose |
+    Then the step should succeed
+    And the output should contain:
+      | invalid ports in EXPOSE instruction |
+      | Ports 8080/tcp, 8081/tcp, 8083/tcp, 8084/tcp, 8085/tcp, 8087/tcp, 8090/tcp, 8091/tcp, 8092/tcp, 8093/tcp, 8094/tcp, 8100/udp, 8101/udp |
