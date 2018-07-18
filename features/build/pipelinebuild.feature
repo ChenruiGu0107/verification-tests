@@ -250,3 +250,85 @@ Feature: pipelinebuild.feature
     When I perform the :check_jenkins_credentials web action with:
       | credential_name | <%= project.name %>-mysecret |
     Then the step should fail
+
+  # @author wewang@redhat.com
+  # @case_id OCP-11435
+  Scenario: Jenkins pipeline build with Orchestration Pipeline Example
+    Given I have a project
+    And I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/mapsapp-pipeline.yaml |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    And I run the :start_build client command with:
+      | buildconfig | mapsapp-pipeline |
+    Then the step should succeed
+    Then the "nationalparks-pipeline-1" build completed
+    And the "mlbparks-pipeline-1" build completed
+    Then the "parksmap-pipeline-1" build completed
+    Then the "mapsapp-pipeline-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-11065
+  Scenario: Jenkins pipeline build with Blue Green Deployment Example
+    Given I have a project
+    And I have an http-git service in the project
+    And I have a git client pod in the project
+    When I execute on the pod:
+      | bash                                                           |
+      | -c                                                             |
+      | cd /tmp/; git clone https://github.com/openshift/nodejs-ex.git |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                                                                   |
+      | -c                                                                                                                     |
+      | cd /tmp/nodejs-ex/; git remote add openshift http://<%= cb.git_svc_ip %>:8080/nodejs-ex.git; git push openshift master |
+    Then the step should succeed
+    Given I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/bluegreen-pipeline.yaml |
+      | p    | SOURCE_REPOSITORY_URL=http://<%= cb.git_svc_ip %>:8080/nodejs-ex.git                                        |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    And I run the :start_build client command with:
+      | buildconfig | bluegreen-pipeline |
+    Then the step should succeed
+    And the "nodejs-mongodb-example-1" build completed
+    Then the "bluegreen-pipeline-1" build completed
+    When I execute on the "<%= cb.git_client_pod.name %>" pod:
+      | bash |
+      | -c   |
+      | cd /tmp/nodejs-ex/; touch testfile; git add testfile; git commit -m "change: add testfile"; git push openshift master |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | bluegreen-pipeline |
+    Then the step should succeed
+    And the "nodejs-mongodb-example-2" build completed
+    And the "bluegreen-pipeline-2" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-12842
+  @admin
+  @destructive
+  Scenario: Trigger new Jenkins pipeline build after restarting openshift master api service
+    Given I have a project
+    And I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    Given I update "nodejs" slave image for jenkins 2 server
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Then the "sample-pipeline-1" build completed
+    And I try to restart the master service on all master nodes
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Then the "sample-pipeline-2" build completed
