@@ -1238,7 +1238,7 @@ Then the step should succeed
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
       | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
-    Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+    Given I wait for the "ups-broker" cluster_service_broker to become ready up to 120 seconds
     Given cluster service classes are indexed by external name in the :csc clipboard
     And the expression should be true> cb.csc["user-provided-service"]!=nil
 
@@ -1250,7 +1250,7 @@ Then the step should succeed
       | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 60 seconds
-
+    And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
     # Create servicebinding
     When I run the :new_app client command with:
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
@@ -1258,6 +1258,7 @@ Then the step should succeed
     Then the step should succeed
     Given I check that the "my-secret" secret exists
     And I wait for the "ups-binding" service_binding to become ready up to 60 seconds
+    And evaluation of `service_binding.external_id` is stored in the :binding_id clipboard
 
     # Delete the resources
     Given I ensure "ups-binding" service_binding is deleted
@@ -1272,10 +1273,10 @@ Then the step should succeed
       | since         | 3m                           |
     Then the step should succeed
     And the output should match 1 times:
-      | \s+CreateServiceInstance\(\) |
-      | \s+Bind\(\)                  |
-      | \s+UnBind\(\)                |
-      | \s+RemoveServiceInstance\(\) | 
+      | \s+CreateServiceInstance <%= cb.instance_id %> |
+      | \s+Bind.*<%= cb.binding_id %>            |
+      | \s+UnBind.*<%= cb.binding_id %>                |
+      | \s+RemoveServiceInstance <%= cb.instance_id %>  | 
 
 
   # @author qwang@redhat.com
