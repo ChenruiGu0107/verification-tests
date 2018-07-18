@@ -781,3 +781,27 @@ Feature: Testing registry
     And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
 
+  # @author wzheng@redhat.com
+  # @case_id OCP-17167
+  @admin
+  Scenario: Image soft prune via 'prune-registry' option with invalid argument
+    When I run the :oadm_prune_images admin command with:
+      | keep_tag_revisions | abc |
+    Then the output should contain:
+      | invalid argument "abc" |
+    When I run the :oadm_prune_images admin command with:
+      | confirm | abc |
+    Then the output should contain:
+      | invalid argument "abc" |
+    When I run the :oadm_prune_images admin command with:
+      | keep_younger_than | abc |
+    Then the output should contain:
+      | invalid argument "abc" |
+    When I run the :oadm_prune_images admin command with:
+      | prune_over_size_limit | abc |
+    Then the output should contain:
+      | invalid argument "abc" |
+    When I run the :oadm_prune_images admin command with:
+      | prune_registry | abc |
+    Then the output should contain:
+      | invalid argument "abc" |
