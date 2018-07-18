@@ -21,7 +21,7 @@ Feature: Update sql apb related feature
       | param | UID=<%= cb.db_uid %>                                                                                                                    |
       | n     | <%= project.name %>                                                                                                                     |
     Then the step should succeed
-    Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds  
+    Given I wait for the "<db_name>" service_instance to become ready up to 360 seconds  
     And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_1.first.name %> |
@@ -81,7 +81,7 @@ Feature: Update sql apb related feature
       |           |}                                                     |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
@@ -189,7 +189,7 @@ Feature: Update sql apb related feature
       |           |}                                                     |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /<db_label>/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
@@ -245,7 +245,7 @@ Feature: Update sql apb related feature
 
     # update instance 
      When I run the :patch client command with:
-      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+      | resource  | serviceinstance/<db_name>      |
       | p         |{                                                     |
       |           | "spec": {                                            |
       |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
@@ -253,8 +253,15 @@ Feature: Update sql apb related feature
       |           |}                                                     |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds
+    When I run the :describe client command with:
+      | resource  | serviceinstance/<db_name>      |
+    Then the step should succeed
+    And the output should match:
+      | Reason:\\s+InstanceUpdatedSuccessfully |
+    And the output should not contain:
+      | UpdateInstanceCallFailed |
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
@@ -348,7 +355,7 @@ Feature: Update sql apb related feature
       |           |}                                                     |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
@@ -408,8 +415,8 @@ Feature: Update sql apb related feature
     Then the step should succeed
 
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
-    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
@@ -489,8 +496,8 @@ Feature: Update sql apb related feature
       |           |}                                                             |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
-    Given I wait for the "<%= cb.prefix %>-mysql-apb" service_instance to become ready up to 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
+    Given I wait for the "<%= cb.prefix %>-mysql-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /mysql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
@@ -582,7 +589,7 @@ Feature: Update sql apb related feature
       |           |}                                                                   |
     Then the step should succeed
     #checking the old dc is deleted, new dc is created   
-    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 180 seconds
+    Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds  
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
@@ -602,7 +609,7 @@ Feature: Update sql apb related feature
   # @author chezhang@redhat.com
   # @case_id OCP-18590
   @admin
-  Scenario: Servicebinding can be deleted when serviceinstance update to a invalid plan	
+  Scenario: Servicebinding can be deleted when serviceinstance update to a invalid plan 
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
@@ -665,3 +672,116 @@ Feature: Update sql apb related feature
     Given I ensure "<%= cb.prefix %>-postgresql-apb" servicebinding is deleted
     And I ensure "<%= cb.prefix %>-postgresql-apb" serviceinstance is deleted
     And I ensure "<%= project.name %>" project is deleted
+
+  # @author zitang@redhat.com
+  # @case_id OCP-16311
+  @admin
+  Scenario: [ASB] Media wiki service instance can be updated
+    Given I save the first service broker registry prefix to :prefix clipboard
+    And I have a project  
+    # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-mediawiki-apb").uid(user: user)` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | UID=<%= cb.mediawiki_uid %>                           |
+      | n     | <%= project.name %>                                   |
+    Then the step should succeed
+    Given I wait for the "<%= cb.prefix %>-mediawiki-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /mediawiki/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.dc_1.first.name %>-1 |
+
+    #update the media wiki with new parameters
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters-new |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | UID=<%= cb.mediawiki_uid %>                           |
+      | param | PARAMETERS={"mediawiki_admin_user":"admin","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWikiNewName","mediawiki_admin_pass":"test"}                       |
+      | n     | <%= project.name %>                                   |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-mediawiki-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "parametersFrom": [                               |  
+      |           |      {                                               | 
+      |           |        "secretKeyRef": {                             |
+      |           |          "key": "parameters",                        | 
+      |           |          "name": "<%= cb.prefix %>-mediawiki-apb-parameters-new"                | 
+      |           |        }                                             |
+      |           |      }                                               |
+      |           |    ],                                                |
+      |           |    "updateRequests": 1                               |
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    #the olddc will not be deleted like *sql-apb. but the dc and pod  will change
+    Given a pod becomes ready with labels:
+      | deployment=<%= cb.dc_1.first.name %>-2 |
+    And the expression should be true> pod.env_var("MEDIAWIKI_SITE_NAME") == "MediaWikiNewName"
+    And I wait for the "<%= cb.prefix %>-mediawiki-apb" service_instance to become ready up to 240 seconds
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18513
+  @admin
+  Scenario: Update instance to invalid plan then delete project will not cause catalog crashed
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision database
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                     |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mysql-apb                                                               |
+      | param | PLAN_EXTERNAL_NAME=prod                                                                                      |
+      | param | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters                                                            |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-mysql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                                |
+      | param | PARAMETERS={"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                |
+      | param | UID=<%= cb.db_uid %>                                                                                                    |
+      | n     | <%= project.name %>                                                                                                     |
+    Then the step should succeed
+    Given I wait for the "<%= cb.prefix %>-mysql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /mysql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+
+    # update an invalid plan
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-mysql-apb      |
+      | p         |{                                                |
+      |           | "spec": {                                       |
+      |           |    "clusterServicePlanExternalName": "dev123"   | 
+      |           |  }                                              |
+      |           |}                                                |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance                  |
+    Then the step should succeed
+    And the output should match:
+      | Message:.*ClusterServicePlan.*not exist     |
+    """
+    Given I ensure "<%= project.name %>" project is deleted
+    Given 60 seconds have passed
+    When I switch to cluster admin pseudo user
+    And I use the "kube-service-catalog" project
+    And all existing pods are ready with labels:
+      | app=apiserver |
+    And all existing pods are ready with labels:
+      | app=controller-manager |
