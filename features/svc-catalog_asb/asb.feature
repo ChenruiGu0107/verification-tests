@@ -272,7 +272,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB]Check v3.7 APB binding succeed in v3.9 env
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     # Update the configmap settings
@@ -399,7 +399,7 @@ Feature: Ansible-service-broker related scenarios
     Given  I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
 
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -453,7 +453,7 @@ Feature: Ansible-service-broker related scenarios
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
 
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -732,7 +732,7 @@ Feature: Ansible-service-broker related scenarios
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     # Update the configmap settings
@@ -762,7 +762,7 @@ Feature: Ansible-service-broker related scenarios
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
 
-    Given the "ansible-service-broker" cluster service broker is recreated
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 

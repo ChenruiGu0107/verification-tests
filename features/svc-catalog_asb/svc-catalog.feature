@@ -858,7 +858,7 @@ Feature: Service-catalog related scenarios
   Scenario: Use generation instead of checksum for ServiceInstance
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    And the "ansible-service-broker" cluster service broker is recreated
+    And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
     And I switch to the first user
     Given I have a project
