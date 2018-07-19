@@ -474,3 +474,192 @@ Feature: Ansible-service-broker related scenarios
       | rh  |
       | dh  |
 
+
+  # @author jiazha@redhat.com
+  # @case_id OCP-15866
+  @admin
+  @destructive
+  Scenario: [ASB] openshift registry adapter should work
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
+    Given admin ensures "my-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    Given admin ensures "registry-credentials-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
+    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+
+    # 1, default mode
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: openshift
+        name: isv
+        url: https://registry.connect.redhat.com
+        user: <%= conf[:services, :partner_image_repo, :username].to_json %>
+        pass: <%= conf[:services, :partner_image_repo, :password].to_json %>
+        images:
+          - rocketchat/rocketchat-apb
+        white_list:
+          - ".*-apb$"
+    """
+    And admin redeploys "asb" dc
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should match:
+      | Type: openshift                 |
+
+    # Check the apb which stored in the openshift registry
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.asb_token %>
+    """
+    Then the output should match:
+      | isv-rocketchat                 |
+
+    # 2, secret mode
+    # Create a secret
+    When I run the :create_secret client command with:
+      | name         | my-secret         |
+      | secret_type  | generic           |
+      | from_literal | username=<%= conf[:services, :partner_image_repo, :username] %>    |
+      | from_literal | password=<%= conf[:services, :partner_image_repo, :password] %>    |
+    Then the step should succeed
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: openshift
+        auth_type: secret
+        auth_name: my-secret 
+        name: isv
+        url: https://registry.connect.redhat.com
+        images:
+          - rocketchat/rocketchat-apb
+        white_list:
+          - ".*-apb$"
+    openshift:
+      namespace: openshift-ansible-service-broker
+    """
+    And admin redeploys "asb" dc
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+      | since         | 3m              |
+    Then the step should succeed
+    And the output should match:
+      | Type: openshift                 |
+      
+    # Check the apb which stored in the openshift registry
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.asb_token %>
+    """
+    Then the output should match:
+      | isv-rocketchat                 |
+      
+    # 3, file mode
+    # create a file to store the secret
+    Given a "reg-creds.yaml" file is created with the following lines:
+    """
+    ---
+    username: <%= conf[:services, :partner_image_repo, :username].to_json %>
+    password: <%= conf[:services, :partner_image_repo, :password].to_json %>
+    """
+
+    # Create a secret based on that file
+    When I run the :create_secret client command with:
+      | name         | registry-credentials-secret                 |
+      | secret_type  | generic                                     |
+      | from_file    | reg-creds.yaml                              |
+    Then the step should succeed
+
+    # Copy this file to special node
+    Given a pod becomes ready with labels:
+      | app=openshift-ansible-service-broker |
+    And evaluation of `pod.node_name` is stored in the :node clipboard
+    Given I use the "<%= cb.node %>" node
+    Given "reg-creds.yaml" is copied to the host
+    
+    # Add label to this node so that the ASB pod can be scheduled to it
+    Given label "auto=test" is added to the "<%= cb.node %>" node
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: openshift
+        auth_type: file
+        auth_name: <%= host.workdir %>/reg-creds.yaml 
+        name: isv
+        url: https://registry.connect.redhat.com
+        images:
+          - rocketchat/rocketchat-apb
+        white_list:
+          - ".*-apb$"
+    """
+
+    # Mount secret volume
+    When I run the :patch client command with:
+      | resource     |  dc/asb                                                 |
+      | p            | {                                                       |
+      |              |   "spec":{                                              |
+      |              |     "template":{                                        |
+      |              |       "spec":{                                          |
+      |              |         "containers":[                                  |
+      |              |           {                                             |
+      |              |             "name": "asb",                              |
+      |              |             "volumeMounts":[                            |
+      |              |               {                                         |
+      |              |                 "name":"reg-auth",                      |
+      |              |                 "mountPath":"<%= host.workdir %>"       |
+      |              |               }                                         |
+      |              |             ]                                           |
+      |              |           }                                             |
+      |              |         ],                                              |
+      |              |         "nodeSelector":{                                |
+      |              |            "auto":"test"                                |
+      |              |         },                                              |
+      |              |         "volumes":[                                     |
+      |              |           {                                             |
+      |              |             "name":"reg-auth",                          |
+      |              |             "secret":{                                  |
+      |              |               "secretName":"registry-credentials-secret"|
+      |              |             }                                           |
+      |              |           }                                             |
+      |              |         ]                                               |
+      |              |       }                                                 |
+      |              |     }                                                   |
+      |              |   }                                                     |
+      |              | }                                                       |
+    Then the step should succeed
+    And I wait up to 150 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | dc/asb          |
+    Then the step should succeed
+    And the output should match:
+      | Type: openshift                 |
+    """
+
+    # Check the apb which stored in the openshift registry
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.asb_token %>
+    """
+    Then the output should match:
+      | isv-rocketchat                 |
