@@ -1285,10 +1285,10 @@ Feature: build 'apps' with CLI
   # @case_id OCP-11943
   Scenario: Using a docker image as source input using new-build cmd
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
-      | n | <%= project.name %> |
-    Given the "python" image stream was created
+    When I run the :tag client command with:
+      | source | openshift/python:latest |
+      | dest   | python:latest |
+    Then the step should succeed
     And the "python" image stream becomes ready
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
