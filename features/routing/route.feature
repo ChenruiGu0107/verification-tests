@@ -1974,3 +1974,102 @@ Feature: Testing route
       | grep | -A | 12 | <%= cb.proj_name %>:test-service | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 1 times:
       | timeout server  5s |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19804
+  Scenario: Unsecure route with path and another tls route with same hostname can work at the same time
+    Given the master version >= "3.10"
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=test-pods |
+    When I run the :create_route_edge client command with:
+      | name           | route-edge                                |
+      | service        | test-service                              |
+      | insecure_policy | Allow                                    |
+    Then the step should succeed
+
+    #Create another same route with path and same hostname
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service                        |
+      | resource_name | service-unsecure               |
+      | name          | route1                         |
+      | hostname      | <%= route("route-edge").dns %> |
+      | path          | /test                          |
+    Then the step should succeed
+    When I wait for a web server to become available via the "route-edge" route
+    Then the output should contain "Hello OpenShift!"
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("route-edge").dns %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19799
+  Scenario: The tls section of route can be edit after created
+    Given the master version >= "3.9"
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
+    Then the step should succeed
+    Given I successfully patch resource "route/secured-edge-route" with:
+      | {"spec":{"tls":{"key":"qe","certificate":"ocp","caCertificate":"redhat"}}} |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19800
+  Scenario: Route validation should catch the cert which lack of dash
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_key.json    |
+      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_cert.json   |
+      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_cacert.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route  |
+    Then the step should succeed
+    And the output should contain 3 times:
+      | ExtendedValidationFailed |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-19808
+  @admin
+  Scenario: Haproxy router will not be crashed when there is route with hostname localhost
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    #Create route with hostname 'localhost'
+    When I run the :expose client command with:
+      | resource      | service                        |
+      | resource_name | test-service                   |
+      | name          | routelocal                     |
+      | hostname      | localhost                      |
+    Then the step should succeed
+    #Create another normal route and access it to make sure the router has been reloaded
+    When I expose the "test-service" service 
+    Then the step should succeed
+    When I wait for a web server to become available via the "test-service" route
+    Then the output should contain "Hello OpenShift!"
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.router_pod %>  |
+    Then the step should succeed
+    And the output should not contain "error reloading router"
