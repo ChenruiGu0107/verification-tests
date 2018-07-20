@@ -107,14 +107,13 @@ Given /^I log in to jenkins$/ do
       | username | <%= user.name %>     |
       | password | <%= user.password %> |
       })
-    step 'the step should succeed'
   else
     step %Q/I perform the :jenkins_standard_login web action with:/, table(%{
       | username | admin    |
       | password | password |
       })
-    step 'the step should succeed'
   end
+  step 'the step should succeed'
 end
 
 Given /^I update #{QUOTED} slave image for jenkins #{NUMBER} server$/ do |slave_name,jenkins_version|

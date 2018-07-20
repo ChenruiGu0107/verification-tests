@@ -2444,7 +2444,7 @@ Feature: jenkins.feature
   # @case_id OCP-18220
   Scenario: Jenkins API authentication should success until the first web access
     When I have a project
-    And I have a persistent jenkins v2 application 
+    And I have a persistent jenkins v2 application
     When I perform the HTTP request:
     """
     :url: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login
@@ -2456,7 +2456,7 @@ Feature: jenkins.feature
     And the output should contain:
       | <title>Jenkins</title> |
     And I ensure "<%= cb.jenkins_pod %>" pod is deleted
-    And I wait for the "jenkins" service to become ready up to 300 seconds 
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     #Non-browser access to jenkins API with a Bearer
     When I perform the HTTP request:
     """
@@ -2489,9 +2489,8 @@ Feature: jenkins.feature
   Scenario: Programmatic access to jenkins with openshift oauth
     Given I have a project
     And I have a jenkins v2 application
-    And evaluation of `service("jenkins").ip` is stored in the :jenkinsip clipboard
-    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:jenkins service account
-    Given evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
+    And I find a bearer token of the system:serviceaccount:<%= project.name %>:jenkins service account
+    And evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
@@ -2502,21 +2501,26 @@ Feature: jenkins.feature
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
-    When the "sample-pipeline-1" build becomes :running
-    And the "nodejs-mongodb-example-1" build becomes :running
-    Then the "nodejs-mongodb-example-1" build completed
-    Then the "sample-pipeline-1" build completed
-    And a pod becomes ready with labels:
-      | name=nodejs-mongodb-example |
-    When I execute on the pod:
-      | curl | -X |GET| -H| Authorization: Bearer <%= cb.token1 %> |http://<%= cb.jenkinsip %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText |
+    Given the "sample-pipeline-1" build becomes :running
+    When I perform the HTTP request:
+    """
+      :method: get
+      :url: https://<%= cb.jenkins_dns %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText
+      :headers:
+        Authorization: Bearer <%= cb.token1 %>
+    """
     Then the step should succeed
     And the output should contain:
       | OpenShift Build <%= project.name %>/sample-pipeline-1 |
-    When I execute on the pod:
-      | curl | -X |GET| -H| Authorization: Bearer invaildtoken |http://<%= cb.jenkinsip %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText |
-    And the output should contain:
-      | 401 Unauthorized |
+    When I perform the HTTP request:
+    """
+      :method: get
+      :url: https://<%= cb.jenkins_dns %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText
+      :headers:
+        Authorization: Bearer invaildtoken
+    """
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 401
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11990
