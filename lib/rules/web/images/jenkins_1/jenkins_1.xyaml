@@ -554,10 +554,15 @@ jenkins_oauth_login:
       text: Log In
     op: click
     type: button
-  - selector:
-      value: Allow selected permissions
-    op: click
-    type: input
+  scripts:
+  - command: |
+        var Auth = document.getElementsByName("approve")[0]
+        if (typeof(Auth) == "undefined"){ 
+           return true;
+           }
+        Auth.click();
+        return true;
+    expect_result: true
   action: jenkins_verify_logged_in
 
 jenkins_pipeline_create_resource_snippet:

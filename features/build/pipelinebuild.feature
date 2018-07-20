@@ -332,3 +332,75 @@ Feature: pipelinebuild.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Then the "sample-pipeline-2" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-18498
+  Scenario: Start a few pipeline builds and removing one Build object in openshift
+    Given the master version >= "3.10"
+    And I have a project
+    And I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    Given I update "nodejs" slave image for jenkins 2 server
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When the "sample-pipeline-1" build becomes :running
+    And the "nodejs-mongodb-example-1" build becomes :running
+    Then the "nodejs-mongodb-example-1" build completed
+    Then the "sample-pipeline-1" build completed
+    And I run the steps 2 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    """
+    Given I get project builds 
+    Then the output should contain 3 times:
+      | sample-pipeline |
+    When the "sample-pipeline-3" build becomes :running
+    And I perform the :jenkins_verify_job_text web action with:
+      | namespace  | <%= project.name %>                    |
+      | job_name   | <%= project.name %>-sample-pipeline    |
+      | checktext  | <%= project.name %>/sample-pipeline-3  |
+      | job_num    | 3                                      |
+      | time_out   | 300                                    |
+    Then the step should succeed 
+    When I run the :scale client command with:
+      | resource | rc        |
+      | name     | jenkins-1 |
+      | replicas | 0         |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type           | build             |
+      | object_name_or_id     | sample-pipeline-3 |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | rc        |
+      | name     | jenkins-1 |
+      | replicas | 1         |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    #Login jenkins the second time
+    Given I have a jenkins browser
+    And I log in to jenkins
+    And I perform the :jenkins_verify_job_text web action with:
+      | namespace  | <%= project.name %>                    |
+      | job_name   | <%= project.name %>-sample-pipeline    |
+      | checktext  | <%= project.name %>/sample-pipeline-2  |
+      | job_num    | 2                                      |
+      | time_out   | 300                                    |
+    Then the step should succeed
+    And I perform the :jenkins_verify_job_text web action with:
+      | namespace  | <%= project.name %>                    |
+      | job_name   | <%= project.name %>-sample-pipeline    |
+      | checktext  | <%= project.name %>/sample-pipeline-3  |
+      | job_num    | 3                                      |
+      | time_out   | 300                                    |
+    Then the step should fail
