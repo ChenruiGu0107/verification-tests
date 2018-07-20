@@ -474,6 +474,19 @@ Feature: Ansible-service-broker related scenarios
       | rh  |
       | dh  |
 
+  # @author zitang@redhat.com
+  # @case_id OCP-18642
+  @admin
+  Scenario: [Installation] using CRD by default in ASB
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource           | customresourcedefinition |
+    Then the output should contain:
+      | bundlebindings.automationbroker.io |
+      | bundleinstances.automationbroker.io |
+      | bundles.automationbroker.io |
+    Given I use the "openshift-ansible-service-broker" project
+    And the expression should be true> config_map('broker-config').dig('broker-config', "dao", "type") == 'crd'
 
   # @author jiazha@redhat.com
   # @case_id OCP-15866

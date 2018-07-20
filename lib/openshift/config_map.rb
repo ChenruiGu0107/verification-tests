@@ -22,6 +22,19 @@ module CucuShift
       rr.dig('metadata', 'namespace')
     end
 
+    def dig(*keys, user: nil, cached: true, quiet: false)
+      if keys.size == 0
+        raise "specify keys to dig for within the config map data"
+      else
+        value = YAML.load self.value_of(keys.shift, user: user, cached: cached, quiet: quiet)
+      end
+      if keys.size == 0
+        return value
+      else
+        return value.dig(*keys)
+      end
+    end
+
     def labels(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig('metadata', 'labels')
