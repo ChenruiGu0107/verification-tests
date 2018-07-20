@@ -21,7 +21,7 @@ Given /^I have an?( ephemeral| persistent)? jenkins v#{NUMBER} application(?: fr
       if scs.size != 1
         type = "ephemeral"
       else
-        t = template("openshift-persistent", project("openshift", switch: false))
+        t = template("jenkins-persistent", project("openshift", switch: false))
         type = template.exists?(user: user) ? "persistent" : "ephemeral"
       end
 
@@ -113,6 +113,7 @@ Given /^I log in to jenkins$/ do
       | password | password |
       })
   end
+  step 'the step should succeed'
 end
 
 Given /^I update #{QUOTED} slave image for jenkins #{NUMBER} server$/ do |slave_name,jenkins_version|

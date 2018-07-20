@@ -112,6 +112,12 @@ jenkins_change_execute_shell_command:
     op: set <input>
   action: jenkins_click_save_button
 
+jenkins_check_build_status:
+  url: /job/<namespace>/job/<job_name>
+  elements:
+  - selector:
+      xpath: //a[contains(@class,'build-status-link') and contains(@href,'/job/<namespace>/job/<job_name>/<job_num>/console')]/*[contains(@title,'<build_status> > Console Output')]
+
 jenkins_check_pipeline_script:
   action: goto_pipeline_configure_page
   scripts:

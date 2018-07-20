@@ -2444,7 +2444,7 @@ Feature: jenkins.feature
   # @case_id OCP-18220
   Scenario: Jenkins API authentication should success until the first web access
     When I have a project
-    And I have a persistent jenkins v2 application 
+    And I have a persistent jenkins v2 application
     When I perform the HTTP request:
     """
     :url: https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login
@@ -2456,7 +2456,7 @@ Feature: jenkins.feature
     And the output should contain:
       | <title>Jenkins</title> |
     And I ensure "<%= cb.jenkins_pod %>" pod is deleted
-    And I wait for the "jenkins" service to become ready up to 300 seconds 
+    And I wait for the "jenkins" service to become ready up to 300 seconds
     #Non-browser access to jenkins API with a Bearer
     When I perform the HTTP request:
     """
@@ -2483,3 +2483,107 @@ Feature: jenkins.feature
     Then the step should succeed
     And the output should contain:
       | <title>Jenkins</title> |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-12784
+  Scenario: Programmatic access to jenkins with openshift oauth
+    Given I have a project
+    And I have a jenkins v2 application
+    And I find a bearer token of the system:serviceaccount:<%= project.name %>:jenkins service account
+    And evaluation of `service_account.cached_tokens.first` is stored in the :token1 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    Given I update "nodejs" slave image for jenkins 2 server
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-1" build becomes :running
+    When I perform the HTTP request:
+    """
+      :method: get
+      :url: https://<%= cb.jenkins_dns %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText
+      :headers:
+        Authorization: Bearer <%= cb.token1 %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | OpenShift Build <%= project.name %>/sample-pipeline-1 |
+    When I perform the HTTP request:
+    """
+      :method: get
+      :url: https://<%= cb.jenkins_dns %>/job/<%= project.name %>/job/<%= project.name %>-sample-pipeline/1/consoleText
+      :headers:
+        Authorization: Bearer invaildtoken
+    """
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 401
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-11990
+  Scenario: Sync builds status between openshift and jenkins
+    Given I have a project
+    And I have a jenkins v2 application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    Given I update "nodejs" slave image for jenkins 2 server
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | <%= project.name %>/job/<%= project.name %>-sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-1" build becomes :running
+    When I perform the :jenkins_check_build_status web action with:
+      | job_name     | <%= project.name %>-sample-pipeline |
+      | namespace    | <%= project.name %>                 |
+      | job_num      | 1          |
+      | build_status | In progress|
+    Then the step should succeed
+    Given the "sample-pipeline-1" build completed within 300 seconds
+    When I perform the :jenkins_check_build_status web action with:
+      | job_name     | <%= project.name %>-sample-pipeline |
+      | namespace    | <%= project.name %>                 |
+      | job_num      | 1       |
+      | build_status | Success |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | sample-pipeline-2 |
+    Then the step should succeed
+    When I perform the :jenkins_check_build_status web action with:
+      | job_name     | <%= project.name %>-sample-pipeline |
+      | namespace    | <%= project.name %>                 |
+      | job_num      | 2       |
+      | build_status | Aborted |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                                |
+      | resource_name | sample-pipeline                                                                                                   |
+      | p             | {"spec":{"strategy": {"type": "JenkinsPipeline","jenkinsPipelineStrategy": {"jenkinsfile":"uncorrect grammar"}}}} |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | <%= project.name %>/job/<%= project.name %>-sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-3" build failed
+    When I perform the :jenkins_check_build_status web action with:
+      | job_name     | <%= project.name %>-sample-pipeline |
+      | namespace    | <%= project.name %>                 |
+      | job_num      | 3      |
+      | build_status | Failed |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | builds   |
+      | object_name_or_id | sample-pipeline-3|
+    Then the step should succeed
+    When I perform the :jenkins_check_build_status web action with:
+      | job_name     | <%= project.name %>-sample-pipeline |
+      | namespace    | <%= project.name %>                 |
+      | job_num      | 3      |
+      | build_status | Failed |
+    Then the step should fail
