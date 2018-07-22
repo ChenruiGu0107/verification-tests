@@ -1446,12 +1446,12 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | e        | TEST=123 |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | list     | true     |
     Then the step should succeed
@@ -1461,7 +1461,7 @@ Feature: deployment related features
       | resource_name | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | list     | true     |
     Then the step should succeed
@@ -1472,7 +1472,7 @@ Feature: deployment related features
       | to_revision   | 2     |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | list     | true     |
     Then the step should succeed
@@ -1589,7 +1589,7 @@ Feature: deployment related features
     And the expression should be true> @result[:parsed]['metadata']['annotations']['deployment.kubernetes.io/revision'] == "1"
     And the expression should be true> @result[:parsed]['spec']['paused'] == true
     And the expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].include?({"name"=>"key", "value"=>"value"})
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | all      | true |
       | list     | true |
@@ -1608,7 +1608,7 @@ Feature: deployment related features
       | deployment.kubernetes.io/revision:2 |
     Given I wait up to 60 seconds for the steps to pass:
     """
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | all      | true |
       | list     | true |
@@ -1631,7 +1631,7 @@ Feature: deployment related features
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/deployment-example |
       | e        | TEST=1                |
     Then the step should succeed
@@ -1676,7 +1676,7 @@ Feature: deployment related features
     Then the step should succeed
     When I run the steps 3 times:
     """
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/history-limit |
       | e        | TEST#{cb.i}=1    |
     Then the step should succeed
@@ -1688,7 +1688,7 @@ Feature: deployment related features
     Then the step should fail
     And the output should contain:
       | couldn't find deployment for rollback  |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/history-limit |
       | e        | TEST4=4          |
     Then the step should succeed
@@ -1713,11 +1713,11 @@ Feature: deployment related features
     When I get project dc named "hooks" as YAML
     Then the step should succeed
     And the output should match "paused:\s+?true"
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | e        | TEST=123 |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/hooks-1 |
       | list     | true       |
     Then the step should succeed
@@ -1731,7 +1731,7 @@ Feature: deployment related features
       | name     | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/hooks-2 |
       | list     | true       |
     Then the step should succeed
