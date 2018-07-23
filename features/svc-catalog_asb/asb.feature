@@ -935,6 +935,15 @@ Feature: Ansible-service-broker related scenarios
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
+    Given I register clean-up steps:
+    """
+      I wait up to 150 seconds for the steps to pass:
+        | When I run the :logs admin command with:                |
+        | \| resource_name \| dc/asb \|                           |
+        | \| namespace     \| openshift-ansible-service-broker \| |
+        | Then the step should succeed                            |
+        | And the output should contain "Broker successfully bootstrapped on startup" |
+    """
     And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
@@ -956,3 +965,106 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And the output should match:
       | Failed to retrieve spec data for image.*illegal base64 data at input |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-19834
+  @admin
+  @destructive
+  Scenario: Should not panic while using a invalid registry adapter
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
+    Given I register clean-up steps:
+    """
+      I wait up to 150 seconds for the steps to pass:
+        | When I run the :logs admin command with:                |
+        | \| resource_name \| dc/asb \|                           |
+        | \| namespace     \| openshift-ansible-service-broker \| |
+        | Then the step should succeed                            |
+        | And the output should contain "Broker successfully bootstrapped on startup" |
+    """
+    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+
+    # Update the configmap settings
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: test
+        name: test_name
+    """
+    When I run the :rollout_latest client command with:
+      | resource | dc/asb |
+    Then the step should succeed
+    Then status becomes :failed of 1 pods labeled:
+      | deployment=asb-2 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+    Then the step should succeed
+    And the output should match "ERROR.*Failed to initialize.*Registry err.*registry"
+    And the output should not contain "panic"
+    """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-16636
+  @admin
+  @destructive
+  Scenario: User cannot use same username/passwd to provision mediawiki
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I save the first service broker registry prefix to :prefix clipboard
+
+    # Checking clusterserviceplan of mediawiki
+    And I switch to the first user
+    Given I have a project
+    And cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb'].name` is stored in the :mediawiki_class_id clipboard
+    And evaluation of `cluster_service_class(cb.mediawiki_class_id).plans.first.name` is stored in the :mediawiki_plan_id clipboard
+    When I run the :get client command with:
+      | resource      | clusterserviceplan                                                                    |
+      | resource_name | <%= cb.mediawiki_plan_id %>                                                           |
+      | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties.mediawiki_admin_user.title} |
+    Then the output should contain "Cannot be same as Admin User Password"
+
+    # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                 |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb                                                           |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                        |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                                                                                   |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                                                                            |
+      | param | PARAMETERS={"mediawiki_admin_user":"test","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWiki","mediawiki_admin_pass":"test"} |
+      | param | UID=<%= cb.mediawiki_uid %>                                                                                                                                             |
+      | n     | <%= project.name %>                                                                                                                                                     |
+    Then the step should succeed
+
+    Given I check that the "<%= cb.prefix %>-mediawiki-apb" serviceinstance exists
+    And I check that the "<%= cb.prefix %>-mediawiki-apb-parameters" secret exists
+    And I switch to cluster admin pseudo user
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | project |
+    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb-prov.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
+    """
+    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
+ 
+    # Check log of sandbox pod
+    Given I use the "<%= cb.wiki_prov_prj %>" project
+    Given status becomes :failed of 1 pods labeled:
+      | apb-action=provision |
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+    Then the step should succeed
+    And the output should contain "Mediawiki Admin User and Password cannot be the same value"
+    """
