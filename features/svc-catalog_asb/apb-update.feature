@@ -785,3 +785,205 @@ Feature: Update sql apb related feature
       | app=apiserver |
     And all existing pods are ready with labels:
       | app=controller-manager |
+
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18514
+  @admin
+  Scenario: Updating invalid version will cause serviceinstance into error status 
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+
+    #update the secret,
+    # create a update secret
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters-new                                                                   |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.1","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    # update instance 
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                    |
+      | p         |{                                                                   |
+      |           | "spec": {                                                          |
+      |           |    "parametersFrom": [                                             |  
+      |           |      {                                                             | 
+      |           |        "secretKeyRef": {                                           |
+      |           |          "key": "parameters",                                      | 
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"  | 
+      |           |        }                                                           |
+      |           |      }                                                             |
+      |           |    ],                                                              |
+      |           |    "updateRequests": 1                                             |
+      |           |  }                                                                 |
+      |           |}                                                                   |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance   |
+    Then the step should succeed
+    And the output should match 1 times:
+      | ^\s+Message:.*unknown enum parameter value |
+      | Reason:\\s+UpdateInstanceCallFailed        |
+      | Status:\\s+False                           |
+      | Type:\\s+Ready                             |
+    """
+     # update to the previous  version
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb               |
+      | p         |{                                                              |
+      |           | "spec": {                                                     |
+      |           |    "parametersFrom": [                                        |  
+      |           |      {                                                        | 
+      |           |        "secretKeyRef": {                                      |
+      |           |          "key": "parameters",                                 | 
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters" | 
+      |           |        }                                                      |
+      |           |      }                                                        |
+      |           |    ],                                                         |
+      |           |    "updateRequests": 2                                        |
+      |           |  }                                                            |
+      |           |}                                                              |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance   |
+    Then the step should succeed
+    And the output should match 1 times:
+      | ^\s+Message:\\s+The instance was updated successfully |
+      | Reason:\\s+InstanceUpdatedSuccessfully                |
+      | Status: \\s+True                                      |
+      | Type:\\s+Ready                                        |
+    """
+    And the output by order should match:
+      | Events: | 
+      | Normal\s+InstanceUpdatedSuccessfully |
+
+
+  # @author zitang@redhat.com
+  # @case_id OCP-18500
+  @admin
+  Scenario: Update un-updatable parameters in the ServiceInstance will cause serviceinstance error
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+
+    #update the secret,
+    # create a update secret
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml        |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters-new                                                                     |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"newnew"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                           |
+      | n     | <%= project.name %>                                                                                                            |
+    Then the step should succeed
+    # update instance 
+
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                     |
+      | p         |{                                                                    |
+      |           | "spec": {                                                           |
+      |           |    "parametersFrom": [                                              |  
+      |           |      {                                                              | 
+      |           |        "secretKeyRef": {                                            |
+      |           |          "key": "parameters",                                       | 
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"   | 
+      |           |        }                                                            |
+      |           |      }                                                              |
+      |           |    ],                                                               |
+      |           |    "updateRequests": 1                                              |
+      |           |  }                                                                  |
+      |           |}                                                                    |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance   |
+    Then the step should succeed
+    And the output should match 1 times:
+      | ^\s+Message:\\s+ClusterServiceBroker returned a failure for update call.*parameter not updatable  |
+      | Reason:\\s+UpdateInstanceCallFailed                                                               |
+      | Status: \\s+False                                                                                 |
+      | Type:\\s+Ready                                                                                    |
+    """
+     # update to the previous  version
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                |
+      | p         |{                                                               |
+      |           | "spec": {                                                      |
+      |           |    "parametersFrom": [                                         |  
+      |           |      {                                                         | 
+      |           |        "secretKeyRef": {                                       |
+      |           |          "key": "parameters",                                  | 
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters"  | 
+      |           |        }                                                       |
+      |           |      }                                                         |
+      |           |    ],                                                          |
+      |           |    "updateRequests": 2                                         |
+      |           |  }                                                             |
+      |           |}                                                               |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.dc_1.first.name %> |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance   |
+    Then the step should succeed
+    And the output should match 1 times:
+      | ^\s+Message:\\s+The instance was updated successfully |
+      | Reason:\\s+InstanceUpdatedSuccessfully                |
+      | Status:\\s+True                                       |
+      | Type:\\s+Ready                                        |
+    """
