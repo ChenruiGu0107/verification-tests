@@ -69,11 +69,8 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "maven" slave image for jenkins <ver> server
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins <ver> server
-    Then the step should succeed
     Given I get project buildconfigs
     Then the output should contain:
       | ruby-sample-build |
@@ -1154,9 +1151,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "maven" slave image for jenkins <version> server
-    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
     Then the step should succeed
@@ -1810,7 +1805,6 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     When I perform the :jenkins_check_build_string_parameter web action with:
       | namespace| <%= project.name %>                 |
       | job_name | <%= project.name %>-sample-pipeline |
@@ -1880,7 +1874,6 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -2256,9 +2249,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins <version> server
-    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -2289,11 +2280,8 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -2343,9 +2331,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | openshift-jee-sample |
     Then the step should succeed
@@ -2371,9 +2357,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -2471,7 +2455,6 @@ Feature: jenkins.feature
     #Browser access to jenkins
     Given I have a jenkins browser
     Then I log in to jenkins
-    Then the step should succeed
     #Non-browser access to jenkins API with a Bearer
     When I perform the HTTP request:
     """
@@ -2497,7 +2480,6 @@ Feature: jenkins.feature
     Given I have a jenkins browser
     And I log in to jenkins
     Given I update "nodejs" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -2587,3 +2569,23 @@ Feature: jenkins.feature
       | job_num      | 3      |
       | build_status | Failed |
     Then the step should fail
+
+  # @author cryan@redhat.com xiuwang@redhat.com
+  # @bug_id 1389482
+  Scenario Outline: oauth flow is still working after deleting a pipeline buildConfig
+    Given I have a project
+    And I have a jenkins v<version> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given I have a jenkins browser
+    And I log in to jenkins
+    And I ensure "sample-pipeline" buildconfig is deleted
+    When I run the :jenkins_logout web action
+    Then the step should succeed
+    And I log in to jenkins
+
+    Examples:
+      | version |
+      | 1       | # @case_id OCP-10479
+      | 2       | # @case_id OCP-10482

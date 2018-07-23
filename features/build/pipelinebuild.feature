@@ -35,9 +35,7 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins <tag> server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -91,9 +89,7 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "nodejs" slave image for jenkins <tag> server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -153,10 +149,8 @@ Feature: pipelinebuild.feature
       | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                                |
     Then the step should succeed
     Given I have a jenkins browser
-    And I log in to jenkins
     Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
-    Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |
     Then the step should succeed
@@ -232,9 +226,7 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
-    Then the step should succeed
     Given I update "maven" slave image for jenkins 2 server
-    Then the step should succeed
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret |
     Then the step should succeed
@@ -319,9 +311,7 @@ Feature: pipelinebuild.feature
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given I have a jenkins browser
-    And I log in to jenkins
     Given I update "nodejs" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
@@ -345,7 +335,6 @@ Feature: pipelinebuild.feature
     Given I have a jenkins browser
     And I log in to jenkins
     Given I update "nodejs" slave image for jenkins 2 server
-    Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed

@@ -537,11 +537,16 @@ jenkins_standard_login:
 
 jenkins_oauth_login:
   url: /securityRealm/commenceLogin?from=%2F
+  scripts:
+  - command: |
+        var Logtext = document.getElementsByClassName("btn btn-lg btn-primary")[0]
+        if (typeof(Logtext) == "undefined"){ 
+           return true;
+           }
+        Logtext.click();
+        return true;
+    expect_result: true
   elements:
-  - selector:
-      xpath: //a[contains(text(),'with OpenShift')]
-    op: click
-    type: a
   - selector:
       id: inputUsername
     op: send_keys <username>
@@ -564,6 +569,13 @@ jenkins_oauth_login:
         return true;
     expect_result: true
   action: jenkins_verify_logged_in
+
+jenkins_logout:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"/logout")]
+    type: a
+    op: click
 
 jenkins_pipeline_create_resource_snippet:
   url: job/<job_name>/pipeline-syntax/
@@ -873,7 +885,7 @@ jenkins_verify_job_text:
 jenkins_verify_logged_in:
   elements:
   - selector:
-     xpath: //b[contains(text(),'log out')]
+      xpath: //a[contains(@href,"/logout")]
     timeout: 300
 
 jenkins_verify_openshift_build:
