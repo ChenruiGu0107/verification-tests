@@ -15,16 +15,16 @@ module CucuShift
     #   is specified then a single [LimitRangeItem] is returned, otherwise
     #   an array; if type is not found, then `nil` can be returned
     def limits(type=nil, user: nil, cached: true, quiet: false)
-      unless cached && params[:limits]
-        params[:limits] =
+      unless cached && props[:limits]
+        props[:limits] =
           limits_raw(user: user, cached: cached, quiet: quiet).map { |limit|
            LimitRangeItem.new(limit)
           }
       end
       if type
-        return params[:limits].find { |l| l === type }
+        return props[:limits].find { |l| l === type }
       else
-        return params[:limits]
+        return props[:limits]
       end
     end
   end
