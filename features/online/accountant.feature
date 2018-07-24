@@ -640,3 +640,10 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     When I run the :click_deselect_all_button web action
     Then the step should succeed
+    
+  # @author yuwei@redhat.com
+  # @case_id OCP-19728
+  Scenario: Check nav links to RHD account info 
+    Given I open accountant console in a browser
+    When I run the :check_nav_link web action
+    Then the step should succeed
