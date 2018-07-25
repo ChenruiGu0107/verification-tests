@@ -353,3 +353,34 @@ Feature: elasticsearch related tests
     And the output should contain:
       | <%= project.name %>.<%= project.uid %> |
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-19201
+  @admin
+  @destructive
+  Scenario: Elasticsearch log files are on persistent volume
+    Given the master version >= "3.9"
+    Given I create a project with non-leading digit name
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19201/inventory |
+    Given a pod becomes ready with labels:
+      | component=es,logging-infra=elasticsearch,provider=openshift |
+    And evaluation of `pod.name` is stored in the :es_pod clipboard
+    And I execute on the pod:
+      | ls | /elasticsearch/persistent/logging-es/logs |
+    Then the step should succeed
+    And the output should contain:
+      | logging-es.log                        |
+      | logging-es_deprecation.log            |
+      | logging-es_index_indexing_slowlog.log |
+      | logging-es_index_search_slowlog.log   |
+    When I run the :get client command with:
+      | resource      |  pod                  |
+      | resource_name | <%= cb.es_pod %>      |
+      | o             | yaml                  |
+    Then the step should succeed
+    And the output should contain: 
+      |  volumes:                             |
+      |  - name: elasticsearch-storage        |  
+      |    persistentVolumeClaim:             |
+      |      claimName: logging-es-0          |  
