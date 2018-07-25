@@ -2,11 +2,11 @@ Feature: custombuild.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-11443
-  @smoke
+  @admin
   Scenario: Build with custom image - origin-custom-docker-builder
-    Given I have a project
-    Given project role "system:build-strategy-custom-test" is added to the "first" user
+    Given cluster role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
+    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
     Then the step should succeed
@@ -33,15 +33,24 @@ Feature: custombuild.feature
       | exec_command_arg | <%= cb.service_ip%>:5432 |
     Then the output should contain "Hello from OpenShift v3"
     """
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
+    Then the output should contain:
+      | Status   |
+      | Started  |
+      | Duration |
 
   # @author dyan@redhat.com
   # @case_id OCP-11104
+  @admin
   Scenario: Custom build with imageStreamImage in buildConfig
-    Given I have a project
-    Given project role "system:build-strategy-custom-test" is added to the "first" user
+    Given cluster role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
+    Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479017/custombuild-template.json"
     Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I get project istag named "origin-custom-docker-builder:latest" as JSON
@@ -51,9 +60,6 @@ Feature: custombuild.feature
     When I replace resource "bc" named "ruby-sample-build":
       | ImageStreamTag | ImageStreamImage |
       | :latest        | @<%= cb.imagestreamimage %> |
-    And I run the :cancel_build client command with:
-      | build_name | ruby-sample-build-1 |
-    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -81,14 +87,13 @@ Feature: custombuild.feature
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the output should contain:
-      | imagestreamimage |
-      | not found        |
+      | is invalid       |
     When I replace resource "bc" named "ruby-sample-build":
       | invalid |        |
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the output should contain:
-      | ImageStreamImages must be retrieved with <name>@<id> |
+      | must have a name and ID |
 
   # @author shiywang@redhat.com
   # @case_id OCP-11872
