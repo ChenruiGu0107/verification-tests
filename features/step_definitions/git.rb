@@ -56,3 +56,13 @@ Given /^I remove the remote repository "([^"]*)" from the "([^"]+)" repo$/ do |r
   git = CucuShift::Git.new(uri: uri, dir: dir)
   git.remove_remote(remote)
 end
+
+When /^I git config global "([^"]+)?" proxy to "([^"]+)" locally$/ do |proxy_url,spec|
+  git = CucuShift::Git.new(uri: nil,dir: spec)
+  git.set_git_proxy(proxy_url)
+end
+When /^I git config unset proxy from "([^"]+)"$/ do |spec|
+  git = CucuShift::Git.new(uri: nil,dir: spec)
+  git.unset_git_proxy
+end
+

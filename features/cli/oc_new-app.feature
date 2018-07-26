@@ -57,3 +57,19 @@ Feature: oc new-app related scenarios
       | resource | bc      |
       | name     | ruby-ex |
     Then the output should match "ImageStreamTag openshift/ruby:2.0"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-18190
+  Scenario: "oc new-app" should respect git proxy for implicit git process
+		Given I have a project
+		And I have a proxy configured in the project
+    And I git config global "<%= cb.proxy_ip %>:3128" proxy to "$HOME/.gitconfig" locally
+    When I run the :new_app client command with:
+      | strategy | docker |
+      | name | grafana |
+      | code | https://github.com/bacek/openshift-prometheus.git |
+    And the "grafana-1" build completed
+    And I register clean-up steps:
+    """
+    And I git config unset proxy from "$HOME/.gitconfig"
+    """
