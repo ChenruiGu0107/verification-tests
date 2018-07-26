@@ -14,7 +14,7 @@ If configuration changes happened though, these can affect later scenarios execu
 
 == The solution
 
-For visibility, please tag any scenarios using admin with the `@admin` tag.
+For visibility, please see the <<Tags>>.
 
 To avoid such situation we have to define clean-up routines. Clean-up routines can be defined either directly in step code by calling `teardown_add { proc.. }` or by registering clean-up steps from within scenario.
 
@@ -23,6 +23,28 @@ These clean-up steps will execute after scenario no matter if scenario succeeded
 Another thing to note is that if these clean-up steps fail (raise a ruby error), cucumber execution will stop. That means no further scenarios will be run.
 
 Design your clean-up in a way that it fails only if further scenario execution could be negatively affected if clean-up is not successful. For example failing to remove some random project should not make whole cucumber fail (this is unlikely to affect anything). But a user with wrong permissions should cause cucumber to quit so that user can manually recover user or use another user.
+
+== Tags
+
+There are two tags that we use `@admin` and `@destructive`. They do not change
+scenario behavior in any way but serve the purpose to make scenario
+requirements more obvious as well scenarios can be filtered based on these.
+
+`@admin` tag should be used whenever a scenario executes commands or REST
+requests as the cluster admin user. Steps that require cluster admin
+permissions should check for the `@admin` tag and fail when it is not present.
+There is a convenience method for this that can be used in step body:
+`ensure_admin_tagged`.
+
+`@destructive` tag is used for scenarios that change configuration which
+can affect other scenarios running simultaneously as well. Breaking changes
+or not it doesn't matter. The criteria is whether things can fail if this
+and any other scenarios run at roughly the same time by different test
+executors. Main purpose of the tag is to filter out cases that need
+sequential execution and to not run them on shared test environments.
+Again there is a method `ensure_destructive_tagged` for steps. But step
+often can be destructive or non destructive depending on parameters used to
+call it. Thus `@destructive` cannot always be automatically enforced.
 
 == Example
 

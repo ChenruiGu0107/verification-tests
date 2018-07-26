@@ -84,17 +84,26 @@ module CucuShift
                  'Accept' => 'application/json'}
       headers['X-Auth-Token'] = token if token
 
-      if headers["Content-Type"].include?("json") &&
-          ( params.kind_of?(Hash) || params.kind_of?(Array) )
-        params = params.to_json
+      req_opts = {
+        :url => "#{url}",
+        :method => method,
+        :headers => headers,
+        :read_timeout => read_timeout,
+        :open_timeout => open_timeout
+      }
+
+      case method
+      when "GET", "DELETE"
+        req_opts[:params] = params
+      else
+        if headers["Content-Type"].include?("json") &&
+            ( params.kind_of?(Hash) || params.kind_of?(Array) )
+          params = params.to_json
+        end
+        req_opts[:payload] = params
       end
 
-      res = Http.request(:url => "#{url}",
-                          :method => method,
-                          :payload => params,
-                          :headers => headers,
-                          :read_timeout => read_timeout,
-                          :open_timeout => open_timeout)
+      res = Http.request(**req_opts)
 
       if res[:success]
         if res[:headers] && res[:headers]['content-type']
@@ -267,46 +276,35 @@ module CucuShift
         os_network_service['endpoints'][0]['url']
     end
 
-    # @return object URL or raises an error
-    def get_obj_ref(obj_name, obj_type, quiet: false)
-      params = {}
+    def get_objects(obj_type, params: nil, quiet: false)
+      params ||= {}
       url = self.os_compute_url + '/' + obj_type
       res = self.rest_run(url, "GET", params, self.os_token)
       if res[:success] && res[:parsed]
-        for obj in res[:parsed][obj_type]
-          if obj['name'] == obj_name
-            ref = obj["links"][0]["href"]
-
-            logger.info("ref of #{obj_type} \"#{obj_name}\": #{ref}")
-            return ref
-          end
-        end
-        logger.warn "ref of #{obj_type} \"#{obj_name}\" not found" unless quiet
-        return nil
+        return res[:parsed][obj_type]
       else
-        raise "error getting object reference:\n" << res.to_yaml
+        "error getting objects:\n" << res.to_json
       end
+    end
+
+    def get_object(obj_name, obj_type, quiet: false)
+      get_objects(obj_type, quiet: quiet).find { |object|
+        object['name'] == obj_name
+      }
+    end
+
+    # @return object URL or raises an error
+    def get_obj_ref(obj_name, obj_type, quiet: false)
+      ref = get_object(obj_name, obj_type, quiet: quiet)&.dig("links",0, "href")
+      logger.info("ref of #{obj_type} \"#{obj_name}\": #{ref}") if ref
+      return ref
     end
 
     # @return object UUID or raises an error
     def uuid(obj_name, obj_type, quiet: false)
-      params = {}
-      url = self.os_compute_url + '/' + obj_type
-      res = self.rest_run(url, "GET", params, self.os_token)
-      if res[:success] && res[:parsed]
-        for obj in res[:parsed][obj_type]
-          if obj['name'] == obj_name
-            uuid = obj["id"]
-
-            logger.info("UUID of #{obj_type} \"#{obj_name}\": #{uuid.inspect}")
-            return uuid
-          end
-        end
-        logger.warn "#{obj_type} \"#{obj_name}\" not found" unless quiet
-        return nil
-      else
-        raise "error getting object UUID:\n" << res.to_yaml
-      end
+      id = get_object(obj_name, obj_type, quiet: quiet)&.dig("id")
+      logger.info("UUID of #{obj_type} \"#{obj_name}\": #{id.inspect}") if id
+      return id
     end
 
     def get_image_ref(image_name)
@@ -838,7 +836,7 @@ if __FILE__ == $0
       res = true
       test_res[name] = res
       begin
-        os.launch_instances(names: ["test_terminate"])
+        res = os.launch_instances(names: ["test_terminate"])
         binding.pry if ARGV[1] == "true"
         os.delete_instance "test_terminate"
         test_res[name] = false

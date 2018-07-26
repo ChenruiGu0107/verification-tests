@@ -9,6 +9,7 @@ require_relative 'error'
 module CucuShift
   # autoload to avoid too much require statements and speed-up load times
   autoload :Dynect, 'launchers/dyn/dynect'
+  autoload :Alicloud, 'launchers/alicloud'
   autoload :Amz_EC2, 'launchers/amz'
   autoload :GCE, 'launchers/gce'
   autoload :Azure, 'launchers/azure'
