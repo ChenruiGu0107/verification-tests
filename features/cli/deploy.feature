@@ -211,6 +211,7 @@ Feature: deployment related features
       | "type": "ConfigChange" |
       | "replicas": 1          |
       | "value": "Plqe5Wev"    |
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
@@ -220,6 +221,7 @@ Feature: deployment related features
       | "type": "ImageChange"     |
       | "replicas": 2             |
       | "value": "Plqe5Wevchange" |
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollback client command with:
       | deployment_name         | hooks-1                   |
       | change_triggers         |                           |

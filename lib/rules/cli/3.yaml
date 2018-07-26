@@ -968,6 +968,7 @@
   :cmd: oc status
   :options:
     :v: -v
+    :suggest: --suggest
 :stop:
   :cmd: oc stop <resource>
   :options:
