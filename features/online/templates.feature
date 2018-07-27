@@ -215,7 +215,7 @@ Feature: templates.feature
     Then the step should succeed
     And the output should contain:
       | myvalue |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/redis                   |
       | e        | REDIS_PASSWORD=newpassword |
     And a pod becomes ready with labels:

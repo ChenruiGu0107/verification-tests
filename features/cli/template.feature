@@ -187,7 +187,7 @@ Feature: template related scenarios:
     Given the "ruby22-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/<%= pod.name %> |
       | list     | true                |
     Then the step should succeed

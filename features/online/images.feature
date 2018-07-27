@@ -120,7 +120,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc532739/mariadb-persistent.json |
     Given a pod becomes ready with labels:
       | deployment=mariadb-1 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/<%= pod.name %> |
       | list     | true                |
     Then the output should contain:

@@ -5,7 +5,7 @@ Feature: pipelinebuild.feature
     Given I have a project
     Given I have a jenkins v<tag> application
     When I have an http-git service in the project
-    And I run the :env client command with:
+    And I run the :set_env client command with:
       | resource | dc/git                            |
       | e        | REQUIRE_SERVER_AUTH=              |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -118,7 +118,7 @@ Feature: pipelinebuild.feature
     Given I have a project
     Given I have a jenkins v2 application
     When I have an http-git service in the project
-    And I run the :env client command with:
+    And I run the :set_env client command with:
       | resource | dc/git                            |
       | e        | REQUIRE_SERVER_AUTH=              |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |

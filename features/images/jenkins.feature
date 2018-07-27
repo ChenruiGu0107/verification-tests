@@ -23,7 +23,7 @@ Feature: jenkins.feature
     """
     And the output should contain:
       | Dashboard [Jenkins] |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/jenkins              |
       | e        | JENKINS_PASSWORD=redhat |
     Then the step should succeed

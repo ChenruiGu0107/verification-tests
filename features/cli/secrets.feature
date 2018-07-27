@@ -599,7 +599,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
     #Disable anonymous cloning
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -698,7 +698,7 @@ Feature: secrets related scenarios
       | name        | 528228pv     |
     Then the step should succeed
     And evaluation of `route("git", service("git")).dns(by: user)` is stored in the :git_route clipboard
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                |
       | e        | BUILD_STRATEGY=source |
     Then the step should succeed
@@ -752,7 +752,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
     #Disable anonymous cloning
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -924,7 +924,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
     #Trigger second build automaticlly with secret
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -950,7 +950,7 @@ Feature: secrets related scenarios
     Then the output should contain "ruby-hello-world-2"
     Given the "ruby-hello-world-2" build completes
 
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                |
       | e        | REQUIRE_SERVER_AUTH=  |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -995,7 +995,7 @@ Feature: secrets related scenarios
       | role          | edit    |
       | serviceaccount| default |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                |
       | e        | REQUIRE_SERVER_AUTH=  |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -1044,7 +1044,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
     #Disable anonymous cloning
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -1187,7 +1187,7 @@ Feature: secrets related scenarios
       | name        | 508969pv     |
     Then the step should succeed
     And evaluation of `route("git", service("git")).dns(by: user)` is stored in the :git_route clipboard
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                |
       | e        | REQUIRE_SERVER_AUTH=  |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -1242,7 +1242,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
     #Disable anonymous cloning
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -1798,7 +1798,7 @@ Feature: secrets related scenarios
   Scenario: oc new-app to gather git creds	
     Given I have a project
     When I have an http-git service in the project
-    And I run the :env client command with:
+    And I run the :set_env client command with:
       | resource | dc/git                            |
       | e        | REQUIRE_SERVER_AUTH=              |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -1875,7 +1875,7 @@ Feature: secrets related scenarios
   Scenario: Use build source secret based on annotation on Secret --http
     Given I have a project
     When I have an http-git service in the project
-    And I run the :env client command with:
+    And I run the :set_env client command with:
       | resource | dc/git                            |
       | e        | REQUIRE_SERVER_AUTH=              |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
