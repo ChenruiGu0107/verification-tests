@@ -231,7 +231,7 @@ Feature: oc_process.feature
     And the "ruby-sample-build-1" build completes
     Given a pod becomes ready with labels:
       | deployment=frontend-1 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/<%= pod.name %> |
       | list     | true                 |
     And the output should contain:
@@ -253,7 +253,7 @@ Feature: oc_process.feature
     And the "ruby-sample-build-1" build completes
     Given a pod becomes ready with labels:
       | deployment=frontend-1      |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/<%= pod.name %> |
       | list     | true                 |
     And the output should contain:
@@ -276,7 +276,7 @@ Feature: oc_process.feature
     And the "ruby-sample-build-1" build completes
     Given a pod becomes ready with labels:
       | deployment=frontend-1      |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/<%= pod.name %> |
       | list     | true                 |
     And the output should contain:
@@ -301,7 +301,7 @@ Feature: oc_process.feature
     And the "ruby-sample-build-1" build completes
     Given a pod becomes ready with labels:
       | deployment=frontend-1      |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/<%= pod.name %> |
       | list     | true                 |
     And the output should contain:

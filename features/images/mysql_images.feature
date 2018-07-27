@@ -74,7 +74,7 @@ Feature: mysql_images.feature
     """
     And the output should contain:
       | 10 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mysql               |
       | e        | MYSQL_PASSWORD=newuser |
     Then the step should succeed
@@ -138,7 +138,7 @@ Feature: mysql_images.feature
     """
     And the output should contain:
       | 10 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mysql               |
       | e        | MYSQL_PASSWORD=newuser |
     Then the step should succeed
@@ -524,7 +524,7 @@ Feature: mysql_images.feature
     Then the step should succeed
     And the output should contain:
       | 10 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mysql-master        |
       | e        | MYSQL_PASSWORD=newuser |
     Then the step should succeed
@@ -589,7 +589,7 @@ Feature: mysql_images.feature
     Then the step should succeed
     And the output should contain:
       | 10 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mysql-master        |
       | e        | MYSQL_PASSWORD=newuser |
     Then the step should succeed

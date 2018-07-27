@@ -29,12 +29,12 @@ Feature: Postgresql images test
       | col1 | col2 |
       | foo1 | bar1 |
     #Change the postgresql password
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource |  dc/postgresql  |
       | e        | POSTGRESQL_PASSWORD=redhat  |
     Then the step should succeed
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/postgresql    |
       | list     | true        |
     Then the step should succeed
@@ -126,7 +126,7 @@ Feature: Postgresql images test
       | name=postgresql-master         |
       | deployment=postgresql-master-2 |
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/postgresql-master    |
       | list     | true        |
     Then the step should succeed
@@ -211,12 +211,12 @@ Feature: Postgresql images test
       | col1 | col2 |
       | foo1 | bar1 |
     # Change the postgresql password
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource |  dc/postgresql  |
       | e        | POSTGRESQL_PASSWORD=redhat  |
     Then the step should succeed
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/postgresql    |
       | list     | true        |
     Then the step should succeed

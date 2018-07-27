@@ -90,7 +90,7 @@ Feature: Openshift build and configuration of enviroment variables check
     Then the step should succeed
     Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_python_progress clipboard
     Then the expression should be true> 3==cb.number_of_python_progress
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/django-ex             |
       | e        | WEB_CONCURRENCY=3        |
     Then the step should succeed

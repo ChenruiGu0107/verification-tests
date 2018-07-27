@@ -8,7 +8,7 @@ Feature: genericbuild.feature
       | f | test-valuefrom.json | 
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/hello-openshift |
       | list     | true                 |
     And the output should contain:
@@ -41,7 +41,7 @@ Feature: genericbuild.feature
       | f | test-valuefrommap.json |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/hello-openshift |
       | list     | true                 |
     Then the step should succeed

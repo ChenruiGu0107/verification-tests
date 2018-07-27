@@ -17,7 +17,7 @@ Feature: env.feature
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     And the step should succeed
     Given the pod named "mongodb-0" status becomes :running
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/mongodb-0 |
       | list     | true          |
     And the step should succeed
@@ -37,7 +37,7 @@ Feature: env.feature
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     And the step should succeed
     Given the pod named "mongodb-0" status becomes :running
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/mongodb-0 |
       | list     | true          |
     And the step should succeed
@@ -77,7 +77,7 @@ Feature: env.feature
       | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env | abc=123                                                |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"abc","value":"123"}"
@@ -90,7 +90,7 @@ Feature: env.feature
       | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                   |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"abc","value":"456"}"
@@ -105,7 +105,7 @@ Feature: env.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deployment=ruby-hello-world-1|
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | list     | true |
       | all      | true |
@@ -117,7 +117,7 @@ Feature: env.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deployment=ruby-hello-world-1|
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | list     | true |
       | all      | true |
@@ -133,7 +133,7 @@ Feature: env.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deployment=ruby-hello-world-1|
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | list     | true |
       | all      | true |
@@ -149,7 +149,7 @@ Feature: env.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deployment=ruby-hello-world-1|
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods |
       | list     | true |
       | all      | true |
@@ -163,7 +163,7 @@ Feature: env.feature
       | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env | DB_USER=test                                           |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"DB_USER","value":"test"}"
@@ -172,7 +172,7 @@ Feature: env.feature
       | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env | RACK_ENV=development                                   |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"RACK_ENV","value":"development"}"
@@ -185,7 +185,7 @@ Feature: env.feature
       | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                   |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"DB_USER","value":"test"}"
@@ -198,7 +198,7 @@ Feature: env.feature
       | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                   |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
     And the output should contain "{"name":"RACK_ENV","value":"development"}"

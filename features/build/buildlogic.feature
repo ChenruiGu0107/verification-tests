@@ -607,7 +607,7 @@ Feature: buildlogic.feature
       | MaxSpareServers\\s*18      |
       | MaxRequestWorkers\\s*<num> |
       | ServerLimit\\s*<num>       |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/dancer-ex                |
       | e        | HTTPD_MAX_REQUEST_WORKERS=2 |
       | e        | HTTPD_START_SERVERS=1       |

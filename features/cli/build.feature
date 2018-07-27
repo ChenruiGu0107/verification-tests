@@ -357,7 +357,7 @@ Feature: build 'apps' with CLI
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc479022/application-template-custombuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod |
       | env_name | ruby-sample-build-1-build |
       | list | true |
@@ -1193,7 +1193,7 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | ruby-sample-build |
       | Custom            |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/ruby-sample-build-1-build |
       | list     | true                          |
     Then the step should succeed
@@ -1208,7 +1208,7 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/ruby-sample-build-2-build |
       | list     | true                          |
     Then the step should succeed
@@ -2792,7 +2792,7 @@ Feature: build 'apps' with CLI
       | strategy | source                                        |
       | env_file | test1.env                                     |
     And the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | po/ruby-hello-world-1-build |
       | list     | true                        |
     And the output should match:
@@ -2812,7 +2812,7 @@ Feature: build 'apps' with CLI
       | name     | test                                          |
       | env_file | -                                             |
       | _stdin   | <%= File.read("test2.env") %>                 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | po/test-1-build |
       | list     | true                        |
     And the output should match:

@@ -155,7 +155,7 @@ Feature: Testing registry
   Scenario: Disable the mirroring function for registry
     Given default docker-registry deployment config is restored after scenario
     And I change the internal registry pod to use a new emptyDir volume
-    When I run the :env admin command with:
+    When I run the :set_env admin command with:
       | resource  | dc/docker-registry                                      |
       | e         | REGISTRY_OPENSHIFT_MIDDLEWARE_MIRRORPULLTHROUGH=false   |
       | namespace | default                                                 |
@@ -226,7 +226,7 @@ Feature: Testing registry
       | namespace   | default            |
     Then the step should succeed
     Given I wait until the latest rc of internal registry is ready
-    When I run the :env admin command with:
+    When I run the :set_env admin command with:
       | resource  | dc/docker-registry                               |
       | env_name  | REGISTRY_OPENSHIFT_MIDDLEWARE_MIRRORPULLTHROUGH- |
       | env_name  | REGISTRY_CONFIGURATION_PATH=/config/config.yml   |

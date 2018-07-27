@@ -13,7 +13,7 @@ Feature: git server related scenarios
       | role          | edit             |
       | serviceaccount| default          |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
@@ -44,7 +44,7 @@ Feature: git server related scenarios
     Then the output should contain:
       |You appear to have cloned an empty repository|
 
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git |
       | e        | REQUIRE_SERVER_AUTH= |
       | e        | REQUIRE_GIT_AUTH=openshift:redhat |
@@ -67,7 +67,7 @@ Feature: git server related scenarios
     Then the output should contain:
       |You appear to have cloned an empty repository|
 
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/git                |
       | e        | REQUIRE_SERVER_AUTH=- |
     Then the step should succeed

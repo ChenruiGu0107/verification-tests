@@ -111,7 +111,7 @@ Feature: general_db.feature
     """
     And the output should contain:
       | 2.6 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mongodb |
       | e        | MONGODB_ADMIN_PASSWORD=newadmin |
     Then the step should succeed
@@ -147,7 +147,7 @@ Feature: general_db.feature
     """
     And the output should contain:
       | <output> |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mongodb |
       | e        | MONGODB_ADMIN_PASSWORD=newadmin |
     Then the step should succeed
@@ -336,7 +336,7 @@ Feature: general_db.feature
     """
     And the output should contain:
       | 3.2 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/mongodb |
       | e        | MONGODB_ADMIN_PASSWORD=newadmin |
     Then the step should succeed

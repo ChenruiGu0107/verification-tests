@@ -145,7 +145,7 @@ Feature: Configuration of environment variables check
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc493678/envtest.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod             |
       | keyval   | hello-openshift |
       | list     | true            |
@@ -169,7 +169,7 @@ Feature: Configuration of environment variables check
     Given the "ruby-ex-1" build completes
     Given a pod becomes ready with labels:
       | app=ruby-ex |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/ruby-ex          |
       | e        | PUMA_MIN_THREADS=1  |
       | e        | PUMA_MAX_THREADS=14 |
@@ -202,7 +202,7 @@ Feature: Configuration of environment variables check
     Given 1 pods become ready with labels:
       | app=rails-ex          |
       | deployment=rails-ex-1 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/rails-ex         |
       | e        | PUMA_MIN_THREADS=1  |
       | e        | PUMA_MAX_THREADS=14 |
