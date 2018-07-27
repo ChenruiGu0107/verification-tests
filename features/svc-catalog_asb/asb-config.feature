@@ -498,6 +498,15 @@ Feature: Ansible-service-broker related scenarios
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin ensures "my-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
     Given admin ensures "registry-credentials-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    Given I register clean-up steps:
+    """
+      I wait up to 150 seconds for the steps to pass:
+        | When I run the :logs admin command with:                |
+        | \| resource_name \| dc/asb \|                           |
+        | \| namespace     \| openshift-ansible-service-broker \| |
+        | Then the step should succeed                            |
+        | And the output should contain "Broker successfully bootstrapped on startup" |
+    """
     And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
