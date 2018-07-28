@@ -1,0 +1,15 @@
+goto_admin_console:
+  url: /
+login_admin_console:
+  action: login_sequence
+  action: verify_logged_in_admin_console
+verify_logged_in_admin_console:
+  element:
+    type: js
+    selector: |-
+      var ns = window.localStorage['exp'];
+      return ns ? document.documentElement : null;
+  scripts:
+  - command: return window.localStorage['exp']
+    expect_result: true
+

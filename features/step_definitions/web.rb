@@ -97,6 +97,33 @@ Given /^I open registry console in a browser$/ do
   step 'I perform login to registry console in the browser'
 end
 
+Given /^I open admin console in a browser$/ do
+  base_rules = CucuShift::WebConsoleExecutor::RULES_DIR + "/base/"
+  snippets_dir = CucuShift::WebConsoleExecutor::SNIPPETS_DIR
+  master_version  = env.webconsole_executor.get_master_version(user)
+
+  step "default admin-console route is stored in the :adm_console_url clipboard"
+  step "I have a browser with:", table(%{
+    | rules        | #{base_rules}                                  |
+    | rules        | lib/rules/web/admin_console/base/              |
+    | rules        | lib/rules/web/admin_console/#{master_version}/ |
+    | base_url     | https://<%= cb.adm_console_url %>              |
+    | snippets_dir | #{snippets_dir}                                |
+                                     })
+  @result = browser.run_action(:goto_admin_console)
+  step 'I perform login to admin console in the browser'
+end
+
+When /^I perform login to admin console in the browser$/ do
+  @result = if user.password?
+    browser.run_action(:login_admin_console,
+                       username: user.name,
+                       password: user.password)
+    end
+end
+
+
+
 When /^I perform login to registry console in the browser$/ do
   @result = if user.password?
     browser.run_action(:login_reg_console,

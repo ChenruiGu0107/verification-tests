@@ -1,0 +1,44 @@
+click_create_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),'Create')]
+    op: click
+click_delete_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),'Delete')]
+    op: click
+click_resource_action_icon:
+  elements:
+  - selector:
+      xpath: //a[text()='<resource_name>']/ancestor::span/../div//span[contains(@class,'co-m-cog__icon')]
+    op: click
+operate_action_from_dropdown:
+  elements:
+  - selector:
+      xpath: //li/a[contains(text(),'<action_item>')]
+    op: click
+click_tab_on_overview_page:
+  elements:
+  - selector:
+      xpath: //ul[contains(@class,"nav__menu")]//a[text()="<tab_name>"]
+    op: click
+check_row_filter_on_page:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'row-filter')]//div[text()='<filter>']
+check_resources_title_on_page:
+  elements:
+  - selector:
+      xpath: //span[text()='<resource_title>']
+check_invalid_message:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'alert') and contains(text(),'Error')]
+clear_input_value:
+  elements:
+  - selector:
+      id: <clear_field_id>
+    op: clear
+    type: input
+
