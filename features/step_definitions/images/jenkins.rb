@@ -127,12 +127,12 @@ Given /^I update #{QUOTED} slave image for jenkins #{NUMBER} server$/ do |slave_
       })
   elsif slave_name == 'maven'
     step %Q/I perform the :jenkins_update_cloud_image web action with:/, table(%{
-      | currentimgval | registry.access.redhat.com/openshift3/jenkins-agent-maven-35-rhel7                          |
+      | currentimgval | openshift3/jenkins-agent-maven-35-rhel7                                                     |
       | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-agent-maven-35-rhel7:v<%= cb.master_version %> |
       })
   elsif slave_name == 'nodejs'
     step %Q/I perform the :jenkins_update_cloud_image web action with:/, table(%{
-      | currentimgval | registry.access.redhat.com/openshift3/jenkins-agent-nodejs-8-rhel7                          |
+      | currentimgval | openshift3/jenkins-agent-nodejs-8-rhel7                                                     |
       | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-agent-nodejs-8-rhel7:v<%= cb.master_version %> |
       })
   end
