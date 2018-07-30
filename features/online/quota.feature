@@ -238,3 +238,51 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And the "mysql" PVC becomes :bound
     Then the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1Gi"
     And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == "2Gi"
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-18259
+  Scenario: The user can create a pod/container with the 3Gi Max memory
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 3      |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given the project is deleted
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    """
+    Given I have a project
+    And the expression should be true> limit_range("resource-limits").limits("Pod").max.memory_raw  == "3Gi"
+    And the expression should be true> limit_range("resource-limits").limits("Container").max.memory_raw  == "3Gi"
+    When I run the :new_app client command with:
+      | template | httpd-example    |
+      | param    | MEMORY_LIMIT=3Gi |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=httpd-example-1 |
+    Given the expression should be true> pod.container_specs.first.memory_limit_raw == "3Gi"
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-18481
+  Scenario: The user can create a pod/container with the 80Mi requested memory
+    Given I have a project
+    And the expression should be true> limit_range("resource-limits").limits("Pod").min.memory_raw == "80Mi"
+    And the expression should be true> limit_range("resource-limits").limits("Container").min.memory_raw == "80Mi"
+    When I run the :new_app client command with:
+      | template | httpd-example      |
+      | param    | MEMORY_LIMIT=100Mi |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=httpd-example-1 |
+    Given the expression should be true> pod.container_specs.first.memory_request_raw == "80Mi"
+  
