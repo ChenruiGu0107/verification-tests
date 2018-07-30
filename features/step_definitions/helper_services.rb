@@ -141,7 +141,7 @@ Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in 
 end
 
 #The following helper step will create a squid proxy, and
-#save the service ip of the proxy pod for later use in the scenario.
+#save the service ip and port of the proxy pod for later use in the scenario.
 Given /^I have a(n authenticated)? proxy configured in the project$/ do |use_auth|
   if use_auth
     step %Q/I run the :new_app client command with:/, table(%{
@@ -159,6 +159,7 @@ Given /^I have a(n authenticated)? proxy configured in the project$/ do |use_aut
     })
   step %Q/I wait for the "squid-proxy" service to become ready/
   step %Q/evaluation of `service.ip` is stored in the :proxy_ip clipboard/
+  step %Q/evaluation of `service.ports[0].dig('port')` is stored in the :proxy_port clipboard/
   step %Q/evaluation of `pod` is stored in the :proxy_pod clipboard/
 end
 
