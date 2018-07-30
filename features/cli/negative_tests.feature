@@ -148,21 +148,6 @@ Feature: negative tests
       | [Ee]xample resource.*include     |
       | oc expose -h                     |
 
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
-    Then the step should succeed
-    When I run the :status client command with:
-      | v     |                          |
-    Then the step should succeed
-    And the output should contain:
-      | oc describe <resource>/<name>    |
-      | oc get all                       |
-    When I run the :status client command
-    # 3.5 has a bug to output "Errors" Bug-1426520 
-    Then the step should succeed
-    And the output should not match:
-      | [Ee]rror                         |
-
     # oc logs
     When I run the :logs client command with:
       | resource_name | :false |

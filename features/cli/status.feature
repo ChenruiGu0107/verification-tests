@@ -14,9 +14,9 @@ Feature: Check oc status cli
     Then the output should match:
       | rc/<%= cb.stdrc_name %> runs openshift/origin |
       | rc/<%= cb.stdrc_name %> created               |
-      | \\d warning.*'oc status -v' to see details    |
+      | \\d warning.*oc status.* to see details       |
     When I run the :status client command with:
-      | v ||
+      | suggest |     |
     Then the step should succeed
     Then the output should match:
       | rc/<%= cb.stdrc_name %> is attempting to mount a missing secret secret/<%= cb.mysecret_name %> |
@@ -43,7 +43,7 @@ Feature: Check oc status cli
     # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     When I run the :status client command with:
-      | v ||
+      | suggest |     |
     Then the step should succeed
     And the output should match:
       | dc/frontend is attempting to mount a missing secret secret/<%= cb.missingscrt_name %> |
@@ -60,7 +60,7 @@ Feature: Check oc status cli
     And the output should match:
       | Selector:\\s+name=database |
     When I run the :status client command with:
-      | v ||
+      | suggest |     |
     Then the step should succeed
     Then the output should match:
       | svc/database                      |
