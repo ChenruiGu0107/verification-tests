@@ -460,7 +460,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   # get testcase specific params into the final inventory file
   cb.ini_style_config["OSEv3:vars"].merge! cb.case_inventory['OSEv3:vars'] if cb.case_inventory
 
-  #step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
   new_path = nil
   if op == 'installed'
     new_path = "tmp/install_inventory"
@@ -510,6 +509,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   begin
     # put base-ansible-pod in user project instead of system project per OPENSHIFTQ-12408
     step %Q/I have a pod with openshift-ansible playbook installed/
+    @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
+    step %Q/the step should succeed/
     step %Q/admin uses the "<%= cb.target_proj %>" project/
     step %Q/I switch to cluster admin pseudo user/
     # we need to scp the key and crt and ca.crt to the ansible installer pod
@@ -838,14 +839,17 @@ end
 Given /^I have a pod with openshift-ansible playbook installed$/ do
   ensure_admin_tagged
   cb.base_ansible_image_tag = conf[:base_ansible_image_tag]
+  step %Q/I store master major version in the :master_version clipboard/ unless cb.master_version
   cb.base_ansible_image_tag ||= "v#{cb.master_version}"
   cb.ansible_image_src = conf[:ansible_image_src]
   cb.ansible_image_src ||= "openshift/origin-ansible"
+  cb.org_project_for_ansible ||= project
   # we need to save the original project name for post test cleanup
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to switch user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
     proxy_value = nil
+    step %Q/I save installation inventory from master to the clipboard/ unless cb.installation_inventory
     if cb.installation_inventory['OSEv3:vars'].keys.include? 'openshift_http_proxy'
       cb.proxy_value = cb.installation_inventory['OSEv3:vars']['openshift_http_proxy']
     end
@@ -858,52 +862,8 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
 
     # check to see if openshift-ansible is already installed
     @result = pod.exec("bash", "-c", "ls /usr/share/ansible/openshift-ansible", as: user)
-    unless @result[:success]
-      if conf[:openshift_ansible_installer].start_with? 'git#'
-        branch_name = conf[:openshift_ansible_installer][4..-1]
-      end
-
-      # with OCP 3.9, ansible rpm has its own channel/repo location, we need to
-      # use ansible >= 2.4.3
-      if env.version_gt("3.7", user: user)
-        repo_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/ansible.repo"
-      else
-        repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
-      end
-      download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{repo_url}"
-      @result = pod.exec("bash", "-c", download_cmd, as: user)
-      step %Q/the step should succeed/
-      install_ansible_cmd = 'yum -y install ansible'
-      @result = pod.exec("bash", "-c", install_ansible_cmd, as: user)
-      step %Q/the step should succeed/
-
-      if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
-        install_openshift_ansible_cmd = 'yum -y install openshift-ansible*'
-        step %Q/I execute on the pod:/, table(%{
-          | bash                             |
-          | -c                               |
-          | #{install_openshift_ansible_cmd} |
-          })
-        step %Q/the step should succeed/
-      elsif conf[:openshift_ansible_installer].start_with? "git"
-        step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
-        # extract the commit id for git checkout later
-        commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-        if branch_name
-          git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
-        else
-          git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
-        end
-        # check to see if openshift-ansible is already installed
-        @result = pod.exec("bash", "-c", git_cmd, as: user)
-        step %Q/the step should succeed/
-      else
-        raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
-      end
-    end
+    raise "openshift-ansible binanary was not found in pod" unless @result[:success]
   end
-  @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
-  step %Q/the step should succeed/
 end
 
 
@@ -1187,4 +1147,53 @@ Given /^I run logging diagnostics$/ do
   host = env.master_hosts.first
 
   @result = host.exec(diag_cmd)
+end
+
+#
+Given /^I generate a basic inventory with cluster hosts information$/ do
+  inventory_name = "base_inventory"
+  base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
+  step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
+  inventory_io = StringIO.new
+  # don't double quote values which cause some issues with arrays in openshift-ansible
+  cb.ini_style_config.write(inventory_io, false)
+  new_text = inventory_io.string.gsub(/\s=\s/, '=').
+    gsub(/children=to_be_replaced/, "masters\netcd\nnodes\n")
+  File.write(inventory_name, new_text)
+end
+
+
+# run a specific playbook within the base-ansible pod that we generated when we installed logging/metric service
+# 1. PREREQ: playbook is already in the pod (we assume a previous step sets up )
+# 2. oc rsync base_inventory, admin config and ssh key over to the pod
+# parameters
+#   a. playbook_path, path to the playbook file relative to /tmp/<synced_dir_from_localhost>
+#   b. clean_up_arg (optional, only applies to playbooks that needs clean up arguements).  For example, logging
+
+Given /^I run the following playbook on the#{OPT_QUOTED} pod:$/ do |pod_name, table|
+  pod_name ||= pod.name
+  opts = opts_array_to_hash(table.raw)
+  playbook_path = opts[:playbook_path]
+  clean_up_arg = opts[:clean_up_arg]
+  dst_dir_path = "tmp"
+  base_inventory_name = "base_inventory"
+  _pod = pod(pod_name)
+  _user = user
+  FileUtils.mkdir_p("#{dst_dir_path}") unless Dir.exists? dst_dir_path
+  step %Q/I generate a basic inventory with cluster hosts information/
+  FileUtils.move(base_inventory_name, dst_dir_path)
+  step %Q/ssh key for accessing nodes is copied to the pod/
+
+  # register clean up if user calls for it.
+  if clean_up_arg
+    teardown_add {
+      clean_args = %W(ansible-playbook -i /tmp/#{dst_dir_path}/#{base_inventory_name} #{conf[:ansible_log_level]} /tmp/#{dst_dir_path}/#{playbook_path} #{clean_up_arg})
+      @result = _pod.exec(*clean_args, as: _user)
+      raise "Failed when running cleanup playbook: #{@result[:stderr]}" unless @result[:success]
+    }
+  end
+
+  args = %W(ansible-playbook -i /tmp/#{dst_dir_path}/#{base_inventory_name} #{conf[:ansible_log_level]} /tmp/#{dst_dir_path}/#{playbook_path})
+  @result = _pod.exec(*args, as: _user)
+  raise "Failed when running playbook: #{@result[:stderr]}" unless @result[:success]
 end

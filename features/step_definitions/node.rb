@@ -559,3 +559,18 @@ Given /^#{QUOTED} is copied to the host(?: under #{QUOTED} path)?$/ do |local_pa
   @host ||= node.host
   @host.copy_to(local_path, remote_path || "./")
 end
+
+# rync local direction dst_dir to a pod, if no pod_name is given the current pod context will be used.
+# XXX: should we just hard-code everything to /tmp as the directory.  That seems to be only the only user writable dir
+Given /^ssh key for accessing nodes is copied to(?: the #{QUOTED} directory in)? the#{OPT_QUOTED} pod?$/ do |dst_dir, pod_name|
+  ensure_admin_tagged
+
+  pod ||= pod(pod_name)
+  _project = project
+  dst_dir ||= "tmp"
+  pem_file_path = expand_path(env.master_hosts.first[:ssh_private_key])
+  FileUtils.mkdir(dst_dir) unless Dir.exists? dst_dir
+  FileUtils.copy(pem_file_path, dst_dir)
+  @result = admin.cli_exec(:rsync, source: localhost.absolutize(dst_dir), destination: "#{pod.name}:/#{dst_dir}", loglevel: 5, n: _project.name)
+  raise "Error syncing files over to '#{pod.name}' pod '#{@result[:stderr]}'" unless @result[:success]
+end

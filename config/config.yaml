@@ -7,10 +7,6 @@ global:
   debug_in_after_hook_always: false
   debug_attacher_timeout: false
 
-  # installer can be 'yum' or 'git' with 'rpm' support TBA
-  # default to git, specify branch by adding '#<branch_name>' after the keyword git
-  # if no branch is specified, we will use the commit_id we get from qe-inventory-file from master node
-  openshift_ansible_installer: git
   # use this parameter to control the ansible output verboseness
   # valid parameters are
   # -v        The output data is displayed.

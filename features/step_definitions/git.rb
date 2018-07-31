@@ -10,6 +10,13 @@ When /^I git clone the repo #{QUOTED}(?: to #{QUOTED})?$/ do |repo_url, dir_path
   git.clone
 end
 
+Given /^I git clone the repo #{QUOTED} to #{QUOTED} in the#{OPT_QUOTED} pod$/ do |repo_url, dir_path, pod_name|
+  # make sure we are in the correct pod context
+  pod = pod(pod_name)
+  @result = pod(pod_name).exec("bash", "-c", "mkdir -p #{dir_path} && cd #{dir_path} && git clone #{repo_url}", as: user)
+  raise "cannot clone repo" unless @result[:success]
+end
+
 # @param [String] repo_url git repo that we want to clone from
 # @param [Boolean] if set, then we get git information from local repo,
 # @note the commit id is saved to @clipboard[:latest_commit_id]

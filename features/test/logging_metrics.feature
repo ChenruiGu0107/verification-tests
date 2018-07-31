@@ -4,7 +4,7 @@ Feature: test logging and metrics related steps
   Scenario: test uninstall
     Given the master version >= "3.5"
     Given I have a project
-    And metrics service is uninstalled from the "openshift-infra" project with ansible using:
+    And metrics service is uninstalled with ansible using:
       | inventory| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory |
 
   @admin
@@ -69,7 +69,7 @@ Feature: test logging and metrics related steps
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |
 
   Scenario: test post and get step
-  	Given I have a project
+    Given I have a project
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
       | path         | /metrics/gauges                                                                                   |
@@ -128,3 +128,45 @@ Feature: test logging and metrics related steps
     And the expression should be true> pod.container(name: 'prom-proxy').spec.memory_limit_raw == '500Mi'
     And the expression should be true> pod.container(name: 'prom-proxy').spec.cpu_request_raw == '200m'
     And the expression should be true> pod.container(name: 'prom-proxy').spec.memory_request_raw == '500Mi'
+
+  @admin
+  Scenario: test ssh key sync to pod
+    Given I have a project
+    And the expression should be true> cb.org_proj = project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/busybox-pod.yaml |
+    Then the step should succeed
+    Given the pod named "my-pod" becomes ready
+    Given I create a project with non-leading digit name
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    And a pod becomes ready with labels:
+      | name=hello-openshift |
+    And ssh key for accessing nodes is copied to the pod
+    And I use the "<%= cb.org_proj.name %>" project
+    And ssh key for accessing nodes is copied to the "tmp" directory in the "my-pod" pod
+
+  @admin
+  @destructive
+  Scenario: test running user specified playbook
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    # the clean up steps registered with the install step will be using uninstall
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12377/inventory |
+    And I use the "<%= cb.org_project_for_ansible.name %>" project
+    And I git clone the repo "https://github.com/openshift-qe/int_svc_playbooks.git" to "/tmp/tmp" in the "base-ansible-pod" pod
+    And I run the following playbook on the pod:
+      | playbook_path | int_svc_playbooks/internal-fluentd.yml |
+      | clean_up_arg  | -e test_clear=true                     |
+    And the step should succeed
+    And I use the "<%= cb.target_proj %>" project
+    # check fluentd forwrd pod is created by the user playbook
+    And a pod becomes ready with labels:
+      | component=forward-fluentd |
+    # the original fluentd pod deleted and a new one generated, check it's functional
+    And a pod becomes ready with labels:
+      | component=fluentd |
+
+
+
