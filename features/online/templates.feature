@@ -362,3 +362,21 @@ Feature: templates.feature
     # make sure there's no extra templates
     And the output should contain 41 times:
       | kind: Template |
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-19322
+  Scenario: Quickstart for the template sso72-x509-https
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | sso72-x509-https |
+    Then the step should succeed
+    And the output should contain "Success"
+    And a pod becomes ready with labels:
+      | deploymentconfig=sso |
+    And I get project routes
+    Then the output should contain:
+      | secure-sso |
+      | sso        |
+    When I open web server via the "https://<%= route("secure-sso", service("secure-sso")).dns(by: user) %>/auth" url
+    Then the step should succeed
+    And the output should contain "Welcome to Red Hat Single Sign-On"

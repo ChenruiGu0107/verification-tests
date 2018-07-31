@@ -205,4 +205,31 @@ check_create_storage_link:
   element:
     selector:
       xpath: //span/a[text()='create storage' and @href='project/<project_name>/create-pvc']
-
+click_storageclass_drop_down_list:
+  elements:
+  - selector:
+      xpath: //span[@ng-hide='$select.isEmpty()']/span[contains(text(),'<storage_class>')]
+    op: click
+check_storage_class_info:
+  action: click_storageclass_drop_down_list
+  elements:
+  - selector:
+      xpath: >-
+        //span[contains(text(),'<storage_class>')]/../div//*[contains(.,"Type: <storage_type>")]/./*[contains(.,"Access: ReadWriteOnce")]
+check_default_pvc_access_mode:
+  action: goto_create_pvc_page
+  action: check_storage_class_info
+  elements:
+  - selector:
+      xpath: //span[@ng-if='claim.storageClass && (claim.storageClass | storageClassAccessMode)'][contains(.,'(cannot be changed)')]
+create_default_pvc_from_storage_page:
+  action: goto_create_pvc_page
+  action: set_pvc_name 
+  action: # in Starter env configuration storage size cannot be changed
+    unless_element:
+      selector:
+        xpath: //div[label[contains(text(),'Size')]]//small[contains(text(),'cannot be changed')]
+    ref:
+    - set_storage_size
+    - set_storage_unit
+  action: click_create_button 

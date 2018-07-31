@@ -10,3 +10,16 @@ Feature: only about page related to Online env
     When I perform the :check_routes_with_custom_route web console action with:
       | route_suffix | <%= cb.route_suffix %> |
     Then the step should succeed
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-17354
+  Scenario: Default Route information should be included in the "about" page for Starter env
+  ## about page related to Starter env
+    When I run the :goto_about_page web console action
+    Then the step should succeed
+    And evaluation of `browser.execute_script("return window.OPENSHIFT_EXTENSION_PROPERTIES.default_route_suffix")` is stored in the :route_suffix clipboard
+    When I perform the :check_routes_without_custom_route web console action with:
+      | route_suffix | <%= cb.route_suffix %> |
+    Then the step should succeed
+    When I run the :check_without_elb_custom_route web action
+    Then the step should succeed
