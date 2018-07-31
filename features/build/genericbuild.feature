@@ -139,8 +139,8 @@ Feature: genericbuild.feature
           configuration:
             apiVersion: v1
             kind: BuildDefaultsConfig
-            gitHTTPProxy: http://<%= cb.proxy_ip %>:3128
-            gitHTTPSProxy: https://<%= cb.proxy_ip %>:3128 
+            gitHTTPProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            gitHTTPSProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> 
             env:
             - name: CUSTOM_VAR
               value: custom_value
@@ -148,8 +148,8 @@ Feature: genericbuild.feature
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:                                                          
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
-      | env  | http_proxy=http://<%= cb.proxy_ip %>:3128                                                              |
-      | env  | https_proxy=https://<%= cb.proxy_ip %>:3128                                                            |
+      | env  | http_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                              |
+      | env  | https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                            |
     Then the step should succeed                                                                          
     And the "ruby22-sample-build-1" build completes                                                       
     Given 2 pods become ready with labels:                                                                
@@ -157,7 +157,7 @@ Feature: genericbuild.feature
     When I execute on the pod:                                                                            
       | env |
     Then the step should succeed                                                                          
-    And the output should contain "https_proxy=https://<%= cb.proxy_ip %>:3128"                         
+    And the output should contain "https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>"                         
     When I run the :start_build client command with:                                                      
       | buildconfig | ruby22-sample-build                   |
       | env         | https_proxy=error.rdu.redhat.com:3128 |
@@ -175,8 +175,8 @@ Feature: genericbuild.feature
           configuration:
             apiVersion: v1
             kind: BuildDefaultsConfig
-            gitHTTPProxy: http://<%= cb.proxy_ip %>:3128
-            gitHTTPSProxy: https://<%= cb.proxy_ip %>:3128 
+            gitHTTPProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            gitHTTPSProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
             env:
             - name: HTTP_PROXY
               value: http://error.rdu.redhat.com:3128
@@ -210,9 +210,9 @@ Feature: genericbuild.feature
     """
     Given the master service is restarted on all master nodes                                             
     When I run the :start_build client command with:                                                      
-      | buildconfig | ruby22-sample-build                         |
-      | env         | http_proxy=http://<%= cb.proxy_ip %>:3128   |
-      | env         | https_proxy=https://<%= cb.proxy_ip %>:3128 |
+      | buildconfig | ruby22-sample-build                                         |
+      | env         | http_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>   |
+      | env         | https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
     Then the step should succeed                                                                          
     And the "ruby22-sample-build-4" build failed                                                          
     When I run the :logs client command with:                                                             

@@ -166,8 +166,8 @@ Feature: containers related features
     And I have an authenticated proxy configured in the project
     And evaluation of `rand(5000..7999)` is stored in the :port1 clipboard
     When I run the :port_forward background client command with:
-      | pod       | <%= cb[:proxy_pod].name %>  |
-      | port_spec | <%= cb[:port1] %>:3128      |
+      | pod       | <%= cb[:proxy_pod].name %>             |
+      | port_spec | <%= cb[:port1] %>:<%= cb.proxy_port %> |
     Then the step should succeed
 
     # Prepare pod for following CLI executions behind proxy

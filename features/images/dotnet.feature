@@ -22,10 +22,10 @@ Feature: dotnet.feature
     When I run the :new_build client command with:
       | app_repo    | openshift/dotnet:1.1~https://github.com/redhat-developer/s2i-dotnetcore-ex#dotnetcore-1.1 |
       | context_dir | app                                                                                       |
-      | e           | http_proxy=http://<%= cb.proxy_ip %>:3128                                                 |
-      | e           | https_proxy=http://<%= cb.proxy_ip %>:3128                                                |
-      | e           | HTTP_PROXY=http://<%= cb.proxy_ip %>:3128                                                 |
-      | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:3128                                                |
+      | e           | http_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                 |
+      | e           | https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                |
+      | e           | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                 |
+      | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                |
     Then the step should succeed
     And the "s2i-dotnetcore-ex-1" build completes
 

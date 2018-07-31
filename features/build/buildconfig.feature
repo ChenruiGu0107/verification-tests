@@ -410,17 +410,17 @@ Feature: buildconfig.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs:6~https://github.com/openshift/nodejs-ex |
-      | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:3128     |
-      | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:3128    |
-      | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:3128     |
-      | e        | HTTPS_PROXY=http://user:passwd@<%= cb.proxy_ip %>:3128    |
+      | app_repo | openshift/nodejs:6~https://github.com/openshift/nodejs-ex             |
+      | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e        | HTTPS_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
     Then the step should succeed
     Given the "nodejs-ex-1" build completes
     When I run the :logs client command with:
       | resource_name | build/nodejs-ex-1 |
     Then the step should succeed
-    And the output should contain "Using HTTP proxy http://redacted@<%= cb.proxy_ip %>:3128"
+    And the output should contain "Using HTTP proxy http://redacted@<%= cb.proxy_ip %>:<%= cb.proxy_port %>"
     And the output should not contain:
       | passwd |
 

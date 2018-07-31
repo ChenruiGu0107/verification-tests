@@ -496,3 +496,45 @@ Feature: stibuild.feature
     Then the step should succeed
     And the "sample-1" build was created
     And the "sample-1" build completed
+
+  # @wewang@redhat.com
+  # @case_id OCP-19632
+  @admin
+  @destructive
+  Scenario: Container ENV proxy vars should be same with master config when BUILD_LOGLEVEL=5 used in build
+    Given the master version >= "3.10"
+    When I have a project
+    And I have a proxy configured in the project
+    Given master config is merged with the following hash:                                                
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            gitHTTPProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            gitHTTPSProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            env:
+            - name: HTTP_PROXY
+              value: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            - name: HTTPS_PROXY
+              value: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
+            - name: CUSTOM_VAR
+              value: custom_value
+    """
+    Given the master service is restarted on all master nodes                    
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | env      | BUILD_LOGLEVEL=5                                                 |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    Given 1 pods become ready with labels:
+      | app=ruby-hello-world |
+    When I execute on the pod:
+      | bash              |
+      | -c                |
+      | env  \| grep HTTP |
+    Then the output should contain:
+      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>   | 
+      | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
