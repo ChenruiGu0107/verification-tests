@@ -365,7 +365,6 @@ Feature: elasticsearch related tests
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19201/inventory |
     Given a pod becomes ready with labels:
       | component=es,logging-infra=elasticsearch,provider=openshift |
-    And evaluation of `pod.name` is stored in the :es_pod clipboard
     And I execute on the pod:
       | ls | /elasticsearch/persistent/logging-es/logs |
     Then the step should succeed
@@ -374,13 +373,4 @@ Feature: elasticsearch related tests
       | logging-es_deprecation.log            |
       | logging-es_index_indexing_slowlog.log |
       | logging-es_index_search_slowlog.log   |
-    When I run the :get client command with:
-      | resource      |  pod                  |
-      | resource_name | <%= cb.es_pod %>      |
-      | o             | yaml                  |
-    Then the step should succeed
-    And the output should contain: 
-      |  volumes:                             |
-      |  - name: elasticsearch-storage        |  
-      |    persistentVolumeClaim:             |
-      |      claimName: logging-es-0          |  
+    And the expression should be true> pod.volume_claims.first.name == 'logging-es-0'
