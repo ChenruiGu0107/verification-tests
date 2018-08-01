@@ -351,3 +351,15 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     When I expose the "eap-cd-openshift" service
     Then the step should succeed
     And I wait for a web server to become available via the route
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-19721
+  Scenario: Quickstart for IS java-rhel7
+  Given I have a project
+  When I run the :new_app client command with:
+    | image_stream | openshift/java:latest                                    |
+    | app_repo     | https://github.com/jboss-openshift/openshift-quickstarts |
+    | context_dir  | undertow-servlet                                         |
+  Then the step should succeed
+  And a pod becomes ready with labels:
+    | app=openshift-quickstarts |
