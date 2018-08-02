@@ -1116,12 +1116,9 @@ Feature: Network policy plugin scenarios
     # create project and pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
-      | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=nodename-pod |
+    Given I have a pod-for-ping in the project
     And evaluation of `pod.ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod.node_name` is stored in the :podnodename clipboard    
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -1137,7 +1134,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
 
     # try to access the pod in both project on different nodes
-    Given I use the "<%= cb.nodes[0].name %>" node
+    Given I use the "<%= cb.podnodename %>" node
     When I run commands on the host:
       | curl -sS --connect-timeout 5 http://<%= cb.p1pod1ip %>:8080 |
     Then the step should succeed
@@ -1146,7 +1143,7 @@ Feature: Network policy plugin scenarios
       | curl -sS --connect-timeout 5 http://<%= cb.p2pod1ip %>:8080 |
     Then the step should succeed
     And the output should contain "Hello"
-    Given I use the "<%= cb.nodes[1].name %>" node
+    Given I use the "<%= node(-2).name %>" node
     When I run commands on the host:
       | curl -sS --connect-timeout 5 http://<%= cb.p1pod1ip %>:8080 |
     Then the step should fail
