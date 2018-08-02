@@ -93,7 +93,7 @@ Feature: build related feature on web console
     Then the output should not match:
       | >Cancel Build</button> |
     When I get project builds
-    Then the output by order should match:
+    Then the output should match:
       | ruby-sample-1.+Cancelled      |
       | ruby-sample-2.+Cancelled      |
       | ruby-sample-3.+Complete       |

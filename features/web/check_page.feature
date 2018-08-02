@@ -512,10 +512,8 @@ Feature: check page info related
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :go_to_project_list_by_view_all web console action with:
-      | current_project | <%= project.name %> |
+    When I run the :goto_projects_page web console action
     Then the step should succeed
-    And the expression should be true> browser.url.end_with? "/console/projects"
     ## check no masthead on project list page
     When I run the :check_missing_masthead web console action
     Then the step should succeed

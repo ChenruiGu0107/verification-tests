@@ -71,6 +71,10 @@ Feature: Features about k8s replicasets
     Then the step should succeed
     When I run the :delete_autoscaler web console action
     Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    I check that there are no hpa in the project
+    """
     When I perform the :check_autoscaler_info web console action with:
       | min_pods           | 2  |
       | max_pods           | 10 |
