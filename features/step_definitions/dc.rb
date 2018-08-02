@@ -56,7 +56,7 @@ Given /^default (router|docker-registry) deployment config is restored after sce
   teardown_add {
     @result = _admin.cli_exec(:rollback, deployment_name: resource, to_version: version, n: _project.name)
     raise "Cannot restore #{resource}" unless @result[:success]
-    latest_version = @result[:response].match(/^#(\d+)/)[1]
+    latest_version = @result[:response].match(/#(\d+)/)[1]
     rc_name = resource + "-" + latest_version
     @result = rc(rc_name, _project).wait_till_ready(_admin, 900)
     raise "#{rc_name} didn't become ready" unless @result[:success]
