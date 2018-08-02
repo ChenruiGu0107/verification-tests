@@ -285,4 +285,21 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Given a pod becomes ready with labels:
       | deployment=httpd-example-1 |
     Given the expression should be true> pod.container_specs.first.memory_request_raw == "80Mi"
-  
+
+  # @author yuwan@redhat.com
+  Scenario Outline: The user can create a pod/container with the MAX or MIN limited memory on OSD
+    Given I have a project
+    And the expression should be true> limit_range("resource-limits").limits("Pod").<memory_limit_level>.memory_raw == "<memory_limit>"
+    And the expression should be true> limit_range("resource-limits").limits("Container").<memory_limit_level>.memory_raw == "<memory_limit>"
+    When I run the :new_app client command with:
+      | template | httpd-example               |
+      | param    | MEMORY_LIMIT=<memory_limit> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=httpd-example-1 |
+    And the expression should be true> pod.container_specs.first.memory_limit_raw == "<memory_limit>"
+
+    Examples:
+      | memory_limit_level | memory_limit |
+      | min                | 100Mi        | # @case_id OCP-18931
+      | max                | 8Gi          | # @case_id OCP-18930
