@@ -39,9 +39,6 @@ Feature: oc new-app related scenarios
     Given I have a project
     When I run the :new_app client command with:
       | search_raw | ruby |
-    And the output should contain:
-      | Project: openshift |
-      | 2.2, 2.3           |
     And the output should not contain:
       | 2.0 |
     When I run the :new_app client command with:
