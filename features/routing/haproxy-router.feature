@@ -1272,8 +1272,8 @@ Feature: Testing haproxy router
     """
     When I run the :logs client command with:
       | resource_name| <%= pod.name %> |
-    Then the output should contain:
-      | Invalid RELOAD_INTERVAL |
+    Then the output should match:
+      | Invalid.*RELOAD_INTERVAL.*abc.*using default value |
     """
 
   # @author zzhao@redhat.com
