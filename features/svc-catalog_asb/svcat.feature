@@ -173,11 +173,24 @@ Feature: svcat related command
       | deploymentconfig=asb                 |
     When I run the :logs client command with:
       | resource_name | <%= pod.name %>      |
-      | since         | 10s                  |
+      | since         | 15s                  |
+    Then the output should contain:
+      | AnsibleBroker::Catalog               |
+    Given 15 seconds have passed
+    When I run the :sync admin command with:
+      | _tool       | svcat                  |
+      | broker_name | ansible-service-broker |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deploymentconfig=asb                 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod.name %>      |
+      | since         | 15s                  |
     Then the output should contain 1 times:
       | AnsibleBroker::Catalog               |
 
     #using aliase of sync
+    Given 15 seconds have passed
     When I run the :relist admin command with:
       | _tool       | svcat                  |
       | broker_name | ansible-service-broker |
@@ -188,7 +201,7 @@ Feature: svcat related command
       | deploymentconfig=asb                 |
     When I run the :logs client command with:
       | resource_name | <%= pod.name %>      |
-      | since         | 5s                   |
+      | since         | 15s                   |
     Then the output should contain 1 times:
       | AnsibleBroker::Catalog               |
 
