@@ -19,6 +19,7 @@ Feature: snapshot specific scenarios
     When I execute on the pod:
       | touch | /mnt/gce/testfile1 | /mnt/gce/testfile2 |
     Then the step should succeed
+    Given 30 seconds have passed
 
     Given I switch to the second user
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/snapshot.yaml" replacing paths:
@@ -26,7 +27,7 @@ Feature: snapshot specific scenarios
       | ["metadata"]["namespace"]             | <%= cb.proj %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc               |
     Then the step should succeed
-    And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready
+    And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready up to 180 seconds
 
     Given I switch to the default user
     When I execute on the pod:
@@ -82,13 +83,14 @@ Feature: snapshot specific scenarios
     When I execute on the pod:
       | touch | /mnt/gce/testfile1 | /mnt/gce/testfile2 |
     Then the step should succeed
+    Given 30 seconds have passed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/snapshot/snapshot.yaml" replacing paths:
       | ["metadata"]["name"]                  | ss-<%= project.name %> |
       | ["metadata"]["namespace"]             | <%= project.name %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc                    |
     Then the step should succeed
-    And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready
+    And I wait for the "ss-<%= project.name %>" volume_snapshot to become ready up to 180 seconds
 
     When I execute on the pod:
       | rm | -f | /mnt/gce/testfile2 |
