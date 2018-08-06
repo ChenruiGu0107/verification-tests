@@ -509,3 +509,26 @@ check whether the changed `*.xyaml` file has valid format.
 
 * Q: Why do we need to create an empty actions in web auto?
 ** A: Our Scenarios in *.feature files are permanent for all version, but our web rules separated by version folder. Intention was to put all possible checks and operations which could change with upcoming releases to the web rules. So when we have new release we could just change web rules in appropriate folder and left Scenario untouched(so it works for previous version fine without any additional changes). Sometimes it happens that in new release we don't need action which was performed for previous releases, in this case we could left this action empty(If we'll simply delete this action, then Scenario will fail cause it couldn't find this action). For example look https://github.com/openshift/cucushift/search?utf8=%E2%9C%93&q=save_updated_env_value&type=[here]. We had separated "save button" for each env value in the second version, but when the editor was changed and this action is useless, so we just replaced the action content with {}.
+
+== Debugging Javascript in Firefox/Chrome
+
+When performing UI testing, and working with the automated framework, sometimes it's important or helpful to see what Javascript is doing. Often puzzling or troubling bugs will become immediately clear when you use the Javascript inspector and console debugger features that come standard with Firefox and Chrome.
+
+
+To use these tools, first navigate to a web page that you wish to debug (for MacOS, these commands may be slightly different).
+
+* In Firefox, either right click on the page, and navigate to `Inspect Element (Q)`, or hit `F-12`.
+* In Chrome, either right click on the page, and navigate to `Inspect` or hit `Ctrl-Shift-J`.
+
+Once the inspector appears, you can look at several things, including a console, a debugger, and a network analyzer among others. Please reference the Firefox or Chrome docs at the end of each point for a detailed explanation of the tool, including videos.
+
+* The inspector pane will show you the HTML and CSS layout of a page. You can search the HTML tree for element items in the `Search HTML` box at the top of the pane, and you can also look for CSS rules and styles in the right-hand side of the pane. You can also directly edit CSS and HTML with this feature. [Page Inspector - Firefox Developer Tools | MDN](https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector)
+* The network pane will allow you to see which elements are loaded int he page, how fast they were loaded, and any ajax requests. It will also let you see actual return and send values for requests. You may need to refresh the page to see this. [Network Monitor - Firefox Developer Tools | MDN](https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor)
+* The console pane will let you directly manipulate and view Javascript values. This is the most important feature for diagnosing Javascript issues. For example, in this pane, we can view console values with console.log(), and can evaluate xpath expressions using the $x() feature. [Web Console - Firefox Developer Tools | MDN](https://developer.mozilla.org/en-US/docs/Tools/Web_Console)
+* The debugger pane is a classical IDE debugger, where you can set breakpoints in the actual Javascript code, and re-run it. If code is minified, you can select the {} button, to pretty-print the code, set break points, and re-run the code, changing and viewing values. [Debugger - Firefox Developer Tools | MDN](https://developer.mozilla.org/en-US/docs/Tools/Debugger)
+
+For chrome, the same instructions can be located here: [Chrome DevTools  |  Tools for Web Developers  |  Google Developers](https://developers.google.com/web/tools/chrome-devtools/)
+
+Cucushift specific concerns:
+
+At times, it is difficult to diagnose an automated run. To debug Javascript or HTML issues, it is preferred to diagnose a testcase locally. If this is not possible, insert `console.log()` print lines in the Javascript of the test case, to print out values that would otherwise be hidden. Liberal use of `pry` commands to freeze on a particular step aid in the debugging process as well.
