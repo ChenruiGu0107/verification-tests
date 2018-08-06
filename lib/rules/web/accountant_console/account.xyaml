@@ -201,3 +201,106 @@ check_nav_link:
       xpath: //a[contains(text(),"Account info") and contains(@href,"https://developers.redhat.com/auth/realms/rhd/account/")]  
   - selector:
       xpath: //a[contains(text(),"Change password") and contains(@href,"https://developers.redhat.com/auth/realms/rhd/account/password")]
+check_current_fuse_plan_content:
+  elements:
+  - selector:
+      xpath: //*[contains(.,'Plan includes')] 
+  action: check_fuse_small_plan_includes_content
+check_fuse_small_plan_includes_content:
+  elements:
+  - selector:
+      xpath: //*[contains(.,'<integration_number> integrations')]
+  - selector:
+      xpath: //*[contains(.,'<memory> memory for your applications')]
+  - selector:
+      xpath: //*[contains(.,'<cpu_number> for your applications')]
+  - selector:
+      xpath: //*[contains(.,'<storage> storage for your applications')]
+  - selector:
+      xpath: //*[contains(.,'Up to 100 storage volumes available')]
+  - selector:
+      xpath: //*[contains(.,'Connectors Included')]
+  - selector:
+      xpath: //*[contains(.,'Basic Support')]
+check_fuse_subscription_index_page:
+  action: check_page_logo_banner
+  action: click_page_dropdown
+  elements:
+  - selector:
+      xpath: //a[@href='<console_url>/console/' and text()='Go to OpenShift console']
+  - selector:
+      xpath: //*[contains(.,'Logout (<email>)')]
+    timeout: 20
+  action:
+    context:
+      xpath: //*[contains(.,'Current Plan')]
+    ref: check_current_fuse_plan_part
+  action:
+    context:
+      xpath: //*[contains(.,'Primary Contact')]
+    ref: check_primary_contact_part
+  action:
+    context:
+      xpath: //*[contains(.,'Billing Contact')]
+    ref: check_billing_contact_part
+  action:
+    context:
+      xpath: //*[contains(.,'Payment Method')]
+    ref: check_payment_method_part
+  action:
+    context:
+      xpath: //*[contains(.,'Collaborators')]
+    ref: check_collaborators_part
+  action:
+    context:
+      xpath: //*[contains(.,'Coupons')]
+    ref: check_coupons_part
+  action: check_back_to_account_overview
+check_current_fuse_plan_part:
+  elements:
+  - selector:
+      xpath: //*[contains(@href,'subscription') and contains(.,'Change')]
+  - selector:
+      xpath: //*[contains(.,'Your plan has been customized with:')] 
+  action: check_current_fuse_plan_content
+go_to_account_page:
+  url: ../../account/index
+  elements:
+  - selector:
+      text: Active Subscriptions
+check_fuse_account_overview_page:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'openshiftapps.com')]
+  action: check_tooltips_for_memory
+  action: check_tooltips_for_cpu
+  action: check_tooltips_for_storage
+  action: check_tooltips_for_support
+check_tooltips_for_cpu:
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<cpu_number>')]
+    op: click
+  - selector:
+      xpath: //*[contains(.,'<cpu_number> is included with Fuse Online Small Online Integration Environment. Additional vCPU is not available for this plan.')] 
+check_tooltips_for_storage: 
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<storage>')]
+    op: click
+  - selector:
+      xpath: //*[contains(.,'<storage> of storage is included with Fuse Online Small Online Integration Environment.')]
+check_tooltips_for_support:
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'Basic')]
+    op: click
+  - selector:
+      xpath: //*[contains(.,'Basic support is included with Fuse Online.')]
+check_tooltips_for_memory:
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<memory>')]
+    op: click
+  - selector:
+      xpath: //*[contains(.,'<memory> of memory is included with Fuse Online Small Online Integration Environment. Additional memory is not available for this plan.')]

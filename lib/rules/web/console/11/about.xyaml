@@ -27,3 +27,12 @@ check_elb_custom_routes:
       xpath: //*[contains(@data-clipboard-target, //*[contains(@value,'elb.<route_suffix>')]/@id)]
   - selector:
       xpath: //*[@href='https://docs.openshift.com/online/dev_guide/routes.html#creating-routes' and contains(text(), 'Create a custom route')]
+check_routes_without_custom_route:
+  elements:
+  - selector:
+      xpath: //*[contains(@data-clipboard-target, //*[contains(@value,'<route-name>-<project>.<route_suffix>')]/@id)] 
+check_without_elb_custom_route:
+  elements:
+  - selector:
+      xpath: //p[contains(@ng-show,'custom_routes_enabled') and contains(@class,'ng-hide')]
+    visible: false

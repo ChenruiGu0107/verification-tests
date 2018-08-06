@@ -76,3 +76,28 @@ go_to_register_pro_cluster_page:
   - selector:
       xpath: (//*[contains(@href, 'register/profile') and contains(., 'Online') and contains(., 'Environment')])[1]
     op: click
+check_fuse_small_plan_info:
+  elements:
+  - selector:
+      xpath: //*[contains(text(),'Fuse Online')]
+  - selector:
+      text: Integrate everything—fast and online.
+  - selector:
+      text: Starting at 5 Integrations
+  - selector:
+      text: Starting at 8GiB Memory
+  - selector: 
+      text: Starting at 5GiB Storage
+  - selector:
+      text: Starting at 16 vCPU
+  - selector:
+      text: Up to 100 Storage Volumes Available
+  - selector:
+      text: Connectors Included
+  - selector:
+      text: Basic Support
+  action: check_starting_at_for_fuse
+check_starting_at_for_fuse:
+  elements:
+  - selector:
+      xpath: //a[@class='btn btn-lg btn-primary btn-block' and @href='/register/fuse/plans'][contains(text(),'Starting at $650/Month')]
