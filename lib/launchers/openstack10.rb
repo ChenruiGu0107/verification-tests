@@ -490,6 +490,7 @@ module CucuShift
       key ||= create_opts.delete(:key) || opts[:key]
       image ||= create_opts.delete(:image) || opts[:image]
       networks ||= create_opts.delete(:networks) || opts[:networks]
+      security_groups = create_opts.delete(:security_groups) || opts[:security_groups]
       new_boot_volume = create_opts.delete(:new_boot_volume) || opts[:new_boot_volume]
       block_device_mapping_v2 = create_opts.delete(:block_device_mapping_v2) || opts[:block_device_mapping_v2]
 
@@ -497,6 +498,7 @@ module CucuShift
       self.get_flavor_ref(flavor_name)
       params = {:server => {:name => instance_name, :key_name => key , :flavorRef => self.os_flavor}.merge(create_opts)}
       params[:server][:networks] = networks if networks
+      params[:server][:security_groups] = security_groups if security_groups
 
       case
       when Array === block_device_mapping_v2 && block_device_mapping_v2.size > 0
@@ -527,6 +529,7 @@ module CucuShift
       end
 
       url = self.os_compute_url + '/' + 'servers'
+      logger.debug "creating instance with params:\n#{params.to_yaml}"
       res = self.rest_run(url, "POST", params, self.os_token)
       if res[:success] && res[:parsed]
         logger.info("created instance: #{instance_name}")
