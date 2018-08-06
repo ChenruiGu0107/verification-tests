@@ -33,23 +33,21 @@ Feature: svcat related command
     And the output by order should contain:
       | Usage:                              |
       |   oc plugin svcat version [flags]   |
-      | Options:                            |
-      |   -c, --client=true                 |
 
     #get version without option
     When I run the :version admin command with:
       | _tool       | svcat                 |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
-      | server:.*v[0-9].[0-9]+.[0-9]        |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
+      | [S,s]erver.*v[0-9].[0-9]+.[0-9]     |
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
       | cmd_flag    | version               |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
-      | server:.*v[0-9].[0-9]+.[0-9]        |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
+      | [S,s]erver.*v[0-9].[0-9]+.[0-9]     |
 
     #get version with option "-c,--client"
     When I run the :version admin command with:
@@ -57,29 +55,14 @@ Feature: svcat related command
       | client      |                       |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
     When I run the :version admin command with:
       | _tool       | svcat                 |
       | c           |                       |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
     
-    When I run the :plugin admin command with:
-      | cmd_name    | svcat                 |
-      | cmd_flag    | version               |
-      | cmd_flag    | --client              |
-    Then the step should fail
-    And the output should match:
-      | flag needs an argument              |
-    When I run the :plugin admin command with:
-      | cmd_name    | svcat                 |
-      | cmd_flag    | version               |
-      | cmd_flag    | -c                    |
-    Then the step should fail
-    And the output should match:
-      | flag needs an argument              |
-
     #In plugin mode must specify --client=true
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
@@ -88,7 +71,7 @@ Feature: svcat related command
       | cmd_flag_val| true                  |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
       | cmd_flag    | version               |
@@ -96,7 +79,7 @@ Feature: svcat related command
       | cmd_flag_val| true                  |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
       | cmd_flag    | version               |
@@ -104,8 +87,8 @@ Feature: svcat related command
       | cmd_flag_val| false                 |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
-      | server: v[0-9].[0-9]+.[0-9].*       |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
+      | [S,s]erver.*v[0-9].[0-9]+.[0-9].*   |
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
       | cmd_flag    | version               |
@@ -113,8 +96,8 @@ Feature: svcat related command
       | cmd_flag_val| false                 |
     Then the step should succeed
     And the output should match:
-      | client:.*v[0-9].[0-9].[0-9]         |
-      | server: v[0-9].[0-9]+.[0-9].*       |
+      | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
+      | [S,s]erver.*v[0-9].[0-9]+.[0-9].*   |
  
     #get version with invalid option "--c,---client"
     When I run the :version admin command with:
@@ -160,7 +143,7 @@ Feature: svcat related command
     Then the step should succeed
     And the output by order should contain:
       | Usage:                               |
-      |   svcat sync broker [name] [flags]   |
+      |   svcat sync broker                  |
     
     #svcat sync ansible-service-broker
     When I run the :sync admin command with:
