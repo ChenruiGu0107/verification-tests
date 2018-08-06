@@ -204,12 +204,13 @@ Feature: SDN related networking scenarios
       | grep iptablesSyncPeriod /etc/origin/node/node-config.yaml |
     Then the output should match ".*30s"
     Given the node iptables config is verified
-    And the node service is restarted on the host after scenario
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    When I run commands on the host:
-      | sed -i 's/iptablesSyncPeriod:.*/iptablesSyncPeriod: "10s"/g' /etc/origin/node/node-config.yaml |
-    Then the step should succeed
-    Given the node service is restarted on the host
+    Given I restart the network components on the node after scenario
+    Given node config is merged with the following hash:
+    """
+    iptablesSyncPeriod: "10s"
+    """
+    And I restart the network components on the node
+
     When I run commands on the host:
       | iptables -S \| grep "4789.*incoming" \| cut -d ' ' -f 2- |
     Then the step should succeed
