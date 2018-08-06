@@ -667,9 +667,13 @@ Feature: Ansible-service-broker related scenarios
       | param | UID=<%= cb.db_uid %>                                                                                            |
       | n     | <%= project.name %>                                                                                                     |
     Then the step should succeed
+    Given I wait for the "<db_name>" service_instance to become ready up to 300 seconds
+    And dc with name matching /mysql/ are stored in the :dc_1 clipboard
+    
     # DB apbs provision succeed
     Given a pod becomes ready with labels:
       | app=<db_label>            |
+
     And I wait up to 80 seconds for the steps to pass:
     """
     When I run the :describe client command with:
@@ -693,18 +697,17 @@ Feature: Ansible-service-broker related scenarios
     Then the output should match:
       | Message:\\s+Injected bind result          |
     """
-    Given I ensure "<db_name>" servicebinding is deleted
-    And I ensure "<db_name>" serviceinstance is deleted
-    And I ensure "<%= project.name %>" project is deleted
-    When I run the :get client command with:
-      | resource | projects |
-    Then the step should succeed
-    And the output should not match:
-      | <%= project.name %>   |
+     
+    Given I ensure "<%= project.name %>" project is deleted
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    And admin check that there are no serviceinstance in the "<%= project.name %>" project
+    And admin check that there are no servicebinding in the "<%= project.name %>" project
+    """
 
     Examples:
-      | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                            | db_label             |
-      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}     | rhscl-mysql-apb      | # @case_id OCP-16661
+      | db_name                         | db_credentials                              | db_plan | db_secret_name                             | db_parameters                                                                                                            | db_label                   |
+      | <%= cb.prefix %>-mysql-apb      | <%= cb.prefix %>-mysql-apb-credentials      |  dev    | <%= cb.prefix %>-mysql-apb-parameters      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","service_name":"mysql","mysql_password":"test"}     | <%= cb.dc_1.first.name %>  | # @case_id OCP-16661
 
 
   # @author zhsun@redhat.com

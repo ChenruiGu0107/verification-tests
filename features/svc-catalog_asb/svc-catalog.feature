@@ -920,7 +920,7 @@ Feature: Service-catalog related scenarios
       | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb     |
       | p        | {"spec":{"clusterServicePlanExternalName": "prod"}} |
     Then the step should succeed
-
+    
     # Check instance yaml when provision updating fail 
     When I wait up to 60 seconds for the steps to pass:
     """
@@ -944,22 +944,21 @@ Feature: Service-catalog related scenarios
       | userInfo                             |
       | reconciledGeneration: 1              |
     """
-
     # Update spec.url of clusterservicebroker to a to a valid value
     When I run the :patch admin command with:
       | resource | clusterservicebroker/ansible-service-broker                                                      |
       | p        | {"spec":{"url": "https://asb.openshift-ansible-service-broker.svc:1338/ansible-service-broker"}} |
     Then the step should succeed
-
+    
     # Check instance yaml when provision updating
     When I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb |
       | o        | yaml                                            |
-    Then the output by order should contain:
+    Then the output by order should match:
       | generation: 2                                         |
-      | message: The instance is being updated asynchronously |
+      | message.*The instance is being updated asynchronously |
       | reason: UpdatingInstance                              |
       | status: "False"                                       |
       | currentOperation: Update                              |
@@ -975,7 +974,7 @@ Feature: Service-catalog related scenarios
       | userInfo                                              |
       | reconciledGeneration: 1                               |
     """
-
+   
     # Check instance yaml when provision updated succeed
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 360 seconds
     Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
