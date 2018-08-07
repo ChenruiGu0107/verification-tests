@@ -1737,3 +1737,29 @@ Feature: Network policy plugin scenarios
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+
+
+  #author bmeng@redhat.com
+  #case_id OCP-19552
+  @admin
+  Scenario: Should not break the cluster when creating network policy with incorrect json structure
+    Given the master version >= "3.9"
+    And the env is using networkpolicy plugin
+
+    # Create project via user and create invalid networkpolicy in it
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/incorrect-structure.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+
+    # Check if there is core dump generated on master node
+    Given I run commands on all masters:
+      | ls /var/lib/origin/ |
+    Then the step should succeed
+    And the output should not match:
+      | core.\d+ |
