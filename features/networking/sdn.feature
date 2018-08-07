@@ -793,24 +793,21 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should contain "net.ipv4.ip_forward = 1"
     """
-    Given the node service is restarted on the host after scenario
+    Given I restart the network components on the node after scenario
     And I register clean-up steps:
     """
     When I run commands on the host:
       | sysctl -w net.ipv4.ip_forward=1 |
     Then the step should succeed
     """
+
     When I run commands on the host:
       | sysctl -w net.ipv4.ip_forward=0 |
     Then the step should succeed
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should fail
+    Given I restart the network components on the node
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "2 min ago" \| grep network.go |
-    Then the step should succeed
+    Given I get the networking components logs of the node since "120s" ago
     And the output should contain "net/ipv4/ip_forward=0, it must be set to 1"
     """
 
