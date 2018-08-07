@@ -842,7 +842,7 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   step %Q/I store master major version in the :master_version clipboard/ unless cb.master_version
   cb.base_ansible_image_tag ||= "v#{cb.master_version}"
   cb.ansible_image_src = conf[:ansible_image_src]
-  cb.ansible_image_src ||= "openshift/origin-ansible"
+  cb.ansible_image_src ||= "openshift3/ose-ansible"
   cb.org_project_for_ansible ||= project
   # we need to save the original project name for post test cleanup
   # to save time we are going to check if the base-ansible-pod already exists
@@ -856,7 +856,7 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
     # cb.proxy_value will determine if proxy section is enabled.
     step %Q/I switch to cluster admin pseudo user/
     step %Q{I use the "<%= cb.org_project_for_ansible.name %>" project}
-    step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_configurable.yaml}
+    step %Q{I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_ose.yaml}
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
 
