@@ -502,14 +502,26 @@ module CucuShift
 
       case
       when Array === block_device_mapping_v2 && block_device_mapping_v2.size > 0
-        # TODO process mappings to help with image/flavor/volume/snapshot UUIDs
-        params[:server][:block_device_mapping_v2] = block_device_mapping_v2
+        params[:server][:block_device_mapping_v2] = block_device_mapping_v2.map { |disk|
+          disk = Collections.deep_hash_symkeys(disk)
+          if disk[:image_name]
+            image_name = disk.delete(:image_name)
+            disk[:uuid] = get_image_ref(image_name)
+            raise("image #{image_name} not found") unless disk[:uuid]
+          elsif !disk[:uuid] &&
+                disk[:boot_index] == 0 &&
+                disk[:source_type] == "image"
+            disk[:uuid] = get_image_ref(image)
+            raise("image #{image} not found") unless disk[:uuid]
+          end
+          disk
+        }
       when new_boot_volume && new_boot_volume > 0
-        self.get_image_ref(image) || raise("image #{image} not found")
+        uuid = get_image_ref(image) || raise("image #{image} not found")
         params[:server][:block_device_mapping_v2] = [
           {
-            boot_index: "0",
-            uuid: self.os_image,
+            boot_index: 0,
+            uuid: uuid,
             source_type: "image",
             volume_size: new_boot_volume.to_s,
             destination_type: "volume",
@@ -524,8 +536,19 @@ module CucuShift
         ]
       else
         # regular boot disk from image
-        self.get_image_ref(image) || raise("image #{image} not found")
-        params[:server][:imageRef] = self.os_image
+        params[:server][:imageRef] = get_image_ref(image) ||
+          raise("image #{image} not found")
+      end
+
+      ## for image->local combination we also need imageRef, see
+      #    https://docs.openstack.org/nova/latest/user/block-device-mapping.html
+      boot_disk = params[:server][:block_device_mapping_v2]&.find { |disk|
+        disk[:boot_index] == 0
+      }
+      if boot_disk &&
+          boot_disk[:source_type] == "image" &&
+          boot_disk[:destination_type] == "local"
+        params[:server][:imageRef] = boot_disk[:uuid]
       end
 
       url = self.os_compute_url + '/' + 'servers'
