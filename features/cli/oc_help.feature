@@ -420,7 +420,6 @@ Feature: oc related features
       | --max=               |
       | --min=               |
       | --name=              |
-      | --no-headers=        |
       | -o, --output=        |
       | --record=            |
       | --save-config=       |
