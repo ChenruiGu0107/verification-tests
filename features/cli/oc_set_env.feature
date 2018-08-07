@@ -152,10 +152,10 @@ Feature: oc_set_env.feature
       | list     | true |
       | all      | true |
     Then the step should succeed
-    And the output by order should contain:
-      | # deploymentconfigs <%= cb.dc_one %> |
+    And the output by order should match:
+      | deploymentconfigs.*<%= cb.dc_one %> |
       | FOO=bar |
-      | # deploymentconfigs <%= cb.dc_two %> |
+      | deploymentconfigs.*<%= cb.dc_two %> |
       | FOO=bar |
     #remove env from json and update service
     And I run the :get client command with:
@@ -171,10 +171,10 @@ Feature: oc_set_env.feature
       | resource | dc   |
       | list     | true |
       | all      | true |
-    And the output by order should not contain:
-      | # deploymentconfigs <%= cb.dc_one %> |
+    And the output by order should not match:
+      | deploymentconfigs.*<%= cb.dc_one %> |
       | FOO=bar |
-      | # deploymentconfigs <%= cb.dc_two %> |
+      | deploymentconfigs.*<%= cb.dc_two %> |
       | FOO=bar |
     #Remove the environment variable ENV from container in all deployment configs
     When I run the :set_env client command with:

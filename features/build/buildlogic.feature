@@ -656,11 +656,13 @@ Feature: buildlogic.feature
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
       | state      | completed          |
-    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    And the output should match:
+      | invalid.*value.*be one of 'new', 'pending', or 'running'|
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
       | state      | failed             |
-    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    And the output should match:
+      | invalid.*value.*be one of 'new', 'pending', or 'running'|
     And the "ruby-hello-world-1" build becomes :running
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
@@ -669,11 +671,13 @@ Feature: buildlogic.feature
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
       | state      | cancelled          |
-    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    And the output should match:
+      | invalid.*value.*be one of 'new', 'pending', or 'running'|
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
       | state      | invalid            |
-    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    And the output should match:
+      | invalid.*value.*be one of 'new', 'pending', or 'running'|
 
   # @author dyan@redhat.com
   # @case_id OCP-11081

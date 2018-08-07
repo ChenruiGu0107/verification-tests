@@ -158,8 +158,8 @@ Feature: oc_delete.feature
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type | pods,services |
-      | l | template=application-template-stibuild |
+      | object_type | pods,services                          |
+      | l           | template=application-template-stibuild |
     Then the step should succeed
     Given I get project services
     Then the output should not contain:
@@ -170,25 +170,25 @@ Feature: oc_delete.feature
     When I run the :create client command with:
       | f | . |
     Then the step should succeed
-    And the output should contain:
-      | "jenkins-master" created |
-      | "jenkins-slave-builder" created |
+    And the output should match:
+      | jenkins-maste.*created         |
+      | jenkins-slave-builder.*created |
     When I run the :delete client command with:
       | f | . |
     Then the step should succeed
-    And the output should contain:
-      | "jenkins-master" deleted |
-      | "jenkins-slave-builder" deleted |
+    And the output should match:
+      | jenkins-master.*deleted        |
+      | jenkins-slave-builder.*deleted |
     When I run the :create client command with:
       | f | . |
     Then the step should succeed
-    And the output should contain:
-      | "jenkins-master" created |
-      | "jenkins-slave-builder" created |
+    And the output should match:
+      | jenkins-master.*created        |
+      | jenkins-slave-builder.*created |
     When I run the :delete client command with:
       | f | jenkins-master-template.json |
-      | f | jenkins-slave-template.json |
+      | f | jenkins-slave-template.json  |
     Then the step should succeed
-    And the output should contain:
-      | "jenkins-master" deleted |
-      | "jenkins-slave-builder" deleted |
+    And the output should match:
+      | jenkins-master.*deleted        |
+      | jenkins-slave-builder.*deleted |
