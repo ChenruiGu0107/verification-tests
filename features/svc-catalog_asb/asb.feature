@@ -646,7 +646,7 @@ Feature: Ansible-service-broker related scenarios
 
   # @author zhsun@redhat.com
   @admin
-  Scenario Outline:: [ASB] The serviceinstaces/servicebinddings should be deleted after deleted project
+  Scenario Outline: [ASB] The serviceinstaces/servicebinddings should be deleted after deleted project
     Given I save the first service broker registry prefix to :prefix clipboard
     Given I have a project
     When I run the :new_app client command with:
@@ -755,7 +755,7 @@ Feature: Ansible-service-broker related scenarios
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
-      |  failed validation for the following reason:.*version.*out of bounds 1.0 <= 1.0 |
+      |  failed validation for the following reason:.*version |
 
   # @author zitang@redhat.com
   # @case_id OCP-18648
@@ -1006,7 +1006,7 @@ Feature: Ansible-service-broker related scenarios
     When I run the :logs client command with:
       | resource_name | pod/<%= pod.name %> |
     Then the step should succeed
-    And the output should match "ERROR.*Failed to initialize.*Registry err.*registry"
+    And the output should match "Failed to initialize.*Registry err.*registry"
     And the output should not contain "panic"
     """
 
@@ -1029,7 +1029,7 @@ Feature: Ansible-service-broker related scenarios
       | resource      | clusterserviceplan                                                                    |
       | resource_name | <%= cb.mediawiki_plan_id %>                                                           |
       | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties.mediawiki_admin_user.title} |
-    Then the output should contain "Cannot be same as Admin User Password"
+    Then the output should match "Cannot be.*same.*as Admin User Password"
 
     # Provision mediawiki apb
     When I run the :new_app client command with:
@@ -1071,3 +1071,97 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And the output should contain "Mediawiki Admin User and Password cannot be the same value"
     """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-20181
+  @admin
+  @destructive
+  Scenario: User cannot use same username/passwd to provision mediawiki 3.11 or later
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I save the first service broker registry prefix to :prefix clipboard
+
+    # Checking clusterserviceplan of mediawiki
+    And I switch to the first user
+    Given I have a project
+    And cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb'].name` is stored in the :mediawiki_class_id clipboard
+    And evaluation of `cluster_service_class(cb.mediawiki_class_id).plans.first.name` is stored in the :mediawiki_plan_id clipboard
+    When I run the :get client command with:
+      | resource      | clusterserviceplan                                                                    |
+      | resource_name | <%= cb.mediawiki_plan_id %>                                                           |
+      | o             |  jsonpath={.spec.instanceCreateParameterSchema.properties.mediawiki_admin_user.title} |
+    Then the output should match "Cannot be.*same.*as Admin User Password"
+
+    # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                 |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb                                                           |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                        |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                                                                                   |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                                                                            |
+      | param | PARAMETERS={"mediawiki_admin_user":"test","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWiki","mediawiki_admin_pass":"test"} |
+      | param | UID=<%= cb.mediawiki_uid %>                                                                                                                                             |
+      | n     | <%= project.name %>                                                                                                                                                     |
+    Then the step should succeed
+
+    Given I check that the "<%= cb.prefix %>-mediawiki-apb" serviceinstance exists
+    And I check that the "<%= cb.prefix %>-mediawiki-apb-parameters" secret exists
+    And I switch to cluster admin pseudo user
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | project |
+    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb-prov.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
+    """
+    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
+ 
+    # Check log of sandbox pod
+    Given I use the "<%= cb.wiki_prov_prj %>" project
+    Given status becomes :failed of 1 pods labeled:
+      | bundle-action=provision |
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+    Then the step should succeed
+    And the output should contain "Mediawiki Admin User and Password cannot be the same value"
+    """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-20182
+  @admin
+  @destructive
+  Scenario: Sandbox APB Service Account using 'edit' scoped to the target namespace 3.11 or later
+    Given I save the first service broker registry prefix to :prefix clipboard
+    #provision postgresql
+    And I have a project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+
+    # Check rolebindings in user project
+    Given I check that the "<%= cb.prefix %>-postgresql-apb" serviceinstance exists
+    And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
+    And rolebindings with name matching /bundle-/ are stored in the :rb1 clipboard
+    And the expression should be true> role_binding("<%= cb.rb1.first.name %>").role_names(cached: false).include? "edit"
