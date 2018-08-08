@@ -566,3 +566,36 @@ Given /^I get the networking components logs of the node since "(.+)" ago$/ do |
     @result = node.host.exec_admin("journalctl -l -u atomic-openshift-node --since \"#{duration} ago\" \| grep -E 'controller.go\|network.go'")
   end
 end
+
+Given /^the node's default gateway is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  hosts = step "I select a random node's host"
+  cb_name = "gateway" unless cb_name
+  @result = host.exec_admin("/sbin/ip route show default | awk '/default/ {print $3}'")
+
+  cb[cb_name] = @result[:response].chomp
+  unless IPAddr.new(cb[cb_name])
+    raise "Failed to get the default gateway"
+  end
+  logger.info "The node's default gateway is stored in the #{cb_name} clipboard."
+end
+
+
+Given /^I store a random unused IP address from the reserved range to the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name = "valid_ip" unless cb_name
+
+  reserved_range = "172.16.123.240/29"
+
+  validate_ip = IPAddr.new(reserved_range).to_range.to_a.shuffle.each { |ip|
+    @result = host.exec_admin("/usr/bin/ping -c 1 -W 2 #{ip}")
+    if @result[:exitstatus] == 0
+      logger.info "The IP is in use."
+    else
+      logger.info "The random unused IP is stored in the #{cb_name} clipboard."
+      cb[cb_name] = ip.to_s
+      break
+    end
+  }
+  raise "No available ip found in the range." unless IPAddr.new(cb[cb_name])
+end
