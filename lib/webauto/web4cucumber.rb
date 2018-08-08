@@ -101,6 +101,9 @@ require "base64"
         # options.log_level = 'trace'
 
         @browser = Watir::Browser.new :firefox, :http_client=>client, desired_capabilities: caps, options: options
+        if @size
+          browser.window.resize_to(*@size)
+        end
       elsif @browser_type == :firefox_legacy
         # legacy driver usage https://github.com/watir/watir/issues/634
         # we should switch to marionette once FF ESR becomes version  54+

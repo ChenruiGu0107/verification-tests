@@ -171,15 +171,18 @@ Feature: web console customization related features
       scriptURLs:
       - "https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/wildcard.js"
     """
-    Then I wait up to 360 seconds for the steps to pass:
-    """
+
+    # delete old console pod and recreate one with changes
+    When I run the :delete admin command with:
+      | object_type | pods                      |
+      | l           | app=openshift-web-console |
+    Then the step should succeed
     Given a pod becomes ready with labels:
       | webconsole=true |
     When admin executes on the pod:
       | cat | /var/webconsole-config/webconsole-config.yaml |
     Then the step should succeed
     And the output should contain "wildcard.js"
-    """
 
     ## test scenario 1 - router didn't support subdomains
     Given I switch to the first user
@@ -191,8 +194,6 @@ Feature: web console customization related features
     When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | ruby-ex            |
-    Then the step should succeed
-    When I run the :check_warning_info_for_hostname web console action
     Then the step should succeed
     When I perform the :create_unsecured_route_for_hostname web console action with:
       | route_name | my-route-wildcard |
@@ -261,8 +262,14 @@ Feature: web console customization related features
       - "https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/catalog-categories.js"
       - "https://rawgit.com/openshift-qe/v3-testfiles/master/extensions/quota-message.js"
     """
-    Then I wait up to 360 seconds for the steps to pass:
-    """
+
+    # delete old console pod and recreate one with changes
+    When I run the :delete admin command with:
+      | object_type | pods                      |
+      | l           | app=openshift-web-console |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | webconsole=true |
     When admin executes on the pod:
       | cat | /var/webconsole-config/webconsole-config.yaml |
     Then the step should succeed
@@ -271,9 +278,6 @@ Feature: web console customization related features
     And the output should contain "application-launcher.js"
     And the output should contain "catalog-categories.js"
     And the output should contain "quota-message.js"
-    And a pod becomes ready with labels:
-      | webconsole=true |
-    """
 
     ## user and cluster-admin prepare projects and resources
     Given I switch to the first user
@@ -353,7 +357,7 @@ Feature: web console customization related features
   @admin
   Scenario: Enable ClusterResourceOverrides for web console
     Given the master version >= "3.9"
-              
+
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -374,7 +378,7 @@ Feature: web console customization related features
       | name      | testdc                |
       | image     | aosqe/hello-openshift |
     Then the step should succeed
-    
+
     When I perform the :goto_set_resource_limits_for_dc web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | testdc              |
