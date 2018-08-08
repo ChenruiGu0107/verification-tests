@@ -833,7 +833,7 @@ Feature: Storage of GlusterFS plugin testing
     Given the pod named "pod-<%= project.name %>" becomes ready
 
     When I execute on the pod:
-      | grep | glusterfs | /etc/mtab |
+      | grep | glusterfs | /etc/mtab | /proc/mounts |
     Then the output should contain:
       | ro |
     Given I ensure "pod-<%= project.name %>" pod is deleted

@@ -484,7 +484,7 @@ Feature: Storage of Ceph plugin testing
 
     Given the pod named "pod-<%= project.name %>" becomes ready
     When I execute on the pod:
-      | grep | rbd | /etc/mtab |
+      | grep | rbd | /etc/mtab | /proc/mounts |
     Then the output should contain:
       | discard |
       | noatime |
