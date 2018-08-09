@@ -19,6 +19,8 @@
     :uuid: --uuid <value>
 :install:
   :cmd: svcat install <command>
+  :options:
+    :plugins_path: --plugins-path <value>
 :provision:
   :cmd: svcat provision <instance_name>
   :options:

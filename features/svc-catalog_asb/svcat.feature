@@ -6,16 +6,17 @@ Feature: svcat related command
   @destructive
   Scenario: Check svcat subcommand - version
     When I run the :install admin command with:
-      | _tool       | svcat                 |
-      | command     | plugin                | 
+      | _tool        | svcat           |
+      | command      | plugin          |
+      | plugins_path | ~/.kube/plugins |
     Then the step should succeed
     And the output should contain:
       | Plugin has been installed           |
-   
+
     #get help info
     When I run the :version admin command with:
       | _tool       | svcat                 |
-      | h           |                       | 
+      | h           |                       |
     Then the step should succeed
     And the output by order should contain:
       | Usage:                              |
@@ -28,7 +29,7 @@ Feature: svcat related command
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
       | cmd_flag    | version               |
-      | h           |                       | 
+      | h           |                       |
     Then the step should succeed
     And the output by order should contain:
       | Usage:                              |
@@ -62,7 +63,7 @@ Feature: svcat related command
     Then the step should succeed
     And the output should match:
       | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
-    
+
     #In plugin mode must specify --client=true
     When I run the :plugin admin command with:
       | cmd_name    | svcat                 |
@@ -98,7 +99,7 @@ Feature: svcat related command
     And the output should match:
       | [C,c]lient.*v[0-9].[0-9]+.[0-9]     |
       | [S,s]erver.*v[0-9].[0-9]+.[0-9].*   |
- 
+
     #get version with invalid option "--c,---client"
     When I run the :version admin command with:
       | _tool          | svcat              |
@@ -134,7 +135,7 @@ Feature: svcat related command
   Scenario: Check svcat subcommand - sync
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    
+
     #get help info
     When I run the :sync admin command with:
       | _tool       | svcat                  |
@@ -144,7 +145,7 @@ Feature: svcat related command
     And the output by order should contain:
       | Usage:                               |
       |   svcat sync broker                  |
-    
+
     #svcat sync ansible-service-broker
     When I run the :sync admin command with:
       | _tool       | svcat                  |
@@ -294,7 +295,7 @@ Feature: svcat related command
       | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | param | SECRET_NAME=my-secret                                                                                    |
     Then the step should succeed
-    Given I check that the "my-secret" secret exists 
+    Given I check that the "my-secret" secret exists
     And I wait for the "ups-binding" service_binding to become ready up to 60 seconds
 
     # get resource without option
@@ -353,7 +354,7 @@ Feature: svcat related command
 
      Examples:
       |resource_type  |resource_aliase1 |resource_aliase2 |resource_name         |output_result            |output_yaml                         |output_json                            |user_type |uuid_value          |status     |output_uuid                  |
-      |brokers        |broker           |brk              |ups-broker            |ups-broker               |name: ups-broker                    |"name": "ups-broker"                   |admin     |brokeruuid          |fail       |unknown flag                 | 
+      |brokers        |broker           |brk              |ups-broker            |ups-broker               |name: ups-broker                    |"name": "ups-broker"                   |admin     |brokeruuid          |fail       |unknown flag                 |
       |classes        |class            |cl               |user-provided-service |user-provided-service    |externalName: user-provided-service |"externalName": "user-provided-service"|client    |<%= cb.class_id %>  |succeed    |user-provided-service        |
       |plans          |plan             |pl               |premium               |premium                  |externalName: premium               |"externalName": "premium"              |client    |<%= cb.plan_id %>   |succeed    |default                      |
       |instances      |instance         |inst             |ups-instance          |ups-instance             |name: ups-instance                  |"name": "ups-instance"                 |client    |instanceuuid        |fail       |unknown flag                 |
@@ -440,6 +441,6 @@ Feature: svcat related command
       |resource_type |resource_aliase1 |resource_aliase2 |resource_name         |output_result                                    |output_error                            |user_type     |uuid_value               |status       |output_uuid                            |
       |brokers       |broker           |brk              |ups-broker            |Successfully fetched catalog entries from broker |a broker name is required               |admin         |broker                   |fail         |unknown flag                           |
       |classes       |class            |cl               |user-provided-service |Name:          user-provided-service             |a class name or uuid is required        |client        |<%= cb.class_id %>       |succeed      |Name:          user-provided-service   |
-      |plans         |plan             |pl               |premium               |Name:          premium                           |a plan name or uuid is required         |admin         |<%= cb.plan_id %>        |succeed      |Name:          default                 |    
+      |plans         |plan             |pl               |premium               |Name:          premium                           |a plan name or uuid is required         |admin         |<%= cb.plan_id %>        |succeed      |Name:          default                 |
       |instances     |instance         |inst             |ups-instance          |The instance was provisioned successfully        |an instance name is required            |client        |instance                 |fail         |unknown flag                           |
       |bindings      |binding          |bnd              |ups-binding           |Injected bind result                             |a binding name is required              |client        |binding                  |fail         |unknown flag                           |
