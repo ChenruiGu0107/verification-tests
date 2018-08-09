@@ -149,3 +149,39 @@ kubeletArguments:
   - PVCProtection=true
   - MountPropagation=true
 ----
+
+Table: Enable local storage in diffrent OCP Versions (support from ocp3.7)
+|===
+|OCP Version |Enable feature gate
+
+|v3.7
+|PersistentLocalVolumes=true(apiServerArguments, controllerArguments, and kubeletArguments)
+
+|v3.9
+|PersistentLocalVolumes=true(apiServerArguments, controllerArguments, and kubeletArguments), VolumeScheduling=true(controllerArguments, schedulerArguments), MountPropagation=true(apiServerArguments, controllerArguments, and kubeletArguments)
+
+| >=v3.10
+|Do not need enable feature gate
+|===
+
+Table: Deploy local storage in OCP
+|===
+|Test Type|Deploy method
+
+|Not Errata
+|`cucumber features/cluster_configuration/localstorage.feature:5`
+
+|Errata
+|Get local-storage-provisioner version from errata, and update version in features/cluster_configuration/localstorage.feature line 12, then run `cucumber features/cluster_configuration/localstorage.feature:11`
+|===
+
+Table: Deploy csi in OCP(support from 3.10)
+|===
+|Test Type|Deploy method
+
+|Not Errata
+|`cucumber features/cluster_configuration/csi.feature:5`
+
+|Errata
+|Get csi images version from errata, and update version in features/cluster_configuration/csi.feature line 14, then run `cucumber features/cluster_configuration/csi.feature:13`
+|===
