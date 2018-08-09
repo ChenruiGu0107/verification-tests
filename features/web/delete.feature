@@ -16,9 +16,8 @@ Feature: Delete the resources via web console
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
     And I wait until the status of deployment "nodejs-sample" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | nodejs-sample |
-      | latest            ||
+    When I run the :rollout_latest client command with:
+      | resource | dc/nodejs-sample |
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
     When I perform the :delete_resources_in_the_project web console action with:
@@ -91,9 +90,8 @@ Feature: Delete the resources via web console
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
 
-    When I run the :deploy client command with:
-      | deployment_config | nodejs-sample |
-      | latest            ||
+    When I run the :rollout_latest client command with:
+      | resource | dc/nodejs-sample |
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
 

@@ -9,7 +9,7 @@ Feature: Independent link related scenarios
       | n        | openshift           |
     Then the step should succeed
     ## @result[:response].split=> ["NAME", "AGE", "0e991006d21029e47abe71acc255e807", "1d",...]
-    And evaluation of `@result[:response].split()[2]` is stored in the :id clipboard
+    And evaluation of `@result[:response].split("\n")[1].split()[0]` is stored in the :id clipboard
     When I run the :describe admin command with:
       | resource | clusterserviceclass |
       | name     | <%= cb.id %>        |

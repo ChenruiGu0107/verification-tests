@@ -76,14 +76,13 @@ Feature: Check deployments function
       | Replicas can't be negative. |
     When I run the :cancel_edit_replicas_on_rc_page web console action
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest ||
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :running
-    When  I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            ||
+    When  I run the :rollout_cancel client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :failed
     When I perform the :edit_replicas_on_rc_page web console action with:

@@ -834,7 +834,7 @@ check_invalid_env_key_warning_message:
     type: js
     op: click
   - selector:
-      xpath: //div[starts-with(text(),'A valid environment variable name is')]
+      xpath: //div[starts-with(text(),'A valid environment variable')]
 select_dc_strategy_type:
   elements:
   - selector:

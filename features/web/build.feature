@@ -1358,7 +1358,7 @@ Feature: build related feature on web console
     Then the step should succeed
     Given I perform the :edit_env_var_key web console action with:
       | env_var_value | dcvalue3 |
-      | new_env_key   | -DCthree |
+      | new_env_key   | DCthree# |
     Then the step should succeed
     When I perform the :check_invalid_env_key_warning_message web console action with:
       | message | Please enter a valid key |
