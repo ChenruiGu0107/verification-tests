@@ -196,24 +196,23 @@ Feature: project permissions
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml |
     Then the step should succeed
+    Given evaluation of `project.name` is stored in the :saved_name clipboard
     When I delete the project
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I run the :get client command with:
-      | resource | project |
-    Then the output should not contain:
-      | <%= project.name %> |
+    # Sometimes the project is Terminating when checked by cluster-admin, so need wait.
+    And I wait for the resource "project" named "<%= cb.saved_name %>" to disappear
     When I run the :get client command with:
-      | resource      | hpa                 |
-      | resource_name | php-apache          |
-      | n             | <%= project.name %> |
+      | resource      | hpa                  |
+      | resource_name | php-apache           |
+      | n             | <%= cb.saved_name %> |
     Then the step should fail
     Then the output should contain:
       | not found |
     When I run the :get client command with:
       | resource      | job                 |
       | resource_name | pi                  |
-      | n             | <%= project.name %> |
+      | n             | <%= cb.saved_name %> |
     Then the step should fail
     Then the output should contain:
       | not found |

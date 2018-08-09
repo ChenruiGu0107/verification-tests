@@ -247,6 +247,7 @@ end
 
 # pod_info is the user pod, for example.... deployment-example
 # the step will do 'docker ps | grep deployment-example' to filter out a target
+# TODO: cri-o is not implemented yet
 Given /^the system container id for the#{OPT_QUOTED} pod is stored in the#{OPT_SYM} clipboard$/ do | pod_name, cb_name |
   cb_name ||= :system_pod_container_id
   system_pod_container_id_regexp=/^(.*)\s+.*(ose|origin)-pod:.+\s/

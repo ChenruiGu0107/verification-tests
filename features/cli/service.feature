@@ -40,14 +40,8 @@ Feature: service related scenarios
       | name                | hello-openshift |
       | clusterip           | 172.30.250.227  |
       | tcp                 | <%= rand(6000..9000) %>:8080       |
-    Then the step should succeed
-    Given I wait for the "hello-openshift" service to become ready up to 300 seconds
-    And I select a random node's host
-    When I run commands on the host:
-      | curl <%= service.url(cached: false) %> |
-    Then the step should succeed
-    And the output should contain:
-      | Hello OpenShift! |
+    And the output should match:
+      | ervice.*created\|nvalid.*IP |
     When I run the :create_service client command with:
       | createservice_type  | clusterip       |
       | name                | hello-openshift |

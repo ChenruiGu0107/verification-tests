@@ -63,12 +63,12 @@ Feature: pod related features
   @admin
   Scenario: Expose shared memory of the pod--Clustered
     Given I have a project
-    And I select a random node's host
     When I run the :new_app client command with:
       | app_repo | openshift/deployment-example |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=deployment-example |
+    Given I use the "<%= pod.node_name %>" node
     Given the system container id for the pod is stored in the clipboard
     And evaluation of `pod.container(user: user, name: 'deployment-example').id` is stored in the :container_id clipboard
     When I run commands on the host:
