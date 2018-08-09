@@ -155,8 +155,8 @@ Feature: oc exports related scenarios
       | output        | xyz      |
       | export        | true     |
     Then the step should fail
-    And the output should contain:
-      | error: output format "xyz" not recognized |
+    And the output should match:
+      | error: .*output format "xyz".* |
 
   # @author pruan@redhat.com
   # @case_id OCP-12598

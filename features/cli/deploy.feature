@@ -43,7 +43,7 @@ Feature: deployment related features
       | deployment_name | hooks-1 |
       | dry_run         |         |
     Then the output should match:
-      | Strategy:\\s+Rolling |
+      | .*rolled back to hooks-1 \(dry run\) |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | dry_run                 |         |
@@ -51,9 +51,7 @@ Feature: deployment related features
       | change_strategy         |         |
       | change_triggers         |         |
     Then the output should match:
-      | Triggers:\\s+Config   |
-      | Strategy:\\s+Recreate |
-      | Replicas:\\s+1        |
+      | .*rolled back to hooks-1 \(dry run\) |
 
   # @author xxing@redhat.com
   # @case_id OCP-12034
@@ -1665,7 +1663,7 @@ Feature: deployment related features
     Then the step should succeed
     And 20 seconds have passed
     And the expression should be true> dc('minreadytest').unavailable_replicas == 2
-    And 60 seconds have passed
+    And I wait until the status of deployment "minreadytest" becomes :complete
     And the expression should be true> dc('minreadytest').available_replicas(cached: false) == 2
 
   # @author mcurlej@redhat.com
@@ -2434,7 +2432,6 @@ Feature: deployment related features
       | - type: ConfigChange   |
       | message: config change |
 
-
   # @author yinzhou@redhat.com
   # @case_id OCP-16632
   Scenario: View the history of rollouts for a specific deployment config for 3.7
@@ -2465,4 +2462,3 @@ Feature: deployment related features
       | Labels:      |
       | Containers:  |
       | Annotations: |
-

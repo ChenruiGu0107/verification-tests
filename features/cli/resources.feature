@@ -74,8 +74,8 @@ Feature: resouces related scenarios
       | force |         |
     Then the step should succeed
     And the output should contain:
-      | "mydc" deleted  |
-      | "mydc" replaced |
+      | "mydc" deleted |
+      | mydc replaced  |
 
     Given a pod becomes ready with labels:
       | label=mydc |
@@ -158,12 +158,6 @@ Feature: resouces related scenarios
       | generator | run-controller/v1 |
       | -l        | label=same,label2=test-b |
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | rc      |
-      | object_name_or_id | test-a  |
-      | object_name_or_id | test-b  |
-    Then the step should fail
-    And the output should contain "overlapping controllers"
     When I run the :delete client command with:
       | object_type       | rc      |
       | object_name_or_id | test-a  |

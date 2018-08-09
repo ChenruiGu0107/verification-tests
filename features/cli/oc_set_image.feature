@@ -26,7 +26,7 @@ Feature: oc set image related tests
       | keyval   | dctest-1=openshift/python:latest         |
       | l        | test=1234                                |
     Then the step should succeed
-    And the output should contain ""<%= @pods[0].name %>" image updated"
+    And the output should contain "image updated"
 
     When I run the :describe client command with:
       | resource | pod                  |

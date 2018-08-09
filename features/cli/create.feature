@@ -862,15 +862,6 @@ Feature: creating 'apps' with CLI
       | name     | myquota             |
       | hard     | pods=10             |
       | n        | <%= project.name %> |
-      | output   | wide                |
-      | dry-run  | true                |
-    Then the step should succeed
-    And the output should match:
-      | myquota.*unknown |
-    When I run the :create_quota client command with:
-      | name     | myquota             |
-      | hard     | pods=10             |
-      | n        | <%= project.name %> |
       | output   | name                |
       | dry-run  | true                |
     Then the step should succeed

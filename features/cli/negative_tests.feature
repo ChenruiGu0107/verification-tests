@@ -95,17 +95,13 @@ Feature: negative tests
       | resource | :false |
     Then the step should fail
     And the output should match:
-      | type of resource.*include        |
-      | buildconfigs.*bc                 |
-      | [Ee]rror.*[Rr]equired resource   |
-      | oc describe -h                   |
+      | type of resource.*    |
     # oc get negative
     When I run the :get client command with:
       | resource | :false |
     Then the step should fail
     And the output should match:
-      | type of resource.*include        |
-      | buildconfigs.*bc                 |
+      | type of resource.*      |
       | [Ee]rror.*[Rr]equired resource   |
       | oc get -h                        |
       | oc explain <resource>            |
@@ -115,10 +111,7 @@ Feature: negative tests
     When I run the :explain client command
     Then the step should fail
     And the output should match:
-      | type of resource.*include        |
-      | buildconfigs.*bc                 |
-      | [Ee]rror.*[Rr]equired resource   |
-      | oc explain -h                    |
+      | type of resource.*   |
 
     # oc start-build negative
     When I run the :start_build client command
@@ -129,14 +122,6 @@ Feature: negative tests
       | oc get bc                        |
       | oc start-build -h                |
 
-    # oc deploy negative
-    When I run the :deploy client command with:
-      | deployment_config | :false |
-    Then the step should fail
-    And the output should match:   
-      | [Ee]rror.*deployment config.*required |
-      | oc get dc                        |
-      | oc deploy -h                     |
 
     # oc expose negative
     When I run the :expose client command with:
@@ -146,7 +131,6 @@ Feature: negative tests
     And the output should match: 
       | [Ee]rror.*must provide.*resource |
       | [Ee]xample resource.*include     |
-      | oc expose -h                     |
 
     # oc logs
     When I run the :logs client command with:

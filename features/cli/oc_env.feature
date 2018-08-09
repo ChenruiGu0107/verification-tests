@@ -99,53 +99,53 @@ Feature: oc_env.feature
     Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_one clipboard
     Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :dc_two clipboard
     # set environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc   |
       | all      | true |
       | e        | test=1234 |
     Then the step succeeded
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc   |
       | list     | true |
       | all      | true |
     Then the step should succeed
     And the output by order should contain:
-      | # deploymentconfigs <%= cb.dc_one %> |
+      | # deploymentconfigs/<%= cb.dc_one %> |
       | test=1234 |
-      | # deploymentconfigs <%= cb.dc_two %> |
+      | # deploymentconfigs/<%= cb.dc_two %> |
       | test=1234 |
     # update resource environment variable
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/<%= cb.dc_one %> |
       | env_name | test=1234change     |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/<%= cb.dc_one %> |
       | list     | true |
     Then the step should succeed
     And the output by order should contain:
-      | # deploymentconfigs <%= cb.dc_one %> |
+      | # deploymentconfigs/<%= cb.dc_one %> |
       | test=1234change |
     # update environment variables with --all option
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc   |
       | all      | true |
       | env_name | test2=abcchange |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc   |
       | list     | true |
       | all      | true |
     Then the step should succeed
     And the output by order should contain:
-      | # deploymentconfigs <%= cb.dc_one %> |
+      | # deploymentconfigs/<%= cb.dc_one %> |
       | test=1234change |
       | test2=abcchange |
-      | # deploymentconfigs <%= cb.dc_two %> |
+      | # deploymentconfigs/<%= cb.dc_two %> |
       | test=1234 |
       | test2=abcchange |
     # diaplay environment variables with json yaml format
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/<%= cb.dc_two %> |
       | env_name | test2=abcchange     |
       | o        | json                |

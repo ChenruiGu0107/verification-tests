@@ -168,7 +168,7 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | "hooks".*reated |
+      | hooks.*reated |
     When I get project pods
     Then the output should contain:
       | hooks-1-deploy |
@@ -330,7 +330,7 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig.*\\s+"hooks".*reated |
+      | hooks.*reated |
     When I get project pods
     Then the output should match:
       | hooks-1-deploy |
@@ -378,7 +378,7 @@ Feature: Quota related scenarios
       | template | ruby-helloworld-sample-with-resources |
     Then the step should succeed
     And the output should match:
-      | uildconfig\\s+"ruby-sample-build"\\s+created |
+      | "ruby-sample-build"\\s+created |
     Given the pod named "database-1-deploy" becomes present
     And the pod named "ruby-sample-build-1-build" becomes present
     When I get project pod as YAML

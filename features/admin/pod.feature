@@ -939,6 +939,8 @@ Feature: pod related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     And I wait until number of replicas match "10" for deployment "hello-openshift"
+    Given 10 pods become ready with labels:
+      | app=hello-openshift  |
     When I run the :label client command with:
       | resource  | pods     |
       | all       | true     |
