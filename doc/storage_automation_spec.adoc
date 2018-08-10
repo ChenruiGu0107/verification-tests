@@ -6,149 +6,40 @@ Even with dynamic provisioner you have to preconfigure your various storage clus
 
 
 == Ceph
-A healthy https://mojo.redhat.com/docs/DOC-1045731[Ceph storage cluster] with 1 MON and 3 OSDs should be configured, MDS is required for CephFS service. The MON's ip should be reachable from within the OpenShift cluster.
 
-== Ceph RBD
+Setup Ceph storage cluster with https://gitlab.cee.redhat.com/jhou/storage-ansible on vSphere for CephRBD, CephFS, Ceph radosgw.
 
+== Gluster
 
-
-A StorageClass for Ceph RBD should be ready, the name should be `cephrbdprovisioner`.
-
-----
-apiVersion: storage.k8s.io/v1beta1
-kind: StorageClass
-metadata:
-  name: cephrbdprovisioner
-provisioner: kubernetes.io/rbd
-parameters:
-  monitors: "$IP:6789"
-  adminId: "admin"
-  adminSecretName: "cephrbd-secret"
-  adminSecretNamespace: "default"
-  pool: "rbd"
-  userId: "admin"
-  userSecretName: "cephrbd-user-secret"
-  userSecretNamespace: "default"
-----
-
-A secret named `cephrbd-secret` should created in the **default** namespace. Obtain the key value by running `ceph-authtool -p /etc/ceph/ceph.client.admin.keyring | base64` from the ceph MON.
-
-----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cephrbd-secret
-data:
-  key: QVFEcUZGTmFhdlRETWhBQTVOanplM2FzbS9YdE1KanJlczNPMGc9PQo=
-type: kubernetes.io/rbd
-----
-
-== CephFS
-
-First make sure you follow **Ceph RBD** section to correctly configure the OpenShift resources, then run the following commands to prepare CephFS on the MON.
-
-----
-yum -y install ceph-fuse
-
-ceph osd pool create cephfs_data 1
-ceph osd pool create cephfs_metadata 1
-ceph fs new cephfs cephfs_metadata cephfs_data
-ceph fs ls
-----
+Setup Gluster storage cluster with https://gitlab.cee.redhat.com/jhou/storage-ansible on vSphere for GlusterFS, GlusterBlock.
 
 
-== Gluster Storage
-
-Setup Gluster storage with https://openshift-qe-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/StorageEnvLauncher/, you will get a gluster storage cluster with both GlusterFS and Gluster-block supported. The StorageClass will be auto created to serve test automation.
-
-== iSCSI
-An iSCSI target should be preconfigured, on every OpenShift node, the initiator should be able to discover the target and establish a session.
-
-== FC
+== FibreChannel
 The automated FC test cases can only be tested on dedicated machines with FC cards. Therefore `targetWWNs` and `lun` are hardcoded values.
 
-== NFS
-Cucushift has integrated NFS dynamic provisioner deployment.
-
-== EFS
-Cucushift has integrated EFS dynamic provisioner deployment.
+== FlexVolume
+Use https://github.com/openshift-qe/v3-testfiles/tree/master/storage/flex/dummy[This example] and its playbooks to install.
 
 == StorageClass
 On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud provider enabled. A default StorageClass should be created for corresponding cloud provider when your OCP version is equal or greater than **3.6**.
 
 == Feature-gates
-
 All storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do our best to avoid turning on/off feature gates during test automation to maintain good test efficiency and stability. Use either the ansible installer or manual configuration to setup a test environment meeting our requirements.
 
-=== Using ansible installer
+=== Enable feature-gates with ansible installer
 
 ====
 [source, flexy parameters]
 ----
 openshift_ansible_vars:
-  osm_api_server_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
-  osm_controller_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "VolumeScheduling=true", "PersistentLocalVolumes=true", "BlockVolume=true"]}'
-  openshift_master_scheduler_args: '{"feature-gates": ["VolumeScheduling=true"]}'
-  openshift_master_admission_plugin_config: '{"PVCProtection":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}, "PersistentVolumeClaimResize":{"configuration":{"apiVersion":"v1", "kind":"DefaultAdmissionConfig", "disable":false}}}'
-  openshift_node_kubelet_args: '{"feature-gates": ["PVCProtection=true", "MountPropagation=true", "ExpandPersistentVolumes=true", "PersistentLocalVolumes=true", "BlockVolume=true"],  "enable-controller-attach-detach": ["true"],"minimum-container-ttl-duration": ["10s"], "maximum-dead-containers-per-container": ["1"], "maximum-dead-containers": ["20"], "image-gc-high-threshold": ["80"], "image-gc-low-threshold": ["70"]}'
+  osm_api_server_args: '{"feature-gates": ["BlockVolume=true"]}'
+  osm_controller_args: '{"feature-gates": ["BlockVolume=true"]}'
+  openshift_node_kubelet_args: '{"feature-gates": ["BlockVolume=true"],  "enable-controller-attach-detach": ["true"],"minimum-container-ttl-duration": ["10s"], "maximum-dead-containers-per-container": ["1"], "maximum-dead-containers": ["20"], "image-gc-high-threshold": ["80"], "image-gc-low-threshold": ["70"]}'
 ----
 ====
 
 === Manual configurations
 
-
-On all masters edit configuration file `/etc/origin/master/master-config.yaml`, update the contents of the `apiServerArguments`, `controllerArguments` and `admissionConfig` sections:
-
-----
-admissionConfig:
-  pluginConfig:
-    PVCProtection:
-      configuration:
-        apiVersion: v1
-        disable: false
-        kind: DefaultAdmissionConfig
-    PersistentVolumeClaimResize:
-      configuration:
-        apiVersion: v1
-        disable: false
-        kind: DefaultAdmissionConfig
-...
-
-kubernetesMasterConfig:
-  ...
-  apiServerArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
-    - PersistentLocalVolumes=true
-    - BlockVolume=true
-    - PVCProtection=true
-    - MountPropagation=true
-  ...
-  controllerArguments:
-    feature-gates:
-    - ExpandPersistentVolumes=true
-    - VolumeScheduling=true
-    - PersistentLocalVolumes=true
-    - BlockVolume=true
-    - PVCProtection=true
-    - MountPropagation=true
-  ...
-  schedulerArguments:
-    feature-gates:
-    - VolumeScheduling=true
-----
-
-On all nodes edit configuration file `/etc/origin/node/node-config.yaml`, update the contents of the `kubeletArguments` section:
-
-----
-kubeletArguments:
-  feature-gates:
-  - ExpandPersistentVolumes=true
-  - PersistentLocalVolumes=true
-  - BlockVolume=true
-  - PVCProtection=true
-  - MountPropagation=true
-----
 
 Table: Enable local storage in diffrent OCP Versions (support from ocp3.7)
 |===
