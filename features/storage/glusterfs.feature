@@ -390,10 +390,11 @@ Feature: Storage of GlusterFS plugin testing
     When I run the :describe client command with:
       | resource | pvc                         |
       | name     | pvc-neg-<%= project.name %> |
-    Then the output should contain:
-      | Pending       |
-      | invalid value |
+    Then the output should match:
+      | invalid( (gidMin\|gidMax))? value |
     """
+    And the "pvc-neg-<%= project.name %>" PVC status is :pending
+
 
   # @author jhou@redhat.com
   # @case_id OCP-10554
