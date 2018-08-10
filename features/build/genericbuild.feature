@@ -275,3 +275,91 @@ Feature: genericbuild.feature
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20221
+  Scenario: Using Secrets for Environment Variables in Build Configs
+    Given I have a project
+    Given a "mysecret.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: mysecret
+    data:
+        password: cGFzc3dvcmQ=
+        username: ZGV2ZWxvcGVy
+    type: kubernetes.io/basic-auth
+    """
+    And I run the :create client command with:
+      | f | mysecret.yaml | 
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig |
+      | resource_name | ruby-ex     |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "MYVALKEY","valueFrom": {"secretKeyRef": {"key": "username","name": "mysecret"}}},{"name": "MYVALVALUE","valueFrom": {"secretKeyRef": {"key": "password","name": "mysecret"}}}]}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with: 
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build completed
+    When I run the :set_env client command with:
+      | resource | pod/ruby-ex-2-build |
+      | list     | true                |
+      | all      | true                |
+    And the output should contain "{"name":"MYVALKEY","value":"developer"},{"name":"MYVALVALUE","value":"password"}"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20223
+  Scenario: Using Configmap for Environment Variables in Build Configs
+    Given I have a project
+    When I run the :create_configmap client command with:
+      | name         | special-config     |
+      | from_literal | special.how=very   |
+      | from_literal | special.type=charm |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig |
+      | resource_name | ruby-ex     |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "SPECIAL_LEVEL_KEY","valueFrom": {"configMapKeyRef": {"key": "special.how","name": "special-config"}}},{"name": "SPECIAL_TYPE_KEY","valueFrom": {"configMapKeyRef": {"key": "special.type","name": "special-config"}}}]}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build completed
+    When I run the :set_env client command with:
+      | resource | pod/ruby-ex-2-build |
+      | list     | true                |
+      | all      | true                |
+    And the output should contain "{"name":"SPECIAL_LEVEL_KEY","value":"very"},{"name":"SPECIAL_TYPE_KEY","value":"charm"}"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20224
+  Scenario: Using file for Environment Variables in Build Configs
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig |
+      | resource_name | ruby-ex     |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "PODNAME","valueFrom": {"fieldRef": {"fieldPath": "metadata.name"}}}]}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build completed
+    When I run the :set_env client command with:
+      | resource | pod/ruby-ex-2-build |
+      | list     | true                |
+      | all      | true                |
+    And the output should contain "{"name":"PODNAME","value":"ruby-ex-2"}"
