@@ -169,7 +169,6 @@ Feature: Service-catalog related scenarios
       | generation                                                               |
       | name:\\s+ups-broker                                                      |
       | relistBehavior                                                           |
-      | relistDuration                                                           |
       | relistRequests                                                           |
       | url:\\s+http://ups-broker.<%= cb.ups_broker_project %>.svc.cluster.local |
       | reconciledGeneration                                                     |
