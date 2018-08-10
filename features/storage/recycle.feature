@@ -65,8 +65,9 @@ Feature: Persistent Volume Recycling
   @destructive
   Scenario: Recycler using pod template without volume should fail with error
     Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
-    Given I run commands on all masters:
+    When I run commands on all masters:
       | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-recycler-invalid.json -o /etc/origin/master/my-recycler.json |
+    Then the step should succeed
     Given master config is merged with the following hash:
     """
     kubernetesMasterConfig:

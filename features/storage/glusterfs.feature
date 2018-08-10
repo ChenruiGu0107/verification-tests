@@ -47,7 +47,7 @@ Feature: Storage of GlusterFS plugin testing
     And I have a Gluster service in the project
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I execute on the pod:
+    When I execute on the "glusterd" pod:
       | chmod | g+w | /vol |
     Then the step should succeed
 
@@ -100,10 +100,10 @@ Feature: Storage of GlusterFS plugin testing
     And I use the "<%= project.name %>" project
 
     Given I have a Gluster service in the project
-    When I execute on the pod:
+    When I execute on the "glusterd" pod:
       | chown | -R | root:123456 | /vol |
     Then the step should succeed
-    And I execute on the pod:
+    When I execute on the "glusterd" pod:
       | chmod | -R | 770 | /vol |
     Then the step should succeed
 
@@ -736,7 +736,7 @@ Feature: Storage of GlusterFS plugin testing
     And I have a Gluster service in the project
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I execute on the pod:
+    When I execute on the "glusterd" pod:
       | chmod | g+w | /vol |
     Then the step should succeed
 
