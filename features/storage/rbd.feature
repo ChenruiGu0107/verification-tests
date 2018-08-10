@@ -532,3 +532,7 @@ Feature: Storage of Ceph plugin testing
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/rbd5               |
     Then the step should succeed
     And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | /dev/rbd5 |
+    Then the step should succeed

@@ -461,3 +461,7 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/dpath                    |
     Then the step should succeed
     And the pod named "iscsi-<%= project.name %>" becomes ready
+
+    When I execute on the "iscsi-<%= project.name %>" pod:
+      | ls | /dev/dpath |
+    Then the step should succeed
