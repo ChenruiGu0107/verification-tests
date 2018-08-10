@@ -491,4 +491,44 @@ Feature: Storage of Ceph plugin testing
     Given I ensure "pod-<%= project.name %>" pod is deleted
     And I ensure "pvc-<%= project.name %>" pvc is deleted
 
+  # @author jhou@redhat.com
+  # @case_id OCP-19116
+  @admin
+  Scenario: RBD block volumeMode support
+    Given I check feature gate "BlockVolume" is enabled
 
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+
+    And admin creates a project with a random schedulable node selector
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound within 120 seconds
+
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pv.json" where:
+      | ["metadata"]["name"]                 | pv-<%= project.name %>                              |
+      | ["spec"]["accessModes"][0]           | ReadWriteOnce                                       |
+      | ["spec"]["volumeMode"]               | Block                                               |
+      | ["spec"]["rbd"]["monitors"][0]       | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["spec"]["rbd"]["image"]             | <%= cb.image %>                                     |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pvc.json" replacing paths:
+      | ["metadata"]["name"]       | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce           |
+      | ["spec"]["volumeMode"]     | Block                   |
+      | ["spec"]["volumeName"]     | pv-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/rbd5               |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
