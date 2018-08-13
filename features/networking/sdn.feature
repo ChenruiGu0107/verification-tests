@@ -24,17 +24,17 @@ Feature: SDN related networking scenarios
     When I run the ovs commands on the host:
       | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
+    Given 15 seconds have passed
     """
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    When I run commands on the host:
-      | sed -i 's/mtu:.*/mtu: 1234/g' /etc/origin/node/node-config.yaml |
-    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    networkConfig:
+      mtu: 1234
+    """
     When I run the ovs commands on the host:
       | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should succeed
+    Given the node service is restarted on the host
     # check mtu for tun0 and new create pod
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
