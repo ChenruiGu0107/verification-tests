@@ -304,3 +304,50 @@ check_tooltips_for_memory:
     op: click
   - selector:
       xpath: //*[contains(.,'<memory> of memory is included with Fuse Online Small Online Integration Environment. Additional memory is not available for this plan.')]
+check_open_web_console_link:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'openshift.com/console/')]
+check_resource_account_overview_page:
+  element: &resource
+    selector:
+      xpath: //span[@data-original-title='<cur_resource>']/strong[contains(text(),'<cur_amount>')]
+check_tooltips_for_terminating_memory:
+  element:
+    <<: *resource
+    op: click
+  elements:
+  - selector:
+      xpath: //h3[@class='popover-title' and contains(text(),'<cur_resource>')]
+  - selector:
+      xpath: //div[@class='popover-content' and contains(.,'<cur_amount> of terminating memory is included with each OpenShift Online Pro plan subscription.')]/a[contains(@href,'/terminating_memory')] 
+check_tooltips_for_persistent_storage: 
+  element:
+    <<: *resource
+    op: click
+  elements:
+  - selector:
+      xpath: //h3[@class='popover-title' and contains(text(),'<cur_resource>')]
+  - selector:
+      xpath: //div[@class='popover-content' and contains(.,'<cur_amount> of persistent storage is included with each OpenShift Online Pro plan subscription.')]/a[contains(@href,'/storage')]
+check_tooltips_for_pro_support:
+  elements:
+  - selector:
+      xpath: //span[contains(@data-content,'OpenShift Online Pro Online-int Basic Support')]
+    op: click
+  - selector:
+      xpath: //div[contains(.,'OpenShift Online Pro Online-int Basic Support is included with OpenShift Online Pro.')]
+check_tooltips_for_pro_memory:
+  element:
+    <<: *resource
+    op: click
+  elements:
+  - selector:
+      xpath: //h3[@class='popover-title' and contains(text(),'<cur_resource>')]
+  - selector:
+      xpath: //div[@class='popover-content' and contains(.,'<cur_amount> of memory is included with each OpenShift Online Pro plan subscription.')]/a[contains(@href,'/memory')]
+check_add_a_new_plan:
+  elements:
+  - selector:
+      xpath: //a[@href='/register/plan'][contains(text(),'Add a New Plan')]
+
