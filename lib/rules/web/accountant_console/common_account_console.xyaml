@@ -27,4 +27,9 @@ check_input_could_be_edited_on_current_page:
   elements: 
   - selector: 
       xpath: //input[not(contains(@readonly, "readOnly")) and contains(@id, "<input_id>")]
-      
+check_county_info:
+  elements:
+  - selector:
+      xpath: //label[@for="contact_county" and contains(.,"County")]/a[@data-original-title="County Info" and @data-toggle="popover" and @data-trigger="hover focus" and @data-content="County is required for accurate local tax calculation."]
+  - selector:
+     xpath:  //label[@for="billing_county" and contains(.,"County")]/a[@data-original-title="County Info" and @data-toggle="popover" and @data-trigger="hover focus" and @data-content="County is required for accurate local tax calculation."]
