@@ -241,6 +241,15 @@ module CucuShift
       end
     end
 
+    # @return [Object] undefined
+    def delete_disk(name, resource_group=azure_config[:resource_group])
+      if compute_client.disks.delete(resource_group, name)
+        logger.info "deleted disk '#{name}'"
+      else
+        logger.info "disk '#{resource_group}/#{name}' not found"
+      end
+    end
+
     # @param list [Array<Hash>] where Hash is like `{name: "..", resource_group: ".."}`
     #   and `resource_group` is optional
     # @return [Object] undefined
@@ -312,24 +321,44 @@ module CucuShift
       return p
     end
 
+    def is_blob_uri?(str)
+      CucuShift::Azure.is_blob_uri? str
+    end
+
+    # @return [String, nil] when the string is not a blob URI
+    def storage_account_from_blob_uri(str)
+      CucuShift::Azure.storage_account_from_blob_uri str
+    end
+
     # @return [StorageProfile] return OS Profile based on supplied options
     # @note When storage_options => os_disk => params => image is provided
-    #   in config, then storage account grom that URI will be used. When
-    #   storage_options => :storage_account is provided, then it will be used.
-    #   Otherwise a new storage account will be created.
+    #   in config and that is a VHD, then storage account from that URI will
+    #   be used.
+    #   When Image name or marketplace image props are provided then
+    #   storage account from storage_options => :storage_account will be used.
+    #   storage_options => :storage_account can be with value :create to crete
+    #   a new storage account.
+    #   If storage_options => :storage_account is NOT provided, then a managed
+    #   disk will be used.
     private def storage_profile(location, resource_group, vmname, opts)
       ComputeModels::StorageProfile.new.tap do |store_profile|
-        if opts[:os_disk][:params][:image]
-          unless opts[:os_disk][:params][:image].include? ".blob.core.windows."
-            raise "unknown image uri format: #{opts[:os_disk][:params][:image]}"
-          end
-          storage_account_name = opts[:os_disk][:params][:image].gsub(%r{^.*//([\w]+).blob.core.windows.net.*$}, "\\1")
-        else
-          if opts[:storage_account]
-            storage_account_name = opts[:storage_account]
+        if is_blob_uri? opts[:os_disk][:params][:image]
+          storage_account_name = storage_account_from_blob_uri(
+                                               opts[:os_disk][:params][:image])
+        elsif opts[:os_disk][:params][:image]
+          # we are using a managed image (virtual machine image) instead of a
+          #   platform image (VHD in a storage account)
+          image = compute_client.images.list_by_resource_group(resource_group).find { |i|
+            opts[:os_disk][:params][:image] == i.name
+          }
+          if image
+            store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
+              ref.id = image.id
+            end
           else
-            storage_account_name, storage_account = create_storage_account(location, resource_group)
+            raise "could not find image: '#{opts[:os_disk][:params][:image]}'"
           end
+        else
           store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
             ref.publisher = opts[:os_disk][:params][:publisher]
             ref.offer = opts[:os_disk][:params][:offer]
@@ -341,11 +370,24 @@ module CucuShift
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
+
+        ## check if user wants a storage account; if :image contained a vhd uri
+        #  this would have already been set
+        unless storage_account_name
+          if opts[:storage_account] == :create
+            storage_account_name, storage_account = create_storage_account(location, resource_group)
+          elsif opts[:storage_account]
+            storage_account_name = opts[:storage_account]
+          else
+            # storage account nil because we will use managed disk
+          end
+        end
+
         container = "cucushift"
         blob_name = "#{vmname}.vhd"
 
         store_profile.os_disk = ComputeModels::OSDisk.new.tap do |os_disk|
-          if opts[:os_disk][:params][:image]
+          if is_blob_uri? opts[:os_disk][:params][:image]
             unless opts[:os_disk][:params][:os_type]
               raise "please specify os_disk=>params=>os_type"
             end
@@ -361,20 +403,30 @@ module CucuShift
           end
           os_disk.caching = ComputeModels::CachingTypes::ReadWrite
           os_disk.create_option = type
-          os_disk.vhd = ComputeModels::VirtualHardDisk.new.tap do |vhd|
-            vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/#{container}/#{blob_name}"
+
+          if storage_account_name
+            os_disk.vhd = ComputeModels::VirtualHardDisk.new.tap do |vhd|
+              vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/#{container}/#{blob_name}"
+            end
+            ## try to delete conflicting VHD
+            begin
+              blob_client(resource_group, storage_account_name).
+                delete_blob(container, blob_name)
+            rescue => e
+              unless ::Azure::Core::Http::HTTPError === e && e.status_code == 404
+                logger.warn "Error removing stale VHD:\n#{exception_to_string(e)}"
+              end
+            end
+          else
+            # use managed disk
+            os_disk.managed_disk = ComputeModels::ManagedDiskParameters.new.tap do |params|
+              params.storage_account_type = StorageModels::SkuName::StandardLRS
+
+              delete_disk(os_disk.name, resource_group)
+            end
           end
         end
 
-        ## try to delete conflicting VHD
-        begin
-          blob_client(resource_group, storage_account_name).
-            delete_blob(container, blob_name)
-        rescue => e
-          unless ::Azure::Core::Http::HTTPError === e && e.status_code == 404
-            logger.warn("Error removing stale VHD:\n#{exception_to_string(e)}")
-          end
-        end
         return store_profile
       end
     end
@@ -393,7 +445,8 @@ module CucuShift
     # @return [NetworkProfile] return network profile based on options
     private def network_profile(location, group, vmname, opts)
       # TODO: allow subnet from config
-      vnet = net_client.virtual_networks.get_async(group, 'cucushift-flexy-vnet')
+      vnet_name = "cucushift-flexy-vnet-#{location}"
+      vnet = net_client.virtual_networks.get_async(group, vnet_name)
       vnet.wait
       raise "timeout getting vnet" if vnet.incomplete?
 
@@ -416,8 +469,8 @@ module CucuShift
               end
             ]
           end
-          logger.info "creating a new virtual network 'cucushift-flexy-vnet'.."
-          vnet = net_client.virtual_networks.create_or_update(group, 'cucushift-flexy-vnet', vnet_create_params)
+          logger.info "creating a new virtual network '#{vnet_name}'.."
+          vnet = net_client.virtual_networks.create_or_update(group, vnet_name, vnet_create_params)
         else
           raise vnet.reason
         end
@@ -506,7 +559,18 @@ module CucuShift
     # @param instance [Azure::ARM::Compute::Models::VirtualMachine]
     # @return [String] storage account name used by instance os_disk
     def self.instance_storage_account(instance)
-      name = instance.storage_profile.os_disk.vhd.uri.gsub(%r{^.*//([\w]+).blob.core.windows.net.*$}, "\\1")
+      storage_account_from_blob_uri instance.storage_profile.os_disk.vhd&.uri
+    end
+
+    def self.is_blob_uri?(str)
+      str&.include? ".blob.core.windows."
+    end
+
+    # @return [String, nil] when the string is not a blob URI
+    private_class_method def self.storage_account_from_blob_uri(str)
+      if is_blob_uri? str
+        str.gsub(%r{^.*//([\w]+).blob.core.windows.net.*$}, "\\1")
+      end
     end
   end
 end
@@ -521,13 +585,19 @@ if __FILE__ == $0
 
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
   resource_group = vms[0][0].resource_group
+
+  puts "hit enter to terminate instance"
+  gets
+
   azure.delete_instance vms[0][0].name
 
-  puts "Do you want to delete storage account: #{storage_account} (y/N)?"
-  do_delete = gets.chomp
-  if do_delete == ?y
-    logger.info "deleting storage account #{storage_account}.."
-    azure.storage_client.storage_accounts.
-      delete(resource_group, storage_account)
+  if storage_account
+    puts "Do you want to delete storage account: #{storage_account} (y/N)?"
+    do_delete = gets.chomp
+    if do_delete == ?y
+      logger.info "deleting storage account #{storage_account}.."
+      azure.storage_client.storage_accounts.
+        delete(resource_group, storage_account)
+    end
   end
 end
