@@ -838,3 +838,25 @@ Feature: Storage of GlusterFS plugin testing
       | ro |
     Given I ensure "pod-<%= project.name %>" pod is deleted
     And I ensure "pvc-<%= project.name %>" pvc is deleted
+
+  # @author jhou@redhat.com
+  # @case_id OCP-19194
+  @admin
+  Scenario: Can not dynamically provision a GlusterFS volume with block volumeMode
+    Given I check feature gate "BlockVolume" is enabled
+    And I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
+      | ["spec"]["volumeMode"]                                                 | Block              |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+    Then the step should succeed
+
+    When I run the :describe client command with:
+      | resource | pvc  |
+      | name     | pvc1 |
+    Then the output should contain:
+      | kubernetes.io/glusterfs                    |
+      | does not support block volume provisioning |
