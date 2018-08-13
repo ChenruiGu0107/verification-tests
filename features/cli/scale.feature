@@ -121,19 +121,12 @@ Feature: scaling related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    # Workaround: the below steps make a failed deployment instead of using cancel
+    Given I successfully patch resource "dc/hooks" with:
+      | {"spec":{"strategy":{"recreateParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ]}, "failurePolicy": "Abort" }}}}} |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
     Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
-    Then the step should succeed
-    """
-    And the output should match:
-      | [Cc]ancelled |
     And I wait until the status of deployment "hooks" becomes :failed
     Then I run the :scale client command with:
       | resource | ReplicationController |
@@ -143,14 +136,8 @@ Feature: scaling related scenarios
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | hooks            |
-      | replicas | 2                |
-    Given I wait until number of replicas match "2" for replicationController "hooks-1"
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks            |
-      | o             | json             |
-    Then the output should contain:
-      | "replicas": 2 |
+      | replicas | 1                |
+    Given I wait until number of replicas match "1" for replicationController "hooks-1"
 
   # @author yinzhou@redhat.com
   # @case_id OCP-9862
@@ -165,9 +152,8 @@ Feature: scaling related scenarios
       | app=nettest |
     Then evaluation of `pod.name` is stored in the :pod1_name clipboard
     Then evaluation of `pod.ip` is stored in the :pod1_ip clipboard
-    When I run the :deploy client command with:
-      | deployment_config | nettest |
-      | latest            |         |
+    When I run the :rollout_latest client command with:
+      | resource | dc/nettest |
     Then the step should succeed
     Given I wait until the status of deployment "nettest" becomes :complete
     Given the pod named "<%= cb.pod1_name %>" status becomes :running
@@ -238,9 +224,9 @@ Feature: scaling related scenarios
       | resource_name | php-apache       |
       | o             | json             |
     And evaluation of `@result[:parsed]['spec']['replicas']` is stored in the :first_replicas clipboard
-    When I run the :deploy client command with:
-      | deployment_config | php-apache |
-      | latest            |true        |
+    When I run the :rollout_latest client command with:
+      | resource | dc/php-apache |
+    Then the step should succeed
     And I wait until the status of deployment "php-apache" becomes :complete
     When I run the :get client command with:
       | resource      | deploymentConfig |

@@ -14,9 +14,8 @@ Feature: admin deployment related features
     # In sum, 3 complete deployments (the last one is deployed and its status is running)
     And I run the steps 3 times:
     """
-    When I run the :deploy client command with:
-      | deployment_config | mydc  |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | dc/mydc  |
     Then the step should succeed
     And I wait until the status of deployment "mydc" becomes :complete
     """
@@ -36,9 +35,8 @@ Feature: admin deployment related features
 
     # 2 failed deployment
     Given I wait until the status of deployment "newdc" becomes :failed
-    When I run the :deploy client command with:
-      | deployment_config | newdc |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | dc/newdc |
     Then the step should succeed
     And I wait until the status of deployment "newdc" becomes :failed
 
@@ -65,13 +63,12 @@ Feature: admin deployment related features
       | keep_failed       | 1      |
       | keep_younger_than | 1m     |
     Then the step should succeed
-
+    # --confirm=true does real prune
+    # Sequential steps run fastly. Immediate `oc get` sometimes still see resources being pruned. Just wait a few seconds.
+    And I wait for the resource "rc" named "mydc-1" to disappear within 30 seconds
+    And I wait for the resource "rc" named "newdc-1" to disappear within 30 seconds
     When I get project rc
     Then the step should succeed
-    # --confirm=true does real prune
-    And the output should not contain:
-      | mydc-1  |
-      | newdc-1 |
     And the output should contain:
       | mydc-2  |
       | mydc-3  |
@@ -101,14 +98,12 @@ Feature: admin deployment related features
       | orphans           | true   |
       | keep_younger_than | 1m     |
     Then the step should succeed
-
+    # Orphan deployments are pruned
+    And I wait for the resource "rc" named "mydc-2" to disappear within 30 seconds
+    And I wait for the resource "rc" named "mydc-3" to disappear within 30 seconds
+    And I wait for the resource "rc" named "newdc-2" to disappear within 30 seconds
     When I get project rc
     Then the step should succeed
-    # Orphan deployments are pruned
-    And the output should not contain:
-      | mydc-2  |
-      | mydc-3  |
-      | newdc-2 |
     And the output should contain:
       | mydc-4  |
 

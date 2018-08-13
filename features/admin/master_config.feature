@@ -1713,9 +1713,8 @@ Feature: test master config related steps
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
 
@@ -1756,9 +1755,8 @@ Feature: test master config related steps
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-      | latest            |                    |
+    When I run the :rollout_latest client command with:
+      | resource | dc/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
 

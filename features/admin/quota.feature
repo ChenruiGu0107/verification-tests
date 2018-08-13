@@ -157,40 +157,34 @@ Feature: Quota related scenarios
     Given I have a project
     When I run the :create admin command with:
       | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
-      | n     | <%= project.name %> |
-    Then the step should succeed
-    When I run the :create admin command with:
       | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
-    # This template does not include bc, which does not need to create in case step, do not need to take care of AEP
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
-    And the output should match:
-      | hooks.*reated |
-    When I get project pods
-    Then the output should contain:
-      | hooks-1-deploy |
 
     # update dc to be exceeded and triggered deployment
-    Given I replace resource "dc" named "hooks" saving edit to "hooks2.yaml":
+    Given I replace resource "dc" named "hooks":
       | cpu: 30m      | cpu:    1020m |
       | memory: 150Mi | memory: 760Mi |
-    When I get project pods
-    Then the output should not contain:
-      | hooks-2-deploy |
 
     # trigger deployment manually according to the case step
     Given I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            ||
-    Then the output should match:
-      | tarted.*eployment.*2  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     When I get project pods
     Then the output should not contain:
       | hooks-2-deploy |
+
+    When I run the :describe client command with:
+      | resource | dc      |
+      | name     | hooks   |
+    Then the output should match:
+      | pods "hooks-\\d+-deploy" is forbidden |
+      | aximum memory usage.*is 750Mi.*limit is 796917760 |
+      | aximum cpu usage.*is 500m.*limit is 1020m |
 
     When I get project events
     # here comes a bug which fail the last step - 1317783

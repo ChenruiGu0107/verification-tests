@@ -15,9 +15,9 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
@@ -25,9 +25,9 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 50% |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
@@ -35,9 +35,9 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 50% | maxUnavailable: 80% |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     And the output should contain:
@@ -79,9 +79,9 @@ Feature: rolling deployment related scenarios
       | maxSurge: 25%       | maxSurge: 10%       |
       | maxUnavailable: 25% | maxUnavailable: 0 |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
@@ -89,9 +89,9 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxSurge: 10% | maxSurge: 30% |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
@@ -99,9 +99,9 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxSurge: 30% | maxSurge: 60% |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
+    Then the step should succeed
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     And the output should contain:
@@ -131,9 +131,8 @@ Feature: rolling deployment related scenarios
       | maxSurge: 25% |
       | maxUnavailable: 25%  |
     """
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
@@ -143,9 +142,8 @@ Feature: rolling deployment related scenarios
       | maxUnavailable: 25% | maxUnavailable: 1 |
       | maxSurge: 25% | maxSurge: 2             |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
