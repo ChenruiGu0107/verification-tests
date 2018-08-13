@@ -152,10 +152,15 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
   step %Q/I switch to cluster admin pseudo user/
   step %Q/I use the "#{proj_name}" project/
   begin
-    # check rc readiness for 3/4 logging components, fluentd does not have rc, so stick with pod readiness for that compoent
-    step %Q/a replicationController becomes ready with labels:/, table(%{
-      | component=curator,logging-infra=curator,openshift.io/deployment-config.name=logging-curator,provider=openshift |
-      })
+    # check rc readiness for 3/4 logging components, fluentd does not have rc, so stick with pod readiness for that component
+    if env.version_ge("3.11", user: user)
+      # for OCP >= 3.11, logging-curator is a cronjob instead of a pod
+      raise "Failed to find cronjob for curator" if cron_job('logging-curator').schedule.nil?
+    else
+      step %Q/a replicationController becomes ready with labels:/, table(%{
+        | component=curator,logging-infra=curator,openshift.io/deployment-config.name=logging-curator,provider=openshift |
+        })
+    end
     step %Q/a replicationController becomes ready with labels:/, table(%{
       | component=es,logging-infra=elasticsearch |
       })
@@ -325,7 +330,12 @@ Given /^I construct the default (install|uninstall) (logging|metrics|prometheus)
   base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
   step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
   # now get the extra parameters for install depending on the svc_type
-  params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
+  if env.version_ge("3.11", user: user) and svc_type == 'logging' and op == 'install'
+    params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params_#{cb.master_version}"
+  else
+    params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
+  end
+
   step %Q/I parse the INI file "<%= "#{params_inventory_url}" %>" to the :params_inventory clipboard/
   cb.ini_style_config['OSEv3:vars'].merge!(cb.params_inventory['OSEv3:vars'])
 end
@@ -420,13 +430,13 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
 
     # save it for other steps to use as a reference
     cb.install_prometheus = install_prometheus
-    if cb.install_prometheus and prometheus_state == 'present'
-      # for prometheus installation, we need to label the target node
-      step %Q/I select a random node's host/
-      # for 3.10 prometheus installation need the label 'node-role.kubernetes.io/infra'
-      step %Q{label "node-role.kubernetes.io/infra=true" is added to the node}
-      step %Q/label "#{node_selector}" is added to the node/
-    end
+
+    # for OCP >= 3.11 we need to label the nodes, so we just label the target node 
+    # regardless of OCP version
+    step %Q/I select a random node's host/
+    # for 3.10 prometheus installation need the label 'node-role.kubernetes.io/infra'
+    step %Q{label "node-role.kubernetes.io/infra=true" is added to the node}
+    step %Q/label "#{node_selector}" is added to the node/
   end
 
   unless cb.install_prometheus
@@ -558,7 +568,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
       | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
     # XXX: skip the check for now due to https://bugzilla.redhat.com/show_bug.cgi?id=1512723
-    # step %Q/the step should succeed/
+    step %Q/the step should succeed/
     # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
     step %Q/the master is operational/
 
