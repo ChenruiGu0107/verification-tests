@@ -505,12 +505,15 @@ module CucuShift
         params[:server][:block_device_mapping_v2] = block_device_mapping_v2.map { |disk|
           disk = Collections.deep_hash_symkeys(disk)
           if disk[:image_name]
+            # if image_name is present, convert it to UUID
             image_name = disk.delete(:image_name)
             disk[:uuid] = get_image_ref(image_name)
             raise("image #{image_name} not found") unless disk[:uuid]
           elsif !disk[:uuid] &&
                 disk[:boot_index] == 0 &&
                 disk[:source_type] == "image"
+            # for boot disk without uuid/image_name specified, use the
+            # global image option like with simple storage config
             disk[:uuid] = get_image_ref(image)
             raise("image #{image} not found") unless disk[:uuid]
           end
