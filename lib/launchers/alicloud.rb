@@ -466,8 +466,11 @@ module CucuShift
       end
 
       def private_ips(cached: true)
-        spec(cached: cached).dig("InnerIpAddress", "IpAddress") ||
+        if !spec(cached: cached).dig("InnerIpAddress", "IpAddress").empty?
+          spec(cached: true).dig("InnerIpAddress", "IpAddress")
+        else
           spec(cached: true).dig("VpcAttributes", "PrivateIpAddress", "IpAddress")
+        end
       end
 
       def name(cached: true)
@@ -580,6 +583,7 @@ if __FILE__ == $0
           create_opts: {"InstanceName" => "test_terminate"}
         ).flatten
         ali.wait_for_instances_status(360, ["Running"], vm)
+        ( require 'pry'; binding.pry ) if ARGV.first == "true"
         ali.delete_by_name(service[:create_opts][:RegionId], "test_terminate*")
         test_res[name] = false
       rescue => e
