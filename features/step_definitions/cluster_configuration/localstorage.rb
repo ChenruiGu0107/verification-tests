@@ -50,6 +50,7 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   res = admin.cli_exec(:create, n: namespace, f: filepath)
   raise "error creating configmap for local storage provisioner" unless res[:success]
 
+  step %Q/I switch to cluster admin pseudo user/
   sa = service_account(serviceaccount)
   @result =  sa.create(by: admin)
   step %Q/the step should succeed/
@@ -78,7 +79,6 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   step %Q/the step should succeed/
 
   nodes = env.nodes.select { |n| n.schedulable? }
-  step %Q/I switch to cluster admin pseudo user/
   step %/#{nodes.size} pods become ready with labels:/, table(%{
       | app=local-volume-provisioner|
   })
@@ -91,4 +91,24 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   }
 
   raise "error creating PVs with local storage provisioner" unless (pv_count == nodes.size * 4)
+
+  lf_sc = storage_class("local-fast")
+  lf_sc.ensure_deleted(user: admin)
+  ls_sc = storage_class("local-slow")
+  ls_sc.ensure_deleted(user: admin)
+
+  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml"}
+  sc = YAML.load(@result[:response])
+  filepath = @result[:abs_path]
+  sc["metadata"]["name"] = "local-fast"
+  sc["provisioner"] = "kubernetes.io/no-provisioner"
+  sc["volumeBindingMode"] = "Immediate"
+  File.write(filepath, sc.to_yaml)
+  @result = admin.cli_exec(:create, f: filepath)
+  step %Q/the step should succeed/
+
+  sc["metadata"]["name"] = "local-slow"
+  File.write(filepath, sc.to_yaml)
+  @result = admin.cli_exec(:create, f: filepath)
+  step %Q/the step should succeed/
 end
