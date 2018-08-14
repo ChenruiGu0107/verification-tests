@@ -227,8 +227,8 @@
     Then the step should succeed
     # make sure cancel succeed
     When I run the :rollout_cancel client command with:
-      | resource      | dc         |
-      | resource_name | php-apache |
+      | resource | dc         |
+      | name     | php-apache |
     Then the step should succeed
     Given I wait up to 120 seconds for the steps to pass:
     """

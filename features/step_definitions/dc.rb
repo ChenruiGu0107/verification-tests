@@ -122,7 +122,7 @@ Given /^(I|admin) redeploys? #{QUOTED} dc( after scenario)?$/ do |who, dc_name, 
 
     # throw out a rollout cancel in case it is presently stuck in deployment
     @result = _user.cli_exec(:rollout_cancel, resource: "dc",
-                             resource_name: _dc.name,
+                             name: _dc.name,
                              n: _dc.project.name)
     sleep 10 if @result[:success] # if it was cancelled, wait a little bit
 

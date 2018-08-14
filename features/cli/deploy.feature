@@ -9,22 +9,24 @@ Feature: deployment related features
     Then the step should succeed
     # Wait and make the cancel succeed stably
     And I wait until the status of deployment "hooks" becomes :running
-    When  I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
+    When  I run the :rollout_cancel client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :failed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match "hooks.*#1.*failed"
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | retry             |       |
-    Then the output should contain "etried #1"
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "was cancelled"
+    When I run the :rollout_retry client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
+    Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match "hooks.*#1.*deployed"
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "successfully rolled out"
 
   # @author xxing@redhat.com
   # @case_id OCP-11072
@@ -63,34 +65,27 @@ Feature: deployment related features
     # Wait till the deploy complete
     And the pod named "deployment-example-1-deploy" becomes ready
     Given I wait for the pod named "deployment-example-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-    Then the output should match "deployment-example.+#1.+deployed"
     When  I run the :describe client command with:
       | resource | dc                 |
       | name     | deployment-example |
     Then the output should match:
-      | Deployment\\s+#1.*latest |
       | Status:\\s+Complete       |
       | Pods Status:\\s+1 Running |
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-      | cancel            |                    |
-    Then the output should contain "No deployments are in progress"
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-    Then the output should match "deployment-example.+#1.+deployed"
+    When I run the :rollout_cancel client command with:
+      | resource | deploymentConfig   |
+      | name     | deployment-example |
+    Then the output should contain "No rollout is in progress"
     When I run the :describe client command with:
       | resource | dc                 |
       | name     | deployment-example |
     Then the output should match:
       | Status:\\s+Complete |
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-      | retry             |                    |
+    When I run the :rollout_retry client command with:
+      | resource | deploymentConfig   |
+      | name     | deployment-example |
     Then the output should contain:
-      | #1 is Complete; only failed deployments can be retried |
-      | You can start a new deployment                         |
+      |  #1 is complete                |
+      | You can start a new deployment |
     When I get project pod
     Then the output should not contain:
       | deployment-example-1-deploy |
@@ -135,20 +130,21 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/manual.json |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match "hooks.+#1.+waiting for manual"
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "waiting on manual update"
     And I check that the "hooks" deployment_config exists in the project
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
-    Then the output should contain "Started deployment #1"
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
+    Then the output should contain "rolled out"
     # Wait the deployment till complete
     And the pod named "hooks-1-deploy" becomes ready
     Given I wait for the pod named "hooks-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match "hooks.+#1.+deployed"
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "successfully rolled out"
     And I check that the "hooks" deployment_config exists in the project
     # Make the edit action
     When I get project dc named "hooks" as JSON
@@ -157,10 +153,9 @@ Feature: deployment related features
       | Recreate | Rolling |
     When I run the :replace client command with:
       | f | hooks.json |
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
-    Then the output should contain "Started deployment #2"
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
+    Then the output should contain "rolled out"
     When I get project dc named "hooks" as YAML
     Then the output should contain:
       | type: Rolling |
@@ -229,10 +224,6 @@ Feature: deployment related features
       | #3 rolled back to hooks-1 |
     And the pod named "hooks-3-deploy" becomes ready
     Given I wait for the pod named "hooks-3-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match:
-      | hooks.+#3.+deployed |
     When I get project pod
     Then the output should match:
       | READY\\s+STATUS |
@@ -279,10 +270,6 @@ Feature: deployment related features
       | You can re-enable them with |
     And the pod named "hooks-3-deploy" becomes ready
     Given I wait for the pod named "hooks-3-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should match:
-      | hooks.*#3.*deployed |
     When I get project pod
     Then the output should match:
       | READY\\s+STATUS |
@@ -292,38 +279,38 @@ Feature: deployment related features
       | "value": "Plqe5Wev"    |
     And the output should contain:
       | "type": "ImageChange" |
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | enable_triggers   |       |
-    Then the output should contain:
-      | Enabled image triggers |
+    When I run the :set_triggers client command with:
+      | resource   | dc/hooks |
+      | auto       | true     |
+    Then the output should match:
+      | triggers updated |
 
   # @author pruan@redhat.com
   # @case_id OCP-12536
   Scenario: oc deploy negative test
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    When I run the :new_app client command with:
+      | app_repo | aosqe/hello-openshift |
+      | name     | hooks                  |
     Then the step should succeed
     When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 1
     When I get project deploymentconfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
-    When I run the :deploy client command with:
-      | deployment_config | notreal |
+    When I run the :rollout_latest client command with:
+      | resource | notreal |
     Then the step should fail
     Then the output should match:
       | Error\\s+.*\\s+"notreal" not found |
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | retry             | true  |
+    When I run the :rollout_retry client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
     Then the step should fail
     And the output should contain:
       | only failed deployments can be retried |
     Given I wait for the pod named "hooks-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
@@ -408,15 +395,10 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-stop-failed-deployment.json |
     When the pod named "test-stop-failed-deployment-1-deploy" becomes ready
-    When I run the :deploy client command with:
-      | deployment_config | test-stop-failed-deployment |
+    When  I run the :rollout_cancel client command with:
+      | resource | deploymentConfig            |
+      | name     | test-stop-failed-deployment |
     Then the step should succeed
-    And I run the :deploy client command with:
-      | deployment_config | test-stop-failed-deployment |
-      | cancel            | true                        |
-    Then the step should succeed
-    And the output should contain:
-      | Cancelled deployment #1 |
     Given I wait up to 40 seconds for the steps to pass:
     """
     When  I run the :describe client command with:
@@ -427,17 +409,17 @@ Feature: deployment related features
       | Deployment #1      |
       | Status:\\s+Failed  |
     """
-    And I run the :deploy client command with:
-      | deployment_config | test-stop-failed-deployment |
-      | cancel            | true                        |
+    When  I run the :rollout_cancel client command with:
+      | resource | deploymentConfig            |
+      | name     | test-stop-failed-deployment |
     Then the step should succeed
     And the output should contain:
-      | No deployments are in progress |
-    And I run the :deploy client command with:
-      | deployment_config | test-stop-failed-deployment |
-    Then the step should succeed
-    And the output should match:
-      | test-stop-failed-deployment.*#1.*cancelled |
+      | No rollout is in progress |
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig            |
+      | name     | test-stop-failed-deployment |
+    Then the output should match:
+      | was cancelled |
 
   # @author pruan@redhat.com
   # @case_id OCP-10633
@@ -454,11 +436,11 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f | hooks.yaml |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And the output should match:
-      | hooks.*#1.*failed |
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match:
+      | failed progressing |
 
 
   # @author pruan@redhat.com
@@ -563,14 +545,12 @@ Feature: deployment related features
     # deployment 1
     And I wait until the status of deployment "hooks" becomes :complete
     # deployment 2
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     And I wait until the status of deployment "hooks" becomes :complete
     # deployment 3
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     Then I run the :describe client command with:
@@ -620,11 +600,10 @@ Feature: deployment related features
     # Workaround: the below steps make a failed deployment instead of --cancel
     Given I successfully patch resource "dc/mydc" with:
       | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ]}, "failurePolicy": "Abort" }}}}} |
-    When I run the :deploy client command with:
-      | deployment_config | mydc  |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | mydc  |
     Then the step should succeed
-    And the output should contain "Started deployment #2"
+    And the output should contain "rolled out"
     And I wait until the status of deployment "mydc" becomes :failed
 
     # Remove the pre-hook introduced by the above workaround,
@@ -645,17 +624,15 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And I check that the "hooks" deployment_config exists in the project
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should fail
     And the output should contain:
       | error       |
       | in progress |
     Given I wait for the pod named "hooks-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     # Given I wait for the pod named "hooks-2-deploy" to die
     And I check that the "hooks" deployment_config exists in the project
@@ -667,62 +644,42 @@ Feature: deployment related features
   Scenario: Check the default option value for command oadm prune deployments
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo | aosqe/hello-openshift |
+      | name     | database              |
     Then the step should succeed
     Given I wait for the pod named "database-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-2-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-3-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-4-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-5-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-6-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-7-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-8-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | latest            |                     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     Given I wait for the pod named "database-9-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | database            |
-      | n                 | <%= project.name %> |
-      | cancel            |                     |
-    Then the step should succeed
     When I run the :get client command with:
       | resource | rc                  |
       | n        | <%= project.name %> |
@@ -864,9 +821,8 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     And I check that the "hooks" deployment_config exists in the project
 
@@ -1002,12 +958,9 @@ Feature: deployment related features
     When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 2
 
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     And I wait until number of replicas match "2" for replicationController "hooks-1"
-#      And 10 pods become ready with labels:
-#        |name=mysql|
     Then I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |
@@ -1066,22 +1019,6 @@ Feature: deployment related features
       | causes:                           |
       | - type: ConfigChange              |
 
-  # @author yinzhou@redhat.com
-  # @case_id OCP-11769
-  Scenario: Start new deployment when deployment running
-    Given I have a project
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
-    Then the step should succeed
-    Given I wait until the status of deployment "hooks" becomes :running
-    And I replace resource "dc" named "hooks":
-      | latestVersion: 1 | latestVersion: 2 |
-    Then the step should succeed
-    Given the pod named "hooks-2-deploy" status becomes :running
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And the output should match ".*newer.*running"
 
   # @author yinzhou@redhat.com
   # @case_id OCP-9829
@@ -1106,20 +1043,24 @@ Feature: deployment related features
   # @case_id OCP-9830
   Scenario: Check the deployments in a failed state on test deployment configs
     Given I have a project
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+    When I run the :new_app client command with:
+      | app_repo | aosqe/hello-openshift |
+      | name     | hooks                 |
+      | as_test  | true                  |
     Then the step should succeed
+    #And I run the :create client command with:
+    #  | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+    #Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :running
     Given I successfully patch resource "pod/hooks-1-deploy" with:
       | {"spec":{"activeDeadlineSeconds":3}} |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And the output should match:
-      | hooks.*#1.*failed |
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "failed"
     """
     When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
@@ -1156,9 +1097,10 @@ Feature: deployment related features
     Then the step should succeed
     Given  I wait up to 60 seconds for the steps to pass:
     """
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the output should contain "newer deployment was found running"
+    When I run the :rollout_status client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the output should match "new replicas have been updated"
     """
 
   # @author cryan@redhat.com
@@ -1179,9 +1121,8 @@ Feature: deployment related features
       | name     | hooks            |
       | replicas | 1                |
     Given I wait until number of replicas match "1" for replicationController "hooks-1"
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     Given the pod named "hooks-2-deploy" becomes present
     When I run the :patch client command with:
@@ -1401,9 +1342,8 @@ Feature: deployment related features
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-      | latest            |                    |
+    When I run the :rollout_latest client command with:
+      | resource | deployment-example |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | deploymentconfig   |
@@ -1823,54 +1763,41 @@ Feature: deployment related features
   Scenario: Deployment config with automatic=false in ICT
     #Given the master version >= "3.4"
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
-      |"automatic": true|"automatic": false|
-    When I process and create "application-template-stibuild.json"
-    Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
+    When I run the :new_app client command with:
+      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    Given I replace resource "dc" named "ruby-ex" saving edit to "ruby-ex.yaml":
+      | automatic: true | automatic: false |
+    Given the "ruby-ex-1" build was created
+    And the "ruby-ex-1" build completed
     And 20 seconds have passed
-    When I get project dc named "frontend" as JSON
+    When I get project dc named "ruby-ex" as JSON
     And the output should not contain:
       | lastTriggeredImage |
       | "latestVersion": 1 |
-    When I run the :deploy client command with:
-      | deployment_config | frontend |
-      | latest            |          |
-    Then the step should fail
-    And the output should contain:
-      | oc rollout latest |
     When I run the :rollout_latest client command with:
-      | resource | frontend |
+      | resource | ruby-ex |
     Then the step should succeed
-    And I wait until the status of deployment "frontend" becomes :complete
-    When I get project imagestream named "origin-ruby-sample" as JSON
+    And I wait until the status of deployment "ruby-ex" becomes :complete
+    When I get project imagestream named "ruby-ex" as JSON
     And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
+      | buildconfig | ruby-ex |
     Then the step should succeed
-    Given the "ruby-sample-build-2" build finishes
-    When I get project imagestream named "origin-ruby-sample" as JSON
-    And evaluation of `image_stream('origin-ruby-sample').tag_statuses[0].events` is stored in the :imagestreamitems clipboard
+    Given the "ruby-ex-2" build finishes
+    When I get project imagestream named "ruby-ex" as JSON
+    And evaluation of `image_stream('ruby-ex').tag_statuses[0].events` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
-    When I get project dc named "frontend" as JSON
+    When I get project dc named "ruby-ex" as JSON
     Then the output should contain:
       | "latestVersion": 1 |
     And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
-    When I run the :deploy client command with:
-      | deployment_config | frontend |
-      | latest            |          |
-    Then the step should succeed
-    And I wait until the status of deployment "frontend" becomes :complete
-    When I get project dc named "frontend" as JSON
-    And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage2 clipboard
-    And the expression should be true> cb.imagestreamimage == cb.imagestreamimage2
     When I run the :rollout_latest client command with:
-      | resource | frontend |
+      | resource | ruby-ex |
     Then the step should succeed
-    And I wait until the status of deployment "frontend" becomes :complete
-    When I get project dc named "frontend" as JSON
+    And I wait until the status of deployment "ruby-ex" becomes :complete
+    When I get project dc named "ruby-ex" as JSON
     And evaluation of `dc.trigger_by_type(type: 'ImageChange', cached: false).last_image` is stored in the :imagestreamimage3 clipboard
     And the expression should be true> cb.imagestreamimage != cb.imagestreamimage3
 
@@ -1918,15 +1845,14 @@ Feature: deployment related features
       | template      | {{(index .status.conditions 1).reason }} |
     Then the step should succeed
     And the output should match "NewReplicationControllerAvailable"
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When  I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
+    When I run the :rollout_cancel client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
     And I run the :get client command with:
       | resource      | dc                                       |
       | resource_name | hooks                                    |
@@ -1942,9 +1868,8 @@ Feature: deployment related features
       | f | myquota.yaml        |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                                       |

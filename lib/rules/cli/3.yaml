@@ -451,6 +451,7 @@
     :allow_missing_images: --allow-missing-images=<value>
     :allow_missing_imagestream_tags: --allow-missing-imagestream-tags=<value>
     :app_repo: <value>
+    :as_test: --as-test=<value>
     :build_env: --build-env=<value>
     :build_env_file: --build-env-file=<value>
     :code: --code=<value>
@@ -683,7 +684,10 @@
     :template: --template=<value>
     :to_version: --to-version=<value>
 :rollout_cancel:
-  :cmd: oc rollout cancel <resource> <resource_name>
+  :cmd: oc rollout cancel <resource> <name>
+  :options:
+    :f: -f <value>
+    :output: --output=<value>
 :rollout_history:
   :cmd: oc rollout history <resource>
   :options:
@@ -701,6 +705,16 @@
   :cmd: oc rollout resume <resource> <name>
   :options:
     :f: -f <value>
+:rollout_retry:
+  :cmd: oc rollout retry <resource> <name>
+  :options:
+    :f: -f <value>
+    :output: --output=<value>
+:rollout_status:
+  :cmd: oc rollout status <resource> <name>
+  :options:
+    :f: -f <value>
+    :w: --watch=<value>
 :rollout_undo:
   :cmd: oc rollout undo <resource>
   :options:

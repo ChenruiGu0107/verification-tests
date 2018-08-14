@@ -81,8 +81,8 @@ Feature: Check deployments function
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :running
     When  I run the :rollout_cancel client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
+      | resource | dc    |
+      | name     | hooks |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :failed
     When I perform the :edit_replicas_on_rc_page web console action with:
