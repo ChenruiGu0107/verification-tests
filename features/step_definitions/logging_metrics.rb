@@ -46,14 +46,15 @@ Given /^there should be (\d+) (logging|metrics) services? installed/ do |count, 
 end
 
 # short-hand for the generic uninstall step if we are just using the generic install
-Given /^I remove (logging|metrics) service using ansible$/ do | svc_type |
+Given /^I remove (logging|metrics|metering) service using ansible$/ do | svc_type |
   if cb.install_prometheus
     uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_uninstall_prometheus"
   else
     uninstall_inventory = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory"
   end
   step %Q/#{svc_type} service is uninstalled with ansible using:/, table(%{
-    | inventory| #{uninstall_inventory} |
+    | inventory     | #{uninstall_inventory}          |
+    | playbook_args | <%= cb.ansible_playbook_args %> |
   })
 end
 
@@ -322,11 +323,49 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
   end
 end
 
+
+# verify all metering pods are in the RUNNING state
+# expected pods are listed here:
+# https://raw.githubusercontent.com/openshift-qe/output_references/master/metering/pod_labels.out
+# the longest chain of deps is metering -> presto -> hive & hdfs
+# so metering cant be ready until presto is ready
+# presto can't be ready until hive is ready
+# and metering can't be ready until presto can write to hdfs.
+#
+Given /^all metering related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  ensure_destructive_tagged
+  target_proj = proj_name.nil? ? "openshift-metering" : proj_name
+  org_proj_name = project.name
+  org_user = user
+  step %Q/I switch to cluster admin pseudo user/
+  project(target_proj)
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=metering-helm-operator|
+  })
+
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=hdfs-datanode |
+  })
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=hdfs-namenode |
+  })
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=hive|
+  })
+
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=presto |
+  })
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=metering |
+  })
+end
+
 # default (install|uninstall) inventory is made up of these parts depending on the operation
 # 1. default base inventory
 # 2. extra logging parameters for logging only
 # 3. extra metrics parameters for metrics only
-Given /^I construct the default (install|uninstall) (logging|metrics|prometheus) inventory$/ do |op, svc_type|
+Given /^I construct the default (install|uninstall) (logging|metrics|prometheus|metering) inventory$/ do |op, svc_type|
   base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
   step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
   # now get the extra parameters for install depending on the svc_type
@@ -347,7 +386,7 @@ end
 # We divide the inventory loading process into two steps
 # 1. load the default install|uninstall inventoroy depending on the operation.
 # 2. load the inventory specified in the test if given and merge it with the result from step 1.
-Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:$/ do |svc_type, op, table|
+Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansible using:$/ do |svc_type, op, table|
   ensure_destructive_tagged
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
@@ -366,7 +405,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
   cb.subdomain = env.router_default_subdomain(user: admin, project: project('default', switch: false))
   step %Q/I store master major version in the :master_version clipboard/
 
-
   # get a list of scheduleable nodes and stored it as an array of string
   cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
   # we are enforcing that metrics to be installed into 'openshift-infra' for
@@ -379,6 +417,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     target_proj = "openshift-logging"
   when 'prometheus'
     target_proj = "openshift-metrics"
+  when 'metering'
+    target_proj = "openshift-metering"
   else
     raise "Unsupported service type"
   end
@@ -545,6 +585,12 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
       else
         ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-logging/config.yml"
       end
+    elsif svc_type == 'metering'
+      if op == 'installed'
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-metering/config.yml"
+      else
+        ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/openshift-metering/uninstall.yml"
+      end
     else
       if env.version_le("3.7", user: user)
         if install_prometheus
@@ -563,15 +609,20 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
     ### print out the inventory file
     logger.info("***** using the following user inventory *****")
     pod.exec("cat", "/tmp/#{new_path}", as: user)
-
-    step %Q/I execute on the pod:/, table(%{
-      | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
-      })
+    if ansible_opts[:playbook_args]
+      cb.ansible_playbook_args = ansible_opts[:playbook_args]
+      playbook_cmd = %W(ansible-playbook -i /tmp/#{new_path} #{ansible_opts[:playbook_args]} #{conf[:ansible_log_level]}  #{ansible_template_path})
+    else
+      playbook_cmd = %W(ansible-playbook -i /tmp/#{new_path} #{conf[:ansible_log_level]}  #{ansible_template_path})
+    end
+    @result = pod.exec(*playbook_cmd, as: user)
+    #step %Q/I execute on the pod:/, table(%{
+    #  | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
+    #  })
     # XXX: skip the check for now due to https://bugzilla.redhat.com/show_bug.cgi?id=1512723
     step %Q/the step should succeed/
     # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
     step %Q/the master is operational/
-
     if op == 'installed'
       if svc_type == 'logging'
         # there are 4 pods we need to verify that should be running  logging-curator,
@@ -580,6 +631,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) with ansible using:
           logger.warn("Skipping post installation check due to negative test")
         else
           step %Q/all logging pods are running in the "#{target_proj}" project/
+        end
+      elsif svc_type == 'metering'
+        if cb.negative_test
+          logger.warn("Skipping post installation check due to negative test")
+        else
+          # for metering we need to create the
+          @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/metering/default-storageclass-values.yaml")
+          step %Q/all metering related pods are running in the "#{target_proj}" project/
         end
       else
         if cb.negative_test
@@ -922,7 +981,7 @@ end
 ### assume we already have called the following step to create a project name
 ### I create a project with non-leading digit name
 # use this step if we just want to use default values
-Given /^(logging|metrics) service is installed in the system$/ do | svc |
+Given /^(logging|metrics|metering) service is installed in the system$/ do | svc |
   if env.version_ge("3.5", user: user)
     param_name = 'inventory'
     param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
@@ -936,7 +995,7 @@ Given /^(logging|metrics) service is installed in the system$/ do | svc |
 
 end
 
-Given /^(logging|metrics) service is installed in the system using:$/ do | svc, table |
+Given /^(logging|metrics|metering) service is installed in the system using:$/ do | svc, table |
   ensure_destructive_tagged
 
   params = opts_array_to_hash(table.raw) unless table.nil?
