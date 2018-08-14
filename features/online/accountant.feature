@@ -647,3 +647,13 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Given I open accountant console in a browser
     When I run the :check_nav_link web action
     Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-19679
+  # @note this scenario requires a user who have at least one available pro cluster to resigster
+  Scenario: Check the tooltip for County info on registration
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+    When I run the :check_county_info web action
+    Then the step should succeed
