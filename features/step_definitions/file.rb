@@ -1,5 +1,6 @@
-Given /^I save the (?:output|response) to file>(.+)$/ do |filepath|
-  File.write(File.expand_path(filepath.strip), @result[:response])
+Given /^I save the (output|response) to file>(.+)$/ do |part, filepath| 
+  part = part == "response"? :response : :stdout
+  File.write(File.expand_path(filepath.strip), @result[part])
 end
 
 # This step is used to delete lines from file. If multiline match is needed,

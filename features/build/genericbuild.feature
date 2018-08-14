@@ -104,7 +104,7 @@ Feature: genericbuild.feature
       | p | EXT_PORT=efg                                                                                        |
       | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
     And the step should fail
-    Then the output should contain "decNum: got first char 'e'"
+    Then the output should match "decNum: got first char 'e'|read int32: unexpected character"
 
   # @author wewang@redhat.com
   # @case_id OCP-15352
