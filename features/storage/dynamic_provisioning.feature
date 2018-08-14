@@ -379,7 +379,52 @@ Feature: Dynamic provisioning
     And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
 
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block              |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | /dev/block |
+    Then the step should succeed
+
     Examples:
       | cloud_provider |
       | cinder         | # @case_id OCP-19184
       | aws-ebs        | # @case_id OCP-19185
+      | vsphere-volume | # @case_id OCP-19190
+      | gce            | # @case_id OCP-19186
+      | azure-disk     | # @case_id OCP-19188
+
+  # @author jhou@redhat.com
+  # @case_id OCP-17563
+  Scenario: Using multiple block volumes
+    Given I check feature gate "BlockVolume" is enabled
+    Given I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]   | pvc1  |
+      | ["spec"]["volumeMode"] | Block |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]   | pvc2  |
+      | ["spec"]["volumeMode"] | Block |
+    Then the step should succeed
+    And the "pvc2" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-two-block-volumes.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block1             |
+      | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | pvc2                    |
+      | ["spec"]["containers"][0]["volumeDevices"][1]["devicePath"]  | /dev/block2             |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | /dev/block1 | /dev/block2 |
+    Then the step should succeed

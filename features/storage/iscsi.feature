@@ -430,3 +430,38 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= cb.prj_new %> |
     Then the step should succeed
     And the pod named "iscsi-<%= cb.prj_new %>" becomes ready
+
+
+  # @author jhou@redhat.com
+  # @case_id OCP-19110
+  @admin
+  Scenario: iSCSI block volumeMode support
+    Given I check feature gate "BlockVolume" is enabled
+
+    Given I have a iSCSI setup in the environment
+    Given I have a project
+
+    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]              | pv-iscsi-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+      | ["spec"]["volumeMode"]            | Block                        |
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
+      | ["spec"]["volumeMode"] | Block                         |
+    Then the step should succeed
+    And the "pvc-iscsi-<%= project.name %>" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
+
+    # Create tester pod
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-block.json" replacing paths:
+      | ["metadata"]["name"]                                         | iscsi-<%= project.name %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/dpath                    |
+    Then the step should succeed
+    And the pod named "iscsi-<%= project.name %>" becomes ready
+
+    When I execute on the "iscsi-<%= project.name %>" pod:
+      | ls | /dev/dpath |
+    Then the step should succeed

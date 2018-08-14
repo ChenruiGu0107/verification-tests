@@ -58,3 +58,30 @@ Feature: Gluster Block features testing file
       | resource_name | <%= pv.name %> |
     Then the output should contain:
       | Released |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-19189
+  @admin
+  Scenario: Dynamically provision glusterblock volume with block volumeMode
+    Given I check feature gate "BlockVolume" is enabled
+    And I have a StorageClass named "gluster-block"
+    And I have a project
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | gluster-block |
+      | ["spec"]["volumeMode"]                                                 | Block         |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi           |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound within 120 seconds
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block              |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the "pod-<%= project.name %>" pod:
+      | ls | /dev/block |
+    Then the step should succeed
