@@ -371,9 +371,9 @@ module CucuShift
     end
 
     private def get_src_ip(destination_ip)
-      res = exec("ip route get '#{destination_ip}' | sed -rn 's/^.*src (([0-9]+\.?){4}|[0-9a-f:]+).*/\\1/p'")
+      res = exec_admin("ip route get '#{destination_ip}' | sed -rn 's/^.*src (([0-9]+\.?){4}|[0-9a-f:]+).*/\\1/p'", stderr: :stderr)
       if res[:success]
-        return res[:response].strip
+        return res[:stdout].strip
       else
         logger(res[:response])
         raise "cannot get src ip for destination '#{destination_ip}'"
