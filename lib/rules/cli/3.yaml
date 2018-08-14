@@ -507,6 +507,7 @@
     :no-output: --no-output=<value>
     :env_file: --env-file=<value>
     :source_secret: --source-secret=<value>
+    :build_config_map: --build-config-map=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:

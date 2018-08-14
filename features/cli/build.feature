@@ -2890,3 +2890,357 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | io.openshift.build.commit.ref=beta4 |
       | OPENSHIFT_BUILD_REFERENCE=beta4     | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-19631
+  Scenario: Insert configmap when create a buildconfig
+    Given I have a project
+    Given a "configmap.test" file is created with the following lines:
+    """
+    color.good=purple
+    color.bad=yellow
+    """
+    When I run the :create_configmap client command with:
+      | name      | cmtest         |
+      | from_file | configmap.test |
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | name         | secrettest      |
+      | secret_type  | generic         |
+      | from_literal | aoskey=aosvalue |
+    Then the step should succeed
+    #Insert cm and secret to bc with default destination
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest                                       |
+      | build_secret   | secrettest                                    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest->. |
+      | Build Secrets:\s+secrettest->.|
+    And the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -l |
+    Then the step should succeed
+    And the output should contain:
+      | configmap.test -> ..data/configmap.test |
+      | aoskey -> ..data/aoskey                 | 
+    When I execute on the pod:
+      | cat | configmap.test |
+    Then the step should succeed
+    And the output should contain:
+      | color.good=purple |
+      | color.bad=yellow  |
+    When I execute on the pod:
+      | cat | aoskey |
+    Then the step should succeed
+    And the output should not contain:
+      | aosvalue |
+    Then I run the :delete client command with:
+      | object_type | all |
+      | all         |     |
+    Then the step should succeed
+    #Insert cm and secret to bc with specified destination
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:.m2                                   |
+      | build_secret   | secrettest:.ssh                               |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest->.m2  |
+      | Build Secrets:\s+secrettest->.ssh|
+    And the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -al | .ssh | .m2 |
+    Then the step should succeed
+    And the output should contain:
+      | configmap.test -> ..data/configmap.test |
+      | aoskey -> ..data/aoskey                 | 
+    #Insert cm and secret to bc with empty destination - succeed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:                                      |
+      | build_secret   | secrettest:                                   |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest->.    |
+      | Build Secrets:\s+secrettest->.|
+    Then I run the :delete client command with:
+      | object_type | all |
+      | all         |     |
+    Then the step should succeed
+    #Insert cm and secret to bc with abs path - succeed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:/aoscm                                |
+      | build_secret   | secrettest:/aossecret                         |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:	cmtest->/aoscm        |
+      | Build Secrets:		secrettest->/aossecret|
+    Given the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -al | /aoscm/ | /aossecret/|
+    Then the step should succeed
+    And the output should contain:
+      | configmap.test -> ..data/configmap.test |
+      | aoskey -> ..data/aoskey                 | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-19634
+  Scenario: Insert configmap when create a buildconfig - Negative 
+    Given I have a project
+    Given a "configmap.test" file is created with the following lines:
+    """
+    color.good=purple
+    color.bad=yellow
+    """
+    When I run the :create_configmap client command with:
+      | name      | cmtest         |
+      | from_file | configmap.test |
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | name         | secrettest      |
+      | secret_type  | generic         |
+      | from_literal | aoskey=aosvalue |
+    Then the step should succeed
+    #Insert cm and secret to bc with multi-level dirs - failed due to bug 1613744
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:/aoscm/newdir                         |
+      | build_secret   | secrettest:/aossecret/newdir                  |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build fails
+    #Insert cm and secret to bc with wrong format - failed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:../newdir                             |
+      | build_secret   | secrettest:../newdir                          |
+    Then the step should fail
+    And the output should contain:
+      | destination dir cannot start with '..'|
+    #Add one cm twice - failed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest:./newdir1                             |
+      | build_config_map| cmtest:./newdir2                             |
+    Then the step should fail
+    And the output should contain:
+      | configMap can be used just once| 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-18962
+  Scenario: Allow using a configmap as an input to a docker build
+    Given I have a project
+    Given a "configmap1.test" file is created with the following lines:
+    """
+    color.good=purple
+    color.bad=yellow
+    """
+    Given a "configmap2.test" file is created with the following lines:
+    """
+    color.good=brightyellow
+    color.bad=black
+    """
+    When I run the :create_configmap client command with:
+      | name      | cmtest1         |
+      | from_file | configmap1.test |
+    Then the step should succeed
+    When I run the :create_configmap client command with:
+      | name      | cmtest2         |
+      | from_file | configmap2.test |
+    Then the step should succeed
+    #Insert cm and secret to bc with empty destination - succeed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | build_config_map| cmtest1:.                                    |
+      | build_config_map| cmtest2:./newdir                             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest1->.,cmtest2->newdir | 
+    And the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -l |
+    And the output should match:
+      | -rw-------.*configmap1.test |
+    When I execute on the pod:
+      | ls | -l | newdir |
+    And the output should contain:
+      | configmap2.test |
+    Then I run the :delete client command with:
+      | object_type | all |
+      | all         |     |
+    Then the step should succeed
+    #Add a configmaps with a multi-level dirs - succeed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | build_config_map| cmtest1:./newdir1/newdir2/newdir3            |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest1->newdir1/newdir2/newdir3 | 
+    And the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -l | newdir1/newdir2/newdir3|
+    And the output should match:
+      | -rw-------.*configmap1.test |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-18963
+  Scenario: Allow using a configmap as an input to a docker build - Negative
+    Given I have a project
+    Given a "configmap1.test" file is created with the following lines:
+    """
+    color.good=purple
+    color.bad=yellow
+    """
+    When I run the :create_configmap client command with:
+      | name      | cmtest1         |
+      | from_file | configmap1.test |
+    Then the step should succeed
+    #Add a configmap with abs path -  failed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | build_config_map| cmtest1:/newtest                             |
+    Then the step should fail
+    And the output should contain:
+      | for the docker strategy, the configMap destination directory "/newtest" must be a relative path |
+    #Add a configmap with a invalid name - failed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | build_config_map| 2cm%!zadi:newtest                            |
+    Then the step should fail
+    And the output should contain:
+      | invalid characters in filename |
+    #Add a configmap with an unexisted cm - failed
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | build_config_map| unexisted:newtest                            |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-hello-world-1  |
+    Then the output should contain:
+      | configmaps "unexisted" not found |
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    #Add configmap to an existing file - failed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-hello-world |
+      | p | {"spec":{"source":{"configMaps": [{"configMap": {"name": "cmtest1"}, "destinationDir": "./config.ru"}]}}} | 
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | follow      | true             |
+      | wait        | true             |
+    Then the output should contain "config.ru: not a directory"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-18960
+  Scenario: Allow configmaps as inputs to a s2i build 
+    Given I have a project
+    Given a "configmap1.test" file is created with the following lines:
+    """
+    color.good=purple
+    color.bad=yellow
+    """
+    Given a "configmap2.test" file is created with the following lines:
+    """
+    color.good=brightyellow
+    color.bad=black
+    """
+    When I run the :create_configmap client command with:
+      | name      | cmtest1         |
+      | from_file | configmap1.test |
+    Then the step should succeed
+    When I run the :create_configmap client command with:
+      | name      | cmtest2         |
+      | from_file | configmap2.test |
+    Then the step should succeed
+    #Add two configmaps with same abs destinationDir
+    When I run the :new_build client command with:
+      | app_repo       | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | ruby                                          |
+      | build_config_map| cmtest1:/opt/app-root/src/newdir             |
+      | build_config_map| cmtest2:/opt/app-root/src/newdir             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Build ConfigMaps:\s+cmtest1->/opt/app-root/src/newdir,cmtest2->/opt/app-root/src/newdir|
+    And the "ruby-hello-world-1" build completed
+    Then evaluation of `image_stream("ruby-hello-world").docker_image_repository` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    When I execute on the pod:
+      | ls | -l | newdir |
+    Then the step should succeed
+    And the output should contain:
+      | configmap1.test -> ..data/configmap1.test |
+      | configmap2.test -> ..data/configmap2.test |
