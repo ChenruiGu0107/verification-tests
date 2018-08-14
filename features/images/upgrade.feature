@@ -10,12 +10,11 @@ Feature: Upgrade images feature
     And the "<app_name>-1" build completed
     And a pod becomes ready with labels:
       | app=<app_name> |
-    And I run the :import_image client command with:
-      | image_name | <image_stream>                    |
-      | from       | <%= product_docker_repo %><image> |
-      | confirm    | true                              |
-      | insecure   | true                              |
-      | all        | true                              |
+    When I run the :patch client command with:
+      | resource      | buildconfig |
+      | resource_name | <app_name>  |
+      | p | {"spec":{"strategy":{"sourceStrategy":{"from":{"kind":"ImageStreamTag","name":"<istag>","namespace":"openshift"}}}}} |
+    Then the step should succeed
     And the "<app_name>-2" build was created
     And the "<app_name>-2" build completed
     And a pod becomes ready with labels:
@@ -25,24 +24,24 @@ Feature: Upgrade images feature
     Then the output should contain "<display_info>"
 
     Examples: 
-      | image                 | image_stream    |repo                                               |context_dir | app_name         | display_info                 |
-      | rhscl/python-27-rhel7 | python-27-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       |  # @case_id OCP-9670
-      | rhscl/python-34-rhel7 | python-34-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       |  # @case_id OCP-9671
-      | rhscl/python-35-rhel7 | python-35-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       |  # @case_id OCP-17137
-      | rhscl/httpd-24-rhel7  | httpd-24-rhel7  |https://github.com/openshift/httpd-ex.git          |            | httpd-ex         | Welcome to your static httpd |  # @case_id OCP-17139
-      | rhscl/ruby-22-rhel7   | ruby-22-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   |  # @case_id OCP-12160
-      | rhscl/ruby-23-rhel7   | ruby-23-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   |  # @case_id OCP-17127
-      | rhscl/ruby-24-rhel7   | ruby-24-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   |  # @case_id OCP-17130
-      | rhscl/perl-520-rhel7  | perl-520-rhel7  |https://github.com/openshift/dancer-ex.git         |            | dancer-ex        | Welcome to your Dancer       |  # @case_id OCP-9672
-      | rhscl/perl-524-rhel7  | perl-524-rhel7  |https://github.com/openshift/dancer-ex.git         |            | dancer-ex        | Welcome to your Dancer       |  # @case_id OCP-17106
-      | rhscl/nodejs-4-rhel7  | nodejs-4-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      |  # @case_id OCP-12072
-      | rhscl/nodejs-6-rhel7  | nodejs-6-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      |  # @case_id OCP-17108
-      | rhscl/nodejs-8-rhel7  | nodejs-8-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      |  # @case_id OCP-17721
-      | rhscl/php-56-rhel7    | php-56-rhel7    |https://github.com/openshift/sti-php.git           |5.6/test/test-app| sti-php     | PHP is working               |  # @case_id OCP-9679
-      | rhscl/php-70-rhel7    | php-70-rhel7    |https://github.com/openshift/sti-php.git           |7.0/test/test-app| sti-php     | PHP is working               |  # @case_id OCP-10364
-      | dotnet/dotnet-20-rhel7    | dotnet-20-rhel7     |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-2.0|app| s2i-dotnetcore-ex| .NET Core MVC    |  # @case_id OCP-17133
-      | dotnet/dotnetcore-11-rhel7| dotnetcore-11-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.1|app| s2i-dotnetcore-ex| .NET Core MVC    |  # @case_id OCP-17134
-      | dotnet/dotnetcore-10-rhel7| dotnetcore-10-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.0|app| s2i-dotnetcore-ex| .NET Core MVC    |  # @case_id OCP-17135
+      | image                 | image_stream    |repo                                               |context_dir | app_name         | display_info                 | istag      |
+      | rhscl/python-27-rhel7 | python-27-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       | python:2.7 | # @case_id OCP-9670
+      | rhscl/python-34-rhel7 | python-34-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       | python:3.4 | # @case_id OCP-9671
+      | rhscl/python-35-rhel7 | python-35-rhel7 |https://github.com/openshift/django-ex.git         |            | django-ex        | Welcome to your Django       | python:3.5 | # @case_id OCP-17137
+      | rhscl/httpd-24-rhel7  | httpd-24-rhel7  |https://github.com/openshift/httpd-ex.git          |            | httpd-ex         | Welcome to your static httpd | httpd:2.4  | # @case_id OCP-17139
+      | rhscl/ruby-22-rhel7   | ruby-22-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   | ruby:2.2   | # @case_id OCP-12160
+      | rhscl/ruby-23-rhel7   | ruby-23-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   | ruby:2.3   | # @case_id OCP-17127
+      | rhscl/ruby-24-rhel7   | ruby-24-rhel7   |https://github.com/openshift/ruby-hello-world.git  |            | ruby-hello-world | Welcome to an OpenShift v3   | ruby:2.4   | # @case_id OCP-17130
+      | rhscl/perl-520-rhel7  | perl-520-rhel7  |https://github.com/openshift/dancer-ex.git         |            | dancer-ex        | Welcome to your Dancer       | perl:5.20  | # @case_id OCP-9672
+      | rhscl/perl-524-rhel7  | perl-524-rhel7  |https://github.com/openshift/dancer-ex.git         |            | dancer-ex        | Welcome to your Dancer       | perl:5.24  | # @case_id OCP-17106
+      | rhscl/nodejs-4-rhel7  | nodejs-4-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:4   | # @case_id OCP-12072
+      | rhscl/nodejs-6-rhel7  | nodejs-6-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:6   | # @case_id OCP-17108
+      | rhscl/nodejs-8-rhel7  | nodejs-8-rhel7  |https://github.com/openshift/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:8   | # @case_id OCP-17721
+      | rhscl/php-56-rhel7    | php-56-rhel7    |https://github.com/openshift/sti-php.git           |5.6/test/test-app| sti-php     | PHP is working               | php:5.6    | # @case_id OCP-9679
+      | rhscl/php-70-rhel7    | php-70-rhel7    |https://github.com/openshift/sti-php.git           |7.0/test/test-app| sti-php     | PHP is working               | php:7.0    | # @case_id OCP-10364
+      | dotnet/dotnet-20-rhel7    | dotnet-20-rhel7     |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-2.0|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:2.0 | # @case_id OCP-17133
+      | dotnet/dotnetcore-11-rhel7| dotnetcore-11-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.1|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:1.1 | # @case_id OCP-17134
+      | dotnet/dotnetcore-10-rhel7| dotnetcore-10-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.0|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:1.0 | # @case_id OCP-17135
 
   # @author wewang@redhat.com
   Scenario Outline: Image upgrade test for postgresql rhel7 in OCP
