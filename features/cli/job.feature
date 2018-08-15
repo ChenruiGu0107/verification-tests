@@ -174,16 +174,16 @@ Feature: job.feature
   Scenario: Create job with activeDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-runonce.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_lessthan_runtime_activeDeadlineSeconds.yaml |
     Then the step should succeed
     When I get project job
     Then the output should match:
-      | pi-runonce\\s+2\\s+0 |
+      | pi\\s+1\\s+0 |
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | job        |
-      | name     | pi-runonce |
+      | name     | pi         |
     Then the output should contain:
       | DeadlineExceeded                              |
       | Job was active longer than specified deadline |
