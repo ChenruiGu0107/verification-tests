@@ -657,3 +657,71 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     When I run the :check_county_info web action
     Then the step should succeed
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-15503
+  # this case required an account with a Pro plan
+  Scenario: Check the account overview page after provisioned on a Pro cluster  
+    Given I open accountant console in a browser
+    When I run the :check_current_plan_content web action
+    Then the step should succeed
+    And I run the :go_to_account_page web action
+    Then the step should succeed
+    When I run the :check_open_web_console_link web action
+    Then the step should succeed
+    When I perform the :check_tooltips_for_pro_memory web action with:
+      | cur_resource | Memory |
+      | cur_amount   | 2GiB   |
+    Then the step should succeed
+    When I perform the :check_tooltips_for_persistent_storage web action with:
+      | cur_resource | Persistent Storage |
+      | cur_amount   | 2GiB               |
+    Then the step should succeed
+    When I perform the :check_tooltips_for_terminating_memory web action with:
+      | cur_resource | Terminating Memory |
+      | cur_amount   | 2GiB               |
+    Then the step should succeed
+    When I run the :check_tooltips_for_pro_support web action
+    Then the step should succeed
+    And I run the :check_add_a_new_plan web action
+    Then the step should succeed
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-15530
+  # This case requires account without any addon 
+  Scenario Outline: Upgrade/downgrade the resource add-on will refresh the resouce values on the account overview page
+    Given I open accountant console in a browser
+    # upgrade addon and check
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource   | <resource>   |
+      | amount     | <upgrade>    |
+    Then the step should succeed
+    # reset after all steps
+    And I register clean-up steps:
+    """
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource   | <resource>   |
+      | amount     | 0            |
+    Then the step should succeed
+    """
+    And I run the :go_to_account_page web action
+    And I perform the :check_resource_account_overview_page web action with:
+      | cur_resource | <cur_resource> |
+      | cur_amount   | <upg_total>    |
+    Then the step should succeed
+    # downgrade and check
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource   | <resource>   |
+      | amount     | <downgrade>  |
+    Then the step should succeed
+    And I run the :go_to_account_page web action
+    And I perform the :check_resource_account_overview_page web action with:
+      | cur_resource | <cur_resource> |
+      | cur_amount   | <dng_total>    |
+    Then the step should succeed
+
+    Examples: Upgrade/downgrade the resource add-on will refresh the resouce values on the account overview page
+      | resource            | upgrade | downgrade | upg_total  | dng_total  | cur_resource        |
+      | memory              | 8       | 4         | 10GiB      | 6GiB       | Memory              |
+      | storage             | 8       | 4         | 10GiB      | 6GiB       | Persistent Storage  |
+      | terminating_memory  | 8       | 4         | 10GiB      | 6GiB       | Terminating Memory  |

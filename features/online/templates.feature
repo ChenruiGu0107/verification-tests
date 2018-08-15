@@ -380,3 +380,49 @@ Feature: templates.feature
     When I open web server via the "https://<%= route("secure-sso", service("secure-sso")).dns(by: user) %>/auth" url
     Then the step should succeed
     And the output should contain "Welcome to Red Hat Single Sign-On"
+
+  # @author yuwei@redhat.com
+  Scenario Outline: Custom/Docker build is forbidden from web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | <file>              |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain ""ruby-helloworld-sample" created"
+    When I perform the :goto_projects_overview_page web console action with:
+      | project_name | <%= project.name %>    |
+    Then the step should succeed
+    When I perform the :add_template_from_webconsole web console action with:
+      | item_name    | ruby-helloworld-sample |
+    Then the step should succeed
+    When I perform the :check_build_is_forbidden web console action with:
+      | strategy     | <strategy>             |
+    Then the step should succeed
+
+    Examples: Custom/Docker build is forbidden from web console
+      | strategy | file                                                                                                                |
+      | Custom   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json | # @case_id OCP-10398
+      | Docker   | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json | # @case_id OCP-10399
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-18775
+  Scenario Outline: quickstart for templates about EAP CD
+    Given I have a project
+    When I run the :get client command with:
+      | resource | template   |
+      | n        | openshift  |
+    Then the step should succeed
+    And the output should contain:
+      | eap-cd-basic-s2i                 |
+      | eap-cd-postgresql-persistent-s2i |
+    When I run the :new_app client command with:
+      | template | <template>            |
+    Then the step should succeed
+    And the output should contain "Success"
+    And a pod becomes ready with labels:
+      | deploymentconfig=<labels>     |
+
+    Examples: quickstart for templates about EAP CD
+      | template                          | labels             |
+      | eap-cd-basic-s2i                  | eap-app            |
+      | eap-cd-postgresql-persistent-s2i  | eap-app-postgresql |

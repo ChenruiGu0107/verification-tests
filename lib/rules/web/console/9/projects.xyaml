@@ -106,3 +106,35 @@ click_one_project_kebab_in_project_list:
   - selector:
       xpath: //div[@class="list-pf-container" and //span[contains(.,'<project_name>')]]//button
     op: click
+goto_projects_overview_page:
+  url: /console/project/<project_name>/overview
+add_template_from_webconsole:
+  action: click_add_to_project_drop_down_list
+  action: click_select_from_project
+  action: create_app_with_template_from_project
+click_add_to_project_drop_down_list:
+  elements:
+  - selector:
+      xpath: //button[@class='dropdown-toggle btn btn-link' and @title='Add to Project']
+    op: click
+create_app_with_template_from_project:
+  action: select_app_from_project
+  elements:
+  - selector:
+      xpath: //button[@id='nextButton' and contains(text(),'Next >')]
+    op: click
+  - selector:
+      xpath: //button[@id='nextButton' and contains(text(),'Next >')]
+    op: click
+  - selector:
+      xpath: //button[@id='nextButton' and contains(text(),'Create')]
+    op: click
+check_build_is_forbidden:
+  elements:
+  - selector:
+      xpath: //li[contains(text(),'build strategy <strategy> is not allowed')]
+select_app_from_project:
+  elements:
+  - selector:
+      xpath: //div[@class='services-item-name ng-binding' and @title='<item_name>']
+    op: click
