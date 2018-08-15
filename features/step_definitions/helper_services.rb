@@ -52,24 +52,16 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
     raise "project #{project_name} does not exist"
   end
   _deployment = deployment("nfs-provisioner", _project)
-  _scc= security_context_constraints("nfs-provisioner")
+  _scc = security_context_constraints("nfs-provisioner")
   _deployment.ensure_deleted(user: admin)
   _scc.ensure_deleted(user: admin)
-  # Create sc, scc, clusterrole and etc
-  step 'I create the serviceaccount "nfs-provisioner"'
-  step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
+  step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/2ceb856d855744dda6cc22cfb666c2df4c8c0703/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
   step %Q/SCC "nfs-provisioner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
   # To make sure the nfs-provisioner role is deleted which is created mannually by user
   step %Q/admin ensures "nfs-provisioner-runner" clusterrole is deleted/
-  step %Q{I download a file from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/clusterrole.yaml"}
-  cr = YAML.load(@result[:response])
-  path = @result[:abs_path]
-  cr["apiVersion"] = "v1"
-  File.write(path, cr.to_yaml)
-  @result = admin.cli_exec(:create, f: path)
+
+  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/rbac.yaml")
   raise "could not create nfs-provisioner ClusterRole" unless @result[:success]
-  step %Q/admin ensures "nfs-provisioner-runner" clusterrole is deleted after scenario/
-  step %Q/cluster role "nfs-provisioner-runner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
   env.nodes.map(&:host).each do |host|
     setup_commands = [
       "mkdir -p /srv/",
@@ -79,17 +71,14 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
     raise "Set up hostpath for nfs-provisioner failed" unless @result[:success]
   end
   if _service
-    @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/deployment-sa.yaml")
+    @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/deployment.yaml")
     raise "could not create nfs-provisioner deployment" unless @result[:success]
     step %Q/a pod becomes ready with labels:/, table(%{
       | app=nfs-provisioner |
       })
   else
-    cb.nfsprovisioner = rand_str(5, :dns)
     step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/pod.yaml" replacing paths:}, table(%{
-      | ["spec"]["serviceAccount"]         | nfs-provisioner                                     |
-      | ["metadata"]["name"]               | nfs-provisioner-<%= cb.nfsprovisioner %>            |
-      | ["spec"]["containers"][0]["image"] | quay.io/kubernetes_incubator/nfs-provisioner:v1.0.9 |
+      | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
       })
     step %Q/the pod named "nfs-provisioner-<%= cb.nfsprovisioner %>" becomes ready/
   end
@@ -125,7 +114,7 @@ Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in 
   step %Q/SCC "hostmount-anyuid" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
   # To make sure the efs-provisioner role is deleted which is created mannually by user
   step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted/
-  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/auth/openshift-clusterrole.yaml")
+  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/openshift-clusterrole.yaml")
   raise "could not create efs-provisioner ClusterRole" unless @result[:success]
   step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted after scenario/
   step %Q/cluster role "efs-provisioner-runner" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
