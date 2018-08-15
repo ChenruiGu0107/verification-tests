@@ -297,11 +297,11 @@ Feature: ServiceAccount and Policy Managerment
       | resource | pod |
     Then the step should succeed
     Given I use the "<%= cb.project2 %>" project
-    When I run the :deploy client command with:
-      | deployment_config | database |
-      | cancel             ||
+    When I run the :rollout_pause client command with:
+      | resource | dc       |
+      | name     | database |
     Then the step should succeed
-    And the output should contain "ancelled deployment"
+    Then the output should contain "deploymentconfig.apps.openshift.io/database paused"
 
     When I run the :policy_add_role_to_user client command with:
       | role  | edit     |
@@ -343,12 +343,11 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | database |
-      | cancel             ||
+    When I run the :rollout_pause client command with:
+      | resource | dc       |
+      | name     | database |
     Then the step should fail
-    And the output should contain:
-      | ser "system:serviceaccount:<%= cb.project1 %>:test1" cannot update |
+    Then the output should match "User "system:serviceaccount:<%= cb.project1 %>:test1" cannot patch deploymentconfigs.*"
 
     When I run the :policy_add_role_to_user client command with:
       | role  | view     |
