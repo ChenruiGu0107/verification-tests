@@ -181,7 +181,7 @@ Feature: oc idle
       | pod              | caddy-docker              |
       | exec_command     | curl                      |
       | exec_command_arg | <%= cb.service_ip %>:8675 |
-      | _timeout         | 30                        |
+      | _timeout         | 60                        |
     Then the output should match "GET.*HTTP"
     Given I wait until number of replicas match "2" for replicationController "idling-echo-1"
     When I run the :get client command with:
@@ -201,7 +201,7 @@ Feature: oc idle
       | exec_command     | sh                                            |
       | exec_command_arg | -c                                            |
       | exec_command_arg | echo hello \| nc -u <%= cb.service_ip %> 3090 |
-      | _timeout         | 20                                            |
+      | _timeout         | 60                                            |
     Given I wait until number of replicas match "2" for replicationController "idling-echo-1"
     When I run the :get client command with:
       | resource | endpoints |
