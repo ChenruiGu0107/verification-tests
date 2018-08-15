@@ -471,7 +471,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     # save it for other steps to use as a reference
     cb.install_prometheus = install_prometheus
 
-    # for OCP >= 3.11 we need to label the nodes, so we just label the target node 
+    # for OCP >= 3.11 we need to label the nodes, so we just label the target node
     # regardless of OCP version
     step %Q/I select a random node's host/
     # for 3.10 prometheus installation need the label 'node-role.kubernetes.io/infra'
@@ -609,7 +609,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     ### print out the inventory file
     logger.info("***** using the following user inventory *****")
     pod.exec("cat", "/tmp/#{new_path}", as: user)
-    if ansible_opts[:playbook_args]
+    if ansible_opts[:playbook_args] and ansible_opts[:playbook_args].length > 0
       cb.ansible_playbook_args = ansible_opts[:playbook_args]
       playbook_cmd = %W(ansible-playbook -i /tmp/#{new_path} #{ansible_opts[:playbook_args]} #{conf[:ansible_log_level]}  #{ansible_template_path})
     else
