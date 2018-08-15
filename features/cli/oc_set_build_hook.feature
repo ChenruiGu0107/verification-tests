@@ -61,6 +61,9 @@ Feature: oc_set_build_hook
     When I run the :cancel_build client command with:
       | build_name | rails-postgresql-example-1 |
     Then the step should succeed
+    And I replace resource "bc" named "rails-postgresql-example":
+      | script: bundle exec rake test ||
+    Then the step should succeed
     When I run the :set_build_hook client command with:
       | buildconfig | bc/rails-postgresql-example |
       | post_commit | true                        |

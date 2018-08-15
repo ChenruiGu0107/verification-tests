@@ -28,7 +28,7 @@ Feature: Openshift build and configuration of enviroment variables check
     Given the "django-ex-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/django-ex |
-    Then the output should contain "Cannot fetch index base URL http://not/a/valid/index/"
+    Then the output should match "Cannot fetch index base URL http://not/a/valid/index/|Max retries exceeded with url: http://not/a/valid/index/django/"
     Examples:
       | py_image |
       | 2.7      | # @case_id OCP-10272

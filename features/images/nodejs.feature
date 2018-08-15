@@ -10,7 +10,7 @@ Feature: nodejs.feature
     Given the "nodejs-ex-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/nodejs-ex |
-    Then the output should contain "npm ERR! network"
+    Then the output should contain "npm ERR"
     Examples:
       | image |
       | 0.10  | # @case_id OCP-12183
