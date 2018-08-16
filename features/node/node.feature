@@ -790,3 +790,52 @@ Feature: Node management
     Then the step should succeed
     And the output should contain:
       | <%= cb.node_capacity_memory %> |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-15870
+  @admin
+  Scenario: Verify node authorization is enabled
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
+    When I run the :get admin command with:
+      | resource | secret/not-existing-secret       |
+      | n        | <%= project.name %>              |
+      | as       | system:node:<%= pod.node_name %> |
+      | as_group | system:nodes                     |
+    Then the step should fail
+    And the output should contain "forbidden"
+
+    When I run the :create_secret client command with:
+      | secret_type   | generic  |
+      | name          | mysecret |
+      | from_literal  | user=Bob |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | secret/mysecret                  |
+      | n        | <%= project.name %>              |
+      | as       | system:node:<%= pod.node_name %> |
+      | as_group | system:nodes                     |
+    Then the step should fail
+    And the output should contain "forbidden"
+
+    Given I get project pod named "hello-openshift" as YAML
+    And evaluation of `@result[:parsed]['spec']['volumes'].find { |v| v['secret'] }['secret']['secretName']` is stored in the :pod_secret_name clipboard
+    When I run the :get admin command with:
+      | resource | secret/<%= cb.pod_secret_name %> |
+      | n        | <%= project.name %>              |
+      | as       | system:node:<%= pod.node_name %> |
+      | as_group | system:nodes                     |
+    Then the step should succeed
+
+    Given I store the nodes in the clipboard
+    And evaluation of `cb.nodes.find { |n| n.name != pod.node_name }.name` is stored in the :other_node_name clipboard
+    When I run the :label admin command with:
+      | resource | no/<%= cb.other_node_name %>     |
+      | key_val  | testlabel=testvalue              |
+      | as       | system:node:<%= pod.node_name %> |
+      | as_group | system:nodes                     |
+    Then the step should fail
+    And the output should contain "forbidden"

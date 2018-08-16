@@ -22,6 +22,7 @@
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
   :as: --as=<value>
+  :as_group: --as-group=<value>
 :annotate:
   :cmd: oc annotate
   :options:
