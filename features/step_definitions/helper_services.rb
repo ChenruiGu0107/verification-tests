@@ -580,6 +580,7 @@ Given /^default router is disabled and replaced by a duplicate$/ do
                            name: "testroute",
                            replicas: cb.router_num.to_s,
                            n: "default",
+                           selector: "router=enabled",
                            images: cb.default_router_image)
 
   cb.new_router_dc = dc("testroute", _project)

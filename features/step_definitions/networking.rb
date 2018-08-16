@@ -91,19 +91,16 @@ end
 Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
   ensure_admin_tagged
 
-  _node = node(node_name)
-  _host = _node.host
-  step "I run ovs dump flows commands on the host"
-
-  if @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
-    logger.info "Switch plguin from multitenant to subnet"
-    @result = _host.exec("sed -i 's/multitenant/subnet/g' /etc/origin/node/node-config.yaml")
-    raise "failed to switch plugin in node config" unless @result[:success]
+  node_config = node(node_name).service.config
+  config_hash = node_config.as_hash()
+  if config_hash["networkConfig"]["networkPluginName"].include?("subnet")
+    config_hash["networkConfig"]["networkPluginName"] = "redhat/openshift-ovs-multitenant"
+    logger.info "Switch plguin to multitenant from subnet"
   else
-    logger.info "Switch plguin from subnet to multitenant"
-    @result = _host.exec("sed -i 's/openshift-ovs.*/openshift-ovs-multitenant/g' /etc/origin/node/node-config.yaml")
-    raise "failed to switch plugin in node config" unless @result[:success]
+    config_hash["networkConfig"]["networkPluginName"] = "redhat/openshift-ovs-subnet"
+    logger.info "Switch plguin to subnet from multitenant/networkpolicy"
   end
+  step "node config is merged with the following hash:", config_hash.to_yaml
 end
 
 Given /^the#{OPT_QUOTED} node network is verified$/ do |node_name|
