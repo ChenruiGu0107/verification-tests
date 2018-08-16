@@ -918,7 +918,7 @@ Feature: SDN related networking scenarios
     And the output by order should contain:
       |   Active: active (running) |
       |   Active: active (running) |
-    Given I restart the network components on the node after scenario
+    Given the node service is restarted on the host after scenario
     When I run commands on the host:
       | systemctl stop dnsmasq |
     Then the step should succeed
@@ -928,8 +928,8 @@ Feature: SDN related networking scenarios
     Then the output by order should contain:
       |   Active: inactive (dead)  |
       |   Active: active (running) |
-    Given I restart the network components on the node
-    Given I wait up to 120 seconds for the steps to pass:
+    Given the node service is restarted on the host
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run commands on the host:
       | systemctl status dnsmasq atomic-openshift-node \| grep Active |
