@@ -2440,3 +2440,39 @@ Feature: test master config related steps
     Then the step should succeed
     When the pod named "rails-ex-2-build" becomes present
     Then the expression should be true> pod("rails-ex-1-build").nodeselector["label"] == "test2"
+
+  # @author geliu@redhat.com
+  # @case_id OCP-16416
+  @destructive
+  @admin
+  Scenario: Central Audit Capability
+    Given I have a project
+    And I use the first master host
+    And the "/etc/origin/master/audit-policy.yaml" file is restored on host after scenario
+    And the "/etc/origin/master/audit-ocp.log" file is restored on host after scenario
+    When I run commands on the host:
+      | echo "apiVersion: audit.k8s.io/v1beta1" >/etc/origin/master/audit-policy.yaml  |
+      | echo "kind: Policy" >>/etc/origin/master/audit-policy.yaml                     |
+      | echo "rules:" >>/etc/origin/master/audit-policy.yaml                           |
+      | echo "  - level: Metadata" >>/etc/origin/master/audit-policy.yaml              |
+    Given master config is merged with the following hash:
+    """
+    auditConfig:
+      auditFilePath: "/etc/origin/master/audit-ocp.log"
+      enabled: true
+      maximumFileRetentionDays: 10
+      maximumFileSizeMegabytes: 10
+      maximumRetainedFiles: 10
+      logFormat: json
+      policyConfiguration: null
+      policyFile: "/etc/origin/master/audit-policy.yaml"
+      webHookKubeConfig: ""
+      webHookMode: ""       
+    """
+    And the master service is restarted on all master nodes
+    And I run commands on the host:
+      | cat /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      | audit.k8s.io |
+  
