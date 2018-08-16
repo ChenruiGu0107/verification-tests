@@ -656,6 +656,35 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :go_to_register_pro_cluster_page web action
     Then the step should succeed
     When I run the :check_county_info web action
+  
+  # @author yuwan@redhat.com
+  # @case_id OCP-13183
+  # @note this scenario requires a user who have pro cluster(1) left to resigster
+  Scenario: check the hint on field frame in Profile page during registration
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+    Given I saved following keys to list in :elementid clipboard:
+      | contact_first_name   | |
+      | contact_last_name    | |
+      | contact_address1     | |
+      | contact_city         | |
+      | contact_region       | |
+      | contact_postcode     | |
+      | contact_phone_number | |
+      | billing_first_name   | |
+      | billing_last_name    | |
+      | billing_address1     | |
+      | billing_city         | |
+      | billing_region       | |
+      | billing_postcode     | |
+    When I repeat the following steps for each :element_id in cb.elementid:
+    """
+    When I perform the :check_hint_on_field_frame web action with:
+      | checkpoint_id | #{cb.element_id} |
+    Then the step should succeed
+    """
+    When I run the :check_the_hint_on_country_field web action
     Then the step should succeed
 
   # @author yuwei@redhat.com
@@ -725,3 +754,48 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | memory              | 8       | 4         | 10GiB      | 6GiB       | Memory              |
       | storage             | 8       | 4         | 10GiB      | 6GiB       | Persistent Storage  |
       | terminating_memory  | 8       | 4         | 10GiB      | 6GiB       | Terminating Memory  |
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-12758
+  # @note this scenario requires a user who have pro cluster(1) left to resigster
+  Scenario: an existed Red Hat account's contact details can be pre-populated to accountant profile during registration
+    Given I open accountant console in a browser
+    When I run the :go_to_register_pro_cluster_page web action
+    Then the step should succeed
+    Given I saved following keys to list in :regionid clipboard:
+      | contact_region | |
+      | billing_region | |
+    When I repeat the following steps for each :rid in cb.regionid:
+    """
+    When I perform the :check_region_prepopulation web action with:
+      | region_id | #{cb.rid} |
+    Then the step should succeed  
+    """
+    Given I saved following keys to list in :countryid clipboard:
+      | contact_country | |
+      | billing_country | |
+    When I repeat the following steps for each :cid in cb.countryid:
+    """
+    When I perform the :check_country_prepopulation web action with:
+      | country_id | #{cb.cid} |
+    Then the step should succeed
+    """
+    Given I saved following keys to list in :elementid clipboard:
+      | contact_first_name   | |
+      | contact_last_name    | |
+      | contact_address1     | |
+      | contact_city         | |
+      | contact_postcode     | |
+      | contact_phone_number | |
+      | billing_first_name   | |
+      | billing_last_name    | |
+      | billing_address1     | |
+      | billing_city         | |
+      | billing_postcode     | |
+      | billing_phone_number | |
+    When I repeat the following steps for each :id in cb.elementid:
+    """
+    When I perform the :check_input_profile_prepopulation web action with:
+      | checkpoint_id | #{cb.id} |
+    Then the step should succeed
+    """

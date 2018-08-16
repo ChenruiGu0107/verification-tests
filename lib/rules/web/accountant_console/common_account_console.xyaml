@@ -33,3 +33,25 @@ check_county_info:
       xpath: //label[@for="contact_county" and contains(.,"County")]/a[@data-original-title="County Info" and @data-toggle="popover" and @data-trigger="hover focus" and @data-content="County is required for accurate local tax calculation."]
   - selector:
      xpath:  //label[@for="billing_county" and contains(.,"County")]/a[@data-original-title="County Info" and @data-toggle="popover" and @data-trigger="hover focus" and @data-content="County is required for accurate local tax calculation."]
+check_hint_on_field_frame:
+  elements:
+  - selector:
+      xpath: //div[@class="help-block with-errors"]/preceding-sibling::*[@id="<checkpoint_id>" and @required="required"]
+check_the_hint_on_country_field:
+  elements:
+  - selector:
+      xpath: //*[@id="contact_country" and @required="required"]
+    visible: false 
+check_country_prepopulation:
+  elements:
+  - selector:
+      xpath: //select[@id="<country_id>" and @data-value != ""]
+    visible: false
+check_region_prepopulation:
+  elements:
+  - selector:
+      xpath: //select[@id="<region_id>" and @data-value != ""]
+check_input_profile_prepopulation:
+   elements:
+   - selector:
+       xpath: //input[@id="<checkpoint_id>" and @value != ""]  
