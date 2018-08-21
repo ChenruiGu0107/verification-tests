@@ -10,27 +10,6 @@ module CucuShift
   class Service < ProjectResource
     RESOURCE = "services"
 
-    # cache some usualy immutable properties for later fast use; do not cache
-    #   things that ca nchange at any time like status and spec
-    def update_from_api_object(service_hash)
-      super
-
-      m = service_hash["metadata"]
-      s = service_hash["spec"]
-
-      unless m["name"] == name
-        raise "looks like a hash from another service: #{name} vs #{m["name"]}"
-      end
-
-      props[:created] = m["creationTimestamp"]
-      props[:labels] = m["labels"]
-      props[:ip] = s["portalIP"] || s["clusterIP"]
-      props[:selector] = s["selector"]
-      props[:ports] = s["ports"]
-
-      return self
-    end
-
     # @return [CucuShift::ResultHash] with :success if at least one pod by
     #   selector is ready
     def ready?(user: nil, quiet: false, cached: false)
@@ -80,35 +59,38 @@ module CucuShift
 
    # @note call without user only when props are loaded; get object to refresh
     def selector(user: nil, cached: true, quiet: false)
-      return get_cached_prop(prop: :selector, user: user, cached: cached, quiet: quiet)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('spec', 'selector')
     end
 
     # @note call without parameters only when props are loaded
     def url(user: nil, cached: true, quiet: false)
-      ip = get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
-      ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
-
+      ip = self.ip(user: user, cached: cached, quiet: quiet)
+      port = self.ports(user: user, cached: cached, quiet: quiet)
       return "#{ip}:#{ports[0]["port"]}"
     end
 
     # @note call without parameters only when props are loaded
     def ip(user: nil, cached: true, quiet: false)
-      return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
+      spec = raw_resource(user: user, cached: cached, quiet: quiet).dig('spec')
+      return (spec.dig('portalIP') || spec.dig('clusterIP'))
     end
     # @note call without parameters only when props are loaded
     # return @Array of ports
     def ports(user: nil, cached: true, quiet: false)
-      return get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('spec', 'ports')
     end
 
     # @note call without parameters only when props are loaded
     def node_port(user: nil, port:, cached: true, quiet: false)
       node_port = nil
-      ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
+      ports = self.ports(user: user, cached: cached, quiet: quiet)
       ports.each do | p |
         node_port = p['nodePort'] if p['port'] == port
       end
       return node_port
     end
+
   end
 end
