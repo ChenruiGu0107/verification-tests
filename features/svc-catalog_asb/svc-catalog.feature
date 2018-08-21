@@ -1328,7 +1328,6 @@ Then the step should succeed
     Then the step should fail
     And the output should contain:
       | clusterservicebrokers.servicecatalog.k8s.io "bbroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
-      | Reason: User "<%= user(0).name %>" cannot get secrets in project "atestproject2" |
  
 
   # @author qwang@redhat.com
@@ -1393,7 +1392,6 @@ Then the step should succeed
     Then the step should fail
     And the output should contain:
       | clusterservicebrokers.servicecatalog.k8s.io "abroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
-      | Reason: User "<%= user(0).name %>" cannot get secrets in project "atestproject2" |
 
   # @author jiazha@redhat.com
   # @case_id OCP-16420
