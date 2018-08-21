@@ -768,6 +768,7 @@ Feature: ConfigMap related features
       | resource_name | special-config      |
       | resource_type | Config Map          |
     Then the step should succeed
+    Given I wait until the status of deployment "testdc" becomes :complete
     When I perform the :add_configmap_to_application_as_volume web console action with:
       | project_name    | <%= project.name %> |
       | app_name        | testdc              |
