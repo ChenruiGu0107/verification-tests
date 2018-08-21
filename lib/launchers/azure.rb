@@ -327,7 +327,7 @@ module CucuShift
 
     # @return [String, nil] when the string is not a blob URI
     def storage_account_from_blob_uri(str)
-      CucuShift::Azure.storage_account_from_blob_uri str
+      CucuShift::Azure.send :storage_account_from_blob_uri, str
     end
 
     # @return [StorageProfile] return OS Profile based on supplied options
