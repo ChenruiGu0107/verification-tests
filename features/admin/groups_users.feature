@@ -118,8 +118,7 @@ Feature: groups and users related features
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
       | n    | <%= cb.project1 %> |
     Then the step should fail
-    And the output should match:
-      |cannot create .* in project.*<%= cb.project1 %> |
+    And the output should match "cannot create .* in (project|the namespace).*<%= cb.project1 %>"
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project1 %> |
@@ -128,8 +127,7 @@ Feature: groups and users related features
       | resource | all                |
       | n        | <%= cb.project2 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project2 %> |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
 
     When I run the :policy_add_role_to_group admin command with:
       | role       | view                                        |
@@ -154,14 +152,12 @@ Feature: groups and users related features
       | resource | all                |
       | n        | <%= cb.project1 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project1 %> |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project1 %>"
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project2 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project2 %> |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11155
@@ -211,8 +207,7 @@ Feature: groups and users related features
       | resource | all                |
       | n        | <%= cb.project2 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project2 %>            |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
 
     When I run the :policy_add_role_to_group admin command with:
       | role       | edit                                        |
@@ -247,11 +242,9 @@ Feature: groups and users related features
       | resource | all                |
       | n        | <%= cb.project1 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project1 %> |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project1 %>"
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project2 %> |
     Then the step should fail
-    And the output should match:
-      | cannot list .* in project.*<%= cb.project2 %> |
+    And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"

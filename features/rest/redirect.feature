@@ -47,7 +47,6 @@ Feature: REST features
     """
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 401
-    And the expression should be true> @result[:headers]["warning"][0].include?("X-CSRF-Token header is required")
 
     When I perform the HTTP request:
     """
@@ -60,4 +59,3 @@ Feature: REST features
     """
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 401
-    And the expression should be true> @result[:headers].include?("www-authenticate")
