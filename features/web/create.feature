@@ -692,6 +692,7 @@ Feature: create app on web console related
       | env_var_value | DCvalue2update      |
     Then the step should succeed
 
+    Given the "php-1" build completed
     Given a pod is present with labels:
       | deploymentconfig=php |
     When I perform the :check_deployment_environment web console action with:
