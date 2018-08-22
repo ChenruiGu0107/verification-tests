@@ -599,3 +599,22 @@ Feature: dockerbuild.feature
     And the output should contain:
       | invalid ports in EXPOSE instruction |
       | Ports 8080/tcp, 8081/tcp, 8083/tcp, 8084/tcp, 8085/tcp, 8087/tcp, 8090/tcp, 8091/tcp, 8092/tcp, 8093/tcp, 8094/tcp, 8100/udp, 8101/udp |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-16590
+  @admin
+  Scenario:  Should clean up temporary containers on node due to failed docker builds
+    Given I have a project
+    When I run the :new_build client command with:
+      | D    | FROM openshift/origin:latest\nRUN exit 1 |
+      | name | failing-build                            |
+    Then the step should succeed
+    And the "failing-build-1" build was created
+    And the "failing-build-1" build failed
+    When I get project pod named "failing-build-1-build"
+    And evaluation of `pod.node_name` is stored in the :node clipboard
+    Given I use the "<%= cb.node %>" node
+    When I run commands on the host:
+      |docker ps -a --no-trunc\| grep "exit" |
+    Then the step should succeed
+    And the output should not contain "/bin/sh -c 'exit 1'"
