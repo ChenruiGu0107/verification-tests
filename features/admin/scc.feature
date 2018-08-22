@@ -769,3 +769,78 @@ Feature: SCC policy related scenarios
       | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json | 
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-19827
+  @admin
+  @destructive
+  Scenario: SCC for allowPrivilegeEscalation parameter support
+    Given scc policy "restricted" is restored after scenario
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_non_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_nil_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scc                                 |
+      | resource_name | restricted                          |
+      | p             | {"allowPrivilegeEscalation": false} |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_allowprivilegeescalation.yaml |
+    Then the step should fail
+    And the output should contain "unable to validate against any security context constraint:"
+    When  I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_non_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_nil_allowprivilegeescalation.yaml |
+    Then the step should succeed
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-19832
+  @admin
+  @destructive
+  Scenario: SCC for defaultAllowPrivilegeEscalation parameter support
+    Given scc policy "restricted" is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | scc                                       |
+      | resource_name | restricted                                |
+      | p             | {"defaultAllowPrivilegeEscalation": true} |
+    Then the step should succeed
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scc                                 |
+      | resource_name | restricted                          |
+      | p             | {"allowPrivilegeEscalation": false} |
+    Then the step should fail
+    And the output should contain "Cannot set DefaultAllowPrivilegeEscalation to true without also setting AllowPrivilegeEscalation to true"
+    When I run the :patch admin command with:
+      | resource      | scc                                        |
+      | resource_name | restricted                                 |
+      | p             | {"defaultAllowPrivilegeEscalation": false} |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scc                                 |
+      | resource_name | restricted                          |
+      | p             | {"allowPrivilegeEscalation": false} |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scc                                |
+      | resource_name | restricted                         |
+      | p             | {"allowPrivilegeEscalation": null} |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+    Then the step should succeed
