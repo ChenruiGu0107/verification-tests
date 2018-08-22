@@ -5,47 +5,7 @@ goto_payment_setting_page:
   elements:
   - selector:
       xpath: //*[contains(.,"Payment Method")]
-input_the_credit_card_number:
-  action: input_first_four_numbers
-  action: input_second_four_numbers
-  action: input_third_four_numbers
-  action: input_fourth_four_numbers
-input_first_four_numbers:
-  params:
-    credit_card_first_four_numbers: 4111
-  elements:
-  - selector:
-      id: cc_no
-    type: input
-    op: send_keys <credit_card_first_four_numbers>
-input_second_four_numbers:
-  params: 
-    credit_card_second_four_numbers: 1111
-  elements:
-  - selector:
-      id: cc_no
-    type: input
-    op: send_keys <credit_card_second_four_numbers>
-input_third_four_numbers:
-  params: 
-    credit_card_third_four_numbers: 1111
-  elements:
-  - selector:
-      id: cc_no
-    type: input
-    op: send_keys <credit_card_third_four_numbers>
-input_fourth_four_numbers:
-  params: 
-    credit_card_fourth_four_numbers: 1111
-  elements:
-  - selector:
-      id: cc_no
-    type: input
-    op: send_keys <credit_card_fourth_four_numbers>
 set_the_expiry_date:
-  params:
-    cc_exp_mm_option: 10
-    cc_exp_yyyy_option: 2033
   elements:
   - selector:
       xpath: //select[@id='cc_exp_mm']/option[@value='<cc_exp_mm_option>']
@@ -55,20 +15,15 @@ set_the_expiry_date:
       xpath: //select[@id='cc_exp_yyyy']/option[@value='<cc_exp_yyyy_option>']
     op: click
 input_the_security_code:
-  params:
-    security_code_number: 456
   elements:
   - selector:
       xpath: //*[contains(@name,"cvv")]
     op: send_keys <security_code_number>
-update_payment_method:
-  action: input_the_credit_card_number
+update_payment_method_and_check_resume_message:
+  action: input_credit_card_number
   action: set_the_expiry_date
   action: input_the_security_code
-  elements:
-  - selector:
-      xpath: //button[contains(.,"Update Payment Method")]
-    op: click
+  action: click_update_payment_method
   action: check_payment_method_update_message
   action: check_subscription_resumed_message
 check_cancellation_warning_message_on_payment_page:
@@ -85,3 +40,85 @@ check_subscription_resumed_message:
   elements:
   - selector:
       xpath: //*[contains(.,'Subscription successfully resumed')]
+click_update_payment_method:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Update Payment Method")]
+    op: click
+input_credit_card_number:
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <first_four_number>
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <second_four_number>
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <third_four_number>
+  - selector:
+      id: cc_no
+    type: input
+    op: send_keys <fourth_four_number>
+    timeout: 5
+check_invalid_credit_card_warning_message:
+  elements:
+  - selector:
+      xpath: //div[@class="help-block with-errors" and @id="cc_no_invalid" and contains(.,"Your credit card number is not valid. Please verify that it was entered correctly.")]
+check_unsupported_credit_card_warning_message:
+  elements:
+  - selector:
+      xpath: //div[@class="help-block with-errors" and @id="cc_type_invalid" and contains(.,"Your credit card type is not supported at this time. Please specify a Mastercard, Visa, or Discover card number.")]
+clear_credit_card_number:
+  elements:
+  - selector:
+      id: cc_no
+    type: input
+    op: clear
+check_warning_message_for_UnionPay:
+  elements:
+  - selector:
+      xpath: //div[@class="alert alert-danger alert-dismissable"]/button[@class="close"]
+  - selector:
+      xpath: //div[@class="alert alert-danger alert-dismissable"]/span[@class="pficon pficon-error-circle-o"]
+  - selector:
+      visible_text: !ruby/regexp '/The following errors were encountered updating your payment information:/'
+  - selector:
+      visible_text: !ruby/regexp '/Your payment information could not be processed at this time/'
+  - selector:
+      visible_text: !ruby/regexp '/Please verify your billing address and credit card details are correct and try again/'
+  - selector:
+      visible_text: !ruby/regexp '/Error #4009: servercouldnotupdatepaymethodandstatusonsuccess/'
+check_logo_opacity_part_one:
+  elements:
+  - selector:
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_one>" and contains(@style, 'opacity')]
+  - selector:
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_two>" and contains(@style, 'opacity')]
+check_logo_no_opacity_part_one:
+  elements:
+  - selector:
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_three>" and not(contains(@style, 'opacity'))]
+check_payment_method_on_subscription_page:
+  elements:
+  - selector:
+      xpath: //h2[contains(.,"Payment Method ")]/following-sibling::p[contains(.,"The current") and contains(.,"credit card on file has a") and contains(.,"number ending with") and contains(.,"and expiry date")]
+  - selector:
+      xpath: //h2[contains(.,"Payment Method ")]/following-sibling::p/strong[text() = "<card_type>"]
+  - selector:
+      xpath: //h2[contains(.,"Payment Method ")]/following-sibling::p/strong[text() = "<updated_card_num>"]
+  - selector:
+      xpath: //h2[contains(.,"Payment Method ")]/following-sibling::p/strong[text() = "<updated_month>/<updated_year>"]
+check_alert_message_on_payment_method_page:
+  elements:
+  - selector:
+      xpath: //div[@class="alert alert-info" and contains(.,"The current") and contains(.,"credit card on file has a") and contains(.,"number ending with") and contains(.,"and expiry date")]
+  - selector:
+      xpath: //div[@class="alert alert-info"]/strong[text() = "<card_type>"]
+  - selector:
+      xpath: //div[@class="alert alert-info"]/strong[text() = "<updated_card_num>"]
+  - selector:
+      xpath: //div[@class="alert alert-info"]/strong[text() = "<updated_month>/<updated_year>"]
