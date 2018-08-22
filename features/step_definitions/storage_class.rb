@@ -172,9 +172,11 @@ Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_
 
   sc_hash["metadata"]["name"] = "#{target_sc}"
   # Generally, make cloned storage class as non-default storage class.
-  if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class") ||
-   sc_hash.dig("metadata", "annotations", "storageclass.kubernetes.io/is-default-class")
+  if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class")
     sc_hash["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] = "false"
+  end
+  if sc_hash.dig("metadata", "annotations", "storageclass.kubernetes.io/is-default-class")
+    sc_hash["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] = "false"
   end
   # Add/update any key/value pair.
   # Specially, add below line to make it a default storage class.
@@ -183,7 +185,8 @@ Given(/^admin clones storage class #{QUOTED} from #{QUOTED} with:$/) do |target_
     eval "sc_hash#{path} = YAML.load value" unless path == ''
   end
   # Make sure tag destructive when cloned storage class is default storage class.
-  if sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class") == "true"
+  if sc_hash.dig("metadata", "annotations", "storageclass.kubernetes.io/is-default-class") == "true" ||
+     sc_hash.dig("metadata", "annotations", "storageclass.beta.kubernetes.io/is-default-class") == "true"
     ensure_destructive_tagged
   end
 
