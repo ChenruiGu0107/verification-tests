@@ -268,6 +268,7 @@ Feature: system metric related tests
   @destructive
   Scenario: Hawkular Metrics log should include date as part of the timestamp
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-metrics |
@@ -281,6 +282,7 @@ Feature: system metric related tests
   @destructive
   Scenario: Path for prometheus additional alert rules file is not exist
     Given the master version >= "3.7"
+    Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
       | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15535/inventory |
       | negative_test | true                                                                                                   |
@@ -293,6 +295,7 @@ Feature: system metric related tests
   @destructive
   Scenario: hawkular-alerts war packages are removed from hawkular-metrics
     Given the master version >= "3.10"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-metrics |

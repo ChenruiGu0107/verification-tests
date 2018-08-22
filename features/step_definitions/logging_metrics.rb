@@ -405,8 +405,19 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   cb.subdomain = env.router_default_subdomain(user: admin, project: project('default', switch: false))
   step %Q/I store master major version in the :master_version clipboard/
 
-  # get a list of scheduleable nodes and stored it as an array of string
-  cb.schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname).join("\n")
+  # get all schedulable nodes to be use as a replacement string in the inventory file
+  schedulable_nodes = env.nodes.select(&:schedulable?).map(&:host).map(&:hostname)
+  cb.nodes_text_replacement = schedulable_nodes.map{ |node_hostname|
+    "#{node_hostname} openshift_public_hostname=#{node_hostname} openshift_node_group_name=\"node-config-infra\"\n"
+    }.join("\n")
+  # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
+  # specified, we assume we are dealing with non-Prometheus metrics installation
+  if ansible_opts.has_key? :inventory
+    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
+    # figure out what service type we are installing, save it in clipboard for later
+    params = cb.case_inventory.params['OSEv3:vars'].keys
+    cb.svc_type = "prometheus" if params.any? { |p| p.include? 'openshift_prometheus' }
+  end
   # we are enforcing that metrics to be installed into 'openshift-infra' for
   # hawkular and 'openshift-metrics' for Prometheus (unless inventory specify a
   # value) and openshift-logging for logging
@@ -423,15 +434,6 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     raise "Unsupported service type"
   end
   cb.target_proj = target_proj
-  # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
-  # specified, we assume we are dealing with non-Prometheus metrics installation
-  if ansible_opts.has_key? :inventory
-    step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
-    # figure out what service type we are installing, save it in clipboard for later
-    params = cb.case_inventory.params['OSEv3:vars'].keys
-    cb.svc_type = "prometheus" if params.any? { |p| p.include? 'openshift_prometheus' }
-  end
-
   # for scenarios that do reployed, we have registered clean-up so check if we are doing uninstall, then just skip uninstall if the project is gone
   if op == 'uninstalled'
     unless @projects.find { |p| p.name == cb.target_proj }
@@ -538,7 +540,8 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   # due to limitation of ParseConfig library, it won't allow key without value,
   # so we hack this with 'children=to_be_replace'
   new_text = inventory_io.string.gsub(/\s=\s/, '=').
-    gsub(/children=to_be_replaced/, "masters\netcd\nnodes\n")
+    gsub(/children=to_be_replaced/, "masters\netcd\nnodes\n").
+    gsub(/nodes=to_be_replaced/, cb.nodes_text_replacement)
   File.write(new_path, new_text)
 
   # create a tmp directory for files to be `oc rsync` to the pod created
@@ -1228,6 +1231,7 @@ Given /^I generate a basic inventory with cluster hosts information$/ do
   cb.ini_style_config.write(inventory_io, false)
   new_text = inventory_io.string.gsub(/\s=\s/, '=').
     gsub(/children=to_be_replaced/, "masters\netcd\nnodes\n")
+    gsub(/nodes=to_be_replaced/, cb.nodes_text_replacement)
   File.write(inventory_name, new_text)
 end
 

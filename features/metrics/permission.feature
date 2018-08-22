@@ -4,6 +4,7 @@ Feature: metrics permission related tests
   @admin
   @destructive
   Scenario: User can insert data to hawkular metrics in their own tenant when USER_WRITE_ACCESS parameter is 'true'
+    Given I have a project
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -25,6 +26,7 @@ Feature: metrics permission related tests
   @admin
   @destructive
   Scenario: User can not create metrics in the tenant which owned by other user
+    Given I have a project
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -41,6 +43,7 @@ Feature: metrics permission related tests
   @admin
   @destructive
   Scenario: User can only read metrics data when USER_WRITE_ACCESS is specified to false
+    Given I have a project
     Given metrics service is installed in the system
     Given I switch to the first user
     Given I have a project
@@ -60,6 +63,7 @@ Feature: metrics permission related tests
   @admin
   @destructive
   Scenario: User cannot create metrics in _system tenant even if USER_WRITE_ACCESS parameter is 'true'
+    Given I have a project
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
@@ -94,6 +98,7 @@ Feature: metrics permission related tests
   @admin
   @destructive
   Scenario: Insert data into Cassandra DB through external Hawkular Metrics API interface without Hawkular-tenant specified
+    Given I have a project
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
