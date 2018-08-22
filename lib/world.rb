@@ -128,15 +128,16 @@ module CucuShift
       end
     end
 
-    alias pv persistent_volume
-    alias hpa horizontal_pod_autoscaler
-    alias rc replication_controller
-    alias rs replica_set
     alias bc build_config
     alias dc deployment_config
+    alias hpa horizontal_pod_autoscaler
     alias istag image_stream_tag
-    alias pvc persistent_volume_claim
     alias netns net_namespace
+    alias psp pod_security_policy
+    alias pv persistent_volume
+    alias pvc persistent_volume_claim
+    alias rc replication_controller
+    alias rs replica_set
     alias scc security_context_constraints
 
     # @note call like `user(0)` or simply `user` for current user
@@ -353,18 +354,19 @@ module CucuShift
     def resource_class(cli_string)
       unless @shorthands
         @shorthands = {
+          dc: "deploymentconfigs",
+          ds: "daemonsets",
+          hpa: "horizontalpodautoscalers",
           is: "imagestreams",
           istag: "imagestreamtags",
-          dc: "deploymentconfigs",
-          hpa: "horizontalpodautoscalers",
-          rc: "replicationcontrollers",
-          pv: "persistentvolumes",
-          svc: "service",
-          pvc: "persistentvolumeclaims",
-          scc: "securitycontextconstraints",
           netns: "netnamespaces",
-          ds: "daemonsets",
-          rs: "replicasets"
+          psp: "podsecuritypolicy",
+          pv: "persistentvolumes",
+          pvc: "persistentvolumeclaims",
+          rc: "replicationcontrollers",
+          rs: "replicasets",
+          scc: "securitycontextconstraints",
+          svc: "service"
         }
         @shorthands.merge!(RESOURCES.map {|clazz, snake_case| [snake_case, clazz::RESOURCE]}.to_h)
       end
