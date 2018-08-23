@@ -19,13 +19,12 @@ input_the_security_code:
   - selector:
       xpath: //*[contains(@name,"cvv")]
     op: send_keys <security_code_number>
-update_payment_method_and_check_resume_message:
+update_payment_method:
   action: input_credit_card_number
   action: set_the_expiry_date
   action: input_the_security_code
   action: click_update_payment_method
   action: check_payment_method_update_message
-  action: check_subscription_resumed_message
 check_cancellation_warning_message_on_payment_page:
   elements:
   - selector:
@@ -46,6 +45,7 @@ click_update_payment_method:
       xpath: //button[contains(.,"Update Payment Method")]
     op: click
 input_credit_card_number:
+  action: clear_credit_card_number
   elements:
   - selector:
       id: cc_no
@@ -92,16 +92,14 @@ check_warning_message_for_UnionPay:
       visible_text: !ruby/regexp '/Please verify your billing address and credit card details are correct and try again/'
   - selector:
       visible_text: !ruby/regexp '/Error #4009: servercouldnotupdatepaymethodandstatusonsuccess/'
-check_logo_opacity_part_one:
+check_logo_opacity:
   elements:
   - selector:
-      xpath: //div[@id="cc_no_section"]//img[@id="<logo_one>" and contains(@style, 'opacity')]
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_opacity_one>" and contains(@style, 'opacity')]
   - selector:
-      xpath: //div[@id="cc_no_section"]//img[@id="<logo_two>" and contains(@style, 'opacity')]
-check_logo_no_opacity_part_one:
-  elements:
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_opacity_two>" and contains(@style, 'opacity')]
   - selector:
-      xpath: //div[@id="cc_no_section"]//img[@id="<logo_three>" and not(contains(@style, 'opacity'))]
+      xpath: //div[@id="cc_no_section"]//img[@id="<logo_no_opacity>" and not(contains(@style, 'opacity'))]
 check_payment_method_on_subscription_page:
   elements:
   - selector:

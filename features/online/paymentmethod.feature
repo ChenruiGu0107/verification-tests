@@ -18,7 +18,7 @@ Feature: ONLY payment update related feature's scripts in this file
     Then the step should succeed
     When I run the :goto_payment_setting_page web action
     Then the step should succeed
-    When I perform the :update_payment_method_and_check_resume_message web action with:
+    When I perform the :update_payment_method web action with:
       | first_four_number    | 4111 |
       | second_four_number   | 1111 |
       | third_four_number    | 1111 |
@@ -26,6 +26,8 @@ Feature: ONLY payment update related feature's scripts in this file
       | cc_exp_mm_option     | 09   |
       | cc_exp_yyyy_option   | 2023 |
       | security_code_number | 222  |
+    Then the step should succeed
+    When I run the :check_subscription_resumed_message web action
     Then the step should succeed
     When I run the :click_to_change_plan web action
     Then the step should succeed
@@ -56,8 +58,6 @@ Feature: ONLY payment update related feature's scripts in this file
     Then the step should succeed
     When I run the :check_invalid_credit_card_warning_message web action
     Then the step should succeed
-    When I run the :clear_credit_card_number web action
-    Then the step should succeed
     When I perform the :input_credit_card_number web action with:
       | first_four_number  | 6228 |
       | second_four_number | 8888 |
@@ -87,38 +87,32 @@ Feature: ONLY payment update related feature's scripts in this file
     When I perform the :input_credit_card_number web action with:
       | first_four_number  | 4123 |
       | second_four_number | 3456 |
-      | third_four_number  | 8900 |
-      | fourth_four_number | 0123 |
+      | third_four_number  | 8989 |
+      | fourth_four_number | 1123 |
     Then the step should succeed
     When I run the :check_invalid_credit_card_warning_message web action
-    Then the step should succeed
-    When I run the :clear_credit_card_number web action
     Then the step should succeed
     When I perform the :input_credit_card_number web action with:
       | first_four_number  | 5123 |
       | second_four_number | 4567 |
-      | third_four_number  | 8909 |
+      | third_four_number  | 8919 |
       | fourth_four_number | 1234 |
     Then the step should succeed
     When I run the :check_invalid_credit_card_warning_message web action
-    Then the step should succeed
-    When I run the :clear_credit_card_number web action
     Then the step should succeed
     When I perform the :input_credit_card_number web action with:
       | first_four_number  | 6012 |
       | second_four_number | 3455 |
       | third_four_number  | 6789 |
-      | fourth_four_number | 0192 |
+      | fourth_four_number | 1192 |
     Then the step should succeed
     When I run the :check_invalid_credit_card_warning_message web action
     Then the step should succeed
-    When I run the :clear_credit_card_number web action
-    Then the step should succeed
     When I perform the :input_credit_card_number web action with:
-      | first_four_number  | 3400 |
-      | second_four_number | 0000 |
-      | third_four_number  | 0000 |
-      | fourth_four_number | 0000 |
+      | first_four_number  | 3411 |
+      | second_four_number | 2314 |
+      | third_four_number  | 6567 |
+      | fourth_four_number | 9819 |
     Then the step should succeed
     When I run the :check_unsupported_credit_card_warning_message web action
     Then the step should succeed
@@ -135,12 +129,10 @@ Feature: ONLY payment update related feature's scripts in this file
       | third_four_number  | <third_four>  |
       | fourth_four_number | <fourth_four> |
     Then the step should succeed
-    When I perform the :check_logo_opacity_part_one web action with:
-      | logo_one | <opacity_one> |
-      | logo_two | <opacity_two> |
-    Then the step should succeed
-    When I perform the :check_logo_no_opacity_part_one web action with:
-      | logo_three | <no_opacity> |
+    When I perform the :check_logo_opacity web action with:
+      | logo_no_opacity  | <no_opacity>  |
+      | logo_opacity_one | <opacity_one> |
+      | logo_opacity_two | <opacity_two> |
     Then the step should succeed
     When I perform the :set_the_expiry_date web action with:
       | cc_exp_mm_option   | <month> |
