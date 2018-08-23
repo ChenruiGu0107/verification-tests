@@ -1,14 +1,13 @@
-
 Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |img_version|
   ensure_admin_tagged
   ensure_destructive_tagged
 
+  namespace = env.local_storage_provisioner_project.name
   config_hash = env.master_services[0].config.as_hash()
   imgformat = config_hash["imageConfig"]["format"]
   img_registry = imgformat.split("\/")[0]
   ose_version = env.get_version(user:admin)
   img_version = "v#{ose_version[0]}" unless img_version
-  namespace="local-storage"
   serviceaccount="local-storage-admin"
   configmap="local-volume-config"
   template="local-storage-provisioner"
@@ -34,7 +33,6 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
       "mount -t tmpfs svol1 #{path}/slow/vol1",
       "mkdir -p #{path}/slow/vol2",
       "mount -t tmpfs svol2 #{path}/slow/vol2",
-      "mkdir -p #{path}/fast/dir1",
       "chcon -R unconfined_u:object_r:svirt_sandbox_file_t:s0 #{path}"
     ]
     res = host.exec_admin(*setup_commands)

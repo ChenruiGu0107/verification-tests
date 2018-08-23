@@ -82,3 +82,24 @@ Feature: Local Persistent Volume
     And I run commands on the host:
       |ls <%= pv(pvc.volume_name).local_path %>/hello |
     Then the step should fail
+
+  # @author piqin@redhat.com
+  # @case_id OCP-15452
+  @admin
+  Scenario: No PV will be created for regular file
+    Given I have a StorageClass named "local-fast"
+
+    Given I select a random node's host
+
+    Given the "/mnt/local-storage/fast/volfile1" file is restored on host after scenario
+    When I run commands on the host:
+      | touch /mnt/local-storage/fast/volfile1 |
+    Then the step should succeed
+
+    Given 10 seconds have passed
+    And There are no PVs with local path "/mnt/local-storage/fast/volfile1"
+
+    When I get the log of local storage provisioner for node "<%= node.name %>"
+    Then the step should succeed
+    And the output should contain:
+      | "/mnt/local-storage/fast/volfile1": not a directory nor block device |

@@ -353,6 +353,14 @@ module CucuShift
       @cli_executor.clean_up if @cli_executor
       @webconsole_executor.clean_up if @webconsole_executor
     end
+
+    def local_storage_provisioner_project
+      unless @local_storage_provisioner_project
+        project_name = opts[:local_storage_provisioner_project] || "local-storage"
+        @local_storage_provisioner_project = Project.new(name: project_name, env: self)
+      end
+      return @local_storage_provisioner_project
+    end
   end
 
   # a quickly made up environment class for the PoC
