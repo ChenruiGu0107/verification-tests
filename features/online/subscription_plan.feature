@@ -399,3 +399,39 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Given I ensure "run-once-pod-2" pod is deleted
     When the "timebound" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "2Gi"
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-13077
+  Scenario: The user can subscribe resource add-on after resume the cancelled service
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given the expression should be true> cb.subscribed
+    """
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+    Then the step should succeed
+    And evaluation of `true` is stored in the :subscribed clipboard
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I perform the :goto_crq_and_set_resource_amount web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    """
+    And I run the :go_to_account_page web action
+    And I perform the :check_resource_account_overview_page web action with:
+      | cur_resource | Memory |
+      | cur_amount   | 4GiB   |
+    Then the step should succeed
