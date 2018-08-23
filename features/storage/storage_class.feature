@@ -1030,3 +1030,29 @@ Feature: storageClass related feature
     Then the step should succeed
     And the output should contain:
       | storage.k8s.io/v1beta1 |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-19886
+  @admin
+  Scenario: Display allowVolumeExpansion field in oc describe storage class
+    Given the master version >= "3.11"
+    Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
+    And admin clones storage class "sc1-<%= cb.sc_name %>" from ":default" with:
+      | ["allowVolumeExpansion"] | false |
+    And admin clones storage class "sc2-<%= cb.sc_name %>" from ":default" with:
+      | ["allowVolumeExpansion"] | true |
+    And admin clones storage class "sc3-<%= cb.sc_name %>" from ":default" with:
+      | | |
+    When I run the :describe client command with:
+      | resource | storageclass          |
+      | name     | sc1-<%= cb.sc_name %> |
+      | name     | sc2-<%= cb.sc_name %> |
+      | name     | sc3-<%= cb.sc_name %> |
+    Then the step should succeed
+    And the output by order should match:
+      | sc1-<%= cb.sc_name %>         |
+      | AllowVolumeExpansion:\s+False |
+      | sc2-<%= cb.sc_name %>         |
+      | AllowVolumeExpansion:\s+True  |
+      | sc3-<%= cb.sc_name %>         |
+      | AllowVolumeExpansion:\s+      |
