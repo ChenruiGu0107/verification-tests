@@ -578,7 +578,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
       # context is correct
       @result = host.exec_admin("cp -f /etc/origin/master/ca.crt #{host.workdir}")
       step %Q/the step should succeed/
-      sync_certs_cmd = "oc project #{project.name}; oc rsync #{host.workdir} base-ansible-pod:/tmp"
+      sync_certs_cmd = "oc project #{cb.org_project_for_ansible.name}; oc rsync #{host.workdir} base-ansible-pod:/tmp"
       @result = host.exec_admin(sync_certs_cmd)
       step %Q/the step should succeed/
     end
