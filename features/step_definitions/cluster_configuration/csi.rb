@@ -65,8 +65,8 @@ Given /^I deploy #{QUOTED} driver using csi(?: with "([^ ]+?)" version)?$/ do |d
   step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/csi/#{driver}-deployment.yaml"}
   deployment = YAML.load(@result[:response])
   filepath = @result[:abs_path]
-  deployment["spec"]["template"]["spec"]["containers"][0]["image"] = "#{image_prefix}/#{attacher_image}"
-  deployment["spec"]["template"]["spec"]["containers"][1]["image"] = "#{image_prefix}/#{provisioner_image}"
+  deployment["spec"]["template"]["spec"]["containers"][0]["image"] = "#{attacher_image}"
+  deployment["spec"]["template"]["spec"]["containers"][1]["image"] = "#{provisioner_image}"
   File.write(filepath, deployment.to_yaml)
   res = admin.cli_exec(:create, n: namespace, f: filepath)
   raise "error creating deployment for csi driver #{driver}" unless res[:success]
@@ -75,7 +75,7 @@ Given /^I deploy #{QUOTED} driver using csi(?: with "([^ ]+?)" version)?$/ do |d
   step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/csi/#{driver}-daemonset.yaml"}
   daemonset = YAML.load(@result[:response])
   filepath = @result[:abs_path]
-  daemonset["spec"]["template"]["spec"]["containers"][0]["image"] = "#{image_prefix}/#{registrar_image}"
+  daemonset["spec"]["template"]["spec"]["containers"][0]["image"] = "#{registrar_image}"
   File.write(filepath, daemonset.to_yaml)
   res = admin.cli_exec(:create, n: namespace, f: filepath)
   raise "error creating daemonset for csi driver #{driver}" unless res[:success]
