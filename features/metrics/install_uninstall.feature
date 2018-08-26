@@ -232,6 +232,7 @@ Feature: metrics logging and uninstall tests
   @admin
   @destructive
   Scenario: Metrics Admin Command - fresh deploy with resource limits
+    Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12276/inventory |
     Then the expression should be true> rc('hawkular-cassandra-1').container_spec(name: 'hawkular-cassandra-1').memory_limit_raw == "1G"

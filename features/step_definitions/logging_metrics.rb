@@ -185,9 +185,15 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
       step %Q/a replicationController becomes ready with labels:/, table(%{
         | component=kibana-ops,logging-infra=kibana,provider=openshift |
       })
-      step %Q/a replicationController becomes ready with labels:/, table(%{
-        | component=curator-ops,logging-infra=curator,provider=openshift |
-      })
+      # check rc readiness for 3/4 logging components, fluentd does not have rc, so stick with pod readiness for that component
+      if env.version_ge("3.11", user: user)
+        # for OCP >= 3.11, logging-curator is a cronjob instead of a pod
+        raise "Failed to find cronjob for curator" if cron_job('logging-curator-ops').schedule.nil?
+      else
+        step %Q/a replicationController becomes ready with labels:/, table(%{
+          | component=curator,logging-infra=curator,openshift.io/deployment-config.name=logging-curator,provider=openshift |
+        })
+      end
       step %Q/a replicationController becomes ready with labels:/, table(%{
         | component=es-ops,logging-infra=elasticsearch |
       })
@@ -1185,6 +1191,10 @@ Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ d
   @result = pod.exec("bash", "-c", query_cmd, as: admin, container: 'elasticsearch')
   if @result[:success]
     @result[:parsed] = YAML.load(@result[:response])
+    ## XXX: this is a temp fix until feedback from dev and rest of QE team to see if this is the expected behavior
+    if @result[:parsed].is_a? Hash and @result[:parsed].has_key? 'status'
+      @result[:exitstatus] = @result[:parsed]['status']
+    end
   else
     raise "HTTP operation failed with error, #{@result[:response]}"
   end
