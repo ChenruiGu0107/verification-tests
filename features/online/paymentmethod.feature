@@ -11,12 +11,17 @@ Feature: ONLY payment update related feature's scripts in this file
     When I perform the :cancel_your_service_correctly web action with:
       | username | <%= user.name %> |
     Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I access the "./" url in the web browser
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y")%> |
+    Then the step should succeed
+    """
     When I run the :goto_payment_setting_page web action
     Then the step should succeed
     When I perform the :check_cancellation_warning_message_on_payment_page web action with:
       | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y")%> |
-    Then the step should succeed
-    When I run the :goto_payment_setting_page web action
     Then the step should succeed
     When I perform the :update_payment_method web action with:
       | first_four_number    | 4111 |
@@ -36,13 +41,6 @@ Feature: ONLY payment update related feature's scripts in this file
     When I perform the :cancel_your_service_correctly web action with:
       | username | <%= user.name %> |
     Then the step should succeed
-    And I register clean-up steps:
-    """
-    Given I access the "./" url in the web browser
-    When I perform the :click_resume_your_subscription_confirm web action with:
-      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y")%> |
-    Then the step should succeed
-    """
 
   # @author yuwan@redhat.com
   # @case_id OCP-12884
