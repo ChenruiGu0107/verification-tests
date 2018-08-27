@@ -41,7 +41,7 @@ Feature: Check links in Openshift
       | master_version | <%= cb.master_version %>               |
       | project_name   | <%= project.name %>                    |
       | image_name     | nodejs                                 |
-      | image_tag      | 0.10                                   |
+      | image_tag      | latest                                 |
       | namespace      | openshift                              |
       | app_name       | nodejs-sample                          |
       | source_url     | https://github.com/openshift/nodejs-ex |
