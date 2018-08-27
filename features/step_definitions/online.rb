@@ -17,6 +17,7 @@ Given /^I open accountant console in a browser$/ do
   raise "cannot click user dropdown menu" unless @result[:success]
   # we need to open in same tab and I don't know a better way
   # this bug should not block all tests https://bugzilla.redhat.com/show_bug.cgi?id=1572838
+  # console_url = browser.browser.a(text: "Manage Account").href
   console_url = cb.acc_console_url.sub("online-", "https://manage.") + ".openshift.com"
   browser.browser.goto console_url
   @result = browser.run_action(:navigate_to_subscription)
