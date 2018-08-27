@@ -74,8 +74,8 @@ Feature: resouces related scenarios
       | force |         |
     Then the step should succeed
     And the output should contain:
-      | "mydc" deleted |
-      | mydc replaced  |
+      | deleted  |
+      | replaced |
 
     Given a pod becomes ready with labels:
       | label=mydc |
