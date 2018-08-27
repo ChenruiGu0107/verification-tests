@@ -280,7 +280,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And the expression should be true> limit_range("resource-limits").limits("Container").min.memory_raw == "80Mi"
     When I run the :new_app client command with:
       | template | httpd-example      |
-      | param    | MEMORY_LIMIT=100Mi |
+      | param    | MEMORY_LIMIT=80Mi |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=httpd-example-1 |
