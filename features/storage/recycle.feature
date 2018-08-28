@@ -140,3 +140,44 @@ Feature: Persistent Volume Recycling
     Then the output should not contain:
       | file   |
       | folder |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-9697
+  @admin
+  @destructive
+  Scenario: Using configurable hostpath recycler
+    Given I have a project
+    And I have a NFS service in the project
+
+    Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
+    Given I run commands on all masters:
+      | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
+      | sed -i 's/127.0.0.1/<%= service("nfs-service").ip %>/' /etc/origin/master/my-recycler.json                                               |
+      | sed -i 's/\/mnt\/data/\//' /etc/origin/master/my-recycler.json                                                                           |
+      | sed -i '/"args"/,+3d' /etc/origin/master/my-recycler.json                                                                                |
+    Given master config is merged with the following hash:
+    """
+    kubernetesMasterConfig:
+      controllerArguments:
+        pv-recycler-pod-template-filepath-hostpath:
+        - "/etc/origin/master/my-recycler.json"
+        pv-recycler-minimum-timeout-hostpath:
+        - "90"
+        pv-recycler-timeout-increment-hostpath:
+        - "30"
+    """
+    And the master service is restarted on all master nodes
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local-recycle.yaml" where:
+      | ["metadata"]["name"]            | pv-<%= project.name %>   |
+      | ["spec"]["capacity"]["storage"] | 1Gi                      |
+      | ["spec"]["hostPath"]["path"]    | /mnt/<%= project.name %> |
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
+    And the PV becomes :available within 300 seconds
