@@ -94,9 +94,9 @@ Feature: logging permission related tests
     """
     And I switch to the #{cb.user} user
     And I perform the HTTP request on the ES pod:
-      | relative_url | project.<%= cb.project.name %>.*/_count?format=JSON |
-      | op           | GET                                                 |
-      | token        | <%= user.cached_tokens.first %>                     |
+      | relative_url | project.<%= cb.project.name %>.*/_count |
+      | op           | GET                                     |
+      | token        | <%= user.cached_tokens.first %>         |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]['count'] > 0
     """
@@ -118,9 +118,9 @@ Feature: logging permission related tests
     """
     And I switch to the #{cb.user} user
     And I perform the HTTP request on the ES pod:
-      | relative_url | .operations.*/_count?format=JSON |
-      | op           | GET                              |
-      | token        | <%= user.cached_tokens.first %>  |
+      | relative_url | .operations.*/_count            |
+      | op           | GET                             |
+      | token        | <%= user.cached_tokens.first %> |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]['count'] > 0
     """
@@ -135,9 +135,9 @@ Feature: logging permission related tests
     Given logging service is installed in the system
     Given I switch to the first user
     And I perform the HTTP request on the ES pod:
-      | relative_url | .operations.*/_count?format=JSON |
-      | op           | GET                              |
-      | token        | <%= user.cached_tokens.first %>  |
+      | relative_url | .operations.*/_count            |
+      | op           | GET                             |
+      | token        | <%= user.cached_tokens.first %> |
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
   # @author pruan@redhat.com
@@ -152,9 +152,9 @@ Feature: logging permission related tests
     When I run the :new_app client command with:
       | app_repo | httpd-example |
     And I perform the HTTP request on the ES pod:
-      | relative_url | project.<%= project.name %>/_count?format=JSON |
-      | op           | GET                              |
-      | token        | <%= user.cached_tokens.first %>  |
+      | relative_url | project.<%= project.name %>/_count |
+      | op           | GET                                |
+      | token        | <%= user.cached_tokens.first %>    |
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
   # @author pruan@redhat.com
@@ -173,7 +173,7 @@ Feature: logging permission related tests
     """
     And I perform the HTTP request:
     <%= '"""' %>
-      :url: https://<%= route('logging-es').dns %>/#{cb.url}?output=JSON
+      :url: https://<%= route('logging-es').dns %>/#{cb.url}
       :method: get
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>

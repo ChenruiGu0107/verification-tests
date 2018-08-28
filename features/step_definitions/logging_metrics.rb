@@ -1191,7 +1191,7 @@ Given /^I perform the HTTP request on the ES pod(?: with labels #{QUOTED})?:$/ d
   @result = pod.exec("bash", "-c", query_cmd, as: admin, container: 'elasticsearch')
   if @result[:success]
     @result[:parsed] = YAML.load(@result[:response])
-    ## XXX: this is a temp fix until feedback from dev and rest of QE team to see if this is the expected behavior
+    # curl returns 0 even with a http code of 403, we force it to match.
     if @result[:parsed].is_a? Hash and @result[:parsed].has_key? 'status'
       @result[:exitstatus] = @result[:parsed]['status']
     end

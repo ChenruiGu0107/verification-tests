@@ -205,7 +205,7 @@ module CucuShift
       thread_res = wait_thread.join(1)
       if thread_res
         begin
-          result[:exitstatus] = thread_res.value.to_i
+          result[:exitstatus] = thread_res.value.exitstatus
           result[:success] = result[:success] && result[:exitstatus] == 0
 
           if @out_reader
