@@ -993,7 +993,6 @@ Feature: jenkins.feature
   # @case_id OCP-11344
   Scenario Outline: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
-    And I have a jenkins v<jenkins_version> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11344/samplepipeline.yaml |
     Then the step should succeed

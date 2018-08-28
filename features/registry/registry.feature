@@ -6,7 +6,8 @@ Feature: Testing registry
   @destructive
   Scenario: Docker-registry with whitelist
     Given I have a project
-    And I select a random node's host
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
     Given the node service is verified
     And the node service is restarted on the host after scenario
     And I register clean-up steps:
@@ -289,7 +290,8 @@ Feature: Testing registry
     Then the step should succeed
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
-    And I select a random node's host
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker rmi docker.io/busybox:latest |
@@ -641,7 +643,8 @@ Feature: Testing registry
   @admin
   Scenario: openshift should support image path which have more than two slashes
     Given I have a project
-    And I select a random node's host
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
     And I have a registry with htpasswd authentication enabled in my project
     And I add the insecure registry to docker config on the node
     And I log into auth registry on the node
