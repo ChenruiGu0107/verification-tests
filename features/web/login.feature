@@ -63,7 +63,7 @@ Feature: login related scenario
     Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
 
   # @author yapei@redhat.com
-  # @case_id OCP-17241
+  # @case_id OCP-17141
   Scenario: Check oauth-proxy login ui
     Given I log the message> scenario only works when users are specified with passwords
     Given the master version >= "3.9"
