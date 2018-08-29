@@ -451,6 +451,8 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   step %Q"I construct the default #{op[0..-3]} #{cb.svc_type} inventory"
 
   if cb.ini_style_config
+    # get testcase specific params into the final inventory file
+    cb.ini_style_config["OSEv3:vars"].merge! cb.case_inventory['OSEv3:vars'] if cb.case_inventory
     params = cb.ini_style_config.params["OSEv3:vars"]
     if params.keys.include? 'openshift_prometheus_state'
       prometheus_state = params['openshift_prometheus_state']
@@ -460,6 +462,8 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     # clipboard which the post installation verification will need
     if params.keys.include? 'openshift_prometheus_namespace'
       cb.prometheus_namespace = params['openshift_prometheus_namespace']
+      # user specified namespace overwrite it
+      target_proj = cb.prometheus_namespace
     else
       cb.prometheus_namespace = 'openshift-metrics'
     end
@@ -513,10 +517,6 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
         | admin        | <%= user.name %>      |
     })
   end
-
-
-  # get testcase specific params into the final inventory file
-  cb.ini_style_config["OSEv3:vars"].merge! cb.case_inventory['OSEv3:vars'] if cb.case_inventory
 
   new_path = nil
   if op == 'installed'
