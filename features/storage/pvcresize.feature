@@ -10,7 +10,6 @@ Feature: PVC resizing Test
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
       | ["allowVolumeExpansion"]        | true                     |
-      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -42,12 +41,6 @@ Feature: PVC resizing Test
       | /mnt/gluster/hello |
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
-    When I execute on the pod:
-      | /bin/dd | if=/dev/zero | of=/mnt/gluster/1 | bs=1M | count=1500 |
-    Then the step should succeed
-    And the output should not contain:
-      | No space left on device |
-
 
   # @author piqin@redhat.com
   # @case_id OCP-16614
@@ -59,7 +52,6 @@ Feature: PVC resizing Test
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
       | ["allowVolumeExpansion"]        | true                     |
-      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -84,13 +76,6 @@ Feature: PVC resizing Test
     Then the step should succeed
     And the pod named "mypod-<%= project.name %>" becomes ready
 
-    When I execute on the pod:
-      | /bin/dd | if=/dev/zero | of=/mnt/gluster/1 | bs=1M | count=1500 |
-    Then the step should succeed
-    And the output should not contain:
-      | No space left on device |
-
-
   # @author piqin@redhat.com
   # @case_id OCP-16615
   @admin
@@ -101,7 +86,6 @@ Feature: PVC resizing Test
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
       | ["allowVolumeExpansion"]        | true                     |
-      | ["parameters"]["volumeoptions"] | "features.shard enabled" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -141,12 +125,6 @@ Feature: PVC resizing Test
       | /mnt/gluster/hello |
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
-    When I execute on the pod:
-      | /bin/dd | if=/dev/zero | of=/mnt/gluster/1 | bs=1M | count=1500 |
-    Then the step should succeed
-    And the output should not contain:
-      | No space left on device |
-
 
   # @author piqin@redhat.com
   # @case_id OCP-19332
