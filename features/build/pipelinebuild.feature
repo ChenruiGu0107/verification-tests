@@ -149,7 +149,7 @@ Feature: pipelinebuild.feature
       | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                                |
     Then the step should succeed
     Given I have a jenkins browser
-    Then the step should succeed
+    And I log in to jenkins
     Given I update "maven" slave image for jenkins 2 server
     When I perform the :check_jenkins_credentials web action with:
       | credential_name  | <%= project.name %>-mysecret     |
