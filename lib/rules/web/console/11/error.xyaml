@@ -44,7 +44,7 @@ check_input_validation_error:
     visible: true
     op: click
   - selector:
-      xpath: //div[contains(@class,'tooltip')]/div[contains(text(), '<tooltip_message>')]
+      xpath: //*[contains(., '<tooltip_message>')]
 check_system_status_issues_warning:
   elements:
   - selector:
