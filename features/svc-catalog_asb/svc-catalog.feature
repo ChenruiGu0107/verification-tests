@@ -1524,3 +1524,222 @@ Then the step should succeed
     Given I use the "<%= cb.user_project %>" project
     And I ensure "ups-binding" service_binding is deleted
     And I ensure "ups-instance" service_instance is deleted
+    
+  # @author jiazha@redhat.com
+  # @case_id OCP-18822
+  @admin
+  Scenario: [catalog] Better credentials remapping
+    Given I have a project
+    # Get the registry name from the configmap
+    Given I save the first service broker registry prefix to :prefix clipboard
+    # need to swtich back to normal user mode
+    
+    # Provision DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                               |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                         |
+      | param | PLAN_EXTERNAL_NAME=dev                                                      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                      |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                      |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml        |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                         |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   |
+      | param | UID=<%= cb.db_uid %>                                                                                                           |
+      | n     | <%= project.name %>                                                                                                            |
+    Then the step should succeed
+    And I wait for all service_instance in the project to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+
+    # string key
+    Given a "bind1.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind1
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - addKey:
+          key: "test1"
+          stringValue: "redhat"
+    """
+
+    When I run the :create client command with:
+      | f | bind1.yaml |
+    Then the step should succeed
+    And I wait for the "bind1" secret to appear up to 180 seconds
+    Then the expression should be true> secret.value_of("test1") == "redhat"
+
+    # base64 value key
+    Given a "bind2.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind2
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - addKey:
+          key: "test2"
+          value: amlhbg==
+    """
+    When I run the :create client command with:
+      | f | bind2.yaml |
+    Then the step should succeed
+    And I wait for the "bind2" secret to appear up to 180 seconds
+    Then the expression should be true> secret.value_of("test2") == "jian"
+    
+    # quote an exist secret
+    Given a "bind3.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind3
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - addKeysFrom:
+          secretRef: 
+            namespace: default
+            name: router-certs
+    """
+    When I run the :create client command with:
+      | f | bind3.yaml |
+    Then the step should succeed
+    And I wait for the "bind3" secret to appear up to 180 seconds
+    When I run the :get client command with:
+      | resource      | secret |
+      | resource_name | bind3  |
+      | o             | yaml   |
+    Then the step should succeed
+    And the output should contain "tls.crt"
+    And the output should contain "tls.key"
+    
+    # quote a non-exist secret
+    Given a "bind4.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind4
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - addKeysFrom:
+          secretRef: 
+            namespace: default
+            name: fake
+    """
+    When I run the :create client command with:
+      | f | bind4.yaml |
+    Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | servicebinding |
+      | resource_name | bind4          |
+      | o             | yaml           |
+    Then the step should succeed
+    And the output should contain "Error injecting bind result"
+    """
+    
+    #  Merge the existing keys to the credential secret
+    Given a "bind5.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind5
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - addKey:
+          key: "my-new-key"
+          jsonPathExpression: "key one is {.DB_USER}, key two is {.DB_NAME}"
+    """
+    When I run the :create client command with:
+      | f | bind5.yaml |
+    Then the step should succeed
+    And I wait for the "bind5" secret to appear up to 180 seconds
+    Then the expression should be true> secret.value_of("my-new-key") == "key one is admin, key two is admin"
+    
+    #  Remove a key from the credential secret
+    Given a "bind6.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: servicecatalog.k8s.io/v1beta1
+    kind: ServiceBinding
+    metadata:
+      name: bind6
+      namespace: <%= project.name %>
+    spec:
+      instanceRef:
+        name: <%= cb.prefix %>-postgresql-apb
+      secretTransforms:
+      - removeKey:
+          key: "DB_HOST"
+      - removeKey:
+          key: "DB_NAME"
+    """
+    When I run the :create client command with:
+      | f | bind6.yaml |
+    Then the step should succeed
+    And I wait for the "bind6" secret to appear up to 180 seconds
+    When I run the :get client command with:
+      | resource      | secret |
+      | resource_name | bind6  |
+      | o             | yaml   |
+    Then the step should succeed
+    And the output should not contain "DB_HOST"
+    And the output should not contain "DB_NAME"
+
+    # Remove all servicebindings
+    When I run the :delete client command with:
+      | object_type       | servicebinding |
+      | object_name_or_id | bind1 |
+      | object_name_or_id | bind2 |
+      | object_name_or_id | bind3 |
+      | object_name_or_id | bind4 |
+      | object_name_or_id | bind5 |
+      | object_name_or_id | bind6 |
+    Then the step should succeed
+
+    And I wait for the resource "servicebinding" named "bind1" to disappear within 180 seconds
+    And I wait for the resource "servicebinding" named "bind2" to disappear within 180 seconds
+    And I wait for the resource "servicebinding" named "bind3" to disappear within 180 seconds
+    And I wait for the resource "servicebinding" named "bind4" to disappear within 180 seconds
+    And I wait for the resource "servicebinding" named "bind5" to disappear within 180 seconds
+    And I wait for the resource "servicebinding" named "bind6" to disappear within 180 seconds
+
+    And I wait for the resource "secret" named "bind1" to disappear within 180 seconds
+    And I wait for the resource "secret" named "bind2" to disappear within 180 seconds
+    And I wait for the resource "secret" named "bind3" to disappear within 180 seconds
+    And I wait for the resource "secret" named "bind4" to disappear within 180 seconds
+    And I wait for the resource "secret" named "bind5" to disappear within 180 seconds
+    And I wait for the resource "secret" named "bind6" to disappear within 180 seconds
+
