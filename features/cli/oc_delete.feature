@@ -12,7 +12,7 @@ Feature: oc_delete.feature
       | resource_name | grace10 |
       | o | yaml |
     Then the output should contain "terminationGracePeriodSeconds"
-    When I run the :delete client command with:
+    When I run the :delete background client command with:
       | object_type | pod |
       | l | name=graceful |
       | grace_period | 20 |
@@ -91,7 +91,7 @@ Feature: oc_delete.feature
       | resource_name | grace-default |
       | o | yaml |
     Then the output should contain "terminationGracePeriodSeconds: 30"
-    When I run the :delete client command with:
+    When I run the :delete background client command with:
       | object_type | pod |
       | l | name=graceful |
     Then the step should succeed
@@ -117,7 +117,7 @@ Feature: oc_delete.feature
       | resource_name | grace10 |
       | o | yaml |
     Then the output should contain "terminationGracePeriodSeconds: 10"
-    When I run the :delete client command with:
+    When I run the :delete background client command with:
       | object_type | pod |
       | l | name=graceful |
     Then the step should succeed

@@ -97,7 +97,7 @@ Feature: pods related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/10.json |
     Then the step should succeed
     Given the pod named "grace10" becomes ready
-    When I run the :delete client command with:
+    When I run the :delete background client command with:
       | object_type       | pods    |
       | object_name_or_id | grace10 |
     Then the step should succeed
