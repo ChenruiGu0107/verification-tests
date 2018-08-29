@@ -525,6 +525,11 @@ Feature: pod related features
   @admin
   Scenario: Pod will not be copied to nodes which does not match it's node selector
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given label "daemon=yes" is added to the "<%= cb.nodes[0].name %>" node
     Given cluster role "cluster-admin" is added to the "first" user
@@ -584,6 +589,11 @@ Feature: pod related features
   @admin
   Scenario: When node labels change, DaemonSet will add pods to newly matching nodes and delete pods from not-matching nodes
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given environment has at least 2 schedulable nodes
     Given label "daemon=yes" is added to the "<%= cb.nodes[0].name %>" node
