@@ -219,6 +219,11 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration dedicated nodes
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     And label "vip=vip1" is added to the "<%= cb.nodes[0].name %>" node
     Given the taints of the nodes in the clipboard are restored after scenario
@@ -275,6 +280,11 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration pod with toleration can be scheduled to taint node
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
@@ -347,22 +357,33 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (NoSchedule and PreferNoSchedule)
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given environment has at least 2 schedulable nodes
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %>           |
-      | key_val   | dedicated=special-user:NoSchedule |
+      | node_name | noescape: <%= cb.nodes[0..-1].map(&:name).join(" ") %>    |
+      | key_val   | additional=true:NoSchedule |
     Then the step should succeed
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[1].name %>    |
-      | key_val   | color=red:PreferNoSchedule |
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
+      | key_val   | additional-                       |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[1].name %>    |
+      | key_val   | color=red:PreferNoSchedule |
+      | key_val   | additional-                |
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red-prefer.yaml |
     Then the step should succeed
@@ -375,22 +396,33 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (NoSchedule)
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given environment has at least 2 schedulable nodes
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %>           |
-      | key_val   | dedicated=special-user:NoSchedule |
+      | node_name | noescape: <%= cb.nodes[0..-1].map(&:name).join(" ") %> |
+      | key_val   | additional=true:NoSchedule    |
     Then the step should succeed
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[1].name %> |
-      | key_val   | color=red:NoSchedule    |
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
+      | key_val   | additional-                       |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name |  <%= cb.nodes[1].name%> |
+      | key_val   | color=red:NoSchedule    |
+      | key_val   | additional-             |
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red.yaml |
     Then the step should succeed
@@ -403,22 +435,33 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (PreferNoSchedule)
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given environment has at least 2 schedulable nodes
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %>                 |
-      | key_val   | dedicated=special-user:PreferNoSchedule |
+      | node_name | noescape: <%= cb.nodes[0..-1].map(&:name).join(" ") %>                 |
+      | key_val   | additional=true:NoSchedule |
     Then the step should succeed
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[1].name %>    |
-      | key_val   | color=red:PreferNoSchedule |
+      | node_name | <%= cb.nodes[0].name %>                 |
+      | key_val   | dedicated=special-user:PreferNoSchedule |
+      | key_val   | additional-                             |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated-prefer.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated-prefer" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[1].name %>    |
+      | key_val   | color=red:PreferNoSchedule |
+      | key_val   | additional-                |
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red-prefer.yaml |
     Then the step should succeed

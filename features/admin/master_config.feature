@@ -1197,21 +1197,26 @@ Feature: test master config related steps
     kubernetesMasterConfig:
       controllerArguments:
         feature-gates:
-        - AllAlpha=true,TaintBasedEvictions=true
+        - TaintBasedEvictions=true
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given I use the "<%= cb.nodes[0].name %>" node
     Given the node service is restarted on the host after scenario
     And I register clean-up steps:
     """
     When I run commands on the host:
-      | systemctl restart cri-o  \|\| systemctl restart docker |
+      | systemctl restart crio \|\| systemctl restart cri-o  \|\| systemctl restart docker |
     Then the step should succeed
     """
     Given I run commands on the host:
-      | systemctl stop cri-o \|\| systemctl stop docker |
+      | systemctl stop crio \|\| systemctl stop cri-o \|\| systemctl stop docker |
     Then the step should succeed
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -1232,7 +1237,7 @@ Feature: test master config related steps
       | type: Ready                        |
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | systemctl start cri-o \|\| systemctl start docker |
+      | systemctl start crio \|\| systemctl start cri-o \|\| systemctl start docker |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
