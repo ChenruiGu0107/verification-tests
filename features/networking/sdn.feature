@@ -290,20 +290,13 @@ Feature: SDN related networking scenarios
     Given I select a random node's host
     And the node service is verified
     And the node network is verified
-    And the node service is restarted on the host after scenario
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    And the network plugin is switched on the node
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should fail
-    When I run commands on the host:
-      | systemctl status atomic-openshift-node |
-    Then the step should fail
-    Given I wait up to 20 seconds for the steps to pass:
+    Given I restart the network components on the node after scenario
+    Given the network plugin is switched on the node
+    And I restart the network components on the node
+    And I wait up to 120 seconds for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node -n 20 |
-    Then the output should contain "detected network plugin mismatch"
+    Given I get the networking components logs of the node since "120s" ago
+    And the output should contain "network plugin mismatch"
     """
 
   # @author hongli@redhat.com
