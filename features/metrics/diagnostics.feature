@@ -28,6 +28,7 @@ Feature: metrics diagnostics tests
   @destructive
   Scenario: Make sure no password exposed in process command line
     Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
     And metrics service is installed in the system
     And I select a random node's host
     And I run commands on the host:
