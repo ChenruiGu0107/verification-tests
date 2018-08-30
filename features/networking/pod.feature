@@ -223,3 +223,31 @@ Feature: Pod related networking scenarios
       | o             | wide |
     Then the step should succeed
     And the output should not contain "<%= cb.broadcastip %>"
+
+
+  # @author bmeng@redhat.com
+  # @case_id OCP-19994
+  Scenario: The completed pod should also have IP address
+    Given I have a project
+    And I run the steps 25 times:
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/completed-pod.json |
+    Then the step should succeed
+    """
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+      | l | name=completed-pod |
+    Then the step should succeed
+    And the output should contain 25 times:
+      | Completed |
+    """
+    When I run the :get client command with:
+      | resource | pods |
+      | l | name=completed-pod |
+      | template | {{range .items}}{{.status.podIP}}{{"\\n"}}{{end}} |
+    Then the step should succeed
+    And the output should match 25 times:
+      | \d+\.\d+\.\d+\.\d+ |
