@@ -627,9 +627,6 @@ Feature: install and uninstall related scenarios
     # check non-ops pod didn't have restart
     Then the expression should be true> pod.container(name: 'elasticsearch').restart_count == 0
     And a pod becomes ready with labels:
-      | component=curator |
-    Then the expression should be true> pod.container(name: 'curator').restart_count == 0
-    And a pod becomes ready with labels:
       | component=kibana |
     Then the expression should be true> pod.container(name: 'kibana').restart_count == 0
     And a pod becomes ready with labels:
