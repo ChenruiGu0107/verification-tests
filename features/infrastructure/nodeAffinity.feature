@@ -7,8 +7,6 @@ Feature: nodeAffinity
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
     Then the step should fail
-    And the output should match:
-      | fractional integer |
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed

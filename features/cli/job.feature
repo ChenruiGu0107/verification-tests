@@ -39,7 +39,6 @@ Feature: job.feature
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511597/job.yaml" replacing paths:
       | ["spec"]["completions"] | 0.1 |
     Then the step should fail
-    And the output should contain "fractional integer"
 
   # @author chezhang@redhat.com
   # @case_id OCP-11935
@@ -126,7 +125,6 @@ Feature: job.feature
       | ["spec"]["completions"]           | null |
       | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should fail
-    And the output should contain "fractional integer"
     # Create a job with both "parallelism" < "completions"
     Given all existing pods die with labels:
       | app=pi |

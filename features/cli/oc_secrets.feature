@@ -61,7 +61,7 @@ Feature: oc_secrets.feature
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret.json |
       | namespace | non483167 |
     Then the step should fail
-    And the output should contain "cannot create secrets in project"
+    And the output should match "cannot create secrets in (project|the namespace "non483167").*"
     # 1.2 Create a secret with a correct namespace
     When I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret.json |

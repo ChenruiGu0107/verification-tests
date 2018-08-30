@@ -85,22 +85,16 @@ Feature: Permission Data
     Then I run the :create client command with:
       | f | secret-permission-pod.yaml |
     And the step should fail
-    And the output should match:
-      | expect char.*but got char 'a' |
     When I replace lines in "secret-permission-pod.yaml":
       | defaultMode: 00a7 | defaultMode: 1/2 |
     Then I run the :create client command with:
       | f | secret-permission-pod.yaml |
     And the step should fail
-    And the output should match:
-      | expect char.*but got char '/' |
     When I replace lines in "secret-permission-pod.yaml":
       | defaultMode: 1/2 | defaultMode: 0.5 |
     Then I run the :create client command with:
       | f | secret-permission-pod.yaml |
     And the step should fail
-    And the output should match:
-      | fractional integer |
     When I replace lines in "secret-permission-pod.yaml":
       | defaultMode: 0.5 | defaultMode: -1 |
     Then I run the :create client command with:

@@ -334,12 +334,8 @@ Feature: oc related features
       | --from-file=         |
       | --from-literal=      |
       | --generator=         |
-      | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
       | --type=              |
       | --validate=          |
@@ -353,12 +349,8 @@ Feature: oc related features
       | --from-file=         |
       | --from-literal=      |
       | --generator=         |
-      | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
       | --type=              |
       | --validate=          |
@@ -374,12 +366,8 @@ Feature: oc related features
       | --docker-username=   |
       | --dry-run=           |
       | --generator=         |
-      | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
       | --validate=          |
     When I run the :create_secret client command with:
@@ -394,12 +382,8 @@ Feature: oc related features
       | --docker-username=   |
       | --dry-run=           |
       | --generator=         |
-      | --no-headers=        |
       | -o, --output=        |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
       | --validate=          |
 
@@ -423,9 +407,6 @@ Feature: oc related features
       | -o, --output=        |
       | --record=            |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
     When I run the :autoscale client command with:
       | name  | :false |
@@ -440,13 +421,9 @@ Feature: oc related features
       | --max=               |
       | --min=               |
       | --name=              |
-      | --no-headers=        |
       | -o, --output=        |
       | --record=            |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
     When I run the :help client command with:
       | command_name | autoscale |
@@ -460,13 +437,9 @@ Feature: oc related features
       | --max=               |
       | --min=               |
       | --name=              |
-      | --no-headers=        |
       | -o, --output=        |
       | --record=            |
       | --save-config=       |
-      | -a, --show-all=      |
-      | --show-labels=       |
-      | --sort-by=           |
       | --template=          |
 
   # @author xiaocwan@redhat.com
