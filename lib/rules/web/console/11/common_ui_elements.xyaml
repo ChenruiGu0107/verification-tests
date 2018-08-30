@@ -263,6 +263,11 @@ delete_resource:
   action: click_actions_button
   action: click_delete
   action: click_delete
+click_console_selector:
+  element:
+    selector:
+      css: .contextselector button
+    op: click
 click_ok:
   element:
     selector:

@@ -195,7 +195,7 @@ module CucuShift
     end
 
     # returns the major and minor version using REST
-    # @return raw version, major and minor number
+    # @return [Array<String>] raw version, major and minor number
     def get_version(user:)
       if opts[:version]
         @major_version, @minor_version = parse_version(opts[:version])
