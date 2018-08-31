@@ -289,9 +289,11 @@ services:
     # resource_group: my-resource-group
     fqdn_names: true
     location: westus
-    network_options: {}
+    network_options:
+      security_group: :auto
     # os_options:
     #   ssh_key: public/key/path
+    availability_set: :auto
     hardware_options:
       # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes-general
       # https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux
