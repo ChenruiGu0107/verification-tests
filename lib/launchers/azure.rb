@@ -16,10 +16,17 @@ module CucuShift
     include Common::Helper
     include CollectionsIncl
 
-    StorageModels = ::Azure::ARM::Storage::Models
-    NetworkModels = ::Azure::ARM::Network::Models
-    ComputeModels = ::Azure::ARM::Compute::Models
-    ResourceModels = ::Azure::ARM::Resources::Models
+    Storage = ::Azure::Storage::Mgmt::V2018_02_01
+    Network = ::Azure::Network::Mgmt::V2018_06_01
+    # in V2018_06_01 #disks method is missing
+    # https://github.com/Azure/azure-sdk-for-ruby/issues/1614
+    Compute = ::Azure::Compute::Mgmt::V2018_04_01
+    Resource = ::Azure::Resources::Mgmt::V2018_02_01
+
+    StorageModels = Storage::Models
+    NetworkModels = Network::Models
+    ComputeModels = Compute::Models
+    ResourceModels = Resource::Models
 
     attr_reader :azure_config
 
@@ -50,10 +57,8 @@ module CucuShift
     def compute_client(subs_id = default_subscription_id)
       return @compute_clients[subs_id] if @compute_clients&.dig(subs_id)
 
-      require 'azure_mgmt_compute'
-
       @compute_clients ||= {}
-      @compute_clients[subs_id] = ::Azure::ARM::Compute::ComputeManagementClient.new(credentials)
+      @compute_clients[subs_id] = Compute::ComputeManagementClient.new(credentials)
       @compute_clients[subs_id].subscription_id = subs_id
       return @compute_clients[subs_id]
     end
@@ -61,10 +66,8 @@ module CucuShift
     def net_client(subs_id = default_subscription_id)
       return @net_clients[subs_id] if @net_clients&.dig(subs_id)
 
-      require 'azure_mgmt_network'
-
       @net_clients ||= {}
-      @net_clients[subs_id] = ::Azure::ARM::Network::NetworkManagementClient.new(credentials)
+      @net_clients[subs_id] = Network::NetworkManagementClient.new(credentials)
       @net_clients[subs_id].subscription_id = subs_id
       return @net_clients[subs_id]
     end
@@ -72,10 +75,8 @@ module CucuShift
     def storage_client(subs_id = default_subscription_id)
       return @storage_clients[subs_id] if @storage_clients&.dig(subs_id)
 
-      require 'azure_mgmt_storage'
-
       @storage_clients ||= {}
-      @storage_clients[subs_id] = ::Azure::ARM::Storage::StorageManagementClient.new(credentials)
+      @storage_clients[subs_id] = Storage::StorageManagementClient.new(credentials)
       @storage_clients[subs_id].subscription_id = subs_id
       return @storage_clients[subs_id]
     end
@@ -156,6 +157,8 @@ module CucuShift
     #   the boot disk without need to replace the whole disks configuration;
     #   disks from global config will be searched for the boot option and that
     #   disk entry will be intelligently merged
+    # @param availability_set [String] name of availability set for VM, if value
+    #   is :auto, a new one is created based on VM name without trailing numbers
     # @return [Array] of [Instance, CucuShift::Host] pairs
     def create_instance( names,
                          fqdn_names: azure_config[:fqdn_names],
@@ -167,6 +170,7 @@ module CucuShift
                          location: azure_config[:location],
                          machine_type: 'Microsoft.Compute/virtualMachines',
                          resource_group: azure_config[:resource_group],
+                         availability_set: nil,
                          host_opts: {}
                        )
 
@@ -179,6 +183,7 @@ module CucuShift
       )
 
       # instance create settings
+      availability_set ||= azure_config[:availability_set]
       host_opts = azure_config[:host_connect_opts].merge host_opts
       storage_opts = azure_config[:storage_options].merge storage_opts
       network_opts = azure_config[:network_options].merge network_opts
@@ -190,12 +195,14 @@ module CucuShift
         logger.debug "triggering instance create for #{vmname}"
 
         params = ComputeModels::VirtualMachine.new
+        params.name = name
         params.type = machine_type
         params.os_profile = os_profile(vmname, os_opts)
         params.hardware_profile = hw_profile(hardware_opts)
         params.storage_profile = storage_profile(location, resource_group, name, storage_opts)
         params.network_profile = network_profile(location, resource_group, name, network_opts)
         params.location = location
+        params.availability_set = availability_set(resource_group, params, availability_set)
 
         compute_client.virtual_machines.create_or_update_async(
           resource_group,
@@ -268,6 +275,16 @@ module CucuShift
           #   during `wait!`
         end
       end
+
+      # delete any automatic availability sets without error checking
+      del = list.map { |instance|
+        resource_group = instance[:resource_group] || azure_config[:resource_group]
+        name = "#{resource_group}-#{instance[:name].sub(/[-_]\d*$/, "")}"
+        [name, resource_group]
+      }.uniq
+      del.each do |name, resource_group|
+        compute_client.availability_sets.delete_async(resource_group, name)
+      end
     end
 
     # @param [Array<Hash>] launch_opts where each element is in the format
@@ -330,6 +347,77 @@ module CucuShift
       CucuShift::Azure.send :storage_account_from_blob_uri, str
     end
 
+    # creates or finds an availability set for a given future VM
+    private def availability_set(resource_group, vm, name)
+      case name
+      when nil
+        nil
+      when :auto, ":auto"
+        name = "#{resource_group}-#{vm.name.sub(/[-_]\d*$/, "")}"
+        params = ComputeModels::AvailabilitySet.new.tap do |as|
+          # as.name = name
+          as.location = vm.location
+          unless self.class.instance_storage_account(vm)
+            # for managed disks "aligned" sku is required,
+            # otherwise default "classic"
+            # https://docs.microsoft.com/en-us/powershell/module/azurerm.compute/new-azurermavailabilityset?view=azurermps-6.8.1
+            as.sku = ComputeModels::Sku.new.tap do |sku|
+              sku.name = "aligned"
+            end
+            as.platform_fault_domain_count = 2
+          end
+        end
+        compute_client.availability_sets.create_or_update(resource_group, name, params)
+      else
+        raise "selecting existing availability set not supporter yet by " \
+          "Flexy installer"
+      end
+    end
+
+    # @param group [String] resource group
+    private def security_group(location, group, name)
+      case name
+      when nil
+        nil
+      when :auto, ":auto"
+        security_group_name = "cucushift-flexy-vnet-#{location}"
+        security_group = net_client.network_security_groups.get_async(group, security_group_name)
+        security_group.wait
+        raise "timeout getting security group" if security_group.incomplete?
+        if security_group.rejected?
+          if MsRestAzure::AzureOperationError === security_group.reason && security_group.reason.error_code == "ResourceNotFound"
+            sg = NetworkModels::NetworkSecurityGroup.new.tap do |sg|
+              sg.location = location
+              sg.security_rules = [
+                NetworkModels::SecurityRule.new.tap { |sr|
+                  sr.name = "AllowInternetInBound"
+                  sr.description = "Allow all inbound internet traffic."
+                  sr.direction = NetworkModels::SecurityRuleDirection::Inbound
+                  sr.source_address_prefix = 'Internet'
+                  sr.source_port_range = "*"
+                  sr.destination_address_prefix = "*"
+                  sr.destination_port_range = "*"
+                  sr.protocol = "*"
+                  sr.priority = 1000
+                  sr.access = NetworkModels::SecurityRuleAccess::Allow
+                }
+              ]
+            end
+            net_client.network_security_groups.create_or_update(group, security_group_name, sg)
+          else
+            raise security_group.reason
+          end
+        else
+          security_group = security_group.value!.body
+        end
+      when String
+        security_group = net_client.network_security_groups.get(group, name)
+      else
+        raise "selecting existing security group not supporter yet by " \
+          "Flexy installer"
+      end
+    end
+
     # @return [StorageProfile] return OS Profile based on supplied options
     # @note When storage_options => os_disk => params => image is provided
     #   in config and that is a VHD, then storage account from that URI will
@@ -366,7 +454,7 @@ module CucuShift
             ref.version = opts[:os_disk][:params][:version]
           end
         end
-        type = Object.const_get opts[:os_disk][:type]
+        type = CucuShift::Azure.const_get opts[:os_disk][:type]
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
@@ -395,7 +483,7 @@ module CucuShift
               vhd.uri = opts[:os_disk][:params][:image]
             end
             # e.g. Azure::ARM::Compute::Models::OperatingSystemTypes::Linux
-            os_disk.os_type = Object.const_get opts[:os_disk][:params][:os_type]
+            os_disk.os_type = CucuShift::Azure.const_get opts[:os_disk][:params][:os_type]
           end
           os_disk.name = "#{vmname}"
           if opts.dig(:os_disk, :disk_size_gb)
@@ -449,7 +537,6 @@ module CucuShift
       vnet = net_client.virtual_networks.get_async(group, vnet_name)
       vnet.wait
       raise "timeout getting vnet" if vnet.incomplete?
-
       if vnet.rejected?
         if MsRestAzure::AzureOperationError === vnet.reason && vnet.reason.error_code == "ResourceNotFound"
           # create a new vnet
@@ -466,6 +553,7 @@ module CucuShift
               NetworkModels::Subnet.new.tap do |subnet|
                 subnet.name = 'default-subnet'
                 subnet.address_prefix = '10.1.2.0/24'
+                subnet.network_security_group = security_group(location, group, opts[:security_group])
               end
             ]
           end
@@ -510,6 +598,7 @@ module CucuShift
               conf.private_ipallocation_method = NetworkModels::IPAllocationMethod::Dynamic
               conf.subnet = vnet.subnets[0]
               conf.public_ipaddress = public_ip
+              # conf.network_security_group = we set on the subnet level
             end
           ]
         end
@@ -557,6 +646,28 @@ module CucuShift
     end
 
     # @param instance [Azure::ARM::Compute::Models::VirtualMachine]
+    # @return [String] network security group name of VM primary
+    #   network interface or subnet
+    def instance_security_group(instance)
+      nic_ref = instance.network_profile.network_interfaces.find { |nic|
+        nic.primary
+      }
+      m = nic_ref.id.match(%r{/resourceGroups/([^/]+)/.*/([^/]+)$})
+      nic = net_client.network_interfaces.get(m[1], m[2])
+      security_group = nic.network_security_group
+      # https://github.com/Azure/azure-sdk-for-ruby/issues/1616
+      return self.class.name_from_id(security_group.id) if security_group
+
+      # expand option might help: https://stackoverflow.com/questions/52121456
+      subnet_id = nic.ip_configurations.find {|ipc| ipc.primary}.subnet.id
+      m = subnet_id.match(%r{/resourceGroups/([^/]+)/.*/virtualNetworks/([^/]+)/subnets/([^/]+)$})
+      subnet = net_client.subnets.get(m[1], m[2], m[3])
+      security_group = subnet.network_security_group
+      # https://github.com/Azure/azure-sdk-for-ruby/issues/1616
+      return self.class.name_from_id(security_group.id) if security_group
+    end
+
+    # @param instance [Azure::ARM::Compute::Models::VirtualMachine]
     # @return [String] storage account name used by instance os_disk
     def self.instance_storage_account(instance)
       storage_account_from_blob_uri instance.storage_profile.os_disk.vhd&.uri
@@ -564,6 +675,14 @@ module CucuShift
 
     def self.is_blob_uri?(str)
       str&.include? ".blob.core.windows."
+    end
+
+    def self.name_from_id(id)
+      id.sub(%r{^.+/}, "")
+    end
+
+    def self.resource_group_from_id(id)
+      id.match(%r{resourceGroups/([^/]+)/})[1]
     end
 
     # @return [String, nil] when the string is not a blob URI
@@ -581,14 +700,13 @@ if __FILE__ == $0
   azure = CucuShift::Azure.new
   vms = azure.create_instances(["test-terminate"], fqdn_names: true)
 
-  # require 'pry'; binding.pry
-
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
-  resource_group = vms[0][0].resource_group
 
-  puts "hit enter to terminate instance"
-  gets
+  require 'pry'; binding.pry
 
+  # https://github.com/Azure/azure-sdk-for-ruby/issues/1615
+  # resource_group = vms[0][0].resource_group
+  resource_group = CucuShift::Azure.resource_group_from_id(vms[0][0].id)
   azure.delete_instance vms[0][0].name
 
   if storage_account
