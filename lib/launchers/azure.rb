@@ -279,7 +279,7 @@ module CucuShift
       # delete any automatic availability sets without error checking
       del = list.map { |instance|
         resource_group = instance[:resource_group] || azure_config[:resource_group]
-        name = "#{resource_group}-#{instance[:name].sub(/[-_]\d*$/, "")}"
+        name = "#{resource_group}-#{instance[:name].sub(/[-_]\d*$/, "").sub(/\..+$/, "")}"
         [name, resource_group]
       }.uniq
       del.each do |name, resource_group|
