@@ -1134,8 +1134,12 @@ When /^I wait(?: (\d+) seconds)? for the #{QUOTED} index to appear in the ES pod
     res = cb.index_data
     if res
       index_data = res
-      # exit only health is 'green' and index is 'open'
-      res['health'] == 'green' and res['status'] == 'open'
+      # exit only health is not 'red' and index is 'open'
+      # XXX note, to be more correct, we should check that the index is not red
+      # for an extended persiod.  The tricky part is how to define extended period????
+      # for now, just consider it not red to be good
+      #https://www.elastic.co/guide/en/elasticsearch/reference/5.6/cluster-health.html
+      res['health'] != 'red' and res['status'] == 'open'
     end
   }
   raise "Index '#{index_name}' failed to appear in #{seconds} seconds" unless success
