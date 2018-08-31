@@ -16,10 +16,17 @@ module CucuShift
     include Common::Helper
     include CollectionsIncl
 
-    StorageModels = ::Azure::ARM::Storage::Models
-    NetworkModels = ::Azure::ARM::Network::Models
-    ComputeModels = ::Azure::ARM::Compute::Models
-    ResourceModels = ::Azure::ARM::Resources::Models
+    Storage = ::Azure::Storage::Mgmt::V2018_02_01
+    Network = ::Azure::Network::Mgmt::V2018_06_01
+    # in V2018_06_01 #disks method is missing
+    # https://github.com/Azure/azure-sdk-for-ruby/issues/1614
+    Compute = ::Azure::Compute::Mgmt::V2018_04_01
+    Resource = ::Azure::Resources::Mgmt::V2018_02_01
+
+    StorageModels = Storage::Models
+    NetworkModels = Network::Models
+    ComputeModels = Compute::Models
+    ResourceModels = Resource::Models
 
     attr_reader :azure_config
 
@@ -50,10 +57,8 @@ module CucuShift
     def compute_client(subs_id = default_subscription_id)
       return @compute_clients[subs_id] if @compute_clients&.dig(subs_id)
 
-      require 'azure_mgmt_compute'
-
       @compute_clients ||= {}
-      @compute_clients[subs_id] = ::Azure::ARM::Compute::ComputeManagementClient.new(credentials)
+      @compute_clients[subs_id] = Compute::ComputeManagementClient.new(credentials)
       @compute_clients[subs_id].subscription_id = subs_id
       return @compute_clients[subs_id]
     end
@@ -61,10 +66,8 @@ module CucuShift
     def net_client(subs_id = default_subscription_id)
       return @net_clients[subs_id] if @net_clients&.dig(subs_id)
 
-      require 'azure_mgmt_network'
-
       @net_clients ||= {}
-      @net_clients[subs_id] = ::Azure::ARM::Network::NetworkManagementClient.new(credentials)
+      @net_clients[subs_id] = Network::NetworkManagementClient.new(credentials)
       @net_clients[subs_id].subscription_id = subs_id
       return @net_clients[subs_id]
     end
@@ -72,10 +75,8 @@ module CucuShift
     def storage_client(subs_id = default_subscription_id)
       return @storage_clients[subs_id] if @storage_clients&.dig(subs_id)
 
-      require 'azure_mgmt_storage'
-
       @storage_clients ||= {}
-      @storage_clients[subs_id] = ::Azure::ARM::Storage::StorageManagementClient.new(credentials)
+      @storage_clients[subs_id] = Storage::StorageManagementClient.new(credentials)
       @storage_clients[subs_id].subscription_id = subs_id
       return @storage_clients[subs_id]
     end
@@ -453,7 +454,7 @@ module CucuShift
             ref.version = opts[:os_disk][:params][:version]
           end
         end
-        type = Object.const_get opts[:os_disk][:type]
+        type = CucuShift::Azure.const_get opts[:os_disk][:type]
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
@@ -482,7 +483,7 @@ module CucuShift
               vhd.uri = opts[:os_disk][:params][:image]
             end
             # e.g. Azure::ARM::Compute::Models::OperatingSystemTypes::Linux
-            os_disk.os_type = Object.const_get opts[:os_disk][:params][:os_type]
+            os_disk.os_type = CucuShift::Azure.const_get opts[:os_disk][:params][:os_type]
           end
           os_disk.name = "#{vmname}"
           if opts.dig(:os_disk, :disk_size_gb)
@@ -699,13 +700,13 @@ if __FILE__ == $0
   azure = CucuShift::Azure.new
   vms = azure.create_instances(["test-terminate"], fqdn_names: true)
 
-  # require 'pry'; binding.pry
-
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
-  resource_group = vms[0][0].resource_group
 
   require 'pry'; binding.pry
 
+  # https://github.com/Azure/azure-sdk-for-ruby/issues/1615
+  # resource_group = vms[0][0].resource_group
+  resource_group = CucuShift::Azure.resource_group_from_id(vms[0][0].id)
   azure.delete_instance vms[0][0].name
 
   if storage_account

@@ -18,10 +18,10 @@ gem 'azure-storage'
 # for upgrading to 0.15.x see according to changelog
 # https://github.com/Azure/azure-sdk-for-ruby/pull/1090
 # https://github.com/Azure/azure-sdk-for-ruby/pull/1092
-gem 'azure_mgmt_storage', '~>0.11.0'
-gem 'azure_mgmt_compute', '~>0.11.0'
-gem 'azure_mgmt_resources', '~>0.11.0'
-gem 'azure_mgmt_network', '~>0.11.0'
+gem 'azure_mgmt_storage', '~>0.17.0'
+gem 'azure_mgmt_compute', '~>0.18.0'
+gem 'azure_mgmt_resources', '~>0.17.0'
+gem 'azure_mgmt_network', '~>0.17.0'
 
 # gem 'timers'
 ## Logging
