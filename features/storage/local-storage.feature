@@ -157,3 +157,29 @@ Feature: Local Persistent Volume
     And the output should not contain:
       | hello      |
       | .testfile1 |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-15475
+  @admin
+  @destructive
+  Scenario: When node does not have kubernetes.io/hostname label, provisioner pod should report error
+    Given I have a StorageClass named "local-fast"
+
+    Given I select a random node's host
+    Then evaluation of `node.name` is stored in the :node_name clipboard
+
+    Given the node labels are restored after scenario
+    When I run the :label admin command with:
+      | resource | node                    |
+      | name     | <%= cb.node_name %>     |
+      | key_val  | kubernetes.io/hostname- |
+    Then the step should succeed
+
+    When I delete the local storage provisioner for node "<%= cb.node_name %>"
+    Then the step should succeed
+
+    Given 10 seconds have passed
+    When I get the log of local storage provisioner for node "<%= cb.node_name %>"
+    Then the step should succeed
+    And the output should contain:
+      | Node does not have expected label kubernetes.io/hostname |
