@@ -156,7 +156,6 @@ Feature: oc_set_probe.feature
     Then the output should contain:
       | Liveness     |
       | false        |
-      | probe failed |
     #   And the pod status is restart
 
   # @author dyan@redhat.com

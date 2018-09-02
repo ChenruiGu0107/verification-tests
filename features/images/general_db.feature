@@ -369,12 +369,14 @@ Feature: general_db.feature
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mongo-data-mongodb-0" PVC becomes :bound within 300 seconds
+    Given I wait for the "mongo-data-mongodb-1" pvc to appear up to 120 seconds
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
       | resource_name | mongo-data-mongodb-1                                                            |
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mongo-data-mongodb-1" PVC becomes :bound within 300 seconds
+    Given I wait for the "mongo-data-mongodb-2" pvc to appear up to 120 seconds
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
       | resource_name | mongo-data-mongodb-2                                                            |
@@ -383,7 +385,7 @@ Feature: general_db.feature
     And the "mongo-data-mongodb-2" PVC becomes :bound within 300 seconds
     And 3 pods become ready with labels:
       | name=mongodb |
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the "mongodb-0" pod:
       | bash                                                               |
@@ -405,11 +407,14 @@ Feature: general_db.feature
     Then the step should succeed
     And 3 pods become ready with labels:
       | name=mongodb |
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I execute on the "mongodb-0" pod:
       | bash |
       | -c   |
       | mongo db -uuser -ppass --eval "rs.slaveOk(),printjson(db.db.findOne())" |
     Then the step should succeed
+    """
     And the output should contain:
       | name      |
       | openshift |
