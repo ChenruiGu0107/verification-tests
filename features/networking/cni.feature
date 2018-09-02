@@ -13,7 +13,7 @@ Feature: CNI related features
 
     Given I use the "<%= cb.node_name %>" node
     When I run commands on the host:
-      | docker rm -f `docker ps \| grep hostnetwork-pod \| awk '{print $1}'` |
+      | docker rm -f `docker ps \| grep hostnetwork-pod \| awk '{print $1}'` \|\| crictl rm -f `crictl ps \| grep hostnetwork-pod \| awk '{print $1}'`|
     Then the step should succeed
     When I run commands on the host:
       | journalctl -l --since "5 min ago" -u atomic-openshift-node \| grep cni.go |
