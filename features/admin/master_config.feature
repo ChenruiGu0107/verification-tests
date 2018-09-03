@@ -1601,9 +1601,11 @@ Feature: test master config related steps
     """
     And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
     And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
+    And the "/etc/origin/master/master.env" file is restored on host after scenario
     When I run commands on the host:
       | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-api         |
       | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-controllers |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/origin/master/master.env                      |
     Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :login client command with:
@@ -1666,11 +1668,14 @@ Feature: test master config related steps
     """
     And the "/etc/sysconfig/atomic-openshift-master-controllers" file is restored on host after scenario
     And the "/etc/sysconfig/atomic-openshift-master-api" file is restored on host after scenario
+    And the "/etc/origin/master/master.env" file is restored on host after scenario
     When I run commands on the host:
       | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-api           |
       | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/sysconfig/atomic-openshift-master-api         |
       | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master-controllers   |
       | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/sysconfig/atomic-openshift-master-controllers |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/origin/master/master.env                        |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/origin/master/master.env                      |
     Then the step should succeed
     Given the master service is restarted on all master nodes
     When I run the :login client command with:
@@ -2197,7 +2202,7 @@ Feature: test master config related steps
     And admin ensures "user_default" user is deleted after scenario
     And admin ensures "user_md5" user is deleted after scenario
     And admin ensures "user_sha" user is deleted after scenario
-    
+
     Given master config is merged with the following hash:
     """
     oauthConfig:

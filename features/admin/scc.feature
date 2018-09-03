@@ -642,8 +642,8 @@ Feature: SCC policy related scenarios
       | resource | pod           |
       | name     | pod-add-chown |
     Then the output should match:
-      | Unknown capability to add  |
-      | CAP_KILLtest               |
+      | [uU]nknown capability .* to add |
+      | (?i)CAP_KILLtest                |
     """
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_with_confilict_capabilities.yaml"
     And I replace lines in "scc_with_confilict_capabilities.yaml":
@@ -766,7 +766,7 @@ Feature: SCC policy related scenarios
     Given I switch to the second user
     Given I have a project
     When I run the :create client command with:
-      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json | 
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
 
