@@ -1278,18 +1278,19 @@
   :cmd: oc adm router <name>
   :options:
     :canonical_hostname: --router-canonical-hostname=<value>
-    :images: --images=<value>
-    :stats_port: --stats-port=<value>
-    :stats_user: --stats-user=<value>
-    :stats_passwd: --stats-password=<value>
-    :service_account: --service-account=<value>
-    :force_subdomain: --force-subdomain=<value>
-    :ports: --ports=<value>
-    :selector: --selector=<value>
-    :replicas: --replicas=<value>
     :default_cert: --default-cert=<value>
+    :extended_logging: --extended-logging=<value>
+    :force_subdomain: --force-subdomain=<value>
     :host_network: --host-network=<value>
     :host_ports: --host-ports=<value>
+    :images: --images=<value>
+    :ports: --ports=<value>
+    :replicas: --replicas=<value>
+    :selector: --selector=<value>
+    :service_account: --service-account=<value>
+    :stats_passwd: --stats-password=<value>
+    :stats_port: --stats-port=<value>
+    :stats_user: --stats-user=<value>
     :n: -n <value>
 :oadm_taint_nodes:
   :cmd: oc adm taint nodes
