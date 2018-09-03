@@ -435,3 +435,59 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | cur_resource | Memory |
       | cur_amount   | 4GiB   |
     Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-20548
+  Scenario: Check the elements on Resume Subscription page	
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I access the "./" url in the web browser
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+    Then the step should succeed
+    """
+    When I perform the :click_resume_your_subscription web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
+    Then the step should succeed
+    When I run the :check_message_and_elements_on_resume_page web action
+    Then the step should succeed
+    When I run the :check_plan_includes_content web action
+    Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-20549
+  Scenario: Check the elements on Resume Subscription page - Fuse
+    Given I open accountant console in a browser
+    When I run the :click_to_change_plan web action
+    Then the step should succeed
+    When I run the :click_cancel_your_service web action
+    Then the step should succeed
+    When I perform the :cancel_your_service_correctly web action with:
+      | username | <%= user.name %> |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I access the "./" url in the web browser
+    When I perform the :click_resume_your_subscription_confirm web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
+    Then the step should succeed
+    """
+    When I perform the :click_resume_your_subscription web action with:
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
+    Then the step should succeed
+    When I run the :check_message_and_elements_on_resume_page web action
+    Then the step should succeed
+    When I perform the :check_fuse_small_plan_includes_content web action with:
+      | integration_number | 5       |
+      | memory             | 8GiB    |
+      | storage            | 5GiB    |
+      | cpu_number         | 16 vCPU |
+    Then the step should succeed

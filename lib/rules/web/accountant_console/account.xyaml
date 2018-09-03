@@ -141,6 +141,7 @@ check_addon_resources:
   action: check_addon_memory
   action: check_addon_storage
   action: check_addon_terminating_memory
+  action: check_max_resoure_notification
 check_addon_memory:
   params:
     resource_icon: memory
@@ -162,6 +163,10 @@ check_addon_terminating_memory:
     resource_name: Terminating Memory
     resource_url: terminating_memory
   action: check_addon_resource_elements
+check_max_resoure_notification:
+  elements:
+  - selector:
+      xpath: //p[contains(.,'up to a total of 48GiB of memory, 150GiB of storage, and 20GiB of terminating memory')]
 check_addon_resource_elements:
   elements:
   - selector:
@@ -350,4 +355,3 @@ check_add_a_new_plan:
   elements:
   - selector:
       xpath: //a[@href='/register/plan'][contains(text(),'Add a New Plan')]
-

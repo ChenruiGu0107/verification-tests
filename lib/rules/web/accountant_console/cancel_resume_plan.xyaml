@@ -77,10 +77,17 @@ click_resume_your_subscription:
   - selector:
       xpath: //*[contains(@href, "/resume") and contains(.,"resume your subscription")] 
     op: click
-  - selector: 
-      xpath: //*[@value="Resume Subscription"]
-  - selector: 
-      xpath: //*[contains(., 'Changed your mind?')]   
+check_message_and_elements_on_resume_page:
+  elements:
   - selector:
-      xpath: //*[contains(@href, "/index") and contains(.,"still want to cancel")]     
-  action: check_plan_includes_content
+      xpath: //h1[contains(.,"Resume Subscription")]
+  - selector:
+      xpath: //p[contains(., 'Changed your mind?')]
+  - selector:
+      xpath: //p[contains(.,"Once you resume your subscription, you'll continue to enjoy the great benefits of")]
+  - selector:
+      xpath: //p[contains(.,"Note that any plan customizations, such as additional storage, application memory, terminating memory, or support plans will remain on your plan and will renew at the next billing cycle.")]
+  - selector:
+      xpath: //*[contains(@href, "/index") and contains(.,"Nevermind, I still want to cancel")]
+  - selector:
+      xpath: //input[@value="Resume Subscription"]
