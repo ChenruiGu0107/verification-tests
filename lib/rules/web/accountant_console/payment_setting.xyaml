@@ -120,3 +120,23 @@ check_alert_message_on_payment_method_page:
       xpath: //div[@class="alert alert-info"]/strong[text() = "<updated_card_num>"]
   - selector:
       xpath: //div[@class="alert alert-info"]/strong[text() = "<updated_month>/<updated_year>"]
+check_legal_message_on_payment_page:
+  elements:
+  - selector:
+      xpath: //form[@id="AriaPay"]//strong[text() = "Your credit card information is safe."]
+  - selector:
+      xpath: //form[@id="AriaPay"]//p[contains(.,"Your payment information is encrypted and transmitted directly to our") and contains(.,"payment processor. We do not store any of your credit card details")]
+check_update_address_link:  
+  elements:
+  - selector:
+      xpath: //form[@id="AriaPay"]//strong[text() = "Please ensure that your billing information matches your credit card details"]
+  - selector:
+      xpath: //form[@id="AriaPay"]//a[contains(@href,'/contact/billing') and text()='edit your address']
+check_update_button_disable:
+  elements:
+  - selector:
+      xpath: //button[@disabled="disabled" and text()="Update Payment Method"]
+check_cancel_button_on_payment_page:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'/index') and text()='Cancel']

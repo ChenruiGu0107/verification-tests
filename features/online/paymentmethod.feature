@@ -163,3 +163,18 @@ Feature: ONLY payment update related feature's scripts in this file
     | MasterCard  | 5454       | 5454        | 5454       | 5454        | logo_visa     | logo_discover   | logo_mastercard | 10    | 2032 | 345           |
     | Discover    | 6511       | 1111        | 1111       | 1112        | logo_visa     | logo_mastercard | logo_discover   | 10    | 2032 | 123           |
     | Visa        | 4111       | 1111        | 1111       | 1111        | logo_discover | logo_mastercard | logo_visa       | 10    | 2032 | 618           |
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-14868
+  Scenario: Check elements on Payment Method Page - UI
+    Given I open accountant console in a browser
+    When I run the :goto_payment_setting_page web action
+    Then the step should succeed
+    When I run the :check_legal_message_on_payment_page web action
+    Then the step should succeed
+    When I run the :check_update_address_link web action 
+    Then the step should succeed
+    When I run the :check_update_button_disable web action
+    Then the step should succeed
+    When I run the :check_cancel_button_on_payment_page web action
+    Then the step should succeed
