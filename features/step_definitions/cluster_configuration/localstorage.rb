@@ -1,3 +1,8 @@
+# OCP supports fileystem local storage provisioner from 3.7
+# For some OCP versions, before depolying local storage provisoner,
+# we need enable some feature gates first.
+# ref: doc/storage_automation_spec.adoc
+
 Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |img_version|
   ensure_admin_tagged
   ensure_destructive_tagged
@@ -15,8 +20,13 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   path ||="/mnt/local-storage"
 
   project(namespace)
+  # if project exists, delete project and pvs created by local storage provisioner
   if project.exists?(user: admin)
-    raise "project #{namespace} exists already."
+    project.delete(by: admin)
+
+    CucuShift::PersistentVolume.list(user: admin).each { |pv|
+      pv.delete(by: admin) if pv.name.start_with?("local-pv-") && (pv.local_path&.start_with?("#{path}/fast") || pv.local_path&.start_with?("#{path}/slow"))
+    }
   end
 
   ns_cmd = "oc adm new-project #{namespace} --node-selector=''"
@@ -83,7 +93,7 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
 
   pv_count = 0
   CucuShift::PersistentVolume.list(user: admin).each { |pv|
-    if pv.name.start_with?("local-pv-") && pv.local_path&.start_with?(path)
+    if pv.name.start_with?("local-pv-") && (pv.local_path&.start_with?("#{path}/fast") || pv.local_path&.start_with?("#{path}/slow"))
       pv_count += 1
     end
   }
