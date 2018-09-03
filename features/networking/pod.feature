@@ -42,14 +42,17 @@ Feature: Pod related networking scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/completed-pod.json |
     Then the step should succeed
-    Given the pod named "completed-pod" status becomes :succeeded
+    And a pod is present with labels:
+      | name=completed-pod |
+    And evaluation of `pod.name` is stored in the :completed_pod clipboard
+    Given the pod named "<%= cb.completed_pod %>" status becomes :succeeded
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/failed-pod.json |
     Then the step should succeed
     Given the pod named "fail-pod" status becomes :failed
     When I run the :describe client command with:
       | resource | pod |
-      | name | completed-pod |
+      | name | <%= cb.completed_pod %> |
       | name | fail-pod |
     Then the step should succeed
     And the output should not contain "TeardownNetworkError"
