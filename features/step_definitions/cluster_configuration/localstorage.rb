@@ -11,7 +11,7 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   config_hash = env.master_services[0].config.as_hash()
   imgformat = config_hash["imageConfig"]["format"]
   img_registry = imgformat.split("\/")[0]
-  ose_version = env.get_version(user:admin)
+  ose_version = env.get_version(user: admin)
   img_version = "v#{ose_version[0]}" unless img_version
   serviceaccount="local-storage-admin"
   configmap="local-volume-config"
@@ -131,7 +131,7 @@ Given /^I deploy local raw block devices provisioner(?: with "([^ ]+?)" version)
   config_hash = env.master_services[0].config.as_hash()
   imgformat = config_hash["imageConfig"]["format"]
   img_registry = imgformat.split("\/")[0]
-  ose_version = env.get_version(user:admin)
+  ose_version = env.get_version(user: admin)
   img_version = "v#{ose_version[0]}" unless img_version
   serviceaccount="local-storage-admin"
   configmap="local-volume-config"
