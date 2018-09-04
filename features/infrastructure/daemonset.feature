@@ -80,9 +80,14 @@ Feature: Features of daemonset
     Given environment has at least 2 nodes
     Given I store the nodes in the :nodes clipboard
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create admin command with:
-    | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
-    | n | <%= project.name %>                                                                      |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+      | n | <%= project.name %>                                                                      |
     And the step should succeed
     Given all pods in the project are ready
     Given I store in the clipboard the pods labeled:
