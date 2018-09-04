@@ -798,7 +798,7 @@ Feature: SDN related networking scenarios
       | sysctl -w net.ipv4.ip_forward=0 |
     Then the step should succeed
     Given I restart the network components on the node
-    And I wait up to 20 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     Given I get the networking components logs of the node since "120s" ago
     And the output should contain "net/ipv4/ip_forward=0, it must be set to 1"
