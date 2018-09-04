@@ -76,3 +76,14 @@ Table: Deploy csi in OCP(support from 3.10)
 |Errata
 |Get csi images version from errata, and update version in features/cluster_configuration/csi.feature line 14, then run `cucumber features/cluster_configuration/csi.feature:13`
 |===
+
+Table: Deploy local raw block devices provisioner in OCP(support from 3.10, enable feature gate "BlockVolume" first)
+|===
+|Test Type|Deploy method
+
+|Not Errata
+|`cucumber features/cluster_configuration/localstorage.feature:17`
+
+|Errata
+|Get local-storage-provisioner image version from errata, and update version in features/cluster_configuration/localstorage.feature line 24, then run `cucumber features/cluster_configuration/localstorage.feature:23`
+|===
