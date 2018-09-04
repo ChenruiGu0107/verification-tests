@@ -64,3 +64,15 @@ Given /^the master version ([<>=]=?) #{QUOTED}$/ do |op, ver|
   end
 end
 
+Given /^the cluster is running on OpenStack$/ do
+  ensure_admin_tagged
+  hosts = step "I select a random node's host"
+  @result = host.exec_admin("ls /etc/origin/cloudprovider/")
+
+  if cloud_type = @result[:response].include?("openstack")
+    logger.info "The cluster is running on OpenStack"
+  else
+    raise "Case can be executed on OpenStack only"
+  end
+end
+
