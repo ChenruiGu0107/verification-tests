@@ -101,3 +101,35 @@ check_starting_at_for_fuse:
   elements:
   - selector:
       xpath: //a[@class='btn btn-lg btn-primary btn-block' and @href='/register/fuse/plans'][contains(text(),'Starting at $650/Month')]
+go_to_register_fuse_profile_page:
+  action: go_to_register_plan
+  action: click_starting_at_sixhundredandfifty_dollars_per_month
+  action: click_small_size_for_fuse_plan
+  elements:
+  - selector:
+      xpath: (//*[contains(@value, 'Online') and contains(@value, 'Environment')])[1]
+    op: click
+go_to_fuse_cluster_page:
+  action: go_to_register_plan
+  action: click_starting_at_sixhundredandfifty_dollars_per_month
+  action: click_small_size_for_fuse_plan
+click_starting_at_sixhundredandfifty_dollars_per_month:
+  elements:
+  - selector:
+      xpath: //a[@class='btn btn-lg btn-primary btn-block' and contains(text(),'Starting at $650/Month')]
+    op: click
+click_small_size_for_fuse_plan:
+  elements:
+  - selector:
+      xpath: //input[@class="btn btn-lg btn-primary btn-block" and @name="plan_size[small]" and @value="$650/Month"]
+    op: click
+check_fuse_cluster_region_info:
+  elements:
+  - selector:
+      text: Select Your Preferred Cluster/Region
+  - selector:
+      xpath: //li[@class="active"]/a[contains(@href, '/register/fuse/clusters')]//span[contains(.,"Cluster Regions")]
+  - selector:
+      xpath: //p[contains(.,"Your Fuse Online Plan will be provisioned in your preferred cluster/region.") and contains(.,"your account will remain queued and will") and contains(.,"An email will be delivered to")]
+  - selector:
+      xpath: (//*[contains(@value, 'Online') and contains(@value, 'Environment')])[1]
