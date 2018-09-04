@@ -183,3 +183,28 @@ Feature: Local Persistent Volume
     Then the step should succeed
     And the output should contain:
       | Node does not have expected label kubernetes.io/hostname |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-19117
+  @admin
+  Scenario: Volume with Block VolumeMode could be used by Pod
+    Given I have a StorageClass named "block-devices"
+
+    Given I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pvc-dynamic.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 100Mi                   |
+      | ["spec"]["storageClassName"]                 | block-devices           |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/local0             |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | ls | /dev/local0 |
+    Then the step should succeed
