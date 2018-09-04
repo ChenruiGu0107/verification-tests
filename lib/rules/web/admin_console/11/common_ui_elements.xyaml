@@ -41,4 +41,7 @@ clear_input_value:
       id: <clear_field_id>
     op: clear
     type: input
-
+check_page_contains:
+  element:
+    selector:
+      xpath: //*[contains(.,'<content>')]
