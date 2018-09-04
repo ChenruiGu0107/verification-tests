@@ -226,15 +226,18 @@ Feature: elasticsearch related tests
     Given the master version >= "3.7"
     Given environment has at least 3 nodes
     Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18806/inventory |
-    And a pod becomes ready with labels:
-      | component=es |
+    And I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "component=es"
     And I wait up to 120 seconds for the steps to pass:
     """
     Then I perform the HTTP request on the ES pod:
-      | relative_url | /project.install_test.*/_settings?output=JSON |
-      | op           | GET                                           |
+      | relative_url | _settings?pretty |
+      | op           | GET                                      |
     Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_replicas') == "1"
     Then the expression should be true> @result[:parsed].first[1].dig('settings', 'index', 'number_of_shards') == "1"
     """
@@ -273,14 +276,19 @@ Feature: elasticsearch related tests
   Scenario: Add .all alias when index is created
     Given the master version >= "3.9"
     Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
+    Then the step should succeed
     Given logging service is installed in the system
-    And I wait for the "project.install-test" index to appear in the ES pod with labels "component=es"
+    And I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "component=es"
     And I wait for the ".operations" index to appear in the ES pod
     And a pod becomes ready with labels:
       | component=es |
-    Then I perform the HTTP request on the ES pod:
-      | relative_url | /*/_alias?output=JSON |
-      | op           | GET                   |
+    When I perform the HTTP request on the ES pod:
+      | relative_url | */_alias?pretty |
+      | op           | GET             |
+    Then the step should succeed
     And evaluation of ` @result[:parsed].select { |k, v| v.dig('aliases', '.all').is_a? Hash and k.start_with? 'project' }` is stored in the :res_proj clipboard
     And evaluation of ` @result[:parsed].select { |k, v| v.dig('aliases', '.all').is_a? Hash and k.start_with? '.operation' }` is stored in the :res_op clipboard
     Then the expression should be true> cb.res_proj.count > 0
@@ -319,19 +327,14 @@ Feature: elasticsearch related tests
     Given I create a project with non-leading digit name
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | app_repo | httpd-example |
     And logging service is installed in the system
+
     And a pod becomes ready with labels:
       | component=es |
-    # index takes over 10 minutes to come up initially
-    And I wait up to 900 seconds for the steps to pass:
-    """
-    And I execute on the pod:
-      | bash                                                                    |
-      | -c                                                                      |
-      | ls /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
-    And the output should contain:
-      | project.<%= project.name %>.<%= project.uid %> |
-    """
+    And I wait for the "project.<%= cb.org_project.name %>.<%= cb.org_project.uid %>" index to appear in the ES pod
 
   # @author pruan@redhat.com
   # @case_id OCP-11266

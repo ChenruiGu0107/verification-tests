@@ -101,10 +101,10 @@ Feature: fluentd related tests
     When I wait 900 seconds for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "component=es"
     And the expression should be true> cb.proj_index_regex = /project.#{cb.org_project.name}.#{cb.org_project.uid}.(\d{4}).(\d{2}).(\d{2})/
     And the expression should be true> cb.op_index_regex = /.operations.(\d{4}).(\d{2}).(\d{2})/
-    Given I log the message> "#{cb.index_data['index']}"
+    Given I log the message> <%= cb.index_data['index'] %>
     And the expression should be true> cb.proj_index_regex.match(cb.index_data['index'])
     And I wait for the ".operations" index to appear in the ES pod
-    Given I log the message> #{cb.index_data['index']}
+    Given I log the message> <%= cb.index_data['index'] %>
     And the expression should be true> cb.op_index_regex.match(cb.index_data['index'])
 
   # @author pruan@redhat.com

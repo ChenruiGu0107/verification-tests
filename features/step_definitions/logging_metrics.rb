@@ -375,11 +375,12 @@ Given /^I construct the default (install|uninstall) (logging|metrics|prometheus|
   base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
   step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
   # now get the extra parameters for install depending on the svc_type
-  if env.version_ge("3.11", user: user) and svc_type == 'logging' and op == 'install'
-    params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params_#{cb.master_version}"
-  else
-    params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
-  end
+  params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
+  # if env.version_ge("3.11", user: user) and svc_type == 'logging' and op == 'install'
+  #   params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params_#{cb.master_version}"
+  # else
+  #   params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
+  # end
 
   step %Q/I parse the INI file "<%= "#{params_inventory_url}" %>" to the :params_inventory clipboard/
   cb.ini_style_config['OSEv3:vars'].merge!(cb.params_inventory['OSEv3:vars'])
