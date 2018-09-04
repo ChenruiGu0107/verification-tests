@@ -20,8 +20,6 @@ Feature: oc_set_probe.feature
       | period_seconds | 10            |
       | success_threshold | 3          |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-2 |
@@ -39,7 +37,6 @@ Feature: oc_set_probe.feature
       | resource     | dc/mysql    |
       | readiness    |             |
       | open_tcp     | 45          |
-      | no_headers   |             |
       | o            | json        |
     Then the step should succeed
     When I save the output to file>file.json
@@ -48,8 +45,6 @@ Feature: oc_set_probe.feature
       | readiness |             |
       | open_tcp  | 33          |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     When I wait until the status of deployment "mysql" becomes :running
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -98,8 +93,6 @@ Feature: oc_set_probe.feature
       | readiness |              |
       | get_url   | https://127.0.0.1:1936/stats |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :running
     When I wait up to 30 seconds for the steps to pass:
     """
@@ -128,8 +121,6 @@ Feature: oc_set_probe.feature
       | oc_opts_end  |          |
       | exec_command | true     |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-2 |
@@ -145,8 +136,6 @@ Feature: oc_set_probe.feature
       | oc_opts_end  |          |
       | exec_command | false    |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-3 |
@@ -183,8 +172,6 @@ Feature: oc_set_probe.feature
       | readiness   |          |
       | open_tcp    | 3306     |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-2 |
@@ -200,8 +187,6 @@ Feature: oc_set_probe.feature
       | oc_opts_end  |          |
       | exec_command | true     |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mongodb" updated|
     Given I wait until the status of deployment "mongodb" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mongodb-2 |
@@ -219,9 +204,6 @@ Feature: oc_set_probe.feature
       | liveness |          |
       | readiness |         |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
-      | deploymentconfig "mongodb" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And I wait until the status of deployment "mongodb" becomes :complete
     When I run the :describe client command with:
@@ -249,8 +231,6 @@ Feature: oc_set_probe.feature
       | oc_opts_end  |       |
       | exec_command | true  |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-5 |
@@ -269,8 +249,6 @@ Feature: oc_set_probe.feature
       | remove   |           |
       | readiness |           |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     Given I wait until the status of deployment "mysql" becomes :complete
     And a pod becomes ready with labels:
       | deployment=mysql-6 |
