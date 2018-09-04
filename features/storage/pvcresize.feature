@@ -761,3 +761,44 @@ Feature: PVC resizing Test
       | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
     Then the step should fail
     And the output should contain "storageclass that provisions the pvc must support resize"
+
+  # @author piqin@redhat.com
+  # @case_id OCP-16630
+  @admin
+  @destructive
+  Scenario: After master restart PVCs resizing can be finished as well
+    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
+
+    Given I have a project
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+
+    And I run the steps 5 times:
+    """
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-#{cb.i}            |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
+    Then the step should succeed
+    """
+    And I run the steps 5 times:
+    """
+    And the "pvc-#{cb.i}" PVC becomes :bound within 240 seconds
+    """
+
+    When I run the :patch client command with:
+      | resource      | pvc                                                   |
+      | resource_name | pvc-1                                                 |
+      | resource_name | pvc-2                                                 |
+      | resource_name | pvc-3                                                 |
+      | resource_name | pvc-4                                                 |
+      | resource_name | pvc-5                                                 |
+      | p             | {"spec":{"resources":{"requests":{"storage":"3Gi"}}}} |
+    Then the step should succeed
+
+    Given the master service is restarted on all master nodes
+    And 30 seconds have passed
+
+    When I run the steps 5 times:
+    """
+    And the expression should be true> pv(pvc("pvc-#{cb.i}").volume_name).capacity_raw(cached: false) == "3Gi"
+    """
