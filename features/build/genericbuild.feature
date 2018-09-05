@@ -280,19 +280,8 @@ Feature: genericbuild.feature
   # @case_id OCP-20221
   Scenario: Using Secrets for Environment Variables in Build Configs
     Given I have a project
-    Given a "mysecret.yaml" file is created with the following lines:
-    """
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: mysecret
-    data:
-        password: cGFzc3dvcmQ=
-        username: ZGV2ZWxvcGVy
-    type: kubernetes.io/basic-auth
-    """
-    And I run the :create client command with:
-      | f | mysecret.yaml | 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-20221/mysecret.yaml | 
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
@@ -311,7 +300,9 @@ Feature: genericbuild.feature
       | resource | pod/ruby-ex-2-build |
       | list     | true                |
       | all      | true                |
-    And the output should contain "{"name":"MYVALKEY","value":"developer"},{"name":"MYVALVALUE","value":"password"}"
+    And the output should contain:
+      | {"name":"MYVALKEY","value":"developer"}  |
+      | {"name":"MYVALVALUE","value":"password"} |
 
   # @author wewang@redhat.com
   # @case_id OCP-20223
@@ -339,7 +330,9 @@ Feature: genericbuild.feature
       | resource | pod/ruby-ex-2-build |
       | list     | true                |
       | all      | true                |
-    And the output should contain "{"name":"SPECIAL_LEVEL_KEY","value":"very"},{"name":"SPECIAL_TYPE_KEY","value":"charm"}"
+    And the output should contain:
+      | {"name":"SPECIAL_LEVEL_KEY","value":"very"} |
+      | {"name":"SPECIAL_TYPE_KEY","value":"charm"} |
 
   # @author wewang@redhat.com
   # @case_id OCP-20224
@@ -362,4 +355,6 @@ Feature: genericbuild.feature
       | resource | pod/ruby-ex-2-build |
       | list     | true                |
       | all      | true                |
-    And the output should contain "{"name":"PODNAME","value":"ruby-ex-2"}"
+    And the output should contain:
+      | "name":"PODNAME"    |
+      | "value":"ruby-ex-2" |
