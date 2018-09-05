@@ -103,10 +103,10 @@ Feature: pod related features
   @admin
   Scenario: Expose shared memory of the pod via POSIX IPC sharing
     Given I have a project
-    And I select a random node's host
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/sharememory.json |
     And the pod named "hello-openshift" becomes ready
+    Given I use the "<%= pod.node_name %>" node
     Given the system container id for the pod is stored in the clipboard
     And evaluation of `pod.container(user: user, name: 'hello-container1').id` is stored in the :container1_id clipboard
     And evaluation of `pod.container(user: user, name: 'hello-container2').id` is stored in the :container2_id clipboard
