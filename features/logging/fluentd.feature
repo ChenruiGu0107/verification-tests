@@ -47,15 +47,8 @@ Feature: fluentd related tests
       | ls | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
     Then the step should succeed
     And the output should contain "/etc/fluent/configs.d/filter-post-z-retag-two.conf"
-    # check non-ops es pod
-    And I get the ".operation" logging index information from a pod with labels "component=es"
-    Then the expression should be true> cb.index_data.nil?
-    # check ops es pod, .operation index can take a few minutes to appear
-    And I wait up to 600 seconds for the steps to pass:
-    """
     And I get the ".operation" logging index information from a pod with labels "component=es-ops"
     Then the expression should be true> cb.index_data and cb.index_data.count > 0
-    """
 
   # @author pruan@redhat.com
   # @case_id OCP-10523
@@ -115,7 +108,7 @@ Feature: fluentd related tests
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
     And logging service is installed with ansible using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17431/inventory |
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17248/inventory |
       | negative_test | true                                                                                                   |
     Given a pod is present with labels:
       | component=fluentd,logging-infra=fluentd |

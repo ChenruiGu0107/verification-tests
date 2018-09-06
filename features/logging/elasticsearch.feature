@@ -310,7 +310,7 @@ Feature: elasticsearch related tests
     """
     And I perform the HTTP request:
     <%= '"""' %>
-      :url: https://#{cb.prefix}.<%= cb.subdomain %>/_count?output=JSON
+      :url: https://#{cb.prefix}.<%= cb.subdomain %>/_count?
       :method: get
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>
