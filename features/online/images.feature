@@ -150,11 +150,11 @@ Feature: ONLY ONLINE Images related scripts in this file
       | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=redhat -e 'use sampledb;select * from test;' |
     Then the step should succeed
     Given I ensure "<%= pod.name %>" pod is deleted
-    When I run the :deploy client command with:
-      | deployment_config | mariadb |
+    When I run the :rollout_latest client command with:
+      | resource | dc/mariadb |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=mariadb-2 |
+      | deployment=mariadb-3 |
     When I execute on the pod:
       | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=redhat -e 'use sampledb;select * from test;' |
     Then the step should succeed
