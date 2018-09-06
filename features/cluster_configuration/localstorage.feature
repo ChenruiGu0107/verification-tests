@@ -1,8 +1,8 @@
-Feature: Enable LocalVolume in OCP cluster
+Feature: Deploy LocalVolume provisoner in OCP cluster
   # @author piqin@redhat.com
   @admin
   @destructive
-  Scenario: Enable LocalVolume
+  Scenario: Enable LocalVolume for daily test
     Given I deploy local storage provisioner
 
   # @author piqin@redhat.com
@@ -14,7 +14,7 @@ Feature: Enable LocalVolume in OCP cluster
   # @author piqin@redhat.com
   @admin
   @destructive
-  Scenario: Enable Local raw block devices volume
+  Scenario: Enable Local raw block devices volume for daily test
     Given I deploy local raw block devices provisioner
 
   # @author piqin@redhat.com
