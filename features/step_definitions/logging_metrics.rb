@@ -2,6 +2,7 @@
 require 'oga'
 require 'parseconfig'
 require 'stringio'
+require 'promethues_metrics_data'
 
 # since the logging and metrics module can be deployed and used in any namespace, this step is used to determine
 # under what namespace the logging/metrics module is deployed under by getting all of the projects as admin and
@@ -1284,4 +1285,24 @@ Given /^I run the following playbook on the#{OPT_QUOTED} pod:$/ do |pod_name, ta
   args = %W(ansible-playbook -i /tmp/#{dst_dir_path}/#{base_inventory_name} #{conf[:ansible_log_level]} /tmp/#{dst_dir_path}/#{playbook_path})
   @result = _pod.exec(*args, as: _user)
   raise "Failed when running playbook: #{@result[:stderr]}" unless @result[:success]
+end
+
+Given /^I get the #{QUOTED} node's prometheus metrics$/ do |node_name|
+  # create secret for cert and key file
+  res = env.master_hosts.first.exec("oc create secret generic kubelet-cert --from-file=/etc/origin/master/master.kubelet-client.crt -n #{project.name}")
+  raise "Failed when creating kubelet-cert secret" unless res[:success]
+  res = env.master_hosts.first.exec("oc create secret generic kubelet-key --from-file=/etc/origin/master/master.kubelet-client.key -n #{project.name}")
+  raise "Failed when creating kubelet-key secret" unless res[:success]
+
+  # create prom2json pod
+  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/prom2json_pod.yaml" replacing paths:}, table(%{
+      | ["metadata"]["name"] | pod-#{project.name} |
+  })
+  step %Q/the step should succeed/
+  step %Q/the pod named "pod-#{project.name}" becomes ready/
+
+  # get kubelet metrics and write to a file
+  @result = pod.exec("/prom2json", "-cert=/cert/master.kubelet-client.crt", "-key=/key/master.kubelet-client.key", "-accept-invalid-cert=true", "https://#{node_name}:10250/metrics", as: user)
+  raise "Failed when getting kubelet metrics" unless @result[:success]
+  cb.node_metrics = CucuShift::PrometheusMetricsData.new(@result[:stdout])
 end
