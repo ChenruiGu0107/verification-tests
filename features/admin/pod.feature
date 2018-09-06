@@ -497,6 +497,11 @@ Feature: pod related features
   @destructive
   Scenario: Recovering an unschedulable node
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     Given I register clean-up steps:
     """
