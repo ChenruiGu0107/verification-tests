@@ -277,13 +277,6 @@ Feature: deployment related features
     When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "value": "Plqe5Wev"    |
-    And the output should contain:
-      | "type": "ImageChange" |
-    When I run the :set_triggers client command with:
-      | resource   | dc/hooks |
-      | auto       | true     |
-    Then the output should match:
-      | triggers updated |
 
   # @author pruan@redhat.com
   # @case_id OCP-12536
@@ -442,34 +435,6 @@ Feature: deployment related features
     Then the output should match:
       | failed progressing |
 
-
-  # @author pruan@redhat.com
-  # @case_id OCP-12196
-  Scenario: Stop a "Pending" deployment
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
-    And I wait until the status of deployment "hooks" becomes :running
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
-    Then the step should succeed
-    And the output should match:
-      | [Cc]ancelled deployment #1 |
-    And I wait until the status of deployment "hooks" becomes :failed
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | retry             |       |
-    Then the output should match:
-      | etried #1 |
-    And I run the :describe client command with:
-      | resource | dc   |
-      | name     | hook |
-    Then the step should succeed
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-    And I wait until the status of deployment "hooks" becomes :complete
-
   # @author pruan@redhat.com
   # @case_id OCP-12246
   Scenario: Stop a "Running" deployment
@@ -479,25 +444,17 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :running
     And I wait up to 60 seconds for the steps to pass:
     """
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
-    Then the step should succeed
+    When I run the :rollout_cancel client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
     """
-    And the output should match:
-      | ancelled deployment #1 |
     And I wait until the status of deployment "hooks" becomes :failed
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
-      | retry             |       |
-    Then the output should match:
-      | etried #1 |
-    And I run the :describe client command with:
-      | resource | dc   |
-      | name     | hook |
+    When I run the :rollout_retry client command with:
+      | resource | deploymentConfig   |
+      | name     | hooks              |
     Then the step should succeed
-    And I run the :deploy client command with:
-      | deployment_config | hooks |
+    Then the output should match:
+      | retried rollout |
     And I wait until the status of deployment "hooks" becomes :complete
 
   # @author pruan@redhat.com
@@ -2241,7 +2198,10 @@ Feature: deployment related features
       | ready | 1 |
     Given status becomes :running of 1 pods labeled:
       | app=deployment-example |
+    And I wait for the steps to pass:
+    """
     And the expression should be true> pod.containers[0].spec.image == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+    """
 
   # @author chuyu@redhat.com
   # @case_id OCP-15155

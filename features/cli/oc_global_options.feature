@@ -229,7 +229,7 @@ Feature: oc global options (oc options) related scenarios
       | cluster  | <%= cb.prev_c['context']['cluster'] %>   |
       | config   | new.config  |
     Then the step should fail
-    And the output should contain "cannot get pods in project "<%= project.name %>""
+    And the output should contain "cannot get pods"
 
     # --context
     When I run the :get client command with:

@@ -1003,7 +1003,8 @@ Feature: pod related features
       | name     | frontend   |
       | replicas | 5          |
     Then the step should succeed
-    Given I wait until number of replicas match "5" for replicaSet "frontend"
+    Given 5 pods become ready with labels:
+      | app=guestbook  |
     When I run the :label client command with:
       | resource  | pods     |
       | all       | true     |
