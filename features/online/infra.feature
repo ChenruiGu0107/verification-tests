@@ -116,4 +116,4 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/deploymentconfig-with-nodename.yaml |
     Then the step should fail
     And the output should contain:
-      | deploymentconfigs "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |
+      | deploymentconfigs.apps.openshift.io "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |
