@@ -24,7 +24,7 @@ Feature: emptyDir specific scenarios
     When I run commands on the host:
       | cd /var/lib/origin/openshift.local.volumes/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol; ls -alh |
     Then the output should contain:
-      | total 200M |
+      | 200M |
       | zero       |
     Given I ensure "pod-emptydir" pod is deleted
     When I run the :create client command with:
@@ -46,5 +46,5 @@ Feature: emptyDir specific scenarios
     When I run commands on the host:
       | cd /var/lib/origin/openshift.local.volumes/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol; ls -alh |
     Then the output should contain:
-      | total 1023M |
+      | 1023M |
       | zero        |

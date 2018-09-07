@@ -295,24 +295,15 @@ Feature: secrets related scenarios
   # @case_id OCP-12310
   Scenario: Pods do not have access to each other's secrets with the same secret name in different namespaces
     Given I have a project
+    Given evaluation of `@projects[0].name` is stored in the :project0 clipboard
     When I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret1.json |
     And I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret-pod-1.yaml |
     Then the step should succeed
     And the pod named "secret-pod-1" status becomes :running
-    When I run the :policy_add_role_to_user client command with:
-      | role      | admin                              |
-      | user_name | <%= user(1, switch: false).name %> |
-      | n         | <%= project.name %>                |
-    Then the step should succeed
-    Then I switch to the second user
     When I create a new project
-    When I run the :policy_add_role_to_user client command with:
-      | role      | admin                              |
-      | user_name | <%= user(0, switch: false).name %> |
-      | n         | <%= project.name %>                |
-    Then the step should succeed
+    Given evaluation of `@projects[1].name` is stored in the :project1 clipboard
     And I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret2.json |
     And I run the :create client command with:
@@ -323,15 +314,15 @@ Feature: secrets related scenarios
       | pod              | secret-pod-2                  |
       | exec_command     | cat                           |
       | exec_command_arg | /etc/secret-volume-2/password |
-      | namespace        | <%= project(1).name %>        |
+      | namespace        | <%= cb.project1 %>            |
     Then the output should contain:
       | password-second |
-    Then I switch to the first user
+    When I use the "<%= cb.project0 %>" project
     When I run the :exec client command with:
       | pod              | secret-pod-1                  |
       | exec_command     | cat                           |
       | exec_command_arg | /etc/secret-volume-1/username |
-      | namespace        | <%= project(0).name %>        |
+      | namespace        | <%= cb.project0 %>            |
     Then the output should contain:
       | first-username |
 
