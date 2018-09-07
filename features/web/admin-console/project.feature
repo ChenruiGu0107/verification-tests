@@ -21,7 +21,7 @@ Feature: projects related features via web
       | project_name    | test         |
       | display_name    | test_display |
     Then the step should succeed
-    When I perform the :click_tab_on_overview_page web action with:
+    When I perform the :click_tab web action with:
       | tab_name | Role Bindings |
     Then the step should succeed
     When I perform the :check_row_filter_on_page web action with:
