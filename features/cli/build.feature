@@ -2978,6 +2978,10 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | configmap.test -> ..data/configmap.test |
       | aoskey -> ..data/aoskey                 | 
+    Then I run the :delete client command with:
+      | object_type | all |
+      | all         |     |
+    Then the step should succeed
     #Insert cm and secret to bc with empty destination - succeed
     When I run the :new_build client command with:
       | app_repo       | https://github.com/openshift/ruby-hello-world |

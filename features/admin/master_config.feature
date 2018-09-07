@@ -2449,7 +2449,7 @@ Feature: test master config related steps
       | buildconfig | rails-ex |
     Then the step should succeed
     When the pod named "rails-ex-2-build" becomes present
-    Then the expression should be true> pod("rails-ex-1-build").nodeselector["label"] == "test2"
+    Then the expression should be true> pod("rails-ex-2-build").nodeselector["label"] == "test2"
 
   # @author geliu@redhat.com
   # @case_id OCP-16416
