@@ -469,7 +469,10 @@ Feature: SDN related networking scenarios
       | resource_name | <%= node.name %> |
     Then the step should succeed
     And the output should contain "8.8.8.8"
-    And the master service is restarted on all master nodes
+
+    Given the master service is restarted on all master nodes
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | hostsubnet       |
       | resource_name | <%= node.name %> |
@@ -477,6 +480,7 @@ Feature: SDN related networking scenarios
     And the output should not contain "8.8.8.8"
     And the output should contain:
       | <%= cb.hostip %> |
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-9754
