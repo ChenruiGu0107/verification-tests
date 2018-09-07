@@ -447,7 +447,7 @@ Feature: Testing registry
       | image_name | ruby-20-centos7:latest                     |
       | confirm    | true                                       |
     Then the step should succeed
-    When I find a bearer token of the deployer service account
+    When I find a bearer token of the builder service account
     And default registry service ip is stored in the :registry_ip clipboard
 
     And I have a skopeo pod in the project
