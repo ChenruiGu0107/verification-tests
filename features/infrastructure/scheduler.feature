@@ -73,3 +73,40 @@ Feature: Scheduler predicates and priority test suites
     And the step should succeed
     Given the pod named "custom-scheduler" becomes ready
     Then the expression should be true> pod.node_name == node.name
+
+  # @author wjiang@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: [infrastructure_public_295] Scheduler predicate should cap xxxVolumeCount for diff cloudprovider
+    Given the master version >= "3.10"
+    Given the expression should be true> env.iaas[:type] == "<cloudprovider>"
+    Given evaluation of `env.master_hosts` is stored in the :masters clipboard
+    Given I run commands on all masters:
+      | curl -o /etc/origin/master/scheduler-maxvol.json https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/scheduler-maxvol.json |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    KubernetesMasterConfig:
+      schedulerConfigFile: /etc/origin/master/scheduler-maxvol.json
+    """
+    Given the "/etc/origin/master/master.env" file is restored on all hosts in the "masters" clipboard after scenario
+    Given I run commands on all masters:
+      | echo "KUBE_MAX_PD_VOLS=1" >> /etc/origin/master/master.env |
+    And the master service is restarted on all master nodes
+    Given I have a project
+    Given I wait for the "default" serviceaccount to appear
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_multivols.yaml
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    And I run the :describe client command with:
+      | resource  | pods                      |
+      | name      | pod-multivolsexceedlimit  |
+    And the output should match:
+      | FailedScheduling.*(MaxVolumeCound\|exceed max volume count)|
+    """
+    Examples:
+      | cloudprovider |
+      | aws           | # @case_id OCP-11254
+      | gce           | # @case_id OCP-11571
+      | azure         | # @case_id OCP-20753
