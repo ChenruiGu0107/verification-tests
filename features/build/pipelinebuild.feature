@@ -253,6 +253,7 @@ Feature: pipelinebuild.feature
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
+    Given I update "maven" slave image for jenkins 2 server
     And I run the :start_build client command with:
       | buildconfig | mapsapp-pipeline |
     Then the step should succeed
@@ -311,6 +312,7 @@ Feature: pipelinebuild.feature
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given I have a jenkins browser
+    And I log in to jenkins
     Given I update "nodejs" slave image for jenkins 2 server
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |

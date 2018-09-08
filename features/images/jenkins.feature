@@ -973,9 +973,8 @@ Feature: jenkins.feature
       | deployment_config | database                    |
       | store_project     | <%= cb.proj2 %>             |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | database |
-      | latest            | true     |
+    When I run the :rollout_latest client command with:
+      | resource | database |
     Then the step should succeed
     When I perform the :jenkins_build_now web action with:
       | job_name | canceldeploymentjob |
