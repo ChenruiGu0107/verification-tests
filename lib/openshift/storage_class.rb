@@ -13,6 +13,11 @@ module CucuShift
       return "true" == default_annotation_value
     end
 
+    def provisioner(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      rr.dig('provisioner')
+    end
+
     def rest_url(user: nil, cached: true, quiet: false)
       rr = raw_resource(user: user, cached: cached, quiet: quiet)
       rr.dig('parameters', 'resturl')
