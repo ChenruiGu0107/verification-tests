@@ -254,3 +254,123 @@ Feature: Pod related networking scenarios
     Then the step should succeed
     And the output should match 25 times:
       | \d+\.\d+\.\d+\.\d+ |
+
+
+  # @auther bmeng@redhat.com
+  # @case_id OCP-10817
+  @admin
+  Scenario: Check QoS after creating pod
+    Given I have a project
+    # setup iperf server to receive the traffic
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/qos/iperf-server.json |
+    Then the step should succeed
+    And the pod named "iperf-server" becomes ready
+    And evaluation of `pod.ip` is stored in the :iperf_server clipboard
+
+    # setup iperf client to send traffic to server with qos configured
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/qos/iperf-rc.json" replacing paths:
+      | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/ingress-bandwidth"] | 5M |
+      | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/egress-bandwidth"] | 2M |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=iperf-pods |
+    And evaluation of `pod.name` is stored in the :iperf_client clipboard
+    And evaluation of `pod.node_name` is stored in the :iperf_client_node clipboard
+
+    # check the ovs port and interface for the qos availibility
+    Given I use the "<%= cb.iperf_client_node %>" node
+    When I run the ovs commands on the host:
+      | ovs-vsctl list qos |
+    Then the step should succeed
+    And the output should contain "max-rate="5000000""
+    When I run the ovs commands on the host:
+      | ovs-vsctl list interface \| grep ingress |
+    Then the step should succeed
+    And the output should contain "ingress_policing_rate: 1953"
+
+    # test the bandwidth limit with qos for egress
+    When I execute on the "<%= cb.iperf_client %>" pod:
+      | sh | -c | iperf3 -c <%= cb.iperf_server %> -i 1 -t 12s \| grep "1.99 Mbits" |
+    Then the step should succeed
+    And the expression should be true> @result[:response].lines.count >= 6
+    # test the bandwidth limit with qos for ingress
+    When I execute on the "<%= cb.iperf_client %>" pod:
+      | sh | -c | iperf3 -c <%= cb.iperf_server %> -i 1 -t 12s -R \| grep "4.98 Mbits" |
+    Then the step should succeed
+    And the expression should be true> @result[:response].lines.count >= 6
+
+    # remove the qos pod and check if the ovs qos configurations are removed
+    When I run the :delete client command with:
+      | object_type | replicationcontrollers |
+      | object_name_or_id | iperf-rc |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.iperf_client %>" to disappear
+
+    When I run the ovs commands on the host:
+      | ovs-vsctl list qos |
+    Then the step should succeed
+    And the output should not contain "max-rate="5000000""
+    When I run the ovs commands on the host:
+      | ovs-vsctl list interface \| grep ingress |
+    Then the step should succeed
+    And the output should not contain "ingress_policing_rate: 1953"
+
+  # @auther bmeng@redhat.com
+  # @case_id OCP-11578
+  @admin
+  @destructive
+  Scenario: Other pod could work normally when a pod in high network io
+    Given I have a project
+    # setup iperf server to receive the traffic
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/qos/iperf-server.json |
+    Then the step should succeed
+    And the pod named "iperf-server" becomes ready
+    And evaluation of `pod.ip` is stored in the :iperf_server clipboard
+
+    # setup iperf client to send traffic to server with qos configured
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/qos/iperf-rc.json" replacing paths:
+      | ["spec"]["replicas"] | 2 |
+      | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/ingress-bandwidth"] | 100M |
+      | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/egress-bandwidth"] | 100M |
+    Then the step should succeed
+    And 2 pods become ready with labels:
+      | name=iperf-pods |
+    And evaluation of `@pods[-1].name` is stored in the :iperf_client1 clipboard
+    And evaluation of `@pods[-2].name` is stored in the :iperf_client2 clipboard
+
+    # run two pods with both ingress and egress to increase the network io
+    When I run the :exec background client command with:
+      | pod              | <%= cb.iperf_client1 %> |
+      | oc_opts_end      |                  |
+      | exec_command     | iperf3           |
+      | exec_command_arg | -c               |
+      | exec_command_arg | <%= cb.iperf_server %>  |
+      | exec_command_arg | -t               |
+      | exec_command_arg | 600              |
+    Then the step should succeed
+    When I run the :exec background client command with:
+      | pod              | <%= cb.iperf_client2 %> |
+      | oc_opts_end      |                  |
+      | exec_command     | iperf3           |
+      | exec_command_arg | -c               |
+      | exec_command_arg | <%= cb.iperf_server %>  |
+      | exec_command_arg | -t               |
+      | exec_command_arg | 600              |
+      | exec_command_arg | -R               |
+    Then the step should succeed
+
+    # the other pod should work well with the high network io
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl | -kL | https://kubernetes.default.svc.cluster.local/ |
+    Then the step should succeed
+    And the output should contain "oapi"
+    Given I run the steps 10 times:
+    """
+    When I execute on the pod:
+      | time | curl | --connect-timeout | 2 | -Is | www.google.com |
+    Then the step should succeed
+    And the output should match "real.*0m 0\.\d{2}s"
+    """
