@@ -201,23 +201,27 @@ Feature: StatefulSet related tests
     Then the step should succeed
     Given the pod named "my-pod" becomes ready
     When I run the :exec client command with:
-      | pod              | my-pod                  |
-      | exec_command     | nslookup                |
-      | exec_command_arg | hello-statefulset-0.foo |
+      | pod              | my-pod                       |
+      | oc_opts_end      |                              |
+      | exec_command     | ping                         |
+      | exec_command_arg | -c                           |
+      | exec_command_arg | 1                            |
+      | exec_command_arg | hello-statefulset-0.foo      |
     And the output should match:
-      | Name:\\s+hello-statefulset-0.foo |
-      | Address 1:\\s+(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+      | PING hello-statefulset-0.foo \((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\) |
     And the output should not contain:
-      | nslookup: can't resolve 'hello-statefulset-0.foo' |
+      | ping: bad address 'hello-statefulset-0.foo' |
     When I run the :exec client command with:
-      | pod              | my-pod                  |
-      | exec_command     | nslookup                |
-      | exec_command_arg | hello-statefulset-1.foo |
+      | pod              | my-pod                       |
+      | oc_opts_end      |                              |
+      | exec_command     | ping                         |
+      | exec_command_arg | -c                           |
+      | exec_command_arg | 1                            |
+      | exec_command_arg | hello-statefulset-1.foo      |
     And the output should match:
-      | Name:\\s+hello-statefulset-1.foo |
-      | Address 1:\\s+(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+      | PING hello-statefulset-1.foo \((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\) |
     And the output should not contain:
-      | nslookup: can't resolve 'hello-statefulset-1.foo' |
+      | ping: bad address 'hello-statefulset-1.foo' |
     Given I ensure "hello-statefulset-0" pod is deleted
     Given I ensure "hello-statefulset-1" pod is deleted
     Given the pod named "hello-statefulset-0" becomes ready
@@ -227,14 +231,16 @@ Feature: StatefulSet related tests
     Then the output should contain:
       | hello-statefulset-0 |
     When I run the :exec client command with:
-      | pod              | my-pod                  |
-      | exec_command     | nslookup                |
-      | exec_command_arg | hello-statefulset-0.foo |
+      | pod              | my-pod                       |
+      | oc_opts_end      |                              |
+      | exec_command     | ping                         |
+      | exec_command_arg | -c                           |
+      | exec_command_arg | 1                            |
+      | exec_command_arg | hello-statefulset-0.foo      |
     And the output should match:
-      | Name:\\s+hello-statefulset-0.foo |
-      | Address 1:\\s+(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+      | PING hello-statefulset-0.foo \((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\) |
     And the output should not contain:
-      | nslookup: can't resolve 'hello-statefulset-0.foo' |
+      | ping: bad address 'hello-statefulset-0.foo' |
     Given the pod named "hello-statefulset-1" becomes ready
     When I run the :exec client command with:
       | pod              | hello-statefulset-1 |
@@ -242,11 +248,13 @@ Feature: StatefulSet related tests
     Then the output should contain:
       | hello-statefulset-1 |
     When I run the :exec client command with:
-      | pod              | my-pod                  |
-      | exec_command     | nslookup                |
-      | exec_command_arg | hello-statefulset-1.foo |
+      | pod              | my-pod                       |
+      | oc_opts_end      |                              |
+      | exec_command     | ping                         |
+      | exec_command_arg | -c                           |
+      | exec_command_arg | 1                            |
+      | exec_command_arg | hello-statefulset-1.foo      |
     And the output should match:
-      | Name:\\s+hello-statefulset-1.foo |
-      | Address 1:\\s+(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}) |
+      | PING hello-statefulset-1.foo \((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\) |
     And the output should not contain:
-      | nslookup: can't resolve 'hello-statefulset-1.foo' |
+      | ping: bad address 'hello-statefulset-1.foo' |
