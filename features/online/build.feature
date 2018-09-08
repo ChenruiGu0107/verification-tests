@@ -34,14 +34,13 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | code         | <source_url>                        |
       | name         | maven-build                         |
       | context_dir  | <context_dir>                       |
-      | e            | MAVEN_MIRROR_URL=<maven_mirror_url> |
     Then the step should succeed
     Then the "maven-build-1" build was created
     And the "maven-build-1" build completed
     When I run the :build_logs client command with:
       | build_name | maven-build-1 |
     Then the output should match:
-      | Downloading:\s*https://mirror.openshift.com/nexus/content/groups/public |
+      | Downloading:\s*https://repo1.maven.org/maven2/org/ |
     When I run the :patch client command with:
       | resource      | bc                                                                                                                                                      |
       | resource_name | maven-build                                                                                                                                             |
@@ -58,24 +57,20 @@ Feature: ONLY ONLINE related feature's scripts in this file
 
     # @case_id OCP-9993
     Examples: xPaas STI builds
-      | image_name                          | image_tag | source_url                                                            | context_dir           | maven_mirror_url                                          |
-      | jboss-eap70-openshift               | 1.3       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-eap70-openshift               | 1.4       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-eap70-openshift               | 1.5       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-eap70-openshift               | 1.6       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat7-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat7-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat7-openshift | 1.3       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat8-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat8-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver30-tomcat8-openshift | 1.3       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver31-tomcat7-openshift | 1.0       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | jboss-webserver31-tomcat8-openshift | 1.0       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat | https://mirror.openshift.com/nexus/content/groups/public/ |
+      | image_name                          | image_tag | source_url                                                            | context_dir           |
+      | jboss-webserver30-tomcat7-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat7-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat7-openshift | 1.3       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat8-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat8-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat8-openshift | 1.3       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver31-tomcat7-openshift | 1.0       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
+      | jboss-webserver31-tomcat8-openshift | 1.0       | https://github.com/jboss-openshift/openshift-quickstarts.git          | tomcat-websocket-chat |
 
     # @case_id OCP-9997
     Examples: wildfly STI builds
-      | image_name | image_tag | source_url                                            | context_dir | maven_mirror_url                                          |
-      | wildfly    | 8.1       | https://github.com/openshift/openshift-jee-sample.git | /           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | wildfly    | 9.0       | https://github.com/openshift/openshift-jee-sample.git | /           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | wildfly    | 10.0      | https://github.com/openshift/openshift-jee-sample.git | /           | https://mirror.openshift.com/nexus/content/groups/public/ |
-      | wildfly    | 10.1      | https://github.com/openshift/openshift-jee-sample.git | /           | https://mirror.openshift.com/nexus/content/groups/public/ |
+      | image_name | image_tag | source_url                                            | context_dir |
+      | wildfly    | 8.1       | https://github.com/openshift/openshift-jee-sample.git | /           |
+      | wildfly    | 9.0       | https://github.com/openshift/openshift-jee-sample.git | /           |
+      | wildfly    | 10.0      | https://github.com/openshift/openshift-jee-sample.git | /           |
+      | wildfly    | 10.1      | https://github.com/openshift/openshift-jee-sample.git | /           |

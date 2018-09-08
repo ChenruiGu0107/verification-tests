@@ -375,9 +375,8 @@ Feature: templates.feature
       | deploymentconfig=sso |
     And I get project routes
     Then the output should contain:
-      | secure-sso |
       | sso        |
-    When I open web server via the "https://<%= route("secure-sso", service("secure-sso")).dns(by: user) %>/auth" url
+    When I open web server via the "https://<%= route("sso", service("sso")).dns(by: user) %>/auth" url
     Then the step should succeed
     And the output should contain "Welcome to Red Hat Single Sign-On"
 

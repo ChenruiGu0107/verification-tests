@@ -59,14 +59,14 @@ Feature: ONLY ONLINE Deployment related scripts in this file
       | project_name   | <%= project.name %>  |
       | pod_name       | <%= pod.name %>      |
       | container_name | dctest-1             |
-      | cpu_range      | 24 millicores to 498 |
+      | cpu_range      | 9 millicores to 498  |
       | memory_range   | 127 MiB to 255 MiB   |
     Then the step should succeed
     When I perform the :check_limits_on_pod_page web console action with:
       | project_name   | <%= project.name %>  |
       | pod_name       | <%= pod.name %>      |
       | container_name | dctest-2             |
-      | cpu_range      | 25 millicores to 500 |
+      | cpu_range      | 10 millicores to 500 |
       | memory_range   | 128 MiB to 256 MiB   |
     Then the step should succeed
     When I run the :create client command with:
@@ -135,14 +135,14 @@ Feature: ONLY ONLINE Deployment related scripts in this file
       | project_name   | <%= project.name %>  |
       | pod_name       | <%= pod.name %>      |
       | container_name | hello-openshift      |
-      | cpu_range      | 24 millicores to 498 |
+      | cpu_range      | 9 millicores to 498  |
       | memory_range   | 127 MiB to 255 MiB   |
     Then the step should succeed
     When I perform the :check_limits_on_pod_page web console action with:
       | project_name   | <%= project.name %>    |
       | pod_name       | <%= pod.name %>        |
       | container_name | hello-openshift-fedora |
-      | cpu_range      | 25 millicores to 500   |
+      | cpu_range      | 10 millicores to 500   |
       | memory_range   | 128 MiB to 256 MiB     |
     Then the step should succeed
 
