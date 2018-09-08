@@ -50,7 +50,7 @@ Feature: logging permission related tests
   @destructive
   Scenario: View the project mapping index as different roles
     Given I create a project with non-leading digit name
-    And evaluation of `project.name` is stored in the :project clipboard
+    And evaluation of `project` is stored in the :project clipboard
     Given logging service is installed in the system
     And I switch to the first user
     # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
@@ -59,18 +59,7 @@ Feature: logging permission related tests
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.target_proj %>" project
-    Given a pod becomes ready with labels:
-      | component=es |
-
-    # index takes over 10 minutes to come up initially
-    And I wait up to 900 seconds for the steps to pass:
-    """
-    And I execute on the pod:
-      | ls                                                                   |
-      | /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
-    And the output should contain:
-      | project.<%= cb.project.name %>.<%= cb.project.uid %> |
-    """
+    And I wait for the "project.<%= cb.project.name %>.<%= cb.project.uid %>" index to appear in the ES pod with labels "component=es"
     # Give user1 admin role
     When I run the :policy_add_role_to_user client command with:
       | role             | admin                              |
@@ -90,6 +79,7 @@ Feature: logging permission related tests
       | rolebinding_name | view                               |
     Then the step should succeed
     Given evaluation of `%w[first second third]` is stored in the :users clipboard
+    And I switch to the first user
     Given I repeat the following steps for each :user in cb.users:
     """
     And I switch to the #{cb.user} user
