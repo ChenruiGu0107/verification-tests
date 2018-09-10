@@ -1,0 +1,84 @@
+Feature: environment related
+
+  # @author yapei@redhat.com
+  # @case_id OCP-19858
+  Scenario: Add Build envs from ConfigMaps and Secrets
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml   |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.json           |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-1.yaml  |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-2.yaml  |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                    |
+      | code         | https://github.com/openshift/django-ex.git |
+      | name         | python-sample                              |
+    Then the step should succeed
+    And I open admin console in a browser
+
+    # Add env from ConfigMap and Secret
+    When I perform the :goto_one_buildconfig_page web action with:
+      | project_name | <%= project.name %>  |
+      | bc_name      | python-sample        |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Environment |
+    Then the step should succeed
+    When I run the :click_add_value_from_configmap_or_secret web action
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name    | ENV_FROM_CM        |
+      | env_source_name | example-config     |
+      | env_source_key  | example.property.2 |
+    Then the step should succeed
+    When I run the :click_add_value_from_configmap_or_secret web action
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name    | ENV_FROM_SEC       |
+      | env_source_name | mysecret1          |
+      | env_source_key  | password           |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc            |
+      | resource_name | python-sample |
+      | o             | yaml          |
+    Then the step should succeed
+    Then the output by order should match:
+      | ENV_FROM_CM             |
+      | configMapKeyRef         |
+      | key.*example.property.2 |
+      | name.*example-config    |
+      | ENV_FROM_SEC            |
+      | secretKeyRef            |
+      | key.*password           |
+      | name.*mysecret1         |
+
+    # update secret source name
+    When I perform the :goto_one_buildconfig_page web action with:
+      | project_name | <%= project.name %>  |
+      | bc_name      | python-sample        |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Environment |
+    Then the step should succeed
+    When I perform the :update_env_vars web action with:
+      | env_var_name    | ENV_FROM_SEC       |
+      | env_source_name | mysecret2          |
+      | env_source_key  | city               |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc            |
+      | resource_name | python-sample |
+      | o             | yaml          |
+    Then the step should succeed
+    And the output should contain:
+      | mysecret2 |
+      | city      |
+    And the output should not contain:
+      | mysecret1 |
+      | password  |

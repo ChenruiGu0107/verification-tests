@@ -18,10 +18,15 @@ operate_action_from_dropdown:
   - selector:
       xpath: //li/a[contains(text(),'<action_item>')]
     op: click
-click_tab_on_overview_page:
+click_tab:
   elements:
   - selector:
-      xpath: //ul[contains(@class,"nav__menu")]//a[text()="<tab_name>"]
+      xpath: //ul[contains(@class,'nav__menu')]//a[text()='<tab_name>']
+    op: click
+submit_changes:
+  element:
+    selector:
+      xpath: //button[@type='submit']
     op: click
 check_row_filter_on_page:
   elements:
