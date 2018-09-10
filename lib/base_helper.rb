@@ -281,9 +281,9 @@ module CucuShift
         when "Ki", "K", "kb"
           return number * 1024
         when "Mi", "M", "mb"
-          return number * 1024 * 1204
+          return number * 1024 * 1024
         when "Gi", "G", "gb"
-          return number * 1024 * 1204 * 1024
+          return number * 1024 * 1024 * 1024
         else
           raise "unknown memory unit '#{unit}'"
         end
