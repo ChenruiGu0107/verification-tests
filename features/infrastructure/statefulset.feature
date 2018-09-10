@@ -5,6 +5,11 @@ Feature: StatefulSet related tests
   @admin
   Scenario: Using persistent storage in StatefulSet
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/stable-storage.yaml  |
       | n | <%= project.name %> |
