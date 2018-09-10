@@ -84,8 +84,9 @@ Feature: install and uninstall related scenarios
       | component=kibana, logging-infra=kibana |
     And I execute on the pod:
       | curl | -k | <%= env.logging_console_url %> | -vv |
+    And the expression should be true> cb.cert_regex = /CN=(#{cb.logging_route_prefix}|\*).(#{cb.subdomain})/
     Then the expression should be true> @result[:response].include? "Server certificate"
-    Then the expression should be true> @result[:response].include? "subject: CN=#{cb.logging_route_prefix}.#{cb.subdomain}"
+    Then the expression should be true> cb.cert_regex.match(@result[:response])
 
   # @author pruan@redhat.com
   # @case_id OCP-15988
