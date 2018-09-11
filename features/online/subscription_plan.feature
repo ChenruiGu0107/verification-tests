@@ -491,3 +491,32 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | storage            | 5GiB    |
       | cpu_number         | 16 vCPU |
     Then the step should succeed
+
+  # @author yuwei@redhat.com
+  Scenario Outline: Check elements on Manage add-on Page - UI
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | <resource> |
+    Then the step should succeed
+    When I perform the :check_title_on_manage_resoure_page web action with:
+      | resource_title | <resource_title> |
+    Then the step should succeed
+    When I perform the :check_addon_slider_of_resource web action with:
+      | resource  | <resource>  |
+      | max_value | <max_value> | 
+    Then the step should succeed 
+    When I perform the :check_addon_input_field_of_resource web action with:
+      | resource  | <resource>  |
+      | max_value | <max_value> |
+    Then the step should succeed
+    When I run the :check_update_subscription_button web action
+    Then the step should succeed
+    When I run the :check_keep_current_plan web action
+    Then the step should succeed
+
+    Examples: Check elements on Manage add-on Page - UI
+    | resource           | resource_title     | max_value |
+    | memory             | memory             | 46        | # @case_id OCP-12753
+    | terminating_memory | terminating memory | 18        | # @case_id OCP-14276
+    | storage            | persistent storage | 148       | # @case_id OCP-14893
+

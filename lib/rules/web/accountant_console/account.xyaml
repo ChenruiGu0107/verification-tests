@@ -355,3 +355,24 @@ check_add_a_new_plan:
   elements:
   - selector:
       xpath: //a[@href='/register/plan'][contains(text(),'Add a New Plan')]
+check_title_on_manage_resoure_page:
+  elements:
+  - selector:
+      xpath: //h2[contains(text(),'Customization')]
+  - selector:
+      xpath: //p[contains(text(),'Adjust the amount of additional <resource_title> in your subscription.')]
+check_addon_slider_of_resource:
+  elements:
+  - selector:
+      xpath: //input[@id='addon_<resource>_slider' and @min='0' and @max='<max_value>']
+check_addon_input_field_of_resource:
+  elements:
+  - selector:
+      xpath: //input[@id='addon_<resource>' and @min='0' and @max='<max_value>']
+  - selector:
+      xpath: //span[@id='addon_<resource>_addon' and contains(text(),'GiB')]
+check_update_subscription_button:
+  elements:
+  - selector:
+      xpath: //button[@disabled="disabled" and contains(.,"Update Subscription")]
+

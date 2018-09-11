@@ -303,3 +303,61 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | memory_limit_level | memory_limit |
       | min                | 100Mi        | # @case_id OCP-18931
       | max                | 8Gi          | # @case_id OCP-18930
+  
+  # @author yuwei@redhat.com
+  # @case_id OCP-10291
+  Scenario: Can not create resource exceed the hard quota in appliedclusterresourcequota  
+    Given I have a project  
+    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
+    And evaluation of `cb.acrq.find{|o|o.name.end_with?('-noncompute')}` is stored in the :storage_crq clipboard
+
+    When I run the :new_app client command with:
+      | template | nodejs-mongo-persistent |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=nodejs-mongo-persistent-1 |
+    And a pod becomes ready with labels:
+      | deployment=mongodb-1 |
+    When I run the :run client command with:
+      | name    | run-once-pod-1   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | memory=1Gi       |
+    Then the step should succeed 
+    And the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1Gi"
+    And the expression should be true> cb.storage_crq.total_used(cached: false).storage_requests_raw == "1Gi"
+    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == "1Gi"
+
+    Given I create a new project
+    Given I check that the "<%= cb.memory_crq.name %>" applied_cluster_resource_quota exists
+    Then the expression should be true> applied_cluster_resource_quota.total_used.memory_limit_raw == "1Gi"
+    Given I check that the "<%= cb.storage_crq.name %>" applied_cluster_resource_quota exists
+    Then the expression should be true> applied_cluster_resource_quota.total_used.storage_requests_raw == "1Gi"
+    Given I check that the "<%= cb.memory_terminate_crq.name %>" applied_cluster_resource_quota exists
+    Then the expression should be true> applied_cluster_resource_quota.total_used.memory_limit_raw == "1Gi"
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/hello-pod-limit.yaml" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["limits"]["memory"] | 2Gi |
+    And the step should fail
+    And the output should contain "exceeded quota"
+
+    When I run the :run client command with:
+      | name    | run-once-pod-2   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | memory=2Gi       |
+    Then the step should fail
+    And the output should contain "exceeded quota"
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/pvc_storage.yaml |
+    Then the step should fail
+    And the output should contain "exceeded quota"

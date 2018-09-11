@@ -28,3 +28,17 @@ Feature: ONLY ONLINE Command Line Interface related scripts in this file
       | STATUS\\s+RESTARTS  |
       | [Rr]unning\\s+1     |
     """
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-19298
+  Scenario: Check the label for the Pro plan
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | project                   |
+      | resource_name | <%= project.name %>       |
+      | template      | {{.metadata.annotations}} |
+    Then the output should contain "openshift.io/plan-type:OpenshiftOnlinePaid"
+    When I run the :get client command with:
+      | resource | user/~                |
+      | template | {{.metadata.labels}}  |
+    Then the output should contain "openshift.io/OpenshiftOnlinePaid:true"
