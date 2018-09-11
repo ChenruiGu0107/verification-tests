@@ -388,10 +388,6 @@ Feature: install and uninstall related scenarios
     Then the expression should be true> pod.container(name: 'fluentd-elasticsearch').spec.memory_limit_raw == "1024M"
     Then the expression should be true> pod.container(name: 'fluentd-elasticsearch').spec.cpu_limit_raw == "200m"
     Given a pod becomes ready with labels:
-      | component=curator |
-    Then the expression should be true> pod.container(name: 'curator').spec.memory_limit_raw == "1024M"
-    Then the expression should be true> pod.container(name: 'curator').spec.cpu_limit_raw == "200m"
-    Given a pod becomes ready with labels:
       | component=kibana |
     Then the expression should be true> pod.container(name: 'kibana').spec.memory_limit_raw == "1024M"
     Then the expression should be true> pod.container(name: 'kibana').spec.cpu_limit_raw == "200m"
