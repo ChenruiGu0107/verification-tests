@@ -31,7 +31,7 @@ module CucuShift
 
     # the method returns `items` element but `event` name was chosen as in
     #   documentation, these items are described as "TagEvent array"
-    # https://docs.openshift.org/latest/rest_api/apis-image.openshift.io/v1.ImageStream.html
+    # https://docs.okd.io/latest/rest_api/apis-image.openshift.io/v1.ImageStream.html
     def events
       if raw['items'].nil?
         return []

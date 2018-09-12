@@ -144,7 +144,7 @@ Feature: oc global options (oc options) related scenarios
       | cmd       | 3600          |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
-    # ca.crt (https://docs.openshift.org/latest/dev_guide/service_accounts.html#using-a-service-accounts-credentials-inside-a-container)
+    # ca.crt (https://docs.okd.io/latest/dev_guide/service_accounts.html#using-a-service-accounts-credentials-inside-a-container)
     When I execute on the pod:
       | cat  | /var/run/secrets/kubernetes.io/serviceaccount/ca.crt |
     Then the step should succeed
