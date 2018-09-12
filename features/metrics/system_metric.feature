@@ -159,29 +159,24 @@ Feature: system metric related tests
     And I switch to the first user
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given cluster role "cluster-admin" is added to the "first" user
-    And I perform the POST metrics rest request with:
-      | project_name | _system                                                                                           |
-      | path         | /metrics/availability                                                                             |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
-    And I perform the GET metrics rest request with:
-      | project_name | _system              |
-      | path         | /metrics/metrics     |
-      | token        | <%= cb.user_token %> |
-    Then the step should succeed
-    And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq.sort!` is stored in the :metrics_result clipboard
-    And the expression should be true> cb.metrics_result == ['counter', 'gauge']
+    And I wait for the steps to pass:
+    """
     And I perform the GET metrics rest request with:
       | project_name | _system              |
       | path         | /metrics/gauges      |
       | token        | <%= cb.user_token %> |
-    Then the step should succeed
+    Then the expression should be true> @result[:exitstatus] == 200
+    """
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq` is stored in the :gauge_result clipboard
     And the expression should be true> cb.gauge_result == ['gauge']
+    And I wait for the steps to pass:
+    """
     And I perform the GET metrics rest request with:
       | project_name | _system              |
       | path         | /metrics/counters    |
       | token        | <%= cb.user_token %> |
-    Then the step should succeed
+    Then the expression should be true> @result[:exitstatus] == 200
+    """
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq` is stored in the :counter_result clipboard
     And the expression should be true> cb.counter_result == ['counter']
 

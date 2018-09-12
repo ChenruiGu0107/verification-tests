@@ -169,23 +169,26 @@ Feature: metrics logging and uninstall tests
   Scenario: Metrics Admin Command - Deploy set user_write_access
     Given the master version >= "3.5"
     And I have a project
+    And evaluation of `project` is stored in the :org_project clipboard
     And metrics service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12012/inventory |
     And I switch to first user
     Given I wait up to 180 seconds for the steps to pass:
     """
     Given I perform the GET metrics rest request with:
-      | project_name | <%= project.name %> |
-      | path         | /metrics/ |
+      | project_name | <%= cb.org_project.name %> |
+      | path         | /metrics/                  |
     And the step succeeded
     """
     Given I perform the POST metrics rest request with:
-      | project_name | <%= project.name %>                                                                               |
+      | project_name | <%= cb.org_project.name %>                                                                        |
       | path         | /metrics/gauges                                                                                   |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+    Then the step should succeed
     Given I perform the GET metrics rest request with:
-      | project_name | <%= project.name %> |
-      | path         | /metrics/gauges     |
+      | project_name | <%= cb.org_project.name %> |
+      | path         | /metrics/gauges            |
+    Then the step should succeed
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
