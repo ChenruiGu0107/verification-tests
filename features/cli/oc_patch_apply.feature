@@ -292,6 +292,14 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | resource      | svc                                                    |
+      | resource_name | multi-portsvc                                          |
+      | type          | json                                                   |
+      | p             | [{"op": "add", "path": "/spec/ports/3", "value": 444}] |
+    Then the step should fail
+    And the output should match "rror.*nvalid index.*3"
+
+    When I run the :patch client command with:
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | json          |
