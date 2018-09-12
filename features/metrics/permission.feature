@@ -80,15 +80,18 @@ Feature: metrics permission related tests
   @destructive
   Scenario: User can only read metrics data when USER_WRITE_ACCESS parameter is not specified
     Given I have a project
+    And evaluation of `project` is stored in the :org_project clipboard
     Given metrics service is installed in the system
     Given I switch to the first user
+
+    And I use the "<%= cb.org_project.name %> project
     Given I perform the GET metrics rest request with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.org_project.name %> |
       | path         | /metrics/gauges     |
     Then the expression should be true> @result[:exitstatus] == 204
     Given I perform the POST metrics rest request with:
-      | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                           |
+      | project_name | <%= cb.org_project.name %>                                                                        |
+      | path         | /metrics/gauges                                                                                   |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
