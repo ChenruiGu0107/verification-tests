@@ -41,7 +41,7 @@ module CucuShift
       end
 
       def self.access_pod_network_metrics(base_opts, opts)
-        populate("/proxy/namespaces/<project_name>/services/https:heapster:/api/v1/model/namespaces/<project_name>/pods/<pod_name>/metrics/network/<type>", base_opts, opts)
+        populate("/namespaces/<project_name>/services/https:heapster:/proxy/api/v1/model/namespaces/<project_name>/pods/<pod_name>/metrics/network/<type>", base_opts, opts)
         base_opts[:headers].delete("Accept") unless opts[:accept]
         return perform(**base_opts, method: "GET")
       end
