@@ -285,22 +285,24 @@ Feature: fluentd related tests
     And I switch to the first user
     And I perform the HTTP request:
     """
-      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :url: https://es.<%= cb.subdomain %>/_search?
       :method: post
       :payload: '{"query": { "match": {"message" : "OCP-19207" }}}'
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>
+        :Content-Type: application/json
     """
     And the step should succeed
     And the expression should be true> @result[:parsed].dig('hits', 'total') > 0
     And the expression should be true> @result[:parsed]['hits']['hits'].first['_source']['level'] == 'info'
     And I perform the HTTP request:
     """
-      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :url: https://es.<%= cb.subdomain %>/_search?
       :method: post
       :payload: '{"query": { "match": {"level" : "OCP-19207" }}}'
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>
+        :Content-Type: application/json
     """
     And the step should succeed
     And the expression should be true> @result[:parsed].dig('hits', 'total') == 0
