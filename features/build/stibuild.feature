@@ -536,5 +536,5 @@ Feature: stibuild.feature
       | -c                |
       | env  \| grep HTTP |
     Then the output should contain:
-      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>   | 
+      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>  | 
       | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |

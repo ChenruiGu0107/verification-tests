@@ -618,3 +618,38 @@ Feature: dockerbuild.feature
       |docker ps -a --no-trunc\| grep "exit" |
     Then the step should succeed
     And the output should not contain "/bin/sh -c 'exit 1'"
+
+  # @author wewang@redhat.com 
+  # @case_id OCP-19541 
+  Scenario: Reuse existing imagestreams with new-build 
+    Given I have a project 
+    When I run the :new_build client command with: 
+      | D    | FROM node:8\nRUN echo "Test" | 
+      | name | node8                        | 
+    Then the step should succeed 
+    And the "node8-1" build was created 
+    And the "node8-1" build completed
+    And I check that the "node8:latest" istag exists in the project
+    When I run the :new_build client command with:
+      | D    | FROM node:10\nRUN echo "Test" |
+      | name | node10                        |
+    Then the step should succeed
+    And the "node10-1" build was created
+    And the "node10-1" build completed
+    And I check that the "node10:latest" istag exists in the project
+    When I run the :new_build client command with:
+      | D    | FROM node:noexist\nRUN echo "Test" |
+      | name | nodenoexist                        |
+    Then the step should fail
+    And the output should contain "error: multiple images or templates matched "node:noexist""
+    When I run the :new_build client command with:
+      | D    | FROM node\nRUN echo "Test" |
+      | name | nodewithouttag             |
+    Then the step should succeed
+    And the "nodewithouttag-1" build was created
+    And the "nodewithouttag-1" build completed
+    And I check that the "nodewithouttag:latest" istag exists in the project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    And the istag named "nodejs:latest" does not exist in the project
