@@ -314,25 +314,29 @@ Feature: fluentd related tests
   @destructive
   Scenario: the string event are sent to ES
     Given I create a project with non-leading digit name
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/svt/master/openshift_scalability/content/logtest/logtest-rc.json |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource | configmap/logtest-config |
+      | type     | json                         |
+      | p        | { "data": { "OCP-19431": "{ \"event\": \"anlieventevent\", \"verb\": \"ADDED\" }", "ocp_logtest.cfg": "--num-lines 50  --line-length 0 --text-type=input --file /var/lib/svt/OCP-19431 --raw" }} |
+    Then the step should succeed
+
+    When I run the :delete client command with:
+      | object_type       | pod       |
+      | l                 | run=centos-logtest       |
+    Then the step should succeed
+
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19431/inventory |
     # register the message
-    And the first user is cluster-admin
-    And I switch to the first user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | component=eventrouter |
-    When I run the :debug client command with:
-      | resource         | pod/<%= pod.name %>                              |
-      | oc_opts_end      |                                                  |
-      | exec_command     | echo                                             |
-      | exec_command_arg | '{ "event": "anlieventevent", "verb": "ADDED" }' |
-    Then the step should succeed
     And I wait up to 900 seconds for the steps to pass:
     """
     And I perform the HTTP request:
     <%= '"""' %>
-      :url: https://es.<%= cb.subdomain %>/_search?output=JSON
+      :url: https://es.<%= cb.subdomain %>/project.<%= cb.org_project.name %>-*/_search?output=JSON
       :method: post
       :payload: '{"query": { "match": {"event" : "anlieventevent" }}}'
       :headers:
