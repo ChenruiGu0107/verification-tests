@@ -661,7 +661,6 @@ Feature: install and uninstall related scenarios
     And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
     And the expression should be true> pod.container_specs.first.memory_limit_raw == "256Mi"
     And the expression should be true> rc('logging-eventrouter-1').replica_counters[:ready] == 2
-    And the expression should be true> dc('logging-eventrouter').containers_spec.first.image.include? product_docker_repo + "openshift3/logging-eventrouter:v" + cb.master_version
     And logging service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15645/uninstall_inventory |
     And I use the "<%= cb.org_project_name %>" project

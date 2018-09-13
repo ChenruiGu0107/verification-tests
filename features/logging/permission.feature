@@ -101,6 +101,7 @@ Feature: logging permission related tests
     Given logging service is installed in the system
     ## wait until the es pod index to show up
     Then I wait for the ".operations" index to appear in the ES pod with labels "component=es"
+    And I switch to the first user
     And cluster role "cluster-admin" is added to the "first" user
     And cluster role "cluster-reader" is added to the "second" user
     Given evaluation of `%w[first second]` is stored in the :users clipboard
