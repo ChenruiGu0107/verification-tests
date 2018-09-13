@@ -642,7 +642,7 @@ Feature: SCC policy related scenarios
       | resource | pod           |
       | name     | pod-add-chown |
     Then the output should match:
-      | [uU]nknown capability .* to add |
+      | [uU]nknown capability .*to add |
       | (?i)CAP_KILLtest                |
     """
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_with_confilict_capabilities.yaml"
