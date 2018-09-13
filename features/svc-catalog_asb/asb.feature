@@ -167,6 +167,7 @@ Feature: Ansible-service-broker related scenarios
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
     And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
+    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
 
     #Access the ASB api with valid token
     Given I switch to the first user
@@ -177,7 +178,7 @@ Feature: Ansible-service-broker related scenarios
       | -H                                                         |
       | Authorization: Bearer <%= cb.token %>                      |
       | -sk                                                        |
-      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+      | https://<%= cb.asbUrl %><%= cb.asb_endpoint %>/v2/catalog |
     Then the output should contain:
       | services      |
       | mediawiki-apb |
@@ -190,7 +191,7 @@ Feature: Ansible-service-broker related scenarios
       | -H                                                         |
       | Authorization: Bearer XXXXXXXXXXXX                         |
       | -sk                                                        |
-      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+      | https://<%= cb.asbUrl %><%= cb.asb_endpoint %>/v2/catalog |
     Then the output should contain "Unauthorized"
 
   # @author zitang@redhat.com

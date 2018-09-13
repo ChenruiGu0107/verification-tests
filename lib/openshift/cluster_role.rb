@@ -32,5 +32,10 @@ module CucuShift
     def status_reachable?(from_status, to_status)
       raise "status not applicable to ClusterRole"
     end
+
+    def rules(user: nil, cached: true, quiet: false)
+      return  raw_resource(user: user, cached: cached, quiet: quiet).dig("rules")
+    end
+      
   end
 end

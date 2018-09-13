@@ -122,6 +122,7 @@ Feature: Ansible-service-broker related scenarios
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
       And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+      And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
 
       # white list only
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -143,7 +144,7 @@ Feature: Ansible-service-broker related scenarios
         | -H                                                               |
         | Authorization: Bearer <%= cb.asb_token %>                        |
         | -sk                                                              |
-        | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog      |
       Then the output should contain "mediawiki-apb"
 
       # black list only
@@ -166,7 +167,7 @@ Feature: Ansible-service-broker related scenarios
         | -H                                                               |
         | Authorization: Bearer <%= cb.asb_token %>                        |
         | -sk                                                              |
-        | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
       Then the output should contain "[]"
 
       # both white and black list
@@ -190,7 +191,7 @@ Feature: Ansible-service-broker related scenarios
         | -H                                                               |
         | Authorization: Bearer <%= cb.asb_token %>                        |
         | -sk                                                              |
-        | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
       Then the output should not contain "mediawiki-apb"
 
       And I switch to cluster admin pseudo user
@@ -213,7 +214,7 @@ Feature: Ansible-service-broker related scenarios
         | -H                                                               |
         | Authorization: Bearer <%= cb.asb_token %>                        |
         | -sk                                                              |
-        | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
       Then the output should contain "[]"
 
   # @author zitang@redhat.com
@@ -242,6 +243,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
+    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
 
     #create a client secret
     When I run the :create_secret client command with:
@@ -306,7 +308,7 @@ Feature: Ansible-service-broker related scenarios
     When I execute on the pod:
       | curl                                                                   |
       | -sk                                                                    |
-      | https://admin:admin@<%= cb.asbUrl %>/ansible-service-broker/v2/catalog |
+      | https://admin:admin@<%= cb.asbUrl %><%= cb.asb_endpoint %>/v2/catalog |
     Then the output should match:
       | services                                                               |
       | name.*apb                                                              |
@@ -315,7 +317,7 @@ Feature: Ansible-service-broker related scenarios
     When I execute on the pod:
       | curl                                                                   |
       | -sk                                                                    |
-      | https://admin:test@<%= cb.asbUrl %>/ansible-service-broker/v2/catalog  |
+      | https://admin:test@<%= cb.asbUrl %><%= cb.asb_endpoint %>/v2/catalog  |
      #Access the ASB api with bearer
     Then the output should contain "invalid credentials"
     When I execute on the pod:
@@ -323,7 +325,7 @@ Feature: Ansible-service-broker related scenarios
       | -H                                                                     |
       | Authorization: Bearer <%= cb.token %>                                  |
       | -sk                                                                    |
-      | https://<%= cb.asbUrl %>/ansible-service-broker/v2/catalog             |
+      | https://<%= cb.asbUrl %><%= cb.asb_endpoint %>/v2/catalog             |
     Then the output should contain "invalid credentials"
 
     #check we can get classerviceclass after edit ansible-service-broker
@@ -434,7 +436,8 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
     And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-
+    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
+  
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
@@ -469,7 +472,7 @@ Feature: Ansible-service-broker related scenarios
       | -H                                                               |
       | Authorization: Bearer <%= cb.asb_token %>                        |
       | -sk                                                              |
-      | https://<%= cb.asb_url %>/ansible-service-broker/v2/catalog      |
+      | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog      |
     Then the output should match:
       | rh  |
       | dh  |
@@ -512,6 +515,7 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
     And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
 
     # 1, default mode
     # Update the configmap settings
@@ -539,7 +543,7 @@ Feature: Ansible-service-broker related scenarios
     # Check the apb which stored in the openshift registry
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :url: https://<%= cb.asb_route %><%= cb.asb_endpoint %>/v2/catalog
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.asb_token %>
@@ -583,7 +587,7 @@ Feature: Ansible-service-broker related scenarios
     # Check the apb which stored in the openshift registry
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :url: https://<%= cb.asb_route %><%= cb.asb_endpoint %>/v2/catalog
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.asb_token %>
@@ -678,7 +682,7 @@ Feature: Ansible-service-broker related scenarios
     # Check the apb which stored in the openshift registry
     When I perform the HTTP request:
     """
-    :url: https://<%= cb.asb_route %>/ansible-service-broker/v2/catalog
+    :url: https://<%= cb.asb_route %><%= cb.asb_endpoint %>/v2/catalog
     :method: get
     :headers:
       :Authorization: Bearer <%= cb.asb_token %>
