@@ -674,7 +674,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
       end
     end
   ensure
-    @user = org_user if org_user
+    # @user = org_user if org_user
     project(cb.target_proj)
   end
 end
