@@ -405,7 +405,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   # prep the inventory file by setting the required clipboard for ERB
   # interpolation later
   ### XXX: we have to hardcode the children section due to the pasreconfig gem does not handle INI files that have keys but no values
-
+  org_user = user
   cb.metrics_route_prefix = "metrics"
   cb.logging_route_prefix = "logs"
   # save user project where we'll instantiate the base-ansible-pod
@@ -631,7 +631,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     #  | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
     #  })
     # XXX: skip the check for now due to https://bugzilla.redhat.com/show_bug.cgi?id=1512723
-    step %Q/the step should succeed/
+    step %Q/the step should succeed/ unless cb.negative_test
     # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
     step %Q/the master is operational/
     if op == 'installed'
@@ -674,7 +674,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
       end
     end
   ensure
-    # @user = org_user if org_user
+    @user = org_user if org_user
     project(cb.target_proj)
   end
 end
