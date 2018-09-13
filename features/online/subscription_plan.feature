@@ -520,3 +520,378 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     | terminating_memory | terminating memory | 18        | # @case_id OCP-14276
     | storage            | persistent storage | 148       | # @case_id OCP-14893
 
+  # @author yuwei@redhat.com
+  # @case_id OCP-14874
+  Scenario: Storage and Terminating memory can be upgraded/downgraded if memory add-on is used
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 2       |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I delete all resources from the project
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 0                  |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 0       |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    """
+
+    Given I have a project
+    When the "compute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).memory_limit_raw == "4Gi"
+    When I run the :new_app client command with:
+      | template | httpd-example     |
+      | p        | MEMORY_LIMIT=1Gi  |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=httpd-example-1 | 
+    Then I run the :scale client command with:
+      | resource | dc                 |
+      | name     | httpd-example      |
+      | replicas | 3                  |
+    Then the step should succeed
+    Given I wait until number of replicas match "3" for replicationController "httpd-example-1"
+    When the "compute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
+    
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 4                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 4       |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 2       |
+    Then the step should succeed
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-20384
+  Scenario: Memory and Storage can be upgrade/downgrade if terminating memory add-on is used
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 2       |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I delete all resources from the project
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 0       |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 0                  |
+    Then the step should succeed
+    """
+
+    Given I have a project
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).memory_limit_raw == "4Gi"
+    When I run the :run client command with:
+      | name    | run-once-pod-1   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | cpu=2,memory=2Gi |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name    | run-once-pod-2   |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 60m              |
+      | restart | Never            |
+      | limits  | cpu=2,memory=1Gi |
+    Then the step should succeed 
+
+    When the "timebound" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
+    
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 4       |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 4      |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 2       |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+
+  # @author yuwei@redhat.com
+  # @case_id OCP-20385
+  Scenario: Memory and Terminating memory can be upgraded/downgraded if storage add-on is used
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 2       |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I delete all resources from the project
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 0                  |
+    Then the step should succeed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | storage |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | storage |
+      | amount   | 0       |
+    Then the step should succeed
+    """
+
+    Given I have a project
+    When the "noncompute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).storage_requests_raw == "4Gi"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-mongodb.yaml"
+    And I replace lines in "pvc-mongodb.yaml":
+      | storage: 1Gi | storage: 3Gi |
+    When I run the :create client command with:
+      | f | pvc-mongodb.yaml    |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When the "noncompute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).storage_requests_raw == "3Gi"
+    
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 4                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 4      |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | terminating_memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | terminating_memory |
+      | amount   | 2                  |
+    Then the step should succeed
+
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 2      |
+    Then the step should succeed
+    
+  # @author yuwei@redhat.com
+  # @case_id OCP-10433
+  Scenario: Memory add-ons can't be downgraded to the value lower than the occupied memory quota
+    Given I open accountant console in a browser
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 4      |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I delete all resources from the project
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 0      |
+    Then the step should succeed
+    """
+    Given I have a project
+    When the "compute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.hard_quota(cached: false).memory_limit_raw  == "6Gi"
+    When I run the :new_app client command with:
+      | template | httpd-example     |
+      | p        | MEMORY_LIMIT=1Gi  |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=httpd-example-1 | 
+    Then I run the :scale client command with:
+      | resource | dc                 |
+      | name     | httpd-example      |
+      | replicas | 4                  |
+    Then the step should succeed
+    Given I wait until number of replicas match "4" for replicationController "httpd-example-1"
+    When the "compute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "4Gi"
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory        |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_check_error_message web action with:
+      | resource | memory        |
+      | amount   | 1             |
+      | quota    | 4.0 GiB       |
+    Then the step should succeed
+    Then I run the :scale client command with:
+      | resource | dc                 |
+      | name     | httpd-example      |
+      | replicas | 3                  |
+    Then the step should succeed
+    Given I wait until number of replicas match "3" for replicationController "httpd-example-1"
+    Given 30 seconds have passed
+    When I perform the :goto_resource_settings_page web action with:
+      | resource | memory |
+    Then the step should succeed
+    When I perform the :set_resource_amount_by_input_and_update web action with:
+      | resource | memory |
+      | amount   | 1      |
+    Then the step should succeed
+    When the "compute" applied_cluster_resource_quota is stored in the clipboard
+    Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
+    
