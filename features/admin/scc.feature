@@ -693,8 +693,8 @@ Feature: SCC policy related scenarios
     And the output should match:
       | [*] |
     And I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/stuartchuan/v3-testfiles/master/authorization/scc/pod_requests_cap_fsetid.json |
-      | n | <%= project.name %>                                                                                              |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_fsetid.json |
+      | n | <%= project.name %>                                                                                               |
     Then the step should succeed
     When I get project pod named "pod-add-fsetid" as JSON
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['securityContext']['capabilities']['add'][0] == "FSETID"

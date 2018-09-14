@@ -1465,7 +1465,7 @@ Feature: Quota related scenarios
       | resource     | namespace                                           |
       | resourcename | <%= project.name %>                                 |
       | overwrite    | true                                                |
-      | keyval       | openshift.io/requester=usertest~!#%^&*1@example.com |  
+      | keyval       | openshift.io/requester=usertest~!#%^&*1@example.com |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
@@ -1490,7 +1490,7 @@ Feature: Quota related scenarios
     Then the step should succeed
     # Create requests.storage of quota < existing PVC capacity
     When I run the :create_quota admin command with:
-      | name | quota-pvc-storage-1  | 
+      | name | quota-pvc-storage-1  |
       | hard | requests.storage=2Gi |
       | n    | <%= project.name %>  |
     Then the step should succeed
@@ -1514,7 +1514,7 @@ Feature: Quota related scenarios
     When I run the :describe client command with:
       | resource | quota               |
       | n        | <%= project.name %> |
-    Then the output should match: 
+    Then the output should match:
       | requests.storage\\s+5Gi\\s+2Gi    |
       | persistentvolumeclaims\\s+1\\s+50 |
       | requests.storage\\s+5Gi\\s+10Gi   |
@@ -1526,7 +1526,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+0\\s+2Gi      |
       | persistentvolumeclaims\\s+0\\s+50 |
       | requests.storage\\s+0\\s+10Gi     |
-    
+
 
   # @author qwang@redhat.com
   # @case_id OCP-11389
@@ -1535,7 +1535,7 @@ Feature: Quota related scenarios
     Given I have a project
     # Only quota requests.storage < 5Gi
     When I run the :create_quota admin command with:
-      | name | quota-pvc-storage  | 
+      | name | quota-pvc-storage  |
       | hard | requests.storage=2Gi |
       | n    | <%= project.name %>  |
     Then the step should succeed
@@ -1617,7 +1617,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | persistentvolumeclaims\\s+1\\s+10                               |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-     
+
 
   # @author qwang@redhat.com
   # @case_id OCP-12826
@@ -1720,8 +1720,7 @@ Feature: Quota related scenarios
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/qwang1/mytestfile/master/pvc-storage-class.json |
-      | n | <%= project.name %>                                                               |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
     Then the step should fail
     And the output should contain:
       | insufficient quota to consume: gold.storageclass.storage.k8s.io/requests.storage |
@@ -1736,7 +1735,7 @@ Feature: Quota related scenarios
     And the output should contain:
       | insufficient quota to consume: silver.storageclass.storage.k8s.io/requests.storage |
 
-   
+
   # @author qwang@redhat.com
   # @case_id OCP-11427
   @admin
@@ -1814,7 +1813,7 @@ Feature: Quota related scenarios
     When I run the :create_quota admin command with:
       | name | my-quota-1          |
       | n    | <%= project.name %> |
-      | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi | 
+      | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
@@ -1892,7 +1891,7 @@ Feature: Quota related scenarios
       | name | storage-quota       |
       | n    | <%= project.name %> |
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                             |
@@ -1963,7 +1962,7 @@ Feature: Quota related scenarios
     When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml" replacing paths:
       | ["spec"]["limits"][0]["max"]["storage"] | "100Mi" |
     Then the step should succeed
-    And evaluation of `"docker-registry.default.svc:5000"` is stored in the :integrated_reg_ip clipboard 
+    And evaluation of `"docker-registry.default.svc:5000"` is stored in the :integrated_reg_ip clipboard
     Given status becomes :running of 1 pods labeled:
       | deployment=skopeo-2 |
     When I execute on the pod:

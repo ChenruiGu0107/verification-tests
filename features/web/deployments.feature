@@ -255,7 +255,7 @@ Feature: Check deployments function
   Scenario: Idled RC handling on web console
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/k8s/rc-and-svc-list.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/k8s/rc-and-svc-list.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=hello-pod |
@@ -777,7 +777,7 @@ Feature: Check deployments function
       | name     | rails-postgresql-example |
     Then the step should succeed
     When I perform the :check_detail_on_configuration_tab_for_rolling web console action with:
-      | project_name     | <%= project.name %>      | 
+      | project_name     | <%= project.name %>      |
       | dc_name          | rails-postgresql-example |
       | timeout_v        | 600 sec                  |
       | updateperiod_v   | 1 sec                    |

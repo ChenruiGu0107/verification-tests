@@ -184,9 +184,9 @@ Feature: Stateful Set related feature on web console
     Given the master version >= "3.7"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/statefulset/hello-statefulset.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml                 |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml            |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml                |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml           |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-pod |

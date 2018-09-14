@@ -207,7 +207,7 @@ Feature: ONLY ONLINE Images related scripts in this file
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/maybelinot/v3-testfiles/master/image/language-image-templates/tc532767/template.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc532767/template.json |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed

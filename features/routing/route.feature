@@ -2031,9 +2031,9 @@ Feature: Testing route
   Scenario: Route validation should catch the cert which lack of dash
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_key.json    |
-      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_cert.json   |
-      | f | https://raw.githubusercontent.com/zhaozhanqi/v3-testfiles/test/routing/invalid_route/edge/route_edge_lack_dash_for_cacert.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_key.json    |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_cert.json   |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_cacert.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | route  |
@@ -2059,7 +2059,7 @@ Feature: Testing route
       | hostname      | localhost                      |
     Then the step should succeed
     #Create another normal route and access it to make sure the router has been reloaded
-    When I expose the "test-service" service 
+    When I expose the "test-service" service
     Then the step should succeed
     When I wait for a web server to become available via the "test-service" route
     Then the output should contain "Hello OpenShift!"
