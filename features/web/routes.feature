@@ -10,7 +10,7 @@ Feature: Routes related features on web console
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
     When I run the :expose client command with:

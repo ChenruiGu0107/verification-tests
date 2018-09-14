@@ -76,7 +76,7 @@ Feature: projects related features via web
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/php:latest                    |
-      | code         | https://github.com/openshift/cakephp-ex |
+      | code         | https://github.com/sclorg/cakephp-ex |
       | name         | php-sample                              |
     Then the step should succeed
     Given the "php-sample-1" build was created

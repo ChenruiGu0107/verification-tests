@@ -134,13 +134,13 @@
     Then evaluation of `project.name` is stored in the :proj2_name clipboard
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                    |
-      | code         | https://github.com/openshift/django-ex.git |
+      | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                              |
       | n            | <%= cb.proj1_name %>                       |
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/php:latest                         |
-      | code         | https://github.com/openshift/cakephp-ex.git  |
+      | code         | https://github.com/sclorg/cakephp-ex.git  |
       | name         | php-sample                                   |
       | n            | <%= cb.proj2_name %>                         |
     Then the step should succeed
@@ -182,7 +182,7 @@
 
     # check build related notification in drawer
     When I run the :new_app client command with:
-      | app_repo |   https://github.com/openshift/nodejs-ex |
+      | app_repo |   https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     Given the "nodejs-ex-1" build was created
     When I run the :cancel_build client command with:
@@ -191,7 +191,7 @@
     When I run the :patch client command with:
       | resource      | bc                      |
       | resource_name | nodejs-ex               |
-      | p             | {"spec":{"source":{"git":{"uri":"https://github.com/openshift/nodejs-ex-nont"}}}} |
+      | p             | {"spec":{"source":{"git":{"uri":"https://github.com/sclorg/nodejs-ex-nont"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex |

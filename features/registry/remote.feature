@@ -438,7 +438,7 @@ Feature: remote registry related scenarios
       | user name       | system:anonymous |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     And the "ruby-ex-1" build completes
@@ -467,7 +467,7 @@ Feature: remote registry related scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :u1p2 clipboard
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
@@ -503,7 +503,7 @@ Feature: remote registry related scenarios
       | user name       | system:anonymous  |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
@@ -534,7 +534,7 @@ Feature: remote registry related scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :u1p2 clipboard
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
@@ -621,7 +621,7 @@ Feature: remote registry related scenarios
       | confirm    | true                   |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo     | https://github.com/openshift/ruby-ex.git |
+      | app_repo     | https://github.com/sclorg/ruby-ex.git |
       | image_stream | ruby-22-centos7                          |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -661,7 +661,7 @@ Feature: remote registry related scenarios
       | confirm    | true                   |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo     | https://github.com/openshift/ruby-ex.git |
+      | app_repo     | https://github.com/sclorg/ruby-ex.git |
       | image_stream | ruby-22-centos7                          |
     Then the step should succeed
     And a pod becomes ready with labels:

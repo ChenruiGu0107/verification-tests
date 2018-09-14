@@ -6,7 +6,7 @@ Feature: scaling related scenarios
     And I create a new application with:
       | image_stream | openshift/perl:5.20                   |
       | name         | myapp                                 |
-      | code         | https://github.com/openshift/sti-perl |
+      | code         | https://github.com/sclorg/s2i-perl-container |
       | context_dir  | 5.20/test/sample-test-app/            |
     Then the step should succeed
     When I expose the "myapp" service

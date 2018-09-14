@@ -109,7 +109,7 @@ Feature: Testing imagestream
     Given default docker-registry route is stored in the :registry_hostname clipboard
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes

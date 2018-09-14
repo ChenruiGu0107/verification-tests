@@ -9,7 +9,7 @@ Feature: Check overview page
     Then the step should succeed
 
     When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I perform the :goto_builds_page web console action with:
       | project_name | <%= project.name%> |
@@ -20,7 +20,7 @@ Feature: Check overview page
     Then the step should succeed
 
     When I run the :new_app client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
@@ -182,7 +182,7 @@ Feature: Check overview page
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:latest                    |
-      | app_repo     | https://github.com/openshift/ruby-ex.git |
+      | app_repo     | https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=ruby-ex |

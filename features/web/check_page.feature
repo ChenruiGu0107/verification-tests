@@ -52,7 +52,7 @@ Feature: check page info related
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :create_from_image_complete_info_on_next_page web console action with:
@@ -174,7 +174,7 @@ Feature: check page info related
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:
@@ -312,7 +312,7 @@ Feature: check page info related
     Given the "php" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream | <%= project.name %>/php:5.6                  |
-      | code         | https://github.com/openshift/cakephp-ex.git  |
+      | code         | https://github.com/sclorg/cakephp-ex.git  |
       | name         | php56                                        |
     Then the step should succeed
     Given the "php56-1" build completed

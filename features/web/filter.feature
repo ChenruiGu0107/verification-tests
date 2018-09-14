@@ -162,7 +162,7 @@ Feature: filter on create page
       | image_tag    | 3.4                                        |
       | namespace    | openshift                                  |
       | app_name     | python-sample                              |
-      | source_url   | https://github.com/openshift/django-ex.git |
+      | source_url   | https://github.com/sclorg/django-ex.git |
       | label_key    | label1                                     |
       | label_value  | test1                                      |
     Then the step should succeed
@@ -173,7 +173,7 @@ Feature: filter on create page
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
       | label_key    | label2                                     |
       | label_value  | test2                                      |
     Then the step should succeed
@@ -362,7 +362,7 @@ Feature: filter on create page
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                |
-      | code         | https://github.com/openshift/django-ex |
+      | code         | https://github.com/sclorg/django-ex |
       | name         | python-sample                          |
     Then the step should succeed
     When I run the :expose client command with:
@@ -460,7 +460,7 @@ Feature: filter on create page
     Given the master version >= "3.6"
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given the "ruby-ex-1" build was created
     Given the "ruby-ex-1" build completed

@@ -74,7 +74,7 @@ Feature: create app on web console related
       | image_tag    | latest                                     |
       | namespace    | openshift                                  |
       | app_name     | python-sample                              |
-      | source_url   | https://github.com/openshift/django-ex.git |
+      | source_url   | https://github.com/sclorg/django-ex.git |
       | git_ref      | v1.0.1                                     |
     Given the "python-sample-1" build was created
     Given the "python-sample-1" build completed
@@ -106,7 +106,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                  |
       | namespace    | openshift             |
       | app_name     | nodejs-sample         |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     When I run the :check_help_and_sug_on_next_step_page web console action
     Then the step should succeed
@@ -121,7 +121,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should succeed
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
@@ -129,7 +129,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | AA                                         |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain:
@@ -141,7 +141,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | -test                                      |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain:
@@ -153,7 +153,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | test-                                      |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain:
@@ -165,7 +165,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | 123456789                                  |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain:
@@ -177,7 +177,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | openshift                                  |
       | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain:
@@ -218,7 +218,7 @@ Feature: create app on web console related
       | image_name   | python              |
       | image_tag    | 3.4                 |
       | app_name     | python-sample       |
-      | source_url   | https://github.com/openshift/django-ex.git |
+      | source_url   | https://github.com/sclorg/django-ex.git |
     Then the step should succeed
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
@@ -336,7 +336,7 @@ Feature: create app on web console related
       | image_tag    | 0.10                                       |
       | namespace    | <%= project.name %>                        |
       | app_name     | nodejs-test                                |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | source_url   | https://github.com/sclorg/nodejs-ex.git |
       | target_port  | 8080/TCP                                   |
     Then the step should succeed
 
@@ -602,7 +602,7 @@ Feature: create app on web console related
       | image_tag    | latest                                      |
       | namespace    | openshift                                   |
       | app_name     | php                                         |
-      | source_url   | https://github.com/openshift/cakephp-ex.git |
+      | source_url   | https://github.com/sclorg/cakephp-ex.git |
       | bc_env_key   | BCkey1                                      |
       | bc_env_value | BCvalue1                                    |
       | dc_env_key   | DCkey1                                      |

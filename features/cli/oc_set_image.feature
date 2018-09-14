@@ -188,7 +188,7 @@ Feature: oc set image related tests
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     When I run the :new_app client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given the "ruby-ex-1" build was created
     Given the "ruby-ex-1" build completed

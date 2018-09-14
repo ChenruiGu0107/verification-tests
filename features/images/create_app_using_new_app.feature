@@ -52,7 +52,7 @@ Feature:Create apps using new_app cmd feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | nodejs:<tag>                               |
-      | code         | https://github.com/openshift/nodejs-ex.git |
+      | code         | https://github.com/sclorg/nodejs-ex.git |
     Then the step should succeed
     And the "nodejs-ex-1" build was created
     And the "nodejs-ex-1" build completed

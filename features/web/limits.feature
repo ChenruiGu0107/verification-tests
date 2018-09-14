@@ -178,7 +178,7 @@ Feature: functions about resource limits on pod
       | image_tag      | latest                                     |
       | namespace      | openshift                                  |
       | app_name       | python-limit-demo                          |
-      | source_url     | https://github.com/openshift/django-ex.git |
+      | source_url     | https://github.com/sclorg/django-ex.git |
       | cpu_request    | e<%= rand_str(3, :dns) %>                  |
       | cpu_limit      | -<%= rand_str(3, :num) %>                  |
       | memory_request | -<%= rand_str(3, :num) %>                  |
@@ -198,7 +198,7 @@ Feature: functions about resource limits on pod
       | image_tag      | latest                                     |
       | namespace      | openshift                                  |
       | app_name       | python-limit-demo                          |
-      | source_url     | https://github.com/openshift/django-ex.git |
+      | source_url     | https://github.com/sclorg/django-ex.git |
       | cpu_request    | 130                                        |
       | cpu_limit      | 500                                        |
       | memory_request | 120                                        |
@@ -231,7 +231,7 @@ Feature: functions about resource limits on pod
       | image_tag          | latest                                      |
       | namespace          | openshift                                   |
       | app_name           | php-limit                                   |
-      | source_url         | https://github.com/openshift/cakephp-ex.git |
+      | source_url         | https://github.com/sclorg/cakephp-ex.git |
       | cpu_limit_range    | 10 millicores min to 400 millicores max     |
       | default_cpu_req    | 110                                         |
       | default_cpu_lim    | 130                                         |
@@ -261,7 +261,7 @@ Feature: functions about resource limits on pod
       | image_tag      | latest                                      |
       | namespace      | openshift                                   |
       | app_name       | php-limit                                   |
-      | source_url     | https://github.com/openshift/cakephp-ex.git |
+      | source_url     | https://github.com/sclorg/cakephp-ex.git |
       | cpu_request    | 110                                         |
       | cpu_limit      | 400                                         |
       | memory_request | 100                                         |

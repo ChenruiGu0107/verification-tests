@@ -363,7 +363,7 @@ Feature: oc import-image related feature
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream | ruby-22-centos7                          |
-      | code         | https://github.com/openshift/ruby-ex.git |
+      | code         | https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I run the :get client command with:
       | resource_name   | ruby-ex |
@@ -386,7 +386,7 @@ Feature: oc import-image related feature
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream | ruby-22-centos7                          |
-      | code         | https://github.com/openshift/ruby-ex.git |
+      | code         | https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I run the :get client command with:
       | resource_name   | ruby-ex |

@@ -7,7 +7,7 @@ Feature: oc_scale.feature
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | openshift/perl:5.16 |
-      | code | https://github.com/openshift/sti-perl |
+      | code | https://github.com/sclorg/s2i-perl-container |
       | l | app=test-perl |
       | context_dir | 5.16/test/sample-test-app/ |
       | name | myapp |

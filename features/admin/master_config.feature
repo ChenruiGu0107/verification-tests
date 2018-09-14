@@ -1302,7 +1302,7 @@ Feature: test master config related steps
     Given I have a project
     When I run the :new_build client command with:
       | image_stream | openshift/ruby:latest                |
-      | app_repo     | https://github.com/openshift/ruby-ex |
+      | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     When the "ruby-ex-1" build becomes :running
@@ -1360,7 +1360,7 @@ Feature: test master config related steps
     Given I have a project
     When I run the :new_build client command with:
       | image_stream | openshift/ruby:latest                |
-      | app_repo     | https://github.com/openshift/ruby-ex |
+      | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     When the "ruby-ex-1" build becomes :running
@@ -1798,7 +1798,7 @@ Feature: test master config related steps
     Given I have a project
     When I run the :new_build client command with:
       | image_stream | openshift/ruby:latest                |
-      | app_repo     | https://github.com/openshift/ruby-ex |
+      | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     And the "ruby-ex-1" build becomes :pending
@@ -2415,7 +2415,7 @@ Feature: test master config related steps
     """
     And the master service is restarted on all master nodes
     When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/rails-ex |
+      | app_repo | https://github.com/sclorg/rails-ex |
     Then the step should succeed
     When the pod named "rails-ex-1-build" becomes present
     Then the expression should be true> pod("rails-ex-1-build").nodeselector["label"] == "test1"

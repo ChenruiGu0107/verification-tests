@@ -271,7 +271,7 @@ Feature: pipelinebuild.feature
     When I execute on the pod:
       | bash                                                           |
       | -c                                                             |
-      | cd /tmp/; git clone https://github.com/openshift/nodejs-ex.git |
+      | cd /tmp/; git clone https://github.com/sclorg/nodejs-ex.git |
     Then the step should succeed
     When I execute on the pod:
       | bash                                                                                                                   |

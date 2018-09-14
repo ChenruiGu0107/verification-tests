@@ -12,7 +12,7 @@ Feature: environment related
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                    |
-      | code         | https://github.com/openshift/django-ex.git |
+      | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                              |
     Then the step should succeed
     And I open admin console in a browser

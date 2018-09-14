@@ -30,7 +30,7 @@ Feature: logging permission related tests
     """
     And I use the "<%= cb.proj_name %>" project
     When I run the :new_app client command with:
-      | app_repo |  https://github.com/openshift/cakephp-ex.git |
+      | app_repo |  https://github.com/sclorg/cakephp-ex.git |
     Then the step should succeed
     And I wait until the status of deployment "cakephp-ex" becomes :complete
     When I perform the :kibana_login web action with:

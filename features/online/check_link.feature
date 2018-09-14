@@ -32,7 +32,7 @@ Feature: Check links in Openshift
       | image_tag    | 0.10                  |
       | namespace    | openshift             |
       | app_name     | nodejs-sample         |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
 
     # check docs link about build

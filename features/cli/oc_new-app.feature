@@ -51,7 +51,7 @@ Feature: oc new-app related scenarios
     Then the output should match "ImageStreamTag openshift/ruby:2.0"
     When I run the :new_build client command with:
       | image_stream | ruby:2.0 |
-      | app_repo | https://github.com/openshift/ruby-ex |
+      | app_repo | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc      |

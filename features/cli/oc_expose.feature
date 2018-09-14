@@ -5,7 +5,7 @@ Feature: oc_expose.feature
   Scenario: Expose the second sevice from service
     Given I have a project
     When I run the :new_app client command with:
-      | code        | https://github.com/openshift/sti-perl |
+      | code        | https://github.com/sclorg/s2i-perl-container |
       | l           | app=test-perl                         |
       | context_dir | 5.20/test/sample-test-app/            |
       | name        | myapp                                 |
@@ -39,7 +39,7 @@ Feature: oc_expose.feature
     Given I have a project
     When I run the :new_app client command with:
       | app repo          | <%= product_docker_repo %>openshift3/perl-516-rhel7 |
-      | code              | https://github.com/openshift/sti-perl               |
+      | code              | https://github.com/sclorg/s2i-perl-container               |
       | l                 | app=test-perl                                       |
       | context dir       | 5.16/test/sample-test-app/                          |
       | name              | myapp                                               |
@@ -64,7 +64,7 @@ Feature: oc_expose.feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/perl:5.16                   |
-      | code         | https://github.com/openshift/sti-perl |
+      | code         | https://github.com/sclorg/s2i-perl-container |
       | l            | app=test-perl                         |
       | context dir  | 5.16/test/sample-test-app/            |
       | name         | myapp                                 |
@@ -129,7 +129,7 @@ Feature: oc_expose.feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/perl                        |
-      | code         | https://github.com/openshift/sti-perl |
+      | code         | https://github.com/sclorg/s2i-perl-container |
       | context_dir  | 5.20/test/sample-test-app/            |
       | l            | app=test-perl                         |
       | name         | myapp                                 |

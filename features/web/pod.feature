@@ -142,7 +142,7 @@ Feature: Pod related features on web console
       | image_tag    | latest               |
       | namespace    | openshift            |
       | app_name     | python-sample        |
-      | source_url   | https://github.com/openshift/django-ex.git |
+      | source_url   | https://github.com/sclorg/django-ex.git |
     Then the step should succeed
     Given I use the "<%= project.name %>" project
     Given a pod is present with labels:
@@ -152,7 +152,7 @@ Feature: Pod related features on web console
     Given I create a new project
     When I run the :new_app client command with:
       | image_stream | python:latest                              |
-      | code         | https://github.com/openshift/django-ex.git |
+      | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                              |
     Then the step should succeed
     Given a pod is present with labels:

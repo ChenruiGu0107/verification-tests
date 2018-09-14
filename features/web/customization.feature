@@ -118,7 +118,7 @@ Feature: web console customization related features
       | name      | hello                               |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo  | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo  | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deploymentconfig=hello |
@@ -189,7 +189,7 @@ Feature: web console customization related features
     When I have a project
     Then evaluation of `project.name` is stored in the :project clipboard
     When I run the :new_app client command with:
-      | app_repo    | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo    | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |

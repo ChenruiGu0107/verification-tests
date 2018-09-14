@@ -18,7 +18,7 @@ Feature: template related scenarios:
       | rror: template with source code explicitly attached is not supported |
     And I create a new application with:
       | template | ruby-helloworld-sample               |
-      | code     | git://github.com/openshift/nodejs-ex |
+      | code     | git://github.com/sclorg/nodejs-ex |
     Then the step should succeed
   # @author pruan@redhat.com
   # @case_id OCP-12032

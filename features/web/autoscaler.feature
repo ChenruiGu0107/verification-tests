@@ -42,7 +42,7 @@ Feature: AutoScaler relative cases
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
     When I perform the :check_warning_info_when_create_hpa_without_metrics_and_cpu_request web console action with:
@@ -194,7 +194,7 @@ Scenario: Create,Edit and Delete HPA from replication controller page
       | min_pods     | 1                     |
       | max_pods     | 10                    |
       | cpu_req_per  | 50                    |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=nodejs-sample |

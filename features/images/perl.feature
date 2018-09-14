@@ -4,7 +4,7 @@ Feature: perl.feature
   Scenario Outline: Add CPAN_MIRROR env var to Perl S2I
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | openshift/perl:<image>~https://github.com/openshift/dancer-ex |
+      | app_repo | openshift/perl:<image>~https://github.com/sclorg/dancer-ex |
       | e        | CPAN_MIRROR=http://not/a/valid/index                          |
     Then the step should succeed
     Given the "dancer-ex-1" build failed

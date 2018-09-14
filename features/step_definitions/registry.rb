@@ -148,7 +148,7 @@ Given /^I obtain default registry IP HOSTNAME by a dummy build in the project$/ 
   #generate a dummy image
   dummy_image = "dummy-image-" + rand(999999).to_s
   step %Q/I run the :new_app client command with:/, table(%{
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
       | name     | #{dummy_image}                                                  |
       })
   step 'the step should succeed'
@@ -222,7 +222,7 @@ end
     step %Q/I switch to the first user/
     step %Q/I create a new project/
     step %Q/I run the :new_app client command with:/, table(%{
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     })
     step %Q/the step should succeed/
     step %Q/I wait for the "ruby-ex" service to become ready/

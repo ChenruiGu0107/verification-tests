@@ -50,7 +50,7 @@ Feature: route related features via cli
   Scenario: Expose routes from services
     Given I have a project
     When I run the :new_app client command with:
-      | code | https://github.com/openshift/sti-perl |
+      | code | https://github.com/sclorg/s2i-perl-container |
       | l | app=test-perl|
       | context_dir | 5.20/test/sample-test-app/ |
       | name | myapp |

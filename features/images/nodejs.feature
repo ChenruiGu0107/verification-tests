@@ -4,7 +4,7 @@ Feature: nodejs.feature
   Scenario Outline: Add NPM_MIRROR env var to Nodejs S2I
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs:<image>~https://github.com/openshift/nodejs-ex |
+      | app_repo | openshift/nodejs:<image>~https://github.com/sclorg/nodejs-ex |
       | e        | NPM_MIRROR=http://not/a/valid/index                             |
     Then the step should succeed
     Given the "nodejs-ex-1" build failed

@@ -197,7 +197,7 @@ Feature: stibuild.feature
   Scenario: Provide the built image reference as part of the build status
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/ruby-ex |
+      | app_repo | https://github.com/sclorg/ruby-ex |
       | image_stream | ruby |
     Then the step should succeed
     When I run the :describe client command with:

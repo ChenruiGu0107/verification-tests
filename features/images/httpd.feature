@@ -5,7 +5,7 @@ Feature: httpd.feature
   Scenario: Deploy the httpd application with rhel httpd24 image 
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | openshift/httpd:2.4~https://github.com/openshift/httpd-ex |
+      | app_repo | openshift/httpd:2.4~https://github.com/sclorg/httpd-ex |
     Then the step should succeed
     Given the "httpd-ex-1" build was created
     And the "httpd-ex-1" build completed

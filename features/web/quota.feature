@@ -340,7 +340,7 @@ Feature: functions about resourcequotas
       | image_tag    | 0.10                  |
       | namespace    | openshift             |
       | app_name     | nodejs-sample1        |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota |
@@ -370,7 +370,7 @@ Feature: functions about resourcequotas
       | image_tag    | 0.10                  |
       | namespace    | openshift             |
       | app_name     | nodejs-sample2        |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should fail
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota for CPU (request) on pods |
@@ -395,7 +395,7 @@ Feature: functions about resourcequotas
       | image_tag    | 0.10                  |
       | namespace    | openshift             |
       | app_name     | nodejs-sample3        |
-      | source_url   | https://github.com/openshift/nodejs-ex |
+      | source_url   | https://github.com/sclorg/nodejs-ex |
     Then the step should fail
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota of 4 services in this project |

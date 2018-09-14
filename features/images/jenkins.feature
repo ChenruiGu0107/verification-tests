@@ -1677,7 +1677,7 @@ Feature: jenkins.feature
   Scenario: new-app/new-build support for pipeline buildconfigs
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | app_repo    | https://github.com/sclorg/nodejs-ex |
       | context_dir | openshift/pipeline |
       | name        | nodejs-ex-pipeline |
     Then the step should succeed
@@ -1721,7 +1721,7 @@ Feature: jenkins.feature
 
     #Create app from source that contains jenkinsfile with explict pipeline strategy
     When I run the :new_app client command with:
-      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | app_repo    | https://github.com/sclorg/nodejs-ex |
       | context_dir | openshift/pipeline  |
       | name        | nodejs-ex-pipeline3 |
       | image_stream| nodejs:latest       |
@@ -1737,7 +1737,7 @@ Feature: jenkins.feature
     Then the step should succeed
 
     When I run the :new_build client command with:
-      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | app_repo    | https://github.com/sclorg/nodejs-ex |
       | context_dir | openshift/pipeline |
       | name        | nodejs-ex-pipeline4|
     Then the step should succeed
@@ -1778,7 +1778,7 @@ Feature: jenkins.feature
     Then the step should succeed
 
     When I run the :new_build client command with:
-      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | app_repo    | https://github.com/sclorg/nodejs-ex |
       | context_dir | openshift/pipeline |
       | name        | nodejs-ex-pipeline7|
       | image_stream| nodejs:latest      |

@@ -5,7 +5,7 @@ Feature: check event feature on web console
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-sample                          |
     Then the step should succeed
 
@@ -52,7 +52,7 @@ Feature: check event feature on web console
   Scenario: Filter and sort event on web console
     Given I have a project
     When I run the :new_app client command with:
-      | code         | https://github.com/openshift/nodejs-ex.git |
+      | code         | https://github.com/sclorg/nodejs-ex.git |
       | image_stream | openshift/nodejs:latest                    |
       | name         | nodejs-sample                              |
     Then the step should succeed

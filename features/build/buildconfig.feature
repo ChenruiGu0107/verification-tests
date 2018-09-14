@@ -286,7 +286,7 @@ Feature: buildconfig.feature
     And the "ruby-hello-world-1" build was created
     When I run the :new_build client command with:
       | image_stream | ruby-20-centos7                      |
-      | code         | https://github.com/openshift/ruby-ex |
+      | code         | https://github.com/sclorg/ruby-ex |
       | name         | ruby-ex                              |
     Then the step should succeed
     And the "ruby-ex-1" build was created
@@ -310,7 +310,7 @@ Feature: buildconfig.feature
     Given the "ruby-hello-world-1" build becomes :complete
     When I run the :new_build client command with:
       | image_stream | ruby-hello-world                     |
-      | code         | https://github.com/openshift/ruby-ex |
+      | code         | https://github.com/sclorg/ruby-ex |
       | name         | ruby-ex                              |
     Then the step should succeed
     And the "ruby-ex-1" build was created
@@ -410,7 +410,7 @@ Feature: buildconfig.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs:6~https://github.com/openshift/nodejs-ex             |
+      | app_repo | openshift/nodejs:6~https://github.com/sclorg/nodejs-ex             |
       | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
       | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
       | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |

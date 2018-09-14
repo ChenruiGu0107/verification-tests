@@ -52,7 +52,7 @@ Feature: ruby.feature
   Scenario Outline: Add RUBYGEM_MIRROR env var to Ruby S2I
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | openshift/ruby:<image>~https://github.com/openshift/rails-ex |
+      | app_repo | openshift/ruby:<image>~https://github.com/sclorg/rails-ex |
       | e        | RUBYGEM_MIRROR=http://not/a/valid/index                      |
     Then the step should succeed
     Given the "rails-ex-1" build failed

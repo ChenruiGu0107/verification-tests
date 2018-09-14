@@ -111,7 +111,7 @@ Feature: Testing registry
   Scenario: Re-using the Registry IP address
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-ex |
+      | app_repo | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completed
@@ -676,7 +676,7 @@ Feature: Testing registry
       | insecure     | true                                                   |
     Then the step should succeed
     When I run the :new_build client command with:
-      | code         | https://github.com/openshift/ruby-ex.git |
+      | code         | https://github.com/sclorg/ruby-ex.git |
       | image_stream | ruby-22-centos7:latest                   |
     Then the step should succeed
     And the "ruby-ex-1" build completed

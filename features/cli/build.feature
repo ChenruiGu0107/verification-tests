@@ -537,10 +537,10 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a directory passed,sti build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/nodejs-ex |
+      | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And the "nodejs-ex-1" build completed
-    And I git clone the repo "https://github.com/openshift/nodejs-ex"
+    And I git clone the repo "https://github.com/sclorg/nodejs-ex"
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
       | from_dir    | nodejs-ex |
@@ -573,11 +573,11 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a directory passed ,using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/sti-nodejs.git |
+      | app_repo | https://github.com/sclorg/s2i-nodejs-container.git |
       | context_dir | 0.10/test/test-app/                      |
     Then the step should succeed
     Then the "sti-nodejs-1" build completed
-    Given I git clone the repo "https://github.com/openshift/sti-nodejs.git"
+    Given I git clone the repo "https://github.com/sclorg/s2i-nodejs-container.git"
     When I run the :start_build client command with:
       | buildconfig | sti-nodejs |
       | from_dir | sti-nodejs |
@@ -659,7 +659,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo |   https://github.com/openshift/nodejs-ex |
+      | app_repo |   https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     Then the "nodejs-ex-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.zip"
@@ -702,7 +702,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo    | https://github.com/openshift/sti-nodejs.git |
+      | app_repo    | https://github.com/sclorg/s2i-nodejs-container.git |
       | context_dir | 0.10/test/test-app/                         |
     Then the step should succeed
     And the "sti-nodejs-1" build completes
@@ -1585,14 +1585,14 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a local git repo and commit using sti build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/nodejs-ex |
+      | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And the "nodejs-ex-1" build completed
     Given I wait for the "nodejs-ex" service to become ready up to 300 seconds
     When I expose the "nodejs-ex" service
     Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
-    And I git clone the repo "https://github.com/openshift/nodejs-ex"
+    And I git clone the repo "https://github.com/sclorg/nodejs-ex"
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
       | from_repo   | nodejs-ex |
@@ -1640,7 +1640,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a local git repo and commit using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo    | https://github.com/openshift/sti-nodejs.git |
+      | app_repo    | https://github.com/sclorg/s2i-nodejs-container.git |
       | context_dir | 0.10/test/test-app                          |
     Then the step should succeed
     And the "sti-nodejs-1" build completed
@@ -1648,7 +1648,7 @@ Feature: build 'apps' with CLI
     When I expose the "sti-nodejs" service
     Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
-    And I git clone the repo "https://github.com/openshift/sti-nodejs"
+    And I git clone the repo "https://github.com/sclorg/s2i-nodejs-container"
     And I run the :start_build client command with:
       | buildconfig | sti-nodejs |
       | from_repo   | sti-nodejs |
@@ -2301,7 +2301,7 @@ Feature: build 'apps' with CLI
     Given I run the :patch client command with:
       | resource      | bc                                                                                |
       | resource_name | ruby-hello-world                                                                  |
-      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/openshift/ruby-ex.git"}}}} |
+      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/sclorg/ruby-ex.git"}}}} |
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
     Then the step should succeed

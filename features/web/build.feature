@@ -6,13 +6,13 @@ Feature: build related feature on web console
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                    |
-      | code         | https://github.com/openshift/django-ex.git |
+      | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                              |
     Then the step should succeed
     When I perform the :check_one_buildconfig_page_with_build_op web console action with:
       | project_name            | <%= project.name %>                        |
       | bc_name                 | python-sample                              |
-      | source_repo_url         | https://github.com/openshift/django-ex.git |
+      | source_repo_url         | https://github.com/sclorg/django-ex.git |
       | generic_webhook_trigger | /generic                                   |
       | github_webhook_trigger  | /github                                    |
     Then the step should succeed
@@ -476,7 +476,7 @@ Feature: build related feature on web console
     Given I create a new project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:latest                    |
-      | code         | https://github.com/openshift/ruby-ex.git |
+      | code         | https://github.com/sclorg/ruby-ex.git |
       | name         | ruby-sample                              |
     Then the step should succeed
     When I run the :describe client command with:
@@ -484,7 +484,7 @@ Feature: build related feature on web console
     Then the step should succeed
     And the output should match:
       | Strategy.*Source  |
-      | URL.*https://github.com/openshift/ruby-ex.git |
+      | URL.*https://github.com/sclorg/ruby-ex.git |
       | Triggered by.*Config      |
       | Triggered by.*ImageChange |
       | Webhook GitHub  |
@@ -878,7 +878,7 @@ Feature: build related feature on web console
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/nodejs:latest                |
-      | code         | https://github.com/openshift/nodejs-ex |
+      | code         | https://github.com/sclorg/nodejs-ex |
       | name         | nodejs-app                             |
     Then the step should succeed
     Given the "nodejs-app-1" build becomes :running
@@ -1185,7 +1185,7 @@ Feature: build related feature on web console
   Scenario: Environment variables management for BC and DC
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo     | https://github.com/openshift/cakephp-ex.git |
+      | app_repo     | https://github.com/sclorg/cakephp-ex.git |
       | name         | php                                         |
       | image_stream | openshift/php:latest                        |
     Then the step should succeed

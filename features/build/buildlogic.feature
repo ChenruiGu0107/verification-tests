@@ -233,7 +233,7 @@ Feature: buildlogic.feature
     And the "myapp-2" build becomes :complete
     And the "myapp-3" build becomes :running
     When I run the :new_build client command with:
-      | code         | https://github.com/openshift/nodejs-ex.git    |
+      | code         | https://github.com/sclorg/nodejs-ex.git    |
       | image_stream | openshift/nodejs:0.10                         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | image_stream | openshift/ruby:2.0                            |
@@ -481,7 +481,7 @@ Feature: buildlogic.feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream   | openshift/perl:5.20       |
-      | code           | https://github.com/openshift/sti-perl.git |
+      | code           | https://github.com/sclorg/s2i-perl-container.git |
       | context_dir    | 5.20/test/sample-test-app/|
     Then the step should succeed
     Given the "sti-perl-1" build completes
@@ -494,7 +494,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/sti-perl sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/sclorg/s2i-perl-container sample.git |
     Then the step should succeed
     When I run the :patch client command with:
       | resource       | buildconfig                                                 |
@@ -586,7 +586,7 @@ Feature: buildlogic.feature
   Scenario Outline: Tune perl image to autoconfigure based on available memory
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo     | https://github.com/openshift/dancer-ex|
+      | app_repo     | https://github.com/sclorg/dancer-ex|
       | image_stream | <image>                               |
     Then the step should succeed
     And I run the :patch client command with:
@@ -822,7 +822,7 @@ Feature: buildlogic.feature
     Given I run the :patch client command with:
       | resource      | bc                                                                                |
       | resource_name | ruby-hello-world                                                                  |
-      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/openshift/ruby-ex.git"}}}} |
+      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/sclorg/ruby-ex.git"}}}} |
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -847,7 +847,7 @@ Feature: buildlogic.feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:2.2                   |
-      | app_repo     | https://github.com/openshift/ruby-ex |
+      | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     Given the "ruby-ex-1" build completed
     When I run the :describe client command with:

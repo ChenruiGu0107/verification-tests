@@ -37,7 +37,7 @@ Feature: creating 'apps' with CLI
 
     Given I have a project
     When I create a new application with:
-      | docker image      | <%= product_docker_repo %>rhscl/perl-520-rhel7~https://github.com/openshift/sti-perl |
+      | docker image      | <%= product_docker_repo %>rhscl/perl-520-rhel7~https://github.com/sclorg/s2i-perl-container |
       | context dir       | 5.20/test/sample-test-app/                                                           |
       | name              | 4igit-first                                                                          |
       | insecure_registry | true                                                                                 |
@@ -53,7 +53,7 @@ Feature: creating 'apps' with CLI
 
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/perl:5.16~https://github.com/openshift/sti-perl |
+      | image_stream | openshift/perl:5.16~https://github.com/sclorg/s2i-perl-container |
       | context dir  | 5.16/test/sample-test-app/            |
       | name         | with^char |
     Then the step should fail
@@ -161,7 +161,7 @@ Feature: creating 'apps' with CLI
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :rand_label clipboard
     When I run the :new_app client command with:
-      | code | https://github.com/openshift/sti-perl |
+      | code | https://github.com/sclorg/s2i-perl-container |
       | l | app=<%= cb.rand_label %> |
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
@@ -177,7 +177,7 @@ Feature: creating 'apps' with CLI
     Given a 5 characters random string of type :dns is stored into the :rand_label3 clipboard
     Given a 5 characters random string of type :dns is stored into the :rand_label4 clipboard
     When I run the :new_app client command with:
-      | code | https://github.com/openshift/sti-perl |
+      | code | https://github.com/sclorg/s2i-perl-container |
       | l | app2=<%= cb.rand_label2 %>,app3=<%= cb.rand_label3 %>,app4=<%= cb.rand_label4 %> |
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
@@ -222,7 +222,7 @@ Feature: creating 'apps' with CLI
     When I create a new application with:
       | image_stream | openshift/python:3.4                     |
       | image_stream | openshift/mysql:5.6                      |
-      | code         | git://github.com/openshift/sti-python    |
+      | code         | git://github.com/sclorg/s2i-python-container    |
       | context_dir  | 3.4/test/standalone-test-app             |
       | group        | openshift/python:3.4+openshift/mysql:5.6 |
       | env          | MYSQL_USER=test                          |
@@ -252,14 +252,14 @@ Feature: creating 'apps' with CLI
 
     When I create a new application with:
       | image_stream | openshift/python:3.4                  |
-      | code         | git://github.com/openshift/sti-python |
+      | code         | git://github.com/sclorg/s2i-python-container |
       | context_dir  | 3.4/test/standalone-test-app          |
       | name         | sti-python1                           |
     Then the step should succeed
     And the "sti-python1-1" build completed
     When I create a new application with:
       | docker_image | openshift/python-34-centos7           |
-      | code         | git://github.com/openshift/sti-python |
+      | code         | git://github.com/sclorg/s2i-python-container |
       | context_dir  | 3.4/test/standalone-test-app          |
       | name         | sti-python2                           |
     Then the step should succeed
@@ -277,7 +277,7 @@ Feature: creating 'apps' with CLI
     When I create a new application with:
       | docker_image | openshift/python-34-centos7                            |
       | docker_image | openshift/mysql-55-centos7                             |
-      | code         | git://github.com/openshift/sti-python                  |
+      | code         | git://github.com/sclorg/s2i-python-container                  |
       | context_dir  | 3.4/test/standalone-test-app                           |
       | group        | openshift/python-34-centos7+openshift/mysql-55-centos7 |
       | env          | MYSQL_ROOT_PASSWORD=test                               |
@@ -603,7 +603,7 @@ Feature: creating 'apps' with CLI
       | "uri": "https://github.com/openshift/origin" |
     Given I save the output to file> change/buildconfig.json
     Given I replace lines in "change/buildconfig.json":
-      | "uri": "https://github.com/openshift/origin" | "uri": "https://github.com/openshift/rails-ex" |
+      | "uri": "https://github.com/openshift/origin" | "uri": "https://github.com/sclorg/rails-ex" |
     When I run the :replace client command with:
       | f | change/ |
     Then the step should succeed
@@ -615,7 +615,7 @@ Feature: creating 'apps' with CLI
       | "name": "changed2" |
     When I get project build_config as JSON
     Then the output should contain:
-      | "uri": "https://github.com/openshift/rails-ex" |
+      | "uri": "https://github.com/sclorg/rails-ex" |
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed

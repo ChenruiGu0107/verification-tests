@@ -5,7 +5,7 @@ Feature: persist page state
     Given the master version >= "3.4"
     Given I have a project
     When I run the :new_app client command with:
-      | code         | https://github.com/openshift/nodejs-ex.git |
+      | code         | https://github.com/sclorg/nodejs-ex.git |
       | image_stream | openshift/nodejs:latest                    |
       | name         | nodejs-sample                              |
     Then the step should succeed
@@ -93,7 +93,7 @@ Feature: persist page state
     Given I have a project
 
     When I run the :new_app client command with:
-      | code         | https://github.com/openshift/nodejs-ex.git |
+      | code         | https://github.com/sclorg/nodejs-ex.git |
       | image_stream | openshift/python:3.4                       |
       | name         | python-sample                              |
       | l            | label1=test1                               |

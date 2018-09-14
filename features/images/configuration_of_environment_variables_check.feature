@@ -164,7 +164,7 @@ Feature: Configuration of environment variables check
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <imagestream>~https://github.com/openshift/ruby-ex |
+      | app_repo | <imagestream>~https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     Given the "ruby-ex-1" build completes
     Given a pod becomes ready with labels:

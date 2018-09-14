@@ -65,7 +65,7 @@ Feature: dockerbuild.feature
   Scenario: oc start-build with a file passed,sti build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/nodejs-ex |
+      | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     Given the "nodejs-ex-1" build completed
     Given I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/package.json"
@@ -650,6 +650,6 @@ Feature: dockerbuild.feature
     And the "nodewithouttag-1" build completed
     And I check that the "nodewithouttag:latest" istag exists in the project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/nodejs-ex |
+      | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And the istag named "nodejs:latest" does not exist in the project
