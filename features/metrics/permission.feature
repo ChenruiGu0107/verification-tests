@@ -46,7 +46,6 @@ Feature: metrics permission related tests
     Given I have a project
     Given metrics service is installed in the system
     Given I switch to the first user
-    Given I have a project
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
       | path         | /metrics/gauges     |
@@ -105,6 +104,7 @@ Feature: metrics permission related tests
     Given metrics service is installed in the system using:
       | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+    Then I switch to the first user
     Given I perform the POST metrics rest request with:
       | project_name | :false                                                                                            |
       | path         | /metrics/gauges                                                                                   |
