@@ -1,5 +1,7 @@
 # should not require 'common'
 # should only include helpers that do NOT load any other cucushift classes
+require 'securerandom'
+
 
 module CucuShift
   module Common
@@ -77,6 +79,8 @@ module CucuShift
           result << array[rand(26)] # start with letter
           (length - 2).times { result << array[rand(array.length)] }
           result << array[rand(36)] if length > 1# end with non-hyphen
+        when :hex
+          result = SecureRandom.hex(length)
         when :num
           result << "%0#{length}d" % rand(10 ** length)
         when :lowercase_num

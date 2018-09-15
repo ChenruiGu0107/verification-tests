@@ -103,7 +103,6 @@ Feature: install and uninstall related scenarios
     And a pod becomes ready with labels:
       | component=eventrouter,deploymentconfig=logging-eventrouter,logging-infra=eventrouter,provider=openshift |
     And evaluation of `pod.name` is stored in the :eventrouter_pod_name clipboard
-    And the expression should be true> dc('logging-eventrouter').containers_spec[0].image == product_docker_repo + "openshift3/logging-eventrouter:v" + cb.master_version
     # now delete the service and check that pod is removed from the 'default' project
     And I use the "<%= cb.target_proj %>" project
     And I remove logging service using ansible
@@ -286,11 +285,12 @@ Feature: install and uninstall related scenarios
   @destructive
   Scenario: Deploy logging via Ansible - clean install with jounal log driver, not read logs from head
     Given the master version >= "3.5"
-    Given a 7 character random string is stored into the :rand_msg clipboard
+    Given evaluation of `rand_str(16, :hex)` is stored in the :rand_msg_before clipboard
+    Given evaluation of `rand_str(16, :hex)` is stored in the :rand_msg_after clipboard
     Given I have a project
     And I select a random node's host
     And I run commands on the host:
-      | logger -i message-before-<%= cb.rand_msg %> |
+      | logger -i <%= cb.rand_msg_before %> |
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
@@ -298,17 +298,17 @@ Feature: install and uninstall related scenarios
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11869/inventory |
     When I wait for the ".operations" index to appear in the ES pod with labels "component=es"
     And I run commands on the host:
-      | logger -i message-after-<%= cb.rand_msg %> |
+      | logger -i <%= cb.rand_msg_after %> |
     Then I perform the HTTP request on the ES pod:
-      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-before-<%= cb.rand_msg %> |
-      | op           | GET                                                                                      |
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=<%= cb.rand_msg_before %> |
+      | op           | GET                                                                              |
     And the expression should be true> @result.dig(:parsed, 'hits', 'total') == 0
     # check message is logged after installation of kibana is registered with they system
     And I wait up to 600 seconds for the steps to pass:
     """
     Then I perform the HTTP request on the ES pod:
-      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=message-after-<%= cb.rand_msg %> |
-      | op           | GET                                                                                     |
+      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=50&q=<%= cb.rand_msg_after %> |
+      | op           | GET                                                                             |
     And the expression should be true> @result.dig(:parsed, 'hits', 'total') > 0
     """
 
