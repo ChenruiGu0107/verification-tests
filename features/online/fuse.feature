@@ -168,4 +168,23 @@ Feature: ONLY Fuse Plan related scripts in this file
     When I run the :check_the_hint_on_country_field web action
     Then the step should succeed
 
- 
+  # @author yuwan@redhat.com
+  # @case_id OCP-19004
+  Scenario: Check the 'Select Fuse Online Plan Size' page		
+    Given I open accountant console in a browser
+    When I run the :go_to_register_plan web action
+    Then the step should succeed
+    When I run the :click_starting_at_sixhundredandfifty_dollars_per_month web action
+    Then the step should succeed
+    When I run the :check_size_page_title_and_description web action 
+    Then the step should succeed
+    When I perform the :check_fuse_small_plan_info_on_size_page web action with:
+      | integration_number | 5    |
+      | memory             | 8GiB |
+      | storage            | 5GiB |
+      | cpu_number         | 16   |
+    Then the step should succeed
+    When I run the :check_small_size_submit_button web action
+    Then the step should succeed
+    When I run the :click_wizard_item_back_to_plan_page web action 
+    Then the step should succeed

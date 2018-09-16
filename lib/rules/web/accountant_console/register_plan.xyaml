@@ -118,11 +118,6 @@ click_starting_at_sixhundredandfifty_dollars_per_month:
   - selector:
       xpath: //a[@class='btn btn-lg btn-primary btn-block' and contains(text(),'Starting at $650/Month')]
     op: click
-click_small_size_for_fuse_plan:
-  elements:
-  - selector:
-      xpath: //input[@class="btn btn-lg btn-primary btn-block" and @name="plan_size[small]" and @value="$650/Month"]
-    op: click
 check_fuse_cluster_region_info:
   elements:
   - selector:
