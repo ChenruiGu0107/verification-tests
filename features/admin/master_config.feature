@@ -2486,3 +2486,64 @@ Feature: test master config related steps
     And the output should contain:
       | audit.k8s.io |
   
+  # @author xiuwang@redhat.com
+  @destructive
+  @admin
+  Scenario Outline: Resource limits for s2i/docker build pods
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            resources:
+              limits:
+                cpu: "400m"
+                memory: "300Mi"
+              requests:
+                cpu: "300m"
+                memory: "280Mi"
+    """
+    And the master service is restarted on all master nodes
+    When I run the :new_build client command with:
+       | app_repo | <repo> |
+    Then the step should succeed
+    When the pod named "ruby-hello-world-1-build" becomes present
+    When I run the :describe client command with:
+      | resource | pod                      |
+      | name     | ruby-hello-world-1-build |
+    Then the output should match:
+      | Limits:        |
+      | cpu:\s+400m    |
+      | memory:\s+300Mi|
+      | Requests:      |
+      | cpu:\s+300m    |
+      | memory:\s+280Mi|
+    Given I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p             | {"spec":{"resources":{"limits":{"cpu":"600m","memory":"480Mi"},"requests":{"cpu":"200m","memory":"200Mi"}}}}|
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    When the pod named "ruby-hello-world-2-build" becomes present
+    When I run the :describe client command with:
+      | resource | pod                      |
+      | name     | ruby-hello-world-2-build |
+    Then the output should match:
+      | Limits:        |
+      | cpu:\s+600m    |
+      | memory:\s+480Mi|
+      | Requests:      |
+      | cpu:\s+200m    |
+      | memory:\s+200Mi|
+
+    Examples:
+      | repo                                                   |
+      | ruby~https://github.com/openshift/ruby-hello-world.git | # @case_id OCP-15943
+      | https://github.com/openshift/ruby-hello-world.git      | # @case_id OCP-11022
