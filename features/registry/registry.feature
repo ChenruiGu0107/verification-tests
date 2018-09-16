@@ -808,3 +808,27 @@ Feature: Testing registry
       | prune_registry | abc |
     Then the output should contain:
       | invalid argument "abc" |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-19633
+  Scenario: Should create a status tag after editing an image stream tag to set 'reference: true' from an invalid tag
+    Given I have a project
+    When I run the :import_image client command with:
+      | from       | registry.access.redhat.com/openshift3/jenkins-2-rhel7:invalid |
+      | image_name | jenkins:invalid                                               |
+      | confirm    | true                                                          |
+    Then the step should succeed
+    And the output should match:
+      | Import failed.*File not found |
+    When I run the :patch client command with:
+      | resource      | imagestream                                               |
+      | resource_name | jenkins                                                   |
+      | p             | {"spec":{"tags":[{"name": "invalid","reference": true}]}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | imagestream |
+      | name     | jenkins     |
+    And the output should contain:
+      | reference to registry |
+    And the output should not contain:
+      | Import failed |
