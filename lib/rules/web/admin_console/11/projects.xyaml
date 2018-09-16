@@ -1,4 +1,8 @@
 #---check project related action
+goto_projects_list_page:
+  url: k8s/cluster/projects
+goto_resource_page_under_default_project:
+  url: k8s/ns/default/<resource_url_name>
 create_project:
   action: click_create_button
   action: set_project_name
@@ -9,35 +13,6 @@ create_project:
     if_param: 
     ref: set_project_description
   action: click_create_button
-delete_project_on_list_page:
-  action: click_resource_action_icon
-  action: click_delete_project_icon
-  action: send_delete_string
-  action: click_delete_button
-goto_projects_list_page:
-  url: k8s/cluster/projects
-goto_resource_page_under_default_project:
-  url: k8s/ns/default/<resource_url_name>
-send_delete_string:
-  elements:
-  - selector:
-      xpath: //input[@class='form-control']
-    type: input
-    op: send_keys <resource_name>
-click_delete_project_icon:
-  action: operate_action_from_dropdown
-check_project_on_overview_page:
-  elements:
-  - selector:
-      xpath: //dt[text()="Name"]/following-sibling::dd[1][text()="<project_name>"]
-  - selector:
-      xpath: //dt[text()="Display Name"]/following-sibling::dd[1][text()="<display_name>"]
-check_project_list:
-  action: goto_projects_page
-  elements:
-  - selector:
-      xpath: //a[contains(@href,'project/')]
-    type: a
 set_project_name:
   element:
     selector:
@@ -56,4 +31,29 @@ set_project_description:
       xpath: //textarea[contains(@id,'input-description')]
     op: set <description>
     type: textarea
+delete_project_on_list_page:
+  action: click_resource_action_icon
+  action: click_delete_project_icon
+  action: send_delete_string
+  action: click_delete_button
+click_delete_project_icon:
+  action: operate_action_from_dropdown
+send_delete_string:
+  elements:
+  - selector:
+      xpath: //input[@class='form-control']
+    type: input
+    op: send_keys <resource_name>
+check_project_on_overview_page:
+  elements:
+  - selector:
+      xpath: //dt[text()="Name"]/following-sibling::dd[1][text()="<project_name>"]
+  - selector:
+      xpath: //dt[text()="Display Name"]/following-sibling::dd[1][text()="<display_name>"]
+check_project_list:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'project/')]
+    type: a
 
