@@ -334,10 +334,15 @@ Feature: pod related features
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
       | docker rmi -f  docker.io/ocpqe/hello-pod:latest                                                                  |
-      | docker rmi -f  docker.io/ocpqe/hello-pod@sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
+      | docker rmi -f  docker.io/ocpqe/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7 |
       | docker images --digests \| grep docker.io/ocpqe/hello-pod                                                        |
     Then the step should fail
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-hostname.yaml"
     When I replace lines in "pod-hostname.yaml":
       | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod:latest |
@@ -353,7 +358,7 @@ Feature: pod related features
       | resource_name | <%= cb.nodes[0].name %> |
       | o             | yaml                    |
     Then the output should contain:
-      | - docker.io/ocpqe/hello-pod@sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
+      | - docker.io/ocpqe/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7 |
       | - docker.io/ocpqe/hello-pod:latest                                                                  |
     """
     When I run the :get client command with:
@@ -363,7 +368,7 @@ Feature: pod related features
     Then the output should match:
       | - containerID: docker://                                                                          |
       | image: docker.io/ocpqe/hello-pod:latest                                                           |
-      | imageID: docker-pullable.*sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
+      | imageID: docker-pullable.*sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7 |
 
   # @author chezhang@redhat.com
   # @case_id OCP-10974
