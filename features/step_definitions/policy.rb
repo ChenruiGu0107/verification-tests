@@ -161,3 +161,45 @@ Given /^project role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
   @result = user.cli_exec(_command, **_opts)
 
 end
+
+Given /^the #{QUOTED} clusterole is recreated( after scenario)?$/ do |name, after_scenario|
+  _admin = admin
+  _csb = cluster_role(name)
+  cb.cluster_resource_to_recreate = _csb
+   verify = proc {
+    success = wait_for(60, interval: 9) {
+      _csb.exists?
+    }
+    unless success
+      raise "could not find the clusterrole, see log"
+    end
+  }
+   if after_scenario
+    teardown_add verify
+    step 'hidden recreate cluster resource after scenario'
+  else
+    step 'hidden recreate cluster resource'
+    verify.call
+  end
+end
+
+Given /^the #{QUOTED} clusterolebinding is recreated( after scenario)?$/ do |name, after_scenario|
+  _admin = admin
+  _csb = cluster_role_binding(name)
+  cb.cluster_resource_to_recreate = _csb
+   verify = proc {
+    success = wait_for(60, interval: 9) {
+      _csb.exists?
+    }
+    unless success
+      raise "could not find the clusterrolebinding, see log"
+    end
+  }
+   if after_scenario
+    teardown_add verify
+    step 'hidden recreate cluster resource after scenario'
+  else
+    step 'hidden recreate cluster resource'
+    verify.call
+  end
+end
