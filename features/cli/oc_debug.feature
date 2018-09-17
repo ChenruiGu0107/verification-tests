@@ -11,11 +11,20 @@ Feature: oc debug related scenarios
       | deployment=dctest-1 |
     When I run the :debug client command with:
       | resource      | dc/dctest   |
-    Then the step should succeed
-    And the output should match:
+      | _timeout      | 10          |
+    Then the output should match:
       | [Dd]ebugging with pod.*     |
       | [Ww]aiting for pod to start |
       | [Rr]emoving debug pod       |
+    When I run the :debug client command with:
+      | t                 |             |
+      | resource          | dc/dctest   |
+      | oc_opts_end       |             |
+      | exec_command      | sleep       |
+      | exec_command_arg  | 5           |
+    Then the output should contain "aiting for pod to start"
+    And the output should not match:
+      | [Pp]anic  |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-9855
