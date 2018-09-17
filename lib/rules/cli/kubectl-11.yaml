@@ -1,0 +1,14 @@
+:global_options:
+  :config: --kubeconfig=<value>
+  :logtostderr: --logtostderr=true
+  :context: --context=<value>
+  :h: -h
+  :v: -v
+  :n: -n <value>
+:options:
+  :cmd: kubectl options
+:version:
+  :cmd: kubectl version
+  :options:
+    :client: --client
+    :output: --output=<value>
