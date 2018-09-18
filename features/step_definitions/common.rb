@@ -158,19 +158,19 @@ end
 
 Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED} (enabled|disabled)?)?$/ do |fg, fgen, adm, admen|
   ensure_destructive_tagged
-  fg_en = (fgen == "enabled") 
+  fg_en = (fgen == "enabled")
   env.master_services.each { |service|
     master_config = service.config
     config_hash = master_config.as_hash()
     config_hash["kubernetesMasterConfig"] ||= {}
     config_hash["kubernetesMasterConfig"]["apiServerArguments"] ||= {}
     config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"] ||= []
-    config_hash["kubernetesMasterConfig"]["controllerArguments"] ||= {} 
+    config_hash["kubernetesMasterConfig"]["controllerArguments"] ||= {}
     config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"] ||= []
     api_fg = config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"]
     controller_fg = config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"]
     unless api_fg && api_fg.include?("#{fg}=#{fg_en}") &&
-           controller_fg && controller_fg.include?("#{fg}=#{fg_en}") 
+           controller_fg && controller_fg.include?("#{fg}=#{fg_en}")
       config_hash["kubernetesMasterConfig"]["apiServerArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
       config_hash["kubernetesMasterConfig"]["controllerArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
       if fg_en
@@ -180,16 +180,16 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
       update_api_controller = true
     end
     if adm
-      adme_da = !(admen == "enabled") 
+      adme_da = !(admen == "enabled")
       config_hash["admissionConfig"] ||= {}
       config_hash["admissionConfig"]["pluginConfig"] ||= {}
       config_hash["admissionConfig"]["pluginConfig"]["#{adm}"] ||= {}
       config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"] ||= {}
       unless config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"].include?("disable") &&
              config_hash["admissionConfig"]["pluginConfig"]["#{adm}"]["configuration"]["disable"] == adme_da
-        adm_yml =  {"#{adm}" => 
+        adm_yml =  {"#{adm}" =>
                      {"configuration" => {"apiVersion" => "v1",
-                                           "disable" => adme_da, 
+                                           "disable" => adme_da,
                                            "kind" => "DefaultAdmissionConfig"}}}
         config_hash["admissionConfig"]["pluginConfig"].delete("#{adm}")
         config_hash["admissionConfig"]["pluginConfig"].merge!(adm_yml)
@@ -204,14 +204,15 @@ Given /^feature gate "(.+)" is (enabled|disabled)(?: with admission#{OPT_QUOTED}
 #  step 'the master service is restarted on all master nodes'
 
   nodes = env.nodes.select { |n| n.schedulable? }
+  cache_resources *nodes
   nodes.each { |node|
     nodename = node.name
-    node_config = node(nodename).service.config
+    node_config = node.service.config
     config_hash = node_config.as_hash()
     config_hash["kubeletArguments"] ||= {}
     config_hash["kubeletArguments"]["feature-gates"] ||= []
     kubelet_fg = config_hash["kubeletArguments"]["feature-gates"]
-    unless kubelet_fg && kubelet_fg.include?("#{fg}=#{fg_en}") 
+    unless kubelet_fg && kubelet_fg.include?("#{fg}=#{fg_en}")
       config_hash["kubeletArguments"]["feature-gates"].delete("#{fg}=#{! fg_en}")
       if fg_en
         config_hash["kubeletArguments"]["feature-gates"] << "#{fg}=true"
@@ -256,9 +257,10 @@ Given /^I check feature gate #{QUOTED}(?: with admission #{QUOTED})? is enabled$
     }
 
     nodes = env.nodes.select { |n| n.schedulable? }
+    cache_resources *nodes
     nodes.each { |node|
       nodename = node.name
-      node_config = node(nodename).service.config
+      node_config = node.service.config
       config_hash = node_config.as_hash()
       if config_hash["kubeletArguments"]["feature-gates"] == nil || !config_hash["kubeletArguments"]["feature-gates"].join(",").include?("#{fg}=true")
         raise "feature gate #{fg} is not enabled on the node #{nodename}, please enable it first"
