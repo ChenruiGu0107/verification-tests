@@ -122,7 +122,7 @@ Feature: Ansible-service-broker related scenarios
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
       And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-      And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
+      And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
       # white list only
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -243,7 +243,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
-    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     #create a client secret
     When I run the :create_secret client command with:
@@ -436,8 +436,8 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
     And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
-  
+    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
@@ -515,7 +515,7 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
     And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # 1, default mode
     # Update the configmap settings
@@ -566,7 +566,7 @@ Feature: Ansible-service-broker related scenarios
     registry:
       - type: openshift
         auth_type: secret
-        auth_name: my-secret 
+        auth_name: my-secret
         name: isv
         url: https://registry.connect.redhat.com
         images:
@@ -583,7 +583,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And the output should match:
       | Type: openshift                 |
-      
+
     # Check the apb which stored in the openshift registry
     When I perform the HTTP request:
     """
@@ -594,7 +594,7 @@ Feature: Ansible-service-broker related scenarios
     """
     Then the output should match:
       | isv-rocketchat                 |
-      
+
     # 3, file mode
     # create a file to store the secret
     Given a "reg-creds.yaml" file is created with the following lines:
@@ -617,7 +617,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `pod.node_name` is stored in the :node clipboard
     Given I use the "<%= cb.node %>" node
     Given "reg-creds.yaml" is copied to the host
-    
+
     # Add label to this node so that the ASB pod can be scheduled to it
     Given label "auto=test" is added to the "<%= cb.node %>" node
 
@@ -627,7 +627,7 @@ Feature: Ansible-service-broker related scenarios
     registry:
       - type: openshift
         auth_type: file
-        auth_name: <%= host.workdir %>/reg-creds.yaml 
+        auth_name: <%= host.workdir %>/reg-creds.yaml
         name: isv
         url: https://registry.connect.redhat.com
         images:

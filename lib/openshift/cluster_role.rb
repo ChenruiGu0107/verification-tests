@@ -1,5 +1,7 @@
 require 'openshift/cluster_resource'
 
+require_relative 'flakes/policy_rule'
+
 module CucuShift
   # @note represents an OpenShift environment Persistent Volume
   class ClusterRole < ClusterResource
@@ -34,8 +36,12 @@ module CucuShift
     end
 
     def rules(user: nil, cached: true, quiet: false)
-      return  raw_resource(user: user, cached: cached, quiet: quiet).dig("rules")
+      unless cached && props[:rules]
+        props[:rules] = raw_resource(user: user, cached: cached, quiet: quiet).dig("rules").map { |s|
+          PolicyRule.new(s, self)
+        }
+      end
+      return props[:rules]
     end
-      
   end
 end

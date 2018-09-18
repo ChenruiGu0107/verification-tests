@@ -167,7 +167,7 @@ Feature: Ansible-service-broker related scenarios
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `secret('asb-client').token` is stored in the :token clipboard
     And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
-    And evaluation of `cluster_role("asb-access").rules.first["nonResourceURLs"].first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     #Access the ASB api with valid token
     Given I switch to the first user
@@ -670,7 +670,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     Given I wait for the "<db_name>" service_instance to become ready up to 300 seconds
     And dc with name matching /mysql/ are stored in the :dc_1 clipboard
-    
+
     # DB apbs provision succeed
     Given a pod becomes ready with labels:
       | app=<db_label>            |
@@ -698,7 +698,7 @@ Feature: Ansible-service-broker related scenarios
     Then the output should match:
       | Message:\\s+Injected bind result          |
     """
-     
+
     Given I ensure "<%= project.name %>" project is deleted
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -735,7 +735,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB] Ansible-service-broker check APBs version correctly
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    
+
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
@@ -795,7 +795,7 @@ Feature: Ansible-service-broker related scenarios
   # @case_id OCP-15704
   @admin
   @destructive
-  Scenario: Sandbox APB Service Account using 'edit' scoped to the target namespace	
+  Scenario: Sandbox APB Service Account using 'edit' scoped to the target namespace
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
@@ -891,7 +891,7 @@ Feature: Ansible-service-broker related scenarios
       | n     | <%= project.name %>    |
     And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-3" service_binding to become ready up to 120 seconds
     And evaluation of `service_binding.external_id` is stored in the :binding_id_3 clipboard
-   
+
     #check binding ref in bundeinstance
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
@@ -902,8 +902,8 @@ Feature: Ansible-service-broker related scenarios
       | <%= cb.binding_id_1 %>   |
       | <%= cb.binding_id_2 %>   |
       | <%= cb.binding_id_3 %>   |
-    
-    #delete 2 binding 
+
+    #delete 2 binding
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
     And I ensure "<%= cb.prefix %>-mariadb-apb-binding-1" service_binding is deleted
@@ -911,8 +911,8 @@ Feature: Ansible-service-broker related scenarios
     #check bundlebindings and binding  ref in bundeinstance
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_1 %>" to disappear within 60 seconds 
-    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_3 %>" to disappear within 60 seconds 
+    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_1 %>" to disappear within 60 seconds
+    And I wait for the resource "bundlebinding" named "<%= cb.binding_id_3 %>" to disappear within 60 seconds
     When I run the :describe client command with:
       | resource  | bundleinstance/<%= cb.instance_id %>  |
     And the output should contain:
@@ -924,7 +924,7 @@ Feature: Ansible-service-broker related scenarios
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
     And I ensure "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding is deleted
-    And I ensure "<%= cb.prefix %>-mariadb-apb" service_instance is deleted  
+    And I ensure "<%= cb.prefix %>-mariadb-apb" service_instance is deleted
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "bundlebinding" named "<%= cb.binding_id_2 %>" to disappear within 60 seconds
@@ -1060,7 +1060,7 @@ Feature: Ansible-service-broker related scenarios
     Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb-prov.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
     """
     And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
- 
+
     # Check log of sandbox pod
     Given I use the "<%= cb.wiki_prov_prj %>" project
     Given status becomes :failed of 1 pods labeled:
@@ -1122,7 +1122,7 @@ Feature: Ansible-service-broker related scenarios
     Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb-prov.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
     """
     And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
- 
+
     # Check log of sandbox pod
     Given I use the "<%= cb.wiki_prov_prj %>" project
     Given status becomes :failed of 1 pods labeled:
