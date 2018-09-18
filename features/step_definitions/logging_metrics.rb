@@ -342,12 +342,10 @@ end
 Given /^all metering related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   ensure_destructive_tagged
   target_proj = proj_name.nil? ? "openshift-metering" : proj_name
-  org_proj_name = project.name
-  org_user = user
   step %Q/I switch to cluster admin pseudo user/
   project(target_proj)
   step %Q/a pod becomes ready with labels:/, table(%{
-    | app=metering-helm-operator|
+    | app=metering-operator |
   })
 
   step %Q/a pod becomes ready with labels:/, table(%{
@@ -364,7 +362,7 @@ Given /^all metering related pods are running in the#{OPT_QUOTED} project$/ do |
     | app=presto |
   })
   step %Q/a pod becomes ready with labels:/, table(%{
-    | app=metering |
+    | app=reporting-operator |
   })
 end
 
@@ -512,11 +510,11 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
 
   step %Q/I create the "tmp" directory/
-  # for logging, the target_proj does not exists yet, need to create it
-  unless project(cb.target_proj).exists?
+  # the target_proj does not exists yet, need to create it only for
+  # installation operation
+  if (!project(cb.target_proj).exists? and op == 'ininstalled')
     step %Q/admin creates a project with:/, table(%{
-        | project_name | <%= cb.target_proj %> |
-        | admin        | <%= user.name %>      |
+      | project_name | <%= cb.target_proj %> |
     })
   end
 
@@ -572,6 +570,11 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     step %Q/I have a pod with openshift-ansible playbook installed/
     @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
     step %Q/the step should succeed/
+    unless project(cb.target_proj).exists?
+      step %Q/admin creates a project with:/, table(%{
+        | project_name | <%= cb.target_proj %> |
+      })
+    end
     step %Q/admin uses the "<%= cb.target_proj %>" project/
     step %Q/I switch to cluster admin pseudo user/
     # we need to scp the key and crt and ca.crt to the ansible installer pod
