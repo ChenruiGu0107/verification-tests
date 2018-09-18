@@ -18,11 +18,16 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
   template="local-storage-provisioner"
   image="#{img_registry}/openshift3/local-storage-provisioner:#{img_version}"
   path ||="/mnt/local-storage"
+  cmurl = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/localvolume/configmap-37.yaml"
+  if env.version_ge("3.10", user: user)
+    cmurl = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/localvolume/configmap.yaml"
+  end
 
   project(namespace)
   # if project exists, delete project and pvs created by local storage provisioner
   if project.exists?(user: admin)
     project.delete(by: admin)
+    project.wait_to_disappear(admin)
 
     CucuShift::PersistentVolume.list(user: admin).each { |pv|
       pv.delete(by: admin) if pv.name.start_with?("local-pv-") && (pv.local_path&.start_with?("#{path}/fast") || pv.local_path&.start_with?("#{path}/slow"))
@@ -49,11 +54,15 @@ Given /^I deploy local storage provisioner(?: with "([^ ]+?)" version)?$/ do |im
     raise "error preaparing subdirs for local storage provisioner" unless res[:success]
   end
 
-  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/localvolume/configmap.yaml"}
+  step %Q/I download a file from "#{cmurl}"/
   cfm = YAML.load(@result[:response])
   filepath = @result[:abs_path]
-  scmap = cfm["data"]["storageClassMap"].gsub("/mnt/local-storage", path)
-  cfm["data"]["storageClassMap"] = scmap
+  if env.version_ge("3.10", user: user)
+    cfm["data"]["storageClassMap"].gsub!("/mnt/local-storage", path)
+  else
+    cfm["data"]["local-fast"].gsub!("/mnt/local-storage", path)
+    cfm["data"]["local-slow"].gsub!("/mnt/local-storage", path)
+  end
   File.write(filepath, cfm.to_yaml)
   res = admin.cli_exec(:create, n: namespace, f: filepath)
   raise "error creating configmap for local storage provisioner" unless res[:success]
