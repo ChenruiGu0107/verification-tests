@@ -134,5 +134,54 @@ module CucuShift
     def external_id(user: nil, cached: true, quiet: false)
       raw_resource(user: user, cached: cached, quiet: quiet).dig('spec', 'externalID')
     end
+
+    def pods(user: env.admin)
+      get_opts = {
+        resource: "pods",
+        all_namespaces: true,
+        fieldSelector: "spec.nodeName=#{self.name},status.phase!=Failed,status.phase!=Succeeded",
+        output: "yaml"
+      }
+      res = user.cli_exec(:get, **get_opts)
+
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+      else
+        raise "can not list pods for this node #{self.name} this time"
+      end
+      return res[:parsed]["items"].map { |p|
+        Pod.from_api_object(
+          Project.new(
+            name: p["metadata"]["namespace"],
+            env:env
+          ),
+          p
+        )
+      }
+    end
+
+    # return value like {:cpu=>420, :memory=>2132803584}
+    def requests_total()
+      pods.map { |p|
+        p.container_specs.reduce({cpu: 0, memory: 0}) { |res, c|
+          {
+            cpu: res[:cpu] + c.cpu_request,
+            memory: res[:memory] + c.memory_request
+          }
+        }
+      }.reduce({cpu:0, memory: 0}) { |res, item|
+        {
+          cpu: res[:cpu] + item[:cpu],
+          memory: res[:memory] + item[:memory]
+        }
+      }
+    end
+
+    def remaining_resources()
+      {
+        cpu: allocatable_cpu - requests_total[:cpu],
+        memory: allocatable_memory - requests_total[:memory]
+      }
+    end
   end
 end

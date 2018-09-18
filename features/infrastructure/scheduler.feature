@@ -110,3 +110,36 @@ Feature: Scheduler predicates and priority test suites
       | aws           | # @case_id OCP-11254
       | gce           | # @case_id OCP-11571
       | azure         | # @case_id OCP-20753
+
+  # @author wjiang@redhat.com
+  # @case_id OCP-11256
+  @admin
+  @destructive
+  Scenario: Scheduler should use "allocatable" for pod scheduling
+    Given I have a project
+    Given environment has at least 2 schedulable nodes
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given a node that can run pods in the "<%=project.name%>" project is selected
+    And the expression should be true> cb.nodes.delete(node)
+    Given the taints of the nodes in the clipboard are restored after scenario
+    # make sure only one node can be scheduled for testing pod,
+    # since this scenario need calculate the requests for specific node
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %>  |
+      | key_val   | additional=true:NoSchedule                              |
+    Then the step should succeed
+    # calculate the memory leave to new pods
+    Given evaluation of `node.remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_more_than_remanent_memory.json
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pods |
+    And the output should match:
+      | FailedScheduling.*(PodFitsResources\|Insufficient memory) |
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_remanent_memory.json
+    Then the step should succeed
+    And the pod named "pod-with-remanent-memory" becomes ready
+    Then the expression should be true> pod.node_name == node.name

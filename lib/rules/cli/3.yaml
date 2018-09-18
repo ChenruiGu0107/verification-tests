@@ -366,6 +366,7 @@
     :a: --show-all=<value>
     :all_namespaces: --all-namespaces=<value>
     :export: --export=<value>
+    :fieldSelector: --field-selector=<value>
     :L: -L <value>
     :l: -l <value>
     :no_headers: --no-headers=<value>

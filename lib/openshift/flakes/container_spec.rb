@@ -61,41 +61,42 @@ module CucuShift
 
       def memory_limit_raw
         mem_str = self.resources.dig('limits', 'memory')
-        raise 'No memory limits defined in the template' if mem_str.nil?
         return mem_str
       end
 
       def cpu_limit_raw
         cpu_str = self.resources.dig('limits', 'cpu')
-        raise 'No cpu limits defined in the template' if cpu_str.nil?
         return cpu_str
       end
 
       def cpu_request_raw
         cpu_str = self.resources.dig('requests', 'cpu')
-        raise 'No cpu requests defined in the template' if cpu_str.nil?
         return cpu_str
       end
 
       def memory_request_raw
         mem_str = self.resources.dig('requests', 'memory')
-        raise 'No memory requests defined in the template' if mem_str.nil?
         return mem_str
       end
 
       # returns numeric representation of memrory limit in bytes
+      # return 0 to align kubernetes behavior if nil(not defined)
       def memory_limit
+        return 0 unless self.memory_limit_raw
         return convert_to_bytes(self.memory_limit_raw)
       end
 
       def memory_request
+        return 0 unless self.memory_request_raw
         return convert_to_bytes(self.memory_request_raw)
       end
       def cpu_limit
+        return 0 unless self.cpu_limit_raw
         return convert_cpu(self.cpu_limit_raw)
       end
 
       def cpu_request
+        return 0 unless self.cpu_request_raw
         return convert_cpu(self.cpu_request_raw)
       end
 
