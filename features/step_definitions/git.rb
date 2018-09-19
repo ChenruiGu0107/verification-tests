@@ -19,7 +19,7 @@ end
 
 # @param [String] repo_url git repo that we want to clone from
 # @param [Boolean] if set, then we get git information from local repo,
-# @note the commit id is saved to @clipboard[:latest_commit_id]
+# @note the commit id is saved to cb[:latest_commit_id]
 And /^I get the latest git commit id from repo "([^"]+)"$/ do | spec |
   if spec.include? "://" or spec.include? "@"
     uri = spec
@@ -29,7 +29,7 @@ And /^I get the latest git commit id from repo "([^"]+)"$/ do | spec |
     dir = spec
   end
   git = CucuShift::Git.new(uri: uri, dir: dir)
-  @clipboard[:git_commit_id] = git.get_latest_commit_id
+  cb[:git_commit_id] = git.get_latest_commit_id
 end
 # @param [String] repo_url git repo that we want to commit
 # @param [String] message commit message that we add to commit
@@ -57,12 +57,17 @@ Given /^I remove the remote repository "([^"]*)" from the "([^"]+)" repo$/ do |r
   git.remove_remote(remote)
 end
 
-When /^I git config global "([^"]+)?" proxy to "([^"]+)" locally$/ do |proxy_url,spec|
-  git = CucuShift::Git.new(uri: nil,dir: spec)
-  git.set_git_proxy(proxy_url)
-end
-When /^I git config unset proxy from "([^"]+)"$/ do |spec|
-  git = CucuShift::Git.new(uri: nil,dir: spec)
-  git.unset_git_proxy
-end
+Given /^I set local git global config with:$/ do |table|
+  git = CucuShift::Git.new(uri: "http://dummy.example.com")
+  git.set_global_config(opts_array_to_hash(table, sym_mode: false))
 
+  annotation = "restore global git config for current user on localhost"
+  unless teardown_find_annotated annotation
+    file = File.join(ENV["HOME"], ".gitconfig")
+    orig_host = @host
+    @host = Host.localhost
+    step "the \"#{file}\" file is restored on host after scenario"
+    teardown_annotate_last annotation
+    @host = orig_host
+  end
+end

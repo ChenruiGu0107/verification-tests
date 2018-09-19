@@ -89,34 +89,6 @@ module CucuShift
       end
     end
 
-    def set_git_proxy(proxy_url)
-      res = host.exec_as(user, "git config https.proxy")
-      unless res[:success]
-        res = host.exec_as(user, "git config --global https.proxy #{host.shell_escape "http://#{proxy_url}"}")
-        unless res[:success]
-          raise "git config https.proxy failed"
-        end
-      end 
-      res = host.exec_as(user, "git config http.proxy")
-      unless res[:success]
-        res = host.exec_as(user, "git config --global http.proxy #{host.shell_escape "http://#{proxy_url}"}")
-        unless res[:success]
-          raise "git config http.proxy failed"
-        end
-      end
-    end
-
-    def unset_git_proxy
-      res = host.exec_as(user, "git config --global --list|grep https.proxy")
-      if res[:success]
-        res = host.exec_as(user, "git config --unset --global https.proxy")
-      end
-      res = host.exec_as(user, "git config --global --list|grep http.proxy")
-      if res[:success]
-        res = host.exec_as(user, "git config --unset --global http.proxy")
-      end
-    end
-
     def status
       res = exec("git status")
       res[:clean] = res[:response].include?("working directory clean")
@@ -172,6 +144,14 @@ module CucuShift
     def remove_remote(remote)
       raise "No git remote specified to remove" unless remote
       exec "git remote remove #{remote}"
+    end
+
+    # @param [Hash<String, String>] the key/value pairs to set
+    def set_global_config(hash)
+      hash.each do |key, value|
+        exec "git config --global #{host.shell_escape key}" \
+         " #{host.shell_escape value}"
+      end
     end
   end
 end
