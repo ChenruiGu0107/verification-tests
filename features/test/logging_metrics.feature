@@ -168,5 +168,3 @@ Feature: test logging and metrics related steps
     And a pod becomes ready with labels:
       | component=fluentd |
 
-
-

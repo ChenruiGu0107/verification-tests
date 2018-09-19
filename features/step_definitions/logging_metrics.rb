@@ -398,6 +398,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   ansible_opts = opts_array_to_hash(table.raw)
   # check to see if it's a negative test, skip post installation pod check if it's
   cb.negative_test = !!ansible_opts[:negative_test]
+  cb.no_cleanup = !!ansible_opts[:no_cleanup]
   #cb.operation = op
   cb.svc_type = svc_type
   # prep the inventory file by setting the required clipboard for ERB
@@ -501,10 +502,12 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
 
   step %Q/I save installation inventory from master to the clipboard/
   logger.info("Performing operation '#{op[0..-3]}' to #{cb.target_proj}...")
-  if op == 'installed'
+  if op == 'installed' and not cb.no_cleanup
     step %Q/I register clean-up steps:/, table(%{
       | I remove #{svc_type} service using ansible |
       })
+  else
+    logger.info("*** NOTE: User elected not to cleanup installation! *** ")
   end
 
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
