@@ -395,6 +395,9 @@ Feature: PVC resizing Test
     And the output should contain:
       | exceeded quota |
 
+  # From 3.11, feature gate is enabled by default, admission controller is not enabled
+  # Step `I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled` can not get the right result from OCP3.11
+  # We need to enable admission controller first
   # @author jhou@redhat.com
   # @case_id OCP-16618
   @admin

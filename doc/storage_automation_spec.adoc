@@ -26,6 +26,19 @@ On AWS/GCP/Azure/Openstack/vSphere, OpenShift should be deployed with cloud prov
 == Feature-gates
 All storage feature-gates should be enabled, the automation testing will always assume feature-gates are enabled. We do our best to avoid turning on/off feature gates during test automation to maintain good test efficiency and stability. Use either the ansible installer or manual configuration to setup a test environment meeting our requirements.
 
+Admission controller "PersistentVolumeClaimResize" always needs to be enabled
+----
+master-config.yaml
+admissionConfig:
+...
+    PersistentVolumeClaimResize:
+       configuration:
+         apiVersion: v1
+         disable: false
+         kind: DefaultAdmissionConfig
+...
+----
+
 === Enable feature-gates with ansible installer
 
 ====
