@@ -650,3 +650,19 @@ Given /^I have a registry with htpasswd authentication enabled in my project$/ d
        | deploymentconfig=registry |
   })
 end
+
+Given /^I have a cluster-capacity pod in my project$/ do
+  ensure_admin_tagged
+  # admin kubeconfig for cluster-capacity
+  step 'a secret is created for admin kubeconfig in current project'
+  # tested pod yaml files
+  step %Q/I run the :create client command with:/, table(%{
+    | f         | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/cluster-capacity/cluster-capacity-configmap.yaml  |
+    | namespace | #{project.name} |
+  })
+  step 'the step should succeed'
+  # cluster-capacity as a target pod
+  step "I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/cluster-capacity/cluster-capacity-pod.yaml"
+  step 'the step should succeed'
+  step 'the pod named "cluster-capacity" becomes ready'
+end
