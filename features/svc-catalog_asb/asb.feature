@@ -505,6 +505,24 @@ Feature: Ansible-service-broker related scenarios
       | n     | <%= project.name %>                                                                                                          |
     Then the step should succeed
 
+    #get sandbox project names
+    Given I check that the "<%= cb.prefix %>-postgresql-apb" serviceinstance exists
+    And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
+    When I run the :get client command with:
+      | resource | rolebinding |
+    # This is example output we parse with the following two steps:
+    #      NAME                                          ROLE                    USERS        GROUPS                         SERVICE ACCOUNTS                                                            SUBJECTS
+    #  ...
+    #  bundle-0badb04b-9b80-4fa7-8690-689391f4aa39   /edit                                                               dev-postgresql-apb-prov-fqpjc/bundle-0badb04b-9b80-4fa7-8690-689391f4aa39   
+    #  bundle-735eb982-be14-4975-85c3-40aab48d7acd   /edit                                                               dev-mediawiki-apb-prov-sgtqr/bundle-735eb982-be14-4975-85c3-40aab48d7acd    
+    #  ...
+    #  system:image-pullers                          /system:image-puller                 system:serviceaccounts:b56xp    
+    Then evaluation of `@result[:stdout].scan(/<%= cb.prefix %>-mediawiki-apb.*\n/)[0].split("/")[0]` is stored in the :wiki_prov_prj clipboard
+    And evaluation of `@result[:stdout].scan(/<%= cb.prefix %>-postgresql-apb.*\n/)[0].split("/")[0]` is stored in the :db_prov_prj clipboard
+    Given admin ensure "<%= cb.db_prov_prj %>" project is deleted after scenario
+    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
+    
+    Given I use the "<%= cb.project_1 %>" project
     And I wait for all service_instance in the project to become ready up to 360 seconds
     Given dc with name matching /mediawiki/ are stored in the :app clipboard
     And a pod becomes ready with labels:
@@ -516,17 +534,12 @@ Feature: Ansible-service-broker related scenarios
 
     #check the provision sandbox
     Given I switch to cluster admin pseudo user
-    When I run the :get client command with:
-      | resource | project |
-    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-postgresql-apb.*/)[0].split(" ")[0]` is stored in the :db_prov_prj clipboard
-    Then evaluation of `@result[:stdout].scan(/#{cb.prefix}-mediawiki-apb.*/)[0].split(" ")[0]` is stored in the :wiki_prov_prj clipboard
-    Given admin ensure "<%= cb.db_prov_prj %>" project is deleted after scenario
-    And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
     And I use the "<%= cb.db_prov_prj %>" project
     When I run the :get client command with:
       | resource | secret |
     Then the output should contain 1 times:
       | Opaque |
+
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
     # Create servicebinding of DB apb
