@@ -484,29 +484,29 @@ Feature: buildlogic.feature
       | code           | https://github.com/sclorg/s2i-perl-container.git |
       | context_dir    | 5.20/test/sample-test-app/|
     Then the step should succeed
-    Given the "sti-perl-1" build completes
+    Given the "s2i-perl-container-1" build completes
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
-      | <%= cb.ssh_private_key.to_pem %>         |
+      | <%= cb.ssh_private_key.to_pem %> |
     And I run the :oc_secrets_new_sshauth client command with:
-      | ssh_privatekey | secret      |
-      | secret_name    | mysecret    |
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
     When I execute on the pod:
       | bash           |
       | -c             |
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/sclorg/s2i-perl-container sample.git |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource       | buildconfig                                                 |
-      | resource_name  | sti-perl                                                    |
+      | resource       | buildconfig        |
+      | resource_name  | s2i-perl-container |
       | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"},"sourceSecret":{"name":"mysecret"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
-      | buildconfig    | sti-perl    |
-    Then the "sti-perl-2" build was created
-    Then the "sti-perl-2" build completes
-    When I expose the "sti-perl" service
-    Then I wait for a web server to become available via the "sti-perl" route
+      | buildconfig    | s2i-perl-container |
+    Then the "s2i-perl-container-2" build was created
+    Then the "s2i-perl-container-2" build completes
+    When I expose the "s2i-perl-container" service
+    Then I wait for a web server to become available via the "s2i-perl-container" route
 
   # @author yantan@redhat.com
   # @case_id OCP-11479

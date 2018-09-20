@@ -165,7 +165,7 @@ Feature: creating 'apps' with CLI
       | l | app=<%= cb.rand_label %> |
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
-    And the "sti-perl-1" build completed
+    And the "s2i-perl-container-1" build completed
     When I run the :delete client command with:
       | all_no_dash ||
       | l | app=<%= cb.rand_label %> |
@@ -181,12 +181,12 @@ Feature: creating 'apps' with CLI
       | l | app2=<%= cb.rand_label2 %>,app3=<%= cb.rand_label3 %>,app4=<%= cb.rand_label4 %> |
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
-    And the "sti-perl-1" build completed
+    And the "s2i-perl-container-1" build completed
     When I run the :get client command with:
       | resource | all |
       | l | app2=<%= cb.rand_label2 %> |
     Then the step should succeed
-    And the output should contain "sti-perl"
+    And the output should contain "s2i-perl-container"
     When I run the :delete client command with:
       | all_no_dash ||
       | l | app2=<%= cb.rand_label2 %> |
@@ -220,14 +220,15 @@ Feature: creating 'apps' with CLI
   Scenario: Create an application from images
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/python:3.4                     |
-      | image_stream | openshift/mysql:5.6                      |
-      | code         | git://github.com/sclorg/s2i-python-container    |
-      | context_dir  | 3.4/test/standalone-test-app             |
-      | group        | openshift/python:3.4+openshift/mysql:5.6 |
-      | env          | MYSQL_USER=test                          |
-      | env          | MYSQL_PASSWORD=test                      |
-      | env          | MYSQL_DATABASE=ccytest                   |
+      | image_stream | openshift/python:3.4                        |
+      | image_stream | openshift/mysql:5.6                         |
+      | code         | git://github.com/sclorg/s2i-python-container|
+      | context_dir  | 3.4/test/standalone-test-app                |
+      | group        | openshift/python:3.4+openshift/mysql:5.6    |
+      | env          | MYSQL_USER=test                             |
+      | env          | MYSQL_PASSWORD=test                         |
+      | env          | MYSQL_DATABASE=ccytest                      |
+      | name         | sti-python                                  |
     Then the step should succeed
     And the "sti-python-1" build completed
     And a pod becomes ready with labels:
@@ -251,17 +252,17 @@ Feature: creating 'apps' with CLI
     """
 
     When I create a new application with:
-      | image_stream | openshift/python:3.4                  |
+      | image_stream | openshift/python:3.4                         |
       | code         | git://github.com/sclorg/s2i-python-container |
-      | context_dir  | 3.4/test/standalone-test-app          |
-      | name         | sti-python1                           |
+      | context_dir  | 3.4/test/standalone-test-app                 |
+      | name         | sti-python1                                  |
     Then the step should succeed
     And the "sti-python1-1" build completed
     When I create a new application with:
-      | docker_image | openshift/python-34-centos7           |
+      | docker_image | openshift/python-34-centos7                  |
       | code         | git://github.com/sclorg/s2i-python-container |
-      | context_dir  | 3.4/test/standalone-test-app          |
-      | name         | sti-python2                           |
+      | context_dir  | 3.4/test/standalone-test-app                 |
+      | name         | sti-python2                                  |
     Then the step should succeed
     And the "sti-python2-1" build completed
     Given I wait for the "sti-python2" service to become ready up to 300 seconds
@@ -277,10 +278,11 @@ Feature: creating 'apps' with CLI
     When I create a new application with:
       | docker_image | openshift/python-34-centos7                            |
       | docker_image | openshift/mysql-55-centos7                             |
-      | code         | git://github.com/sclorg/s2i-python-container                  |
+      | code         | git://github.com/sclorg/s2i-python-container           |
       | context_dir  | 3.4/test/standalone-test-app                           |
       | group        | openshift/python-34-centos7+openshift/mysql-55-centos7 |
       | env          | MYSQL_ROOT_PASSWORD=test                               |
+      | name         | sti-python                                             |
     Then the step should succeed
     And the "sti-python-1" build completed
     And a pod becomes ready with labels:
