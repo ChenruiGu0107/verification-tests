@@ -558,7 +558,7 @@ Given /^I get the networking components logs of the node since "(.+)" ago$/ do |
   ensure_admin_tagged
 
   if env.version_ge("3.10", user: user)
-    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
+    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin, quiet: true) { |pod, hash|
       pod.node_name == node.name
     }.first
     @result = admin.cli_exec(:logs, resource_name: sdn_pod.name, n: "openshift-sdn", since: duration)
@@ -598,4 +598,35 @@ Given /^I store a random unused IP address from the reserved range to the#{OPT_S
     end
   }
   raise "No available ip found in the range." unless IPAddr.new(cb[cb_name])
+end
+
+Given /^the valid egress IP is added to the#{OPT_QUOTED} node$/ do |node_name|
+  ensure_admin_tagged
+  step "I store a random unused IP address from the reserved range to the clipboard"
+
+  @result = admin.cli_exec(:patch, resource: "hostsubnet", resource_name: "#{node_name}", p: "{\"egressIPs\":[\"#{cb.valid_ip}\"]}")
+  raise "Failed to patch hostsubnet!" unless @result[:success]
+  logger.info "The free IP #{cb.valid_ip} added to egress node #{node_name}."
+
+  teardown_add {
+    @result = admin.cli_exec(:patch, resource: "hostsubnet", resource_name: "#{node_name}", p: "{\"egressIPs\":[]}")
+    raise "Failed to clear egress IP on node #{node_name}" unless @result[:success]
+  }
+end
+
+# An IP echo service, which returns your source IP when you access it
+# Used for returning the exact source IP when the packet being SNAT
+Given /^an IP echo service is setup on the master node and the ip is stored in the#{OPT_SYM} clipboard$/ do | cb_name |
+  ensure_admin_tagged
+
+  host = env.master_hosts.first
+  cb_name = "ipecho_ip" unless cb_name
+  cb[cb_name] = host.local_ip
+
+  @result = host.exec_admin("docker run --name ipecho -d -p 8888:80 docker.io/aosqe/ip-echo")
+  raise "Failed to create the IP echo service." unless @result[:success]
+  teardown_add {
+    @result = host.exec_admin("docker rm -f ipecho")
+    raise "Failed to delete the docker container." unless @result[:success]
+  }
 end
