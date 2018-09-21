@@ -366,7 +366,8 @@ module CucuShift
           rc: "replicationcontrollers",
           rs: "replicasets",
           scc: "securitycontextconstraints",
-          svc: "service"
+          svc: "service",
+          sc: "storageclass"
         }
         @shorthands.merge!(RESOURCES.map {|clazz, snake_case| [snake_case, clazz::RESOURCE]}.to_h)
       end
@@ -376,7 +377,7 @@ module CucuShift
       # classes = ObjectSpace.each_object(CucuShift::Resource.singleton_class)
       # clazz = classes.find do |c|
       clazz = RESOURCES.keys.find do |c|
-        defined?(c::RESOURCE) && [type, type + "s"].include?(c::RESOURCE)
+        defined?(c::RESOURCE) && [type, type + "s", type+"es"].include?(c::RESOURCE)
       end
       raise "cannot find class for type #{type}" unless clazz
       return clazz

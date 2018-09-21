@@ -1,0 +1,2 @@
+goto_storageclass_page:
+  url: k8s/cluster/storageclasses
