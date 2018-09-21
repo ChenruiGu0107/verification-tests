@@ -332,7 +332,7 @@ end
 
 # Metering installation require openshift-cluster-monitoring to be installed and functioning
 Given /^all openshift-monitoring related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
-  ensure_destructive_tagged
+  ensure_admin_tagged
   target_proj = proj_name.nil? ? "openshift-monitoring" : proj_name
 
   org_proj_name = project.name
