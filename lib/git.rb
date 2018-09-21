@@ -145,5 +145,13 @@ module CucuShift
       raise "No git remote specified to remove" unless remote
       exec "git remote remove #{remote}"
     end
+
+    # @param [Hash<String, String>] the key/value pairs to set
+    def set_global_config(hash)
+      hash.each do |key, value|
+        exec "git config --global #{host.shell_escape key}" \
+         " #{host.shell_escape value}"
+      end
+    end
   end
 end

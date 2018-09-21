@@ -24,7 +24,7 @@ Feature: oc new-app related scenarios
     Then the step should fail
     And the output should match:
       | [Ee]rror.*is required and must be specified |
-    
+
     Given I restore the file "application-template-stibuild-without-customize-route.json"
     When I run oc create over "application-template-stibuild-without-customize-route.json" replacing paths:
       | ["parameters"][0]["required"] | false |
@@ -35,7 +35,7 @@ Feature: oc new-app related scenarios
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12774
-  Scenario: oc new-app/new-build should respect ImageStream hidden tag	
+  Scenario: oc new-app/new-build should respect ImageStream hidden tag
     Given I have a project
     When I run the :new_app client command with:
       | search_raw | ruby |
@@ -57,3 +57,17 @@ Feature: oc new-app related scenarios
       | resource | bc      |
       | name     | ruby-ex |
     Then the output should match "ImageStreamTag openshift/ruby:2.0"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-18190
+  Scenario: "oc new-app" should respect git proxy for implicit git process
+		Given I have a project
+    And I have a proxy configured in the project
+    And I set local git global config with:
+      | http.proxy  | <%= cb.proxy_ip %>:3128 |
+      | https.proxy | <%= cb.proxy_ip %>:3128 |
+    When I run the :new_app client command with:
+      | strategy | docker |
+      | name | grafana |
+      | code | https://github.com/bacek/openshift-prometheus.git |
+    And the "grafana-1" build completed

@@ -20,9 +20,8 @@ ready_timeout = 300
   state = :running if state.nil?
   @result = rc(rc_name).wait_till_replica_counters_match(
     user: user,
-    state: state,
+    state.to_sym => number.to_i,
     seconds: ready_timeout,
-    ready: number.to_i
   )
 
   unless @result[:success]

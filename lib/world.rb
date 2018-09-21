@@ -395,6 +395,24 @@ module CucuShift
       end
     end
 
+    # @param annotation [Object] some object to identify this teardown
+    # @return undefined
+    def teardown_annotate_last(annotation)
+      b = @teardown.last.binding
+      b.local_variable_set(:_teardown_annotation, annotation)
+    end
+
+    # @param annotation [Object] annotation we are looking for
+    # @return [Proc, nil] the teardown with the specified annotation;
+    #   where `===` is used to compare
+    def teardown_find_annotated(annotation)
+      @teardown.find { |p|
+        b = p.binding
+        b.local_variable_defined?(:_teardown_annotation) &&
+          annotation === b.local_variable_get(:_teardown_annotation)
+      }
+    end
+
     def quit_cucumber
       logger.error "Test Execution will finish prematurely."
       Cucumber.wants_to_quit = true

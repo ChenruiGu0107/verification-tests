@@ -19,7 +19,7 @@ end
 
 # @param [String] repo_url git repo that we want to clone from
 # @param [Boolean] if set, then we get git information from local repo,
-# @note the commit id is saved to @clipboard[:latest_commit_id]
+# @note the commit id is saved to cb[:latest_commit_id]
 And /^I get the latest git commit id from repo "([^"]+)"$/ do | spec |
   if spec.include? "://" or spec.include? "@"
     uri = spec
@@ -29,7 +29,7 @@ And /^I get the latest git commit id from repo "([^"]+)"$/ do | spec |
     dir = spec
   end
   git = CucuShift::Git.new(uri: uri, dir: dir)
-  @clipboard[:git_commit_id] = git.get_latest_commit_id
+  cb[:git_commit_id] = git.get_latest_commit_id
 end
 # @param [String] repo_url git repo that we want to commit
 # @param [String] message commit message that we add to commit
@@ -55,4 +55,22 @@ Given /^I remove the remote repository "([^"]*)" from the "([^"]+)" repo$/ do |r
   end
   git = CucuShift::Git.new(uri: uri, dir: dir)
   git.remove_remote(remote)
+end
+
+Given /^I set local git global config with:$/ do |table|
+  annotation = "restore global git config for current user on localhost"
+  unless teardown_find_annotated annotation
+    file = File.join(ENV["HOME"], ".gitconfig")
+    bakfile = File.join(ENV["HOME"], ".gitconfig_bak")
+    localhost.delete bakfile
+    localhost.copy_to file, bakfile
+    teardown_add {
+      localhost.copy_to bakfile, file
+      localhost.delete bakfile
+    }
+    teardown_annotate_last annotation
+  end
+
+  git = CucuShift::Git.new(dir: localhost.workdir)
+  git.set_global_config(opts_array_to_hash(table.raw, sym_mode: false))
 end
