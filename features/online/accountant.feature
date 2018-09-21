@@ -766,3 +766,95 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | checkpoint_id | #{cb.id} |
     Then the step should succeed
     """
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-13491
+  Scenario: Check the elements on Primary Contact page - UI	
+    Given I open accountant console in a browser
+    When I perform the :click_edit_contact web action with:
+      | contact_cap | Primary |
+      | contact     | primary |
+    Then the step should succeed
+    Given I saved following keys to list in :elementid clipboard:
+      | first_name   | |
+      | last_name    | |
+      | address1     | |
+      | city         | |
+      | county       | |
+      | postcode     | |
+    When I repeat the following steps for each :element_id in cb.elementid:
+    """
+    When I perform the :check_hint_on_field_frame web action with:
+      | checkpoint_id | #{cb.element_id} |
+    Then the step should succeed
+    """
+    Given I saved following keys to list in :input_ids clipboard:
+      | first_name     | |
+      | middle_initial | |
+      | last_name      | |
+      | company_name   | |
+      | address1       | |
+      | address2       | |
+      | address3       | |
+      | city           | |
+      | county         | |
+      | postcode       | |
+      | phone_number   | | 
+    When I repeat the following steps for each :id in cb.input_ids:
+    """
+    When I perform the :check_input_could_be_edited_on_current_page web action with:
+      | input_id | #{cb.id} |
+    Then the step should succeed
+    """
+    When I run the :check_country_element_on_primary_contact_page web action
+    Then the step should succeed
+    When I perform the :check_update_contact_button_initially_disabled web action with:
+      | contact_cap | Primary |
+    Then the step should succeed
+    When I run the :click_cancel_on_primary_and_billing_contact_page web action
+    Then the step should succeed
+
+  # @author yuwan@redhat.com
+  # @case_id OCP-20795
+  Scenario: Check the elements on Billing Contact page - UI	
+    Given I open accountant console in a browser
+    When I perform the :click_edit_contact web action with:
+      | contact_cap | Billing |
+      | contact     | billing |
+    Then the step should succeed
+    Given I saved following keys to list in :elementid clipboard:
+      | first_name   | |
+      | last_name    | |
+      | address1     | |
+      | city         | |
+      | county       | |
+      | postcode     | |
+    When I repeat the following steps for each :element_id in cb.elementid:
+    """
+    When I perform the :check_hint_on_field_frame web action with:
+      | checkpoint_id | #{cb.element_id} |
+    Then the step should succeed
+    """
+    Given I saved following keys to list in :input_ids clipboard:
+      | first_name     | |
+      | middle_initial | |
+      | last_name      | |
+      | company_name   | |
+      | address1       | |
+      | address2       | |
+      | address3       | |
+      | city           | |
+      | county         | |
+      | postcode       | |
+      | phone_number   | | 
+    When I repeat the following steps for each :id in cb.input_ids:
+    """
+    When I perform the :check_input_could_be_edited_on_current_page web action with:
+      | input_id | #{cb.id} |
+    Then the step should succeed
+    """
+    When I perform the :check_update_contact_button_initially_disabled web action with:
+      | contact_cap | Billing |
+    Then the step should succeed
+    When I run the :click_cancel_on_primary_and_billing_contact_page web action
+    Then the step should succeed
