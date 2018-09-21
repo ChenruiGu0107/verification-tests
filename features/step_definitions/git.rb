@@ -58,16 +58,19 @@ Given /^I remove the remote repository "([^"]*)" from the "([^"]+)" repo$/ do |r
 end
 
 Given /^I set local git global config with:$/ do |table|
-  git = CucuShift::Git.new(uri: "http://dummy.example.com")
-  git.set_global_config(opts_array_to_hash(table, sym_mode: false))
-
   annotation = "restore global git config for current user on localhost"
   unless teardown_find_annotated annotation
     file = File.join(ENV["HOME"], ".gitconfig")
-    orig_host = @host
-    @host = Host.localhost
-    step "the \"#{file}\" file is restored on host after scenario"
+    bakfile = File.join(ENV["HOME"], ".gitconfig_bak")
+    localhost.delete bakfile
+    localhost.copy_to file, bakfile
+    teardown_add {
+      localhost.copy_to bakfile, file
+      localhost.delete bakfile
+    }
     teardown_annotate_last annotation
-    @host = orig_host
   end
+
+  git = CucuShift::Git.new(dir: localhost.workdir)
+  git.set_global_config(opts_array_to_hash(table.raw, sym_mode: false))
 end
