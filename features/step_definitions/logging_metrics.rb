@@ -330,6 +330,39 @@ Given /^all prometheus related pods are running in the#{OPT_QUOTED} project$/ do
   end
 end
 
+# Metering installation require openshift-cluster-monitoring to be installed and functioning
+Given /^all openshift-monitoring related pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  ensure_destructive_tagged
+  target_proj = proj_name.nil? ? "openshift-monitoring" : proj_name
+
+  org_proj_name = project.name
+  org_user = user
+  step %Q/I switch to cluster admin pseudo user/
+  raise "openshift-monitoring needs to be installed" unless project(target_proj).exists?
+  begin
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | app=prometheus |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | app=node-exporter |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | alertmanager=main,app=alertmanager |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | app=cluster-monitoring-operator |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | app=grafana |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | k8s-app=prometheus-operator |
+      })
+  ensure
+    @user = org_user if org_user
+    project(org_proj_name)
+  end
+end
 
 # verify all metering pods are in the RUNNING state
 # expected pods are listed here:
@@ -441,6 +474,10 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
     raise "Unsupported service type"
   end
   cb.target_proj = target_proj
+  ### for metering installation, there is a pre-requisite that openshift-monitoring is installed
+  if target_proj = 'openshift-metering' and op == 'installed'
+    step %Q/all openshift-monitoring related pods are running in the "openshift-monitoring" project/
+  end
   # for scenarios that do reployed, we have registered clean-up so check if we are doing uninstall, then just skip uninstall if the project is gone
   if op == 'uninstalled'
     unless @projects.find { |p| p.name == cb.target_proj }
