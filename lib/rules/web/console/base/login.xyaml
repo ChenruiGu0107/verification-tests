@@ -96,7 +96,7 @@ login_token:
 login_page_loaded:
   element:
     selector:
-      css: "#password, #inputPassword, .login-redhat, .idp"
+      css: "#password, #inputPassword, .login-redhat, .idp, .navigation-container"
     timeout: 30
 
 verify_logged_in:
