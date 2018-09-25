@@ -48,16 +48,17 @@ Given /^admin ensures new router pod becomes ready after following env added:$/ 
     step %Q/I switch to cluster admin pseudo user/
     step %Q/I use the "default" project/
     step %Q/default router deployment config is restored after scenario/
-    step %Q/a pod becomes ready with labels:/, table(%{
+    step %Q/all existing pods are ready with labels:/, table(%{
       | deploymentconfig=router |
     })
-    step %Q/evaluation of `pod.name` is stored in the :router_pod clipboard/
     step %/I run the :env client command with:/, table([
       ["resource", "dc/router" ],
       *table.raw.map {|e| ["e", e[0]] }
     ])
     step %Q/the step should succeed/
-    step %Q/I wait for the pod named "<%= cb.router_pod %>" to die/
+    step %Q/all existing pods die with labels:/, table(%{
+      | deployment=router-<%= cb.router_golden_version %> |
+    })
     step %Q/a pod becomes ready with labels:/, table(%{
       | deploymentconfig=router |
     })
@@ -95,4 +96,17 @@ Given /^default router image is stored into the#{OPT_SYM} clipboard$/ do | cb_na
   })
   step %Q/the step should succeed/
   cb[cb_name] = @result[:response]
+end
+
+Given /^the last reload log of a router pod is stored in #{SYM} clipboard$/ do | cb_name |
+  unless cb.router_pod
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | deploymentconfig=router |
+    })
+    step %Q/evaluation of `pod.name` is stored in the :router_pod clipboard/
+  end
+
+  res = admin.cli_exec(:logs, resource_name: cb.router_pod, n: 'default')
+  cb[cb_name] = res[:response].scan(/^I\d+.*Router reloaded:$/).last
+  logger.info "The last reloaded log with timestamp is: #{cb[cb_name]}."
 end
