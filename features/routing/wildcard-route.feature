@@ -5,19 +5,8 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario Outline: Create wildcard domain routes
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 
     Given I switch to the first user
     And I have a project
@@ -67,19 +56,8 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Create wildcard domain route for unsecure route
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 
     Given I switch to the first user
     And I have a project
@@ -118,20 +96,9 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Use blacklist to forbid the specified hostname to be created
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-      | e        | ROUTER_DENIED_DOMAINS=edge.example.com |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true      |
+      | ROUTER_DENIED_DOMAINS=edge.example.com |
 
     Given I switch to the first user
     And I have a project
@@ -206,19 +173,8 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Only allow the host which matches the whilelist to be created
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOWED_DOMAINS=test.example.com |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOWED_DOMAINS=test.example.com |
 
     Given I switch to the first user
     And I have a project
@@ -278,19 +234,8 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Wildcard domain should work well for edge route with different insecure policies
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 
     Given I switch to the first user
     And I have a project
@@ -356,25 +301,13 @@ Feature: Testing wildcard routes
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
 
-
   # @author bmeng@redhat.com
   # @case_id OCP-10488
   @admin
   @destructive
   Scenario: The route matches more should win the routing
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 
     Given I switch to the first user
     And I have a project
@@ -425,19 +358,8 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Should not be able to create a wildcard enabled route when the host is not specified
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 
     Given I switch to the first user
     And I have a project
@@ -451,20 +373,9 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: wildcard route should be supported in CLI
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true |
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true             |
 
     Given I switch to the first user
     And I have a project
@@ -560,20 +471,9 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: wildcard route should be not enabled when set to none
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true |
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true             |
 
     Given I switch to the first user
     And I have a project
@@ -793,22 +693,10 @@ Feature: Testing wildcard routes
   @admin
   @destructive
   Scenario: Use router with both allowed and denied domain list
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-
     # Add both the allow and deny env to the router, and the allowed domain contains denied domain
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOWED_DOMAINS=example.com |
-      | e        | ROUTER_DENIED_DOMAINS=test.example.com |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOWED_DOMAINS=example.com     |
+      | ROUTER_DENIED_DOMAINS=test.example.com |
 
     Given I switch to the first user
     And I have a project
@@ -866,19 +754,9 @@ Feature: Testing wildcard routes
     And the output should not contain "Hello-OpenShift"
 
     # Switch the value of the deny and allow rules, make the denied domain contains the allowed domain
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod_2 clipboard
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ALLOWED_DOMAINS=test.example.com |
-      | e        | ROUTER_DENIED_DOMAINS=example.com |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod_2 %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOWED_DOMAINS=test.example.com |
+      | ROUTER_DENIED_DOMAINS=example.com |
 
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
@@ -931,7 +809,6 @@ Feature: Testing wildcard routes
   @destructive
   Scenario: Secured Wildcard route should not takes over all unsecured routes
     Given the master version >= "3.9"
-    And I switch to cluster admin pseudo user
     And admin ensures new router pod becomes ready after following env added:
       | ROUTER_ALLOW_WILDCARD_ROUTES=true |
 

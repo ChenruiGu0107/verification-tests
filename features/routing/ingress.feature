@@ -5,20 +5,9 @@ Feature: Testing ingress object
   @admin
   @destructive
   Scenario: haproxy support ingress object
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project
@@ -61,20 +50,9 @@ Feature: Testing ingress object
   @admin
   @destructive
   Scenario: haproxy support ingress object with path
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project
@@ -118,20 +96,9 @@ Feature: Testing ingress object
   @admin
   @destructive
   Scenario: haproxy support ingress object with TLS
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project
@@ -180,20 +147,9 @@ Feature: Testing ingress object
   @admin
   @destructive
   Scenario: updating ingress object
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project
@@ -261,20 +217,9 @@ Feature: Testing ingress object
   @admin
   @destructive
   Scenario: adding or updating host value of ingress resource is not permitted by default
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project
@@ -323,20 +268,9 @@ Feature: Testing ingress object
     """
     And the master service is restarted on all master nodes
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     Given required cluster roles are added to router service account for ingress
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_INGRESS=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_INGRESS=true |
 
     Given I switch to the first user
     And I have a project

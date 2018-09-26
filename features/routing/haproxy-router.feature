@@ -442,19 +442,10 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Router stats can be accessed if just provide password
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     And an 10 characters random string of type :dns is stored into the :password clipboard
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | STATS_PASSWORD=<%= cb.password %>  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | STATS_PASSWORD=<%= cb.password %> |
+
     And I execute on the pod:
       | curl |
       |  -sS  |
@@ -472,19 +463,8 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: router should be able to skip invalid cert route
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | EXTENDED_VALIDATION=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | EXTENDED_VALIDATION=true |
 
     Given I switch to the first user
     And I have a project
@@ -575,19 +555,8 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Router with specific ROUTE_LABELS will only work for specific routes
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTE_LABELS=router=router1 |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTE_LABELS=router=router1 |
 
     Given I switch to the first user
     And I have a project
@@ -1090,19 +1059,9 @@ Feature: Testing haproxy router
       | key_val | team=blue |
     Then the step should succeed
 
-    Given I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    And evaluation of `pod.name` is stored in the :router_pod clipboard
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | NAMESPACE_LABELS=team=red |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And admin ensures new router pod becomes ready after following env added:
+      | NAMESPACE_LABELS=team=red |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
 
     Given I switch to the first user
@@ -1189,20 +1148,9 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: the router configuration should be loaded in 10 minutes after the namespace label added
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    And evaluation of `pod.name` is stored in the :router_pod clipboard
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | NAMESPACE_LABELS=team=red |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And admin ensures new router pod becomes ready after following env added:
+      | NAMESPACE_LABELS=team=red |
 
     Given I switch to the first user
     And I have a project
@@ -1982,20 +1930,9 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: haproxy router can support comression by setting the env
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_ENABLE_COMPRESSION=true  |
-      | e        | ROUTER_COMPRESSION_MIME=text/html text/plain text/css |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ENABLE_COMPRESSION=true                        |
+      | ROUTER_COMPRESSION_MIME=text/html text/plain text/css |
 
     Given I switch to the first user
     And I have a project
@@ -2024,19 +1961,8 @@ Feature: Testing haproxy router
   @destructive
   Scenario: The health check interval of backend can be set by env variable
     # set router env (from default 5000ms to 1234ms)
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And default router deployment config is restored after scenario
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_BACKEND_CHECK_INTERVAL=1234ms |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_BACKEND_CHECK_INTERVAL=1234ms |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
 
     Given I switch to the first user
@@ -2268,14 +2194,8 @@ Feature: Testing haproxy router
       | exec_command_arg | tcp:127.0.0.1:80 |
       | _stdin           | :empty           |
     Then the output should not contain "408 Request Time-out"
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_SLOWLORIS_TIMEOUT=5s |
-    Then the step should succeed
-    And I wait for the pod named "<%= pod.name %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_SLOWLORIS_TIMEOUT=5s |
     When I run the :exec client command with:
       | pod              | <%= pod.name %>  |
       | i                |                  |
@@ -2316,19 +2236,9 @@ Feature: Testing haproxy router
       | systemctl restart rsyslog |
     Then the step should succeed
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_SYSLOG_ADDRESS=127.0.0.1 |
-      | e        | ROUTER_LOG_LEVEL=debug          |
-    Then the step should succeed
-    And I wait for the pod named "<%= pod.name %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_SYSLOG_ADDRESS=127.0.0.1 |
+      | ROUTER_LOG_LEVEL=debug          |
 
     Given I switch to the first user
     And I have a project
@@ -2625,18 +2535,9 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     # redeploy router pod
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
-    And evaluation of `pod.name` is stored in the :router_pod clipboard
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | NAMESPACE_LABELS=team=red |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And admin ensures new router pod becomes ready after following env added:
+      | NAMESPACE_LABELS=team=red |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
 
     # the route should be accessed after router pod redeployed
@@ -2672,19 +2573,8 @@ Feature: Testing haproxy router
     Then the step should succeed
     Given I have a pod-for-ping in the project
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    And evaluation of `pod.name` is stored in the :router_pod clipboard
-    And default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | RELOAD_INTERVAL=122s |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | RELOAD_INTERVAL=122s |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
 
     # the route should be accessed in less than RELOAD_INTERVAL(122s) after router pod redeployed
@@ -2707,19 +2597,8 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: same host with different path can be admitted
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
 
     Given I switch to the first user
     And I have a project
@@ -2818,20 +2697,9 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: same wildcard host with different path can be admitted
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
 
     Given I switch to the first user
     And I have a project
@@ -2942,20 +2810,9 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: The overlapping hosts with a wildcard can be claimed across namespaces
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
-      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
 
     Given I switch to the first user
     And I have a project
@@ -3032,18 +2889,8 @@ Feature: Testing haproxy router
 
     #Enable the ROUTER_BIND_PORTS_AFTER_SYNC=true for router
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_BIND_PORTS_AFTER_SYNC=true |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And admin ensures new router pod becomes ready after following env added:
+      | ROUTER_BIND_PORTS_AFTER_SYNC=true |
     Then evaluation of `pod.name` is stored in the :router_pod_new clipboard
     When I run the :delete client command with:
       | object_type       | pod        |
@@ -3308,22 +3155,9 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
     And the output should contain "SSL connection using TLSv1.2 / DHE-RSA-AES256-GCM-SHA384"
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
     # Update router to make it using 'modern'
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_CIPHERS=modern  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
-
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_CIPHERS=modern  |
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
     #access the route using the same cipher will failed. since it do not exist in 'modern' list
@@ -3338,17 +3172,8 @@ Feature: Testing haproxy router
     And the output should contain "sslv3 alert handshake failure"
 
     # Update router to make it using 'old'
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_CIPHERS=old  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod2 %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod3 clipboard
-
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_CIPHERS=old  |
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
     #access the route using the same cipher will succeed. since the cipher belong to 'old' list
@@ -3364,17 +3189,8 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
     And the output should contain "SSL connection using TLSv1.2 / DHE-RSA-AES256-GCM-SHA384"
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    # Update router to make it using specified 'ECDHE-RSA-AES256-GCM-SHA384'
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_CIPHERS=ECDHE-RSA-AES256-GCM-SHA384 |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod3 %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
-
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_CIPHERS=ECDHE-RSA-AES256-GCM-SHA384 |
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
     #access the route using above cipher will failed.
@@ -3398,7 +3214,6 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the output should contain "SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384"
-
 
   # @author yadu@redhat.com
   # @case_id OCP-15008
@@ -3632,14 +3447,8 @@ Feature: Testing haproxy router
       | 8080 |
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     """
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle |
     Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -3679,14 +3488,8 @@ Feature: Testing haproxy router
       | 8080 |
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     """
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle |
     Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -3726,14 +3529,8 @@ Feature: Testing haproxy router
       | 8080 |
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     """
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router |
-      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle |
     Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
