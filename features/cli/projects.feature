@@ -681,3 +681,21 @@ Feature: projects related features via cli
     And the output should not match:
       | <%= cb.project3 %> |
       | <%= cb.project2 %> |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-10350
+  Scenario: compensate for raft/cache delay in namespace admission
+    Given evaluation of `rand_str(5,:dns)` is stored in the :proj_name clipboard
+    Then I run the steps 15 times:
+    """
+    Given I wait for the steps to pass:
+    \"\"\"
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    \"\"\"
+    When I run the :new_app client command with:
+      | app_repo | openshift/hello-openshift |
+    Then the step should succeed
+    Then I delete the "<%= cb.proj_name %>" project
+    """
