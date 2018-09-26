@@ -27,9 +27,9 @@ Feature: Features of daemonset
   Scenario: Deleting a DaemonSet will delete its pods as well
     Given I have a project
     Given I run the :patch admin command with:
-      | resource | namespace |
-      | resource_name | <%=project.name%> |
-      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+      | resource      | namespace                                                       |
+      | resource_name | <%=project.name%>                                               |
+      | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |

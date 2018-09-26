@@ -637,18 +637,18 @@ Feature: taint toleration related scenarios
   # @case_id OCP-20046
   @admin
   @destructive
-  Scenario: default 'operator' is 'Equal' if not specify
+  Scenario: default 'operator' is 'Equal' if not specified
     Given I have a project
     Given I run the :patch admin command with:
-      | resource | namespace |
-      | resource_name | <%=project.name%> |
-      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+      | resource      | namespace                                                       |
+      | resource_name | <%=project.name%>                                               |
+      | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     Given I store the schedulable nodes in the :nodes clipboard
     #And label "vip=vip1" is added to the "<%= cb.nodes[0].name %>" node
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %> |
+      | node_name | <%= cb.nodes[0].name %>           |
       | key_val   | dedicated=special-user:NoSchedule |
     Then the step should succeed
     When I run the :create client command with:

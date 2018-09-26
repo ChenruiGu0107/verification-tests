@@ -295,7 +295,7 @@ Feature: secrets related scenarios
   # @case_id OCP-12310
   Scenario: Pods do not have access to each other's secrets with the same secret name in different namespaces
     Given I have a project
-    Given evaluation of `@projects[0].name` is stored in the :project0 clipboard
+    Given evaluation of `project.name` is stored in the :project0 clipboard
     When I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret1.json |
     And I run the :create client command with:
@@ -303,7 +303,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     And the pod named "secret-pod-1" status becomes :running
     When I create a new project
-    Given evaluation of `@projects[1].name` is stored in the :project1 clipboard
+    Given evaluation of `project.name` is stored in the :project1 clipboard
     And I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret2.json |
     And I run the :create client command with:
@@ -1998,3 +1998,159 @@ Feature: secrets related scenarios
       | sourceSecret    |
       | name: sshsecret |
     Given the "sample-1" build completed
+
+  # @author minmli@redhat.com
+  # @case_id OCP-20859
+  Scenario: secret subcommand - generic for 3.11
+    Given I have a project
+    Given I create the "testfolder" directory
+    #Step 1.Create a new secret based on a directory
+    Given a "testfolder/file1" file is created with the following lines:
+      """
+      1
+      """
+    Then the step should succeed
+    Given a "testfolder/file2" file is created with the following lines:
+      """
+      2
+      """
+    Then the step should succeed
+    Given a "testfolder/file3" file is created with the following lines:
+      """
+      3
+      """
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | secret_type | generic          |
+      | name        |secret1-from-file |
+      | from_file   |./testfolder      |
+    Then the step should succeed
+    And the expression should be true> secret("secret1-from-file").value_of("file1") == "1"
+    And the expression should be true> secret("secret1-from-file").value_of("file2") == "2"
+    And the expression should be true> secret("secret1-from-file").value_of("file3") == "3"
+
+    #Step 2.Create a new secret based on a file
+    Given I create the "testfolder2" directory
+    And a "testfolder2/file4" file is created with the following lines:
+      """
+      1234
+      """
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | secret_type | generic          |
+      | name        |secret2-from-file |
+      | from_file   | ./testfolder2    |
+    Then the step should succeed
+    And the expression should be true> secret("secret2-from-file").value_of("file4") == "1234"
+    #Step 3. Create a new secret with specified keys instead of names on disk
+    Given a "testfolder2/id_rsa" file is created with the following lines:
+      """
+      key12345
+      """
+    Then the step should succeed
+    Given a "testfolder2/id_rsa.pub" file is created with the following lines:
+      """
+      key6789012
+      """
+    Then the step should succeed
+    When I run the :create_secret client command with:
+      | secret_type | generic                                |
+      | name        | secret3-from-file                      |
+      | from_file   | ssh-privatekey=./testfolder2/id_rsa    |
+      | from_file   | ssh-publickey=./testfolder2/id_rsa.pub |
+    And the expression should be true> secret("secret3-from-file").value_of("ssh-privatekey") == "key12345"
+    And the expression should be true> secret("secret3-from-file").value_of("ssh-publickey") == "key6789012"
+
+    #Step 4. --from-literal
+    When I run the :create_secret client command with:
+      | secret_type  | generic              |
+      | name         | secret4-from-literal |
+      | from_literal | key1=abc             |
+      | from_literal | key2=adbdefg         |
+    Then the expression should be true> secret("secret4-from-literal").value_of("key1") == "abc"
+    And the expression should be true> secret("secret4-from-literal").value_of("key2") == "adbdefg"
+
+    #Step 5. --dry-run
+    When I run the :create_secret client command with:
+      | secret_type  | generic         |
+      | name         | secret5-dry-run |
+      | from_literal | key3=aaa        |
+      | dry_run      | true            |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | secret          |
+      | resource_name | secret5-dry-run |
+    Then the step should fail
+
+    #Step 6. --generator
+    When I run the :create_secret client command with:
+      | secret_type  | generic             |
+      | name         | secret6-1-generator |
+      | from_literal | key1=aaa            |
+      | generator    | secret/v2           |
+    Then the step should fail
+    When I run the :create_secret client command with:
+      | secret_type  | generic             |
+      | name         | secret6-2-generator |
+      | from_literal | key1=aaa            |
+      | generator    | secret/v1           |
+    Then the step should succeed
+
+    #Step 7. --output
+    # --output=json
+    When I run the :create_secret client command with:
+      | secret_type  | generic          |
+      | name         | secret7-1-output |
+      | from_literal | key1=aaa         |
+      | output       | json             |
+    Then the output should contain:
+      | "kind": "Secret" |
+    And I wait for the "secret7-1-output" secret to appear
+    # --output=yaml
+    When I run the :create_secret client command with:
+      | secret_type  | generic          |
+      | name         | secret7-2-output |
+      | from_literal | key1=aaa         |
+      | output       | yaml             |
+    Then the output should contain:
+      | kind: Secret |
+    Then the output should not contain:
+        | { |
+    And I wait for the "secret7-2-output" secret to appear
+    # --output=name
+    When I run the :create_secret client command with:
+      | secret_type  | generic          |
+      | name         | secret7-4-output |
+      | from_literal | key1=aaa         |
+      | output       | name             |
+    Then the output should contain:
+      | secret/secret7-4-output |
+    And I wait for the "secret7-4-output" secret to appear
+
+    #Step 9. --save-config
+    When I run the :create_secret client command with:
+      | secret_type  | generic             |
+      | name         | secret9-save-config |
+      | from_literal | key1=aaa            |
+      | save_config  | true                |
+    And I run the :get client command with:
+      | resource      | secret              |
+      | resource_name | secret9-save-config |
+      | o             | yaml                |
+    Then the output should contain:
+      | kubectl.kubernetes.io/last-applied-configuration |
+
+    #Step 12. --type
+    When I run the :create_secret client command with:
+      | secret_type  | generic           |
+      | name         | secret12-validate |
+      | from_literal | key1=aaa          |
+      | type         | Opaque            |
+    Then the expression should be true> secret("secret12-validate").type == "Opaque"
+    When I run the :create_secret client command with:
+      | secret_type  | generic           |
+      | name         | secret13-validate |
+      | from_literal | key1=aaa          |
+      | type         | dockercfg         |
+    Then the expression should be true> secret("secret13-validate").type == "dockercfg"
+
