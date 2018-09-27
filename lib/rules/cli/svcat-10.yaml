@@ -5,6 +5,21 @@
   :h: -h
   :v: -v
   :n: -n <value>
+  :namespace: --namespace <value>
+:bind:
+  :cmd: svcat bind <instance_name>
+  :options:
+    :name: --name <value>
+    :class: --class <value>
+    :plan: --plan <value>
+    :p: -p <value>
+    :param: --param <value>
+    :params-json: --params-json <value>
+    :s: -s <value>
+    :secret: --secret <value>
+    :external_id: --external-id <value>
+    :secret_name: --secret-name <value>
+    :params_json: --params-json <value>
 :describe:
   :cmd: svcat describe <resource>
   :options:
@@ -26,6 +41,13 @@
   :options:
     :class: --class <value>
     :plan: --plan <value>
+    :p: -p <value>
+    :param: --param <value>
+    :params-json: --params-json <value>
+    :s: -s <value>
+    :secret: --secret <value>
+    :external_id: --external-id <value>
+    :params_json: --params-json <value>
 :relist:
   :cmd: svcat relist broker <broker_name>
 :sync:
