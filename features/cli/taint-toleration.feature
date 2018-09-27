@@ -210,7 +210,7 @@ Feature: taint toleration related scenarios
     Then the step should fail
     Given I use the "<%= node.name %>" node
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "Invalid value.*node.alpha.kubernetes.io/ismaster=no:invalid.*" |
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep -i "Invalid.*node.alpha.kubernetes.io/ismaster=no:invalid.*" |
     Then the step should succeed
 
   # @author chezhang@redhat.com
