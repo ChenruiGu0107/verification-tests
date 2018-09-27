@@ -14,17 +14,15 @@ RUN [ -d $HOME/cucushift/private/config/ca ] && \
 
 RUN set -x && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
+    yum-config-manager --enable rhel-7-server-extra-rpms && \
     yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum-config-manager --enable rhel-7-server-ansible-2-rpms && \
-    yum-config-manager --disable epel >/dev/null || : && \
     SCL_BASE_PKGS="scl-utils-build" && \
     INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel rh-git29 bsdtar" && \
     yum -y update && \
     yum install -y $SCL_BASE_PKGS && \
     yum install -y $INSTALL_PKGS && \
     yum install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
-    # temporarily install firefox 60 from rpm, can be removed once package becomes released officially
-    yum install -y http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os/Packages/firefox-60.1.0-4.el7_5.x86_64.rpm && \
     CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com" && \
     CHROMEDRIVER_VERSION=`curl -sSL "$CHROMEDRIVER_URL/LATEST_RELEASE"` && \
     curl -sSL "$CHROMEDRIVER_URL/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"  | bsdtar xvf - -C /usr/local/bin && \
@@ -32,8 +30,10 @@ RUN set -x && \
     curl -sSL "$GECKODRIVER_DOWNLOAD_URL" | bsdtar -xvf - -C /usr/local/bin && \
     chmod +x /usr/local/bin/chromedriver /usr/local/bin/geckodriver && \
     rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
+    curl -sSL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -o /tmp/epel-release-latest-7.noarch.rpm && \
+    yum install -y /tmp/epel-release-latest-7.noarch.rpm && \
     yum clean all -y && \
-    rm -rf /var/cache/yum && \
+    rm -rf /var/cache/yum /tmp/* && \
     mkdir -p $HOME/bin
 
 RUN scl enable rh-ror42 "$HOME/cucushift/tools/install_os_deps.sh && yum clean all -y && rm -rf /var/cache/yum"
