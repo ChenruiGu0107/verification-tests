@@ -36,6 +36,11 @@ Feature: Features of seccomp
       | p             | seccompProfiles:\n- unconfined\n- localhost/profile1.json |
     Then the step should succeed
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/seccomp/pod-sec-two-cont-1.yaml |
     Then the step should succeed
@@ -95,6 +100,11 @@ Feature: Features of seccomp
       | p             | seccompProfiles:\n- unconfined\n- localhost/profile1.json |
     Then the step should succeed
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/seccomp/pod-sec-two-cont-2.yaml |
     Then the step should succeed
@@ -154,6 +164,11 @@ Feature: Features of seccomp
       | p             | seccompProfiles:\n- unconfined\n- localhost/profile1.json |
     Then the step should succeed
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/seccomp/pod-sec-two-cont-3.yaml |
     Then the step should succeed
@@ -208,6 +223,11 @@ Feature: Features of seccomp
       | p             | seccompProfiles:\n- '*' |
     Then the step should succeed
     Given I have a project
+    Given I run the :patch admin command with:
+      | resource | namespace |
+      | resource_name | <%=project.name%> |
+      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/seccomp/pod-sec-two-cont-1.yaml |
     Then the step should succeed
