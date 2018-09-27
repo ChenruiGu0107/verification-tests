@@ -296,24 +296,6 @@ Feature: deployment related steps
       | resource_name | hello-openshift                                                                                                          |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"openshift/hello-openshift-noexist-1"}]}}}} |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | deployment      |
-      | name     | hello-openshift |
-    Then the output should match:
-      | Available\\s+True\\s+MinimumReplicasAvailable |
-      | Progressing\\s+True\\s+ReplicaSetUpdated      |
-    When I run the :get client command with:
-      | resource | deployment |
-      | o        | yaml       |
-    Then the output by order should match:
-      | Deployment has minimum availability            |
-      | MinimumReplicasAvailable                       |
-      | status: "True"                                 |
-      | type: Available                                |
-      | "hello-openshift.*" is progressing             |
-      | ReplicaSetUpdated                              |
-      | status: "True"                                 |
-      | type: Progressing                              |
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
@@ -340,24 +322,6 @@ Feature: deployment related steps
       | resource_name | hello-openshift                                                                                                          |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"openshift/hello-openshift-noexist-2"}]}}}} |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | deployment      |
-      | name     | hello-openshift |
-    Then the output should match:
-      | Available\\s+True\\s+MinimumReplicasAvailable |
-      | Progressing\\s+True\\s+ReplicaSetUpdated      |
-    When I run the :get client command with:
-      | resource | deployment |
-      | o        | yaml       |
-    Then the output by order should match:
-      | Deployment has minimum availability            |
-      | MinimumReplicasAvailable                       |
-      | status: "True"                                 |
-      | type: Available                                |
-      | "hello-openshift.*" is progressing             |
-      | ReplicaSetUpdated                              |
-      | status: "True"                                 |
-      | type: Progressing                              |
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
@@ -383,24 +347,6 @@ Feature: deployment related steps
       | resource      | deployment      |
       | resource_name | hello-openshift |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | deployment      |
-      | name     | hello-openshift |
-    Then the output should match:
-      | Available\\s+True\\s+MinimumReplicasAvailable |
-      | Progressing\\s+True\\s+ReplicaSetUpdated      |
-    When I run the :get client command with:
-      | resource | deployment |
-      | o        | yaml       |
-    Then the output by order should match:
-      | Deployment has minimum availability                     |
-      | MinimumReplicasAvailable                                |
-      | status: "True"                                          |
-      | type: Available                                         |
-      | "hello-openshift.*" is progressing                      |
-      | ReplicaSetUpdated                                       |
-      | status: "True"                                          |
-      | type: Progressing                                       |
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
