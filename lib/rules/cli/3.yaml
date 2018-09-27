@@ -1044,6 +1044,14 @@
     :selector: --selector=<value>
     :source: --source=<value>
     :type: --type=<value>
+:wait:
+  :cmd: oc wait
+  :options:
+    :resource: <value>
+    :resource_name: <value>
+    :for:  --for=<value>
+    :l:  -l=<value>
+    :timeout:  --timeout=<value>
 :whoami:
   :cmd: oc whoami
   :options:

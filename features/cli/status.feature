@@ -1,4 +1,4 @@
-Feature: Check oc status cli
+Feature: Check status via oc status, wait etc
   # @author yapei@redhat.com
   # @case_id OCP-11147
   Scenario: Show RC info and indicate bad secrets reference in 'oc status'
@@ -197,3 +197,39 @@ Feature: Check oc status cli
     And I run the :status client command
     Then the output should contain:
       | can't push to image |
+
+  # @author xxia@redhat.com
+  # @case_id OCP-19965
+  Scenario: oc wait for specific condition of resources
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When I run the :wait client command with:
+      | resource      | dc                  |
+      | resource_name | ruby-ex             |
+      | for           | condition=available |
+      | timeout       | 10m                 |
+    Then the step should succeed
+    And the output should match "ruby-ex.*condition"
+    When I run the :wait client command with:
+      | resource  | po              |
+      | l         | app=ruby-ex     |
+      | for       | condition=ready |
+    Then the step should succeed
+    And the output should match "pod.*ruby-ex.*condition"
+    When I run the :wait background client command with:
+      | resource  | po          |
+      | l         | app=ruby-ex |
+      | for       | delete      |
+      | timeout   | 2m          |
+    Then the step should succeed
+    Given I ensure "ruby-ex" dc is deleted
+    When I check status of last background process
+    Then the output should match "pod.*ruby-ex.*condition"
+    When I run the :wait client command with:
+      | resource      | bc/ruby-ex          |
+      | for           | condition=available |
+    Then the step should fail
+    And the output should match "[Ee]rror.*condition"

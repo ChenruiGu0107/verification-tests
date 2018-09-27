@@ -192,6 +192,11 @@ Given /^I terminate last background process$/ do
   @result = @bg_processes.last.result
 end
 
+Given /^I check status of last background process$/ do
+  @bg_processes.last.wait(10)
+  @result = @bg_processes.last.result
+end
+
 # This step needs flexibly specify table.
 # A. When the expected json is just == the patch json, the step only needs specify one-unit table, like:
 #     | {"spec":{"replicas":2}} |
