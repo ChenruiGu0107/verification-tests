@@ -254,7 +254,7 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
     raise "project #{project_name} does not exist"
   end
 
-  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-ephemeral.yaml")
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/gitserver/gitserver-ephemeral.yaml")
   # @result = user.cli_exec(:run, name: "gitserver", image: "openshift/origin-gitserver", env: 'GIT_HOME=/var/lib/git')
   raise "could not create the http-git-server" unless @result[:success]
 
