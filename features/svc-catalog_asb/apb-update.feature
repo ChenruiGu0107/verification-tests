@@ -103,6 +103,8 @@ Feature: Update sql apb related feature
       |<%= cb.prefix %>-postgresql-apb |dev       |prod      |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.5          | 9.6     | # @case_id OCP-17762
       |<%= cb.prefix %>-postgresql-apb |prod      |dev      |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.4          | 9.6     | # @case_id OCP-18561
       |<%= cb.prefix %>-postgresql-apb |dev       |prod     |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.6          | 9.4     | # @case_id OCP-18563
+      |<%= cb.prefix %>-postgresql-apb |prod      |dev     |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.6          | 10     | # @case_id OCP-20388
+      |<%= cb.prefix %>-postgresql-apb |prod      |dev     |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |10           | 9.5     | # @case_id OCP-20389
 
   #@author zitang@redhat.com
   @admin

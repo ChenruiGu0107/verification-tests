@@ -1179,3 +1179,19 @@ Feature: Ansible-service-broker related scenarios
     And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
     And rolebindings with name matching /bundle-/ are stored in the :rb1 clipboard
     And the expression should be true> role_binding("<%= cb.rb1.first.name %>").role_names(cached: false).include? "edit"
+
+  # @author zitang@redhat.com
+  # @case_id OCP-20436
+  @admin
+  Scenario: [ASB] check apb dependencies
+    Given I save the first service broker registry prefix to :prefix clipboard
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb']` is stored in the :media_wiki clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mysql-apb']` is stored in the :mysql clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-postgresql-apb']` is stored in the :postgresql clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mariadb-apb']` is stored in the :mariadb clipboard
+
+    Then the expression should be true>  cb.mysql.dependencies.count { |e| e.start_with? 'registry.redhat.io/rhscl/mysql' } >= 1
+    Then the expression should be true>  cb.mariadb.dependencies.count { |e| e.start_with? 'registry.redhat.io/rhscl/mariadb' } >= 2
+    Then the expression should be true>  cb.postgresql.dependencies.count { |e| e.start_with? 'registry.redhat.io/rhscl/postgresql' } >= 3
+    Then the expression should be true>  cb.media_wiki.dependencies.count { |e| e.start_with? 'registry.redhat.io/openshift3/mediawiki' } >= 1
