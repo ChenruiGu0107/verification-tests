@@ -444,3 +444,437 @@ Feature: svcat related command
       |plans         |plan             |pl               |premium               |Name:          premium                           |a plan name or uuid is required         |admin         |<%= cb.plan_id %>        |succeed      |Name:          default                 |
       |instances     |instance         |inst             |ups-instance          |The instance was provisioned successfully        |an instance name is required            |client        |instance                 |fail         |unknown flag                           |
       |bindings      |binding          |bnd              |ups-binding           |Injected bind result                             |a binding name is required              |client        |binding                  |fail         |unknown flag                           |
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-18659
+  @admin
+  @destructive
+  Scenario: Check svcat subcommand with additional parameters - provision
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+
+    #get help info
+    When I run the :provision admin command with:
+      | _tool            | svcat                    |
+      | instance_name    | :false                   |
+      | h                |                          |
+    Then the step should succeed
+    And the output by order should contain:
+      | Usage:                                                       |
+      |   svcat provision NAME --plan PLAN --class CLASS [flags]     |
+
+    # Deploy ups broker
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    When I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['user-provided-service'].name` is stored in the :class_id clipboard
+
+    # Provision a serviceinstance without addtional optional flags
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1                      |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+    #Provision a serviceinstance with option "-n --namespace"
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance2            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | n                | <%= cb.user_project %>   |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance2                      |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance3            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | namespace        | <%= cb.user_project %>   |
+    Then the step should succeed
+    #Provision a serviceinstance with option "-p --param"
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance4            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | p                | location=eastus          |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance4                      |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance5            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | param            | location=eastus          |
+    Then the step should succeed
+    #Provision a serviceinstance with option "--params-json"
+    When I run the :provision client command with:
+      | _tool            | svcat                                               |
+      | instance_name    | ups-instance6                                       |
+      | class            | user-provided-service                               |
+      | plan             | default                                             |
+      | params_json      | {"location":"eastus","status":"disabled"}           |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance6                      |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |  
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+      | \\s+status:\\s+disabled                     |
+    #Provision a serviceinstance with option "-s --secret"
+    Given a "my-secret.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-secret
+    type: Opaque
+    stringData:
+      parameter:
+        '{
+          "location":"eastus",
+          "password": "letmein"
+        }'
+    """
+    When I run the :create client command with:
+      | f     | my-secret.yaml |
+    Then the step should succeed
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance7            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | secret           | my-secret[parameter]     |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance7                      |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          |
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance8            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | s                | my-secret[parameter]     |
+    Then the step should succeed
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance11           |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | s                | my-secret[parameter]     |
+      | param            | location=eastus          |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance11                     |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          |
+    #Provision a serviceinstance with all options
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance10           |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | secret           | my-secret[parameter]     |
+      | params_json      | {"status":"disabled"}    |
+      | n                | <%= cb.user_project %>   |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance10                     |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+      | Parameters:                                 |
+      | \\s+status:\\s+disabled                     |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          |
+    #Provision a serviceinstance with option "--external-id"
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance12           |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+      | external_id      | externalid               |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance12                     |
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | _tool            | svcat                    |
+      | resource         | instances                |
+    Then the step should succeed
+    And the output should match:
+      |  ups-instance1.*Ready                       |                
+      |  ups-instance10.*Ready                      |
+      |  ups-instance11.*ErrorWithParameters        |
+      |  ups-instance12.*Ready                      |
+      |  ups-instance2.*Ready                       |
+      |  ups-instance3.*Ready                       |
+      |  ups-instance4.*Ready                       |
+      |  ups-instance5.*Ready                       |
+      |  ups-instance6.*Ready                       |
+      |  ups-instance7.*Ready                       |   
+      |  ups-instance8.*Ready                       | 
+    """
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-18674
+  @admin
+  @destructive
+  Scenario: Check svcat subcommand with additional parameters - bind
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+    
+    #get help info
+    When I run the :bind client command with:
+      | _tool            | svcat                  |
+      | instance_name    | :false                 |
+      | h                |                        |
+    Then the step should succeed
+    And the output by order should contain:
+      | Usage:                                    |
+      |   svcat bind INSTANCE_NAME [flags]        |
+
+    # Deploy ups broker
+    Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
+    When I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['user-provided-service'].name` is stored in the :class_id clipboard
+    #Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :provision client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | class            | user-provided-service    |
+      | plan             | default                  |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1                      |    
+      | Class:\\s+user-provided-service             |
+      | Plan:\\s+default                            |
+    #Binding a serviceinstance without options
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1                      |
+      | Secret:\\s+ups-instance1                    |
+      | Instance:\\s+ups-instance1                  |
+    #Binding a serviceinstance with option "--name"
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind       |
+    Then the step should succeed  
+    And the output should match:
+      | Name:\\s+ups-instance1-bind                 |   
+      | Secret:\\s+ups-instance1-bind               |
+      | Instance:\\s+ups-instance1                  |
+    #Binding a serviceinstance with option "-n --namespace"
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind1      |
+      | n                | <%= cb.user_project %>   |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind1                |
+      | Secret:\\s+ups-instance1-bind1              |
+      | Instance:\\s+ups-instance1                  |
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind2      |
+      | namespace        | <%= cb.user_project %>   |
+    Then the step should succeed
+    #Binding a serviceinstance with option "-p --param"
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind3      |
+      | p                | location=eastus          |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind3                |
+      | Secret:\\s+ups-instance1-bind3              |
+      | Instance:\\s+ups-instance1                  |
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind4      |
+      | param            | location=eastus          |
+    Then the step should succeed
+    #Binding a serviceinstance with option "--params-json"
+    When I run the :bind client command with:
+      | _tool            | svcat                                               |
+      | instance_name    | ups-instance1                                       |
+      | name             | ups-instance1-bind5                                 |
+      | params_json      | {"location":"eastus","status":"disabled"}           |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind5                |
+      | Secret:\\s+ups-instance1-bind5              |
+      | Instance:\\s+ups-instance1                  |
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+      | \\s+status:\\s+disabled                     |
+    #Binding a serviceinstance with option "-s --secret"
+    Given a "my-secret.yaml" file is created with the following lines:
+    """
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-secret
+    type: Opaque
+    stringData:
+      parameter:
+        '{
+          "location":"eastus",
+          "password": "letmein"
+        }'
+    """
+    When I run the :create client command with:
+      | f     | my-secret.yaml |
+    Then the step should succeed
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind6      |
+      | secret           | my-secret[parameter]     |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind6                |
+      | Secret:\\s+ups-instance1-bind6              |
+      | Instance:\\s+ups-instance1                  |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          |
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind7      |
+      | s                | my-secret[parameter]     |
+    Then the step should succeed
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind10     |
+      | s                | my-secret[parameter]     |
+      | param            | location=eastus          |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind10               |
+      | Secret:\\s+ups-instance1-bind10             |
+      | Instance:\\s+ups-instance1                  |
+      | Parameters:                                 |
+      | \\s+location:\\s+eastus                     |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          |
+    #Binding a serviceinstance with option "--secret-name"
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind8      |
+      | secret_name      | ups-instance1-secret     |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind8                |
+      | Secret:\\s+ups-instance1-secret             |
+      | Instance:\\s+ups-instance1                  |
+    #Binding a serviceinstance with all options
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind9      |
+      | secret           | my-secret[parameter]     |
+      | params_json      | {"status":"disabled"}    |
+      | n                | <%= cb.user_project %>   |
+      | secret_name      | ups-instance1-secret1    |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind9                |
+      | Secret:\\s+ups-instance1-secret1            |
+      | Instance:\\s+ups-instance1                  |
+      | Parameters:                                 |
+      | \\s+status:\\s+disabled                     |
+      | Parameters From:                            |
+      | \\s+Secret:\\s+my-secret.parameter          | 
+    #Binding a serviceinstance with option "--external-id"
+    When I run the :bind client command with:
+      | _tool            | svcat                    |
+      | instance_name    | ups-instance1            |
+      | name             | ups-instance1-bind11     |
+      | external_id      | externalid               |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+ups-instance1-bind11               |
+      | Secret:\\s+ups-instance1-bind11             |
+      | Instance:\\s+ups-instance1                  |
+
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | _tool            | svcat                    |
+      | resource         | bindings                 |
+    Then the step should succeed
+    And the output should match:
+      | ups-instance1.*Ready                        |   
+      | ups-instance1-bind.*Ready                   |   
+      | ups-instance1-bind1.*Ready                  |   
+      | ups-instance1-bind10.*ErrorWithParameters   |   
+      | ups-instance1-bind11.*Ready                 |   
+      | ups-instance1-bind2.*Ready                  |   
+      | ups-instance1-bind3.*Ready                  |   
+      | ups-instance1-bind4.*Ready                  |   
+      | ups-instance1-bind5.*Ready                  |   
+      | ups-instance1-bind6.*Ready                  | 
+      | ups-instance1-bind7.*Ready                  | 
+      | ups-instance1-bind8.*Ready                  |
+      | ups-instance1-bind9.*Ready                  |
+    """
