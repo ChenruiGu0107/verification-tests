@@ -159,27 +159,27 @@ Feature: SDN related networking scenarios
     Given I select a random node's host
     And the node network is verified
     And the node service is verified
-    And system verification steps are used:
+    Given I switch to cluster admin pseudo user
+    And I register clean-up steps:
     """
-    When I run commands on the host:
-      | grep -A 1 proxy-mode /etc/origin/node/node-config.yaml |
-    Then the step should succeed
-    Then the output should contain "- iptables"
+    Given 15 seconds have passed
+    When I get the networking components logs of the node since "90s" ago
+    And the output should contain "Using iptables Proxier"
     """
-    Given the node service is restarted on the host after scenario
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    When I run commands on the host:
-      | sed -i "/proxy-mode/{n;s/iptables/userspace/g}" /etc/origin/node/node-config.yaml |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl status atomic-openshift-node |
-    Then the output should contain "active (running)"
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "Using userspace Proxier" |
-    Then the step should succeed
+
+    Given I restart the network components on the node after scenario
+    Given node config is merged with the following hash:
+    """
+    proxyArguments:
+      proxy-mode:
+         - userspace
+    """
+    Given I restart the network components on the node
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Given I get the networking components logs of the node since "60s" ago
+    And the output should contain "Using userspace Proxier"
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-11286
