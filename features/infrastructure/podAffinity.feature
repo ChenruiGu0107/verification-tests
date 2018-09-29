@@ -199,13 +199,13 @@ Feature: podAffinity
     Given I run commands on all masters:
       |curl -o /etc/origin/master/<scheduler_file> https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<scheduler_file> |
     Then the step should succeed
+    Given I have a project
     Given master config is merged with the following hash:
     """
     kubernetesMasterConfig:
       schedulerConfigFile: /etc/origin/master/<scheduler_file>
     """
     And the master service is restarted on all master nodes
-    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<pod-affinity-dst-pod-file> |
     Then the step should succeed
