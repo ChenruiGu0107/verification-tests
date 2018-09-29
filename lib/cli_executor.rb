@@ -34,18 +34,22 @@ module CucuShift
     private def tool_from_opts!(opts)
       case opts
       when Hash
-        return opts.delete(:_tool)
+        tool = opts.delete(:_tool)
       when Array
         index = opts.find_index{ |k,v| k == :_tool }
         if index
           tool = opts[index].last
           opts.delete_at(index)
         end
-        return tool
       else
         raise ArgumentError,
           "opts must be Array or Hash but they are #{opts.inspect}"
       end
+
+      if tool == "oc"
+        tool = nil
+      end
+      return tool
     end
 
     # get `oc` version on some host running as some username

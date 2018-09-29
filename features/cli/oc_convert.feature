@@ -1,12 +1,13 @@
 Feature: oc convert related scenarios
 
   # @author yapei@redhat.com
-  # @case_id OCP-10892
-  Scenario: Convert resource files using oc convert
+  # @case_id OCP-10892 OCP-20924
+  Scenario Outline: Convert resource files using convert
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml"
     # didn't specify output version
     When I run the :convert client command with:
+      | _tool    | <tool>   |
       | file     | job.yaml |
       | loglevel | 2        |
     Then the step should succeed
@@ -15,6 +16,7 @@ Feature: oc convert related scenarios
       | apiVersion: batch/v1 |
     # convert to JSON format
     When I run the :convert client command with:
+      | _tool | <tool>   |
       | file  | job.yaml |
       | local | false    |
       | o     | json     |
@@ -25,24 +27,27 @@ Feature: oc convert related scenarios
     #convert files in directory and create
     Given I create the "testdir" directory
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml" into the "testdir" dir
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" into the "testdir" dir
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/busybox-pod.yaml" into the "testdir" dir
     When I run the :convert client command with:
+      | _tool | <tool>   |
       | file  | testdir/ |
       | local | false    |
     Then the step should succeed
     And I run the :create client command with:
+      | _tool  | <tool>                    |
       | f      | -                         |
       | _stdin | <%= @result[:response] %> |
     Then the step should succeed
     And the output should match:
-      | job.*pi.*created              |
-      | pod.*hello-openshift.*created |
+      | job.*pi.*created  |
+      | pod.*created      |
     # convert recursively
     Given I create the "mult/dir1" directory
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml" into the "mult/dir1" dir
     Given I create the "mult/dir2" directory
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" into the "mult/dir2" dir
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/busybox-pod.yaml" into the "mult/dir2" dir
     When I run the :convert client command with:
+      | _tool          | <tool>         |
       | file           | mult/          |
       | recursive      | true           |
     Then the step should succeed
@@ -53,8 +58,14 @@ Feature: oc convert related scenarios
       | - apiVersion: v1        |
     # --output-version negative test
     When I run the :convert client command with:
+      | _tool           | <tool>    |
       | file            | job.yaml  |
       | output_version  | xyz       |
     Then the step should fail
     And the output should match:
       | batch\.Job.*not suitable.*converting.*xyz |
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10892
+      | kubectl  | # @case_id OCP-20924
