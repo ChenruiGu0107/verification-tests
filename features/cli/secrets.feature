@@ -662,7 +662,7 @@ Feature: secrets related scenarios
   Scenario: Build from private repo with/without secret of token --persistent gitserver
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-persistent.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/gitserver/gitserver-persistent.yaml |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
@@ -1151,7 +1151,7 @@ Feature: secrets related scenarios
   Scenario: Build from private repos with secret of multiple auth methods
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-persistent.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/gitserver/gitserver-persistent.yaml |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |

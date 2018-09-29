@@ -63,7 +63,8 @@ Feature: hotdeploy.feature
       | app_repo     | <app_repo>     |
       | image_stream | <image_stream> |
       | env          | <env>          |
-      | context_dir  | <context_dir>      |
+      | context_dir  | <context_dir>  |
+      | name         | <buildcfg>     |
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
