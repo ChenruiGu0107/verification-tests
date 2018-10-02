@@ -8,7 +8,7 @@ LABEL maintainer="AOS QE Team"
 ADD . $HOME/cucushift
 RUN [ -d $HOME/cucushift/private/config/ca ] && \
     ( cd $HOME/cucushift/private/config/ca && \
-    cp *.pem /etc/pki/ca-trust/source/anchors/ && \
+    cp -v *.pem /etc/pki/ca-trust/source/anchors/ && \
     update-ca-trust extract || \
     exit 1 ) || :
 
@@ -18,7 +18,7 @@ RUN set -x && \
     yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum-config-manager --enable rhel-7-server-ansible-2-rpms && \
     SCL_BASE_PKGS="scl-utils-build" && \
-    INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel rh-git29 bsdtar" && \
+    INSTALL_PKGS="rh-ruby24 rh-ror50-rubygem-nokogiri rh-ruby24-ruby-devel rh-git29 bsdtar" && \
     yum -y update && \
     yum install -y $SCL_BASE_PKGS && \
     yum install -y $INSTALL_PKGS && \
@@ -36,8 +36,8 @@ RUN set -x && \
     rm -rf /var/cache/yum /tmp/* && \
     mkdir -p $HOME/bin
 
-RUN scl enable rh-ror42 "$HOME/cucushift/tools/install_os_deps.sh && yum clean all -y && rm -rf /var/cache/yum"
-RUN scl enable rh-ror42 $HOME/cucushift/tools/hack_bundle.rb
+RUN scl enable rh-ror50 "$HOME/cucushift/tools/install_os_deps.sh && yum clean all -y && rm -rf /var/cache/yum"
+RUN scl enable rh-ror50 $HOME/cucushift/tools/hack_bundle.rb
 
 # -k is a bad option, put certificated under private/config/ca instead
 # be mindful image will be visible if image is made public which is a mild
@@ -59,4 +59,4 @@ RUN echo -e '#!/bin/bash\nexec "$@"' > /usr/local/bin/sudo && chmod 755 /usr/loc
 USER 1001
 
 # we need ruby and some gems from ror
-ENTRYPOINT ["/usr/bin/scl", "enable", "rh-git29", "rh-ror42", "--", "/usr/local/bin/run-jnlp-client"]
+ENTRYPOINT ["/usr/bin/scl", "enable", "rh-git29", "rh-ror50", "--", "/usr/local/bin/run-jnlp-client"]
