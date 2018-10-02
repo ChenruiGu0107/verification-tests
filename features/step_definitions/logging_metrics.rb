@@ -475,7 +475,7 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   end
   cb.target_proj = target_proj
   ### for metering installation, there is a pre-requisite that openshift-monitoring is installed
-  if target_proj = 'openshift-metering' and op == 'installed'
+  if target_proj == 'openshift-metering' and op == 'installed'
     step %Q/all openshift-monitoring related pods are running in the "openshift-monitoring" project/
   end
   # for scenarios that do reployed, we have registered clean-up so check if we are doing uninstall, then just skip uninstall if the project is gone
