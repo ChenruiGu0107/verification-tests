@@ -13,8 +13,9 @@ RUN [ -d $HOME/cucushift/private/config/ca ] && \
     exit 1 ) || :
 
 RUN set -x && \
+    yum repolist all && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
-    yum-config-manager --enable rhel-7-server-extra-rpms && \
+    yum-config-manager --enable rhel-7-server-extras-rpms && \
     yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum-config-manager --enable rhel-7-server-ansible-2-rpms && \
     SCL_BASE_PKGS="scl-utils-build" && \
@@ -32,11 +33,9 @@ RUN set -x && \
     rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
     curl -sSL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -o /tmp/epel-release-latest-7.noarch.rpm && \
     yum install -y /tmp/epel-release-latest-7.noarch.rpm && \
-    yum clean all -y && \
-    rm -rf /var/cache/yum /tmp/* && \
     mkdir -p $HOME/bin
 
-RUN scl enable rh-ror50 "$HOME/cucushift/tools/install_os_deps.sh && yum clean all -y && rm -rf /var/cache/yum"
+RUN scl enable rh-ror50 "$HOME/cucushift/tools/install_os_deps.sh"
 RUN scl enable rh-ror50 $HOME/cucushift/tools/hack_bundle.rb
 
 # -k is a bad option, put certificated under private/config/ca instead
@@ -44,7 +43,9 @@ RUN scl enable rh-ror50 $HOME/cucushift/tools/hack_bundle.rb
 #   security concern because of exposing VPN details
 # RUN sed -i -e 's/^\s\+curl\s/  curl -Sk /' /usr/local/bin/run-jnlp-client
 
-RUN rm -rf $HOME/cucushift /etc/yum.repos.d/ocp_base.repo
+RUN rpm -qa && \
+    yum clean all -y && \
+    rm -rf $HOME/cucushift /var/cache/yum /tmp/*
 
 RUN dbus-uuidgen > /etc/machine-id # e.g. needed for firefox
 RUN chown -R 1001:0 $HOME && chmod -R g+rw $HOME /etc/machine-id
