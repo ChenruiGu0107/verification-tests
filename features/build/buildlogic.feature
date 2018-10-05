@@ -742,7 +742,7 @@ Feature: buildlogic.feature
   Scenario: Check s2i build substatus and times
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json| 
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json|
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :describe client command with:
@@ -776,14 +776,14 @@ Feature: buildlogic.feature
       | PostCommit:\s+(\d+m)?\d+s  |
       | PushImage:\s+(\d+m)?\d+s   |
 
- 
+
   # @author xiuwang@redhat.com
-  # @case_id OCP-13684
+  # @case_id OCP-13914
   Scenario: Prune old builds automaticly
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | ruby                                          | 
-      | code         | https://github.com/openshift/ruby-hello-world | 
+      | image_stream | ruby                                          |
+      | code         | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | buildconfig      |

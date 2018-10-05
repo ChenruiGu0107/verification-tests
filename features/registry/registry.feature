@@ -310,66 +310,6 @@ Feature: Testing registry
     And all the image layers in the :layers clipboard do exist in the registry
 
   # @author haowang@redhat.com
-  # @case_id OCP-11490
-  @admin
-  Scenario: Import new tags to image stream
-    Given I have a project
-    And I have a registry in my project
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | copy                       |
-      | --dest-tls-verify=false |
-      | docker://docker.io/busybox:latest |
-      | docker://<%= cb.reg_svc_url %>/test/busybox:latest  |
-    Then the step should succeed
-    When I run the :import_image client command with:
-      | from       | <%= cb.reg_svc_url %>/test/busybox |
-      | image_name | busybox                            |
-      | all        | true                               |
-      | confirm    | true                               |
-      | insecure   | true                               |
-    Then the step should succeed
-    And the "busybox:latest" image stream tag was created
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | copy                       |
-      | --dest-tls-verify=false |
-      | docker://docker.io/busybox:latest |
-      | docker://<%= cb.reg_svc_url %>/test/busybox:v1 |
-    Then the step should succeed
-    When I run the :import_image client command with:
-      | from       | <%= cb.reg_svc_url %>/test/busybox |
-      | image_name | busybox                            |
-      | confirm    | true                               |
-      | all        | true                               |
-      | insecure   | true                               |
-    Then the step should succeed
-    And the "busybox:v1" image stream tag was created
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | copy                       |
-      | --dest-tls-verify=false |
-      | docker://docker.io/library/centos:latest |
-      | docker://<%= cb.reg_svc_url %>/test/busybox:centos |
-    Then the step should succeed
-    When I run the :import_image client command with:
-      | from       | <%= cb.reg_svc_url %>/test/busybox |
-      | image_name | busybox                            |
-      | confirm    | true                               |
-      | all        | true                               |
-      | insecure   | true                               |
-    Then the step should succeed
-    And the "busybox:centos" image stream tag was created
-
-  # @author haowang@redhat.com
   # @case_id OCP-11310
   @admin
   Scenario: Have size information for images pushed to internal registry
