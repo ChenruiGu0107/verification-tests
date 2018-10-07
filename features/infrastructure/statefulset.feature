@@ -1,6 +1,6 @@
 Feature: StatefulSet related tests
   # @author: dma@redhat.com
-  # @case_id: OCP-12981
+  # @case_id OCP-12981
   @destructive
   @admin
   Scenario: Using persistent storage in StatefulSet
@@ -69,7 +69,7 @@ Feature: StatefulSet related tests
       | test-statefulset-1 |
 
   # @author: dma@redhat.com
-  # @case_id: OCP-12983
+  # @case_id OCP-12983
   Scenario: Scaling up/down StatefulSet
     Given I have a project
     When I run the :create client command with:
@@ -102,7 +102,7 @@ Feature: StatefulSet related tests
     And the pod named "hello-statefulset-4" does not exist
 
   # @author: dma@redhat.com
-  # @case_id: OCP-12987
+  # @case_id OCP-12987
   @admin
   Scenario: Deleting StatefulSets
     Given I have a project
@@ -149,7 +149,7 @@ Feature: StatefulSet related tests
     And I check that the "www-hello-statefulset-0" persistentvolumeclaim exists in the project
 
   # @author: dma@redhat.commit
-  # @case_id: OCP-12984
+  # @case_id OCP-12984
   Scenario: Update container image in StatefulSet
     Given I have a project
     When I run the :create client command with:
@@ -182,7 +182,7 @@ Feature: StatefulSet related tests
       | docker.io/ocpqe/hello-pod:v2 |
 
   # @author: dma@redhat.com
-  # @case_id: OCP-12975
+  # @case_id OCP-12975
   Scenario: Pods in a StatefulSet is using stable network identities
     Given I have a project
     When I run the :create client command with:

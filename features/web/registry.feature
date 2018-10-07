@@ -390,7 +390,7 @@ Feature: Testing registry
     Then the step should succeed
 
   # @author:yanpzhan@redhat.com
-  # @case_id:OCP-10231
+  # @case_idOCP-10231
   Scenario: Add/Remove role to/from project on atomic-registry console
     Given I have a project
     Given I open registry console in a browser

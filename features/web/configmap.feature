@@ -668,7 +668,7 @@ Feature: ConfigMap related features
     Then the step should succeed
 
   # @author: yanpzhan@redhat.com
-  # @case_id: OCP-12232
+  # @case_id OCP-12232
   Scenario: Create new config maps and secrets when adding config files
     Given the master version >= "3.5"
     Given I have a project
@@ -744,7 +744,7 @@ Feature: ConfigMap related features
 
 
   # @author: hasha@redhat.com
-  # @case_id: OCP-15973
+  # @case_id OCP-15973
   Scenario: Add configmap to application from the configmap page
     Given the master version >= "3.7"
     Given I create a new project

@@ -878,7 +878,7 @@ Feature: deployment related steps
       | current | 5 |
  
   # @author: geliu@redhat.com
-  # @case_id: OCP-11802
+  # @case_id OCP-11802
   Scenario: Proportionally scale - Mixture of surging, scaling and rollout
     Given I have a project
     When I run the :create client command with:
@@ -1065,7 +1065,7 @@ Feature: deployment related steps
       | current | 0 |
 
   # @author: geliu@redhat.com
-  # @case_id: OCP-12266
+  # @case_id OCP-12266
   Scenario: Proportionally scale - Special value test for proportional scaling
     Given I have a project
     When I run the :create client command with:
