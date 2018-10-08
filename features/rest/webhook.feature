@@ -1,7 +1,6 @@
 Feature: Webhook REST Related Tests
 
   # @author cryan@redhat.com
-  # @case_id OCP-11693 OCP-11875
   Scenario Outline: Trigger build with webhook
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
@@ -45,8 +44,8 @@ Feature: Webhook REST Related Tests
     Then the output should contain "not accept"
     Examples:
       | type    | negative1 | negative2   | negative3 | path              | file              | header1        | header2 |
-      | generic | GitHub    | ImageChange | github    | generic/testdata/ | push-generic.json |                |         |
-      | github  | Generic   | ImageChange | generic   | github/testdata/  | pushevent.json    | X-Github-Event | push    |
+      | generic | GitHub    | ImageChange | github    | generic/testdata/ | push-generic.json |                |         | # @case_id OCP-11693
+      | github  | Generic   | ImageChange | generic   | github/testdata/  | pushevent.json    | X-Github-Event | push    | # @case_id OCP-11875
 
   # @author yantan@redhat.com
   # @case_id OCP-12632
@@ -79,7 +78,7 @@ Feature: Webhook REST Related Tests
 
   # @author yantan@redhat.com dyan@redhat.com
   # @case_id 438841 438853
-  Scenario Outline: Trigger build manually with webhook contained invalid/blank commit ID or branch name 
+  Scenario Outline: Trigger build manually with webhook contained invalid/blank commit ID or branch name
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:2.2 |
@@ -149,7 +148,7 @@ Feature: Webhook REST Related Tests
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
     And I replace lines in "<file>":
-      | refs/heads/master                        | refs/heads/test-tcms438840               | 
+      | refs/heads/master                        | refs/heads/test-tcms438840               |
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051 | 89af0dd3183f71b9ec848d5cc2b55599244de867 |
       | <url_before>                             | <url_after>                              |
     Then the step should succeed
@@ -186,7 +185,7 @@ Feature: Webhook REST Related Tests
       :content-type: application/json
       :<header1>: <header2>
     :payload: <%= File.read("<file>").to_json %>
-    """ 
+    """
     Then the step should succeed
     Given the "ruby-ex-3" build completes
     When I run the :logs client command with:
@@ -196,7 +195,7 @@ Feature: Webhook REST Related Tests
       | "commit"      |
     Examples:
       | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | 
+      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex |
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author cryan@redhat.com
@@ -311,8 +310,8 @@ Feature: Webhook REST Related Tests
     And the "ruby-hello-world-1" build finished
     When I run the :logs client command with:
       | resource_name | pod/ruby-hello-world-1-build |
-    And the output should contain "/bin/sh: No such file or directory" 
-  
+    And the output should contain "/bin/sh: No such file or directory"
+
   # @author wewang@redhat.com
   # @case_id OCP-9663
   @admin
@@ -354,4 +353,4 @@ Feature: Webhook REST Related Tests
     When I expose the "frontend" service
     Then the step should succeed
     And I wait for a web server to become available via the route
-    And the output should contain "Guestbook"     
+    And the output should contain "Guestbook"

@@ -368,7 +368,7 @@ Feature: Testing registry
       | display_name  | test                                                |
       | access_policy | Shared: Allow any authenticated user to pull images |
     Then the step should succeed
-    
+
     # Allow time for the project to fully create and register the security policy before logout
     Given I use the "user1-test-prj" project
     Given I wait up to 60 seconds for the steps to pass:
@@ -389,8 +389,8 @@ Feature: Testing registry
       | project_name | user1-test-prj |
     Then the step should succeed
 
-  # @author:yanpzhan@redhat.com
-  # @case_idOCP-10231
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-10231
   Scenario: Add/Remove role to/from project on atomic-registry console
     Given I have a project
     Given I open registry console in a browser

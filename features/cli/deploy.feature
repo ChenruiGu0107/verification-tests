@@ -192,7 +192,6 @@ Feature: deployment related features
       | [tT]ype:\\s+ConfigChange |
 
   # @author xxing@redhat.com
-  # @case_id OCP-12624 OCP-12018 OCP-12116
   Scenario Outline: CLI rollback two more components of deploymentconfig
     Given I have a project
     When I run the :create client command with:
@@ -236,9 +235,9 @@ Feature: deployment related features
       | <changed_val2>         |
     Examples:
       | change_scaling_settings | change_strategy | changed_val1  | changed_val2       |
-      | :false                  | :false          |               |                    |
-      |                         | :false          | "replicas": 1 |                    |
-      |                         |                 | "replicas": 1 | "type": "Recreate" |
+      | :false                  | :false          |               |                    | # @case_id OCP-12116
+      |                         | :false          | "replicas": 1 |                    | # @case_id OCP-12018
+      |                         |                 | "replicas": 1 | "type": "Recreate" | # @case_id OCP-12624
 
   # @author xxing@redhat.com
   # @case_id OCP-11877

@@ -1,6 +1,5 @@
 Feature: Deployments rollback features
   # @author yapei@redhat.com
-  # @case_id OCP-11167 OCP-11741 OCP-11914 OCP-11511
   Scenario Outline: rollback from web console
     Given I have a project
     # create deployment from template on web console
@@ -62,7 +61,7 @@ Feature: Deployments rollback features
       | "value": "Plqe5Wev" |
     Examples:
       | rollback_op              | changed_val1 | changed_val2 | changed_val3 |
-      | rollback_none_components | Rolling      | ImageChange  | 2            |
-      | rollback_one_component   | Rolling      | ConfigChange | 2            |
-      | rollback_two_components  | Recreate     | ImageChange  | 1            |
-      | rollback_all_components  | Recreate     | ConfigChange | 1            |
+      | rollback_none_components | Rolling      | ImageChange  | 2            | # @case_id OCP-11167
+      | rollback_one_component   | Rolling      | ConfigChange | 2            | # @case_id OCP-11741
+      | rollback_two_components  | Recreate     | ImageChange  | 1            | # @case_id OCP-11914
+      | rollback_all_components  | Recreate     | ConfigChange | 1            | # @case_id OCP-11511

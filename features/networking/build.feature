@@ -1,7 +1,6 @@
 Feature: Testing the isolation during build scenarios
 
   # @author zzhao@redhat.com
-  # @case_id OCP-15741,OCP-15734
   # @bug_id 1487652
   Scenario Outline: Build-container is constrained to access other projects pod for multitenant plugin
     Given I have a project
@@ -42,13 +41,12 @@ Feature: Testing the isolation during build scenarios
     """
 
     Examples:
-      | type | repo | strategy | cache |
-      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation | dockerStrategy | no-cache |
-      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental |
+      | type   | repo                                                           | strategy       | cache       |
+      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation      | dockerStrategy | no-cache    | # @case_id OCP-15741
+      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental | # @case_id OCP-15734
 
 
   # @author zzhao@redhat.com
-  # @case_id OCP-15714,OCP-15715
   # @bug_id 1487652
   @admin
   Scenario Outline: EgressNetworkPolicy constrained build process to extranet for multitenant plugin
@@ -72,13 +70,12 @@ Feature: Testing the isolation during build scenarios
     """
 
     Examples:
-      | type | repo |
-      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#network_isolation |
-      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#network_isolation |
+      | type   | repo                                                                   |
+      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#network_isolation      | # @case_id OCP-15714
+      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#network_isolation | # @case_id OCP-15715
 
 
   # @author zzhao@redhat.com
-  # @case_id OCP-15742,OCP-15743
   # @bug_id 1487652
   Scenario Outline: Build-container is able to access other projects pod for subnet plugin
     Given I have a project
@@ -118,13 +115,12 @@ Feature: Testing the isolation during build scenarios
     """
 
     Examples:
-      | type | repo | strategy | cache |
-      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation | dockerStrategy | no-cache |
-      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental |
+      | type   | repo                                                           | strategy       | cache       |
+      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation      | dockerStrategy | no-cache    | # @case_id OCP-15743
+      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental | # @case_id OCP-15742
 
 
   # @author zzhao@redhat.com
-  # @case_id OCP-15731,OCP-15744
   # @bug_id 1487652
   Scenario Outline: Build-container is constrained to access other projects pod for networkpolicy plugin
     Given I have a project
@@ -188,6 +184,6 @@ Feature: Testing the isolation during build scenarios
     """
 
     Examples:
-      | type | repo | strategy | cache |
-      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation | dockerStrategy | no-cache |
-      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental |
+      | type   | repo                                                           | strategy       | cache       |
+      | Docker | https://github.com/zhaozhanqi/ruby-docker-test/#isolation      | dockerStrategy | no-cache    | # @case_id OCP-15731
+      | sti    | ruby~https://github.com/zhaozhanqi/ruby-docker-test/#isolation | sourceStrategy | incremental | # @case_id OCP-15744

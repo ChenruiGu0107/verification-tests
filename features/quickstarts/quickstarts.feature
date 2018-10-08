@@ -1,7 +1,6 @@
 Feature: quickstarts.feature
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 497613 OCP-12605 OCP-9569 OCP-9570 508737
   Scenario Outline: quickstart test
     Given I have a project
     When I run the :new_app client command with:
@@ -18,7 +17,7 @@ Feature: quickstarts.feature
       | django-psql-example       | django-psql-example      | Django  | 2     | # @case_id OCP-12609
       | dancer-mysql-example      | dancer-mysql-example     | Dancer  | 2     | # @case_id OCP-12606
       | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     | # @case_id OCP-12541
-      | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
+      | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     | # @case_id OCP-9570
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     | # @case_id OCP-12296
       | dotnet-example            | dotnet-example           | ASP.NET | 1     | # @case_id OCP-13749
       | openjdk18-web-basic-s2i   | openjdk-app          | Hello World | 1     | # @case_id OCP-17826
@@ -130,7 +129,7 @@ Feature: quickstarts.feature
       | curl | -s | <%= service.url %> |
     Then the step should succeed
     """
-    Then the output should contain "Welcome to your Dancer application on OpenShift" 
+    Then the output should contain "Welcome to your Dancer application on OpenShift"
 
   # @author wzheng@redhat.com
   # @case_id OCP-12818
@@ -153,7 +152,7 @@ Feature: quickstarts.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-12823
-  Scenario: Nodejs-ex quickstart test with nodejs.json - nodejs-6-rhel7	
+  Scenario: Nodejs-ex quickstart test with nodejs.json - nodejs-6-rhel7
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/nodejs.json |
@@ -181,7 +180,6 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build completed
 
   # @author cryan@redhat.com
-  # @case_id 528401 528402 528403 492613 508743 OCP-12603 OCP-12264 529323 OCP-12296
   # @bug_id 1343184
   Scenario Outline: quickstart version test
     Given I have a project
@@ -212,7 +210,6 @@ Feature: quickstarts.feature
       | perl:5.24  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
 
   # @author dyan@redhat.com
-  # @case_id OCP-12602 OCP-12603
   Scenario Outline: Dancer-ex quickstart test with perl-516-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -228,8 +225,8 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | template                                                                                                | buildcfg             | output  | podno |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | @case_id OCP-12602
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | @case_id OCP-12603
 
   # @author xiuwang@redhat.com
   @smoke
@@ -261,7 +258,7 @@ Feature: quickstarts.feature
 
   # @author xiuwang@redhat.com
   # @case_id OCP-13750
-  Scenario: Dotnet-example quickstart test with dotnet-1.1	
+  Scenario: Dotnet-example quickstart test with dotnet-1.1
     Given I have a project
     When I run the :new_app client command with:
       | template | dotnet-example                       |

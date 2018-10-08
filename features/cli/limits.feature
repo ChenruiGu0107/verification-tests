@@ -1,6 +1,5 @@
 Feature: limit range related scenarios:
   # @author pruan@redhat.com, dma@redhat.com, azagayno@redhat.com
-  # @case_id OCP-10697, OCP-11175, OCP-11519
   @admin
   Scenario Outline: Limit range default request tests
     Given I have a project
@@ -19,13 +18,12 @@ Feature: limit range related scenarios:
     Then the step should succeed
 
     Examples:
-      | path | expr1 | expr2 |
-      | tc508038 | Container\\s+cpu\\s+\-\\s+\-\\s+200m\\s+200m\\s+\- | Container\\s+memory\\s+\-\\s+\-\\s+1Gi\\s+1Gi\\s+\- |
-      | tc508039 | Container\\s+cpu\\s+200m\\s+\-\\s+200m\\s+\-\\s+\- | Container\\s+memory\\s+1Gi\\s+\-\\s+1Gi\\s+\-\\s+\- |
-      | tc508040 | Container\\s+cpu\\s+\-\\s+200m\\s+200m\\s+200m\\s+\-  | Container\\s+memory\\s+\-\\s+1Gi\\s+1Gi\\s+1Gi\\s+\- |
+      | path     | expr1                                                 | expr2                                                |
+      | tc508038 | Container\\s+cpu\\s+\-\\s+\-\\s+200m\\s+200m\\s+\-    | Container\\s+memory\\s+\-\\s+\-\\s+1Gi\\s+1Gi\\s+\-  | # @case_id OCP-10697
+      | tc508039 | Container\\s+cpu\\s+200m\\s+\-\\s+200m\\s+\-\\s+\-    | Container\\s+memory\\s+1Gi\\s+\-\\s+1Gi\\s+\-\\s+\-  | # @case_id OCP-11175
+      | tc508040 | Container\\s+cpu\\s+\-\\s+200m\\s+200m\\s+200m\\s+\-  | Container\\s+memory\\s+\-\\s+1Gi\\s+1Gi\\s+1Gi\\s+\- | # @case_id OCP-11519
 
   # @author pruan@redhat.com, dma@redhat.com, azagayno@redhat.com
-  # @case_id OCP-11745, OCP-12200
   @admin
   Scenario Outline: Limit range invalid values tests
     Given I have a project
@@ -41,8 +39,8 @@ Feature: limit range related scenarios:
 
     Examples:
       | path | expr1 | expr2 | expr3 | expr4 | expr5 | expr6 | expr7 | expr8 | expr9 | expr10 | expr11 |expr12 | expr13| expr14 | expr15 | expr16 | expr17 | expr18 | expr19| expr20 |
-      | tc508041 | 400m | default request | 400m | max | 200m | 200m | default | 400m | max | 200m | 2Gi | default request | 2Gi | max | 1Gi | 1Gi | default | 2Gi  | max   | 1Gi    |
-      | tc508045 | 200m | min | 400m | default request | 200m | 400m | min | 400m | default | 200m | 1Gi | min | 2Gi | default request | 1Gi | 2Gi | min | 2Gi  | default   | 1Gi    |
+      | tc508041 | 400m | default request | 400m | max | 200m | 200m | default | 400m | max | 200m | 2Gi | default request | 2Gi | max | 1Gi | 1Gi | default | 2Gi  | max   | 1Gi    | # @case_id OCP-11745
+      | tc508045 | 200m | min | 400m | default request | 200m | 400m | min | 400m | default | 200m | 1Gi | min | 2Gi | default request | 1Gi | 2Gi | min | 2Gi  | default   | 1Gi    | # @case_id OCP-12200
 
   # @author pruan@redhat.com, dma@redhat.com, azagayno@redhat.com
   # @case_id OCP-12286
