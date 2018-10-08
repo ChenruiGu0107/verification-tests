@@ -495,8 +495,8 @@ Feature: Testing registry
     Then the step should succeed
     And the "ruby-22-centos7-2" image stream was created
 
-  # @author: yinzhou@redhat.com
-  # @case_id: OCP-12059
+  # @author yinzhou@redhat.com
+  # @case_id OCP-12059
   @admin
   Scenario: Pull image with secrets from private remote registry in the OpenShift registry
     Given I have a project
@@ -545,7 +545,7 @@ Feature: Testing registry
     Then the step should succeed
 
   # @author mcurlej@redhat.com
-  # @case_id: OCP-10849
+  # @case_id OCP-10849
   @admin
   @destructive
   Scenario: Create the integrated registry as a daemonset by oadm command
@@ -577,8 +577,8 @@ Feature: Testing registry
     And default registry is verified using a pod in a project
 
 
-  # @author: yinzhou@redhat.com
-  # @case_id: OCP-10987
+  # @author yinzhou@redhat.com
+  # @case_id OCP-10987
   @destructive
   @admin
   Scenario: openshift should support image path which have more than two slashes
@@ -626,8 +626,8 @@ Feature: Testing registry
     Then the step should succeed
     And I wait until the status of deployment "testdc" becomes :complete
 
-  # @author: yinzhou@redhat.com
-  # @case_id: OCP-10922
+  # @author yinzhou@redhat.com
+  # @case_id OCP-10922
   @destructive
   @admin
   Scenario: Admin can understand/manage image use and prune oversized image

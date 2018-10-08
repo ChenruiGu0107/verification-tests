@@ -1,7 +1,6 @@
 Feature: oc tag related scenarios
 
   # @author xxia@redhat.com
-  # @case_id OCP-11142 OCP-11907 OCP-11733 OCP-12038
   Scenario Outline: Tag an image into image stream
     Given I have a project
     When I run the :tag client command with:
@@ -53,12 +52,12 @@ Feature: oc tag related scenarios
     # Add case_id to easily find the row for each case
     Examples: Tag into imagestream that does not exist
       | case_id | source_type | source          | deststream | kind             |
-      | 492275  | isimage     | <%= cb.src %>   | newstream  | ImageStreamImage |
+      | 492275  | isimage     | <%= cb.src %>   | newstream  | ImageStreamImage | # @case_id OCP-11142
 
     Examples: Tag into imagestream that exists
-      | case_id | source_type | source          | deststream | kind             |
-      | 492277  | istag       | mystream:latest | mystream   | ImageStreamTag   |
-      | 492279  | docker      | docker.io/library/busybox:latest  | mystream   | DockerImage      |
+      | case_id | source_type | source                            | deststream | kind             |
+      | 492277  | istag       | mystream:latest                   | mystream   | ImageStreamTag   | # @case_id OCP-11733
+      | 492279  | docker      | docker.io/library/busybox:latest  | mystream   | DockerImage      | # @case_id OCP-12038
 
   # @author xxia@redhat.com
   # @case_id OCP-11496

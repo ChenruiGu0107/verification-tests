@@ -321,7 +321,6 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id OCP-11156 OCP-11368
   Scenario Outline: Trigger build of application from jenkins job with ephemeral volume
     Given I have a project
     And I have a jenkins v<ver> application
@@ -393,11 +392,10 @@ Feature: jenkins.feature
       | prod                                     |
     Examples:
       | ver |
-      | 1   |
-      | 2   |
+      | 1   | # @case_id OCP-11156
+      | 2   | # @case_id OCP-11368
 
   # @author cryan@redhat.com
-  # @case_id OCP-11179 OCP-11369
   @smoke
   Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
@@ -475,8 +473,8 @@ Feature: jenkins.feature
       | prod                                     |
     Examples:
       | ver |
-      | 1   |
-      | 2   |
+      | 1   | # @case_id OCP-11179
+      | 2   | # @case_id OCP-11369
 
   # @author cryan@redhat.com
   # @case_id OCP-10846 OCP-10977
@@ -1422,7 +1420,6 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id OCP-12075 OCP-12094
   Scenario Outline: Delete resource using jenkins pipeline DSL
     Given I have a project
     And I have a jenkins v<ver> application
@@ -1468,8 +1465,8 @@ Feature: jenkins.feature
     Then the output should not match "origin-nodejs-sample\s+latest"
     Examples:
       | ver |
-      | 1   |
-      | 2   |
+      | 1   | # @case_id OCP-12075
+      | 2   | # @case_id OCP-12094
 
   # @author shiywang@redhat.com
   # @case_id OCP-12325 OCP-12328
@@ -2616,7 +2613,7 @@ Feature: jenkins.feature
       | name     | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
-      | OPENSHIFT_JENKINS_JVM_ARCH:\s+i386| 
+      | OPENSHIFT_JENKINS_JVM_ARCH:\s+i386|
     When I execute on the pod:
       | ls | -l | /etc/alternatives/java |
     Then the step should succeed

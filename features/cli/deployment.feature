@@ -489,7 +489,7 @@ Feature: deployment related steps
       | f | deployment-perme-failed-2.yaml |
     And the step should fail
 
-  # @author: geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-11599
   Scenario: Cleanup policy - Cleanup all previous RSs older than the latest N replica sets in pause
     Given I have a project
@@ -603,7 +603,7 @@ Feature: deployment related steps
     And the output should match:
       | .*[iI]mage.*openshift/deployment-example.* |
 
-  # @author: geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-12073
   Scenario: Proportionally scale - Rollout deployment succeed in unpause and pause
     Given I have a project
@@ -725,7 +725,7 @@ Feature: deployment related steps
     And the output should match:
       | .*nonexist2.* |
 
-  # @author: geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-12161
   Scenario: Proportionally scale - Scale down deployment succeed in unpause and pause
     Given I have a project
@@ -877,8 +877,8 @@ Feature: deployment related steps
     Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
       | current | 5 |
  
-  # @author: geliu@redhat.com
-  # @case_id: OCP-11802
+  # @author geliu@redhat.com
+  # @case_id OCP-11802
   Scenario: Proportionally scale - Mixture of surging, scaling and rollout
     Given I have a project
     When I run the :create client command with:
@@ -1064,8 +1064,8 @@ Feature: deployment related steps
     Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
       | current | 0 |
 
-  # @author: geliu@redhat.com
-  # @case_id: OCP-12266
+  # @author geliu@redhat.com
+  # @case_id OCP-12266
   Scenario: Proportionally scale - Special value test for proportional scaling
     Given I have a project
     When I run the :create client command with:
@@ -1130,7 +1130,7 @@ Feature: deployment related steps
     Then the output should match:
       | .*[Ee]rror.*deployments.*hello-openshift.* |
 
-  # @author: geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-14348
   Scenario: Proportionally scale - [OSO]deployment of scaling and rollout
     Given I have a project
@@ -1186,7 +1186,7 @@ Feature: deployment related steps
     And the output should match:
       | .*[iI]mage.*openshift/nonexist1.* |
 
-  # @author: geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-14348
   Scenario: Proportionally scale - [OSO]deployment of scaling and rollout
     Given I have a project

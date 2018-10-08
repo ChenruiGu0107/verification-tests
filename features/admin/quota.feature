@@ -1,6 +1,5 @@
 Feature: Quota related scenarios
   # @author qwang@redhat.com
-  # @case_id OCP-11754, OCP-12049, OCP-12145
   @admin
   Scenario Outline: The quota usage should be incremented if meet the following requirement
     Given I have a project
@@ -29,9 +28,9 @@ Feature: Quota related scenarios
 
     Examples:
       | path     | file                           | pod_name                  | expr1             | expr2                       |
-      | tc509090 | pod-request-limit-valid-3.yaml | pod-request-limit-valid-3 | cpu\\s+100m\\s+30 | memory\\s+(134217728\|128Mi)\\s+16Gi |
-      | tc509092 | pod-request-limit-valid-1.yaml | pod-request-limit-valid-1 | cpu\\s+500m\\s+30 | memory\\s+(536870912\|512Mi)\\s+16Gi |
-      | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi |
+      | tc509090 | pod-request-limit-valid-3.yaml | pod-request-limit-valid-3 | cpu\\s+100m\\s+30 | memory\\s+(134217728\|128Mi)\\s+16Gi | # @case_id OCP-11754
+      | tc509092 | pod-request-limit-valid-1.yaml | pod-request-limit-valid-1 | cpu\\s+500m\\s+30 | memory\\s+(536870912\|512Mi)\\s+16Gi | # @case_id OCP-12049
+      | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi | # @case_id OCP-12145
 
   # @author qwang@redhat.com
   # @case_id OCP-12292

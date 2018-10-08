@@ -495,7 +495,6 @@ Feature: secrets related scenarios
     Then the output should contain "<%= cb.pass2 %>"
 
   # @author yantan@redhat.com
-  # @case_id OCP-12061 OCP-11947
   Scenario Outline: Insert secret to builder container via oc new-build - source/docker build
     Given I have a project
     When I run the :create client command with:
@@ -532,8 +531,8 @@ Feature: secrets related scenarios
 
     Examples:
       | type   | build_secret         | path      | command | expression               |
-      | source | testsecret1:/tmp     | /tmp      | cat     | @result[:response] == "" |
-      | docker | testsecret1:mysecret1| mysecret1 | ls      | true                     |
+      | source | testsecret1:/tmp     | /tmp      | cat     | @result[:response] == "" | # @case_id OCP-12061
+      | docker | testsecret1:mysecret1| mysecret1 | ls      | true                     | # @case_id OCP-11947
 
   # @author xiuwang@redhat.com
   # @case_id OCP-10702
@@ -1541,7 +1540,7 @@ Feature: secrets related scenarios
       | name     | secret1-with-docker-registry |
     Then the output should contain:
       | kubernetes.io/dockerconfigjson |
-  
+
     #Step 2. --dry-run
     When I run the :create_secret client command with:
       | secret_type     | docker-registry        |
@@ -1554,7 +1553,7 @@ Feature: secrets related scenarios
     Then the output should match:
       | secret.*created.*dry.*run.* |
     And the secret named "secret2-dryrun" does not exist in the project
-  
+
     #Step 3. --generator
     When I run the :create_secret client command with:
       | secret_type     | docker-registry               |
@@ -1576,7 +1575,7 @@ Feature: secrets related scenarios
       | generator       | secret-for-docker-registry/v1 |
     Then the output should match:
       | secret.*created |
-  
+
     #Step 4. --output
     When I run the :create_secret client command with:
       | secret_type     | docker-registry               |
@@ -1600,7 +1599,7 @@ Feature: secrets related scenarios
     Then the output should contain:
       | kind: Secret |
     And I wait for the "secret4-2-output" secret to appear
-  
+
     #Step 6. --save-config
     When I run the :create_secret client command with:
       | secret_type     | docker-registry        |
@@ -1646,7 +1645,7 @@ Feature: secrets related scenarios
     And the expression should be true> secret("secret1-from-file").value_of("file1") == "1"
     And the expression should be true> secret("secret1-from-file").value_of("file2") == "2"
     And the expression should be true> secret("secret1-from-file").value_of("file3") == "3"
-  
+
     #Step 2.Create a new secret based on a file
     Given I create the "testfolder2" directory
     And a "testfolder2/file4" file is created with the following lines:
@@ -1678,7 +1677,7 @@ Feature: secrets related scenarios
       | from_file   | ssh-publickey=./testfolder2/id_rsa.pub |
     And the expression should be true> secret("secret3-from-file").value_of("ssh-privatekey") == "key12345"
     And the expression should be true> secret("secret3-from-file").value_of("ssh-publickey") == "key6789012"
-  
+
     #Step 4. --from-literal
     When I run the :create_secret client command with:
       | secret_type  | generic              |
@@ -1687,7 +1686,7 @@ Feature: secrets related scenarios
       | from_literal | key2=adbdefg         |
     Then the expression should be true> secret("secret4-from-literal").value_of("key1") == "abc"
     And the expression should be true> secret("secret4-from-literal").value_of("key2") == "adbdefg"
-  
+
     #Step 5. --dry-run
     When I run the :create_secret client command with:
       | secret_type  | generic         |
@@ -1713,7 +1712,7 @@ Feature: secrets related scenarios
       | from_literal | key1=aaa            |
       | generator    | secret/v1           |
     Then the step should succeed
-  
+
     #Step 7. --output
     # --output=json
     When I run the :create_secret client command with:
@@ -1756,7 +1755,7 @@ Feature: secrets related scenarios
     Then the output should contain:
       | secret/secret7-4-output |
     And I wait for the "secret7-4-output" secret to appear
-  
+
     #Step 9. --save-config
     When I run the :create_secret client command with:
       | secret_type  | generic             |
@@ -1769,7 +1768,7 @@ Feature: secrets related scenarios
       | o             | yaml                |
     Then the output should contain:
       | kubectl.kubernetes.io/last-applied-configuration |
-  
+
     #Step 12. --type
     When I run the :create_secret client command with:
       | secret_type  | generic           |
@@ -1782,11 +1781,11 @@ Feature: secrets related scenarios
       | name         | secret13-validate |
       | from_literal | key1=aaa          |
       | type         | dockercfg         |
-    Then the expression should be true> secret("secret13-validate").type == "dockercfg"    
+    Then the expression should be true> secret("secret13-validate").type == "dockercfg"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-10982
-  Scenario: oc new-app to gather git creds	
+  Scenario: oc new-app to gather git creds
     Given I have a project
     When I have an http-git service in the project
     And I run the :set_env client command with:

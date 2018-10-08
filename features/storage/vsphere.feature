@@ -1,6 +1,5 @@
 Feature: vSphere test scenarios
   # @author jhou@redhat.com
-  # @case_id OCP-13386 OCP-13387 OCP-13388
   @admin
   Scenario Outline: Dynamically provision a vSphere volume with different disk formats
     Given I have a project
@@ -52,9 +51,9 @@ Feature: vSphere test scenarios
 
     Examples:
       | disk_format      |
-      | thin             |
-      | zeroedthick      |
-      | eagerzeroedthick |
+      | thin             | # @case_id OCP-13386
+      | zeroedthick      | # @case_id OCP-13387
+      | eagerzeroedthick | # @case_id OCP-13388
 
   # @author jhou@redhat.com
   # @case_id OCP-13389

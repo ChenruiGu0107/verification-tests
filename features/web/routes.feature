@@ -531,8 +531,8 @@ Feature: Routes related features on web console
       | weight_two      | 27                 |
     Then the step should succeed
 
-  # @author: hasha@redhat.com
-  # @case_id: OCP-11426
+  # @author hasha@redhat.com
+  # @case_id OCP-11426
   Scenario: Provide helpful error page for app 503 response
     Given the master version >= "3.5"
     Given I have a project
@@ -586,8 +586,8 @@ Feature: Routes related features on web console
       | doesn't have a matching path |
       | all pods are down            |
 
-  # @author: xipang@redhat.com
-  # @case_id: OCP-11672
+  # @author xipang@redhat.com
+  # @case_id OCP-11672
   @admin
   @destructive
   Scenario: Edit WildCard routes on web console

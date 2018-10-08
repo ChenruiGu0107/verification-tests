@@ -1,7 +1,7 @@
 Feature: env related feature
 
-  # @author: yanpzhan@redhat.com
-  # @case_id: OCP-15442
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-15442
   Scenario: Support add configmap/secret with EnvForm format on env page
     Given I have a project
     When I run the :secrets client command with:
