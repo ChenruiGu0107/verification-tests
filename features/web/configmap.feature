@@ -667,7 +667,7 @@ Feature: ConfigMap related features
       | resource_key  | special.how    |
     Then the step should succeed
 
-  # @author: yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-12232
   Scenario: Create new config maps and secrets when adding config files
     Given the master version >= "3.5"
@@ -743,7 +743,7 @@ Feature: ConfigMap related features
     """
 
 
-  # @author: hasha@redhat.com
+  # @author hasha@redhat.com
   # @case_id OCP-15973
   Scenario: Add configmap to application from the configmap page
     Given the master version >= "3.7"

@@ -423,7 +423,7 @@ Feature: test master config related steps
     And the output should contain:
      | NAME       | 509116_user                |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-10594
   @admin
   @destructive
@@ -1382,7 +1382,7 @@ Feature: test master config related steps
     Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "name") == "FOO"
     Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "value") == "test"
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-12050
   @admin
   @destructive
@@ -1435,7 +1435,7 @@ Feature: test master config related steps
     Given master config is restored from backup
     And the master service is restarted on all master nodes
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-12190
   @admin
   @destructive

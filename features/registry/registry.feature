@@ -495,7 +495,7 @@ Feature: Testing registry
     Then the step should succeed
     And the "ruby-22-centos7-2" image stream was created
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-12059
   @admin
   Scenario: Pull image with secrets from private remote registry in the OpenShift registry
@@ -577,7 +577,7 @@ Feature: Testing registry
     And default registry is verified using a pod in a project
 
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-10987
   @destructive
   @admin
@@ -626,7 +626,7 @@ Feature: Testing registry
     Then the step should succeed
     And I wait until the status of deployment "testdc" becomes :complete
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-10922
   @destructive
   @admin

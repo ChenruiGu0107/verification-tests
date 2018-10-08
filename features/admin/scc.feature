@@ -678,7 +678,7 @@ Feature: SCC policy related scenarios
       | f | gitrepo-selinux-fsgroup-test.json |
     Then the step should succeed
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13573
   @admin
   Scenario: Verify the privileged SCC allow to request any capabilities

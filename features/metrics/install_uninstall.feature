@@ -209,8 +209,8 @@ Feature: metrics logging and uninstall tests
     Then the expression should be true> @result[:parsed]['status'] == 'STARTED'
 
   # @author xiazhao@redhat.com
-  # @author: lizhou@redhat.com
-  # @author: pruan@redhat.com
+  # @author lizhou@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-11868
   @admin
   @destructive

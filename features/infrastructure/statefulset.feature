@@ -1,5 +1,5 @@
 Feature: StatefulSet related tests
-  # @author: dma@redhat.com
+  # @author dma@redhat.com
   # @case_id OCP-12981
   @destructive
   @admin
@@ -68,7 +68,7 @@ Feature: StatefulSet related tests
     And the output should contain:
       | test-statefulset-1 |
 
-  # @author: dma@redhat.com
+  # @author dma@redhat.com
   # @case_id OCP-12983
   Scenario: Scaling up/down StatefulSet
     Given I have a project
@@ -101,7 +101,7 @@ Feature: StatefulSet related tests
     And the pod named "hello-statefulset-3" does not exist
     And the pod named "hello-statefulset-4" does not exist
 
-  # @author: dma@redhat.com
+  # @author dma@redhat.com
   # @case_id OCP-12987
   @admin
   Scenario: Deleting StatefulSets
@@ -148,7 +148,7 @@ Feature: StatefulSet related tests
     And I check that the "www-hello-statefulset-0" persistentvolumeclaim exists in the project
     And I check that the "www-hello-statefulset-0" persistentvolumeclaim exists in the project
 
-  # @author: dma@redhat.commit
+  # @author dma@redhat.commit
   # @case_id OCP-12984
   Scenario: Update container image in StatefulSet
     Given I have a project
@@ -181,7 +181,7 @@ Feature: StatefulSet related tests
     Then the output should contain:
       | docker.io/ocpqe/hello-pod:v2 |
 
-  # @author: dma@redhat.com
+  # @author dma@redhat.com
   # @case_id OCP-12975
   Scenario: Pods in a StatefulSet is using stable network identities
     Given I have a project

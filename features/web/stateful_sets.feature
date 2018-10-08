@@ -1,6 +1,6 @@
 Feature: Stateful Set related feature on web console
 
-  # @author: etrott@redhat.com
+  # @author etrott@redhat.com
   # @case_id OCP-11054
   Scenario: Check details on StatefulSet page
     Given the master version >= "3.5"
@@ -178,7 +178,7 @@ Feature: Stateful Set related feature on web console
       | name | world |
     Then the step should succeed
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-15128
   Scenario: Environment handling for StatefulSet
     Given the master version >= "3.7"
