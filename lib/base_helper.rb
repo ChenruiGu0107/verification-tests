@@ -289,7 +289,7 @@ module CucuShift
         when "Mi", "MiB"
           return number * 1024 * 1024
         when "M", "m", "MB", "mb"
-          return number * 1000 * 1024
+          return number * 1000 * 1000
         when "Gi", "GiB"
           return number * 1024 * 1024 * 1024
         when "G", "g", "GB", "gb"
