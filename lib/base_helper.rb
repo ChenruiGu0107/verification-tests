@@ -282,12 +282,18 @@ module CucuShift
         case unit
         when "", "b"
           return number
-        when "Ki", "K", "kb"
+        when "Ki", "KiB"
           return number * 1024
-        when "Mi", "M", "mb"
+        when "K", "k", "kb" "KB"
+          return number * 1000
+        when "Mi", "MiB"
           return number * 1024 * 1024
-        when "Gi", "G", "gb"
+        when "M", "m", "MB", "mb"
+          return number * 1000 * 1024
+        when "Gi", "GiB"
           return number * 1024 * 1024 * 1024
+        when "G", "g", "GB", "gb"
+          return number * 1000 * 1000 * 1000
         else
           raise "unknown memory unit '#{unit}'"
         end
