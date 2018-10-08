@@ -392,8 +392,8 @@ Feature: storageClass related feature
     """
     When I run the :describe client command with:
       | resource | pvc/invalid |
-    Then the output should contain:
-      | error creating volume |
+    Then the output should match:
+      | (failed\|error) (to)? (create\|creating) volume |
     """
 
   # @author lxia@redhat.com

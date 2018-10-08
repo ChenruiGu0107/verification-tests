@@ -55,13 +55,17 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
   _scc = security_context_constraints("nfs-provisioner")
   _deployment.ensure_deleted(user: admin)
   _scc.ensure_deleted(user: admin)
-  step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/2ceb856d855744dda6cc22cfb666c2df4c8c0703/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
+  step %Q{the following scc policy is created: https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/scc.yaml}
   step %Q/SCC "nfs-provisioner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
   # To make sure the nfs-provisioner role is deleted which is created mannually by user
   step %Q/admin ensures "nfs-provisioner-runner" clusterrole is deleted/
-
-  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/rbac.yaml")
-  raise "could not create nfs-provisioner ClusterRole" unless @result[:success]
+  step %Q|I download a file from "https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/rbac.yaml"|
+  file_name = @result[:file_name]
+  step %Q/I replace content in "#{file_name}":/, table(%{
+    | default | <%= project.name %> |
+    })  
+  @result = admin.cli_exec(:create, n: project.name, f: file_name)
+  raise "could not create nfs-provisioner rbac" unless @result[:success]
   env.nodes.map(&:host).each do |host|
     setup_commands = [
       "mkdir -p /srv/",
@@ -71,19 +75,17 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
     raise "Set up hostpath for nfs-provisioner failed" unless @result[:success]
   end
   if _service
-    @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/deployment.yaml")
+    @result = admin.cli_exec(:create, n: project.name, f: "https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/deployment.yaml")
     raise "could not create nfs-provisioner deployment" unless @result[:success]
     step %Q/a pod becomes ready with labels:/, table(%{
       | app=nfs-provisioner |
       })
   else
-    step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/pod.yaml" replacing paths:}, table(%{
-      | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
-      })
-    step %Q/the pod named "nfs-provisioner-<%= cb.nfsprovisioner %>" becomes ready/
+    @result = admin.cli_exec(:create, n: project.name, f: "https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/pod.yaml")
+    raise "could not create nfs-provisioner pod" unless @result[:success]
   end
   unless storage_class("nfs-provisioner-"+project.name).exists?(user: admin, quiet: true)
-    step %Q{admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:}, table(%{
+    step %Q{admin creates a StorageClass from "https://raw.githubusercontent.com/openshift/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:}, table(%{
       | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
       })
     step %Q/the step should succeed/
@@ -110,20 +112,25 @@ Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in 
   File.write(path, cm.to_yaml)
   @result = user.cli_exec(:create, f: path)
   raise "Could not create efs-provisioner configmap" unless @result[:success]
-  step 'I create the serviceaccount "efs-provisioner"'
   step %Q/SCC "hostmount-anyuid" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
   # To make sure the efs-provisioner role is deleted which is created mannually by user
   step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted/
-  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/openshift-clusterrole.yaml")
-  raise "could not create efs-provisioner ClusterRole" unless @result[:success]
-  step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted after scenario/
-  step %Q/cluster role "efs-provisioner-runner" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
-  step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/deployment.yaml" replacing paths:}, table(%{
-    | ["spec"]["template"]["spec"]["serviceAccount"]              | efs-provisioner                     |
-    | ["spec"]["template"]["spec"]["containers"][0]["image"]      | openshift3/efs-provisioner          |
-    | ["spec"]["template"]["spec"]["volumes"][0]["nfs"]["server"] | #{fsid}.efs.#{region}.amazonaws.com |
-    | ["spec"]["template"]["spec"]["volumes"][0]["nfs"]["path"]   | /                                   |
+  step %Q|I download a file from "https://raw.githubusercontent.com/openshift/external-storage/master/aws/efs/deploy/rbac.yaml"|
+  file_name = @result[:file_name]
+  step %Q/I replace content in "#{file_name}":/, table(%{
+    | default | <%= project.name %> |
+    })  
+  @result = admin.cli_exec(:create, n: project.name, f: file_name)
+  raise "could not create efs-provisioner rbac" unless @result[:success]
+  step %Q|I download a file from "https://raw.githubusercontent.com/openshift/external-storage/master/aws/efs/deploy/deployment.yaml"|
+  file_name = @result[:file_name]
+  step %Q/I replace content in "#{file_name}":/, table(%{
+    | /image:.*/  | image: openshift3/ose-efs-provisioner       |
+    | /server:.*/ | server: #{fsid}.efs.#{region}.amazonaws.com |
+    | /path:.*/   | path: /                                     |
     })
+  @result = user.cli_exec(:create, f: file_name)
+  raise "Could not create efs-provisioner deployment" unless @result[:success]
   step %Q/a pod becomes ready with labels:/, table(%{
     | app=efs-provisioner |
     })
