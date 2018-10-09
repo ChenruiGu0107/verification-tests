@@ -498,6 +498,7 @@ Given /^I wait for the networking components of the node to become ready$/ do
       logger.error(@result[:response])
       raise "sdn pod on the node did not become ready"
     end
+    cb.sdn_pod = sdn_pod
 
     @result = ovs_pod.wait_till_ready(user, 60)
     unless @result[:success]
@@ -541,6 +542,7 @@ Given /^I restart the network components on the node( after scenario)?$/ do |aft
         pod.node_name == _node.name
       }.first
       @result = sdn_pod.ensure_deleted(user: _admin)
+      step "I wait for the networking components of the node to become ready"
     else
       step "the node service is restarted on the host"
     end
@@ -558,7 +560,7 @@ Given /^I get the networking components logs of the node since "(.+)" ago$/ do |
   ensure_admin_tagged
 
   if env.version_ge("3.10", user: user)
-    sdn_pod = CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin, quiet: true) { |pod, hash|
+    sdn_pod = cb.sdn_pod || CucuShift::Pod.get_labeled("app=sdn", project: project("openshift-sdn", switch: false), user: admin) { |pod, hash|
       pod.node_name == node.name
     }.first
     @result = admin.cli_exec(:logs, resource_name: sdn_pod.name, n: "openshift-sdn", since: duration)
