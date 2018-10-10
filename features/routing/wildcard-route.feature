@@ -1,7 +1,6 @@
 Feature: Testing wildcard routes
 
   # @author bmeng@redhat.com
-  # @case_id OCP-11403 OCP-11671 OCP-11855
   @admin
   @destructive
   Scenario Outline: Create wildcard domain routes
@@ -46,9 +45,9 @@ Feature: Testing wildcard routes
 
     Examples:
       | route_type | service | route | route-suffix |
-      | edge | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_edge.json | edge.example.com |
-      | reencrypt | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_reencrypt.json | reen.example.com |
-      | passthrough | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_pass.json | pass.example.com |
+      | edge | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_edge.json | edge.example.com | # @case_id OCP-11403
+      | reencrypt | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_reencrypt.json | reen.example.com | # @case_id OCP-11855
+      | passthrough | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_pass.json | pass.example.com | # @case_id OCP-11671
 
 
   # @author bmeng@redhat.com
@@ -165,7 +164,7 @@ Feature: Testing wildcard routes
       | <%= cb.route_allow %>.test.example.com:443:<%= cb.router_ip[0] %> |
       | https://<%= cb.route_allow %>.test.example.com/ |
       | -ksS |
-    Then the step should succeed 
+    Then the step should succeed
     And the output should contain "Hello-OpenShift"
 
   # @author bmeng@redhat.com
@@ -400,7 +399,7 @@ Feature: Testing wildcard routes
     When I run the :expose client command with:
       | resource      | service                                   |
       | resource_name | service-unsecure                          |
-      | hostname      | wildcard.<%= cb.subdomain %>              |  
+      | hostname      | wildcard.<%= cb.subdomain %>              |
       | wildcardpolicy| Subdomain                                 |
     Then the step should succeed
     Given an 8 characters random string of type :dns952 is stored into the :wildcard_route clipboard
@@ -426,7 +425,7 @@ Feature: Testing wildcard routes
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 http-8080"
-    
+
     #Create passthrough wildcard route
     When I run the :create_route_passthrough client command with:
       | name           | route-pass                                |
@@ -446,7 +445,7 @@ Feature: Testing wildcard routes
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
     #Create reencrypt wildcard route
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"    
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name           | route-reen                                |
       | hostname       | wildcard.reen.example.com                 |
@@ -549,7 +548,7 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | None                                      |
     Then the step should succeed
-    
+
     And I wait up to 20 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -619,9 +618,9 @@ Feature: Testing wildcard routes
     When I run the :expose client command with:
       | resource      | service                                   |
       | resource_name | service-secure                            |
-      | hostname      | invalid-wildcardpolicy.com                |  
+      | hostname      | invalid-wildcardpolicy.com                |
       | wildcardpolicy| invalid                                   |
-    Then the step should fail 
+    Then the step should fail
     And the output should contain:
       | error: only "Subdomain" or "None" are supported for wildcard-policy |
 
@@ -642,7 +641,7 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | invalid                                   |
     Then the step should fail
-    And the output should match: 
+    And the output should match:
       | Unsupported value: "invalid": supported values.*None.*Subdomain |
 
     #Test 'oc create route reencrypt' with invalid wildcardpolicy
@@ -661,7 +660,7 @@ Feature: Testing wildcard routes
     Given I have a project
     When I run the :expose client command with:
       | resource | service   |
-      | resource_name | service-secure |         
+      | resource_name | service-secure |
       | help     |           |
     Then the step should succeed
     And the output should contain "--wildcard-policy="

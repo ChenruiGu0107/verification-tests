@@ -11,7 +11,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | pod node label selector conflicts with its project node label selector |
 
   # @author bingli@redhat.com
-  # @case_id OCP-11230 
+  # @case_id OCP-11230
   Scenario: Specify runtime duration of run-once pods globally in master config
     Given I have a project
     When I run the :run client command with:
@@ -100,7 +100,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
 
   # @author zhaliu@redhat.com
   # @case_id OCP-9788
-    Scenario: Restrict user using nodeName in Pod in online env	
+    Scenario: Restrict user using nodeName in Pod in online env
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/pod-with-nodename.yaml |
@@ -110,7 +110,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
 
   # @author zhaliu@redhat.com
   # @case_id OCP-9903
-    Scenario: Restrict user using nodeName in DeploymentConfig in online env	
+    Scenario: Restrict user using nodeName in DeploymentConfig in online env
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/deploymentconfig-with-nodename.yaml |
