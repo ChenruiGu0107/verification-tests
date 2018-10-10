@@ -89,3 +89,34 @@ check_unread_notification_num:
       visible_text: !ruby/regexp /<unread_num> Unread/i
     type: div
     timeout: 60
+check_buttons_in_kebab:
+  action:
+    context: *op_context
+    ref:
+    - click_kebab_button_for_drawer_message
+    - check_clear_button_in_kebab
+    - check_dont_show_me_again_button_in_kebab
+    - check_view_quotas_button_in_kebab
+check_clear_button_in_kebab:
+  elements:
+  - selector:
+      xpath: .//a[@title='Clear this notificaiton' and contains(.,"Clear")]
+check_dont_show_me_again_button_in_kebab:
+  elements:
+  - selector:
+      xpath: .//a[contains(.,"Don't Show Me Again")]
+check_view_quotas_button_in_kebab:
+  elements:
+  - selector:
+      text: View Quotas
+    type: a
+check_mark_all_read_button_on_notification_drawer:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /Mark All Read/
+    type: button
+check_clear_all_button_on_notification_drawer:
+  elements:
+  - selector:
+      visible_text: !ruby/regexp /Clear All/
+    type: span
