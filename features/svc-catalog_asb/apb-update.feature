@@ -989,3 +989,169 @@ Feature: Update sql apb related feature
       | Status:\\s+True                                       |
       | Type:\\s+Ready                                        |
     """
+
+  # @author zitang@redhat.com
+  @admin
+  Scenario Outline: [APB] Data will be preserved after db-apb migration
+    Given I save the first service broker registry prefix to :prefix clipboard
+    And I have a project
+    #Provision db-apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-<db_label>-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-<db_label>-apb").uid` is stored in the :db_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml   |
+      | param | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters                                                                    |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                             |
+      | param | PARAMETERS=<parameter_1>                                                                                                  |
+      | param | UID=<%= cb.db_uid %>                                                                                                      |
+      | n     | <%= project.name %>                                                                                                       |
+    Then the step should succeed
+
+    # Provision mediawiki apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                |
+    Then the step should succeed
+    And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid(user: user)` is stored in the :mediawiki_uid clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml |
+      | param | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
+      | param | UID=<%= cb.mediawiki_uid %>                           |
+      | n     | <%= project.name %>                                   |
+    Then the step should succeed
+    And I wait for all service_instance in the project to become ready up to 360 seconds
+
+    Given dc with name matching /mediawiki/ are stored in the :app clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.app.first.name %>-1 |
+    Given dc with name matching /<db_label>/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+
+    # Create servicebinding of DB apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-<db_label>-apb-binding                                                        |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-credientials                                                    |
+      | n     | <%= project.name %>                                                                                         |
+    And I wait for the "<%= cb.prefix %>-<db_label>-apb-binding" service_binding to become ready up to 120 seconds
+    # Add credentials to mediawiki application
+    When I run the :patch client command with:
+      | resource      | dc                        |
+      | resource_name | <%= cb.app.first.name %>  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"envFrom": [ {"secretRef":{ "name": "<%= cb.prefix %>-<db_label>-apb-credientials"}}],"name": "<%= cb.app_pod.containers.first.name %>"}]}}}} |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=<%= cb.app.first.name %>-2     |
+    And evaluation of `pod.name` is stored in the :app_pod_name clipboard
+
+    # Access mediawiki's route
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route(cb.app.first.name).dns %>/index.php/Main_Page" url
+    And the output should match "MediaWiki has been(?: successfully)? installed"
+    """
+    ###### provision successfully
+
+    # update apb 1#
+    # create an update secret
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml  |
+      | param | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters-2                                                                 |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                            |
+      | param | PARAMETERS=<parameter_2>                                                                                                 |
+      | param | UID=<%= cb.db_uid %>                                                                                                     |
+      | n     | <%= project.name %>                                                                                                      |
+    Then the step should succeed
+    # update instance 
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-<db_label>-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  | 
+      |           |    "parametersFrom": [                               |  
+      |           |      {                                               | 
+      |           |        "secretKeyRef": {                             |
+      |           |          "key": "parameters",                        | 
+      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-2" | 
+      |           |        }                                             |
+      |           |      }                                               |
+      |           |    ],                                                |
+      |           |    "updateRequests": 1                               |
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    #checking the old dc is deleted, new dc is created   
+    Given I wait for the resource "dc" named "<%= cb.db.first.name %>" to disappear within 240 seconds
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
+    And dc with name matching /<db_label>/ are stored in the :db_2 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.db_2.first.name %> |
+    # Access mediawiki's route 2#
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route(cb.app.first.name).dns %>/index.php/Main_Page" url
+    And the output should match "MediaWiki has been(?: successfully)? installed"
+    """
+
+    #update 2#
+    # create an update secret
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml  |
+      | param | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters-3                                                                 |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                            |
+      | param | PARAMETERS=<parameter_3>                                                                                                 |
+      | param | UID=<%= cb.db_uid %>                                                                                                     |
+      | n     | <%= project.name %>                                                                                                      |
+    Then the step should succeed
+    # update instance 
+     When I run the :patch client command with:
+      | resource  | serviceinstance/<%= cb.prefix %>-<db_label>-apb      |
+      | p         |{                                                     |
+      |           | "spec": {                                            |
+      |           |    "clusterServicePlanExternalName": "<db_plan_3>",  | 
+      |           |    "parametersFrom": [                               |  
+      |           |      {                                               | 
+      |           |        "secretKeyRef": {                             |
+      |           |          "key": "parameters",                        | 
+      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-3"  | 
+      |           |        }                                             |
+      |           |      }                                               |
+      |           |    ],                                                |
+      |           |    "updateRequests": 2                               |
+      |           |  }                                                   |
+      |           |}                                                     |
+    Then the step should succeed
+    #checking the old dc is deleted, new dc is created   
+    Given I wait for the resource "dc" named "<%= cb.db_2.first.name %>" to disappear within 240 seconds
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
+    And dc with name matching /<db_label>/ are stored in the :db_3 clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.db_3.first.name %> |
+    # Access mediawiki's route 3#
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route(cb.app.first.name).dns %>/index.php/Main_Page" url
+    And the output should match "MediaWiki has been(?: successfully)? installed"
+    """
+
+    Examples:
+      |db_label      |db_plan_1 |db_plan_2 | db_plan_3 | parameter_1  | parameter_2   |    parameter_3   |                     
+      |postgresql |dev              |prod              | dev          | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.4","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   | # @case_id OCP-17331
+      |postgresql |dev              |prod              | dev          | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   | # @case_id OCP-20387
+      |mysql            | prod            |dev              | dev          | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                                                      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                                                      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}      | # @case_id OCP-17665
+      |mariadb      | dev          |prod         | prod       | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}      | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.1","mariadb_root_password":"test","mariadb_password":"test"}      | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}    | # @case_id OCP-17733
+  
+ 
