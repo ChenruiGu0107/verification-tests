@@ -432,12 +432,12 @@ Feature: Dynamic provisioning
   # @author jhou@redhat.com
   # @case_id OCP-20728
   @admin
-  Scenario: The default reclaimPolicy should be Delete	
+  Scenario: The reclaimPolicy is Retain when set as empty string
     Given I have a project
 
     # When reclaimPolicy=""
     And admin clones storage class "sc1-<%= project.name %>" from ":default" with:
-      | reclaimPolicy | "" |
+      | ["reclaimPolicy"] | "" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
@@ -445,21 +445,4 @@ Feature: Dynamic provisioning
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                      |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc1-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
-
-    # When reclaimPolicy isn't specified
-    Given evaluation of `storage_class("sc1-<%= project.name %>").provisioner` is stored in the :provisioner clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-emptyName.yaml" where:
-      | ["metadata"]["name"] | sc2-<%= project.name %> |
-      | ["provisioner"]      | <%= cb.provisioner %>   |
-    Then the step should succeed
-
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                      |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
-    Then the step should succeed
-    And the "pvc2-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
+    And the expression should be true> pv(pvc("pvc1-<%= project.name %>").volume_name).reclaim_policy == "Retain"
