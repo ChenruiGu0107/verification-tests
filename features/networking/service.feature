@@ -106,7 +106,7 @@ Feature: Service related networking scenarios
     """
 
   # @author yadu@redhat.com
-  # @case_id OCP-9604 498206
+  # @case_id OCP-9604
   @admin
   Scenario: tenants can access their own services
     # create pod and service in project1

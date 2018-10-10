@@ -25,7 +25,7 @@ Feature: change the policy of user/service account
       | cannot list pods in project "default" |
 
   # @author xxing@redhat.com
-  # @case_id OCP-11074, 470316
+  # @case_id OCP-11074
   Scenario: User can view ,add, remove and modify roleBinding via admin role user
     Given I have a project
     When I run the :describe client command with:

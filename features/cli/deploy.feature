@@ -783,7 +783,7 @@ Feature: deployment related features
     And I check that the "hooks" deployment_config exists in the project
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-12468,510608
+  # @case_id OCP-12468
   Scenario: Pre and post deployment hooks
     Given I have a project
     When I run the :create client command with:
