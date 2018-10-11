@@ -80,6 +80,11 @@ module CucuShift
         return perform(**base_opts, method: "POST")
       end
 
+      def self.view_metering_report(base_opts, opts)
+        populate("/namespaces/<project_name>/services/https:reporting-operator:http/proxy/api/v1/reports/get?name=<name>&format=<report_format>", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
+
     end
   end
 end
