@@ -1035,6 +1035,7 @@ Feature: Update sql apb related feature
     Given dc with name matching /mediawiki/ are stored in the :app clipboard
     And a pod becomes ready with labels:
       | deployment=<%= cb.app.first.name %>-1 |
+    And evaluation of `pod` is stored in the :app_pod clipboard      
     Given dc with name matching /<db_label>/ are stored in the :db clipboard
     And a pod becomes ready with labels:
       | deployment=<%= cb.db.first.name %>-1 |
@@ -1055,7 +1056,6 @@ Feature: Update sql apb related feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=<%= cb.app.first.name %>-2     |
-    And evaluation of `pod.name` is stored in the :app_pod_name clipboard
 
     # Access mediawiki's route
     And I wait up to 180 seconds for the steps to pass:
