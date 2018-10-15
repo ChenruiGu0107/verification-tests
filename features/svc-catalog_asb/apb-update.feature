@@ -954,10 +954,10 @@ Feature: Update sql apb related feature
       | resource | serviceinstance   |
     Then the step should succeed
     And the output should match 1 times:
-      | ^\s+Message:\\s+ClusterServiceBroker returned a failure for update call.*parameter not updatable  |
-      | Reason:\\s+UpdateInstanceCallFailed                                                               |
-      | Status: \\s+False                                                                                 |
-      | Type:\\s+Ready                                                                                    |
+      | ^\s+Message:\\s+(Cluster)?ServiceBroker returned a failure for update call.*parameter not updatable |
+      | Reason:\\s+UpdateInstanceCallFailed                                                                 |
+      | Status: \\s+False                                                                                   |
+      | Type:\\s+Ready                                                                                      |
     """
      # update to the previous  version
      When I run the :patch client command with:
