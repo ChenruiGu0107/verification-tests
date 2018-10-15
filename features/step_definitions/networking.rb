@@ -542,7 +542,6 @@ Given /^I restart the network components on the node( after scenario)?$/ do |aft
         pod.node_name == _node.name
       }.first
       @result = sdn_pod.ensure_deleted(user: _admin)
-      step "I wait for the networking components of the node to become ready"
     else
       step "the node service is restarted on the host"
     end
