@@ -1394,6 +1394,149 @@ Then the step should succeed
       | clusterservicebrokers.servicecatalog.k8s.io "abroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
 
   # @author jiazha@redhat.com
+  # @case_id OCP-16418
+  @admin
+  @destructive
+  Scenario: Orphan mitigation for instances
+    Given I have a project
+    And evaluation of `project.name` is stored in the :ups_broker_project clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :user_project clipboard 
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
+    Given admin ensures "user-provided" cluster_service_class is deleted after scenario
+
+    # Set up the ups-broker
+    And I use the "<%= cb.ups_broker_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    Then the step should succeed
+    Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+
+    # Changed the instance return code to 205
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--provision", "205"], "name": "ups-broker", "image": "docker.io/aosqe/user-broker:latest"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+
+    # Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+
+    # Check the logs, 205 is an orphan resource
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance/ups-instance |
+    Then the output should match "Deprovision Status:             Succeeded"
+    """
+    And I ensure "ups-instance" service_instance is deleted
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | createServiceInstance operation, the fake status code is: 205 |
+      | CreateServiceInstance()                                       |
+      | RemoveServiceInstance()                                       |
+      | removeServiceInstance operation, the fake status code is: 200 |
+
+    # Changed the instance return code to 408
+    Given pod with name matching /ups-broker/ are stored in the :pod clipboard
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker  |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--provision", "408"], "name": "ups-broker"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+      
+    # Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+
+    # Check the logs, 408 is NOT an orphan resource
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance/ups-instance |
+    Then the output should match "Deprovision Status:      NotRequired"
+    """
+    And I ensure "ups-instance" service_instance is deleted
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | createServiceInstance operation, the fake status code is: 408 |
+      | CreateServiceInstance()                                       |
+    And the output should not match:
+      | RemoveServiceInstance()                                       |
+      | removeServiceInstance operation, the fake status code is: 200 |
+
+    # Changed the instance return code to 500
+    Given pod with name matching /ups-broker/ are stored in the :pod clipboard
+    When I run the :patch client command with:
+      | resource | deployment/ups-broker  |
+      | p        | {"spec": {"template": {"spec": {"containers": [{"args": ["--alsologtostderr", "--port", "8080", "--provision", "500"], "name": "ups-broker"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=ups-broker |
+      
+    # Provision a serviceinstance
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    Then the step should succeed
+
+    # Check the logs, 500 is an orphan resource
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | serviceinstance/ups-instance |
+    Then the output should match "Deprovision Status:             Succeeded"
+    """
+    And I ensure "ups-instance" service_instance is deleted
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.ups_broker_project %>" project
+
+    And I run the :logs client command with:
+      | resource_name | deployment/ups-broker          |
+      | since         | 3m                             |
+    Then the step should succeed
+    And the output should match:
+      | createServiceInstance operation, the fake status code is: 500 |
+      | CreateServiceInstance()                                       |
+      | RemoveServiceInstance()                                       |
+      | removeServiceInstance operation, the fake status code is: 200 |
+
+  # @author jiazha@redhat.com
   # @case_id OCP-16420
   @admin
   @destructive
