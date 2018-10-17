@@ -260,3 +260,59 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
+
+  # @author zitang@redhat.com
+  # @case_id OCP-19737
+  @admin
+  Scenario: extracted credential secret in openshift-ansible-service-broker namespace will be deleted when delete project
+    Given I save the first service broker registry prefix to :prefix clipboard
+    And I have a project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+    #provision mariadb apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
+    And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :instance_id clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                |
+      | param | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    And I wait for the "<%= cb.prefix %>-mariadb-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /mariadb/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+
+    # create binding
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials                                                     |
+      | n     | <%= project.name %>                                                                                         |
+    Then the step should succeed
+    And I wait for the "<%= cb.prefix %>-mariadb-apb" service_binding to become ready up to 60 seconds
+    And evaluation of `service_binding("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :binding_id clipboard
+
+    # check secret 
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I check that the "<%= cb.instance_id %>" secret exists
+    And I check that the "<%= cb.binding_id %>" secret exists
+
+    # delete project and check secret
+    Given I switch to the first user
+    And I ensure "<%= cb.user_project %>" project is deleted
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
+    And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
