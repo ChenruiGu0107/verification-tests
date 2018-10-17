@@ -2552,3 +2552,29 @@ Feature: test master config related steps
       | repo                                                   |
       | ruby~https://github.com/openshift/ruby-hello-world.git | # @case_id OCP-15943
       | https://github.com/openshift/ruby-hello-world.git      | # @case_id OCP-11022
+
+  # @author geliu@redhat.com
+  # @case_id OCP-10852
+  @destructive
+  @admin
+  Scenario: Check logs for basic audit capability	
+    Given I have a project
+    And I use the first master host
+    And the "/etc/origin/master/audit-ocp.log" file is restored on host after scenario
+    Given master config is merged with the following hash:
+    """
+    auditConfig:
+      auditFilePath: "/etc/origin/master/audit-ocp.log" 
+      enabled: true
+      logFormat: legacy
+      maximumFileRetentionDays: 10
+      maximumFileSizeMegabytes: 10
+      maximumRetainedFiles: 10
+    """
+    And the master service is restarted on all master nodes
+    And I run commands on the host:
+      | cat /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should match:
+      | AUDIT:\s+id= |
+ 
