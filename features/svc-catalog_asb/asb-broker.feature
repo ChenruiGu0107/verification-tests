@@ -151,3 +151,112 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Then the step should succeed
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_duration_raw(cached: false) == "10m0s"
+
+
+  # @author zitang@redhat.com
+  # @case_id OCP-20960
+  @admin
+  Scenario: [ASB] check extracted credential secret when provision/bind/unbind/update/deprovision 
+    Given I save the first service broker registry prefix to :prefix clipboard
+    And I have a project
+    And evaluation of `project.name` is stored in the :user_project clipboard
+    #provision postgresql apb
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    Then the step should succeed
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :instance_id clipboard
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"} |
+      | param | UID=<%= cb.db_uid %>                                                                                                         |
+      | n     | <%= project.name %>                                                                                                          |
+    Then the step should succeed
+    And I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
+    And dc with name matching /postgresql/ are stored in the :db clipboard
+    And a pod becomes ready with labels:
+      | deployment=<%= cb.db.first.name %>-1 |
+
+    # check secret in openshift-ansible-service-broker
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I check that the "<%= cb.instance_id %>" secret exists
+    When I run the :describe client command with:
+      | resource           | secret     |
+      | name               | <%= cb.instance_id %>   |
+    And the output should contain:
+      |   bundleAction=provision | 
+      |   bundleName=<%= cb.prefix %>-postgresql-apb | 
+
+    # create binding
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    When I run the :new_app client command with:
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | param | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
+      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
+      | n     | <%= project.name %>                                                                                         |
+    Then the step should succeed
+    And I wait for the "<%= cb.prefix %>-postgresql-apb" service_binding to become ready up to 60 seconds
+    And evaluation of `service_binding("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :binding_id clipboard
+
+    # check secret in openshift-ansible-service-broker
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I check that the "<%= cb.binding_id %>" secret exists
+    When I run the :describe client command with:
+      | resource           | secret     |
+      | name               | <%= cb.binding_id %>   |
+    And the output should contain:
+      |   bundleAction=bind | 
+      |   bundleName=<%= cb.prefix %>-postgresql-apb | 
+    
+    # delete binding
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    And I ensure "<%= cb.prefix %>-postgresql-apb" service_binding is deleted
+
+    # check secret
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I wait for the resource "secret" named "%= cb.binding_id %>" to disappear within 60 seconds
+     
+#    # update serviceinstance
+#    Given I switch to the first user
+#    And I use the "<%= cb.user_project %>" project
+#    When I run the :patch client command with:
+#      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
+#      | p         |{                                                     |
+#      |           | "spec": {                                            |
+#      |           |    "clusterServicePlanExternalName": "prod"   | 
+#      |           |  }                                                   |
+#      |           |}                                                     |
+#    Then the step should succeed
+#
+#    # check secret in openshift-ansible-service-broker
+#    Given I switch to cluster admin pseudo user
+#    And I use the "openshift-ansible-service-broker" project
+#    And I wait up to 60 seconds for the steps to pass:
+#    """
+#    When I run the :describe client command with:
+#      | resource           | secret     |
+#      | name               | <%= cb.instance_id %>   |
+#    And the output should contain:
+#      |   bundleAction=update | 
+#    """
+#
+    # delete serviceinstance and check secret
+    Given I switch to the first user
+    And I use the "<%= cb.user_project %>" project
+    And I ensure "<%= cb.prefix %>-postgresql-apb" service_instance is deleted
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
