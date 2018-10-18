@@ -13,7 +13,7 @@ Feature: logging, metrics, and metering scenarios w/o cleanup
 
   @admin
   @destructive
-  Scenario: test install hawkularn without clean-up
+  Scenario: test install hawkular without clean-up
     Given I create a project with non-leading digit name
     Given the master version >= "3.5"
     And metrics service is installed with ansible using:
@@ -31,3 +31,11 @@ Feature: logging, metrics, and metering scenarios w/o cleanup
       | playbook_args | -e openshift_image_tag=v<%= cb.master_version %> -e openshift_release=<%= cb.master_version %>                     |
       | no_cleanup    | true                                                                                                               |
 
+  @admin
+  @destructive
+  Scenario: test install prometheus without clean-up
+    Given I create a project with non-leading digit name
+    Given the master version >= "3.5"
+    And metrics service is installed with ansible using:
+      | inventory  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+      | no_cleanup | true                                                                                                            |
