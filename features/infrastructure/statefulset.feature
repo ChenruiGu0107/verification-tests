@@ -85,7 +85,7 @@ Feature: StatefulSet related tests
       | replicas | 5                 |
     Then the step should succeed
     And the output should match:
-      | statefulset(\.apps)? "hello-statefulset" scaled |
+      | statefulset(\.apps)?(/)?( ")?hello-statefulset(")? scaled |
     Given the pod named "hello-statefulset-2" becomes ready
     Given the pod named "hello-statefulset-3" becomes ready
     Given the pod named "hello-statefulset-4" becomes ready
