@@ -51,7 +51,8 @@ Given /^admin ensures new router pod becomes ready after following env added:$/ 
     step %Q/all existing pods are ready with labels:/, table(%{
       | deploymentconfig=router |
     })
-    step %/I run the :env client command with:/, table([
+    step %Q/I run the :set_env client command with:/, table([
+      ["namespace", "default" ],
       ["resource", "dc/router" ],
       *table.raw.map {|e| ["e", e[0]] }
     ])
