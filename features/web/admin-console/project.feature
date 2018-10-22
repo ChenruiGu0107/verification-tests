@@ -7,7 +7,8 @@ Feature: projects related features via web
     When I perform the :create_project web action with:
       | project_name   | W          |
     Then the step should succeed
-    When I run the :check_invalid_message web action
+    When I perform the :check_page_contains web action with:
+      | content | Error |
     Then the step should succeed
     When I perform the :clear_input_value web action with:
       | clear_field_id | input-name |
@@ -38,7 +39,7 @@ Feature: projects related features via web
   # @case_id OCP-19669
   Scenario: Console works for empty project
     Given I open admin console in a browser
-    When I perform the :go_to_project_status web action with:
+    When I perform the :goto_project_status web action with:
       | project   | default |
     Then the step should succeed
     When I run the :check_getting_started web action

@@ -1,5 +1,3 @@
-go_to_project_status:
-  url: status/ns/<project>
 check_software_info:
   elements:
   - selector:

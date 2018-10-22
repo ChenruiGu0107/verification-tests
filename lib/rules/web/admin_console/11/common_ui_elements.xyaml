@@ -19,21 +19,17 @@ click_resource_action_icon:
   - selector:
       xpath: //a[text()='<resource_name>']/ancestor::span/../div//span[contains(@class,'co-m-cog__icon')]
     op: click
-operate_action_from_dropdown:
-  elements:
-  - selector:
-      xpath: //li/a[contains(text(),'<action_item>')]
-    op: click
 click_tab:
   elements:
   - selector:
       xpath: //ul[contains(@class,'nav__menu')]//a[text()='<tab_name>']
     op: click
-submit_changes:
-  element:
-    selector:
-      xpath: //button[@type='submit']
-    op: click
+clear_input_value:
+  elements:
+  - selector:
+      id: <clear_field_id>
+    op: clear
+    type: input
 check_row_filter_on_page:
   elements:
   - selector:
@@ -46,22 +42,22 @@ check_resource_name_and_icon:
   elements:
   - selector:
       xpath: //div[@class='co-m-pane__name'][/*[contains(.,'<icon_text>')] and /*[contains(., '<resource_name>')]]
-check_invalid_message:
-  elements:
-  - selector:
-      xpath: //div[contains(@class,'alert') and contains(text(),'Error')]
-clear_input_value:
-  elements:
-  - selector:
-      id: <clear_field_id>
-    op: clear
-    type: input
 check_page_contains:
   element:
     selector:
       xpath: //*[contains(.,'<content>')]
+operate_action_from_dropdown:
+  elements:
+  - selector:
+      xpath: //li/a[contains(text(),'<action_item>')]
+    op: click
+submit_changes:
+  element:
+    selector:
+      xpath: //button[@type='submit']
+    op: click
 
-## -------- below are common component across pages ------
+## -------- check resource key and values pairs ------
 check_resource_details:
   action:
     if_param: name
