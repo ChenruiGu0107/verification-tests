@@ -4,6 +4,13 @@ check_software_info:
   elements:
   - selector:
       xpath: //*[contains(.,'Software Info')]/.[contains(.,'Kubernetes') and contains(.,'OpenShift Container Platform')] 
+check_software_info_versions:
+  action: check_software_info
+  elements:
+  - selector:
+      xpath: //div[contains(.,'Software Info') and contains(., 'Kubernetes') and contains(., '<k8s_version>')]
+  - selector:
+      xpath: //div[contains(.,'Software Info') and contains(., 'OpenShift Container Platform') and contains(., '<openshift_version>')]
 check_additional_support:
   elements:
   - selector:
