@@ -18,7 +18,7 @@ check_additional_support:
   - selector:
       xpath: //*[@href='https://learn.openshift.com' and contains(.,'Interactive Learning Portal' )]
   - selector:
-      xpath: //*[@href='https://www.openshift.org/minishift' and contains(.,'Local Development' )]
+      xpath: //*[@href='https://www.okd.io/minishift' and contains(.,'Containerized OKD Cluster' )]
   - selector:
       xpath: //*[@href='https://www.youtube.com/user/rhopenshift' and contains(.,'YouTube' )]
   - selector:
