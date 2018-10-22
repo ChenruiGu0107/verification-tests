@@ -1225,7 +1225,7 @@ Feature: Testing haproxy router
     """
 
   # @author zzhao@redhat.com
-  # @case_id OCP-12572 OCP-12935
+  # @case_id OCP-12572
   @admin
   @destructive
   Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
@@ -1262,10 +1262,12 @@ Feature: Testing haproxy router
       | replicas | <%= cb.router_num %> |
       | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
       | selector | router=enabled |
+      | namespace | default |
     When I run the :env client command with:
-      | resource | dc/tc-531375 |
-      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
-      | e        | ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
+      | resource  | dc/tc-531375 |
+      | namespace | default      |
+      | e         | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
+      | e         | ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-531375-2 |
