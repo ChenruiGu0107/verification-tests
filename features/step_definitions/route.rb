@@ -91,8 +91,9 @@ end
 
 Given /^default router image is stored into the#{OPT_SYM} clipboard$/ do | cb_name |
   step %Q/I run the :get admin command with:/, table(%{
-    | resource      | dc |
-    | resource_name | router |
+    | resource      | dc      |
+    | resource_name | router  |
+    | namespace     | default |
     | template      | {{(index .spec.template.spec.containers 0).image}} |
   })
   step %Q/the step should succeed/
