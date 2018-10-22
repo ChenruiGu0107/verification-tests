@@ -14,7 +14,6 @@ Feature: oc_portforward.feature
     And the output should match "[Uu]nable.+because pod is not running. Current status=Pending"
 
   # @author cryan@redhat.com
-  # @case_id OCP-12023 OCP-21010
   Scenario Outline: Forwarding local port to a pod
     Given I have a project
     When I run the :create client command with:
