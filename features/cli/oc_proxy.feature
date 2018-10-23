@@ -33,8 +33,7 @@ Feature: oc proxy related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id OCP-12262
-  Scenario: Advanced usage of oc proxy as API server
+  Scenario Outline: Advanced usage of oc proxy as API server
     Given I have a project
     And evaluation of `rand(32000..64000)` is stored in the :port1 clipboard
     And evaluation of `rand(32000..64000)` is stored in the :port2 clipboard
@@ -49,6 +48,7 @@ Feature: oc proxy related scenarios
     Hello, this is oc proxy test
     """
     When I run the :proxy background client command with:
+      | _tool       | <tool>    |
       | port        | <%= cb.port1 %>      |
       | www         | mydir     |
       | www_prefix  | /myprefix |
@@ -64,6 +64,7 @@ Feature: oc proxy related scenarios
     And the output should contain "Hello, this is oc proxy test"
 
     When I run the :proxy background client command with:
+      | _tool         | <tool>              |
       | port          | <%= cb.port2 %>     |
       | reject_paths  | ^/api/.*/pods.*     |
       | accept_paths  | ^/api.*,^/oapi.*,^/oauth.* |
@@ -71,12 +72,14 @@ Feature: oc proxy related scenarios
 
     Given I wait for the "localhost:<%= cb.port2 %>" TCP server to start accepting connections
     When I run the :get client command with:
+      | _tool    | <tool>      |
       | resource | dc,svc      |
       | server   | http://127.0.0.1:<%= cb.port2 %>    |
       | n        | <%= project.name %>                 |
       | config   | dummy.config|
     Then the step should succeed
     When I run the :get client command with:
+      | _tool    | <tool>      |
       | resource | pod         |
       | server   | http://127.0.0.1:<%= cb.port2 %>    |
       | n        | <%= project.name %>                 |
@@ -85,6 +88,7 @@ Feature: oc proxy related scenarios
     And the output should match "(does not allow access to the requested resource|Error from server.*Unauthorized.*get pods)"
 
     When I run the :proxy background client command with:
+      | _tool         | <tool>              |
       | port          | <%= cb.port3 %>     |
       | api_prefix    | /my-api             |
     Then the step should succeed
@@ -95,3 +99,9 @@ Feature: oc proxy related scenarios
     :method: get
     """
     Then the step should succeed
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-12262
+      | kubectl  | # @case_id OCP-21019
+
