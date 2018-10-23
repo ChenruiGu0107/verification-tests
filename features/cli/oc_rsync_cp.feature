@@ -280,8 +280,7 @@ Feature: oc_rsync.feature
       | cannot use tar   |
 
   # @author xxia@redhat.com
-  # @case_id OCP-15029
-  Scenario: Copy files and directories to and from containers via oc cp
+  Scenario Outline: Copy files and directories to and from containers via oc cp
     Given I have a project
     When I run the :new_app client command with:
       | app_repo   | openshift/mysql-55-centos7   |
@@ -295,6 +294,7 @@ Feature: oc_rsync.feature
       | app=myapp |
     # File
     When I run the :cp client command with:
+      | _tool  | <tool>                      |
       | source | <%= pod.name %>:/etc/hosts  |
       | dest   | local/foo_dir               |
     Then the step should succeed
@@ -303,6 +303,7 @@ Feature: oc_rsync.feature
     And the output should contain "localhost"
     # Directory
     When I run the :cp client command with:
+      | _tool  | <tool>                          |
       | source | <%= pod.name %>:/etc/sysconfig  |
       | dest   | local/foo_dir                   |
     Then the step should succeed
@@ -310,6 +311,7 @@ Feature: oc_rsync.feature
 
     # From local to pod. Cover project/ and -c usage as well
     When I run the :cp client command with:
+      | _tool    | <tool>                                    |
       | source   | local/foo_dir                             |
       | dest     | <%= project.name %>/<%= pod.name %>:/tmp  |
       | c        | myapp                                     |
@@ -319,3 +321,7 @@ Feature: oc_rsync.feature
     Then the step should succeed
     And the output should contain "localhost"
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-15029
+      | kubectl  | # @case_id OCP-21021
