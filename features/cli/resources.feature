@@ -51,8 +51,7 @@ Feature: resouces related scenarios
     Then the output should match "ruby-sample-build-1-build\s+1/1\s+Running\s+0"
 
   # @author xxia@redhat.com
-  # @case_id OCP-11211
-  Scenario: oc replace with miscellaneous options
+  Scenario Outline: oc replace with miscellaneous options
     Given I have a project
     And I run the :run client command with:
       | name         | mydc                      |
@@ -64,12 +63,14 @@ Feature: resouces related scenarios
     And a pod becomes ready with labels:
       | label=mydc |
     And I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | dc                 |
       | resource_name | mydc               |
       | output        | yaml               |
     Then the step should succeed
     When I save the output to file>dc.yaml
     And I run the :replace client command with:
+      | _tool | <tool>  |
       | f     | dc.yaml |
       | force |         |
     Then the step should succeed
@@ -81,24 +82,28 @@ Feature: resouces related scenarios
       | label=mydc |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
     When I run the :replace client command with:
+      | _tool   | <tool>  |
       | f       | dc.yaml |
       | force   |         |
       | cascade |         |
     Then the step should succeed
     When I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
     And I run the :get client command with:
+      | _tool    | <tool>  |
       | resource | pod     |
       | l        | dc=mydc |
     Then the step should succeed
     And the output should not contain "<%= cb.pod_name %>"
 
     When I run the :run client command with:
+      | _tool        | <tool>                    |
       | name         | mypod                     |
       | image        | openshift/hello-openshift |
       | generator    | run-pod/v1                |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
     When I run the :run client command with:
+      | _tool        | <tool>                    |
       | name         | mypod                     |
       | image        | openshift/hello-openshift |
       | generator    | run-pod/v1                |
@@ -107,15 +112,21 @@ Feature: resouces related scenarios
     Then the step should succeed
     When I save the output to file>pod.yaml
     And I run the :replace client command with:
+      | _tool        | <tool>   |
       | f            | pod.yaml |
       | force        |          |
       | grace_period | 100      |
     # Currently, there is a bug https://bugzilla.redhat.com/show_bug.cgi?id=1285702 that makes the step *fail*
     Then the step should succeed
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11211
+      | kubectl  | # @case_id OCP-21032
+
+
   # @author xxia@redhat.com
-  # @case_id OCP-10719
-  Scenario: Delete resources with cascade selectors
+  Scenario Outline: Delete resources with cascade selectors
     Given I have a project
     And I run the :run client command with:
       | name      | test              |
@@ -126,6 +137,7 @@ Feature: resouces related scenarios
     Given a pod becomes ready with labels:
       | run=test |
     When I run the :delete client command with:
+      | _tool             | <tool>|
       | object_type       | rc    |
       | object_name_or_id | test  |
       | cascade           | true  |
@@ -139,6 +151,7 @@ Feature: resouces related scenarios
       | -l        | run=test          |
     Then the step should succeed
     When I run the :delete client command with:
+      | _tool             | <tool>|
       | object_type       | rc    |
       | object_name_or_id | test  |
       | cascade           | false |
@@ -159,11 +172,17 @@ Feature: resouces related scenarios
       | -l        | label=same,label2=test-b |
     Then the step should succeed
     When I run the :delete client command with:
+      | _tool             | <tool>  |
       | object_type       | rc      |
       | object_name_or_id | test-a  |
       | object_name_or_id | test-b  |
       | cascade           | false   |
     Then the step should succeed
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10719
+      | kubectl  | # @case_id OCP-21033
 
   # @author xxia@redhat.com
   # @case_id OCP-11882
