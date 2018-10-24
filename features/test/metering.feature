@@ -13,7 +13,7 @@ Feature: test metering related steps
   @admin
   @destructive
   Scenario: test report class support
-    # Given metering service has been installed successfully
+    Given metering service has been installed successfully
     Given I switch to cluster admin pseudo user
     And I use the "openshift-metering" project
     Given I select a random node's host

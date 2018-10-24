@@ -405,16 +405,12 @@ end
 # 3. extra metrics parameters for metrics only
 Given /^I construct the default (install|uninstall) (logging|metrics|prometheus|metering) inventory$/ do |op, svc_type|
   base_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_base_inventory"
+
   step %Q/I parse the INI file "<%= "#{base_inventory_url}" %>"/
   # now get the extra parameters for install depending on the svc_type
   params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
-  # if env.version_ge("3.11", user: user) and svc_type == 'logging' and op == 'install'
-  #   params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params_#{cb.master_version}"
-  # else
-  #   params_inventory_url = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_#{op}_#{svc_type}_params"
-  # end
-
   step %Q/I parse the INI file "<%= "#{params_inventory_url}" %>" to the :params_inventory clipboard/
+
   cb.ini_style_config['OSEv3:vars'].merge!(cb.params_inventory['OSEv3:vars'])
 end
 
@@ -453,6 +449,10 @@ Given /^(logging|metrics|metering) service is (installed|uninstalled) with ansib
   # check early to see if we are dealing with Prometheus, but parsing out the inventory file, if none is
   # specified, we assume we are dealing with non-Prometheus metrics installation
   if ansible_opts.has_key? :inventory
+    if svc_type == 'metering'
+      # default to pull in the latest image for metering
+      cb.metering_image ||= "quay.io/coreos/metering-helm-operator:latest"
+    end
     step %Q/I parse the INI file "<%= "#{ansible_opts[:inventory]}" %>" to the :case_inventory clipboard/
     # figure out what service type we are installing, save it in clipboard for later
     params = cb.case_inventory.params['OSEv3:vars'].keys

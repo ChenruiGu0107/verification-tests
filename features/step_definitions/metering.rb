@@ -12,11 +12,25 @@ Given /^metering service has been installed successfully$/ do
     raise "service openshift-monitoring is a pre-requisite for openshift-metering"
   end
   # change project context
-  project('openshift-metering')
-  step %Q/all metering related pods are running in the project/
+  unless project('openshift-metering').exists?
+    # install metering using deault
+    step %Q/default metering service is installed without cleanup/
+  else
+    step %Q/all metering related pods are running in the project/
+  end
 end
 
-
+Given /^default metering service is installed without cleanup$/ do
+  step %Q/I create a project with non-leading digit name/
+  step %Q/I store master major version in the clipboard/
+  step %Q/metering service is installed with ansible using:/, table(%{
+    | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_install_metering_params |
+    | playbook_args | -e openshift_image_tag=v<%= cb.master_version %> -e openshift_release=<%= cb.master_version %>                     |
+    | no_cleanup    | true                                                                                                               |
+  })
+  # step %Q/I switch to cluster admin pseudo user/
+  # step %Q/I use the "openshift-metering" project/
+end
 
 # multiple steps are involved in generating a metering report
 # 1. Writing a report: metering Report object is created with user providing
@@ -48,9 +62,7 @@ Given /^I get the #{QUOTED} report and store it in the#{OPT_SYM} clipboard using
   end_time = opts[:end_time].nil? ? default_end_time : opts[:end_time]
   run_now = opts[:run_now].nil? ? 'true' : opts[:run_now]
   report_format = opts[:format].nil? ? default_format : opts[:format]
-
   # create the report resource
-
   opts[:report_yaml] = CucuShift::Report.generate_yaml(
     query_type: query_type, start_time: start_time, end_time: end_time,
     run_now: run_now) unless opts[:report_yaml]
@@ -63,6 +75,10 @@ Given /^I get the #{QUOTED} report and store it in the#{OPT_SYM} clipboard using
     | name          | #{name}          |
     | report_format | #{report_format} |
     })
-
-  cb[cb_name] = @result[:parsed]
+  if report_format != 'json' and report_format != 'yaml'
+    # just return raw response for not easily parseable formats
+    cb[cb_name] = @result[:response].to_s
+  else
+    cb[cb_name] = @result[:parsed]
+  end
 end
