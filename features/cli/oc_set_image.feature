@@ -1,14 +1,14 @@
 Feature: oc set image related tests
 
   # @author cryan@redhat.com
-  # @case_id OCP-10309
-  Scenario: oc set image to update pod with certain label
+  Scenario Outline: oc set image to update pod with certain label
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
       | f | dc-with-two-containers.yaml |
     Then the step should succeed
     When I run the :scale client command with:
+      | _tool    | <tool> |
       | resource | dc     |
       | name     | dctest |
       | replicas | 2      |
@@ -17,11 +17,13 @@ Feature: oc set image related tests
       | deployment=dctest-1 |
 
     When I run the :label client command with:
+      | _tool    | <tool>               |
       | resource | pods                 |
       | name     | <%= @pods[0].name %> |
       | key_val  | test=1234            |
     Then the step should succeed
     When I run the :set_image client command with:
+      | _tool    | <tool>                                   |
       | resource | pod                                      |
       | keyval   | dctest-1=openshift/python:latest         |
       | l        | test=1234                                |
@@ -29,15 +31,22 @@ Feature: oc set image related tests
     And the output should contain "image updated"
 
     When I run the :describe client command with:
+      | _tool    | <tool>               |
       | resource | pod                  |
       | name     | <%= @pods[0].name %> |
     Then the step should succeed
     And the output should match "Image:.*python"
     When I run the :describe client command with:
+      | _tool    | <tool>               |
       | resource | pod                  |
       | name     | <%= @pods[1].name %> |
     Then the step should succeed
     And the output should not match "Image:.*python"
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10309
+      | kubectl  | # @case_id OCP-21031
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10390
