@@ -37,39 +37,44 @@ Feature: oc run related scenarios
       | error: NAME is required for run |
 
   # @author xxia@redhat.com
-  # @case_id OCP-10673
-  Scenario: Create container with oc run command
+  Scenario Outline: Create container with oc run command
     Given I have a project
     When I run the :run client command with:
+      | _tool        | <tool>                |
       | name         | mysql                 |
       | image        | mysql                 |
       | dry_run      | true                  |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | dc                 |
       | resource_name | mysql              |
     Then the step should fail
     When I run the :run client command with:
+      | _tool        | <tool>                |
       | name         | webapp                |
       | image        | training/webapp       |
       | -l           | test=one              |
       | limits       | memory=256Mi          |
     Then the step should succeed
-    And I wait for the pod named "webapp-1-deploy" to die
+    Given 1 pods become ready with labels:
+      | test=one |
 
     When I run the :run client command with:
+      | _tool        | <tool>                |
       | name         | webapp2               |
       | image        | training/webapp       |
       | replicas     | 2                     |
       | -l           | label=webapp2         |
       | limits       | memory=256Mi          |
     Then the step should succeed
-    And I wait for the pod named "webapp2-1-deploy" to die
+    Given 2 pods become ready with labels:
+      | label=webapp2 |
 
     When I run the :run client command with:
       | name         | webapp3               |
       | image        | training/webapp       |
-      | overrides    | {"apiVersion":"v1","spec":{"replicas":2}} |
+      | overrides    | {"spec":{"replicas":2}} |
       | limits       | memory=256Mi          |
     Then the step should succeed
     When I run the :get client command with:
@@ -79,6 +84,11 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | replicas: 2   |
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10673
+      | kubectl  | # @case_id OCP-21037
 
   # @author pruan@redhat.com
   # @case_id OCP-11199
