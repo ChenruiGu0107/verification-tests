@@ -2045,3 +2045,221 @@ Then the step should succeed
       | ups-secret-3                      |
 
    And I ensure "ups-instance" service_instance is deleted
+
+  # @author jiazha@redhat.com
+  # @case_id OCP-19958
+  @admin
+  @destructive
+  Scenario: Add a way to filter which service classes and plans are created for a cluster broker
+    Given I switch to cluster admin pseudo user
+    And the "ansible-service-broker" cluster service broker is recreated after scenario
+    And I save the first service broker registry prefix to :prefix clipboard
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    And evaluation of `cb.csc['<%= cb.prefix %>-mysql-apb'].name` is stored in the :class_id clipboard
+    
+    # filter: class spec.externalName ==
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                                 |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName==<%= cb.prefix %>-postgresql-apb"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-postgresql-apb |
+      | ansible-service-broker          |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mariadb-apb    |
+    """
+
+    # filter: class spec.externalName !=
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                                 |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName!=<%= cb.prefix %>-postgresql-apb"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should not contain:
+      | <%= cb.prefix %>-postgresql-apb |
+    Then the output should contain:
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mariadb-apb    |
+      | ansible-service-broker          |
+    """
+
+    # filter: plan spec.free != true
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                              |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": [], "servicePlan": ["spec.free!=true"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-mysql-apb      |
+      | ansible-service-broker          |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-postgresql-apb |
+      | <%= cb.prefix %>-mariadb-apb    |
+    When I run the :get client command with:
+      | resource | clusterserviceplan   |
+    Then the output should contain:
+      | prod                            |
+    """
+
+    # filter: class spec.externalName in 
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                                                                      |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-mediawiki-apb, <%= cb.prefix %>-postgresql-apb)"], "servicePlan":[]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-postgresql-apb |
+      | ansible-service-broker          |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mariadb-apb    |
+    """
+
+    # filter: class spec.externalName notin 
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                                  |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName notin (<%= cb.prefix %>-mediawiki-apb, <%= cb.prefix %>-postgresql-apb)"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-postgresql-apb |
+    Then the output should contain:
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mariadb-apb    |
+      | ansible-service-broker          |
+    """
+
+    # filter: plan spec.externalName notin/ spec.free true 
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                     |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": [], "servicePlan": ["spec.externalName notin (default, dev)", "spec.free==true"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-mariadb-apb    |
+      | <%= cb.prefix %>-postgresql-apb |
+      | ansible-service-broker          |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mediawiki-apb  |
+    """
+
+    # filter: plan spec.externalName notin/ spec.free true 
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                     |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-postgresql-apb)"], "servicePlan": ["spec.free==true"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-postgresql-apb |
+      | ansible-service-broker          |
+    Then the output should not contain:
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-mariadb-apb    |
+    When I run the :get client command with:
+      | resource | clusterserviceplan   |
+    Then the output should contain 1 times:
+      | prod                            |
+      | dev                             |
+    """
+
+    # filter: plan spec.externalName notin/ spec.free true /spec.externalName
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                     |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-mysql-apb)"], "servicePlan": ["spec.free==true", "spec.externalName notin (dev)"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should not contain:
+      | <%= cb.prefix %>-postgresql-apb |
+      | <%= cb.prefix %>-mysql-apb      |
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-mariadb-apb    |
+    When I run the :get client command with:
+      | resource | clusterserviceplan   |
+    Then the output should not contain:
+      | dev                             |
+      | prod                            |
+    """
+
+    # filter non-exist service class/plans: class+plan
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                     |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-test-apb)"], "servicePlan": ["spec.externalName notin (dev, prod)"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should not contain:
+      | ansible-service-broker          |
+    """
+
+    # filter non-supported property to filter class/plan
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                  |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.bindable==true"], "servicePlan": []}}} |
+    Then the step should fail
+    
+    # filter spec.serviceClass.name
+    When I run the :patch client command with:
+      | resource | clusterservicebroker/ansible-service-broker                                                        |
+      | p        | {"spec": {"catalogRestrictions": {"serviceClass": [], "servicePlan": ["spec.clusterServiceClass.name==<%= cb.class_id %>"]}}} |
+    Then the step should succeed
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | clusterserviceclass  |
+    Then the output should contain:
+      | <%= cb.prefix %>-mysql-apb      |
+    Then the output should not contain:
+      | <%= cb.prefix %>-postgresql-apb |
+      | <%= cb.prefix %>-mediawiki-apb  |
+      | <%= cb.prefix %>-mariadb-apb    |
+    When I run the :get client command with:
+      | resource | clusterserviceplan   |
+    Then the output should contain 1 times:
+      | prod                            |
+      | dev                             |
+    """
