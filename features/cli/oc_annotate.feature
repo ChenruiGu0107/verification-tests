@@ -1,7 +1,6 @@
 Feature: oc annotate related features
   # @author xxia@redhat.com
-  # @case_id OCP-10671
-  Scenario: Update the annotations on more resources
+  Scenario Outline: Update the annotations on more resources
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
@@ -12,12 +11,14 @@ Feature: oc annotate related features
     And all existing pods are ready with labels:
       | name=hello-openshift |
     When I run the :annotate client command with:
+      | _tool        | <tool>                  |
       | resource     | pod                     |
       | resourcename | hello-openshift         |
       | resourcename | hello-again             |
       | keyval       | description=many-pods   |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool    | <tool>  |
       | resource | pod     |
       |  o       | yaml    |
     Then the step should succeed
@@ -26,6 +27,7 @@ Feature: oc annotate related features
 
     # Check --overwrite
     When I run the :annotate client command with:
+      | _tool        | <tool>                  |
       | resource     | pod                     |
       | resourcename | hello-openshift         |
       | resourcename | hello-again             |
@@ -41,6 +43,7 @@ Feature: oc annotate related features
 
     # Check no --overwrite (false by default)
     When I run the :annotate client command with:
+      | _tool        | <tool>             |
       | resource     | pod                |
       | resourcename | hello-openshift    |
       | resourcename | hello-again        |
@@ -51,19 +54,25 @@ Feature: oc annotate related features
 
     # Check --all and remove annotations
     When I run the :annotate client command with:
+      | _tool        | <tool>         |
       | resource     | pod            |
       | all          | true           |
       | keyval       | description-   |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool    | <tool>  |
       | resource | pod     |
       |  o       | yaml    |
     Then the step should succeed
     And the output should not contain "description:"
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10671
+      | kubectl  | # @case_id OCP-21056
+
   # @author xxia@redhat.com
-  # @case_id OCP-11161
-  Scenario: Update the annotations on one resource
+  Scenario Outline: Update the annotations on one resource
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
@@ -71,22 +80,26 @@ Feature: oc annotate related features
 
     Given the pod named "hello-openshift" becomes ready
     When I run the :annotate client command with:
+      | _tool        | <tool>               |
       | resource     | pod/hello-openshift  |
       | keyval       | description=pod      |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool    | <tool>  |
       | resource | pod     |
       |  o       | yaml    |
     Then the step should succeed
     And the output should contain "description: pod"
 
     When I run the :get client command with:
+      | _tool        | <tool>                        |
       | resource     | pod/hello-openshift           |
       | template     | {{.metadata.resourceVersion}} |
     Then the step should succeed
     Given evaluation of `@result[:response]` is stored in the :version clipboard
     # Check --resource-version
     When I run the :annotate client command with:
+      | _tool           | <tool>               |
       | resource        | pod/hello-openshift  |
       | resourceversion | <%= cb.version %>    |
       | keyval          | new=pod              |
@@ -94,6 +107,7 @@ Feature: oc annotate related features
 
     # Check --resource-version with invalid value
     When I run the :annotate client command with:
+      | _tool           | <tool>               |
       | resource        | pod/hello-openshift  |
       | resourceversion | 1111111              |
       | keyval          | newer=pod            |
@@ -103,11 +117,18 @@ Feature: oc annotate related features
 
     # Remove annotation
     When I run the :annotate client command with:
+      | _tool        | <tool>               |
       | resource     | pod/hello-openshift  |
       | keyval       | description-         |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool    | <tool>  |
       | resource | pod     |
       |  o       | yaml    |
     Then the step should succeed
     And the output should not contain "description:"
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11161
+      | kubectl  | # @case_id OCP-21057
