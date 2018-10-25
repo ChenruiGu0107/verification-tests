@@ -1,7 +1,6 @@
 Feature: containers related features
   # @author pruan@redhat.com
-  # @case_id OCP-10579
-  Scenario: Choose container to execute command on with '-c' flag
+  Scenario Outline: Choose container to execute command on with '-c' flag
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
     When I run the :create client command with:
@@ -9,13 +8,14 @@ Feature: containers related features
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
     When I run the :exec client command with:
-      | pod | <%= cb.pod_name %>  |
-    #| c | hello-openshift |
-      | exec_command     | cat               |
-      | exec_command_arg |/etc/redhat-release|
+      | _tool            | <tool>               |
+      | pod              | <%= cb.pod_name %>   |
+      | exec_command     | cat                  |
+      | exec_command_arg | /etc/redhat-release  |
     Then the output should contain:
       | CentOS Linux release 7.0.1406 (Core) |
     When I run the :exec client command with:
+      | _tool            | <tool>                 |
       | pod              | <%= cb.pod_name %>     |
       | c                | hello-openshift-fedora |
       | exec_command     | cat                    |
@@ -24,6 +24,7 @@ Feature: containers related features
       | Fedora release 21 (Twenty One) |
     # cover bug #1517212
     When I run the :exec client command with:
+      | _tool            | <tool>              |
       | pod              | <%= cb.pod_name %>  |
       | t                |                     |
       | i                |                     |
@@ -32,24 +33,29 @@ Feature: containers related features
     Then the output should contain:
       | CentOS Linux release 7.0.1406 (Core) |
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10579
+      | kubectl  | # @case_id OCP-21058
+
   # @author xxing@redhat.com
-  # @case_id OCP-12378
-  Scenario: Dumps logs from a given Pod container
+  Scenario Outline: Dumps logs from a given Pod container
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should contain:
-      | NAME           |
-      | hello-openshift|
     When I run the :logs client command with:
+      | _tool         | <tool>          |
       | resource_name | hello-openshift |
     Then the output should contain:
       | serving on 8081 |
       | serving on 8888 |
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-12378
+      | kubectl  | # @case_id OCP-21062
 
   # @author xxing@redhat.com
   # @case_id OCP-11501
@@ -160,18 +166,19 @@ Feature: containers related features
       | KUBERNETES_PORT |
 
   # @author xxia@redhat.com
-  # @case_id OCP-11564
-  Scenario: oc exec, rsh and port-forward should work behind authenticated proxy
+  Scenario Outline: oc exec, rsh and port-forward should work behind authenticated proxy
     Given I have a project
     And I have an authenticated proxy configured in the project
     And evaluation of `rand(5000..7999)` is stored in the :port1 clipboard
     When I run the :port_forward background client command with:
+      | _tool     | <tool>                                 |
       | pod       | <%= cb[:proxy_pod].name %>             |
       | port_spec | <%= cb[:port1] %>:<%= cb.proxy_port %> |
     Then the step should succeed
 
     # Prepare pod for following CLI executions behind proxy
     When I run the :run client command with:
+      | _tool     | <tool>                 |
       | name      | mypod                  |
       | image     | aosqe/hello-openshift  |
       | restart   | Never                  |
@@ -180,6 +187,7 @@ Feature: containers related features
 
     # CLI executions behind proxy
     When I run the :exec client command with:
+      | _tool            | <tool>                                                |
       | pod              | mypod                                                 |
       | exec_command     | ls                                                    |
       | exec_command_arg | /etc                                                  |
@@ -196,6 +204,7 @@ Feature: containers related features
 
     Given evaluation of `rand(5000..7999)` is stored in the :port2 clipboard
     When I run the :port_forward background client command with:
+      | _tool     | <tool>                                                |
       | pod       | mypod                                                 |
       | port_spec | <%= cb[:port2] %>:8081                                |
       | _env      | https_proxy=tester:redhat@127.0.0.1:<%= cb[:port1] %> |
@@ -215,3 +224,8 @@ Feature: containers related features
       | command | /etc                                                 |
       | _env    | https_proxy=tester:wrong@127.0.0.1:<%= cb[:port1] %> |
     Then the step should fail
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11564
+      | kubectl  | # @case_id OCP-21060

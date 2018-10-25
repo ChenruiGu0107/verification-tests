@@ -925,20 +925,21 @@ Feature: creating 'apps' with CLI
 
 
   # @author xipang@redhat.com
-  # @case_id OCP-11049
-  Scenario: Show better output for syntax error
+  Scenario Outline: Show better output for syntax error
     Given I have a project
     Given a "template.json" file is created with the following lines:
     """
     {broken:}
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.json |
+      | _tool    | <tool>   |
+      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.json |
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
     When I run the :create client command with:
-      | f | template.json |
+      | _tool    | <tool>        |
+      | f        | template.json |
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
@@ -948,15 +949,21 @@ Feature: creating 'apps' with CLI
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
     When I run the :replace client command with:
-      | f | template.json |
+      | _tool    | <tool>        |
+      | f        | template.json |
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.yaml |
+      | _tool    | <tool>        |
+      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.yaml |
     Then the step should fail
     #And the output should match:
     #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11049
+      | kubectl  | # @case_id OCP-21055
 
   # @author geliu@redhat.com
   # @case_id OCP-16295
