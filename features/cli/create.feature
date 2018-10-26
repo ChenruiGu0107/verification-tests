@@ -876,8 +876,8 @@ Feature: creating 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid5.yaml |
     Then the step should fail
-    And the output should contain:
-      | must be less than or equal to |
+    And the output should match:
+      | .*requests.*must be less than or equal to.*limit\|.*limits.*must be greater than or equal to.*request |
 
   # @author wmeng@redhat.com
   # @case_id OCP-12014

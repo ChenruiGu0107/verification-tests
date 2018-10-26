@@ -1538,8 +1538,8 @@ Feature: secrets related scenarios
     When I run the :describe client command with:
       | resource | secret                       |
       | name     | secret1-with-docker-registry |
-    Then the output should contain:
-      | kubernetes.io/dockerconfigjson |
+    Then the output should match:
+      | kubernetes\.io/(dockercfg\|dockerconfigjson) |
 
     #Step 2. --dry-run
     When I run the :create_secret client command with:
