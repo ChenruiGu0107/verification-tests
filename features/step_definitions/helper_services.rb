@@ -528,6 +528,7 @@ Given /^I create a second iSCSI path$/ do
   ensure_admin_tagged
 
   _project = project("default", switch: false)
+  _pod = cb.iscsi_pod = pod("iscsi-target", _project)
   step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/service.json"}
   service_content = JSON.load(@result[:response])
   path = @result[:abs_path].rpartition(".")[0] + ".yaml"
@@ -537,7 +538,16 @@ Given /^I create a second iSCSI path$/ do
   raise "could not create iSCSI service" unless @result[:success]
   _service_2 = service("iscsi-target-2", _project)
   cb.iscsi_ip_2 = _service_2.ip(user: admin)
+  @result = _pod.exec("targetcli", "/iscsi/iqn.2016-04.test.com:storage.target00/tpg1/portals", "create", cb.iscsi_ip_2, as: admin)
+  unless @result[:success] || @result[:stderr].include?("This NetworkPortal already exists in configFS")
+    raise "could not create portal to iSCSI service"
+  end
+  @result = _pod.exec("targetcli", "saveconfig", as: admin)
+
   teardown_add {
+    @result = _pod.exec("targetcli", "/iscsi/iqn.2016-04.test.com:storage.target00/tpg1/portals", "delete", cb.iscsi_ip_2, "3260", as: admin)
+    raise "could not delete portal to iSCSI service" unless @result[:success]
+    @result = _pod.exec("targetcli", "saveconfig", as: admin)
     _service_2.ensure_deleted(user: admin)
   }
 end
