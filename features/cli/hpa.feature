@@ -1,4 +1,5 @@
 Feature: hpa scale
+
   # @author chezhang@redhat.com
   # @case_id OCP-10931
   Scenario: HPA shouldn't scale up target if the replicas of dc is 0
@@ -144,3 +145,4 @@ Feature: hpa scale
     And the output should match:
       | MAXPODS is required and must be at least 1 |
       | MAXPODS must be larger or equal to.*MINPODS |
+

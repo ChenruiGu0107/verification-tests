@@ -1,4 +1,5 @@
 Feature: Scheduler related scenarios
+
   # @author wmeng@redhat.com
   # @case_id OCP-14582
   Scenario: When no scheduler name is supplied, the pod is automatically scheduled using the default-scheduler

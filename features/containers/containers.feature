@@ -25,3 +25,4 @@ Feature: Container test feature
     #than what the bz is asking for.
     Then the output should contain:
       | su: cannot set groups: Operation not permitted |
+

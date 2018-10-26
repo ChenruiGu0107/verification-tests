@@ -1,4 +1,5 @@
 Feature: oc idle
+
   # @author chezhang@redhat.com
   # @case_id OCP-11633
   Scenario: CLI - Idle all the service in the same project
@@ -254,3 +255,4 @@ Feature: oc idle
     Then the step should succeed
     And the output should match:
       | hello-svc.*\d+.\d+.\d+.\d+:8080,\d+.\d+.\d+.\d+:8080 |
+

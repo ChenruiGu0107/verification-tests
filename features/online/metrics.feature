@@ -1,4 +1,5 @@
 Feature: Online metrics related tests
+
   # @author pruan@redhat.com
   # @case_id OCP-15214
   Scenario: Ordinary user could view CPU,memory, network metrics statistics on pod page of openshift web console
@@ -12,3 +13,4 @@ Feature: Online metrics related tests
       | project_name | <%= project.name %> |
       | pod_name     | <%= pod.name %>     |
     Then the step should succeed
+

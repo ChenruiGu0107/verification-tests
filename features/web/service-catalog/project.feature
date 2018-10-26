@@ -36,3 +36,4 @@ Feature: projects related features via homepage
     Then the step should succeed
     When I run the :check_getting_started_section_exists web console action
     Then the step should succeed
+

@@ -1,4 +1,5 @@
 Feature: online logging tests
+
   # @author pruan@redhat.com
   # @case_id OCP-10767
   Scenario: Logout kibana web console
