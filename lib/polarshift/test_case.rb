@@ -31,7 +31,7 @@ module CucuShift
         custom_fields.dig("caseautomation", "id")
       end
 
-      private def automation_script_raw
+      def automation_script_raw
         custom_fields.dig("automation_script", "content")
       end
 

@@ -186,20 +186,24 @@ module CucuShift
       end
 
       def get_cases_smart(project_id, case_ids, timeout: 360)
-        res = get_cases(project_id, case_ids)
-        if res[:exitstatus] == 200
-          return JSON.load(res[:response])["test_cases"]
-        elsif res[:exitstatus] == 202
-          wait_op(url: JSON.load(res[:response])["operation_result_url"],
-                  timeout: timeout)
-          res = get_cases(project_id, case_ids)
+        list = []
+        ## huge requests may fail with error 400 so lets limit ourselves
+        #  #<Puma::HttpParserError: HTTP element QUERY_STRING is longer than the (1024 * 10) allowed length (was 10499)>
+        case_ids.each_slice(200) do |ids|
+          res = get_cases(project_id, ids)
+          if res[:exitstatus] == 202
+            wait_op(url: JSON.load(res[:response])["operation_result_url"],
+                    timeout: timeout)
+            res = get_cases(project_id, ids)
+          end
+
           if res[:exitstatus] == 200
-            return JSON.load res[:response]
+            list.concat JSON.load(res[:response])["test_cases"]
           else
-            # raise at end of method
+            raise %Q{got status "#{res[:exitstatus]}" getting cases "#{ids}" from project "#{project_id}":\n#{res[:response]}}
           end
         end
-        raise %Q{got status "#{res[:exitstatus]}" getting cases "#{case_ids}" from project "#{project_id}":\n#{res[:response]}}
+        return list
       end
 
       # refresh PolarShift cashe of test cases

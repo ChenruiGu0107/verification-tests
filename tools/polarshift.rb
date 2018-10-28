@@ -41,6 +41,7 @@ module CucuShift
         c.syntax = "#{__FILE__} fiddle"
         c.description = 'enter a pry shell to play with API'
         c.action do |args, options|
+          setup_global_opts(options)
           require 'pry'
           binding.pry
         end
@@ -223,6 +224,43 @@ module CucuShift
           join(" "),
         :bright_blue
       )
+    end
+
+    # Allows you to modify automation fields for test cases
+    # @param project [String]
+    # @param case_ids [Array<String>]
+    # @yield [case_spec, test_case] the block should return updates wanted for
+    #   each test case, e.g. `{"tags": "tag1 tag2 tag3"}`
+    def sed_automation(project, case_ids)
+      puts "Getting cases: #{case_ids.join(", ")}.."
+      polarshift.refresh_cases_wait(project, case_ids)
+      cases_raw = polarshift.get_cases_smart(project, case_ids)
+
+      updates = {}
+      cases_raw.each do |tc_raw|
+        tc = PolarShift::TestCase.new(tc_raw, polarshift)
+        update = yield tc_raw, tc
+        if update && !update.empty?
+          updates[tc.id] = update
+        end
+      end
+
+
+      puts "Updating cases: #{updates.keys.join(", ")}.."
+
+      require 'pry'; binding.pry
+      res = polarshift.
+        update_test_case_custom_fields(project, updates)
+      if res[:success]
+        filter = JSON.load(res[:response])["import_msg_bus_filter"]
+        unless filter && !filter.empty?
+          puts "unknown importer response:\n#{res[:response]}"
+          raise res[:response]
+        end
+      else
+        puts "HTTP Status: #{res[:exitcode]}, Response:\n#{res[:response]}"
+        raise res[:response]
+      end
     end
 
     # @return [Array<String, Array>] same as [GherkinParse#cases_spec] but
