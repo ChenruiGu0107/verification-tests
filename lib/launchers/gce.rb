@@ -274,8 +274,10 @@ module CucuShift
           normalized[:initialize_params].each do |key, value|
             case key
             when :image_name
+              # TODO: support image name from any project
               params[:source_image] = image_by_name(value, project).self_link
             when :snapshot_name
+              # TODO: support snapshot name from any project
               params[:source_snapshot] =
                 snapshot_by_name(value, project).self_link
             when :img_snap_name

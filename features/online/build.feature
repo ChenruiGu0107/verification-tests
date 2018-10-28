@@ -112,3 +112,4 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | jboss-eap70-openshift | 1.5       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink |
       | jboss-eap70-openshift | 1.6       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink |
       | jboss-eap70-openshift | 1.7       | https://github.com/jboss-developer/jboss-eap-quickstarts.git#7.0.0.GA | kitchensink |
+

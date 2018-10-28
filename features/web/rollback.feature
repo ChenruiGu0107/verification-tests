@@ -1,4 +1,5 @@
 Feature: Deployments rollback features
+
   # @author yapei@redhat.com
   Scenario Outline: rollback from web console
     Given I have a project
@@ -65,3 +66,4 @@ Feature: Deployments rollback features
       | rollback_one_component   | Rolling      | ConfigChange | 2            | # @case_id OCP-11741
       | rollback_two_components  | Recreate     | ImageChange  | 1            | # @case_id OCP-11914
       | rollback_all_components  | Recreate     | ConfigChange | 1            | # @case_id OCP-11511
+

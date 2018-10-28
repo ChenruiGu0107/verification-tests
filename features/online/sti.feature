@@ -73,3 +73,4 @@ Feature: ONLY ONLINE STI related scripts in this file
       | perl  | 5.16      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
       | perl  | 5.20      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
       | perl  | 5.24      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
+

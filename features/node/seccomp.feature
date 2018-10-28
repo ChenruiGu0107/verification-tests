@@ -14,3 +14,4 @@ Feature: Seccomp
       | 0 |
     And the output should not contain:
       | 2 |
+

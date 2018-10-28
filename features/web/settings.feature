@@ -1,4 +1,5 @@
 Feature: check settings page on web console
+
   # @author yapei@redhat.com
   # @case_id OCP-12631
   @admin
@@ -158,7 +159,6 @@ Feature: check settings page on web console
       | web_console_version | <%= cb.master1 %> |
     Then the step should succeed
 
-
   # @author hasha@redhat.com
   # @case_id OCP-16826
   Scenario: User could set console home page
@@ -233,3 +233,4 @@ Feature: check settings page on web console
     When I perform the :check_page_contain_text web console action with:
       | text | no longer exists or you do not have access to it.|
     Then the step should succeed
+

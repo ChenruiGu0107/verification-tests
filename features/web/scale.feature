@@ -94,3 +94,4 @@ Feature: scale related features
 
     When I run the :scale_up_once web console action
     Then the step should succeed
+

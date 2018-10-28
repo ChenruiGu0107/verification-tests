@@ -1,4 +1,5 @@
 Feature: ResourceQuata for storage
+
   # @author jhou@redhat.com
   # @case_id OCP-14173
   @admin
@@ -129,3 +130,4 @@ Feature: ResourceQuata for storage
     Given I ensure "pvc1-<%= project.name %>" pvc is deleted
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
+

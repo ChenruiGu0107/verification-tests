@@ -291,3 +291,4 @@ Feature: ONLY ONLINE Deployment related scripts in this file
       | cpu_range      | 40 millicores to 500   |
       | memory_range   | 204 MiB to 256 MiB     |
     Then the step should succeed
+

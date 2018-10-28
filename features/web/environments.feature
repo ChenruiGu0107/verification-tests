@@ -59,3 +59,4 @@ Feature: env related feature
     When I perform the :check_page_not_contain_text web console action with:
       | text | example-config |
     Then the step should succeed
+
