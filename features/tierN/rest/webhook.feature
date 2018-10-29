@@ -30,7 +30,6 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
 
   # @author yantan@redhat.com dyan@redhat.com
-  # @case_id 438841 438853
   Scenario Outline: Trigger build manually with webhook contained invalid/blank commit ID or branch name
     Given I have a project
     When I run the :new_app client command with:
@@ -85,7 +84,7 @@ Feature: Webhook REST Related Tests
       | 123456 |
     Examples:
       | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex |
+      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | # @case_id OCP-12764
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author yantan@redhat.com dyan@redhat.com
