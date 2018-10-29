@@ -217,10 +217,10 @@ Feature: oc run related scenarios
     Then the step should succeed
 
   # @author yadu@redhat.com
-  # @case_id OCP-11759
-  Scenario: oc run can set various fields in the pod container
+  Scenario Outline: oc run can set various fields in the pod container
     Given I have a project
     When I run the :run client command with:
+      | _tool     | <tool>                |
       | name      | myrun-pod             |
       | image     | aosqe/hello-openshift |
       | generator | run-pod/v1            |
@@ -228,6 +228,7 @@ Feature: oc run related scenarios
       | env       | MYENV2=v2             |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>    |
       | resource      | pod       |
       | resource_name | myrun-pod |
       | o             | json      |
@@ -240,6 +241,7 @@ Feature: oc run related scenarios
     # Clear out memory and cpu usage to fit into online quota limits
     Given I ensure "myrun-pod" pod is deleted
     When I run the :run client command with:
+      | _tool     | <tool>                |
       | name      | myrun-pod-2           |
       | image     | aosqe/hello-openshift |
       | generator | run-pod/v1            |
@@ -247,6 +249,7 @@ Feature: oc run related scenarios
       | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>       |
       | resource      | pod          |
       | resource_name | myrun-pod-2  |
       | o             | json         |
@@ -257,12 +260,14 @@ Feature: oc run related scenarios
     # Clear out memory and cpu usage to fit into online quota limits
     Given I ensure "myrun-pod-2" pod is deleted
     When I run the :run client command with:
+      | _tool     | <tool>                |
       | name      | myrun-pod-3           |
       | image     | aosqe/hello-openshift |
       | generator | run-pod/v1            |
       | restart   | OnFailure             |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>       |
       | resource      | pod          |
       | resource_name | myrun-pod-3  |
       | o             | json         |
@@ -272,30 +277,54 @@ Feature: oc run related scenarios
     # Clear out memory and cpu usage to fit into online quota limits
     Given I ensure "myrun-pod-3" pod is deleted
     When I run the :run client command with:
+      | _tool     | <tool>                |
       | name      | myrun-pod-4           |
       | image     | aosqe/hello-openshift |
       | generator | run-pod/v1            |
       | port      | 8888                  |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>      |
       | resource      | pod         |
       | resource_name | myrun-pod-4 |
       | o             | json        |
     And the output should contain:
       |  "containerPort": 8888  |
     When I run the :run client command with:
+      | _tool     | <tool>                  |
       | name      | test                    |
       | image     | aosqe/hello-openshift   |
       | replicas  | 2                       |
-      | overrides | {"apiVersion":"v1","spec":{"replicas":3}} |
+      | overrides | {"spec":{"replicas":3}} |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | dc   |
-      | resource_name | test |
-      | o             | json |
+      | _tool         | <tool>     |
+      | resource      | <resource> |
+      | resource_name | test       |
+      | o             | json       |
     Then the step should succeed
     And the output should contain:
       | "replicas": 3 |
+    When I run the :run client command with:
+      | _tool           | <tool>                  |
+      | name            | test2                   |
+      | image           | aosqe/hello-openshift   |
+      | serviceaccount  | fakedeployer            |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool         | <tool>     |
+      | resource      | <resource> |
+      | resource_name | test2      |
+      | o             | yaml       |
+    Then the step should succeed
+    And the output should contain:
+      | serviceAccount: fakedeployer |
+
+    Examples:
+      | tool     | resource    |
+      | oc       | dc          | # @case_id OCP-11759
+      | kubectl  | deploy      | # @case_id OCP-21091
+
 
   # @author cryan@redhat.com
   # @case_id OCP-11174
