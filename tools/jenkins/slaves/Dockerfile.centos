@@ -19,8 +19,6 @@ RUN set -x && \
     yum install -y --enablerepo=centosplus $SCL_BASE_PKGS && \
     yum install -y --enablerepo=centosplus $INSTALL_PKGS && \
     yum install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
-    # temporarily install firefox 60 from rpm, can be removed once package becomes released officially
-    yum install -y http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os/Packages/firefox-60.1.0-4.el7_5.x86_64.rpm && \
     CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com" && \
     CHROMEDRIVER_VERSION=`curl -sSL "$CHROMEDRIVER_URL/LATEST_RELEASE"` && \
     curl -sSL "$CHROMEDRIVER_URL/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"  | bsdtar xvf - -C /usr/local/bin && \

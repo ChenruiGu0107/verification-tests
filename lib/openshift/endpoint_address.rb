@@ -4,8 +4,8 @@ module CucuShift
   # this class should help with parsing endpoint address element
   #   [3] pry(#<CucuShift::Endpoints>)> addrs[0]
   # => {
-  #          "ip" => "10.128.0.10",
-  #    "nodeName" => "host-8-242-168.host.centralci.eng.rdu2.redhat.com",
+  #          "ip" => "10.10.10.101",
+  #    "nodeName" => "myhost.example.com",
   #   "targetRef" => {
   #                "kind" => "Pod",
   #                "name" => "test-rc-khm70",
