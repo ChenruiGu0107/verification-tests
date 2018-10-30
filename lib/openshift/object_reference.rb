@@ -5,8 +5,8 @@ module CucuShift
   # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.9/#objectreference-v1-core
   # targetRef is a sub-component of a endpoint address
   # => {
-  #          "ip" => "10.128.0.10",
-  #    "nodeName" => "host-8-242-168.host.centralci.eng.rdu2.redhat.com",
+  #          "ip" => "10.10.10.101",
+  #    "nodeName" => "myhost.example.com",
   #   "targetRef" => {
   #                "kind" => "Pod",
   #                "name" => "test-rc-khm70",
