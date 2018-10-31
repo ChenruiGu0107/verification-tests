@@ -25,3 +25,17 @@ Feature: reports related scenarios
     And evaluation of `Time.parse(cb.res_json[-1]['timestamp']).utc.to_s.gsub('UTC', '+0000 UTC')` is stored in the :timestamp clipboard
     And the expression should be true> cb.res_tabular.include? cb.timestamp
     And the expression should be true> cb.res_csv.include? cb.timestamp
+
+  # @author pruan@redhat.com
+  # @case_id OCP-20951
+  @admin
+  @destructive
+  Scenario: verify PV ReportGenerationQuery are supported and be able to generate a report
+    Given metering service has been installed successfully
+    And I use the "openshift-metering" project
+    Given I select a random node's host
+    Given I get the "persistentvolumeclaim-request" report and store it in the :res_json clipboard using:
+      | query_type          | persistentvolumeclaim-request |
+      | use_existing_report | true                          |
+    Then the step should succeed
+    And the expression should be true> (["data_end", "data_start", "namespace", "period_end", "period_start", "persistentvolume", "persistentvolumeclaim", "storageclass", "volume_request_memory_byte_seconds"] - cb.res_json.first.keys).empty?
