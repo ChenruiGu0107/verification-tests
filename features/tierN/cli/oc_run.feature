@@ -355,3 +355,106 @@ Feature: oc run related scenarios
       | name | nginx |
       | image | nginx |
     Then the step should succeed
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-21088
+  Scenario: kubectl run can create deploy, standalone rc, standalone pod, and job
+    Given I have a project
+    When I run the :run client command with:
+      | _tool        | kubectl               |
+      | name         | myrun                 |
+      | image        | aosqe/hello-openshift |
+      | limits       | memory=256Mi          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | deploy  |
+    Then the step should succeed
+    And the output should contain:
+      | myrun |
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | rs      |
+    Then the step should succeed
+    And the output should contain:
+      | myrun- |
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | pod     |
+    Then the step should succeed
+    And the output should contain:
+      | myrun- |
+    # Create a standalone rc
+    When I run the :run client command with:
+      | _tool        | kubectl               |
+      | name         | myrun-rc              |
+      | image        | aosqe/hello-openshift |
+      | generator    | run/v1                |
+      | limits       | memory=256Mi          |
+    Then the step should succeed
+    Given I wait until replicationController "myrun-rc" is ready
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | deploy  |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-rc |
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | pod     |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-rc-|
+    # Create a standalone pod
+    When I run the :run client command with:
+      | _tool        | kubectl               |
+      | name         | myrun-pod             |
+      | image        | aosqe/hello-openshift |
+      | generator    | run-pod/v1            |
+      | limits       | memory=256Mi          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | deploy  |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-pod |
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | rs      |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-pod |
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | pod     |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-pod |
+    When I run the :run client command with:
+      | _tool        | kubectl               |
+      | name         | my-job                |
+      | image        | aosqe/hello-openshift |
+      | generator    | job/v1                |
+      | restart      | OnFailure             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | job     |
+    Then the step should succeed
+    And the output should contain:
+      | my-job |
+    When I run the :run client command with:
+      | _tool        | kubectl               |
+      | name         | mycron-job            |
+      | image        | aosqe/hello-openshift |
+      | generator    | cronjob/v1beta1       |
+      | restart      | Never                 |
+      | schedule     | 5 * * * *             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | _tool    | kubectl |
+      | resource | cronjob |
+    Then the step should succeed
+    And the output should contain:
+      | mycron-job |
