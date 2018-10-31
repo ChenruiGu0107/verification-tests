@@ -17,8 +17,7 @@ Feature: oc logs related features
       | You must provide one or more resources by argument or filename | # @case_id OCP-17383
 
   # @author xxia@redhat.com
-  # @case_id OCP-10740
-  Scenario: oc logs for a resource with miscellaneous options
+  Scenario Outline: oc logs for a resource with miscellaneous options
     Given I have a project
     When I create a new application with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
@@ -31,16 +30,19 @@ Feature: oc logs related features
 
     Given the pod named "doublecontainers" becomes ready
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/doublecontainers |
       | c                | hello-openshift      |
     Then the step should succeed
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/doublecontainers |
       | c                | no-this              |
     Then the step should fail
 
     Given the pod named "hello-openshift" becomes ready
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | limit-bytes      | 5                    |
     Then the step should succeed
@@ -50,6 +52,7 @@ Feature: oc logs related features
     Given I wait for the steps to pass:
     """
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | timestamps       |                      |
       | since            | 3h                   |
@@ -62,6 +65,7 @@ Feature: oc logs related features
     # Once met cucumber ran fast: previous `oc logs` printed "2016-03-07T06:18:33...Z serving on 8080", and following `oc logs` was run at "[06:18:34] INFO> Shell Commands" and printed the same logs
     # Thus, "2 seconds have passed" could make scripts robuster
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | timestamps       |                      |
       | since            | 1s                   |
@@ -69,6 +73,7 @@ Feature: oc logs related features
     # Only logs newer than given time will be shown
     And the output should not contain "<%= cb.logs %>"
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | timestamps       |                      |
       | since-time       | 2000-01-01T00:00:00Z |
@@ -78,6 +83,7 @@ Feature: oc logs related features
 
     # Only one of "--since" and "--since-time" can be used
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | since            | 2m                   |
       | since-time       | 2000-01-01T00:00:00Z |
@@ -96,6 +102,12 @@ Feature: oc logs related features
       | not found |
 
     When I run the :logs client command with:
+      | _tool            | <tool>               |
       | resource_name    | pod/hello-openshift  |
       | since-time       | #@234                |
     Then the step should fail
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10740
+      | kubectl  | # @case_id OCP-21116
