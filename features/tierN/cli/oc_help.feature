@@ -158,15 +158,10 @@ Feature: oc related features
       |--tty=false: Allocated a TTY for each container in the pod.|
 
   # @author xxia@redhat.com
-  # @case_id OCP-11202
-  Scenario: Use oc explain to see detailed documentation of resources
+  Scenario Outline: Use explain to see detailed documentation of resources
     When I run the :explain client command with:
-      | help | true  |
-    Then the output should contain:
-      | Documentation of resources |
-      | Possible resource types    |
-    When I run the :explain client command with:
-      | resource  | po |
+      | _tool     | <tool>    |
+      | resource  | po        |
     Then the step should succeed
     And the output should contain:
       | DESCRIPTION |
@@ -174,6 +169,7 @@ Feature: oc related features
       | FIELDS      |
       | apiVersion  |
     When I run the :explain client command with:
+      | _tool     | <tool>               |
       | resource  | pods.spec.containers |
     Then the step should succeed
     And the output should contain:
@@ -183,17 +179,21 @@ Feature: oc related features
       | FIELDS      |
       | securityContext  |
     When I run the :explain client command with:
-      | resource  | svc |
+      | _tool     | <tool>    |
+      | resource  | svc       |
     Then the step should succeed
     When I run the :explain client command with:
-      | resource  | pvc |
+      | _tool     | <tool>    |
+      | resource  | pvc       |
     Then the step should succeed
     When I run the :explain client command with:
+      | _tool     | <tool>           |
       | resource  | rc.spec.selector |
     Then the step should succeed
 
     When I run the :explain client command with:
-      | resource  | dc |
+      | _tool     | <tool>    |
+      | resource  | dc        |
     Then the step should succeed
     # Check the links in the oc explain output are valid
     # The links look like https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
@@ -202,13 +202,20 @@ Feature: oc related features
     And the output should match:
       | apiVersion.*version |
     When I run the :explain client command with:
+      | _tool     | <tool>  |
       | resource  | no-this |
     Then the step should fail
     When I run the :explain client command with:
-      | resource  | rc,no |
+      | _tool     | <tool>  |
+      | resource  | rc,no   |
     Then the step should fail
     And the output should contain:
       | rc,no |
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11202
+      | kubectl  | # @case_id OCP-21115
 
   # @author pruan@redhat.com
   # @case_id 474043

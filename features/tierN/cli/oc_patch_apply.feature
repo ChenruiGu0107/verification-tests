@@ -1,14 +1,14 @@
 Feature: oc patch/apply related scenarios
 
   # @author xxia@redhat.com
-  # @case_id OCP-11518
-  Scenario: oc patch to update resource fields using JSON format
+  Scenario Outline: oc patch to update resource fields using JSON format
     Given I have a project
     And I create a new application with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:
+      | _tool         | <tool>          |
       | resource      | dc              |
       | resource_name | database        |
       | p             | {"spec":{"strategy":{"resources":{"limits":{"memory":"300Mi"}}}}} |
@@ -16,6 +16,7 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | dc                 |
       | resource_name | database           |
       | template      | {{.spec.strategy.resources.limits.memory}} |
@@ -24,6 +25,7 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | _tool         | <tool>                  |
       | resource      | bc                      |
       | resource_name | ruby-sample-build       |
       | p             | {"spec":{"output":{"to":{"name":"origin-ruby-sample:tag1"}}}} |
@@ -31,6 +33,7 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | bc                 |
       | resource_name | ruby-sample-build  |
       | template      | {{.spec.output.to.name}} |
@@ -39,6 +42,7 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | _tool         | <tool>                  |
       | resource      | is                      |
       | resource_name | origin-ruby-sample      |
       | p             | {"spec":{"dockerImageRepository":"xxia/origin-ruby-sample"}} |
@@ -46,12 +50,18 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | is                 |
       | resource_name | origin-ruby-sample |
       | template      | {{.spec.dockerImageRepository}} |
     Then the step should succeed
     And the output should contain "xxia/origin-ruby-sample"
     """
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-11518
+      | kubectl  | # @case_id OCP-21117
 
   # @author xxia@redhat.com
   # @case_id OCP-11173
@@ -81,14 +91,14 @@ Feature: oc patch/apply related scenarios
     And the output should contain "not found"
 
   # @author xxia@redhat.com
-  # @case_id OCP-10695
-  Scenario: oc patch to update resource fields using YAML format
+  Scenario Outline: oc patch to update resource fields using YAML format
     Given I have a project
     And I create a new application with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:
+      | _tool         | <tool>               |
       | resource      | dc                   |
       | resource_name | database             |
       | p             | spec:\n  strategy:\n    resources:\n      limits:\n        memory: 300Mi |
@@ -96,6 +106,7 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | dc                 |
       | resource_name | database           |
       | template      | {{.spec.strategy.resources.limits.memory}} |
@@ -104,6 +115,7 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | _tool         | <tool>               |
       | resource      | bc                   |
       | resource_name | ruby-sample-build    |
       | p             | spec:\n  output:\n    to:\n      name: origin-ruby-sample:tag1 |
@@ -111,6 +123,7 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | bc                 |
       | resource_name | ruby-sample-build  |
       | template      | {{.spec.output.to.name}} |
@@ -119,6 +132,7 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | _tool         | <tool>               |
       | resource      | is                   |
       | resource_name | origin-ruby-sample   |
       | p             | spec:\n  dockerImageRepository: xxia/origin-ruby-sample |
@@ -126,12 +140,18 @@ Feature: oc patch/apply related scenarios
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>             |
       | resource      | is                 |
       | resource_name | origin-ruby-sample |
       | template      | {{.spec.dockerImageRepository}} |
     Then the step should succeed
     And the output should contain "xxia/origin-ruby-sample"
     """
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-10695
+      | kubectl  | # @case_id OCP-21118
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-9853
@@ -173,15 +193,16 @@ Feature: oc patch/apply related scenarios
     """
 
   # @author yanpzhan@redhat.com
-  # @case_id OCP-12298
-  Scenario: oc patch resource with different values for --type
+  Scenario Outline: oc patch resource with different values for --type
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
+      | _tool  | <tool>               |
+      | f      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
     Then the step should succeed
 
     # check "json" type
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | json          |
@@ -191,6 +212,7 @@ Feature: oc patch/apply related scenarios
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | template      | {{.spec.ports}} |
@@ -205,6 +227,7 @@ Feature: oc patch/apply related scenarios
 
     # check "strategic" type
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | strategic     |
@@ -213,6 +236,7 @@ Feature: oc patch/apply related scenarios
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | template      | {{.spec.ports}} |
@@ -230,6 +254,7 @@ Feature: oc patch/apply related scenarios
 
     # check "merge" type
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | merge         |
@@ -238,6 +263,7 @@ Feature: oc patch/apply related scenarios
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | template      | {{.spec.ports}} |
@@ -254,6 +280,7 @@ Feature: oc patch/apply related scenarios
     """
 
     When I run the :patch client command with:
+      | _tool         | <tool>                                                 |
       | resource      | svc                                                    |
       | resource_name | multi-portsvc                                          |
       | type          | json                                                   |
@@ -262,6 +289,7 @@ Feature: oc patch/apply related scenarios
     And the output should match "rror.*nvalid index.*3"
 
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | json          |
@@ -271,6 +299,7 @@ Feature: oc patch/apply related scenarios
       | Unexpected kind:\\s+delete |
 
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | jso           |
@@ -280,6 +309,7 @@ Feature: oc patch/apply related scenarios
       | type must be one of .*json merge strategic.*|
 
     When I run the :patch client command with:
+      | _tool         | <tool>        |
       | resource      | svc           |
       | resource_name | multi-portsvc |
       | type          | strategic     |
@@ -288,9 +318,13 @@ Feature: oc patch/apply related scenarios
     And the output should match:
       | (does not contain declared merge key\|is invalid.*spec.ports.*equired) |
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-12298
+      | kubectl  | # @case_id OCP-21119
+
   # @author xxia@redhat.com
-  # @case_id OCP-15009
-  Scenario: Apply a configuration to a resource via oc apply
+  Scenario Outline: Apply a configuration to a resource via oc apply
     Given I have a project
     And I run the :run client command with:
       | name      | hello                     |
@@ -305,12 +339,14 @@ Feature: oc patch/apply related scenarios
     And I replace lines in "mydc.yaml":
       | /(        )version: "3.1"/ | \\1version: "3.2" |
     When I run the :apply client command with:
+      | _tool      | <tool>    |
       | f          | mydc.yaml |
       | overwrite  | true      |
     Then the step should fail
     # Cover bug 1539529
     And the output should match "invalid.*does not match"
     When I run the :apply client command with:
+      | _tool         | <tool>    |
       | f             | mydc.yaml |
       | overwrite     | true      |
       | force         | true      |
@@ -318,14 +354,19 @@ Feature: oc patch/apply related scenarios
     Then the step should fail
     And the output should match "invalid.*does not match"
     
+    # Above --force would delete and re-create the resource, so need below steps
+    Given I wait until the status of deployment "hello" becomes :complete
+    And I get project dc named "hello" as YAML
+    And I save the output to file> mydc.yaml
     # Valid example of modify and apply
     Given I replace lines in "mydc.yaml":
-      | "3.2" | "3.1" |
       | 21600 | 21601 |
     When I run the :apply client command with:
-      | f  | mydc.yaml |
+      | _tool  | <tool>    |
+      | f      | mydc.yaml |
     Then the step should succeed
     When I run the :apply_view_last_applied client command with:
+      | _tool     | <tool>   |
       | resource  | dc/hello |
     Then the step should succeed
     # Cover bug 1503601, i.e., ensure the output is valid YAML,
@@ -336,9 +377,11 @@ Feature: oc patch/apply related scenarios
     Given I replace lines in "mydc.yaml":
       | "3.1" | "3.3" |
     When I run the :apply_set_last_applied client command with:
-      | f  | mydc.yaml |
+      | _tool  | <tool>    |
+      | f      | mydc.yaml |
     Then the step should succeed
     When I run the :get client command with:
+      | _tool         | <tool>                    |
       | resource      | dc                        |
       | resource_name | hello                     |
       | template      | {{.metadata.annotations}} |
@@ -347,6 +390,7 @@ Feature: oc patch/apply related scenarios
       | last-applied-configuration  |
       | "3.3"                       |
     When I run the :get client command with:
+      | _tool         | <tool>    |
       | resource      | dc        |
       | resource_name | hello     |
       | template      | {{.spec}} |
@@ -355,4 +399,8 @@ Feature: oc patch/apply related scenarios
     And the output should not contain:
       | "3.3"  |
 
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-15009
+      | kubectl  | # @case_id OCP-21120
 
