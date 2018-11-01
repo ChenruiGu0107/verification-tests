@@ -316,3 +316,18 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
     And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
+
+
+  # @author zitang@redhat.com
+  # @case_id OCP-20415
+  @admin
+  Scenario: [ASB] check broker /osb/ endpoint
+    Given I switch to cluster admin pseudo user
+    And the expression should be true> cluster_service_broker("ansible-service-broker").url.end_with? "/osb"
+    When I run the :get client command with:
+      | resource         | clusterrole    |
+      | resource_name    | asb-access     |
+      | o                | yaml           |
+    Then the output should contain:
+      | /osb    |
+      | /osb/*  |

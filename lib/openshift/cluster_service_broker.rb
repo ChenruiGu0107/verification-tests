@@ -29,6 +29,11 @@ module CucuShift
       return rr.dig("spec", "relistRequests")
     end
 
+    def url(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig("spec", "url")
+    end
+
     # @return [CucuShift::ResultHash] with :success depending on
     #   condition type=Ready and status=True
     def ready?(user:, quiet: false, cached: false)
