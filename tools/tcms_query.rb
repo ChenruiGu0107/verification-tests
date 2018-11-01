@@ -545,7 +545,7 @@ def create_tcms_run(options)
   opt['case'] = cases
   opt['default_tester'] = tcms.whoami['id']
   res = tcms.create_run(opt)
-  print "TCMS run created https://tcms.engineering.redhat.com/run/#{res['run_id']}\n"
+  print "TCMS run created #{tcms.default_opts[:tcms_base_url]}run/#{res['run_id']}\n"
 end
 
 if __FILE__ == $0

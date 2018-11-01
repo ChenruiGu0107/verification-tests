@@ -446,7 +446,7 @@ module CucuShift
 
     # @return [String] adoc url
     def case_id_url(id)
-      "https://tcms.engineering.redhat.com/case/#{id}[#{id}]"
+      "#{tcms.default_opts[:tcms_base_url]}case/#{id}[#{id}]"
     end
 
     def diff_report(current_backup_file)
@@ -671,7 +671,7 @@ module CucuShift
         auto_mismatch = case_discrepancy[1][2]
         general_errors = case_discrepancy[1][3]
         #Print the case number as header
-        tcms_src_diff_report << "https://tcms.engineering.redhat.com/case/#{case_id}[#{case_id}]: "
+        tcms_src_diff_report << "#{tcms.default_opts[:tcms_base_url]}case/#{case_id}[#{case_id}]: "
         if not tcms_missing["tcms_missing"].empty?
           tcms_src_diff_report << "TCMS missing: "
           tcms_src_diff_report << tcms_missing["tcms_missing"].join(", ")
