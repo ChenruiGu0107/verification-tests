@@ -247,9 +247,7 @@ def get_cucushift_home
 end
 
 def sync_tags(tcms)
-  # we only add the tags if they are one or more of the following groups
-  # https://mojo.redhat.com/docs/DOC-935729  (V2)
-  # https://mojo.redhat.com/docs/DOC-1043047 (V3)
+  # we only sync specific scenario tags, not everything
   if tcms.default_opts[:plan] == 4962
     # V2 tags
     valid_tags_to_be_added = ['devenv', 'destructive', 'aggressive', 'sequential']
@@ -545,7 +543,7 @@ def create_tcms_run(options)
   opt['case'] = cases
   opt['default_tester'] = tcms.whoami['id']
   res = tcms.create_run(opt)
-  print "TCMS run created https://tcms.engineering.redhat.com/run/#{res['run_id']}\n"
+  print "TCMS run created #{tcms.default_opts[:tcms_base_url]}run/#{res['run_id']}\n"
 end
 
 if __FILE__ == $0
