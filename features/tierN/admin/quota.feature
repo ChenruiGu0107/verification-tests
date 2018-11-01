@@ -834,3 +834,61 @@ Feature: Quota related scenarios
       | image                       |
       | aosqe/fedora_base:latest    | # @case_id OCP-11797
       | aosqe/singlelayer:latest    | # @case_id OCP-11963
+
+   # @author weinliu@redhat.com
+   # @case_id OCP-15821
+   @admin
+   @destructive
+   Scenario: Release quota for a pod if its terminating and exceeded grace period
+    Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run the :create client command with:
+       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc15821/quota.yaml |
+       | n | <%= project.name %>                                                                         |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | pods\\s+0\\s+10          |
+      | resourcequotas\\s+1\\s+1 |
+    """
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+      | n | <%= project.name %>                                                                                        |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    And evaluation of `pod.node_name` is stored in the :pod_node clipboard
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | pods\\s+1\\s+10          |
+      | resourcequotas\\s+1\\s+1 |
+    """
+    Given I use the "<%= cb.pod_node %>" node
+    Given the node service is restarted on the host after scenario
+    When the node service is stopped
+    Then I wait up to 500 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | po |
+    Then the output should match:
+      | hello-pod\\s+1/1\\s+Unknown |
+    """
+
+    Then I wait up to 500 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | pods\\s+0\\s+10          |
+      | resourcequotas\\s+1\\s+1 |
+    """
+    And I check that the "hello-pod" pod exists in the project
