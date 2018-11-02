@@ -7,11 +7,11 @@ Even with dynamic provisioner you have to preconfigure your various storage clus
 
 == Ceph
 
-Setup Ceph storage cluster with https://gitlab.cee.redhat.com/jhou/storage-ansible on vSphere for CephRBD, CephFS, Ceph radosgw.
+Setup Ceph storage cluster with `storage-ansible` on vSphere for CephRBD, CephFS, Ceph radosgw.
 
 == Gluster
 
-Setup Gluster storage cluster with https://gitlab.cee.redhat.com/jhou/storage-ansible on vSphere for GlusterFS, GlusterBlock.
+Setup Gluster storage cluster with `storage-ansible` on vSphere for GlusterFS, GlusterBlock.
 
 
 == FibreChannel
