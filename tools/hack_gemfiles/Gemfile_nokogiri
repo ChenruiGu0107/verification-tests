@@ -1,3 +1,0 @@
-# this Gemfile contains libs we want to try resolve locally first
-
-gem 'nokogiri'

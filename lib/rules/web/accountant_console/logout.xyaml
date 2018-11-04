@@ -1,8 +1,0 @@
-logout:
-  elements:
-  - selector:
-      xpath: //a[@class='dropdown-toggle']
-    op: click
-  - selector:
-      text: Logout
-    op: click

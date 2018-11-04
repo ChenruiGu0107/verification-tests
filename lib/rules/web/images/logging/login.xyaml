@@ -1,5 +1,0 @@
----
-kibana_login:
-  url: <kibana_url>
-  action: login_sequence
-  action: verify_logged_in
