@@ -591,4 +591,30 @@ Feature: install and uninstall related scenarios
     And I use the "<%= cb.org_project_name %>" project
     And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
 
+  # @author pruan@redhat.com
+  # @case_id OCP-20991
+  @admin
+  @destructive
+  Scenario: deploy cluster using NFS storage deploy-cluster.yml
+    Given the master version >= "3.10"
+    Given I create a project with non-leading digit name
+    Given I run oc create as admin with "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-20991/pv.yaml" replacing paths:
+      | ["spec"]["nfs"]["server"] | <%= env.master_hosts.first %> |
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-20991/inventory |
+    Then the expression should be true> pvc('logging-es-0').capacity == '10Gi'
+    Then the expression should be true> pv('logging-volume').capacity_raw == '10Gi'
 
+  # @author pruan@redhat.com
+  # @case_id OCP-19509
+  @admin
+  @destructive
+  Scenario: Show warning message when deploy cluster with new NFS Host
+    Given the master version >= "3.10"
+    Given I create a project with non-leading digit name
+    Given I run oc create as admin with "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19509/pv.yaml" replacing paths:
+      | ["spec"]["nfs"]["server"] | <%= env.master_hosts.first %> |
+    And logging service is installed with ansible using:
+      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19509/inventory |
+      | negative_test | true                                                                                                   |
+    Then the expression should be true> cb.playbook_output.include? 'nfs is an unsupported type for openshift_logging_storage_kind. openshift_enable_unsupported_configurations=True must'

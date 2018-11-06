@@ -264,31 +264,6 @@ Feature: elasticsearch related tests
     Then the expression should be true> cb.res_op.count > 0
 
   # @author pruan@redhat.com
-  # @case_id OCP-17529
-  @admin
-  @destructive
-  Scenario: Expose Elasticsearch service
-    Given I create a project with non-leading digit name
-    Given logging service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17529/inventory |
-    And I wait until the ES cluster is healthy
-    Given I switch to the first user
-    And the first user is cluster-admin
-    And evaluation of `%w(es es-ops)` is stored in the :prefixes clipboard
-    Given I repeat the following steps for each :prefix in cb.prefixes:
-    """
-    And I perform the HTTP request:
-    <%= '"""' %>
-      :url: https://#{cb.prefix}.<%= cb.subdomain %>/_count?
-      :method: get
-      :headers:
-        :Authorization: Bearer <%= user.cached_tokens.first %>
-    <%= '"""' %>
-    Then the step should succeed
-    And the expression should be true> YAML.load(@result[:response])['count'] > 0
-    """
-
-  # @author pruan@redhat.com
   # @case_id OCP-11405
   @admin
   @destructive
@@ -325,3 +300,44 @@ Feature: elasticsearch related tests
       | logging-es_index_indexing_slowlog.log |
       | logging-es_index_search_slowlog.log   |
     And the expression should be true> pod.volume_claims.first.name == 'logging-es-0'
+
+  # @author pruan@redhat.com
+  # @case_id OCP-19771
+  @admin
+  @destructive
+  Scenario: The default searchguard index replicas number is 0
+    Given the master version >= "3.9"
+    Given I create a project with non-leading digit name
+    And logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19771/inventory |
+    Given a deploymentConfig becomes ready with labels:
+      | component=es |
+    When I get the ".searchguard.<%= dc.name %>" logging index information from a pod with labels "component=es"
+    Then the expression should be true> @result[:parsed][0]['rep'] == '0'
+
+  #### NOTE: please add auto cases above this one since the multiple """ messes up syntax highlight and step loookup
+
+  # @author pruan@redhat.com
+  # @case_id OCP-17529
+  @admin
+  @destructive
+  Scenario: Expose Elasticsearch service
+    Given I create a project with non-leading digit name
+    Given logging service is installed with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17529/inventory |
+    And I wait until the ES cluster is healthy
+    Given I switch to the first user
+    And the first user is cluster-admin
+    And evaluation of `%w(es es-ops)` is stored in the :prefixes clipboard
+    Given I repeat the following steps for each :prefix in cb.prefixes:
+    """
+    And I perform the HTTP request:
+    <%= '"""' %>
+      :url: https://#{cb.prefix}.<%= cb.subdomain %>/_count?
+      :method: get
+      :headers:
+        :Authorization: Bearer <%= user.cached_tokens.first %>
+    <%= '"""' %>
+    Then the step should succeed
+    And the expression should be true> YAML.load(@result[:response])['count'] > 0
+    """
