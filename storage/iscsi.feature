@@ -163,6 +163,12 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
 
+    Given I use the "<%= pod.node_name %>" node
+    And I run commands on the host:
+      | mount \| grep iscsi |
+    Then the step should succeed
+    And the output should contain "/dev/mapper/mpath"
+
     When I disable the second iSCSI path
     Then the step should succeed
     When I execute on the pod:
