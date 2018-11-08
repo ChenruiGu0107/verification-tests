@@ -2443,4 +2443,175 @@ Feature: test master config related steps
     Then the step should succeed
     And the output should match:
       | AUDIT:\s+id= |
+  
+  # @author geliu@redhat.com
+  # @case_id OCP-16587
+  @destructive
+  @admin
+  Scenario: Central Audit Capability with different audit levels
+    Given I have a project
+    And I use the first master host
+    And the "/etc/origin/master/audit-policy.yaml" file is restored on host after scenario
+    And the "/etc/origin/master/audit-ocp.log" file is restored on host after scenario
+    Given master config is merged with the following hash:
+    """
+    auditConfig:
+      auditFilePath: "/etc/origin/master/audit-ocp.log"
+      enabled: true
+      maximumFileRetentionDays: 10
+      maximumFileSizeMegabytes: 10
+      maximumRetainedFiles: 10
+      logFormat: json
+      policyConfiguration: null
+      policyFile: "/etc/origin/master/audit-policy.yaml"
+      webHookKubeConfig: ""
+      webHookMode: ""
+    """
+    When I run commands on the host:
+      | echo "apiVersion: audit.k8s.io/v1beta1"  >/etc/origin/master/audit-policy.yaml |
+      | echo "kind: Policy" >>/etc/origin/master/audit-policy.yaml                     |
+      | echo "rules:" >>/etc/origin/master/audit-policy.yaml                           |
+      | echo "  - level: None" >>/etc/origin/master/audit-policy.yaml                  |
+    And the master service is restarted on all master nodes
+    Given I run commands on all masters:
+      | ls /etc/origin/master/audit-ocp.log |
+    Then the step should fail
+    Then I run commands on the host:
+      | sed -i "s/level: .*/level: Metadata/" /etc/origin/master/audit-policy.yaml |
+    And the master service is restarted on all master nodes
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      |  "level":"Metadata" |
+    And the output should not contain:
+      |  "level":"Request"         |
+      |  "level":"RequestResponse" |
+    Then I run commands on the host:
+      | sed -i "s/level: .*/level: Request/" /etc/origin/master/audit-policy.yaml |	    
+    And the master service is restarted on all master nodes
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      |  "level":"Request" |
+    And the output should not contain:
+      |  "level":"Metadata"        |
+      |  "level":"RequestResponse" |  
+    Then I run commands on the host:
+      | sed -i "s/level: .*/level: RequestResponse/" /etc/origin/master/audit-policy.yaml |	    
+    And the master service is restarted on all master nodes
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      |  "level":"RequestResponse" |
+    And the output should not contain:
+      |  "level":"Request"  |
+      |  "level":"Metadata" |
+     
+  #@author geliu@redhat.com
+  # @case_id OCP-16690
+  @destructive
+  @admin
+  Scenario: Central Audit Capability with mixed filtering rules
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard 
+    And I use the first master host
+    And the "/etc/origin/master/audit-policy.yaml" file is restored on host after scenario
+    And the "/etc/origin/master/audit-ocp.log" file is restored on host after scenario
+    Given master config is merged with the following hash:
+    """
+    auditConfig:
+      auditFilePath: "/etc/origin/master/audit-ocp.log"
+      enabled: true
+      maximumFileRetentionDays: 10
+      maximumFileSizeMegabytes: 10
+      maximumRetainedFiles: 10
+      logFormat: json
+      policyConfiguration: null
+      policyFile: "/etc/origin/master/audit-policy.yaml"
+      webHookKubeConfig: ""
+      webHookMode: ""       
+    """
+    When I run commands on the host:
+      | echo "apiVersion: audit.k8s.io/v1beta1"  >/etc/origin/master/audit-policy.yaml       |
+      | echo "kind: Policy" >>/etc/origin/master/audit-policy.yaml                           |
+      | echo "rules:" >>/etc/origin/master/audit-policy.yaml                                 |
+      | echo "  - level: Metadata" >>/etc/origin/master/audit-policy.yaml                    |
+      | echo "    resources:" >>/etc/origin/master/audit-policy.yaml                         |
+      | echo '    - group: ""' >>/etc/origin/master/audit-policy.yaml                        |
+      | echo '      resources: ["secrets"]' >> /etc/origin/master/audit-policy.yaml          |
+      | echo '    namespaces: ["<%= cb.project1 %>"]' >>/etc/origin/master/audit-policy.yaml |
+    And the master service is restarted on all master nodes
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :project2 clipboard
+    When I run the :create client command with:
+     | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.project1 %>/secrets |
+    And the output should not contain:
+      | <%= cb.project2 %> |
+    When I run commands on the host:
+      | echo "" > /etc/origin/master/audit-ocp.log |
+    And the step should succeed
+    When I run commands on the host:
+      | echo "apiVersion: audit.k8s.io/v1beta1"  >/etc/origin/master/audit-policy.yaml |
+      | echo "kind: Policy" >>/etc/origin/master/audit-policy.yaml                     |
+      | echo "rules:" >>/etc/origin/master/audit-policy.yaml                           |
+      | echo "  - level: Metadata" >>/etc/origin/master/audit-policy.yaml              |
+      | echo "    nonResourceURLs:">>/etc/origin/master/audit-policy.yaml              |
+      | echo '    - "/api*"'>>/etc/origin/master/audit-policy.yaml                     |
+    And the master service is restarted on all master nodes
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :project3 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should not contain:
+      | "/api" |
+    When I run the :get client command with:
+      | resource | :false |
+      | raw      | /api   |
+    Then the step should succeed
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      | "/api" |
+    When I run commands on the host:
+      | echo "apiVersion: audit.k8s.io/v1beta1"  >/etc/origin/master/audit-policy.yaml |
+      | echo "kind: Policy" >>/etc/origin/master/audit-policy.yaml                     |
+      | echo "rules:" >>/etc/origin/master/audit-policy.yaml                           |
+      | echo "  - level: Request" >>/etc/origin/master/audit-policy.yaml               |
+      | echo '    users: ["<%= user.name %>"]' >> /etc/origin/master/audit-policy.yaml |
+      | echo '    verbs: ["create"]' >>/etc/origin/master/audit-policy.yaml            |
+    And the master service is restarted on all master nodes
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :project4 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should contain:
+      | "verb":"create" |
+    Given I ensure "testsecret1" secret is deleted
+    Then the step should succeed
+    And I run commands on the host:
+      | tail -20 /etc/origin/master/audit-ocp.log |
+    Then the step should succeed
+    And the output should not contain:
+      | "verb":"delete" |
  
