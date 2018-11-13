@@ -315,6 +315,24 @@ Feature: elasticsearch related tests
     When I get the ".searchguard.<%= dc.name %>" logging index information from a pod with labels "component=es"
     Then the expression should be true> @result[:parsed][0]['rep'] == '0'
 
+
+  # @author pruan@redhat.com
+  # @case_id OCP-20241
+  @admin
+  @destructive
+  Scenario: Use index folder is UUID in ES 5
+    Given the master version >= "3.11"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    Given a pod becomes ready with labels:
+      | component=es,logging-infra=elasticsearch,provider=openshift |
+    And I execute on the pod:
+      | ls | /elasticsearch/persistent/logging-es/data/nodes/0/indices/ |
+    And the output should not contain:
+      | project |
+      | .kibana |
+      | .search |
+
   #### NOTE: please add auto cases above this one since the multiple """ messes up syntax highlight and step loookup
 
   # @author pruan@redhat.com
