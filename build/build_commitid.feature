@@ -50,7 +50,7 @@ Feature: dockerbuild.feature
     When I run the :patch client command with:
       | resource      | bc                                                                                                        |
       | resource_name | ruby22-sample-build                                                                                       |
-      | p             |{"spec":{"output":{"to":{"name":"<%= cb.integrated_reg_ip %>/<%= project.name %>/origin-ruby22-sample"}}}} |
+      | p             |{"spec":{"output":{"to":{"name":"<%= cb.integrated_reg_ip %>/<%= project.name %>/origin-ruby22-sample:latest"}}}} |
     Then the step should succeed
     When I get project build_config named "ruby22-sample-build" as YAML
     Then the step should succeed
