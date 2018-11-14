@@ -2,7 +2,7 @@ Feature: projects related features via web
 
   # @author hasha@redhat.com
   # @case_id OCP-19577
-  Scenario: list/create/delete projects
+  Scenario: Check project page
     Given I open admin console in a browser
     When I perform the :create_project web action with:
       | project_name   | W          |
@@ -18,9 +18,9 @@ Feature: projects related features via web
       | display_name    | test_display     |
       | description     | test_description |
     Then the step should succeed
-    When I perform the :check_project_on_overview_page web action with:
-      | project_name    | test         |
-      | display_name    | test_display |
+    When I perform the :check_resource_details web action with:
+      | name         | test         |
+      | display_name | test_display |
     Then the step should succeed
     When I perform the :click_tab web action with:
       | tab_name | Role Bindings |
@@ -28,12 +28,21 @@ Feature: projects related features via web
     When I perform the :check_row_filter_on_page web action with:
       | filter | Namespace Role Bindings |
     Then the step should succeed
-    When I run the :goto_projects_list_page web action
-    Then the step should succeed
-    When I perform the :delete_project_on_list_page web action with:
-      | resource_name | test           |
+    When I perform the :click_one_dropdown_action web action with:
       | action_item   | Delete Project |
     Then the step should succeed
+    When I perform the :send_delete_string web action with:
+      | resource_name | test |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    Given I wait for the resource "project" named "test" to disappear
+    When I run the :get client command with:
+      | resource | project |
+    Then the step should succeed
+    And the output should contain:
+      | No resources found |
+
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-19669
@@ -83,4 +92,3 @@ Feature: projects related features via web
     Then the step should succeed
     """
 
-    
