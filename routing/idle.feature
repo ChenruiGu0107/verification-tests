@@ -35,8 +35,7 @@ Feature: idle service related scenarios
     Then I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | curl |
-      | <%= cb.service_ip %>:27017 |
+      | curl | --max-time | 60 | <%= cb.service_ip %>:27017 |
     Then the output should contain "Hello OpenShift!"
     """
     Given a pod becomes ready with labels:
