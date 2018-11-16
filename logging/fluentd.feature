@@ -299,14 +299,13 @@ Feature: fluentd related tests
     Then the step should succeed
 
     When I run the :patch client command with:
-      | resource | configmap/logtest-config |
-      | type     | json                         |
-      | p        | { "data": { "OCP-19431": "{ \"event\": \"anlieventevent\", \"verb\": \"ADDED\" }", "ocp_logtest.cfg": "--num-lines 50  --line-length 0 --text-type=input --file /var/lib/svt/OCP-19431 --raw" }} |
+      | resource | configmap/logtest-config                                                                                                                                                                                   |
+      | p        | noescape: '{ "data": { "OCP-19431": "{\"event\": \"anlieventevent\", \"verb\": \"ADDED\" }", "ocp_logtest.cfg": "--num-lines 50  --line-length 0 --text-type=input --file /var/lib/svt/OCP-19431 --raw"}}' |
     Then the step should succeed
 
     When I run the :delete client command with:
-      | object_type       | pod       |
-      | l                 | run=centos-logtest       |
+      | object_type | pod                |
+      | l           | run=centos-logtest |
     Then the step should succeed
 
     Given logging service is installed with ansible using:
