@@ -38,4 +38,4 @@ Feature: reports related scenarios
       | query_type          | persistentvolumeclaim-request |
       | use_existing_report | true                          |
     Then the step should succeed
-    And the expression should be true> (["data_end", "data_start", "namespace", "period_end", "period_start", "persistentvolume", "persistentvolumeclaim", "storageclass", "volume_request_memory_byte_seconds"] - cb.res_json.first.keys).empty?
+    And the expression should be true> (["data_end", "data_start", "namespace", "period_end", "period_start", "persistentvolume", "persistentvolumeclaim", "storageclass", "volume_request_storage_byte_seconds"] - cb.res_json.first.keys).empty?
