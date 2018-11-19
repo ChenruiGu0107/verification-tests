@@ -294,6 +294,7 @@ Feature: fluentd related tests
   @destructive
   Scenario: the string event are sent to ES
     Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project clipboard
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/svt/master/openshift_scalability/content/logtest/logtest-rc.json |
     Then the step should succeed
@@ -310,16 +311,16 @@ Feature: fluentd related tests
 
     Given logging service is installed with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-19431/inventory |
-    # register the message
-    And I wait up to 900 seconds for the steps to pass:
-    """
+    Then I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "component=es"
+    Given the first user is cluster-admin
+    And I switch to the first user
     And I perform the HTTP request:
-    <%= '"""' %>
-      :url: https://es.<%= cb.subdomain %>/project.<%= cb.org_project.name %>-*/_search?output=JSON
+    """
+      :url: https://es.<%= cb.subdomain %>/_search
       :method: post
       :payload: '{"query": { "match": {"event" : "anlieventevent" }}}'
       :headers:
         :Authorization: Bearer <%= user.cached_tokens.first %>
-    <%= '"""' %>
-    Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["event"].include? "anlieventevent"
+        :content-type: application/json
     """
+    Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["event"].include? "anlieventevent"
