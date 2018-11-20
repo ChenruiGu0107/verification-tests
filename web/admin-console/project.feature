@@ -29,7 +29,7 @@ Feature: projects related features via web
       | filter | Namespace Role Bindings |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Delete Project |
+      | item   | Delete Project |
     Then the step should succeed
     When I perform the :send_delete_string web action with:
       | resource_name | test |

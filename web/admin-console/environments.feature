@@ -82,3 +82,76 @@ Feature: environment related
     And the output should not contain:
       | mysecret1 |
       | password  |
+
+  # @author yapei@redhat.com
+  # @case_id OCP-20183
+  Scenario: Check environment variable editor for resource
+    Given the master version >= "4.0"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | run=dctest |
+    
+    # add env var key/value
+    And I open admin console in a browser
+    When I perform the :goto_resource_environment_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_type | deploymentconfigs    |
+      | resource_name | dctest               |
+    Then the step should succeed
+    When I perform the :choose_container web action with:
+      | item | dctest-1 |
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name  | c1     |
+      | env_var_value | value1 |
+    Then the step should succeed
+    When I perform the :choose_container web action with:
+      | item | dctest-2 |
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name  | PATH_TO    |
+      | env_var_value | /home/test |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+
+    Given 1 pods become ready with labels:
+      | run=dctest          |
+      | deployment=dctest-2 |
+    When I run the :env client command with:
+      | resource | pod/<%= pod.name %> |
+      | list     | true                |
+    Then the step should succeed
+    And the output by order should match:
+      | container.*dctest-1 |
+      | c1=value1           |
+      | container.*dctest-2 |
+      | PATH_TO=/home/test  |
+
+    # delete env var key/value
+    When I perform the :goto_resource_environment_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_type | deploymentconfigs    |
+      | resource_name | dctest               |
+    Then the step should succeed
+    When I perform the :choose_container web action with:
+      | item | dctest-1 |
+    Then the step should succeed
+    When I perform the :remove_env_vars web action with:
+      | env_var_name  | c1 |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+
+    Given 1 pods become ready with labels:
+      | run=dctest          |
+      | deployment=dctest-3 |
+    When I run the :env client command with:
+      | resource | pod/<%= pod.name %> |
+      | list     | true                |
+    Then the step should succeed
+    And the output should not match:
+      | c1=value1 |  

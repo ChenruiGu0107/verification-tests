@@ -35,7 +35,7 @@ Feature: deployment/dc related features via web
       | deploy_name  | example              |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Edit Count |
+      | item   | Edit Count |
     Then the step should succeed
     When I perform the :update_pod_count web action with:
       | pod_count | 2 |
@@ -44,7 +44,7 @@ Feature: deployment/dc related features via web
       | pod_count | 2 |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Edit Update Strategy |
+      | item   | Edit Update Strategy |
     Then the step should succeed
     When I perform the :update_rollout_strategy web action with:
       | update_strategy | Recreate |
@@ -54,7 +54,7 @@ Feature: deployment/dc related features via web
       | update_strategy | Recreate |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Edit Environment |
+      | item   | Edit Environment |
     Then the step should succeed
     When I perform the :add_env_vars web action with:
       | env_var_name    | test_key         |
@@ -72,7 +72,7 @@ Feature: deployment/dc related features via web
       | tab_name | Overview |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Delete Deployment |
+      | item   | Delete Deployment |
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
       | cascade       | true              |
@@ -80,7 +80,7 @@ Feature: deployment/dc related features via web
     Given I wait up to 70 seconds for the steps to pass:
     """
     When I run the :get client command with:
-      | resource | all |
+      | resource | deployment |
     Then the step should succeed
     And the output should contain:
      | No resources found |
