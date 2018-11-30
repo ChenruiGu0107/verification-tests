@@ -78,8 +78,6 @@ Feature: oc_set_probe.feature
       | readiness |          |
       | open_tcp  | 3306 |
     Then the step should succeed
-    And the output should match:
-      | deploymentconfig "mysql" updated|
     When I run the :set_probe client command with:
       | resource  | dc/mysql |
       | liveness  |          |

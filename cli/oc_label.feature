@@ -47,9 +47,9 @@ Feature: oc_label.feature
       | key_val   | status=healthy |
       | overwrite | true           |
     Then the step should succeed
-    And the output should contain:
-      | pod "hello-openshift" labeled |
-      | pod "tc482217-pod" labeled    |
+    And the output should match:
+      | hello-openshift"? labeled |
+      | tc482217-pod"? labeled    |
     When I run the :describe client command with:
       | resource | pod |
     Then the step should succeed
@@ -61,7 +61,7 @@ Feature: oc_label.feature
       | name     | hello-openshift |
       | key_val  | status=""       |
     Then the step should fail
-    And the output should match "invalid label (value|spec)"
+    And the output should match "invalid label (value|spec)|at least one label update is required"
     When I run the :label client command with:
       | resource | pods            |
       | name     | hello-openshift |

@@ -95,9 +95,7 @@ Feature: Return description with cli
     When  I run the :describe client command with:
       |resource| :false|
       |name| :false|
-    Then the output should contain:
-      | error: Required resource not specified |
-
+    Then the output should match "error: Required resource not specified|You must specify the type of resource to describe"
       #Use incorrect argument
     When  I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg |des |
