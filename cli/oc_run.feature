@@ -84,6 +84,34 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | replicas: 2   |
+    When I run the :run client command with:
+      | name      | webapp4             |
+      | image     | training/webapp     |
+      | attach    | true                |
+      | _timeout  | 60                  |
+    Then the output should match:
+      | command prompt.*pressing enter |
+    And a pod becomes ready with labels:
+      | run=webapp4 |
+    When I run the :run client command with:
+      | name      | debug               |
+      | image     | centos:7            |
+      | -i        | true                |
+      | tty       | true                |
+      | _timeout  | 90                  |
+    Then the output should match:
+      | command prompt.*pressing enter |
+    And a pod becomes ready with labels:
+      | run=debug |
+    When I run the :run client command with:
+      | name      | debug1              |
+      | image     | centos:7            |
+      | -i        | true                |
+      | _timeout  | 60                  |
+    Then the output should match:
+      | command prompt.*pressing enter |
+    And a pod becomes ready with labels:
+      | run=debug1 |
 
     Examples:
       | tool     |
