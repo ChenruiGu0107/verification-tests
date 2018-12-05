@@ -107,3 +107,54 @@ Feature: secrets related
     Then the step should succeed
     And the output should contain:
       | sourcesecret3 |
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-20800
+  Scenario: Key/Value Secret
+    Given I have a project
+    And I open admin console in a browser
+
+    # Create 2 pairs of key/value secret
+    When I perform the :goto_secrets_creation_page web action with:
+      | project_name        | <%= project.name %>    |
+      | secret_type         | generic                |
+    Then the step should succeed
+    When I perform the :create_generic_secret web action with:
+      | secret_name  | genericsecret1   |
+      | key          | key_1            |
+      | value        | value_1          |
+      | create       | |
+    Then the step should succeed
+
+    # Check created secret
+    When I run the :click_reveal_values web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | value_1 |
+    Then the step should succeed
+    When I run the :click_hide_values web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | value_1 |
+    Then the step should fail
+ 
+    # Edit secret
+    When I perform the :click_one_dropdown_action web action with:
+      | action_item   | Edit Secret |
+    Then the step should succeed
+    When I perform the :create_generic_secret web action with:
+      | one_more     | |
+      | key          | key_2   |
+      | value        | value_2 |
+      | save         | |
+    Then the step should succeed 
+
+    # Check updated secret 
+    When I run the :click_reveal_values web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | key_2 |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | value_2 |
+    Then the step should succeed
