@@ -22,7 +22,7 @@ Feature: reports related scenarios
       | format              | tabular           |
     Then the step should succeed
     # save the last element of the timestamp which should appear in all three formats
-    And evaluation of `Time.parse(cb.res_json[-1]['timestamp']).utc.to_s.gsub('UTC', '+0000 UTC')` is stored in the :timestamp clipboard
+    And evaluation of `Time.parse(cb.res_json[-1]['period_start']).utc.to_s.gsub('UTC', '+0000 UTC')` is stored in the :timestamp clipboard
     And the expression should be true> cb.res_tabular.include? cb.timestamp
     And the expression should be true> cb.res_csv.include? cb.timestamp
 
