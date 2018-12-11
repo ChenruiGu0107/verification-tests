@@ -120,10 +120,10 @@ Feature: secrets related
       | secret_type         | generic                |
     Then the step should succeed
     When I perform the :create_generic_secret web action with:
-      | secret_name  | genericsecret1   |
-      | key          | key_1            |
-      | value        | value_1          |
-      | create       | |
+      | secret_name    | genericsecret1   |
+      | key            | key_1            |
+      | textarea_value | value_1          |
+      | create         | |
     Then the step should succeed
 
     # Check created secret
@@ -140,13 +140,13 @@ Feature: secrets related
  
     # Edit secret
     When I perform the :click_one_dropdown_action web action with:
-      | action_item   | Edit Secret |
+      | item   | Edit Secret |
     Then the step should succeed
     When I perform the :create_generic_secret web action with:
-      | one_more     | |
-      | key          | key_2   |
-      | value        | value_2 |
-      | save         | |
+      | one_more       | |
+      | key            | key_2   |
+      | textarea_value | value_2 |
+      | save           | |
     Then the step should succeed 
 
     # Check updated secret 
