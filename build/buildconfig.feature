@@ -293,13 +293,13 @@ Feature: buildconfig.feature
     And I run the :get client command with:
       | resource | build |
     Then the step should succeed
-    And the output should contain:
-      | AssembleFailed |
+    And the output should match:
+      | [Ff]ail |
     When I run the :describe client command with:
       | resource | build |
     Then the step should succeed
-    And the output should contain:
-      | Assemble script failed |
+    And the output should match:
+      | [Ff]ail |
 
   # @author wzheng@redhat.com
   # @case_id OCP-12837
