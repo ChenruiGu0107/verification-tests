@@ -55,11 +55,6 @@ Feature: stibuild.feature
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/stibuild-configchange.json |
     Then the step should succeed
     And the "php-sample-build-1" build was created
-    And the "php-sample-build-1" build completed
-    When I expose the "frontend" service
-    Then I wait for a web server to become available via the "frontend" route
-    And the output should contain:
-      | Hello World!|
     When I run the :describe client command with:
       | resource | build              |
       | name     | php-sample-build-1 |
