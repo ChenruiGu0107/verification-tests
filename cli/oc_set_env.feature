@@ -37,7 +37,7 @@ Feature: oc_set_env.feature
       | resource | bc/ruby-sample-build    |
       | list     | true  |
     Then the step should succeed
-    And the output should not contain:
+    And the output should contain:
       |  STORAGE_DIR=/data      |
     When I run the :set_env client command with:
       | resource | rc/database-1    |

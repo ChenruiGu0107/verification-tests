@@ -954,7 +954,7 @@ Feature: build 'apps' with CLI
       When I run the :logs client command with:
         | resource_name | build/ruby-sample-build-2 |
       Then the step should succeed
-      And the output should contain "error connecting to proxy"
+      And the output should match "error connecting to proxy|build error: could not download any scripts from URL|Could not fetch specs from https://rubygems.org/"
 
   # @author cryan@redhat.com
   # @case_id OCP-10772
