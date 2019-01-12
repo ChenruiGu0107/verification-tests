@@ -318,12 +318,16 @@ Feature: templates.feature
       | amq63-ssl |
       | caching-service |
       | cakephp-mysql-persistent |
-      | dancer-mysql-persistent  |
+      | dancer-mysql-persistent |
       | datagrid71-basic |
       | datagrid71-https |
       | datagrid71-mysql-persistent |
       | datagrid71-postgresql-persistent |
-      | django-psql-persistent   |
+      | datagrid72-basic |
+      | datagrid72-https |
+      | datagrid72-mysql-persistent |
+      | datagrid72-postgresql-persistent |
+      | django-psql-persistent |
       | eap-cd-amq-persistent-s2i |
       | eap-cd-basic-s2i |
       | eap-cd-postgresql-persistent-s2i |
@@ -332,25 +336,32 @@ Feature: templates.feature
       | eap71-https-s2i |
       | eap71-postgresql-persistent-s2i |
       | eap71-sso-s2i |
+      | fuse70-console |
       | httpd-example |
-      | jenkins-persistent       |
+      | jenkins-persistent |
       | jws31-tomcat7-https-s2i |
       | jws31-tomcat8-https-s2i |
       | jws31-tomcat8-mongodb-persistent-s2i |
       | jws31-tomcat8-mysql-persistent-s2i |
       | jws31-tomcat8-postgresql-persistent-s2i |
       | laravel-mysql-persistent |
-      | mariadb-persistent       |
-      | mongodb-persistent       |
-      | mysql-persistent         |
-      | nodejs-mongo-persistent  |
-      | openjdk18-web-basic-s2i  |
-      | postgresql-persistent    |
-      | rails-pgsql-persistent   |
-      | redis-ephemeral          |
-      | redis-persistent         |
+      | mariadb-persistent |
+      | mongodb-persistent |
+      | mysql-persistent |
+      | nodejs-mongo-persistent |
+      | openjdk18-web-basic-s2i |
+      | postgresql-persistent |
+      | rails-pgsql-persistent |
+      | redis-ephemeral |
+      | redis-persistent |
       | rhdm70-full-persistent |
       | rhdm70-kieserver-https-s2i |
+      | rhpam70-authoring |
+      | rhpam70-kieserver-mysql |
+      | rhpam70-kieserver-postgresql |
+      | rhpam70-prod-immutable-kieserver |
+      | s2i-fuse70-spring-boot-camel-xml |
+      | s2i-fuse70-spring-boot-camel |
       | s2i-spring-boot-camel-xml |
       | s2i-spring-boot-camel |
       | sso72-x509-https |
@@ -360,7 +371,7 @@ Feature: templates.feature
       | o             | yaml      |
     Then the step should succeed
     # make sure there's no extra templates
-    And the output should contain 41 times:
+    And the output should contain 52 times:
       | kind: Template |
 
   # @author yuwei@redhat.com
