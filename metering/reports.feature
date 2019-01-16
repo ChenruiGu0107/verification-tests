@@ -5,11 +5,10 @@ Feature: reports related scenarios
   @destructive
   Scenario: view metering report with supported formats
     Given metering service has been installed successfully
-    And I use the "<%= cb.metering_namespace %>" project
+    And I use the "<%= cb.metering_namespace.name %>" project
     Given I select a random node's host
     Given I get the "node-cpu-capacity" report and store it in the :res_json clipboard using:
       | query_type          | node-cpu-capacity |
-      | use_existing_report | true              |
     Then the step should succeed
     Given I get the "node-cpu-capacity" report and store it in the :res_csv clipboard using:
       | query_type          | node-cpu-capacity |
@@ -32,7 +31,7 @@ Feature: reports related scenarios
   @destructive
   Scenario: verify PV ReportGenerationQuery are supported and be able to generate a report
     Given metering service has been installed successfully
-    And I use the "<%= cb.metering_namespace %>" project
+    And I use the "<%= cb.metering_namespace.name %>" project
     Given I select a random node's host
     Given I get the "persistentvolumeclaim-request" report and store it in the :res_json clipboard using:
       | query_type          | persistentvolumeclaim-request |
