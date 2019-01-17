@@ -30,4 +30,4 @@ Feature: storage (storageclass, pv, pvc) related
       | reclaim_policy  | Delete         |
       | default_class   | false          |
     Then the step should succeed
-    
+
