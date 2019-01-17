@@ -67,95 +67,6 @@ Feature: install and uninstall related scenarios
     And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
 
   # @author pruan@redhat.com
-  # @case_id OCP-10104
-  @admin
-  @destructive
-  Scenario: deploy logging with dynamic volume
-    Given the master version >= "3.7"
-    Given I create a project with non-leading digit name
-    Given logging service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10104/inventory |
-    And I run the :volume client command with:
-      | resource | dc                    |
-      | selector | component=es          |
-      | n        | <%= cb.target_proj %> |
-    Then the output should contain:
-      | pvc/logging-es-0         |
-      | as elasticsearch-storage |
-
-  # @author pruan@redhat.com
-  # @case_id OCP-11385
-  @admin
-  @destructive
-  Scenario: Scale up curator, kibana and elasticsearch pods
-    Given the master version <= "3.4"
-    Given I create a project with non-leading digit name
-    Given logging service is installed using deployer:
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11385/deployer.yaml |
-    # check DC values
-    And evaluation of `dc('logging-kibana').container_spec(name: 'kibana')` is stored in the :cs_kibana clipboard
-    And evaluation of `dc('logging-kibana-ops').container_spec(name: 'kibana')` is stored in the :cs_kibana_ops clipboard
-    Then the expression should be true> cb.cs_kibana.env[0]['name'] == 'ES_HOST' and cb.cs_kibana.env[0]['value'] == 'logging-es'
-    Then the expression should be true> cb.cs_kibana.env[1]['name'] == 'ES_PORT' and cb.cs_kibana.env[1]['value'] == '9200'
-    Then the expression should be true> cb.cs_kibana_ops.env[0]['name'] == 'ES_HOST' and cb.cs_kibana_ops.env[0]['value'] == 'logging-es-ops'
-    Then the expression should be true> cb.cs_kibana_ops.env[1]['name'] == 'ES_PORT' and cb.cs_kibana_ops.env[1]['value'] == '9200'
-
-    # Scale up kibana, kibana-ops, ES-ops, ES, curator and curator-ops
-    Given a replicationController becomes ready with labels:
-      | component=curator |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=curator |
-
-    Given a replicationController becomes ready with labels:
-      | component=curator-ops |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=curator-ops |
-
-    Given a replicationController becomes ready with labels:
-      | component=es |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=es |
-
-    Given a replicationController becomes ready with labels:
-      | component=es-ops |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=es-ops |
-
-    Given a replicationController becomes ready with labels:
-      | component=kibana |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=kibana |
-
-    Given a replicationController becomes ready with labels:
-      | component=kibana-ops |
-    And I run the :scale client command with:
-      | resource | rc             |
-      | name     | <%= rc.name %> |
-      | replicas | 2              |
-    Given status becomes :running of exactly 2 pods labeled:
-      | component=kibana-ops |
-
-  # @author pruan@redhat.com
   # @case_id OCP-13700
   @admin
   @destructive
@@ -175,34 +86,6 @@ Feature: install and uninstall related scenarios
     Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
     When I wait for the "project.install-test." index to appear in the ES pod
     Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
-
-  # @author pruan@redhat.com
-  # @case_id OCP-12868
-  @admin
-  @destructive
-  Scenario: Check Fluentd should write times/timestamps in UTC when logdriver=journald
-    Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And evaluation of `project.name` is stored in the :org_project clipboard
-    # need to add app so it will generate some data which will trigger the project index be pushed up to the es pod
-    When I run the :new_app client command with:
-      | app_repo | httpd-example |
-    Then the step should succeed
-    Given logging service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12868/inventory |
-    When I wait for the ".operation" index to appear in the ES pod with labels "component=es"
-    Then I perform the HTTP request on the ES pod:
-      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
-      | op           | GET                                                 |
-    And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
-    Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
-    # query the user project
-    When I wait for the "project.<%= cb.org_project %>" index to appear in the ES pod
-    Then I perform the HTTP request on the ES pod:
-      | relative_url | <%= cb.index_data['index'] %>/_search?pretty&size=5 |
-      | op           | GET                                                 |
-    And evaluation of `Time.parse(@result.dig(:parsed, 'hits', 'hits')[0].dig('_source','@timestamp'))` is stored in the :query_result clipboard
-    Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
 
   # @author pruan@redhat.com
   # @case_id OCP-11869
