@@ -803,7 +803,6 @@ Feature: Quota related scenarios
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-11797,OCP-11963
   @admin
   Scenario Outline: Image with multiple layers and sumed up size slightly exceed the openshift.io/image-size will push failed
     Given I have a project

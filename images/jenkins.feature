@@ -1383,7 +1383,6 @@ Feature: jenkins.feature
       | 2   |
 
   # @author dyan@redhat.com
-  # @case_id OCP-13207 OCP-13208 OCP-13209 OCP-13210
   Scenario Outline: Switch to 32bit JDK for Jenkins
     Given I have a project
     When I run the :new_app client command with:
