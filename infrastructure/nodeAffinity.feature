@@ -371,7 +371,7 @@ Feature: nodeAffinity
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
   # @author wmeng@redhat.com
-  # case_id OCP-14521
+  # @case_id OCP-14521
   @admin
   Scenario: pod will be scheduled to the node which matches node anti-affinity - DoesNotExist
     Given environment has at least 2 schedulable nodes

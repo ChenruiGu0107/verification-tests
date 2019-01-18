@@ -1,7 +1,7 @@
 Feature: Network policy plugin scenarios
 
   #author bmeng@redhat.com
-  #case_id OCP-12801
+  # @case_id OCP-12801
   @admin
   Scenario: The network between projects are flat and can be managed by admin when using networkpolicy plugin
     Given the env is using networkpolicy plugin
@@ -66,7 +66,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12803
+  # @case_id OCP-12803
   @admin
   @destructive
   Scenario: Set networkpolicy to project which does not have the annoation will not take effect
@@ -125,7 +125,7 @@ Feature: Network policy plugin scenarios
     And the output should contain "reg0=0x"
 
   #author bmeng@redhat.com
-  #case_id OCP-12804
+  # @case_id OCP-12804
   @admin
   Scenario: Use networkpolicy plugin with "allow local connections" policy
     Given the env is using networkpolicy plugin
@@ -249,7 +249,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12805
+  # @case_id OCP-12805
   @admin
   Scenario: Use networkpolicy plugin with "allow connections from specific project" policy
     Given the env is using networkpolicy plugin
@@ -389,7 +389,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12806
+  # @case_id OCP-12806
   @admin
   Scenario: Use networkpolicy plugin with "allow all connections" policy
     Given the env is using networkpolicy plugin
@@ -512,7 +512,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "Hello"
 
   #author bmeng@redhat.com
-  #case_id OCP-12876
+  # @case_id OCP-12876
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow from
     Given the env is using networkpolicy plugin
@@ -644,7 +644,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "Hello"
 
   #author bmeng@redhat.com
-  #case_id OCP-12877
+  # @case_id OCP-12877
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow to
     Given the env is using networkpolicy plugin
@@ -754,7 +754,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "Hello"
 
   #author bmeng@redhat.com
-  #case_id OCP-12945
+  # @case_id OCP-12945
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow from red to blue
     Given the env is using networkpolicy plugin
@@ -826,7 +826,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12807
+  # @case_id OCP-12807
   @admin
   Scenario: Multiple networkpolicys can work together on a single project
     Given the env is using networkpolicy plugin
@@ -898,7 +898,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-13304
+  # @case_id OCP-13304
   @admin
   Scenario: podSelector allow-to and allow-from can work together
     Given the env is using networkpolicy plugin
@@ -984,7 +984,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12851
+  # @case_id OCP-12851
   @admin
   Scenario: Allow the specific ports to be accessible via network policy
     Given the env is using networkpolicy plugin
@@ -1107,7 +1107,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-12800
+  # @case_id OCP-12800
   @admin
   Scenario: The network policy will also restrict the connection between node and pod
     Given the env is using networkpolicy plugin
@@ -1154,7 +1154,7 @@ Feature: Network policy plugin scenarios
     And the output should contain "Hello"
 
   #author bmeng@redhat.com
-  #case_id OCP-14668
+  # @case_id OCP-14668
   @admin
   Scenario: Use networkpolicy plugin with "allow local connections" policy for service
     Given the env is using networkpolicy plugin
@@ -1259,7 +1259,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-14669
+  # @case_id OCP-14669
   @admin
   Scenario: Use networkpolicy plugin with "allow connections from specific project" policy for service
     Given the env is using networkpolicy plugin
@@ -1392,7 +1392,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "Hello"
 
   #author bmeng@redhat.com
-  #case_id OCP-14671
+  # @case_id OCP-14671
   @admin
   Scenario: Use networkpolicy plugin with "allow all connections" policy for service
     Given the env is using networkpolicy plugin
@@ -1501,7 +1501,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "Hello"
 
   #author hongli@redhat.com
-  #case_id OCP-14981
+  # @case_id OCP-14981
   Scenario: Project admins can create and delete networkpolicies in their own project
     Given the master version >= "3.6"
 
@@ -1523,7 +1523,7 @@ Feature: Network policy plugin scenarios
     And I ensure "default-deny" networkpolicies is deleted
 
   #author hongli@redhat.com
-  #case_id OCP-15024
+  # @case_id OCP-15024
   Scenario: Project admin cannot create networkpolicy in other's project
     Given the master version >= "3.6"
 
@@ -1540,7 +1540,7 @@ Feature: Network policy plugin scenarios
     And the output should match "User "<%= user.name %>" cannot create networkpolicies.extensions in (project|the namespace)"
 
   #author bmeng@redhat.com
-  #case_id OCP-19397
+  # @case_id OCP-19397
   @admin
   Scenario: Egress type rule in network policy should not affect the policy function
     Given the master version >= "3.9"
@@ -1609,7 +1609,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-19399
+  # @case_id OCP-19399
   @admin
   Scenario: If only egress type of rule appears in the networkpolicy then the networkpolicy will not take effect    
     Given the master version >= "3.9"
@@ -1663,7 +1663,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-19400
+  # @case_id OCP-19400
   @admin
   Scenario: A policy with an ingress rule with an ipBlock element behaves like it would if that rule was removed
     Given the master version >= "3.9"
@@ -1740,7 +1740,7 @@ Feature: Network policy plugin scenarios
 
 
   #author bmeng@redhat.com
-  #case_id OCP-19552
+  # @case_id OCP-19552
   @admin
   Scenario: Should not break the cluster when creating network policy with incorrect json structure
     Given the master version >= "3.9"
