@@ -12,31 +12,6 @@ Feature: kibana web UI related cases for logging
     Then I run the :kibana_verify_default_index_pattern web action
 
   # @author pruan@redhat.com
-  # @case_id OCP-15772
-  @admin
-  @destructive
-  Scenario: kibana status is red when the es pod is not running
-    Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the system
-    And a replicationController becomes ready with labels:
-      | component=es |
-    And a deploymentConfig becomes ready with labels:
-      | component=es |
-    # disable es pod by scaling it to 0
-    Then I run the :scale client command with:
-      | resource | deploymentConfig |
-      | name     | <%= dc.name %>   |
-      | replicas | 0                |
-    And I wait until number of replicas match "0" for replicationController "<%= rc.name %>"
-    # get back to normal user mode
-    Given I switch to the first user
-    And I login to kibana logging web console
-    And I get the visible text on web html page
-    And the output should contain:
-      | Status: Red |
-
-  # @author pruan@redhat.com
   # @case_id OCP-14119
   @admin
   @destructive

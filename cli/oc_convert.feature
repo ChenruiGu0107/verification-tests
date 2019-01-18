@@ -1,7 +1,6 @@
 Feature: oc convert related scenarios
 
   # @author yapei@redhat.com
-  # @case_id OCP-10892 OCP-20924
   Scenario Outline: Convert resource files using convert
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml"

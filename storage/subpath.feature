@@ -313,7 +313,6 @@ Feature: volumeMounts should be able to use subPath
     And the pod named "pod-<%= project.name %>" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id OCP-18426
   @admin
   Scenario Outline: Subpath with cloud volumes
     Given I have a project

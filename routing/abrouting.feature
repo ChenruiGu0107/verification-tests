@@ -564,7 +564,7 @@ Feature: Testing abrouting
 
 
   # @author yadu@redhat.com
-  # @case_id OCP-13522
+  # @case_id OCP-13521
   @admin
   Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route

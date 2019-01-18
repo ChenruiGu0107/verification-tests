@@ -28,29 +28,6 @@ Feature: fluentd related tests
     Then the expression should be true> cb.query_result.inspect.end_with? "0000" or cb.query_result.inspect.end_with? "UTC"
 
   # @author pruan@redhat.com
-  # @case_id OCP-17424
-  @admin
-  @destructive
-  Scenario: fluentd ops feature checking
-    Given the master version >= "3.6"
-    Given I create a project with non-leading digit name
-    And logging service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17424/inventory |
-    # check fluentd pod
-    Given a pod becomes ready with labels:
-      | component=fluentd |
-    And I execute on the "<%= pod.name %>" pod:
-      | env |
-    Then the step should succeed
-    And the output should contain "OPS_HOST=logging-es-ops"
-    And I execute on the "<%= pod.name %>" pod:
-      | ls | /etc/fluent/configs.d/filter-post-z-retag-two.conf |
-    Then the step should succeed
-    And the output should contain "/etc/fluent/configs.d/filter-post-z-retag-two.conf"
-    And I get the ".operation" logging index information from a pod with labels "component=es-ops"
-    Then the expression should be true> cb.index_data and cb.index_data.count > 0
-
-  # @author pruan@redhat.com
   # @case_id OCP-10523
   @admin
   @destructive
