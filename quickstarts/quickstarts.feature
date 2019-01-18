@@ -203,8 +203,8 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | template                                                                                                | buildcfg             | output  | podno |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | @case_id OCP-12602
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | @case_id OCP-12603
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | # @case_id OCP-12602
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | # @case_id OCP-12603
 
   # @author xiuwang@redhat.com
   # @case_id OCP-13750

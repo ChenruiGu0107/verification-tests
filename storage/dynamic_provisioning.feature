@@ -141,7 +141,7 @@ Feature: Dynamic provisioning
     """
 
   # @author chaoyang@redhat.com
-  # case_id OCP-13943
+  # @case_id OCP-13943
   @smoke
   Scenario: Dynamic provision smoke test
     Given I have a project
