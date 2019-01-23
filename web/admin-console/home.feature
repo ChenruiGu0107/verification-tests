@@ -8,7 +8,7 @@ Feature: Home related pages via admin console
     And evaluation of `@result[:props][:openshift_server_version]` is stored in the :openshift_version clipboard
     And evaluation of `@result[:props][:kubernetes_version]` is stored in the :k8s_version clipboard
     Given I open admin console in a browser
-    When I perform the :go_to_project_status web action with:
+    When I perform the :goto_project_status web action with:
       | project   | default |
     Then the step should succeed
     When I perform the :check_software_info_versions web action with:
