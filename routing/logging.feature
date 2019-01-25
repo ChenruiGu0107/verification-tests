@@ -6,7 +6,7 @@ Feature: Testing HAProxy router logging related scenarios
   @destructive
   Scenario: can set haproxy router logging facility by env
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     Given admin ensures new router pod becomes ready after following env added:
       | ROUTER_SYSLOG_ADDRESS=127.0.0.1 |
       | ROUTER_LOG_FACILITY=local2      |

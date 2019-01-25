@@ -143,9 +143,8 @@ Feature: Testing timeout route
       | keyval           | haproxy.router.openshift.io/timeout=-3s |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -162,9 +161,8 @@ Feature: Testing timeout route
       | keyval           | haproxy.router.openshift.io/timeout=abc |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -181,9 +179,8 @@ Feature: Testing timeout route
       | keyval           | haproxy.router.openshift.io/timeout=*^% |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |

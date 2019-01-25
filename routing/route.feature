@@ -27,9 +27,8 @@ Feature: Testing route
   @admin
   Scenario: The certs for the edge/reencrypt termination routes should be removed when the routes removed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
 
     Given I switch to the first user
@@ -46,7 +45,7 @@ Feature: Testing route
     And evaluation of `"route-reencrypt"` is stored in the :reencrypt_route clipboard
 
     When I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
@@ -75,7 +74,7 @@ Feature: Testing route
 
     When I wait for the resource "route" named "<%= cb.edge_route %>" to disappear
     And I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I execute on the pod:
       | bash |
       | -lc |
@@ -95,7 +94,7 @@ Feature: Testing route
 
     When I wait for the resource "route" named "<%= cb.reencrypt_route %>" to disappear
     And I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I execute on the pod:
       | bash |
       | -lc |
@@ -451,9 +450,8 @@ Feature: Testing route
        | service-unsecure.*none |
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.service_ip %> | /var/lib/haproxy/conf/haproxy.config |
@@ -498,7 +496,7 @@ Feature: Testing route
        | service-unsecure.*none |
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.service_secure_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should not contain "check inter"
@@ -513,7 +511,7 @@ Feature: Testing route
 
     #Check the 'check inter 5000ms' already recover after unidle
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
 
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -1162,9 +1160,8 @@ Feature: Testing route
       | keyval       | haproxy.router.openshift.io/timeout=5s    |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I execute on the "<%=cb.router_pod %>" pod:
       | grep | -A | 12 | <%= cb.proj_name %>:test-service | /var/lib/haproxy/conf/haproxy.config |
@@ -1261,9 +1258,8 @@ Feature: Testing route
     Then the output should contain "Hello OpenShift!"
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I run the :logs admin command with:
       | resource_name | <%= cb.router_pod %>  |

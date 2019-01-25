@@ -5,9 +5,8 @@ Feature: Testing haproxy router
   @admin
   Scenario: Should expose the status monitoring endpoint for haproxy router
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     And I execute on the pod:
       | /usr/bin/curl | -sS | -w | %{http_code} |  127.0.0.1:1936/healthz |
     Then the output should contain "200"
@@ -32,9 +31,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | cat |
@@ -99,9 +97,8 @@ Feature: Testing haproxy router
 
     # get the cert files creation time on router pod
     When I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
@@ -133,7 +130,7 @@ Feature: Testing haproxy router
 
     # check only the cert files for the updated route are changed
     When I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
@@ -432,9 +429,8 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Haproxy router health check via stats port specified by user
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is restored after scenario
@@ -463,7 +459,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario: The correct route info should be reported back to user when there are multiple routers
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given environment has at least 2 schedulable nodes
     And default router replica count is restored after scenario
@@ -556,10 +552,9 @@ Feature: Testing haproxy router
   @destructive
   Scenario: User can access router stats using the specified port and username/pass
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
     Given default router replica count is restored after scenario
     And admin ensures "tc-483532" dc is deleted after scenario
@@ -609,10 +604,9 @@ Feature: Testing haproxy router
   @destructive
   Scenario: router stats's password will be shown if creating router without providing stats password
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
     Given default router replica count is restored after scenario
     And admin ensures "tc-483529" dc is deleted after scenario
@@ -657,11 +651,10 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Route should be moved to the correct router once the label changed
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given environment has at least 2 schedulable nodes
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Given default router replica count is restored after scenario
     And admin ensures "router-label-red" dc is deleted after scenario
     And admin ensures "router-label-red" service is deleted after scenario
@@ -779,10 +772,9 @@ Feature: Testing haproxy router
   @destructive
   Scenario: router cannot be running if the stats port was occupied
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Given default router replica count is restored after scenario
     And admin ensures "tc-483533" dc is deleted after scenario
     And admin ensures "tc-483533" service is deleted after scenario
@@ -951,10 +943,9 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Set invalid reload time for haproxy router script
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Given default router replica count is restored after scenario
     And admin ensures "tc-518936" dc is deleted after scenario
     And admin ensures "tc-518936" service is deleted after scenario
@@ -1002,7 +993,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
@@ -1090,7 +1081,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Router can work well with container network stack
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
@@ -1206,9 +1197,8 @@ Feature: Testing haproxy router
   @admin
   Scenario: The router pod should have default resource limits
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     When I run the :get client command with:
       | resource | pod |
       | l | deploymentconfig=router |
@@ -1222,7 +1212,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Be able to create multi router via setting port with container network mode
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
@@ -1330,10 +1320,9 @@ Feature: Testing haproxy router
     Given I switch to cluster admin pseudo user
     Given SCC "privileged" is added to the "dyrouter" service account
     And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= cb.proj1 %>:dyrouter" service account
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Given default router replica count is restored after scenario
     When I run the :scale client command with:
       | resource | dc     |
@@ -1405,10 +1394,9 @@ Feature: Testing haproxy router
     Given I switch to cluster admin pseudo user
     Given SCC "privileged" is added to the "dyrouter" service account
     And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= cb.proj1 %>:dyrouter" service account
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Given default router replica count is restored after scenario
     When I run the :scale client command with:
       | resource | dc     |
@@ -1465,7 +1453,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario: router will not expose host port on node if set turn off that option
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
@@ -1563,7 +1551,7 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
@@ -1577,9 +1565,8 @@ Feature: Testing haproxy router
   @admin
   Scenario: The backend health check interval of passthrough route can be set by annotation
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
 
     Given I switch to the first user
@@ -1603,7 +1590,7 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
@@ -1617,9 +1604,8 @@ Feature: Testing haproxy router
   @admin
   Scenario: The backend health check interval of reencrypt route can be set by annotation
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
 
     Given I switch to the first user
@@ -1646,7 +1632,7 @@ Feature: Testing haproxy router
 
     # check the backend of route after annotation
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
@@ -1661,9 +1647,8 @@ Feature: Testing haproxy router
   @destructive
   Scenario: Set timeout http-request for haproxy
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     When I run the :exec client command with:
       | pod              | <%= pod.name %>  |
       | i                |                  |
@@ -1926,7 +1911,7 @@ Feature: Testing haproxy router
 
     # label the two namespaces
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     When I run the :label client command with:
       | resource | namespaces          |
       | name     | <%= cb.project_a %> |
@@ -2197,7 +2182,7 @@ Feature: Testing haproxy router
 
     #Enable the ROUTER_BIND_PORTS_AFTER_SYNC=true for router
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     And default router replica count is restored after scenario
@@ -2248,7 +2233,7 @@ Feature: Testing haproxy router
   @destructive
   Scenario Outline: Router dns name info exist in route when creating router with --router-canonical-hostname option
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And default router image is stored into the :default_router_image clipboard
     Given default router replica count is stored in the :router_num clipboard
     And default router replica count is restored after scenario
@@ -2303,9 +2288,8 @@ Feature: Testing haproxy router
   @destructive
   Scenario: panic error should not be found in haproxy router log
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
     When I run the :patch client command with:
@@ -2314,8 +2298,7 @@ Feature: Testing haproxy router
       | p             | {"spec":{"template":{"spec":{"containers":[{"command": ["/usr/bin/openshift-router","--loglevel=4"],"name":"router"}]}}}} |
     Then the step should succeed
     And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod_new clipboard
 
     Given I switch to the first user
@@ -2702,9 +2685,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -2743,9 +2725,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -2784,9 +2765,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    Given a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -2962,9 +2942,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -2984,7 +2963,7 @@ Feature: Testing haproxy router
     And all existing pods are ready with labels:
       | name=caddy-pods |
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     And I wait up to 10 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
@@ -3028,9 +3007,8 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -3048,9 +3026,8 @@ Feature: Testing haproxy router
   @destructive
   Scenario: HAProxy config can be overwritten with a configMap
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And I use the router project
+    And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the pod:
       | cat     |  haproxy-config.template  |
@@ -3086,8 +3063,7 @@ Feature: Testing haproxy router
       | name     | router  |
     Then the step should succeed
     And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    And all default router pods become ready
     #Add 10 seconds to make sure the port 80 is binding since even if the router pod ready also did not mean the port has been bound
     And I wait up to 10 seconds for the steps to pass:
     """

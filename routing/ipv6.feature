@@ -7,7 +7,7 @@ Feature: Testing IPv6 related scenarios
   Scenario: The haproxy support terminate IPv6 traffic at the router if set ROUTER_IP_V4_V6_MODE to v4v6	
     Given the master version >= "3.6"
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     Given admin ensures new router pod becomes ready after following env added:
       | ROUTER_IP_V4_V6_MODE=v4v6 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
@@ -78,7 +78,7 @@ Feature: Testing IPv6 related scenarios
   Scenario: The haproxy support terminate IPv6 traffic at the router if set ROUTER_IP_V4_V6_MODE to v6
     Given the master version >= "3.6"
     Given I switch to cluster admin pseudo user
-    And I use the "default" project
+    And I use the router project
     Given admin ensures new router pod becomes ready after following env added:
       | ROUTER_IP_V4_V6_MODE=v6 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
