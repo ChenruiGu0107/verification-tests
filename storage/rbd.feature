@@ -309,7 +309,6 @@ Feature: Storage of Ceph plugin testing
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
   # @author jhou@redhat.com
-  # @case_id OCP-16123
   @admin
   @destructive
   Scenario Outline: Supporting fstype parameter in rbd StorageClass

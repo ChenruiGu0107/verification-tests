@@ -67,27 +67,6 @@ Feature: install and uninstall related scenarios
     And I wait for the pod named "<%= cb.eventrouter_pod_name %>" to die regardless of current status
 
   # @author pruan@redhat.com
-  # @case_id OCP-13700
-  @admin
-  @destructive
-  Scenario: Make sure the searchguard index that is created upon pod start worked fine
-    Given I create a project with non-leading digit name
-    Given logging service is installed in the system
-    And a deploymentConfig becomes ready with labels:
-      | component=es |
-    And I wait up to 240 seconds for the steps to pass:
-    """"
-    When I get the ".searchguard.<%= dc.name %>" logging index information from a pod with labels "component=es"
-    Then the expression should be true> cb.index_data['docs.count'] == "5"
-    """
-    And the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 0
-    # check operation and project.install-test.xxx index
-    When I wait for the ".operations." index to appear in the ES pod
-    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
-    When I wait for the "project.install-test." index to appear in the ES pod
-    Then the expression should be true> convert_to_bytes(cb.index_data['store.size']) > 10
-
-  # @author pruan@redhat.com
   # @case_id OCP-11869
   @admin
   @destructive
@@ -205,28 +184,6 @@ Feature: install and uninstall related scenarios
       | cat /etc/oci-umount.conf |
     Then the output should contain:
       | /var/lib/docker/containers/* |
-
-  # @author pruan@redhat.com
-  # @case_id OCP-18504
-  @admin
-  @destructive
-  Scenario: Check the default image prefix and version - logging
-    Given the master version >= "3.4"
-    Given I create a project with non-leading digit name
-    And logging service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18504/inventory |
-    And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
-    And evaluation of `{"curator"=>"curator", "curator-ops"=>"curator", "es"=>"elasticsearch", "es"=>"elasticsearch", "kibana"=>"kibana", "kibana-ops"=>"kibana", "mux"=>"mux"}` is stored in the :rc_labels clipboard
-    Given I repeat the following steps for each :label_hash in cb.rc_labels:
-    """
-    And a replicationController becomes ready with labels:
-      | component=#{cb.label_hash.first} |
-    And the expression should be true> rc.container_spec(name: cb.label_hash.last).image.start_with? cb.expected_prefix
-    And the expression should be true> rc.container_spec(name: cb.label_hash.last).image.end_with? cb.master_version
-    """
-    # check fluentd's ds instead of pod
-    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.start_with? cb.expected_prefix
-    And the expression should be true> daemon_set('logging-fluentd').container_spec(name: 'fluentd-elasticsearch').image.end_with? cb.master_version
 
   # @author pruan@redhat.com
   # @case_id OCP-17427

@@ -831,7 +831,6 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id OCP-11344
   Scenario Outline: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
     When I run the :new_app client command with:
