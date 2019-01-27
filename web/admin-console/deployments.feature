@@ -37,12 +37,12 @@ Feature: deployment/dc related features via web
     When I perform the :click_one_dropdown_action web action with:
       | item   | Edit Count |
     Then the step should succeed
-    When I perform the :update_pod_count web action with:
-      | pod_count | 2 |
+    When I perform the :update_resource_count web action with:
+      | resource_count | 2 |
     Then the step should succeed
     When I perform the :check_resource_details_key_and_value web action with:
       | key   | Desired Count |
-      | value | 1 pod         |
+      | value | 2 pod         |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item   | Edit Update Strategy |
