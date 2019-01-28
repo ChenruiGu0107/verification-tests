@@ -49,6 +49,7 @@ Feature: ServiceAccount and Policy Managerment
     And I run the :get client command with:
       | resource       | rolebinding  |
       | resource_name  | view         |
+      | o              | wide         |
     Then the output should match:
       | view.+default         |
 

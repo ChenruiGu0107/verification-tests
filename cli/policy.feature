@@ -490,11 +490,11 @@ Feature: change the policy of user/service account
       | role_name | tc467927                           |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
-    And I run the :describe client command with:
+    And I run the :get client command with:
       |resource | clusterrolebinding |
+      | o       | wide               |
     And the output should match:
-      | Role:\\s+\/tc467927                            |
-      | Users:\\s+<%= user(1, switch: false).name %> |
+      | User.*<%= user(1, switch: false).name %> |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13480
