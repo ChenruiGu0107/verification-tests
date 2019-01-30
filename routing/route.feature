@@ -1238,6 +1238,17 @@ Feature: Testing route
   # @case_id OCP-19808
   @admin
   Scenario: Haproxy router will not be crashed when there is route with hostname localhost
+    # ensure no error in the router pod's log
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And all default router pods become ready
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.router_pod %>  |
+    Then the step should succeed
+    And the output should not contain "error reloading router"
+
+    Given I switch to the first user
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
@@ -1257,10 +1268,9 @@ Feature: Testing route
     When I wait for a web server to become available via the "test-service" route
     Then the output should contain "Hello OpenShift!"
 
+    # check the same router pod's log
     Given I switch to cluster admin pseudo user
     And I use the router project
-    And all default router pods become ready
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I run the :logs admin command with:
       | resource_name | <%= cb.router_pod %>  |
     Then the step should succeed
