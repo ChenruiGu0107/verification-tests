@@ -555,6 +555,9 @@ Feature: NFS Persistent Volume
       | replicas | 0               |
     And all existing pods die with labels:
       | app=nfs-provisioner |
+    When I execute on the pod:
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
+    Then the step should succeed
     Given I run the :scale client command with:
       | resource | deployment      |
       | name     | nfs-provisioner |
