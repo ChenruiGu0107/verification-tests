@@ -28,3 +28,20 @@ Feature: Install and uninstall related scenarios
     And a pod becomes ready with labels:
       | app=metering-operator |
     Then the expression should be true> pod.container_specs[0].image == cb[:metering_image]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-22073
+  @admin
+  @destructive
+  Scenario: install metering via OLM
+    Given the master version >= "4.0"
+    Given metering service has been installed successfully using OLM
+
+  # @author pruan@redhat.com
+  # @case_id OCP-22105
+  @admin
+  @destructive
+  Scenario: uninstall metering via OLM
+    Given the master version >= "4.0"
+    Given metering service has been installed successfully using OLM
+    Given the "<%= cb.metering_namespace.name %>" metering service is uninstalled using OLM

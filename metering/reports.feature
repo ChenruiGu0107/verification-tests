@@ -35,6 +35,5 @@ Feature: reports related scenarios
     Given I select a random node's host
     Given I get the "persistentvolumeclaim-request" report and store it in the :res_json clipboard using:
       | query_type          | persistentvolumeclaim-request |
-      | use_existing_report | true                          |
     Then the step should succeed
     And the expression should be true> (["data_end", "data_start", "namespace", "period_end", "period_start", "persistentvolume", "persistentvolumeclaim", "storageclass", "volume_request_storage_byte_seconds"] - cb.res_json.first.keys).empty?
