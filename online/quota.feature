@@ -158,7 +158,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | template | mysql-persistent |
     Then the step should succeed
     And the pod named "mysql-1-deploy" status becomes :running
-    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == "1Gi"
+    And the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1Gi"
 
     Given a pod becomes ready with labels:
       | deployment=mysql-1 |
