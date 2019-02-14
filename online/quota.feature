@@ -85,7 +85,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
   # @case_id OCP-12982
   Scenario: Normal pods with restartPolicy=Always can't occupy the run-once clusterResourceQuota
     Given I have a project
-    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `BushSlicer::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
     When I run the :create client command with:
@@ -100,7 +100,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
   Scenario: User's ClusterResourceQuota should identify all this user's projects
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
-    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `BushSlicer::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?('-noncompute')}` is stored in the :storage_crq clipboard
@@ -136,7 +136,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
   Scenario: User can share another user's resourcequota after granted the privilege
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
-    And evaluation of `CucuShift::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
+    And evaluation of `BushSlicer::AppliedClusterResourceQuota.list(user: user, project: project)` is stored in the :acrq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?("-compute")}` is stored in the :memory_crq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?('-timebound')}` is stored in the :memory_terminate_crq clipboard
     And evaluation of `cb.acrq.find{|o|o.name.end_with?('-noncompute')}` is stored in the :storage_crq clipboard
@@ -158,7 +158,7 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | template | mysql-persistent |
     Then the step should succeed
     And the pod named "mysql-1-deploy" status becomes :running
-    And the expression should be true> cb.memory_terminate_crq.total_used(cached: false).memory_limit_raw == "1Gi"
+    And the expression should be true> cb.memory_crq.total_used(cached: false).memory_limit_raw == "1Gi"
 
     Given a pod becomes ready with labels:
       | deployment=mysql-1 |
