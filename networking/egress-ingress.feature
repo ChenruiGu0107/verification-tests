@@ -39,7 +39,7 @@ Feature: Egress-ingress related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
       | n | <%= project.name %> |
     Then the step should fail
-    And the output should contain "cannot create egressnetworkpolicies"
+    And the output should contain "cannot create"
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
@@ -58,12 +58,12 @@ Feature: Egress-ingress related networking scenarios
       | resource | egressnetworkpolicy |
       | n        | <%= project.name %> |
     Then the step should fail
-    And the output should contain "cannot list egressnetworkpolicies"
+    And the output should contain "cannot list"
     When I run the :delete client command with:
       | object_type       | egressnetworkpolicy |
       | object_name_or_id | default             |
     Then the step should fail
-    And the output should contain "cannot delete egressnetworkpolicies"
+    And the output should contain "cannot delete"
     Given I switch to cluster admin pseudo user
     When I run the :delete client command with:
       | object_type       | egressnetworkpolicy |
