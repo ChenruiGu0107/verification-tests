@@ -271,7 +271,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     Given I have a pod-for-ping in the project
-    And evaluation of `CucuShift::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
       | 0.0.0.0/0 | <%= cb.github_ip %>/32 |
@@ -438,7 +438,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     # Create egress policy with allow and deny order
-    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
@@ -489,7 +489,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
  
     # Create egress policy in project-1
-    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
@@ -511,7 +511,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj2 clipboard
  
     # Create same egress policy in project-2
-    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
@@ -578,7 +578,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     # Create egress policy to deny www.test.com
-    And evaluation of `CucuShift::Common::Net.dns_lookup("test.com")` is stored in the :test_ip clipboard
+    And evaluation of `BushSlicer::Common::Net.dns_lookup("test.com")` is stored in the :test_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json"
     And I replace lines in "policy.json":
       | 10.66.140.0/24 | <%= cb.test_ip %>/32 |
