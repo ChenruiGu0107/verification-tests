@@ -323,7 +323,7 @@ Feature: ServiceAccount and Policy Managerment
       | resource | dc       |
       | name     | database |
     Then the step should fail
-    Then the output should match "User "system:serviceaccount:<%= cb.project1 %>:test1" cannot patch deploymentconfigs.*"
+    Then the output should match "User "system:serviceaccount:<%= cb.project1 %>:test1" cannot patch.*deploymentconfigs.*"
 
     When I run the :policy_add_role_to_user client command with:
       | role  | view     |
