@@ -21,7 +21,8 @@ Feature: Ansible-service-broker related scenarios
     And I wait up to 150 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name | dc/asb                      |
+      | resource_name | dc/asb  |
+      | c             | asb     |
     Then the step should succeed
     And the output should match 2 times:
       | refresh specs every 1m0s seconds            |
@@ -57,6 +58,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -230,6 +232,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        |  \| c             \| asb     \|                                          |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -296,7 +299,8 @@ Feature: Ansible-service-broker related scenarios
     And I wait up to 150 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name | dc/asb                             |
+      | resource_name | dc/asb    |
+      | c             | asb     |     
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -364,6 +368,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        | \ | c             \| asb     \|                           |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -395,6 +400,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb                             |
+      | c             | asb     |      
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -457,6 +463,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -506,6 +513,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        | \| c             \| asb     \|                                           |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -535,6 +543,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -579,6 +588,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -674,6 +684,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
     Then the step should succeed
     And the output should match:
       | Type: openshift                 |

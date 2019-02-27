@@ -25,11 +25,13 @@ Feature: ASB broker config related scenarios
       | deploymentconfig=asb |
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 120s            |
     Then the output should not contain "AnsibleBroker::Catalog"
     Given 300 seconds have passed
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 7m              |
     Then the output should contain "AnsibleBroker::Catalog"
     And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
@@ -45,11 +47,13 @@ Feature: ASB broker config related scenarios
     Given 360 seconds have passed
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 350s            |
     Then the output should not match "AnsibleBroker::Catalog"
     Given 420 seconds have passed
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 8m              |
     Then the output should match "AnsibleBroker::Catalog"
 And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
@@ -83,6 +87,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | deploymentconfig=asb |
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 1000s           |
     Then the output should not contain "AnsibleBroker::Catalog"
 
@@ -105,6 +110,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | deploymentconfig=asb |
     When I run the :logs client command with:
       | resource_name | <%= pod.name %> |
+      | c             | asb     |
       | since         | 1000s           |
     Then the output should contain "AnsibleBroker::Catalog"
     And evaluation of `cb.csc['<%= cb.prefix %>-mediawiki-apb'].name` is stored in the :class_id clipboard
