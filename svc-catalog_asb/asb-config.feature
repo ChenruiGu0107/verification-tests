@@ -123,7 +123,7 @@ Feature: Ansible-service-broker related scenarios
       And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
-      And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+      And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
       And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
       # white list only
@@ -243,7 +243,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Get the asb route and dc image as key to patch
     And I use the "openshift-ansible-service-broker" project
-    And evaluation of `secret('asb-client').token` is stored in the :token clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
     And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
@@ -441,7 +441,7 @@ Feature: Ansible-service-broker related scenarios
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
-    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
     And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # Update the configmap settings
@@ -522,7 +522,7 @@ Feature: Ansible-service-broker related scenarios
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
-    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
     And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # 1, default mode

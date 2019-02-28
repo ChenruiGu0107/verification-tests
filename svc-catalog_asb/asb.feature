@@ -7,7 +7,7 @@ Feature: Ansible-service-broker related scenarios
     #Get asb route and ansible service broker  client secret
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    And evaluation of `secret('asb-client').token` is stored in the :token clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
     And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
@@ -83,7 +83,7 @@ Feature: Ansible-service-broker related scenarios
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
-    And evaluation of `secret("asb-client").token` is stored in the :asb_token clipboard
+    And evaluation of `secret("ansible-service-broker-client").token` is stored in the :asb_token clipboard
 
     When I perform the HTTP request:
     """
