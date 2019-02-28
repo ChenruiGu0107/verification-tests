@@ -778,3 +778,19 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
     Then the step should succeed
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-22485
+  @admin
+  Scenario: 4.x User can know which serviceaccount and SA groups can create the podspec against the current sccs
+    Given I have a project
+    Given SCC "restricted" is added to the "default" service account
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538264/PodSecurityPolicyReview.json"
+    And I replace lines in "PodSecurityPolicyReview.json":
+      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
+    Then the step should succeed
+    When I perform the :post_pod_security_policy_reviews rest request with:
+      | project_name | <%= project.name %>          |
+      | payload_file | PodSecurityPolicyReview.json |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
