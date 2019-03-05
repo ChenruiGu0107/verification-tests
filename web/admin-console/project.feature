@@ -76,7 +76,7 @@ Feature: projects related features via web
       | Build Config              | |
       | Image Stream              | |
       | Service Account           | |
-      | Resource Quota            | |
+
     When I repeat the following steps for each :resource in cb.resources:
     """
     Given evaluation of `cb.resource.downcase` is stored in the :resource_url clipboard
