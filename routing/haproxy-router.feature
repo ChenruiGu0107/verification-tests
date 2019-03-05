@@ -1199,12 +1199,8 @@ Feature: Testing haproxy router
     Given I switch to cluster admin pseudo user
     And I use the router project
     And all default router pods become ready
-    When I run the :get client command with:
-      | resource | pod |
-      | l | deploymentconfig=router |
-      | o | yaml |
-    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("cpu")
-    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("memory")
+    Then the expression should be true> pod.container_specs.first.cpu_request_raw
+    Then the expression should be true> pod.container_specs.first.memory_request_raw
 
   # @author zzhao@redhat.com
   # @case_id OCP-12568

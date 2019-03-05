@@ -25,14 +25,12 @@ Feature: route related features via cli
     Then the step should fail
     And the output should contain:
       | equired value |
-    And the project is deleted
-    Given I have a project
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_no_servicename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
-    And the project is deleted
 
   # @author yinzhou@redhat.com
   # @case_id OCP-12551
