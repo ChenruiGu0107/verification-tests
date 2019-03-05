@@ -42,7 +42,6 @@ Feature: pods related scenarios
   @admin
   Scenario: Limit to create pod to access hostPID
     Given I have a project
-    And I select a random node's host
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509108/hostpid_true.json"
     Then I run the :create client command with:
       | f | hostpid_true.json |
