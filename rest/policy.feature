@@ -26,60 +26,6 @@ Feature: REST policy related features
     And the step should fail
     Then the expression should be true> @result[:exitstatus] == 405
 
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-12627
-  @admin
-  Scenario: Check if the given user or group have the privilege via SubjectAccessReview
-    When admin creates a project
-    Then the step should succeed
-    When I run the :oadm_add_role_to_user admin command with:
-      | role_name | view                                   |
-      | user_name | <%= user.name %>                       |
-      | n         | <%= project.name %>                    |
-    Then the step should succeed
-    ## post rest request for curl new json
-    When I perform the :post_role_oapi rest request with:
-      | project_name         | <%= project.name %>       |
-      | role                 | localsubjectaccessreviews |
-      | kind                 | LocalSubjectAccessReview  |
-      | api_version          | v1                        |
-      | verb                 | create                    |
-      | resource             | pods                      |
-      | user                 | <%= user.name %>          |
-    Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 403
-
-    When I run the :oadm_add_role_to_user admin command with:
-      | role_name | edit                                   |
-      | user_name | <%= user(1).name  %>                   |
-      | n         | <%= project.name %>                    |
-    Then the step should succeed
-    When I perform the :post_role_oapi rest request with:
-      | project_name         | <%= project.name %>       |
-      | role                 | localsubjectaccessreviews |
-      | kind                 | LocalSubjectAccessReview  |
-      | api_version          | v1                        |
-      | verb                 | create                    |
-      | resource             | pods                      |
-      | user                 | <%= user(1).name  %>      |
-    Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 403
-
-    When I run the :oadm_add_role_to_user admin command with:
-      | role_name | admin                                  |
-      | user_name | <%= user(2).name  %>                   |
-      | n         | <%= project.name %>                    |
-    Then the step should succeed
-    When I perform the :post_role_oapi rest request with:
-      | project_name         | <%= project.name %>       |
-      | role                 | localsubjectaccessreviews |
-      | kind                 | LocalSubjectAccessReview  |
-      | api_version          | v1                        |
-      | verb                 | create                    |
-      | resource             | pods                      |
-      | user                 | <%= user(2).name  %>      |
-    Then the step should succeed
-
   # @author yapei@redhat.com
   # @case_id OCP-11093
   Scenario: Subresource are distinct from parent resource
@@ -165,3 +111,58 @@ Feature: REST policy related features
       | resource_name | <%= pod.name %>     |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 405
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-22565
+  @admin
+  Scenario: 4.x Check if the given user or group have the privilege via SubjectAccessReview
+    When admin creates a project
+    Then the step should succeed
+    When I run the :oadm_add_role_to_user admin command with:
+      | role_name | view                |
+      | user_name | <%= user.name %>    |
+      | n         | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :post_role_api rest request with:
+      | project_name         | <%= project.name %>           |
+      | role                 | localsubjectaccessreviews     |
+      | kind                 | LocalSubjectAccessReview      |
+      | api_version          | v1                            |
+      | payload_apiVersion   | authorization.openshift.io/v1 |
+      | verb                 | create                        |
+      | resource             | pods                          |
+      | user                 | <%= user.name %>              |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 403
+
+    When I run the :oadm_add_role_to_user admin command with:
+      | role_name | edit                 |
+      | user_name | <%= user(1).name  %> |
+      | n         | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :post_role_api rest request with:
+      | project_name         | <%= project.name %>           |
+      | role                 | localsubjectaccessreviews     |
+      | kind                 | LocalSubjectAccessReview      |
+      | api_version          | v1                            |
+      | payload_apiVersion   | authorization.openshift.io/v1 |
+      | verb                 | create                        |
+      | resource             | pods                          |
+      | user                 | <%= user(1).name  %>          |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 403
+    When I run the :oadm_add_role_to_user admin command with:
+      | role_name | admin                |
+      | user_name | <%= user(2).name  %> |
+      | n         | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :post_role_api rest request with:
+      | project_name         | <%= project.name %>           |
+      | role                 | localsubjectaccessreviews     |
+      | kind                 | LocalSubjectAccessReview      |
+      | api_version          | v1                            |
+      | payload_apiVersion   | authorization.openshift.io/v1 |
+      | verb                 | create                        |
+      | resource             | pods                          |
+      | user                 | <%= user(2).name  %>          |
+    Then the step should succeed
