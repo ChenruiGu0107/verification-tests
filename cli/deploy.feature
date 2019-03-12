@@ -58,9 +58,6 @@ Feature: deployment related features
     Then the output should contain:
       |  #1 is complete                |
       | You can start a new deployment |
-    When I get project pod
-    Then the output should not contain:
-      | deployment-example-1-deploy |
 
   # @author xxing@redhat.com
   # @case_id OCP-12623
