@@ -199,8 +199,6 @@ Feature: oc related features
     # The links look like https://git.k8s.io/community/contributors/devel/api-conventions.md#resources
     When I open web server via the "<%= URI.extract(@result[:response], %w{http https})[0] %>" url
     Then the step should succeed
-    And the output should match:
-      | apiVersion.*version |
     When I run the :explain client command with:
       | _tool     | <tool>  |
       | resource  | no-this |

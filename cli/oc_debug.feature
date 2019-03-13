@@ -13,8 +13,7 @@ Feature: oc debug related scenarios
       | resource      | dc/dctest   |
       | _timeout      | 10          |
     Then the output should match:
-      | [Dd]ebugging with pod.*     |
-      | [Ww]aiting for pod to start |
+      | (Waiting for\|Starting) pod |
       | [Rr]emoving debug pod       |
     When I run the :debug client command with:
       | t                 |             |
@@ -22,7 +21,7 @@ Feature: oc debug related scenarios
       | oc_opts_end       |             |
       | exec_command      | sleep       |
       | exec_command_arg  | 5           |
-    Then the output should contain "aiting for pod to start"
+    Then the output should match "(Waiting for|Starting) pod"
     And the output should not match:
       | [Pp]anic  |
 
@@ -84,8 +83,6 @@ Feature: oc debug related scenarios
       | oc_opts_end    | |
       | exec_command   | /bin/env             |
     Then the output should match:
-      | [Dd]ebugging with pod                 |
-      | [Ww]aiting for pod to start           |
       | PATH=                                 |
       | HOSTNAME=                             |
       | [Rr]emoving debug pod                 |
@@ -95,8 +92,8 @@ Feature: oc debug related scenarios
       | oc_opts_end    | |
       | exec_command   | /bin/env             |
     Then the output should match:
-      | [Ee]rror                              |
-      | [Ii]nvalid.*[Nn]ode                   |
+      | [Ee]rror                                  |
+      | [Ii]nvalid.*[Nn]ode\|unable.*create.*pod  |
     Given I get project pod as YAML
     And I save the output to file>pod.yaml
     When I run the :debug client command with:
@@ -105,9 +102,8 @@ Feature: oc debug related scenarios
       | exec_command   | /bin/env             |
     Then the step should succeed
     And the output should match:
-      | [Dd]ebugging with pod                 |
-      | [Ww]aiting for pod to start           |
-      | [Rr]emoving debug pod                 |
+      | (Waiting for\|Starting) pod |
+      | [Rr]emoving debug pod       |
 
   # @author cryan@redhat.com
   # @case_id OCP-10220
