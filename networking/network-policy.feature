@@ -1537,7 +1537,7 @@ Feature: Network policy plugin scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
       | namespace | <%= cb.proj1 %> |
     Then the step should fail
-    And the output should match "User "<%= user.name %>" cannot create networkpolicies.extensions in (project|the namespace)"
+    And the output should match "User "<%= user.name %>" cannot create"
 
   #author bmeng@redhat.com
   # @case_id OCP-19397
