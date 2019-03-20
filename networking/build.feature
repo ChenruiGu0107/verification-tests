@@ -16,12 +16,17 @@ Feature: Testing the isolation during build scenarios
       | app_repo | <repo> |
     Then the step should succeed
     And the "ruby-docker-test-1" build was created
-    And I wait up to 100 seconds for the steps to pass:
+    And I wait up to 200 seconds for the steps to pass:
     """
     When I run the :logs client command with:
       | resource_name | build/ruby-docker-test-1 |
-    Then the output should contain "access yahoo.com fail"
+    Then the output should contain "sleep 10000"
     """
+    When I run the :logs client command with:
+      | resource_name | build/ruby-docker-test-1 |
+    Then the output should contain 2 times:
+      | access yahoo.com fail |
+    And the output should contain "Network is unreachable"    
 
     Examples:
       | type   | repo                                                                   |
