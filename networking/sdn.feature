@@ -350,18 +350,13 @@ Feature: SDN related networking scenarios
   Scenario: ovs-port should be deleted after delete pods
     Given I have a project
     And I have a pod-for-ping in the project
-    Then I use the "<%= pod.node_name(user: user) %>" node
-    And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
-    When I run commands on the host:
-      | docker inspect <%= cb.container_id %> \|grep Pid \|\| runc state <%= cb.container_id %> \|grep pid|
-    Then the step should succeed
-    And evaluation of `/"[Pp]id":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
-    When I run commands on the host:
-      | nsenter -n -t <%= cb.user_container_pid %> -- ethtool -S eth0 \| sed -n -e 's/.*peer_ifindex: //p' |
-    Then the step should succeed
+    When I execute on the pod:
+      | bash | -c | ip link show eth0 \| awk -F@ '{ print $2 }' \| awk -F: '{ print $1 }' |
+    Then the output should contain "if"    
     And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
+    Then I use the "<%= pod.node_name(user: user) %>" node    
     When I run commands on the host:
-      | ip addr show if<%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
+      | ip addr show <%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
     Then the output should contain "veth"
     And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
     When I run the ovs commands on the host:
