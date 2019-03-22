@@ -494,7 +494,7 @@ Feature: change the policy of user/service account
       |resource | clusterrolebinding |
       | o       | wide               |
     And the output should match:
-      | User.*<%= user(1, switch: false).name %> |
+      | ClusterRole\/tc467927.*<%= user(1, switch: false).name %> |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13480
