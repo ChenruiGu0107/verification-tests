@@ -522,12 +522,18 @@ Feature: SCC policy related scenarios
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
     Then the step should succeed
+    And I replace lines in "PodSecurityPolicySubjectReview_privileged_false.json":
+      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
+    Then the step should succeed
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                  |
       | payload_file | PodSecurityPolicySubjectReview_privileged_false.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json"
+    Then the step should succeed
+    And I replace lines in "PodSecurityPolicySubjectReview_privileged_true.json":
+      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
     Then the step should succeed
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                 |
@@ -540,6 +546,9 @@ Feature: SCC policy related scenarios
   Scenario: User can know whether the PodSpec his describing will actually be allowed by the current SCC rules via subjectsccreview
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
+    Then the step should succeed
+    And I replace lines in "PodSecurityPolicySubjectReview.json":
+      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
     Then the step should succeed
     When I perform the :post_pod_security_policy_subject_reviews rest request with:
       | project_name | <%= project.name %>                 |
