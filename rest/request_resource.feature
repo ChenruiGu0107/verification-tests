@@ -5,7 +5,7 @@ Feature: REST related features
     Given I log the message> set up OpenShift with an identity provider that supports 'challenge: true'
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/users/~
+    :url: <%= env.api_endpoint_url %>/apis/user.openshift.io/v1/users/~
     :method: :get
     :headers:
       :accept: text/html
