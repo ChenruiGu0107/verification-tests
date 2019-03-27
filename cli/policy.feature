@@ -785,52 +785,6 @@ Feature: change the policy of user/service account
     And the output should match:
       | rolebindings.* "view" is forbidden |
 
-  # @author chuyu@redhat.com
-  # @case_id OCP-13409
-  @admin
-  @destructive
-  Scenario: Allow to make a role binding to a service account matched one rolebindingrestriction
-    Given I have a project
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginConfig:
-        openshift.io/RestrictSubjectBindings:
-          configuration:
-            apiversion: v1
-            kind: DefaultAdmissionConfig
-    """
-    And the master service is restarted on all master nodes
-    When I run the :new_app client command with:
-      | template | postgresql-persistent |
-    Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
-    And I replace lines in "rolebindingrestriction.yaml":
-      | name: match-groups                        | name: match-serviceaccount          |
-      | grouprestriction:                         | serviceaccountrestriction:          |
-      | groups: ["groups-rolebindingrestriction"] | namespaces: ["<%= project.name %>"] |
-    Given I run the :create admin command with:
-      | f | rolebindingrestriction.yaml |
-      | n | <%= project.name %>         |
-    Then the step should succeed
-    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
-    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
-    And I run the :get client command with:
-      | resource | pods                |
-      | n        | <%= project.name %> |
-    Then the step should fail
-    Given I switch to the first user
-    And I run the :policy_add_role_to_user client command with:
-      | role           | view    |
-      | serviceaccount | default |
-    Then the step should succeed
-    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
-    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
-    And I run the :get client command with:
-      | resource | pods                |
-      | n        | <%= project.name %> |
-    Then the step should succeed
-
   # @case_id OCP-20599
   @admin
   @destructive
@@ -857,3 +811,56 @@ Feature: change the policy of user/service account
       | Your changes may get lost whenever a master is restarted |
       | rbac.authorization.kubernetes.io/autoupdate=false        |
       | oc annotate clusterrolebinding.rbac                      |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-22725
+  @admin
+  @destructive
+  Scenario: 4.x Allow to make a role binding to a service account matched one rolebindingrestriction
+    Given the "cluster" "kubeapiserver" CRD is recreated after scenario
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-kube-apiserver" project
+    When I run the :patch admin command with:
+      | resource      | kubeapiserver |
+      | resource_name | cluster       |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admissionConfig":{"pluginConfig":{"openshift.io/RestrictSubjectBindings":{"configuration":{"apiversion":"v1","kind":"DefaultAdmissionConfig"}}}}}}}|
+      | type          | merge         |
+    Then the step should succeed
+    And 3 pods become ready with labels:
+      | app=openshift-kube-apiserver |
+    Then I switch to the first user
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | name: match-groups                        | name: match-serviceaccount          |
+      | grouprestriction:                         | serviceaccountrestriction:          |
+      | groups: ["groups-rolebindingrestriction"] | namespaces: ["<%= project.name %>"] |
+    Given I run the :create admin command with:
+      | f | rolebindingrestriction.yaml |
+      | n | <%= project.name %>         |
+    Then the step should succeed
+    And I run the :policy_add_role_to_user client command with:
+      | role      | view                                    |
+      | user_name | system:serviceaccount:openshift:default |
+    Then the step should fail
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_user client command with:
+      | role           | view    |
+      | serviceaccount | default |
+    Then the step should succeed
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+
