@@ -1763,3 +1763,69 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     And the output should not match:
       | core.\d+ |
+
+  #author zzhao@redhat.com
+  # @case_id OCP-21219
+  @admin
+  Scenario: Use networkpolicy plugin with allow connections from specific project and pod at same policy for service
+    Given the env is using networkpolicy plugin
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.ip` is stored in the :p1podip clipboard
+    #Add the namespace and pod policy for project1 to make the matched namespaces and matched pods can access project1 pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-namespace-and-pod.yaml |
+    Then the step should succeed
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(1).name` is stored in the :p2pod1 clipboard
+    And evaluation of `pod(2).name` is stored in the :p2pod2 clipboard
+
+    #try to ping proj1 pod from proj2 pod, it cannot be accessed since the proj2 label do not match team=operations
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1podip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    #add label for proj2 with team=operations
+    When I run the :label admin command with:
+      | resource | namespace       |
+      | name     | <%= cb.proj2 %> |
+      | key_val  | team=operations |
+    Then the step should succeed
+
+    #try to ping proj1 pod from proj2 pod, it can be accessed since the policy match the namespace and pod
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1podip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1podip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+    #change the label do not match the policy for p2pod2
+    When I run the :label client command with:
+      | resource | pod              |
+      | name     | <%= cb.p2pod2 %> |
+      | key_val  | name=blue        |
+      | overwrite| true             |
+    Then the step should succeed
+
+    #try to ping proj1 pod from p2pod2 pod, it cannot be accessed since the pod label do not match name=test-pods
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1podip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
