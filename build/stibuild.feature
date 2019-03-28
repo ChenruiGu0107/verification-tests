@@ -144,7 +144,7 @@ Feature: stibuild.feature
     When I run the :describe client command with:
       | resource | build     |
       | name     | ruby-ex-1 |
-    Then the output should contain:
+    Then the output should match:
       | From Image:[^\\n]*@sha256 |
 
   # @author wewang@redhat.com
