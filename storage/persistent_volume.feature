@@ -105,7 +105,6 @@ Feature: Persistent Volume Claim binding policies
   @admin
   @destructive
   Scenario: PVC should bound the PV with most appropriate access mode and size
-    Given default storage class is deleted
     Given I have a project
     And I have a NFS service in the project
     And I register clean-up steps:

@@ -128,7 +128,6 @@ Feature: Add pvc to pod from web related
   Scenario: Display and attach PVC to pod from web console - 3.3
     Given I have a project
     And I have a NFS service in the project
-    And default storage class is deleted
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-<%= project.name %>         |
@@ -236,7 +235,6 @@ Feature: Add pvc to pod from web related
   @destructive
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
-    And default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | <%= project.name %>         |
       | ["provisioner"]      | kubernetes.io/<provisioner> |

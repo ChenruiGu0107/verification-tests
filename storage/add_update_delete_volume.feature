@@ -401,7 +401,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   @admin
   @destructive
   Scenario: Create a claim when adding volumes to dc/rc
-    Given default storage class is deleted
     Given I have a project
     Given I have a NFS service in the project
 

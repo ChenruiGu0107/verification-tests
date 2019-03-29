@@ -12,7 +12,6 @@ Feature: storageClass related feature
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
     Then the step should succeed
-    Given default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
@@ -530,7 +529,6 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation and no default storageclass
     Given I have a project
-    Given default storage class is deleted
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
@@ -562,7 +560,6 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info when pvc using default storageclass
     Given I have a project
-    Given default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
       | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
@@ -586,7 +583,6 @@ Feature: storageClass related feature
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
 
-    Given default storage class is deleted
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-<%= project.name %> |
       | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
@@ -606,7 +602,6 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation
     Given I have a project
-    Given default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
       | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
