@@ -110,6 +110,7 @@ Feature: oc import-image related feature
       | dest        | deployment-example:latest    |
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
+    And I wait for the "deployment-example:latest" istag to appear
     When I run the :new_app client command with:
       | image_stream | deployment-example:latest   |
     Then the output should match:
@@ -144,6 +145,7 @@ Feature: oc import-image related feature
       | dest        | deployment-example:latest    |
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
+    And I wait for the "deployment-example:latest" istag to appear
 
     When I run the :new_app client command with:
       | image_stream | deployment-example:latest   |
