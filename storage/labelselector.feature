@@ -28,7 +28,6 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC could not bind PV with label selector matches but binding requirements are not met
     Given I have a project
-    Given default storage class is deleted
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"] | nfspv-<%= project.name %> |
     Then the step should succeed
@@ -46,7 +45,6 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC with less label selectors could bound to PV
     Given I have a project
-    Given default storage class is deleted
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
@@ -154,7 +152,6 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: Target pvc to pv with same label selector and multi accessmode
     Given I have a project
-    Given default storage class is deleted
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv3-<%= project.name %>" pv is deleted after scenario
