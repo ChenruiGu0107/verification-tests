@@ -36,8 +36,8 @@ Feature: storageClass related feature
   @admin
   @destructive
   Scenario: storage class creation negative testing
-    Given admin ensures "slow" storage_class is deleted after scenario
     Given I have a project
+    Given admin ensures "slow-<%= project.name %>" storage_class is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-invalidAPI.yaml |
     Then the step should fail
@@ -56,8 +56,7 @@ Feature: storageClass related feature
     And the output should contain:
       | Invalid value: "@test@" |
 
-    When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-noProvisioner.yaml |
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-noProvisioner.yaml
     Then the step should fail
     And the output should contain:
       | provisioner: Required value |
