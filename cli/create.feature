@@ -37,17 +37,17 @@ Feature: creating 'apps' with CLI
 
     Given I have a project
     When I create a new application with:
-      | docker image      | registry.access.redhat.com/rhscl/perl-524-rhel7~https://github.com/sclorg/s2i-perl-container |
-      | context dir       | 5.24/test/sample-test-app/                                                           |
-      | name              | 4igit-first                                                                          |
-      | insecure_registry | true                                                                                 |
+      | docker image      | centos/perl-524-centos7://github.com/sclorg/s2i-perl-container |
+      | context dir       | 5.24/test/sample-test-app/                                     |
+      | name              | 4igit-first                                                    |
+      | insecure_registry | true                                                           |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
-      | docker image | registry.access.redhat.com/rhscl/ruby-22-rhel7~https://github.com/openshift/ruby-hello-world |
-      | name         | with#chara                                                                                  |
+      | docker image | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | with#chara                                                           |
     Then the step should fail
     And the project is deleted
 
@@ -280,7 +280,7 @@ Feature: creating 'apps' with CLI
   Scenario: Create resources with labels --Negative test
     Given I have a project
     And I run the :new_app client command with:
-      | docker_image | registry.access.redhat.com/rhscl/ruby-25-rhel7 |
+      | docker_image | centos/ruby-25-centos7 |
       | labels | name#@=ruby-hello-world |
       | insecure_registry | true |
     Then the step should fail
@@ -289,7 +289,7 @@ Feature: creating 'apps' with CLI
       | Invalid value|
       | name#@ |
     And I run the :new_app client command with:
-      | docker_image | registry.access.redhat.com/rhscl/ruby-25-rhel7 |
+      | docker_image | centos/ruby-25-centos7 |
       | labels | name=@#@ |
       | insecure_registry | true |
     Then the step should fail
@@ -298,7 +298,7 @@ Feature: creating 'apps' with CLI
       | Invalid value|
       | @#@ |
     And I run the :new_app client command with:
-      | docker_image | registry.access.redhat.com/rhscl/ruby-22-rhel7 |
+      | docker_image | centos/ruby-25-centos7 |
       | labels | name=value1,name=value2,name=deadbeef010203 |
       | insecure_registry | true |
     Then the step should succeed
@@ -307,7 +307,7 @@ Feature: creating 'apps' with CLI
       | l | name=deadbeef010203 |
     Then the step should succeed
     And the output should contain:
-      | ruby-22-rhel7 |
+      | ruby-25-centos7 |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11758
