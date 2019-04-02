@@ -20,7 +20,7 @@ Feature: Webhook REST Related Tests
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pingevent.json"
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github
     :method: post
     :headers:
       :content_type: application/json
@@ -46,7 +46,7 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
@@ -64,7 +64,7 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
@@ -106,7 +106,7 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
@@ -131,7 +131,7 @@ Feature: Webhook REST Related Tests
       | 89af0dd3183f71b9ec848d5cc2b55599244de867 | |
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
@@ -172,7 +172,7 @@ Feature: Webhook REST Related Tests
       | sample-app | sample-php-app |
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/generic
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/generic
     :method: post
     :headers:
       :content_type: application/json
