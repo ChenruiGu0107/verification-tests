@@ -236,7 +236,7 @@ Feature: buildconfig.feature
     When I run the :build_logs client command with:
       | build_name | ruby22-sample-build-2 |
     Then the output should contain:
-      | HTTPError Could not fetch specs from https://rubygems.org/  |
+      | lookup incorrect.proxy |
 
   # @author haowang@redhat.com
   # @case_id OCP-12120

@@ -338,8 +338,8 @@ Feature: build 'apps' with CLI
     When I run the :build_logs client command with:
       | build_name | ruby22-sample-build-1 |
     Then the output should contain:
-      | ENV RACK_ENV production  |
-      | ENV RAILS_ENV production |
+      | ENV RACK_ENV=production  |
+      | ENV RAILS_ENV=production |
     When I execute on the "<%= cb.frontendpod %>" pod:
       | env |
     Then the step should succeed
@@ -357,15 +357,15 @@ Feature: build 'apps' with CLI
     When I run the :build_logs client command with:
       | build_name | ruby22-sample-build-2 |
     Then the output should contain:
-      | ENV "DISABLE_ASSET_COMPILATION" "1" |
-      | "RACK_ENV" "development"  |
+      | ENV "DISABLE_ASSET_COMPILATION"="1" |
+      | "RACK_ENV"="development"  |
     Given 2 pods become ready with labels:
       |deployment=frontend-2|
     Given evaluation of `@pods[2].name` is stored in the :frontendpod2 clipboard
     When I execute on the "<%= cb.frontendpod2 %>" pod:
       | env |
     Then the step should succeed
-    And the output should contain "RACK_ENV=production"
+    And the output should contain "RACK_ENV=development"
 
   # @author cryan@redhat.com
   # @case_id OCP-9595
