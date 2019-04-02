@@ -21,7 +21,8 @@ Feature: Ansible-service-broker related scenarios
     And I wait up to 150 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name | dc/asb                      |
+      | resource_name | dc/asb  |
+      | c             | asb     |
     Then the step should succeed
     And the output should match 2 times:
       | refresh specs every 1m0s seconds            |
@@ -57,6 +58,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -121,8 +123,8 @@ Feature: Ansible-service-broker related scenarios
       And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
-      And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-      And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+      And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
+      And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
       # white list only
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -230,6 +232,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        |  \| c             \| asb     \|                                          |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -240,10 +243,10 @@ Feature: Ansible-service-broker related scenarios
 
     # Get the asb route and dc image as key to patch
     And I use the "openshift-ansible-service-broker" project
-    And evaluation of `secret('asb-client').token` is stored in the :token clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     #create a client secret
     When I run the :create_secret client command with:
@@ -296,7 +299,8 @@ Feature: Ansible-service-broker related scenarios
     And I wait up to 150 seconds for the steps to pass:
     """
     When I run the :logs client command with:
-      | resource_name | dc/asb                             |
+      | resource_name | dc/asb    |
+      | c             | asb     |     
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -364,6 +368,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        | \ | c             \| asb     \|                           |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -395,6 +400,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb                             |
+      | c             | asb     |      
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -435,8 +441,8 @@ Feature: Ansible-service-broker related scenarios
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
-    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -457,6 +463,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -506,6 +513,7 @@ Feature: Ansible-service-broker related scenarios
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
+        | \| c             \| asb     \|                                           |
         | \| namespace     \| openshift-ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
@@ -514,8 +522,8 @@ Feature: Ansible-service-broker related scenarios
     And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
-    And evaluation of `secret('asb-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # 1, default mode
     # Update the configmap settings
@@ -535,6 +543,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -579,6 +588,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -674,6 +684,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb          |
+      | c             | asb     |      
     Then the step should succeed
     And the output should match:
       | Type: openshift                 |
