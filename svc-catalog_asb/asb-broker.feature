@@ -332,7 +332,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And the expression should be true> cluster_service_broker("ansible-service-broker").url.end_with? "/osb"
     When I run the :get client command with:
       | resource         | clusterrole    |
-      | resource_name    | asb-access     |
+      | resource_name    |   access-ansible-service-broker-ansible-service-broker-role   |
       | o                | yaml           |
     Then the output should contain:
       | /osb    |

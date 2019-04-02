@@ -124,7 +124,7 @@ Feature: Ansible-service-broker related scenarios
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
       And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
-      And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+      And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
       # white list only
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -246,7 +246,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     #create a client secret
     When I run the :create_secret client command with:
@@ -442,7 +442,7 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -523,7 +523,7 @@ Feature: Ansible-service-broker related scenarios
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     # 1, default mode
     # Update the configmap settings

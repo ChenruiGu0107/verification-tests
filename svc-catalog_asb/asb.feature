@@ -9,7 +9,7 @@ Feature: Ansible-service-broker related scenarios
     And I use the "openshift-ansible-service-broker" project
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
-    And evaluation of `cluster_role("asb-access").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
     #Access the ASB api with valid token
     Given I switch to the first user
