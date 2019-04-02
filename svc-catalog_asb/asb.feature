@@ -868,6 +868,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | pod/<%= pod.name %> |
+      | c             |  asb   |
     Then the step should succeed
     And the output should match "Failed to initialize.*Registry err.*registry"
     And the output should not contain "panic"
