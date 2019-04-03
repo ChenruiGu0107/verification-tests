@@ -576,7 +576,7 @@ Feature: Service-catalog related scenarios
   @destructive
   Scenario: Use generation instead of checksum for ServiceInstance
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
     And I switch to the first user
@@ -631,7 +631,7 @@ Feature: Service-catalog related scenarios
     # Update spec.url of clusterservicebroker to a to a invalid value
     When I run the :patch admin command with:
       | resource | clusterservicebroker/ansible-service-broker                                                          |
-      | p        | {"spec":{"url": "https://testasb.openshift-ansible-service-broker.svc:1338/ansible-service-broker"}} |
+      | p        | {"spec":{"url": "https://testasb.ansible-service-broker.svc:1338/ansible-service-broker"}} |
     Then the step should succeed
 
     # update plan of serviceinstance to "prod"
@@ -666,7 +666,7 @@ Feature: Service-catalog related scenarios
     # Update spec.url of clusterservicebroker to a to a valid value
     When I run the :patch admin command with:
       | resource | clusterservicebroker/ansible-service-broker                                                      |
-      | p        | {"spec":{"url": "https://asb.openshift-ansible-service-broker.svc:1338/ansible-service-broker"}} |
+      | p        | {"spec":{"url": "https://asb.ansible-service-broker.svc:1338/ansible-service-broker"}} |
     Then the step should succeed
     
     # Check instance yaml when provision updating

@@ -6,11 +6,11 @@ Feature: ASB broker config related scenarios
   @destructive
   Scenario: relistBehavior&relistDuration&relistRequests should work well in resync and relist
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
 
-    # Edit servicebroker "openshift-ansible-service-broker", set spec.relistBehavior=Duration and spec.relistDuration=2m
+    # Edit servicebroker "ansible-service-broker", set spec.relistBehavior=Duration and spec.relistDuration=2m
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker               |
       | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 2m0s |
@@ -36,7 +36,7 @@ Feature: ASB broker config related scenarios
     Then the output should contain "AnsibleBroker::Catalog"
     And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
-    # Edit servicebroker "openshift-ansible-service-broker", set spec.relistBehavior=Duration and spec.relistDuration=8m
+    # Edit servicebroker "ansible-service-broker", set spec.relistBehavior=Duration and spec.relistDuration=8m
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker             |
       | p        | spec:\n  relistBehavior: Duration\n  relistDuration: 8m |
@@ -64,17 +64,17 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   @destructive
   Scenario: svc-catalog sync with borker can be manually trigger
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
 
-    # Edit servicebroker "openshift-ansible-service-broker", set spec.relistBehavior=Manual and spec.relistDuration=2m
+    # Edit servicebroker "ansible-service-broker", set spec.relistBehavior=Manual and spec.relistDuration=2m
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker             |
       | p        | spec:\n  relistBehavior: Manual\n  relistDuration: 2m0s |
     Then the step should fail
 
-    # Edit servicebroker "openshift-ansible-service-broker", set spec.relistBehavior=Manual and unset spec.relistDuration=2m
+    # Edit servicebroker "ansible-service-broker", set spec.relistBehavior=Manual and unset spec.relistDuration=2m
     Given I successfully patch resource "clusterservicebroker/ansible-service-broker" with:
       | {"spec":{"relistBehavior":"Manual","relistDuration":null}} |
 
@@ -97,7 +97,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   @destructive
   Scenario: svc-catalog have default duration to sync with broker
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
@@ -190,9 +190,9 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And a pod becomes ready with labels:
       | deployment=<%= cb.db.first.name %>-1 |
 
-    # check secret in openshift-ansible-service-broker
+    # check secret in ansible-service-broker
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I check that the "<%= cb.instance_id %>" secret exists
     When I run the :describe client command with:
       | resource           | secret     |
@@ -214,9 +214,9 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I wait for the "<%= cb.prefix %>-postgresql-apb" service_binding to become ready up to 60 seconds
     And evaluation of `service_binding("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :binding_id clipboard
 
-    # check secret in openshift-ansible-service-broker
+    # check secret in ansible-service-broker
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I check that the "<%= cb.binding_id %>" secret exists
     When I run the :describe client command with:
       | resource           | secret     |
@@ -232,7 +232,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I wait for the resource "secret" named "%= cb.binding_id %>" to disappear within 60 seconds
      
 #    # update serviceinstance
@@ -247,9 +247,9 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 #      |           |}                                                     |
 #    Then the step should succeed
 #
-#    # check secret in openshift-ansible-service-broker
+#    # check secret in ansible-service-broker
 #    Given I switch to cluster admin pseudo user
-#    And I use the "openshift-ansible-service-broker" project
+#    And I use the "ansible-service-broker" project
 #    And I wait up to 60 seconds for the steps to pass:
 #    """
 #    When I run the :describe client command with:
@@ -264,13 +264,13 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I use the "<%= cb.user_project %>" project
     And I ensure "<%= cb.prefix %>-postgresql-apb" service_instance is deleted
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
 
   # @author zitang@redhat.com
   # @case_id OCP-19737
   @admin
-  Scenario: extracted credential secret in openshift-ansible-service-broker namespace will be deleted when delete project
+  Scenario: extracted credential secret in ansible-service-broker namespace will be deleted when delete project
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
@@ -311,7 +311,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret 
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I check that the "<%= cb.instance_id %>" secret exists
     And I check that the "<%= cb.binding_id %>" secret exists
 
@@ -319,7 +319,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Given I switch to the first user
     And I ensure "<%= cb.user_project %>" project is deleted
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
     And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
 
