@@ -6,10 +6,10 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: Set the ASB fresh time
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -34,10 +34,10 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: Configure multiple registries for an adapter in one broker
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
@@ -117,10 +117,10 @@ Feature: Ansible-service-broker related scenarios
     @destructive
     Scenario: [ASB] Filter APB images by whitelist/blacklist
       When I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
+      And I use the "ansible-service-broker" project
       Given the "ansible-service-broker" cluster service broker is recreated after scenario
       Given admin redeploys "asb" dc after scenario
-      And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+      And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
       Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
       And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
@@ -151,7 +151,7 @@ Feature: Ansible-service-broker related scenarios
 
       # black list only
       And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
+      And I use the "ansible-service-broker" project
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
       """
       registry:
@@ -174,7 +174,7 @@ Feature: Ansible-service-broker related scenarios
 
       # both white and black list
       And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
+      And I use the "ansible-service-broker" project
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
       """
       registry:
@@ -197,7 +197,7 @@ Feature: Ansible-service-broker related scenarios
       Then the output should not contain "mediawiki-apb"
 
       And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
+      And I use the "ansible-service-broker" project
       Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
       """
       registry:
@@ -233,16 +233,16 @@ Feature: Ansible-service-broker related scenarios
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
         |  \| c             \| asb     \|                                          |
-        | \| namespace     \| openshift-ansible-service-broker \| |
+        | \| namespace     \| ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
     """
-    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And admin ensures "asb-auth-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
+    And admin ensures "asb-auth-secret" secret is deleted from the "ansible-service-broker" project after scenario
 
     # Get the asb route and dc image as key to patch
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route("asb-1338").dns` is stored in the :asbUrl clipboard
     And evaluation of `dc("asb").containers_spec[0].image` is stored in the :asbImage clipboard
@@ -343,7 +343,7 @@ Feature: Ansible-service-broker related scenarios
       |              |      "basic": {                                          |
       |              |        "secretRef": {                                    |
       |              |          "name": "asb-auth-secret",                      |
-      |              |          "namespace": "openshift-ansible-service-broker" |
+      |              |          "namespace": "ansible-service-broker" |
       |              |        }                                                 |
       |              |      }                                                   |
       |              |    }                                                     |
@@ -369,16 +369,16 @@ Feature: Ansible-service-broker related scenarios
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
         | \ | c             \| asb     \|                           |
-        | \| namespace     \| openshift-ansible-service-broker \| |
+        | \| namespace     \| ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
     """
-    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And admin ensures "test-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
+    And admin ensures "test-secret" secret is deleted from the "ansible-service-broker" project after scenario
 
     And I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
     When I run the :create_secret client command with:
       | name         | test-secret               |
@@ -389,7 +389,7 @@ Feature: Ansible-service-broker related scenarios
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
     openshift:
-      namespace: openshift-ansible-service-broker
+      namespace: ansible-service-broker
     secrets:
      - title: Database credentials
        secret: test-secret
@@ -435,10 +435,10 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB] Support concurrent, multiple APB source adapters
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
@@ -495,7 +495,7 @@ Feature: Ansible-service-broker related scenarios
       | bundlebindings.automationbroker.io |
       | bundleinstances.automationbroker.io |
       | bundles.automationbroker.io |
-    Given I use the "openshift-ansible-service-broker" project
+    Given I use the "ansible-service-broker" project
     And the expression should be true> config_map('broker-config').dig('broker-config', "dao", "type") == 'crd'
 
   # @author jiazha@redhat.com
@@ -504,22 +504,22 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB] openshift registry adapter should work
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
-    Given admin ensures "my-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
-    Given admin ensures "registry-credentials-secret" secret is deleted from the "openshift-ansible-service-broker" project after scenario
+    Given admin ensures "my-secret" secret is deleted from the "ansible-service-broker" project after scenario
+    Given admin ensures "registry-credentials-secret" secret is deleted from the "ansible-service-broker" project after scenario
     Given I register clean-up steps:
     """
       I wait up to 150 seconds for the steps to pass:
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
         | \| c             \| asb     \|                                           |
-        | \| namespace     \| openshift-ansible-service-broker \| |
+        | \| namespace     \| ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
     """
-    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
@@ -583,7 +583,7 @@ Feature: Ansible-service-broker related scenarios
         white_list:
           - ".*-apb$"
     openshift:
-      namespace: openshift-ansible-service-broker
+      namespace: ansible-service-broker
     """
     And admin redeploys "asb" dc
     When I run the :logs client command with:
@@ -623,7 +623,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Copy this file to special node
     Given a pod becomes ready with labels:
-      | app=openshift-ansible-service-broker |
+      | app=ansible-service-broker |
     And evaluation of `pod.node_name` is stored in the :node clipboard
     Given I use the "<%= cb.node %>" node
     Given "reg-creds.yaml" is copied to the host

@@ -6,7 +6,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: Check the ASB with bearer token authn
     #Get asb route and ansible service broker  client secret
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And evaluation of `secret('ansible-service-broker-client').token` is stored in the :token clipboard
     And evaluation of `route('asb-1338').dns` is stored in the :asbUrl clipboard
     And evaluation of `cluster_role("access-ansible-service-broker-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
@@ -41,7 +41,7 @@ Feature: Ansible-service-broker related scenarios
   @admin
   Scenario: Support for APB dependencies and providerDisplayName
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
 
     Given cluster service classes are indexed by external name in the :csc clipboard
@@ -81,7 +81,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB] Check asb bootstrap/catalog work fine
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given evaluation of `route("asb-1338").dns` is stored in the :asb_route clipboard
     And evaluation of `secret("ansible-service-broker-client").token` is stored in the :asb_token clipboard
 
@@ -114,10 +114,10 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB]Check v3.7 APB binding succeed in v3.9 env
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
@@ -240,11 +240,11 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: ASB should support bootstrap on startup
     Given  I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
 
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
      # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -296,11 +296,11 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB]Check APB binding in different process to extract credentials
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
 
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     And admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     Given evaluation of `YAML.load(config_map('broker-config').value_of('broker-config'))['registry'][0]['name']` is stored in the :prefix clipboard
     #Given I save the first service broker registry prefix to :prefix clipboard
@@ -437,7 +437,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario Outline: Multiple Plans support for DB APBs
     # Get the registry name from the configmap
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I save the first service broker registry prefix to :prefix clipboard
 
     # Swtich back to normal user and create first project
@@ -592,11 +592,11 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB] Ansible-service-broker check APBs version correctly
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
 
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
     """
@@ -623,11 +623,11 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: [ASB] check apb bundle resource in crd when asb refresh
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
 
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given admin redeploys "asb" dc after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -647,8 +647,8 @@ Feature: Ansible-service-broker related scenarios
     And admin ensure "<%= cb.bundle_id_2 %>" bundle is deleted
 
     # asb will refresh after 'refresh_interval' and the bundles will come back
-    Given admin wait for the "<%= cb.bundle_id_1 %>" bundle to appear in the "openshift-ansible-service-broker" project up to 90 seconds
-    And admin wait for the "<%= cb.bundle_id_2 %>" bundle to appear in the "openshift-ansible-service-broker" project
+    Given admin wait for the "<%= cb.bundle_id_1 %>" bundle to appear in the "ansible-service-broker" project up to 90 seconds
+    And admin wait for the "<%= cb.bundle_id_2 %>" bundle to appear in the "ansible-service-broker" project
 
   # @author chezhang@redhat.com
   # @case_id OCP-15704
@@ -723,7 +723,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `service_binding.external_id` is stored in the :binding_id_1 clipboard
     #check bundlebinding
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     When I run the :describe client command with:
       | resource  | bundlebinding/<%= cb.binding_id_1 %>  |
     Then the step should succeed
@@ -753,7 +753,7 @@ Feature: Ansible-service-broker related scenarios
 
     #check binding ref in bundeinstance
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     When I run the :describe client command with:
       | resource  | bundleinstance/<%= cb.instance_id %>  |
     Then the step should succeed
@@ -769,7 +769,7 @@ Feature: Ansible-service-broker related scenarios
     And I ensure "<%= cb.prefix %>-mariadb-apb-binding-3" service_binding is deleted
     #check bundlebindings and binding  ref in bundeinstance
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I wait for the resource "bundlebinding" named "<%= cb.binding_id_1 %>" to disappear within 60 seconds
     And I wait for the resource "bundlebinding" named "<%= cb.binding_id_3 %>" to disappear within 60 seconds
     When I run the :describe client command with:
@@ -785,7 +785,7 @@ Feature: Ansible-service-broker related scenarios
     And I ensure "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding is deleted
     And I ensure "<%= cb.prefix %>-mariadb-apb" service_instance is deleted
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I wait for the resource "bundlebinding" named "<%= cb.binding_id_2 %>" to disappear within 60 seconds
     And I wait for the resource "bundleinstance" named "<%= cb.instance_id %>" to disappear within 60 seconds
 
@@ -796,7 +796,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: Broker bootstrap succeed if one of the APB's contains bad base64 data
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given I register clean-up steps:
     """
@@ -804,12 +804,12 @@ Feature: Ansible-service-broker related scenarios
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
         | \| c             \| asb     \|                                          |
-        | \| namespace     \| openshift-ansible-service-broker \| |
+        | \| namespace     \| ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
     """
-    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -837,7 +837,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: Should not panic while using a invalid registry adapter
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
     Given I register clean-up steps:
     """
@@ -845,12 +845,12 @@ Feature: Ansible-service-broker related scenarios
         | When I run the :logs admin command with:                |
         | \| resource_name \| dc/asb \|                           |
         |      \| c             \| asb     \|                                   |
-        | \| namespace     \| openshift-ansible-service-broker \| |
+        | \| namespace     \| ansible-service-broker \| |
         | Then the step should succeed                            |
         | And the output should contain "Broker successfully bootstrapped on startup" |
     """
-    And the "asb" dc is recreated by admin in the "openshift-ansible-service-broker" project after scenario
-    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+    And the "asb" dc is recreated by admin in the "ansible-service-broker" project after scenario
+    And the "broker-config" configmap is recreated by admin in the "ansible-service-broker" project after scenario
 
     # Update the configmap settings
     Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
@@ -880,7 +880,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: User cannot use same username/passwd to provision mediawiki
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I save the first service broker registry prefix to :prefix clipboard
 
     # Checking clusterserviceplan of mediawiki
@@ -942,7 +942,7 @@ Feature: Ansible-service-broker related scenarios
   @destructive
   Scenario: User cannot use same username/passwd to provision mediawiki 3.11 or later
     When I switch to cluster admin pseudo user
-    And I use the "openshift-ansible-service-broker" project
+    And I use the "ansible-service-broker" project
     And I save the first service broker registry prefix to :prefix clipboard
 
     # Checking clusterserviceplan of mediawiki
