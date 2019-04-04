@@ -471,39 +471,27 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
 
-    # create 2 pvc
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
-    Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
-    Then the step should succeed
-    And the "pvc1-<%= project.name %>" PVC becomes :bound
-    And the "pvc2-<%= project.name %>" PVC becomes :bound
-
     # add pvc to dc
     When I run the :volume client command with:
-      | resource   | dc/mydb                  |
-      | action     | --add                    |
-      | type       | persistentVolumeClaim    |
-      | mount-path | /opt1                    |
-      | name       | volume1                  |
-      | claim-name | pvc1-<%= project.name %> |
+      | resource   | dc/mydb               |
+      | action     | --add                 |
+      | type       | persistentVolumeClaim |
+      | mount-path | /opt1                 |
+      | name       | volume1               |
+      | claim-name | pvc1                  |
+      | claim-size | 1Gi                   |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I run the :volume client command with:
-      | resource   | dc/mydb                  |
-      | action     | --add                    |
-      | type       | persistentVolumeClaim    |
-      | mount-path | /opt2                    |
-      | name       | volume2                  |
-      | claim-name | pvc2-<%= project.name %> |
+      | resource   | dc/mydb               |
+      | action     | --add                 |
+      | type       | persistentVolumeClaim |
+      | mount-path | /opt2                 |
+      | name       | volume2               |
+      | claim-name | pvc2                  |
+      | claim-size | 2Gi                   |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
@@ -513,13 +501,13 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I get project deploymentconfig as YAML
     Then the step should succeed
     And the output should contain:
-      | mountPath: /opt1                    |
-      | mountPath: /opt2                    |
-      | name: volume1                       |
-      | name: volume2                       |
-      | persistentVolumeClaim:              |
-      | claimName: pvc1-<%= project.name %> |
-      | claimName: pvc2-<%= project.name %> |
+      | mountPath: /opt1       |
+      | mountPath: /opt2       |
+      | name: volume1          |
+      | name: volume2          |
+      | persistentVolumeClaim: |
+      | claimName: pvc1        |
+      | claimName: pvc2        |
 
     When I execute on the pod:
       | df |
@@ -537,13 +525,13 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I get project pods as YAML
     Then the step should succeed
     And the output should contain:
-      | mountPath: /opt1                    |
-      | mountPath: /opt2                    |
-      | name: volume1                       |
-      | name: volume2                       |
-      | persistentVolumeClaim:              |
-      | claimName: pvc1-<%= project.name %> |
-      | claimName: pvc2-<%= project.name %> |
+      | mountPath: /opt1       |
+      | mountPath: /opt2       |
+      | name: volume1          |
+      | name: volume2          |
+      | persistentVolumeClaim: |
+      | claimName: pvc1        |
+      | claimName: pvc2        |
 
   # @author wehe@redhat.com
   @admin
