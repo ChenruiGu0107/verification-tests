@@ -210,20 +210,22 @@ Feature: Dynamic provisioning
   Scenario: User can dynamic created encryted ebs volume
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/sc_encrypted.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]  | sc-<%= project.name %> |
+      | ["volumeBindingMode"] | WaitForFirstConsumer   |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
     Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/aws                        |
     Then the step should succeed
     And the pod named "mypod" becomes ready
+    
+    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
     When I execute on the pod:
       | touch | /mnt/aws/testfile |
     Then the step should succeed
