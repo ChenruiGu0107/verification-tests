@@ -133,22 +133,22 @@ Feature: secrets related scenarios
       | resource | secret              |
       | name     | default-dockercfg-  |
     Then the step should succeed
-    And the output should contain:
-      | openshift.io/token-secret.name=default-token- |
+    And the output should match:
+      | openshift.io/token-secret.name.*default-token- |
 
     When I run the :describe client command with:
       | resource | secret               |
       | name     | deployer-dockercfg-  |
     Then the step should succeed
-    And the output should contain:
-      | openshift.io/token-secret.name=deployer-token- |
+    And the output should match:
+      | openshift.io/token-secret.name.*deployer-token- |
 
     When I run the :describe client command with:
       | resource | secret               |
       | name     | builder-dockercfg-   |
     Then the step should succeed
-    And the output should contain:
-      | openshift.io/token-secret.name=builder-token- |
+    And the output should match:
+      | openshift.io/token-secret.name.*builder-token- |
 
   # @author cryan@redhat.com
   # @case_id OCP-10784
