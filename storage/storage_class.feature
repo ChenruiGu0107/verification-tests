@@ -91,24 +91,22 @@ Feature: storageClass related feature
   @destructive
   Scenario Outline: PVC request storage class with specific provisioner
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-      | ["provisioner"]      | <provisioner>          |
-    Then the step should succeed
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["provisioner"] | <provisioner> |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "mypvc" PVC becomes :pending
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pvc/pvc-<%= project.name %> |
+      | resource | pvc/mypvc |
     Then the output should contain:
-      | <%= "<provisioner>"=="manual" ? "ExternalProvisioning" : "ProvisioningFailed" %>                                                                                                                    |
-      | <%= "<provisioner>"=="manual" ? (env.version_lt("3.7", user: user) ? "provisioned either manually or via external software" : "waiting for a volume to be created") : "no volume plugin matched" %> |
+      | <%= "<provisioner>"=="manual" ? "ExternalProvisioning" : "ProvisioningFailed" %>                     |
+      | <%= "<provisioner>"=="manual" ? "waiting for a volume to be created" : "no volume plugin matched" %> |
     """
-    And the "pvc-<%= project.name %>" PVC status is :pending
+    And the "mypvc" PVC status is :pending
 
     Examples:
       | provisioner           |
