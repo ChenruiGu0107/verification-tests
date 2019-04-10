@@ -253,8 +253,6 @@ Feature: PVC resizing Test
   # @author chaoyang@redhat.com
   @admin
   Scenario Outline: Check volumes could resize 
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a StorageClass named "<sc_name>"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
