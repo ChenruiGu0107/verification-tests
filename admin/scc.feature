@@ -178,8 +178,8 @@ Feature: SCC policy related scenarios
   Scenario: [platformmanagement_public_586] Check if the capabilities work in pods
     Given I have a project
     When I run the :run client command with:
-      |name|busybox|
-      |image|openshift/busybox-http-app:latest|
+      |name |busybox                      |
+      |image|aosqe/busybox-http-app:latest|
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deploymentconfig=busybox|
