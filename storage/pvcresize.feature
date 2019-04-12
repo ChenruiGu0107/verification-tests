@@ -677,28 +677,24 @@ Feature: PVC resizing Test
     And the expression should be true> pv(pvc("pvc-#{cb.i}").volume_name).capacity_raw(cached: false) == "5Gi"
     """
 
-  # Need to enable admission controller "PersistentVolumeClaimResize" manually
-  # From OCP3.11, feature gate "ExpandPersistentVolumes" is enabled by default,
-  # but adminssion controller "PersistentVolumeClaimResize" did not enable by default.
   # @author piqin@redhat.com
   # @case_id OCP-19333
   @admin
   Scenario: Resize PVC using StorageClass without allowVolumeExpansion enable
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion disabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["metadata"]["name"]                         | mypvc                  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                    |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+    And the "mypvc" PVC becomes :bound within 240 seconds
 
     When I run the :patch client command with:
-      | resource      | pvc                                                    |
-      | resource_name | pvc-<%= project.name %>                                |
-      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}}  |
+      | resource      | pvc                                                   |
+      | resource_name | mypvc                                                 |
+      | p             | {"spec":{"resources":{"requests":{"storage":"2Gi"}}}} |
     Then the step should fail
     And the output should contain "storageclass that provisions the pvc must support resize"
 
