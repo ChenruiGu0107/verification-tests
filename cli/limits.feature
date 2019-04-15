@@ -139,10 +139,6 @@ Feature: limit range related scenarios:
   @admin
   Scenario: When exceed openshift.io/images will ban to create image reference or push image to project
     Given I have a project
-    When I run the :policy_add_role_to_user client command with:
-      | role            | registry-admin   |
-      | user name       | system:anonymous |
-    Then the step should succeed
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | openshift.io/images: 30 | openshift.io/images: 1 |
@@ -169,13 +165,19 @@ Feature: limit range related scenarios:
       | Import failed |
     """
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And I select a random node's host
-    When I run commands on the host:
-      | docker pull docker.io/openshift/deployment-example |
-      | docker tag docker.io/openshift/deployment-example <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:v3 |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:v3 |
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/mystream"` is stored in the :mystream clipboard
+    And I have a skopeo pod in the project
+    When I execute on the pod:
+      | skopeo                                    |
+      | --debug                                   |
+      | --insecure-policy                         |
+      | copy                                      |
+      | --dest-tls-verify=false                   |
+      | --dcreds                                  |
+      | any:<%= user.cached_tokens.first %>       |
+      | docker://docker.io/centos:centos7         |
+      | docker://<%= cb.mystream %>:v3            |
     Then the step should fail
-    And the output should contain:
-      | denied |
+    And the output should match:
+      | uploading.*denied |
+
