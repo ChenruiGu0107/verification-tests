@@ -807,21 +807,17 @@ Feature: Quota related scenarios
   Scenario Outline: Image with multiple layers and sumed up size slightly exceed the openshift.io/image-size will push failed
     Given I have a project
     And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
     Given admin uses the "<%= project.name %>" project
     When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml" replacing paths:
       | ["spec"]["limits"][0]["max"]["storage"] | "100Mi" |
     Then the step should succeed
-    And evaluation of `"docker-registry.default.svc:5000"` is stored in the :integrated_reg_ip clipboard
-    Given status becomes :running of 1 pods labeled:
-      | deployment=skopeo-2 |
+    And default registry service ip is stored in the :integrated_reg_ip clipboard
     When I execute on the pod:
       | skopeo                                                                    |
       | --debug                                                                   |
       | --insecure-policy                                                         |
       | copy                                                                      |
-      | --dest-cert-dir                                                           |
-      | /opt/qe/ca                                                                |
+      | --dest-tls-verify=false                                                   |
       | --dcreds                                                                  |
       | dnm:<%= user.cached_tokens.first %>                                       |
       | docker://docker.io/<image>                                                |
