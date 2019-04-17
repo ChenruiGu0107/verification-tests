@@ -6,15 +6,15 @@ Feature: Persistent Volume Claim binding policies
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc1 |
     Then the step should succeed
-    And the "pvc1" PVC becomes :bound
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc2 |
     Then the step should succeed
-    And the "pvc2" PVC becomes :bound
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-overlap-path.yaml" replacing paths:
       | ["metadata"]["name"] | mypod |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
+    And the "pvc1" PVC becomes :bound
+    And the "pvc2" PVC becomes :bound
     When I execute on the pod:
       | touch | /mnt/openshift/file-in-mount-path1 |
     Then the step should succeed
