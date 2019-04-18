@@ -12,10 +12,11 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-<%= project.name %> |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>        |
+      | ["metadata"]["name"]                             | mypod                         |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>            |
+      | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
     Then the step should succeed
-    And the pod named "iscsi-<%= project.name %>" becomes ready
+    And the pod named "mypod" becomes ready
 
   # @author jhou@redhat.com
   # @case_id OCP-10143
