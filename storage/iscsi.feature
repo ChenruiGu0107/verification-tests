@@ -151,13 +151,14 @@ Feature: ISCSI volume plugin testing
     And I use the "<%= project.name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                              |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                              |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | ["<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"] |
+      | ["metadata"]["name"]                             | mypod                                                  |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip_2 %>:3260                              |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"] |
+      | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img                          |
     Then the step should succeed
-    And the pod named "iscsi-<%= project.name %>" becomes ready
+    And the pod named "mypod" becomes ready
     When I execute on the pod:
-      | cp | /hello | /mnt/iscsi|
+      | cp | /hello | /mnt/iscsi |
     Then the step should succeed
     When I execute on the pod:
       | /mnt/iscsi/hello |
@@ -168,7 +169,7 @@ Feature: ISCSI volume plugin testing
     And I run commands on the host:
       | mount \| grep iscsi |
     Then the step should succeed
-    And the output should contain "/dev/mapper/mpath"
+    #And the output should contain "/dev/mapper/mpath"
 
     When I disable the second iSCSI path
     Then the step should succeed
