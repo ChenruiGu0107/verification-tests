@@ -124,7 +124,7 @@ Feature: Testing registry
     Given I create a new project
     And evaluation of `project.name` is stored in the :prj1 clipboard
     And I find a bearer token of the deployer service account
-    And default docker-registry route is stored in the :registry_ip clipboard
+    And default registry service ip is stored in the :registry_ip clipboard
     When I run the :tag client command with:
       | source_type | docker                                 |
       | source      | docker.io/aosqe/hello-openshift:latest |
@@ -380,7 +380,7 @@ Feature: Testing registry
     Given I switch to the first user
     And I have a project
     And I find a bearer token of the builder service account
-    And default docker-registry route is stored in the :registry_ip clipboard
+    And default registry service ip is stored in the :registry_ip clipboard
     And I have a skopeo pod in the project
     When I execute on the pod:
       | skopeo                     |
@@ -463,7 +463,7 @@ Feature: Testing registry
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
     Then the step should succeed
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     When I execute on the pod:
       | skopeo                     |
       | --debug                    |
@@ -566,7 +566,7 @@ Feature: Testing registry
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    Given default docker-registry route is stored in the :registry_ip clipboard
+    Given default registry service ip is stored in the :registry_ip clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
     When I execute on the pod:
@@ -637,7 +637,7 @@ Feature: Testing registry
       | dest        | mystream:latest         |
     Then the step should succeed
     Given I find a bearer token of the builder service account
-    And default docker-registry route is stored in the :registry_ip clipboard
+    And default registry service ip is stored in the :registry_ip clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
     When I execute on the pod:

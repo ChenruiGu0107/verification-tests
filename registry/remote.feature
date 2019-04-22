@@ -75,7 +75,7 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Pull image with integrated registry have stored the data
     Given I have a project
-    And default docker-registry route is stored in the :integrated_reg_ip clipboard
+    And default registry service ip is stored in the :integrated_reg_ip clipboard
     # TODO: this PR should allow 'deployer' the permission to push https://github.com/openshift/origin/pull/9066
     # create a short hand
     And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
@@ -117,7 +117,7 @@ Feature: remote registry related scenarios
     Then the step should fail
     And I select a random node's host
 
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
@@ -145,7 +145,7 @@ Feature: remote registry related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/annotations.json |
     Then the step should succeed
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
     When I execute on the pod:
@@ -332,7 +332,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
-    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
     When I execute on the pod:

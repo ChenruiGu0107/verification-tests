@@ -2188,14 +2188,14 @@ Feature: build 'apps' with CLI
       | secret_type  | generic         |
       | from_literal | aoskey=aosvalue |
     Then the step should succeed
-    #Insert cm and secret to bc with multi-level dirs - failed due to bug 1613744
+    #Insert cm and secret to bc with multi-level dirs
     When I run the :new_build client command with:
       | app_repo       | https://github.com/openshift/ruby-hello-world |
       | image_stream   | ruby                                          |
       | build_config_map| cmtest:/aoscm/newdir                         |
       | build_secret   | secrettest:/aossecret/newdir                  |
     Then the step should succeed
-    And the "ruby-hello-world-1" build fails
+    And the "ruby-hello-world-1" build completed
     #Insert cm and secret to bc with wrong format - failed
     When I run the :new_build client command with:
       | app_repo       | https://github.com/openshift/ruby-hello-world |
