@@ -341,10 +341,10 @@ Feature: oc global options (oc options) related scenarios
     And the output should match "([Tt]imeout|[Uu]nable to connect)"
 
     When I run the :port_forward client command with:
-      | request-timeout  | 60s                |
+      | request-timeout  | 30s                |
       | pod              | <%= pod.name %>    |
       | port_spec        | :8080              |
-      | _timeout         | 70                 |
-    # Choose _timeout > 60s, which means the cmd does not timeout within 60s
+      | _timeout         | 40                 |
+    # Choose _timeout > 30s, which means the cmd does not timeout within 30s
     Then the step should have timed out
 
