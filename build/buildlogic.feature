@@ -124,7 +124,7 @@ Feature: buildlogic.feature
   @admin
   Scenario: Check labels info in built images when do sti build in openshift
     Given I have a project
-    Given default docker-registry route is stored in the :registry_hostname clipboard
+    Given default registry service ip is stored in the :registry_hostname clipboard
     And I have a skopeo pod in the project
     Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:
@@ -553,7 +553,7 @@ Feature: buildlogic.feature
   # @case_id OCP-19736
   Scenario: Add arbitrary labels to builder images
     Given I have a project
-    Given default docker-registry route is stored in the :registry_hostname clipboard
+    Given default registry service ip is stored in the :registry_hostname clipboard
     And I have a skopeo pod in the project
     Given I find a bearer token of the deployer service account
     When I run the :new_build client command with:

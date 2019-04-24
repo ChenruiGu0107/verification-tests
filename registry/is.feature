@@ -29,7 +29,7 @@ Feature: Testing imagestream
       | role            | registry-admin   |
       | user name       | system:anonymous |
     Then the step should succeed
-    Given default docker-registry route is stored in the :registry_hostname clipboard
+    Given default registry service ip is stored in the :registry_hostname clipboard
     And I have a skopeo pod in the project
     And master CA is added to the "skopeo" dc
     When I execute on the pod:
@@ -106,7 +106,7 @@ Feature: Testing imagestream
   @admin
   Scenario: Shouldn't prune the image with week and strong reference which the strong reference is imagestreamtag
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    Given default docker-registry route is stored in the :registry_hostname clipboard
+    Given default registry service ip is stored in the :registry_hostname clipboard
     Given I have a project
     When I run the :new_build client command with:
       | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
