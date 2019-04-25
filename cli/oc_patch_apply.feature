@@ -286,7 +286,7 @@ Feature: oc patch/apply related scenarios
       | type          | json                                                   |
       | p             | [{"op": "add", "path": "/spec/ports/3", "value": 444}] |
     Then the step should fail
-    And the output should match "rror.*nvalid index.*3"
+    And the output should match "[iI]nvalid"
 
     When I run the :patch client command with:
       | _tool         | <tool>        |
