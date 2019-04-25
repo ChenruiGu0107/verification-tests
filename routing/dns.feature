@@ -52,7 +52,7 @@ Feature: Testing DNS features
     When I execute on the pod:
       | curl | -LI | www.redhat.com |
     Then the step should succeed
-    And the output should contain "200 OK"
+    And the output should contain "HTTP/2 200"
 
     When I execute on the pod:
       | time | curl | -LI | www.google.com |
