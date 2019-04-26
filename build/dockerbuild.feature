@@ -323,9 +323,7 @@ Feature: dockerbuild.feature
       | buildconfig | ruby-hello-world |
       | build_arg   | @#$%=INVALID     |
     Then the step should fail
-    And the output should match:
-      | key=value |
-      | letters, numbers, and underscores |
+    And the output should contain "error: build-arg @#$%=INVALID is invalid"
     When I git clone the repo "https://github.com/openshift/ruby-hello-world"
     And I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
