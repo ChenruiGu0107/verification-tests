@@ -130,35 +130,36 @@ Feature: volumeMounts should be able to use subPath
     And I have a project
 
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
-      | ["metadata"]["name"]              | pv-iscsi-<%= project.name %> |
-      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+      | ["metadata"]["name"]               | pv-iscsi-<%= project.name %>  |
+      | ["spec"]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
+      | ["spec"]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
-      | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
+      | ["metadata"]["name"]   | mypvc                        |
+      | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-iscsi-<%= project.name %>" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
 
     # Create tester pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/subpath/iscsi-subpath.json" replacing paths:
-      | ["metadata"]["name"]                                         | iscsi-<%= project.name %>     |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
     Then the step should succeed
-    And the pod named "iscsi-<%= project.name %>" becomes ready
+    And the pod named "mypod" becomes ready
 
-    When I execute on the "iscsi-<%= project.name %>" pod:
+    When I execute on the pod:
       | id | -u |
     Then the output should contain:
       | 101010 |
-    When I execute on the "iscsi-<%= project.name %>" pod:
+    When I execute on the pod:
       | id | -G |
     Then the output should contain:
       | 123456 |
 
     # Verify mount directory has supplemental groups set properly
     # Verify SELinux context is set properly
-    When I execute on the "iscsi-<%= project.name %>" pod:
+    When I execute on the pod:
       | ls | -lZd | /mnt/iscsi |
     Then the output should match:
       | 123456                                   |
