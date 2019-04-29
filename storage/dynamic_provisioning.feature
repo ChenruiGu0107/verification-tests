@@ -232,14 +232,12 @@ Feature: Dynamic provisioning
 
   # @author piqin@redhat.com
   Scenario Outline: dynamic provisioning for block volume
-    Given I check feature gate "BlockVolume" is enabled
     Given I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                   |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
