@@ -815,20 +815,7 @@ Feature: change the policy of user/service account
   # @author chuyu@redhat.com
   # @case_id OCP-22725
   @admin
-  @destructive
   Scenario: 4.x Allow to make a role binding to a service account matched one rolebindingrestriction
-    Given the "cluster" "kubeapiserver" CRD is recreated after scenario
-    Given I switch to cluster admin pseudo user
-    And I use the "openshift-kube-apiserver" project
-    When I run the :patch admin command with:
-      | resource      | kubeapiserver |
-      | resource_name | cluster       |
-      | p             | {"spec":{"unsupportedConfigOverrides":{"admissionConfig":{"pluginConfig":{"openshift.io/RestrictSubjectBindings":{"configuration":{"apiversion":"v1","kind":"DefaultAdmissionConfig"}}}}}}}|
-      | type          | merge         |
-    Then the step should succeed
-    And 3 pods become ready with labels:
-      | app=openshift-kube-apiserver |
-    Then I switch to the first user
     Given I have a project
     When I run the :new_app client command with:
       | template | postgresql-persistent |
