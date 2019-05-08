@@ -262,7 +262,6 @@ Feature: Dynamic provisioning
   # @author jhou@redhat.com
   # @case_id OCP-17563
   Scenario: Using multiple block volumes
-    Given I check feature gate "BlockVolume" is enabled
     Given I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:

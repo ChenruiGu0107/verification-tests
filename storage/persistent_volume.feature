@@ -561,8 +561,6 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17550
   @admin
   Scenario: PV with Filesystem VolumeMode and PVC with unspecified VolumeMode should be bound successfully
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -580,8 +578,6 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17552
   @admin
   Scenario: PV with Block VolumeMode and PVC with unspecified VolumeMode could not be bound
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -608,8 +604,6 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17554
   @admin
   Scenario: PV with unspecified VolumeMode and PVC with Filesystem VolumeMode should be bound successfully
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -627,8 +621,6 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17555
   @admin
   Scenario: PV with unspecified VolumeMode and PVC with Block VolumeMode could not be bound
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -722,8 +714,6 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   @admin
   Scenario Outline: PV and PVC with same VolumeMode, but with other invalid feild should not be bound
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -756,8 +746,6 @@ Feature: Persistent Volume Claim binding policies
   # @author piqin@redhat.com
   @admin
   Scenario Outline: PV and PVC with different specified VolumeMode should not be bound
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:

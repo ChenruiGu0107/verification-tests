@@ -4,8 +4,6 @@ Feature: PVC resizing Test
   # @case_id OCP-19331
   @admin
   Scenario: Resize PVC online and with data on it
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
@@ -46,8 +44,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16614
   @admin
   Scenario: Resize PVC offline and no data on it
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
@@ -80,8 +76,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16615
   @admin
   Scenario: Resize PVC offline and with data on it
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with:
@@ -131,8 +125,7 @@ Feature: PVC resizing Test
   @admin
   @destructive
   Scenario: Resize PVC when glusterfs outage
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a StorageClass named "glusterprovisioner"
+    Given I have a StorageClass named "glusterprovisioner"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "glusterprovisioner" with volume expansion enabled
 
@@ -165,8 +158,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16619
   @admin
   Scenario: Resize PVC to a size less than the current size
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -187,8 +179,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16620
   @admin
   Scenario: Resize PVC to a size is the same with current size
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -209,8 +200,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16621
   @admin
   Scenario: Modify PVC other field than Spec.Resources.Requests.storage
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -231,8 +221,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16634
   @admin
   Scenario: Resize PVC when it's PV was deleted
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -313,8 +302,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16655
   @admin
   Scenario: Resize PVC will fail when PVC size exceed namespace storage quota
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     # Admin could create ResourceQuata
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -344,9 +331,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16657
   @admin
   Scenario: Resize PVC will fail when PVC size exceed storageclass storage quota
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
-    And I have a project
+    Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota_for_storageclass.yml" replacing paths:
@@ -374,8 +359,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16618
   @admin
   Scenario: Resize a static PVC
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pv-retain-rwo.json" where:
       | ["metadata"]["name"] | gluster-<%= project.name %> |
@@ -396,8 +380,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16622
   @admin
   Scenario: Resize a pending PVC
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
 
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | glusterc |
@@ -416,8 +399,7 @@ Feature: PVC resizing Test
   # @case_id OCP-16623
   @admin
   Scenario: Resize PVC to a very large size
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-    And I have a project
+    Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -441,8 +423,6 @@ Feature: PVC resizing Test
   @admin
   @destructive
   Scenario: Resize PVC should be successful after node service restart
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a StorageClass named "glusterprovisioner"
     And admin creates a project with a random schedulable node selector
 
@@ -470,8 +450,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16654
   @admin
   Scenario: namespace quota can handle pvc resize
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     # Admin could create ResourceQuata
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -507,8 +485,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16656
   @admin
   Scenario: StorageClass quota can handle pvc resize
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     # Admin could create ResourceQuata
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -546,8 +522,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16659
   @admin
   Scenario: namespace quota can handle multi times pvc resize
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     # Admin could create ResourceQuata
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -586,8 +560,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16676
   @admin
   Scenario: namespace quota can handle pvc resize failed
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     # Admin could create ResourceQuata
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -627,8 +599,6 @@ Feature: PVC resizing Test
   # @case_id OCP-16627
   @admin
   Scenario: Resize many PVCs in the same time
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
@@ -703,8 +673,6 @@ Feature: PVC resizing Test
   @admin
   @destructive
   Scenario: After master restart PVCs resizing can be finished as well
-    Given I check feature gate "ExpandPersistentVolumes" with admission "PersistentVolumeClaimResize" is enabled
-
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
