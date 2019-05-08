@@ -63,8 +63,7 @@ Feature: Gluster Block features testing file
   # @case_id OCP-19189
   @admin
   Scenario: Dynamically provision glusterblock volume with block volumeMode
-    Given I check feature gate "BlockVolume" is enabled
-    And I have a StorageClass named "gluster-block"
+    Given I have a StorageClass named "gluster-block"
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:

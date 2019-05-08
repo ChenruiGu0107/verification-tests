@@ -427,8 +427,6 @@ Feature: Storage of Ceph plugin testing
   # @case_id OCP-19116
   @admin
   Scenario: RBD block volumeMode support
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a StorageClass named "cephrbdprovisioner"
     And admin checks that the "cephrbd-secret" secret exists in the "default" project
 
@@ -473,8 +471,6 @@ Feature: Storage of Ceph plugin testing
   # @case_id OCP-19187
   @admin
   Scenario: Dynamically provision RBD volume with block volumeMode
-    Given I check feature gate "BlockVolume" is enabled
-
     Given I have a StorageClass named "cephrbdprovisioner"
     And admin checks that the "cephrbd-secret" secret exists in the "default" project
     And I have a project

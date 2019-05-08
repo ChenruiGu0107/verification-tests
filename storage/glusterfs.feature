@@ -609,8 +609,7 @@ Feature: Storage of GlusterFS plugin testing
   # @case_id OCP-19194
   @admin
   Scenario: Can not dynamically provision a GlusterFS volume with block volumeMode
-    Given I check feature gate "BlockVolume" is enabled
-    And I have a StorageClass named "glusterprovisioner"
+    Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
