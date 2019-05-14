@@ -323,7 +323,6 @@ Feature: volumeMounts should be able to use subPath
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/subpath/common-subpath.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
