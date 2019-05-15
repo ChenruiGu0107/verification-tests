@@ -952,9 +952,9 @@ Then the step should succeed
 
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 120 seconds
     Given cluster service classes are indexed by external name in the :csc clipboard
@@ -963,16 +963,16 @@ Then the step should succeed
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 60 seconds
     And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
     # Create servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "my-secret" secret exists
     And I wait for the "ups-binding" service_binding to become ready up to 60 seconds
