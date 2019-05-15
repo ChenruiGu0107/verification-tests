@@ -6,7 +6,7 @@ Feature: ASB broker config related scenarios
   @destructive
   Scenario: relistBehavior&relistDuration&relistRequests should work well in resync and relist
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
 
@@ -64,7 +64,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   @destructive
   Scenario: svc-catalog sync with borker can be manually trigger
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
 
@@ -97,7 +97,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   @destructive
   Scenario: svc-catalog have default duration to sync with broker
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And the "ansible-service-broker" cluster service broker is recreated after scenario
     And I save the first service broker registry prefix to :prefix clipboard
     And the expression should be true> cluster_service_broker("ansible-service-broker").relist_behavior == "Duration"
@@ -192,7 +192,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret in ansible-service-broker
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I check that the "<%= cb.instance_id %>" secret exists
     When I run the :describe client command with:
       | resource           | secret     |
@@ -216,7 +216,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret in ansible-service-broker
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I check that the "<%= cb.binding_id %>" secret exists
     When I run the :describe client command with:
       | resource           | secret     |
@@ -232,7 +232,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "%= cb.binding_id %>" to disappear within 60 seconds
      
 #    # update serviceinstance
@@ -249,7 +249,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 #
 #    # check secret in ansible-service-broker
 #    Given I switch to cluster admin pseudo user
-#    And I use the "ansible-service-broker" project
+#    And I use the "openshift-ansible-service-broker" project
 #    And I wait up to 60 seconds for the steps to pass:
 #    """
 #    When I run the :describe client command with:
@@ -264,7 +264,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I use the "<%= cb.user_project %>" project
     And I ensure "<%= cb.prefix %>-postgresql-apb" service_instance is deleted
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
 
   # @author zitang@redhat.com
@@ -311,7 +311,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # check secret 
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I check that the "<%= cb.instance_id %>" secret exists
     And I check that the "<%= cb.binding_id %>" secret exists
 
@@ -319,7 +319,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Given I switch to the first user
     And I ensure "<%= cb.user_project %>" project is deleted
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.instance_id %>" to disappear within 60 seconds
     And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
 
@@ -332,7 +332,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And the expression should be true> cluster_service_broker("ansible-service-broker").url.end_with? "/osb"
     When I run the :get client command with:
       | resource         | clusterrole    |
-      | resource_name    |   access-ansible-service-broker-ansible-service-broker-role   |
+      | resource_name    |   access-ansible-service-broker-openshift-ansible-service-broker-role   |
       | o                | yaml           |
     Then the output should contain:
       | /osb    |

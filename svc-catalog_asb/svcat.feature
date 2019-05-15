@@ -134,7 +134,7 @@ Feature: svcat related command
   @destructive
   Scenario: Check svcat subcommand - sync
     Given I switch to cluster admin pseudo user
-    And I use the "ansible-service-broker" project
+    And I use the "openshift-ansible-service-broker" project
 
     #get help info
     When I run the :sync admin command with:
