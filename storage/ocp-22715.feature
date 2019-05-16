@@ -20,7 +20,7 @@ Feature: https://polarion.engineering.redhat.com/polarion/#/project/OSE/workitem
     When I run the :get admin command with:
       | resource      | clusteroperator                                                |
       | resource_name | storage                                                        |
-      | o             | jsonpath='{.status.conditions[?(@.type == "Failing")].status}' |
+      | o             | jsonpath='{.status.conditions[?(@.type == "Degraded")].status}' |
     Then the step should succeed
     And the output should contain:
       | False |
