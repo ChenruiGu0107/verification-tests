@@ -146,16 +146,16 @@ Feature: Dynamic provisioning
   Scenario: Dynamic provision smoke test
     Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+      | ["metadata"]["name"]                                         | mypod     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas |
     Then the step should succeed
-    Given the pod named "pod-<%= project.name %>" becomes ready
+    Given the pod named "mypod" becomes ready
+    And the "mypvc" PVC becomes :bound
     When I execute on the pod:
       | ls | -ld | /mnt/iaas/ |
     Then the step should succeed
