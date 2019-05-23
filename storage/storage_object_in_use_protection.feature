@@ -16,6 +16,7 @@ Feature: Storage object in use protection
     When I run the :delete client command with:
       | object_type       | pvc                     |
       | object_name_or_id | pvc-<%= project.name %> |
+      | wait              | false                   |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes terminating
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
