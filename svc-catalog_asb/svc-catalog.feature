@@ -20,9 +20,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -38,9 +38,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -50,17 +50,17 @@ Feature: Service-catalog related scenarios
     """
 
     # Create two servicebindings
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
-      | param | BINDING_NAME=ups-binding-1                                                                               |
-      | param | SECRET_NAME=my-secret-1                                                                                  |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
+      | p | BINDING_NAME=ups-binding-1                                                                               |
+      | p | SECRET_NAME=my-secret-1                                                                                  |
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
-      | param | BINDING_NAME=ups-binding-2                                                                               |
-      | param | SECRET_NAME=my-secret-2                                                                                  |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
+      | p | BINDING_NAME=ups-binding-2                                                                               |
+      | p | SECRET_NAME=my-secret-2                                                                                  |
     Then the step should succeed
     Given I check that the "my-secret-1" secret exists
     And I check that the "my-secret-2" secret exists
@@ -139,9 +139,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -157,9 +157,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -178,9 +178,9 @@ Feature: Service-catalog related scenarios
     #Re-Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -190,9 +190,9 @@ Feature: Service-catalog related scenarios
     """
 
     # Create a servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     And I wait up to 10 seconds for the steps to pass:
     """
@@ -215,11 +215,11 @@ Feature: Service-catalog related scenarios
     """
 
     # Create the second servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
-      | param | BINDING_NAME=ups-binding-2                                                                               |
-      | param | SECRET_NAME=my-secret-2                                                                                  |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
+      | p | BINDING_NAME=ups-binding-2                                                                               |
+      | p | SECRET_NAME=my-secret-2                                                                                  |
     Then the step should fail
     And the output should match "forbidden: ServiceBinding.*nstance that is being deleted"
 
@@ -255,9 +255,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -273,9 +273,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -321,9 +321,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -339,9 +339,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -351,9 +351,9 @@ Feature: Service-catalog related scenarios
     """
 
     # Create servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "my-secret" secret exists
     And I wait up to 10 seconds for the steps to pass:
@@ -401,9 +401,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -419,9 +419,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -456,9 +456,9 @@ Feature: Service-catalog related scenarios
     """
 
     # Create servicebinding and check yaml of servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -519,9 +519,9 @@ Feature: Service-catalog related scenarios
     """
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -537,9 +537,9 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -549,9 +549,9 @@ Feature: Service-catalog related scenarios
     """
 
     # Create servicebinding and Check yaml of servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "my-secret" secret exists
     And I wait up to 10 seconds for the steps to pass:
@@ -582,22 +582,22 @@ Feature: Service-catalog related scenarios
     And I switch to the first user
     Given I have a project
     # Provision DB apb
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
-      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
-      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
-      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
-      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
-      | param | UID=<%= cb.db_uid %>                                                                                                         |
-      | n     | <%= project.name %>                                                                                                          |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
+      | p | UID=<%= cb.db_uid %>                                                                                                         |
+      | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
     # Check instance yaml while provisioning
     When I wait up to 60 seconds for the steps to pass:
@@ -731,16 +731,16 @@ Feature: Service-catalog related scenarios
     Then the step should succeed
     #Provision a serviceinstance
     Given I switch to the first user
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= project.name %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= project.name %>                                                                       |
     Then the step should succeed
     And I check that the "ups-instance" serviceinstance exists
 
     # Create servicebinding and Check yaml of servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= project.name %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= project.name %>                                                                      |
     Then the step should succeed
     Given I check that the "ups-binding" servicebinding exists
     And I ensure "ups-binding" servicebinding is deleted
@@ -758,9 +758,9 @@ Feature: Service-catalog related scenarios
     Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
     Then I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -776,16 +776,16 @@ Feature: Service-catalog related scenarios
     #Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
 
     # Create servicebinding and Check yaml of servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "ups-binding" servicebinding exists
     And I ensure "ups-binding" servicebinding is deleted
@@ -871,9 +871,9 @@ Then the step should succeed
     # Deploy ups-broker
     Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -900,18 +900,18 @@ Then the step should succeed
     I ensure "ups-binding" servicebinding is deleted
     I ensure "ups-instance" serviceinstance is deleted
     """
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
     When I run the :patch admin command with:
       | resource | clusterservicebroker/ups-broker                                                          |
       | p        | {"spec":{"url": "http://testups-broker.<%= cb.ups_broker_project %>.svc.cluster.local"}} |
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
     # check "ErrorReconciliationRetryTimeout" event in description
@@ -924,10 +924,10 @@ Then the step should succeed
       | resource | servicebinding/ups-binding |
     Then the output should match "ErrorReconciliationRetryTimeout.*Stopping reconciliation retries"
     """
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
-      | param | INSTANCE_NAME=ups-instance-1                                                                              |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
+      | p | INSTANCE_NAME=ups-instance-1                                                                              |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -1128,9 +1128,9 @@ Then the step should succeed
 
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
 
@@ -1148,9 +1148,9 @@ Then the step should succeed
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
     # Check the logs, 205 is an orphan resource
@@ -1188,9 +1188,9 @@ Then the step should succeed
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
     # Check the logs, 408 is NOT an orphan resource
@@ -1229,9 +1229,9 @@ Then the step should succeed
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
     # Check the logs, 500 is an orphan resource
@@ -1271,9 +1271,9 @@ Then the step should succeed
 
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
 
@@ -1291,16 +1291,16 @@ Then the step should succeed
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 60 seconds
 
     # Create a servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -1333,9 +1333,9 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     # Create a servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
     # Check the logs, 408 is not orphan resource
@@ -1367,9 +1367,9 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     # Create a servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
     # Check the logs, 500 is an orphan resource
@@ -1398,22 +1398,22 @@ Then the step should succeed
     # need to swtich back to normal user mode
     
     # Provision DB apb
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                               |
-      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                         |
-      | param | PLAN_EXTERNAL_NAME=dev                                                      |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                      |
-      | param | INSTANCE_NAMESPACE=<%= project.name %>                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                               |
+      | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                         |
+      | p | PLAN_EXTERNAL_NAME=dev                                                      |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                      |
+      | p | INSTANCE_NAMESPACE=<%= project.name %>                                      |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml        |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                         |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
-      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   |
-      | param | UID=<%= cb.db_uid %>                                                                                                           |
-      | n     | <%= project.name %>                                                                                                            |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml        |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                         |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
+      | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   |
+      | p | UID=<%= cb.db_uid %>                                                                                                           |
+      | n | <%= project.name %>                                                                                                            |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 360 seconds
     And dc with name matching /postgresql/ are stored in the :db clipboard
@@ -1635,9 +1635,9 @@ Then the step should succeed
 
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
-      | param | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
 
@@ -1652,18 +1652,18 @@ Then the step should succeed
     # Provision this instance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
       | param | CLASS_NAME=user-provided-service-with-schemas                                                             |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
 
     # Create a servicebinding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                      |
-      | param | SECRET_NAME=ups-secret                                                                                   |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
+      | p | SECRET_NAME=ups-secret                                                                                   |
     Then the step should succeed
     And I wait for the "ups-binding" service_binding to become ready up to 60 seconds
 
@@ -1679,13 +1679,13 @@ Then the step should succeed
     """
 
     # Create a servicebinding by renaming one key
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                             |
-      | param | BINDING_NAME=ups-binding-1                                                                                      |
-      | param | SECRET_NAME=ups-secret-1                                                                                        |
-      | param | OLD_KEY_2=""                                                                                                    |
-      | param | NEW_KEY_2=""                                                                                                    |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
+      | p | BINDING_NAME=ups-binding-1                                                                                      |
+      | p | SECRET_NAME=ups-secret-1                                                                                        |
+      | p | OLD_KEY_2=""                                                                                                    |
+      | p | NEW_KEY_2=""                                                                                                    |
     Then the step should succeed
     And I wait for the "ups-binding-1" service_binding to become ready up to 60 seconds
     
@@ -1701,15 +1701,15 @@ Then the step should succeed
     """
 
     # Create a servicebinding by renaming one non-exist key
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                             |
-      | param | BINDING_NAME=ups-binding-2                                                                                      |
-      | param | SECRET_NAME=ups-secret-2                                                                                        |
-      | param | OLD_KEY_1=special-key-3                                                                                         |
-      | param | NEW_KEY_1=test                                                                                                  |
-      | param | OLD_KEY_2=                                                                                                      |
-      | param | NEW_KEY_2=                                                                                                      |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
+      | p | BINDING_NAME=ups-binding-2                                                                                      |
+      | p | SECRET_NAME=ups-secret-2                                                                                        |
+      | p | OLD_KEY_1=special-key-3                                                                                         |
+      | p | NEW_KEY_1=test                                                                                                  |
+      | p | OLD_KEY_2=                                                                                                      |
+      | p | NEW_KEY_2=                                                                                                      |
     Then the step should succeed
     And I wait for the "ups-binding-2" service_binding to become ready up to 60 seconds
     
@@ -1727,11 +1727,11 @@ Then the step should succeed
     """
 
     # Create a servicebinding by renaming multi keys
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
-      | param | USER_PROJECT=<%= cb.user_project %>                                                                             |
-      | param | BINDING_NAME=ups-binding-3                                                                                      |
-      | param | SECRET_NAME=ups-secret-3                                                                                        |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-rename-template.yaml |
+      | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
+      | p | BINDING_NAME=ups-binding-3                                                                                      |
+      | p | SECRET_NAME=ups-secret-3                                                                                        |
     Then the step should succeed
     And I wait for the "ups-binding-3" service_binding to become ready up to 60 seconds
     

@@ -167,23 +167,23 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision postgresql apb
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
-      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
-      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
-      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
+      | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
+      | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :instance_id clipboard
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
-      | param | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"} |
-      | param | UID=<%= cb.db_uid %>                                                                                                         |
-      | n     | <%= project.name %>                                                                                                          |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
+      | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"} |
+      | p | UID=<%= cb.db_uid %>                                                                                                         |
+      | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
     And I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
     And dc with name matching /postgresql/ are stored in the :db clipboard
@@ -204,12 +204,12 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     # create binding
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
-      | param | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
-      | param | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
-      | n     | <%= project.name %>                                                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
+      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
+      | n | <%= project.name %>                                                                                         |
     Then the step should succeed
     And I wait for the "<%= cb.prefix %>-postgresql-apb" service_binding to become ready up to 60 seconds
     And evaluation of `service_binding("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :binding_id clipboard
@@ -275,23 +275,23 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision mariadb apb
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
-      | param | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                          |
-      | param | PLAN_EXTERNAL_NAME=dev                                                                                       |
-      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                       |
-      | param | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-template.yaml |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
+      | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                          |
+      | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
+      | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                       |
+      | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :instance_id clipboard
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
-      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                       |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                |
-      | param | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |
-      | param | UID=<%= cb.db_uid %>                                                                                                         |
-      | n     | <%= project.name %>                                                                                                          |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                       |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                |
+      | p | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |
+      | p | UID=<%= cb.db_uid %>                                                                                                         |
+      | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
     And I wait for the "<%= cb.prefix %>-mariadb-apb" service_instance to become ready up to 360 seconds
     And dc with name matching /mariadb/ are stored in the :db clipboard
@@ -299,12 +299,12 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | deployment=<%= cb.db.first.name %>-1 |
 
     # create binding
-    When I run the :new_app client command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
-      | param | BINDING_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
-      | param | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                               |
-      | param | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials                                                     |
-      | n     | <%= project.name %>                                                                                         |
+    When I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/servicebinding-template.yaml |
+      | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
+      | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                               |
+      | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials                                                     |
+      | n | <%= project.name %>                                                                                         |
     Then the step should succeed
     And I wait for the "<%= cb.prefix %>-mariadb-apb" service_binding to become ready up to 60 seconds
     And evaluation of `service_binding("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :binding_id clipboard
