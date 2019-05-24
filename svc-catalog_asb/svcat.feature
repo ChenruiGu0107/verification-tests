@@ -473,7 +473,7 @@ Feature: svcat related command
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
-    And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
+    And I wait for the "ups-broker" cluster_service_broker to become ready up to 120 seconds
     Given cluster service classes are indexed by external name in the :csc clipboard
     And evaluation of `cb.csc['user-provided-service'].name` is stored in the :class_id clipboard
 
