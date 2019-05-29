@@ -5,17 +5,10 @@ Feature: env.feature
   Scenario: Set environment variables when creating application using DeploymentConfig template
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/sclorg/mongodb-container/master/examples/petset/mongodb-petset-persistent.yaml"
-    And I replace lines in "mongodb-petset-persistent.yaml":
-      | centos/mongodb-32-centos7 | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
     When I run the :new_app client command with:
       | app_repo | mongodb-petset-persistent.yaml |
       | e        | VOLUME_CAPACITY=2Gi            |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongo-data-mongodb-0                                                            |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    And the step should succeed
     Given the pod named "mongodb-0" status becomes :running
     When I run the :set_env client command with:
       | resource | pod/mongodb-0 |
@@ -31,11 +24,6 @@ Feature: env.feature
       | e        | APPLE2=tesla                                                                                                     |
       | e        | APPLE3=linux                                                                                                     |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongo-data-mongodb-0                                                            |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    And the step should succeed
     Given the pod named "mongodb-0" status becomes :running
     When I run the :set_env client command with:
       | resource | pod/mongodb-0 |
