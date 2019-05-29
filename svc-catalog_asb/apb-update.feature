@@ -793,7 +793,7 @@ Feature: Update sql apb related feature
     When I run the :describe client command with:
       | resource | serviceinstance   |
     Then the step should succeed
-    And the output should match 1 times:
+    And the output should match:
       | ^\s+Message:.*unknown enum parameter value |
       | Reason:\\s+UpdateInstanceCallFailed        |
       | Status:\\s+False                           |
@@ -823,7 +823,7 @@ Feature: Update sql apb related feature
     When I run the :describe client command with:
       | resource | serviceinstance   |
     Then the step should succeed
-    And the output should match 1 times:
+    And the output should match:
       | ^\s+Message:\\s+The instance was updated successfully |
       | Reason:\\s+InstanceUpdatedSuccessfully                |
       | Status: \\s+True                                      |
@@ -896,7 +896,7 @@ Feature: Update sql apb related feature
     When I run the :describe client command with:
       | resource | serviceinstance   |
     Then the step should succeed
-    And the output should match 1 times:
+    And the output should match:
       | ^\s+Message:\\s+(Cluster)?ServiceBroker returned a failure for update call.*parameter not updatable |
       | Reason:\\s+UpdateInstanceCallFailed                                                                 |
       | Status: \\s+False                                                                                   |

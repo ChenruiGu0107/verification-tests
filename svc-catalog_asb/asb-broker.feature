@@ -233,7 +233,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     # check secret
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
-    And I wait for the resource "secret" named "%= cb.binding_id %>" to disappear within 60 seconds
+    And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
      
 #    # update serviceinstance
 #    Given I switch to the first user
