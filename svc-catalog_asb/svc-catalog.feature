@@ -74,6 +74,7 @@ Feature: Service-catalog related scenarios
 
     # Delete the serviceinstance directly
     When I run the :delete client command with:
+      | wait              | false           |
       | object_type       | serviceinstance |
       | object_name_or_id | ups-instance    |
     Then the step should succeed
