@@ -72,8 +72,8 @@ Feature: storageClass related feature
       | ["parameters"]["zone"] | europe-west1-d         |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And I wait up to 30 seconds for the steps to pass:
@@ -150,8 +150,8 @@ Feature: storageClass related feature
       | ["metadata"]["name"]      | sc-<%= project.name %> |
       | ["parameters"]["resturl"] | http://foo.com/        |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | invalid                |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | invalid                |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -191,10 +191,10 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"] | 4Gi                      |
+      | ["spec"]["storageClassName"]                 | sc1-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -213,10 +213,10 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 3Gi                      |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
+      | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
+      | ["spec"]["storageClassName"]                 | sc2-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -251,16 +251,16 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc1-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc1-<%= project.name %>  |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc2-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc2-<%= project.name %>  |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc3-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc3-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc3-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc3-<%= project.name %>  |
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound
     And the "pvc2-<%= project.name %>" PVC becomes :bound
@@ -625,10 +625,10 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
@@ -658,10 +658,10 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -704,10 +704,10 @@ Feature: storageClass related feature
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"

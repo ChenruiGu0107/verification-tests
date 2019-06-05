@@ -10,7 +10,7 @@ Feature: AWS specific scenarios
       | ["provisioner"]      | openshift.org/aws-efs  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "efs" PVC becomes :bound within 60 seconds
     When I run the :create client command with:
@@ -33,8 +33,8 @@ Feature: AWS specific scenarios
       | ["provisioner"]      | openshift.org/aws-efs  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | efspvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>     |
+      | ["metadata"]["name"]         | efspvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>     |
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/efs/double_containers.json" replacing paths:
@@ -110,8 +110,8 @@ Feature: AWS specific scenarios
       | ["parameters"]["gidMax"] | 49999                  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | efspvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>     |
+      | ["metadata"]["name"]         | efspvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>     |
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
 
@@ -149,8 +149,8 @@ Feature: AWS specific scenarios
       | ["provisioner"]      | openshift.org/aws-efs  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | efspvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>     |
+      | ["metadata"]["name"]         | efspvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>     |
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/pod.yaml" replacing paths:
@@ -256,9 +256,9 @@ Feature: AWS specific scenarios
       | ["mountOptions"][0]  | tcp                    |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario

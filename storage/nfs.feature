@@ -408,7 +408,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
@@ -441,7 +441,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
@@ -469,7 +469,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
@@ -486,7 +486,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -500,7 +500,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner service in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
@@ -536,7 +536,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner service in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
@@ -698,9 +698,9 @@ Feature: NFS Persistent Volume
       | ["reclaimPolicy"]    | Retain                 |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario
@@ -781,9 +781,9 @@ Feature: NFS Persistent Volume
       | ["mountOptions"][0]  | ro                     |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario

@@ -341,10 +341,10 @@ Feature: Persistent Volume Claim binding policies
 
     # Create dynamic pvc
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                   |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
+      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                             |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>          |
     Then the step should succeed
     And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
     When I run the :get admin command with:

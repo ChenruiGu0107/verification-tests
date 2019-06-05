@@ -50,9 +50,9 @@ Feature: Storage of Ceph plugin testing
     Given I have a project
 
     And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-rbd-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner          |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                         |
+      | ["metadata"]["name"]                         | pvc-rbd-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner          |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                         |
     Then the step should succeed
     And the "pvc-rbd-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -111,9 +111,9 @@ Feature: Storage of Ceph plugin testing
     Given I have a project
 
     And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
@@ -160,9 +160,9 @@ Feature: Storage of Ceph plugin testing
     And I use the "<%= cb.proj_name %>" project
 
     And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
@@ -220,8 +220,8 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | cephrbdprovisioner      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -243,9 +243,9 @@ Feature: Storage of Ceph plugin testing
 
     Given admin creates a project with a random schedulable node selector
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
     And I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
@@ -303,8 +303,8 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -326,8 +326,8 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -366,9 +366,9 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
@@ -400,8 +400,8 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -433,9 +433,9 @@ Feature: Storage of Ceph plugin testing
     And admin creates a project with a random schedulable node selector
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
@@ -476,10 +476,10 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner |
-      | ["spec"]["volumeMode"]                                                 | Block              |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
+      | ["spec"]["volumeMode"]                       | Block              |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
