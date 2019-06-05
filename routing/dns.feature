@@ -114,3 +114,25 @@ Feature: Testing DNS features
     Then the step should succeed
     And the output should contain "<%= cb.pod0_ip %>"
     And the output should contain "<%= cb.pod1_ip %>"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-21391
+  @admin
+  Scenario: the image-registry service IP is added to node's hosts file
+    Given the master version >= "4.0"
+    And I switch to cluster admin pseudo user
+    Given I use the "openshift-image-registry" project
+    And I use the "image-registry" service
+    And evaluation of `service.ip` is stored in the :image_registry_svc_ip clipboard
+
+    Given I use the "openshift-dns" project
+    And all existing pods are ready with labels:
+      | dns.operator.openshift.io/daemonset-dns=default |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>   |
+      | c                | dns-node-resolver |
+      | exec_command     | cat               |
+      | exec_command_arg | /etc/hosts        |
+    Then the step should succeed
+    And the output should contain "<%= cb.image_registry_svc_ip %> image-registry.openshift-image-registry.svc image-registry.openshift-image-registry.svc.cluster.local"
+
