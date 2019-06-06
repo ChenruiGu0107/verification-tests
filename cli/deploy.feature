@@ -99,26 +99,21 @@ Feature: deployment related features
       | app_repo | aosqe/hello-openshift |
       | name     | hooks                  |
     Then the step should succeed
-    When I get project dc named "hooks" as JSON
-    Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 1
-    When I get project deploymentconfig as JSON
-    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
     When I run the :rollout_latest client command with:
       | resource | notreal |
     Then the step should fail
     Then the output should match:
       | Error\\s+.*\\s+"notreal" not found |
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollout_retry client command with:
       | resource | deploymentConfig   |
       | name     | hooks              |
     Then the step should fail
     And the output should contain:
       | only failed deployments can be retried |
-    Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :rollout_latest client command with:
       | resource | hooks |
-    When I get project dc named "hooks" as JSON
-    Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
+    Then I wait until the status of deployment "hooks" becomes :complete
 
   # @author pruan@redhat.com
   # @case_id OCP-12402

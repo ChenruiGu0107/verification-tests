@@ -296,7 +296,7 @@ Feature: oc patch/apply related scenarios
       | p             | [{"op": "delete", "path": "/spec/ports/0/targetPort", "value": 444}] |
     Then the step should fail
     And the output should match:
-      | Unexpected kind:\\s+delete |
+      | Unexpected kind:\\s+delete\|nvalid |
 
     When I run the :patch client command with:
       | _tool         | <tool>        |
