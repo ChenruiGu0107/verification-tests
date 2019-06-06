@@ -90,8 +90,8 @@ Feature: CephFS storage plugin testing
 
     # Verify dynamic provisioner
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cephfs/dynamic-provisioning/cephfs_claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephfs                  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | cephfs                  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 60 seconds
 

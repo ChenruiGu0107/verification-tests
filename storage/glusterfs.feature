@@ -121,9 +121,9 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi               |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | glusterprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"] | 15Gi               |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -138,8 +138,8 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
+      | ["metadata"]["name"]         | pvc1               |
+      | ["spec"]["storageClassName"] | glusterprovisioner |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -171,8 +171,8 @@ Feature: Storage of GlusterFS plugin testing
       | ["metadata"]["name"]      | storageclass-<%= project.name %> |
       | ["parameters"]["resturl"] | <%= cb.heketi_url %>             |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc-<%= project.name %>          |
+      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
@@ -211,8 +211,8 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["gidMax"]  | 2000                                                             |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc-<%= project.name %>          |
+      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -233,8 +233,8 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["gidMax"]  | -1000                                                            |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-neg-<%= project.name %>          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-neg-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc-neg-<%= project.name %>          |
+      | ["spec"]["storageClassName"] | storageclass-neg-<%= project.name %> |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -258,8 +258,8 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc1                             |
+      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -287,16 +287,16 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["gidMax"]  | 5555                                                             |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc1                             |
+      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # The 2nd PVC can't provision any because GID range is full
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc2                             |
+      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -331,9 +331,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["volumetype"]  | disperse:4:2                                                     |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 16Gi                             |
+      | ["metadata"]["name"]                         | pvc1                             |
+      | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 16Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -361,9 +361,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["volumetype"]  | none                                                             |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
+      | ["metadata"]["name"]                         | pvc1                             |
+      | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -390,9 +390,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["volumetype"]  | replicate:2                                                      |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                             |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
+      | ["metadata"]["name"]                         | pvc1                             |
+      | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                             |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
@@ -413,9 +413,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["parameters"]["volumetype"]  | replicate:0                                                      |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2                              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass1-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                              |
+      | ["metadata"]["name"]                         | pvc2                              |
+      | ["spec"]["storageClassName"]                 | storageclass1-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                              |
     Then the step should succeed
     And the "pvc2" PVC becomes :bound
     And admin ensures "<%= pvc('pvc2').volume_name %>" pv is deleted after scenario
@@ -557,9 +557,9 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1                       |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1                       |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
     And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
@@ -586,9 +586,9 @@ Feature: Storage of GlusterFS plugin testing
       | ["mountOptions"][0]       | ro                                                  |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1                       |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1                       |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -613,10 +613,10 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
-      | ["spec"]["volumeMode"]                                                 | Block              |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                |
+      | ["metadata"]["name"]                         | pvc1               |
+      | ["spec"]["storageClassName"]                 | glusterprovisioner |
+      | ["spec"]["volumeMode"]                       | Block              |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
     Then the step should succeed
 
     When I run the :describe client command with:

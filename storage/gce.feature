@@ -141,8 +141,8 @@ Feature: GCE specific scenarios
       | ["parameters"]["zone"] | <%= cb.zone %>         |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1                   |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | pvc1                   |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
@@ -301,13 +301,13 @@ Feature: GCE specific scenarios
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pv-with-annotations.json" where:
-      | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
-      | ["spec"]["gcePersistentDisk"]["pdName"]                                | <%= cb.vid %>          |
+      | ["metadata"]["name"]                    | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"]            | <%= project.name %>    |
+      | ["spec"]["gcePersistentDisk"]["pdName"] | <%= cb.vid %>          |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | <%= project.name %>     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -323,8 +323,8 @@ Feature: GCE specific scenarios
       | ["spec"]["storageClassName"]            | <%= project.name %>    |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | <%= project.name %>     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -335,8 +335,8 @@ Feature: GCE specific scenarios
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pv-with-annotations.json" where:
-      | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | <%= project.name %>    |
       | ["spec"]["gcePersistentDisk"]["pdName"]                                | <%= cb.vid %>          |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -357,7 +357,7 @@ Feature: GCE specific scenarios
       | ["spec"]["storageClassName"]            | <%= project.name %>    |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | <%= project.name %>     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV

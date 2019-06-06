@@ -13,8 +13,8 @@ Feature: Gluster Block features testing file
       | ["mountOptions"][0]       | rw                                             |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/pvc-gluster-block.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And I ensure "pvc-<%= project.name %>" pvc is deleted after scenario
@@ -44,8 +44,8 @@ Feature: Gluster Block features testing file
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/pvc-gluster-block.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pv.name %>" pv is deleted after scenario
@@ -67,10 +67,10 @@ Feature: Gluster Block features testing file
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | gluster-block |
-      | ["spec"]["volumeMode"]                                                 | Block         |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi           |
+      | ["metadata"]["name"]                         | pvc1          |
+      | ["spec"]["storageClassName"]                 | gluster-block |
+      | ["spec"]["volumeMode"]                       | Block         |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi           |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 

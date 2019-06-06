@@ -57,10 +57,10 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce          |
-      | ["spec"]["accessModes"][1]                                             | ReadWriteMany          |
-      | ["spec"]["accessModes"][2]                                             | ReadOnlyMany           |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]   | ReadWriteOnce          |
+      | ["spec"]["accessModes"][1]   | ReadWriteMany          |
+      | ["spec"]["accessModes"][2]   | ReadOnlyMany           |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :get admin command with:
@@ -130,10 +130,10 @@ Feature: Dynamic provisioning
     And I run the steps 1 times:
     """
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
-      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
+      | ["metadata"]["name"]                         | dpvc-#{cb.i}              |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>    |
+      | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
+      | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
     Given admin ensures "#{ pvc.volume_name }" pv is deleted
@@ -178,10 +178,10 @@ Feature: Dynamic provisioning
       | ["parameters"]["fstype"] | <fstype> |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %>          |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
+      | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
 
@@ -215,8 +215,8 @@ Feature: Dynamic provisioning
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
+      | ["metadata"]["name"]         | dynamic-pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>          |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
@@ -300,9 +300,9 @@ Feature: Dynamic provisioning
       | ["reclaimPolicy"] | "" |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                      |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+      | ["spec"]["storageClassName"]                 | sc1-<%= project.name %>  |
     Then the step should succeed
     And the expression should be true> pv(pvc("pvc1-<%= project.name %>").volume_name).reclaim_policy == "Retain"

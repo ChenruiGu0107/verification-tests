@@ -67,10 +67,10 @@ Feature: kubelet restart and node restart
     And I run the steps 3 times:
     """
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                 |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>        |
-      | ["spec"]["accessModes"][0]                                             | #{ cb.accessmodes[ cb.i-1 ] } |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{ cb.i }Gi                   |
+      | ["metadata"]["name"]                         | pvc-#{ cb.i }                 |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>        |
+      | ["spec"]["accessModes"][0]                   | #{ cb.accessmodes[ cb.i-1 ] } |
+      | ["spec"]["resources"]["requests"]["storage"] | #{ cb.i }Gi                   |
     Then the step should succeed
     And the "pvc-#{ cb.i }" PVC becomes :bound
 

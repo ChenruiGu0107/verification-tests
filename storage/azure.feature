@@ -87,7 +87,7 @@ Feature: Azure disk and Azure file specific scenarios
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
@@ -170,7 +170,7 @@ Feature: Azure disk and Azure file specific scenarios
       | ["parameters"]["kind"] | Dedicated              |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :pending
     And I wait up to 30 seconds for the steps to pass:
@@ -221,7 +221,7 @@ Feature: Azure disk and Azure file specific scenarios
       | ["metadata"]["name"]      | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
@@ -427,7 +427,7 @@ Feature: Azure disk and Azure file specific scenarios
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvc-sc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :create admin command with:
