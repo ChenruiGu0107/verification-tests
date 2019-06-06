@@ -382,9 +382,8 @@ Feature: pod related features
     Given I wait until number of replicas match "6" for replicationController "deployment-example-1"
     When I run the :label client command with:
       | resource  | pods     |
-      | all       | true     |
+      | l         | app      |
       | key_val   | foo8=bar |
-      | overwrite | true     |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
     Given 6 pods become ready with labels:
@@ -405,14 +404,23 @@ Feature: pod related features
       | name     | deployment-example |
       | replicas | 5                  |
     Then the step should succeed
-    Given I wait until number of replicas match "5" for replicationController "deployment-example-1"
+    # Fix to ensure being-Terminating pod not labeled and cached
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource    | pod    |
+      | l           | app    |
+    Then the step should succeed
+    And the output should contain 5 times:
+      | deployment-example |
+    """
     When I run the :label client command with:
       | resource  | pods     |
-      | all       | true     |
+      | l         | app      |
       | key_val   | foo8=bar |
       | overwrite | true     |
     Then the step should succeed
-    Given 5 pods become ready with labels:
+    And a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod1 clipboard
     And I replace lines in "Eviction.json":
@@ -427,8 +435,17 @@ Feature: pod related features
       | name     | deployment-example |
       | replicas | 3                  |
     Then the step should succeed
-    Given I wait until number of replicas match "3" for replicationController "deployment-example-1"
-    Given 3 pods become ready with labels:
+    # Fix to ensure being-Terminating pod not cached
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource    | pod    |
+      | l           | app    |
+    Then the step should succeed
+    And the output should contain 3 times:
+      | deployment-example |
+    """
+    And a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod2 clipboard
     And I replace lines in "Eviction.json":
