@@ -13,9 +13,9 @@ Feature: storageClass related feature
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
     Then the step should succeed
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
+      | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                        |
     Then the step should succeed
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
@@ -120,9 +120,9 @@ Feature: storageClass related feature
   Scenario: Check the storage class detail by oc describe
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc1-<%= project.name %> |
-      | ["provisioner"]                                                                 | kubernetes.io/gce-pd    |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
+      | ["metadata"]["name"]                                                       | sc1-<%= project.name %> |
+      | ["provisioner"]                                                            | kubernetes.io/gce-pd    |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
@@ -558,11 +558,11 @@ Feature: storageClass related feature
   Scenario: Check storageclass info when pvc using default storageclass
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
-      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
-      | ["parameters"]["type"]                                                          | gp2                     |
-      | ["parameters"]["zone"]                                                          | us-east-1d              |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
+      | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
+      | ["parameters"]["type"]                                                     | gp2                     |
+      | ["parameters"]["zone"]                                                     | us-east-1d              |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
@@ -600,9 +600,9 @@ Feature: storageClass related feature
   Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
-      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
+      | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
@@ -619,9 +619,9 @@ Feature: storageClass related feature
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-reclaim-policy.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                       |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
+      | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                       |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
@@ -651,10 +651,10 @@ Feature: storageClass related feature
   Scenario Outline: Setting mountOptions for StorageClass
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-mountOptions.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["mountOptions"][0]                                                             | discard                     |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                       |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
+      | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
+      | ["mountOptions"][0]                                                        | discard                     |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                       |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
@@ -695,12 +695,12 @@ Feature: storageClass related feature
   Scenario: Configure Retain reclaim policy for aws-efs
     Given I have a project
     And I have a efs-provisioner in the project
-      
+
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-reclaim-policy.yaml" where:
-      | ["apiVersion"]                                                                  | storage.k8s.io/v1      |     
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
-      | ["provisioner"]                                                                 | openshift.org/aws-efs  |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
+      | ["apiVersion"]                                                             | storage.k8s.io/v1      |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %> |
+      | ["provisioner"]                                                            | openshift.org/aws-efs  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                  |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:

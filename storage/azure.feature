@@ -201,9 +201,9 @@ Feature: Azure disk and Azure file specific scenarios
       | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>   |
-      | ["provisioner"]                                                                 | kubernetes.io/azure-disk |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                     |
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %>   |
+      | ["provisioner"]                                                            | kubernetes.io/azure-disk |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                     |
     Then the step should succeed
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
       | ["spec"]["volumeName"] | pv-<%= project.name %>  |
