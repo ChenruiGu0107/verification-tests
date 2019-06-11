@@ -2510,7 +2510,7 @@ Feature: test master config related steps
       |  "level":"Request"  |
       |  "level":"Metadata" |
      
-  #@author geliu@redhat.com
+  # @author geliu@redhat.com
   # @case_id OCP-16690
   @destructive
   @admin

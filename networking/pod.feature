@@ -125,7 +125,7 @@ Feature: Pod related networking scenarios
     And the output should match 25 times:
       | \d+\.\d+\.\d+\.\d+ |
 
-  # @auther bmeng@redhat.com
+  # @author bmeng@redhat.com
   # @case_id OCP-11578
   @admin
   @destructive

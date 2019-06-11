@@ -106,7 +106,7 @@ Feature: Update sql apb related feature
       |<%= cb.prefix %>-postgresql-apb |prod      |dev     |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.6          | 10     | # @case_id OCP-20388
       |<%= cb.prefix %>-postgresql-apb |prod      |dev     |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |10           | 9.5     | # @case_id OCP-20389
 
-  #@author zitang@redhat.com
+  # @author zitang@redhat.com
   @admin
   Scenario Outline: [APB] Data will be preserved if version of MySQL or MariaDB APB update  
     Given I save the first service broker registry prefix to :prefix clipboard
@@ -366,7 +366,7 @@ Feature: Update sql apb related feature
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
 
-  #@author zitang@redhat.com
+  # @author zitang@redhat.com
   # @case_id OCP-18567
   @admin
   Scenario: [APB] Data created by normal user will be preserved if MySQL APB update
