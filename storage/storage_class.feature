@@ -753,3 +753,33 @@ Feature: storageClass related feature
       | AllowVolumeExpansion:\s+True  |
       | sc3-<%= cb.sc_name %>         |
       | AllowVolumeExpansion:\s+      |
+
+
+  # @author lxia@redhat.com
+  # @case_id OCP-23987
+  Scenario: Check the detail of default storage class
+    When I run the :get client command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should contain:
+      #| mountOptions:               |
+      #| parameters:                 |
+      | provisioner: kubernetes.io/ |
+      | reclaimPolicy: Delete       |
+    And the output should match:
+      | kubernetes.io/(aws-ebs\|vsphere-volume)                |
+      | volumeBindingMode:\s+(Immediate\|WaitForFirstConsumer) |
+    When I run the :describe client command with:
+      | resource | storageclass |
+    Then the step should succeed
+    And the output should contain:
+      | MountOptions: |
+      | Parameters:   |
+      | Provisioner:  |
+    And the output should match:
+      | AllowVolumeExpansion:                                  |
+      | IsDefaultClass:\s+(Yes\|No)                            |
+      | kubernetes.io/(aws-ebs\|vsphere-volume)                |
+      | ReclaimPolicy:\s+Delete                                |
+      | VolumeBindingMode:\s+(Immediate\|WaitForFirstConsumer) |
