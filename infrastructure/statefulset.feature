@@ -148,7 +148,7 @@ Feature: StatefulSet related tests
     And I check that the "www-hello-statefulset-0" persistentvolumeclaim exists in the project
     And I check that the "www-hello-statefulset-0" persistentvolumeclaim exists in the project
 
-  # @author dma@redhat.commit
+  # @author dma@redhat.com
   # @case_id OCP-12984
   Scenario: Update container image in StatefulSet
     Given I have a project
