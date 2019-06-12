@@ -117,15 +117,14 @@ Feature: kubelet restart and node restart
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | mypod      |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
-      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block |
+      | ["metadata"]["name"]                                         | mypod        |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc        |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/myblock |
     Then the step should succeed
     And the pod named "mypod" becomes ready
     When I execute on the pod:
-      | sh | -c | [[ -b /dev/block ]] && echo "block device" |
+      | sh | -c | [[ -b /dev/myblock ]] |
     Then the step should succeed
-    And the output should contain "block device"
     Examples:
       | provisioner    |
       | vsphere-volume | # @case_id OCP-24014
