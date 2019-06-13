@@ -5,9 +5,10 @@ Feature: vSphere test scenarios
   @admin
   Scenario: Mounting a vSphere volume directly in Pod's specification
     Given I have a project
-
-    When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/vsphere/myDisk.yaml |
-      | n | <%= project.name %>                                                                                       |
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/vsphere/myDisk.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["vsphereVolume"]["volumePath"] | "<%= cb.vid %>" |
     Then the step should succeed
     And the pod named "vmdk" becomes ready
