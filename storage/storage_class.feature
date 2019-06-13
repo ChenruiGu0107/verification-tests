@@ -650,44 +650,32 @@ Feature: storageClass related feature
   @admin
   Scenario Outline: Setting mountOptions for StorageClass
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-mountOptions.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
-      | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
-      | ["mountOptions"][0]                                                        | discard                     |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                       |
-    Then the step should succeed
-
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["mountOptions"] | ["discard"] |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<keyword>          |
+      | ["metadata"]["name"]                                         | mypod       |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc       |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypath |
     Then the step should succeed
-    Given the pod named "pod-<%= project.name %>" becomes ready
+    Given the pod named "mypod" becomes ready
 
     When I execute on the pod:
-      | grep | <keyword>  | /proc/self/mountinfo |
+      | sh | -c | mount \| grep /mnt/mypath |
     Then the step should succeed
     And the output should contain:
       | discard |
 
-    Given I ensure "pod-<%= project.name %>" pod is deleted
-    And I ensure "pvc-<%= project.name %>" pvc is deleted
-
     Examples:
-      | provisioner    | keyword |
-      | vsphere-volume | vsphere | # @case_id OCP-17224
-      | gce-pd         | gce     | # @case_id OCP-17259
-      | aws-ebs        | ebs     | # @case_id OCP-17260
-      | cinder         | cinder  | # @case_id OCP-17258
-      | azure-disk     | azure   | # @case_id OCP-17490
+      | keyword |
+      | vsphere | # @case_id OCP-17224
+      | gce     | # @case_id OCP-17259
+      | ebs     | # @case_id OCP-17260
+      | cinder  | # @case_id OCP-17258
+      | azure   | # @case_id OCP-17490
 
   # @author chaoyang@redhat.com
   # @case_id OCP-17272
