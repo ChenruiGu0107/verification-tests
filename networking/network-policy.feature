@@ -1829,3 +1829,11 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1podip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23680
+  @admin
+  Scenario: Both namespace openshift-ingress and openshift-monitoring should have the default label for networkpolicy
+    Given I switch to cluster admin pseudo user
+    And the expression should be true> namespace('openshift-ingress').labels['network.openshift.io/policy-group'] == 'ingress'
+    And the expression should be true> namespace('openshift-monitoring').labels['network.openshift.io/policy-group'] == 'monitoring'

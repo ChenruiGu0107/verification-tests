@@ -183,3 +183,21 @@ Feature: Pod related networking scenarios
     Then the step should succeed
     And the output should match "real.*0m 0\.\d{2}s"
     """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23774
+  @admin
+  Scenario: Non-host-network pod cannot be accessed the aws metadata
+    Given I have a project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl | 169.254.169.254 |
+    Then the output should contain "Connection refused"
+    Given SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/hostnetwork-pod.json |
+    Then the step should succeed
+    And the pod named "hostnetwork-pod" becomes ready
+    When I execute on the pod:
+      | curl | -I | 169.254.169.254 |
+    Then the output should contain "200 OK"    
