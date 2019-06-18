@@ -108,3 +108,24 @@ Feature: kubelet restart and node restart
     | provisioner    |
     | vsphere-volume | # @case_id OCP-13632
     | azure-disk     | # @case_id OCP-13435
+
+
+  Scenario Outline: Dynamic provisioning with raw block volume
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"]   | mypvc |
+      | ["spec"]["volumeMode"] | Block |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod        |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc        |
+      | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/myblock |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | sh | -c | [[ -b /dev/myblock ]] |
+    Then the step should succeed
+    Examples:
+      | provisioner    |
+      | vsphere-volume | # @case_id OCP-24014
+      | aws-ebs        | # @case_id OCP-24015
