@@ -213,10 +213,10 @@ Feature: NFS Persistent Volume
     And the PV becomes :bound
 
   # @author lxia@redhat.com
-  # @case_id 510352
+  # @case_id OCP-12672
   @admin
   @destructive
-  Scenario: [storage_private_155] User permission to write to nfs
+  Scenario: User permission to write to nfs
     Given I have a project
     And I have a NFS service in the project
 
@@ -281,7 +281,7 @@ Feature: NFS Persistent Volume
   # @case_id OCP-12673
   @admin
   @destructive
-  Scenario: [storage_private_155] group permission to write to nfs
+  Scenario: group permission to write to nfs
     Given I have a project
     And I have a NFS service in the project
 
