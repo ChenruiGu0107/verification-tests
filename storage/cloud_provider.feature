@@ -129,3 +129,24 @@ Feature: kubelet restart and node restart
       | provisioner    |
       | vsphere-volume | # @case_id OCP-24014
       | aws-ebs        | # @case_id OCP-24015
+
+
+  Scenario Outline: Dynamic provisioning with file system volume
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"]   | mypvc      |
+      | ["spec"]["volumeMode"] | Filesystem |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypd |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | sh | -c | [[ -d /mnt/mypd ]] |
+    Then the step should succeed
+    Examples:
+      | provisioner    |
+      | aws-ebs        | # @case_id OCP-24039
+      | vsphere-volume | # @case_id OCP-24040
