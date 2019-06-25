@@ -1,6 +1,8 @@
 Feature: Scenarios which will be used both for function checking and upgrade checking
   # @author lxia@redhat.com
   Scenario Outline: There should be one and only one default storage class
+    Given I log the messages:
+      | Running <for> test ... |
     When I run the :get client command with:
       | resource | storageclass |
     Then the step should succeed
@@ -17,6 +19,7 @@ Feature: Scenarios which will be used both for function checking and upgrade che
     Then the step should succeed
     And the output should contain 1 times:
       | is-default-class=true |
+
     Examples:
       | for      |
       | function | # @case_id OCP-22125
@@ -26,32 +29,21 @@ Feature: Scenarios which will be used both for function checking and upgrade che
   # @author lxia@redhat.com
   @admin
   Scenario Outline: Cluster operator storage should be in available status
-    When I run the :get admin command with:
-      | resource      | clusteroperator                                                    |
-      | resource_name | storage                                                            |
-      | o             | jsonpath='{.status.conditions[?(@.type == "Progressing")].status}' |
-    Then the step should succeed
-    And the output should contain "False"
-    When I run the :get admin command with:
-      | resource      | clusteroperator                                                  |
-      | resource_name | storage                                                          |
-      | o             | jsonpath='{.status.conditions[?(@.type == "Available")].status}' |
-    Then the step should succeed
-    And the output should contain "True"
-    When I run the :get admin command with:
-      | resource      | clusteroperator                                                 |
-      | resource_name | storage                                                         |
-      | o             | jsonpath='{.status.conditions[?(@.type == "Degraded")].status}' |
-    Then the step should succeed
-    And the output should contain "False"
+    Given I log the messages:
+      | Running <for> test ... |
+    Given the expression should be true> cluster_operator('storage').condition(type: 'Progressing')['status'] == "False"
+    Given the expression should be true> cluster_operator('storage').condition(type: 'Available')['status'] == "True"
+    Given the expression should be true> cluster_operator('storage').condition(type: 'Degraded')['status'] == "False"
+
     Examples:
       | for      |
       | function | # @case_id OCP-22715
       | upgrade  | # @case_id OCP-23501
 
-
   # @author lxia@redhat.com
-  Scenario: Dynamic provision with default storage class should work
+  Scenario Outline: Dynamic provision with default storage class should work
+    Given I log the messages:
+      | Running <for> test ... |
     Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
@@ -70,6 +62,7 @@ Feature: Scenarios which will be used both for function checking and upgrade che
       | cat | /mnt/ocp_pv/cmdline |
     Then the step should succeed
     And the output should contain "vmlinuz"
+
     Examples:
       | for      |
       | function | # @case_id OCP-22729
