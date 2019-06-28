@@ -154,4 +154,80 @@ Feature: environment related
       | list     | true                |
     Then the step should succeed
     And the output should not match:
-      | c1=value1 |  
+      | c1=value1 |
+
+  # @author hasha@redhat.com
+  # @case_id OCP-20954
+  Scenario: Check environment editor for init container	 
+    Given the master version >= "4.0"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/initcontainer.yaml    |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | app=hello-openshift |
+    And I open admin console in a browser
+    When I perform the :goto_resource_environment_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_type | deployments          |
+      | resource_name | initcontainer        |
+    Then the step should succeed
+    When I perform the :choose_container web action with:
+      | item | wait |
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name  | env1   |
+      | env_var_value | value1 |
+    Then the step should succeed
+    When I run the :click_add_value_from_configmap_or_secret web action
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name    | ENV_FROM_CM        |
+      | env_source_name | example-config     |
+      | env_source_key  | example.property.2 |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      |  app=hello-openshift |
+    When I run the :get client command with:
+      | resource      | pod             |
+      | resource_name | <%= pod.name %> |
+      | o             | yaml            |
+    Then the step should succeed
+    Then the output by order should match:
+      | initContainers          |
+      | name.*env1              |
+      | value.*value1           |
+      | name.*ENV_FROM_CM       |
+      | valueFrom               |
+      | configMapKeyRef         |
+      | key.*example.property.2 |
+      | name.*example-config    |
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_name | <%= pod.name %>      |
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I perform the :click_initcontainer_in_detail_page web action with:
+      | container_name | wait |
+    Then the step should succeed
+    """
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should contain:
+      | Container Overview                            |
+      | Image Details                                 |
+      | Network                                       |
+      | Ports                                         |
+      | Mounted Volumes                               |
+      | Environment Variables                         |
+      | env1                                          |
+      | value1                                        |
+      | ENV_FROM_CM                                   |
+      | config-map: example-config/example.property.2 |
+
+    """
