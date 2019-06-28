@@ -150,3 +150,17 @@ Feature: kubelet restart and node restart
       | provisioner    |
       | aws-ebs        | # @case_id OCP-24039
       | vsphere-volume | # @case_id OCP-24040
+
+
+  Scenario Outline: Dynamic provisioning with invalid volume mode
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"]   | mypvc  |
+      | ["spec"]["volumeMode"] | <mode> |
+    Then the step should fail
+    And the output should match "supported values:\s+\"Block\",\s+\"Filesystem\""
+
+    Examples:
+      | mode        |
+      | ""          | # @case_id OCP-24089
+      | invalidMode | # @case_id OCP-24090
