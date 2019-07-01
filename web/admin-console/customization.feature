@@ -92,7 +92,7 @@ Feature: customize console related
     When I run the :patch admin command with:
       | resource | console.config/cluster |
       | type     | merge                  |
-      | p        | {"spec":{"authentication": {"logoutRedirect":"https://www.ocptest.com"}}} |
+      | p        | {"spec":{"authentication": {"logoutRedirect":"https://www.openshift.com"}}} |
     Then the step should succeed
 
     Given I wait for the steps to pass:
@@ -127,7 +127,7 @@ Feature: customize console related
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
-    Given the expression should be true> browser.url.match("https://www.ocptest.com")
+    Given the expression should be true> browser.url.match("https://www.openshift.com")
     """
 
     When I run the :patch admin command with:
