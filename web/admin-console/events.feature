@@ -55,7 +55,7 @@ Feature: events related
       | catagory| All |
     Then the step should succeed
     When I perform the :check_results_contain_correct_type web action with:
-      | type | Pod |
+      | type | pod |
     Then the step should succeed
 
     When I perform the :search_by_type web action with:
