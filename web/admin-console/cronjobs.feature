@@ -19,7 +19,7 @@ Feature: cronjob related
       | project_name | <%= project.name %> |
     Then the step should succeed
 
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | mycron-job |
     Then the step should succeed
     When I perform the :goto_one_cronjob_page web action with:
@@ -46,7 +46,7 @@ Feature: cronjob related
       | run=mycron-job |
     Given a pod is present with labels:
       | run=mycron-job |
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | Created job mycron-job- |
     Then the step should succeed
 
@@ -90,7 +90,7 @@ Feature: cronjob related
       | cascade | true |
     Then the step should succeed
     And I wait for the resource "cronjob" named "mycron-job" to disappear within 60 seconds
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | mycron-job |
     Then the step should fail
 

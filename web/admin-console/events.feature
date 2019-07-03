@@ -11,7 +11,7 @@ Feature: events related
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | No Events |
     Then the step should succeed
 
@@ -41,7 +41,7 @@ Feature: events related
     When I perform the :set_filter_strings web action with:
       | filter_text | ruby-ex-3 |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | No Matching Events |
     Then the step should succeed
 

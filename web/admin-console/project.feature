@@ -7,7 +7,7 @@ Feature: projects related features via web
     When I perform the :create_project web action with:
       | project_name   | W          |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
+    When I perform the :check_page_match web action with:
       | content | Error |
     Then the step should succeed
     When I perform the :clear_input_value web action with:
