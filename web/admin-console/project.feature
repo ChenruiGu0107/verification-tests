@@ -3,30 +3,20 @@ Feature: projects related features via web
   # @author hasha@redhat.com
   # @case_id OCP-19577
   Scenario: Check project page
+    #Now we have to check project page from v4.1 since it has big changes about project overview page compared with v3.11.
+    Given the master version >= "4.0"
     Given I open admin console in a browser
     When I perform the :create_project web action with:
-      | project_name   | W          |
-    Then the step should succeed
-    When I perform the :check_page_match web action with:
-      | content | Error |
-    Then the step should succeed
-    When I perform the :clear_input_value web action with:
-      | clear_field_id | input-name |
-    Then the step should succeed
-    When I perform the :create_project web action with:
       | project_name    | test             |
-      | display_name    | test_display     |
-      | description     | test_description |
+      | display_name    | pro_display      |
+      | description     | description      |
+    Then the step should succeed
+    When I perform the :click_button_on_page web action with:
+      | text | Dashboard |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name         | test         |
-      | display_name | test_display |
-    Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Role Bindings |
-    Then the step should succeed
-    When I perform the :check_row_filter_on_page web action with:
-      | filter | Namespace Role Bindings |
+      | display_name | pro_display  |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item   | Delete Project |
@@ -42,7 +32,12 @@ Feature: projects related features via web
     Then the step should succeed
     And the output should contain:
       | No resources found |
-
+    When I perform the :create_project web action with:
+      | project_name   | W          |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Error |
+    Then the step should succeed
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-19669
