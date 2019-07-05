@@ -147,3 +147,32 @@ Feature: idle service related scenarios
     And the output should not contain "503 Service Unavailable"
     # check if the total spent time in range (40..89) seconds
     And the output should match "real\s+(0m [4-5][0-9].\d+s|1m [0-2][0-9].\d+s)"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-20989
+  Scenario: haproxy should load other routes even if headless service is idled
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/lihongan/v3-testfiles/master/routing/dns/headless-services.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given I wait until number of replicas match "1" for replicationController "caddy-rc"
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+    When I run the :idle client command with:
+      | svc_name | service-unsecure |
+    Then the step should succeed
+    Given I wait until number of replicas match "0" for replicationController "caddy-rc"
+
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-docker |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I wait up to 30 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
