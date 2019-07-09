@@ -114,8 +114,8 @@ Feature: deployment/dc related features via web
     When I perform the :check_page_match web action with:
       | content | deployment config "mydc" is paused |
     Then the step should succeed
-    When I perform the :click_button_on_page web action with:
-      | text | OK |
+    When I perform the :click_button web action with:
+      | button_text | OK |
     Then the step should succeed
 
     When I perform the :click_one_dropdown_action web action with:
