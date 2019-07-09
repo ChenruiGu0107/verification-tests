@@ -87,3 +87,44 @@ Feature: deployment/dc related features via web
      | No resources found |
     """
 
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-19653
+  Scenario: Pause and resume Deployment support
+    Given I have a project
+    When I run the :run client command with:
+      | name         | mydc                  |
+      | image        | aosqe/hello-openshift |
+      | limits       | memory=256Mi          |
+    Then the step should succeed
+    And I open admin console in a browser
+    When I perform the :goto_one_dc_page web action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mydc                |
+    Then the step should succeed
+    When I perform the :click_one_dropdown_action web action with:
+      | item  | Pause Rollouts |
+    Then the step should succeed
+
+    When I perform the :check_page_match web action with:
+      | content | Resume Rollouts |
+    Then the step should succeed
+    When I perform the :click_one_dropdown_action web action with:
+      | item  | Start Rollout |
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | deployment config "mydc" is paused |
+    Then the step should succeed
+    When I perform the :click_button_on_page web action with:
+      | text | OK |
+    Then the step should succeed
+
+    When I perform the :click_one_dropdown_action web action with:
+      | item  | Resume Rollouts |
+    Then the step should succeed
+
+    When I perform the :click_one_dropdown_action web action with:
+      | item  | Start Rollout |
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | deployment config "mydc" is paused |
+    Then the step should succeed
