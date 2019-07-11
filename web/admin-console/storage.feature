@@ -49,8 +49,8 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 60 seconds
     When I perform the :goto_one_pvc_page web action with:
-      | project_name | <%= project.name %> |
-      | pvc_name | pvc-<%= project.name %> |
+      | project_name | <%= project.name %>     |
+      | pvc_name     | pvc-<%= project.name %> |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item | Expand PVC |
@@ -94,3 +94,60 @@ Feature: storage (storageclass, pv, pvc) related
     """
 
 
+  # @author yapei@redhat.com
+  # @case_id OCP-23682
+  @admin
+  Scenario: Expand PVC when there is limitrange and quota set
+    Given the master version >= "4.2"
+    
+    # admin could create ResourceQuata and LimitRange
+    Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota-pvc-storage.yaml" replacing paths:
+      | ["spec"]["hard"]["persistentvolumeclaims"] | 4   |
+      | ["spec"]["hard"]["requests.storage"]       | 2Gi |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/limits.yaml |
+      | n | <%= project.name %>                                                                   |
+    Then the step should succeed
+
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+
+    Given I switch to the first user
+    Given I open admin console in a browser
+    When I perform the :goto_one_pvc_page web action with:
+      | project_name | <%= project.name %>     |
+      | pvc_name     | pvc-<%= project.name %> |
+    Then the step should succeed
+
+    # resize to larger value but not exceed the quota
+    When I perform the :click_one_dropdown_action web action with:
+      | item | Expand PVC |
+    Then the step should succeed
+    When I perform the :expand_pvc_size web action with:
+      | pvc_request_size | 1.5 |
+      | pvc_size_unit    | Gi  |
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | error |
+    Then the step should succeed
+
+    # resize to a larger value beyonds quota
+    When I perform the :click_one_dropdown_action web action with:
+      | item | Expand PVC |
+    Then the step should succeed
+    When I perform the :expand_pvc_size web action with:
+      | pvc_request_size | 3   |
+      | pvc_size_unit    | Gi  |
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | exceeded quota |
+    Then the step should succeed
