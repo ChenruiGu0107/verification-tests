@@ -81,3 +81,109 @@ Feature: Testing Ingress Operator related scenarios
     Then the step should succeed
     And the output should contain "test-certs-21143"
     """
+
+
+  # @author hongli@redhat.com
+  # @case_id OCP-22636
+  @admin
+  Scenario: the namespaceSelector of router is controlled by ingresscontroller
+    Given the master version >= "4.0"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    # create route in the project with label
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :label admin command with:
+      | resource | namespace             |
+      | name     | <%= cb.proj_name %>   |
+      | key_val  | namespace=router-test |
+    Then the step should succeed
+    # create custom router with namespaceSelector
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-22636" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-namespace-selector.yaml" replacing paths:
+      | ["metadata"]["name"]                   | test-22636                                    |
+      | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22636") %> |
+      | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
+    Then the step should succeed
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-22636 |
+    # ensure only the route in the matched namespace is loaded
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | grep | <%= cb.proj_name %>:service-unsecure | haproxy.config |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | grep | openshift-console:console | haproxy.config |
+    Then the step should fail
+
+
+  # @author hongli@redhat.com
+  # @case_id OCP-22637
+  @admin
+  Scenario: the routeSelector of router is controlled by ingresscontroller
+    Given the master version >= "4.0"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    # create route with label
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | route             |
+      | name     | service-unsecure  |
+      | key_val  | route=router-test |
+    Then the step should succeed
+    # create custom router with routeSelector
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-22637" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-route-selector.yaml" replacing paths:
+      | ["metadata"]["name"]                   | test-22637                                    |
+      | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22637") %> |
+      | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
+    Then the step should succeed
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-22637 |
+    # ensure only matched route is loaded
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | grep | <%= cb.proj_name %>:service-unsecure | haproxy.config |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | grep | openshift-console:console | haproxy.config |
+    Then the step should fail
+
+  # @author hongli@redhat.com
+  # @case_id OCP-23168
+  @admin
+  Scenario: enable ROUTER_THREADS for haproxy router by default
+    Given the master version >= "4.0"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ingress" project
+    And all default router pods become ready
+    When I execute on the pod:
+      | ps | -T |
+    Then the output should contain 4 times:
+      | haproxy |
+
