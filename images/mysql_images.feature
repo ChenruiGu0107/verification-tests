@@ -9,11 +9,6 @@ Feature: mysql_images.feature
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql                                                                           |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mysql" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mysql|
@@ -101,6 +96,7 @@ Feature: mysql_images.feature
     """
     And the output should contain:
       | 10 |
+
   # @author haowang@redhat.com
   # @case_id OCP-12419
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for persistent storage - mysql-55-rhel7
@@ -109,11 +105,6 @@ Feature: mysql_images.feature
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql55-persistent-template.json |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql                                                                           |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mysql" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
@@ -164,16 +155,6 @@ Feature: mysql_images.feature
       | file     | <template>                   |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-master                                                                    |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-slave                                                                     |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mysql-master" PVC becomes :bound within 300 seconds
     And the "mysql-slave" PVC becomes :bound within 300 seconds
@@ -248,16 +229,6 @@ Feature: mysql_images.feature
       | file     | <template>                   |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-master                                                                    |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-slave                                                                     |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mysql-master" PVC becomes :bound within 300 seconds
     And the "mysql-slave" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
@@ -326,6 +297,7 @@ Feature: mysql_images.feature
       | sclname    |image                     | org_image                  | template       | file                                                                                             |
       | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json | # @case_id OCP-12045
       | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json | # @case_id OCP-12202
+
   # @author haowang@redhat.com
   Scenario Outline: Data remains after redeployment clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
@@ -336,16 +308,6 @@ Feature: mysql_images.feature
       | file     | <template>                   |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-master                                                                    |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-slave                                                                     |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mysql-master" PVC becomes :bound within 300 seconds
     And the "mysql-slave" PVC becomes :bound within 300 seconds
@@ -492,16 +454,6 @@ Feature: mysql_images.feature
       | param | MYSQL_USER=user     |
       | param | MYSQL_PASSWORD=user |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-master                                                                    |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-slave                                                                     |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mysql-master" PVC becomes :bound within 300 seconds
     And the "mysql-slave" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
@@ -556,16 +508,6 @@ Feature: mysql_images.feature
       | file  | mysql_replica.json  |
       | param | MYSQL_USER=user     |
       | param | MYSQL_PASSWORD=user |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-master                                                                    |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mysql-slave                                                                     |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mysql-master" PVC becomes :bound within 300 seconds
     And the "mysql-slave" PVC becomes :bound within 300 seconds

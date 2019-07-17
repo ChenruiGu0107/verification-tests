@@ -11,6 +11,7 @@ Feature: xpass.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=jboss-amq-62 |
+
   # @author haowang@redhat.com
   # @case_id OCP-12533
   Scenario: Create amq application from template - amq62-basic
@@ -23,6 +24,7 @@ Feature: xpass.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |
+
   # @author haowang@redhat.com
   Scenario Outline: jbosseap template
     Given I have a project
@@ -46,6 +48,7 @@ Feature: xpass.feature
       | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mongodb-s2i    | 2     | # @case_id OCP-12429
       | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-mysql-s2i      | 2     | # @case_id OCP-12414
       | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-postgresql-s2i | 2     | # @case_id OCP-12524
+
   # @author haowang@redhat.com
   # @case_id OCP-9749
   Scenario: Create amq application from template in web console - amq62-ssl
@@ -60,6 +63,7 @@ Feature: xpass.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |
+
   # @author haowang@redhat.com
   # @case_id OCP-9661
   Scenario: create resource from imagestream via oc new-app-jboss-eap6-openshift
@@ -210,9 +214,9 @@ Feature: xpass.feature
       | CREATE TABLE |
 
     Examples:
-      | template                      |
-      |  jws30-tomcat7-postgresql-s2i | # @case_id OCP-9590
-      |  jws30-tomcat8-postgresql-s2i | # @case_id OCP-9591
+      | template                     |
+      | jws30-tomcat7-postgresql-s2i | # @case_id OCP-9590
+      | jws30-tomcat8-postgresql-s2i | # @case_id OCP-9591
 
   # @author xiuwang@redhat.com
   Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template
@@ -248,6 +252,7 @@ Feature: xpass.feature
       | template                 |
       |  jws30-tomcat7-mysql-s2i | # @case_id OCP-9588
       |  jws30-tomcat8-mysql-s2i | # @case_id OCP-9589
+
   # @author haowang@redhat.com
   Scenario Outline: jbosseap templates with pv
     Given I have a project
@@ -256,11 +261,6 @@ Feature: xpass.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | <pvc>                                                                           |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "<pvc>" PVC becomes :bound within 300 seconds
     And the "eap-app-1" build was created
@@ -277,6 +277,7 @@ Feature: xpass.feature
      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      | # @case_id OCP-16546
      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-9744
      | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap7-app-secret.json| eap70-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-16526
+
   # @author haowang@redhat.com
   # @case_id OCP-9739
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
@@ -288,11 +289,6 @@ Feature: xpass.feature
       | template | amq62-persistent-ssl |
       | param    | AMQ_TRUSTSTORE_PASSWORD=password |
       | param    | AMQ_KEYSTORE_PASSWORD=password   |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | broker-amq-claim                                                                |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
@@ -308,11 +304,6 @@ Feature: xpass.feature
     When I run the :new_app client command with:
       | template | amq62-persistent |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | broker-amq-claim                                                                |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | application=broker |
@@ -325,11 +316,6 @@ Feature: xpass.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | jws-app-mongodb-claim                                                           |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "jws-app-mongodb-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
@@ -368,11 +354,6 @@ Feature: xpass.feature
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | jws-app-postgresql-claim                                                        |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "jws-app-postgresql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
@@ -397,9 +378,9 @@ Feature: xpass.feature
       | CREATE TABLE |
 
     Examples:
-      | template                      |
-      |  jws30-tomcat7-postgresql-persistent-s2i | # @case_id OCP-11901
-      |  jws30-tomcat8-postgresql-persistent-s2i | # @case_id OCP-11891
+      | template                                |
+      | jws30-tomcat7-postgresql-persistent-s2i | # @case_id OCP-11901
+      | jws30-tomcat8-postgresql-persistent-s2i | # @case_id OCP-11891
 
   # @author dyan@redhat.com
   Scenario Outline: Create tomcat7/tomcat8 with mysql with persistent volume application via installed template
@@ -409,11 +390,6 @@ Feature: xpass.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | jws-app-mysql-claim                                                        |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "jws-app-mysql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
