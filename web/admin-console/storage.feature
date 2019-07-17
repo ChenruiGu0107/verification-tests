@@ -151,3 +151,56 @@ Feature: storage (storageclass, pv, pvc) related
     When I perform the :check_page_match web action with:
       | content | exceeded quota |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-21034
+  @admin
+  Scenario: storage class creation negative testing	
+    Given the master version >= "4.1"
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I run the :goto_storageclass_page web action
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Create Storage Class |
+    Then the step should succeed
+    When I perform the :check_button_disabled web action with:
+      | button_text | Create |
+    Then the step should succeed
+
+    #negative test: invalid name
+    When I perform the :set_input_value web action with:
+      | input_field_id | storage-class-name |
+      | input_value    | invalidname@@      |
+    Then the step should succeed
+    When I perform the :choose_dropdown_item web action with:
+      | dropdown_field | Provisioner |
+      | dropdown_item  | local       |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Create |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Invalid value |
+    Then the step should succeed
+
+    #negative test: invalid iops value
+    When I perform the :set_input_value web action with:
+      | input_field_id | storage-class-name |
+      | input_value    | testsc             |
+    Then the step should succeed
+    When I perform the :choose_dropdown_item web action with:
+      | dropdown_field | Provisioner |
+      | dropdown_item  | aws         |
+    Then the step should succeed
+    When I perform the :choose_dropdown_item web action with:
+      | dropdown_field | Type     |
+      | dropdown_item  | io1      |
+    Then the step should succeed
+    When I perform the :set_input_value web action with:
+      | input_field_id | iopsPerGB   |
+      | input_value    | invalidtest |
+    Then the step should succeed
+    When I perform the :check_button_disabled web action with:
+      | button_text | Create |
+    Then the step should succeed
