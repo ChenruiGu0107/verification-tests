@@ -275,33 +275,50 @@ Feature: templates.feature
     Then the step should succeed
     And the output should contain:
       | 3scale-gateway |
+      | apicurito |
       | cakephp-mysql-persistent |
-      | dancer-mysql-persistent  |
-      | django-psql-persistent   |
-      | jenkins-persistent       |
+      | dancer-mysql-persistent |
+      | decisionserver64-basic-s2i |
+      | django-psql-persistent |
+      | eap-cd-starter-s2i |
+      | fuse73-console |
+      | httpd-example |
+      | jenkins-persistent |
       | jws31-tomcat7-https-s2i |
       | jws31-tomcat8-https-s2i |
       | jws31-tomcat8-mongodb-persistent-s2i |
       | jws31-tomcat8-mysql-persistent-s2i |
       | jws31-tomcat8-postgresql-persistent-s2i |
+      | jws50-tomcat9-https-s2i |
+      | jws50-tomcat9-mongodb-persistent-s2i |
+      | jws50-tomcat9-mysql-persistent-s2i |
+      | jws50-tomcat9-postgresql-persistent-s2i |
       | laravel-mysql-persistent |
-      | mariadb-persistent       |
-      | mongodb-persistent       |
-      | mysql-persistent         |
-      | nodejs-mongo-persistent  |
-      | openjdk18-web-basic-s2i  |
-      | postgresql-persistent    |
-      | rails-pgsql-persistent   |
-      | redis-ephemeral          |
-      | redis-persistent         |
+      | mariadb-persistent |
+      | mongodb-persistent |
+      | mysql-persistent |
+      | nginx-example |
+      | nodejs-mongo-persistent |
+      | openjdk-web-basic-s2i |
+      | postgresql-persistent |
+      | processserver64-basic-s2i |
+      | rails-pgsql-persistent |
+      | redis-ephemeral |
+      | redis-persistent |
+      | rhdm73-kieserver |
+      | s2i-fuse73-spring-boot-camel |
+      | s2i-fuse73-spring-boot-camel-rest-3scale |
+      | s2i-fuse73-spring-boot-camel-xml |
+      | sso-cd-x509-https |
       | sso72-x509-https |
+      | sso73-x509-https |
     When I run the :get client command with:
       | resource      | template  |
       | n             | openshift |
       | o             | yaml      |
     Then the step should succeed
     # make sure there's no extra templates
-    And the output should contain 22 times:
+    And the output should contain 38 times:
       | kind: Template |
 
 
