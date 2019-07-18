@@ -127,8 +127,10 @@ Feature: kubelet restart and node restart
     Then the step should succeed
     Examples:
       | provisioner    |
-      | vsphere-volume | # @case_id OCP-24014
       | aws-ebs        | # @case_id OCP-24015
+      | azure-disk     | # @case_id OCP-24336
+      | gce-pd         | # @case_id OCP-24337
+      | vsphere-volume | # @case_id OCP-24014
 
 
   Scenario Outline: Dynamic provisioning with file system volume
