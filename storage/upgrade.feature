@@ -34,6 +34,7 @@ Feature: Scenarios which will be used both for function checking and upgrade che
     Given the expression should be true> cluster_operator('storage').condition(type: 'Progressing')['status'] == "False"
     Given the expression should be true> cluster_operator('storage').condition(type: 'Available')['status'] == "True"
     Given the expression should be true> cluster_operator('storage').condition(type: 'Degraded')['status'] == "False"
+    Given the expression should be true> env.version_ge("4.2", user: user) ? cluster_operator('storage').condition(type: 'Upgradeable')['status'] == "True" : true
 
     Examples:
       | for      |
