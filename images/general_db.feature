@@ -178,11 +178,6 @@ Feature: general_db.feature
       | param | MONGODB_ADMIN_PASSWORD=admin   |
       | param | MONGODB_VERSION=2.6   |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongodb                                                                         |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb          |
@@ -203,11 +198,6 @@ Feature: general_db.feature
     Then I run the :new_app client command with:
       | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb24-persistent-template.json |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongodb                                                                         |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
@@ -268,11 +258,6 @@ Feature: general_db.feature
     Then I run the :new_app client command with:
       | template | mongodb-persistent |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongodb                                                                         |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb         |
@@ -363,25 +348,10 @@ Feature: general_db.feature
       | p    | MONGODB_DATABASE=db                                                                                              |
       | p    | MONGODB_ADMIN_PASSWORD=pass                                                                                      |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongo-data-mongodb-0                                                            |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mongo-data-mongodb-0" PVC becomes :bound within 300 seconds
     Given I wait for the "mongo-data-mongodb-1" pvc to appear up to 120 seconds
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongo-data-mongodb-1                                                            |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mongo-data-mongodb-1" PVC becomes :bound within 300 seconds
     Given I wait for the "mongo-data-mongodb-2" pvc to appear up to 120 seconds
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | mongo-data-mongodb-2                                                            |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "mongo-data-mongodb-2" PVC becomes :bound within 300 seconds
     And 3 pods become ready with labels:
       | name=mongodb |

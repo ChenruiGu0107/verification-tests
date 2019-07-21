@@ -68,11 +68,6 @@ Feature: Postgresql images test
     And I run the :new_app client command with:
       | file     | <template>                   |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | postgresql-data-claim                                                           |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "postgresql-data-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=postgresql-slave|
@@ -180,11 +175,6 @@ Feature: Postgresql images test
     When I run the :new_app client command with:
       | template | postgresql-persistent        |
       | p        | POSTGRESQL_VERSION=<version> |
-    Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | postgresql                                                                      |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     Then the step should succeed
     And the "postgresql" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:

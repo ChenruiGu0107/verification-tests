@@ -6,11 +6,6 @@ Feature: jenkins.feature
     When I run the :new_app client command with:
       | template | jenkins-persistent |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | pvc                                                                             |
-      | resource_name | jenkins                                                                         |
-      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
-    Then the step should succeed
     And the "jenkins" PVC becomes :bound within 300 seconds
     Given I wait for the "jenkins" service to become ready up to 300 seconds
     And I get the service pods
