@@ -74,7 +74,7 @@ Feature: buildlogic.feature
     Given I have a project
     When I run the :get client command with:
       | resource      | istag          |
-      | resource_name | ruby:2.2       |
+      | resource_name | ruby:latest    |
       | o             | json           |
       | n             | openshift      |
     Then the step should succeed

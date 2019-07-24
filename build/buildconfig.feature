@@ -330,7 +330,7 @@ Feature: buildconfig.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs:6~https://github.com/sclorg/nodejs-ex             |
+      | app_repo | openshift/nodejs~https://github.com/sclorg/nodejs-ex                  |
       | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
       | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
       | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |

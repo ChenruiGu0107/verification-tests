@@ -120,10 +120,10 @@ Feature: oc_set_probe.feature
   Scenario: Set a invalid probe in dc
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mysql:5.6 |
-      | env          | MYSQL_USER=user     |
-      | env          | MYSQL_PASSWORD=pass |
-      | env          | MYSQL_DATABASE=db   |
+      | image_stream | openshift/mysql:latest |
+      | env          | MYSQL_USER=user        |
+      | env          | MYSQL_PASSWORD=pass    |
+      | env          | MYSQL_DATABASE=db      |
     Then the step should succeed
     When I run the :set_probe client command with:
       | resource   | dc/mysql |
