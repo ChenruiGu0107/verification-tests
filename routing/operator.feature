@@ -183,7 +183,7 @@ Feature: Testing Ingress Operator related scenarios
     And I use the "openshift-ingress" project
     And all default router pods become ready
     When I execute on the pod:
-      | ps | -T |
-    Then the output should contain 4 times:
-      | haproxy |
+      | grep | nbthread | haproxy.config |
+    Then the step should succeed
+    And the output should contain "nbthread 4"
 
