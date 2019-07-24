@@ -20,9 +20,9 @@ Feature: env.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | mongodb-petset-persistent.yaml |
-      | e        | APPLE1=apple                                                                                                     |
-      | e        | APPLE2=tesla                                                                                                     |
-      | e        | APPLE3=linux                                                                                                     |
+      | e        | APPLE1=apple                   |
+      | e        | APPLE2=tesla                   |
+      | e        | APPLE3=linux                   |
     Then the step should succeed
     Given the pod named "mongodb-0" status becomes :running
     When I run the :set_env client command with:
@@ -88,8 +88,8 @@ Feature: env.feature
   Scenario: Can set env vars on buildconfig with new-app --build-env and --build-env-file
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
-      | build_env | DB_USER=test                                           |
+      | app_repo  | ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | build_env | DB_USER=test                                              |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
@@ -97,8 +97,8 @@ Feature: env.feature
     And the output should contain "{"name":"DB_USER","value":"test"}"
     And I delete all resources from the project
     When I run the :new_app client command with:
-      | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
-      | build_env | RACK_ENV=development                                   |
+      | app_repo  | ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | build_env | RACK_ENV=development                                      |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
@@ -110,8 +110,8 @@ Feature: env.feature
     DB_USER=test
     """
     When I run the :new_app client command with:
-      | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
-      | build_env_file | test                                                   |
+      | app_repo       | ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | build_env_file | test                                                      |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
@@ -123,8 +123,8 @@ Feature: env.feature
     RACK_ENV=development
     """
     When I run the :new_app client command with:
-      | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
-      | build_env_file | test                                                   |
+      | app_repo       | ruby:latest~https://github.com/openshift/ruby-hello-world |
+      | build_env_file | test                                                      |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
