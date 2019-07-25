@@ -282,30 +282,37 @@ Feature: test master config related steps
   @destructive
   Scenario: User can login when user exists and references identity which does not exist
     Given the user has all owned resources cleaned
-    Given master config is merged with the following hash:
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
     """
-    oauthConfig:
-      assetPublicURL: <%= env.api_endpoint_url %>/console/
-      grantConfig:
-        method: auto
-      identityProviders:
-      - challenge: true
-        login: true
-        mappingMethod: claim
-        name: anypassword
-        provider:
-          apiVersion: v1
-          kind: AllowAllPasswordIdentityProvider
+    509118_user:$apr1$7ma7rnTp$RkFR.KM7EwBRf61dm4D0F/
     """
-    And the master service is restarted on all master nodes
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-11928 |
+      | secret_type | generic             |
+      | from_file   | htpasswd            |
+      | n           | openshift-config    |
+    Then the step should succeed
+    And admin ensure "htpass-secret-11928" secret is deleted from the "openshift-config" project after scenario
+    When I run the :patch admin command with:
+      | resource      | oauth        |
+      | resource_name | cluster      |
+      | p             | {"spec":{"identityProviders":[{"name":"htpassidp-11928","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-11928"}}}]}} |
+      | type          | merge        |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | 509118_user                 |
       | password | password                    |
     Then the step should succeed
-    When I run the :delete admin command with:
-      | object_type       | identity                |
-      | object_name_or_id | anypassword:509118_user |
+    Given admin ensures identity "htpassidp-11928:509118_user" is deleted
     Then the step should succeed
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1255,22 +1262,32 @@ Feature: test master config related steps
   Scenario: User can not login when identity exists and references to the user which not exist
     Given I have a project
     And I restore user's context after scenario
-    Given master config is merged with the following hash:
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
     """
-    oauthConfig:
-      assetPublicURL: <%= env.api_endpoint_url %>/console/
-      grantConfig:
-        method: auto
-      identityProviders:
-      - challenge: true
-        login: true
-        mappingMethod: generate
-        name: anypassword
-        provider:
-          apiVersion: v1
-          kind: AllowAllPasswordIdentityProvider
+    509119_user:$apr1$8I.ROmAy$1p42pu.ZM5AGBzV4Qcj2d1
+    509119_test:$apr1$PGbAOeFj$ImzQ77T1JQu2Gk29mOdZa.
     """
-    And the master service is restarted on all master nodes
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-12050 |
+      | secret_type | generic             |
+      | from_file   | htpasswd            |
+      | n           | openshift-config    |
+    Then the step should succeed
+    And admin ensure "htpass-secret-12050" secret is deleted from the "openshift-config" project after scenario
+    When I run the :patch admin command with:
+      | resource      | oauth        |
+      | resource_name | cluster      |
+      | p             | {"spec":{"identityProviders":[{"name":"htpassidp-12050","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-12050"}}}]}} |
+      | type          | merge        |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | 509119_user                 |
@@ -1290,16 +1307,14 @@ Feature: test master config related steps
       | username | 509119_test                 |
       | password | password                    |
     Then the step should succeed
-    Given admin ensures identity "anypassword:509119_user" is deleted
+    Given admin ensures identity "htpassidp-12050:509119_user" is deleted
     Then the step should succeed
     When I run the :delete admin command with:
       | object_type       | users              |
       | object_name_or_id | 509119_test        |
     Then the step should succeed
-    Given admin ensures identity "anypassword:509119_test" is deleted
+    Given admin ensures identity "htpassidp-12050:509119_test" is deleted
     Then the step should succeed
-    Given master config is restored from backup
-    And the master service is restarted on all master nodes
 
   # @author chuyu@redhat.com
   # @case_id OCP-12190
@@ -1338,31 +1353,40 @@ Feature: test master config related steps
   Scenario: User can not login when User exists and references identity which does not reference user
     Given I switch to the first user
     And I restore user's context after scenario
-    Given master config is merged with the following hash:
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
     """
-    oauthConfig:
-      assetPublicURL: <%= env.api_endpoint_url %>/console/
-      grantConfig:
-        method: auto
-      identityProviders:
-      - challenge: true
-        login: true
-        mappingMethod: generate
-        name: anypassword
-        provider:
-          apiVersion: v1
-          kind: AllowAllPasswordIdentityProvider
+    12207_user:$apr1$9C2g1iXq$CrAytA7/asCiU3mrSa.Bj.
     """
-    And the master service is restarted on all master nodes
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-12207 |
+      | secret_type | generic             |
+      | from_file   | htpasswd            |
+      | n           | openshift-config    |
+    Then the step should succeed
+    And admin ensure "htpass-secret-12207" secret is deleted from the "openshift-config" project after scenario
+    When I run the :patch admin command with:
+      | resource      | oauth        |
+      | resource_name | cluster      |
+      | p             | {"spec":{"identityProviders":[{"name":"htpassidp-12207","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-12207"}}}]}} |
+      | type          | merge        |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | 12207_user                  |
       | password | password                    |
     Then the step should succeed
     When I run the :patch admin command with:
-      | resource      | identity               |
-      | resource_name | anypassword:12207_user |
-      | p             | {"user": null}         |
+      | resource      | identity                   |
+      | resource_name | htpassidp-12207:12207_user |
+      | p             | {"user": null}             |
     Then the step should succeed
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
@@ -1376,7 +1400,7 @@ Feature: test master config related steps
         | object_name_or_id | 12207_user |
       Then the step should succeed
       """
-    Given admin ensures identity "anypassword:12207_user" is deleted
+    Given admin ensures identity "htpassidp-12207:12207_user" is deleted
     Then the step should succeed
 
   # @author chuyu@redhat.com
@@ -1386,22 +1410,31 @@ Feature: test master config related steps
   Scenario: User can not login when identity exists and references to the user which not point back to identity
     Given I switch to the first user
     And I restore user's context after scenario
-    Given master config is merged with the following hash:
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
     """
-    oauthConfig:
-      assetPublicURL: <%= env.api_endpoint_url %>/console/
-      grantConfig:
-        method: auto
-      identityProviders:
-      - challenge: true
-        login: true
-        mappingMethod: generate
-        name: anypassword
-        provider:
-          apiVersion: v1
-          kind: AllowAllPasswordIdentityProvider
+    12146_user:$apr1$pEQr3zF4$I9I3T.FQ1V8fbq58Rg.pL.
     """
-    And the master service is restarted on all master nodes
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-12146 |
+      | secret_type | generic             |
+      | from_file   | htpasswd            |
+      | n           | openshift-config    |
+    Then the step should succeed
+    And admin ensure "htpass-secret-12146" secret is deleted from the "openshift-config" project after scenario
+    When I run the :patch admin command with:
+      | resource      | oauth        |
+      | resource_name | cluster      |
+      | p             | {"spec":{"identityProviders":[{"name":"htpassidp-12146","mappingMethod":"claim","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-12146"}}}]}} |
+      | type          | merge        |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | 12146_user                  |
@@ -1424,7 +1457,7 @@ Feature: test master config related steps
         | object_name_or_id | 12146_user |
       Then the step should succeed
       """
-    Given admin ensures identity "anypassword:12146_user" is deleted
+    Given admin ensures identity "htpassidp-12146:12146_user" is deleted
     Then the step should succeed
 
   # @author yinzhou@redhat.com
