@@ -54,8 +54,8 @@ Feature: deployment/dc related features via web
       | name            | example  |
       | update_strategy | Recreate |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Edit Environment |
+    When I perform the :click_tab web action with:
+      | tab_name| Environment |
     Then the step should succeed
     When I perform the :add_env_vars web action with:
       | env_var_name    | test_key         |
