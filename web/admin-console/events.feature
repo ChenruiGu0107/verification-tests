@@ -17,7 +17,7 @@ Feature: events related
 
     # create 1st build
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/84239a1fd5cd1511f58e911a8eb3f2a069317aa4/build/tc526202/bc.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json |
     Then the step should succeed    
 
     # 2nd build will fail
