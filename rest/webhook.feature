@@ -5,7 +5,7 @@ Feature: Webhook REST Related Tests
   Scenario: Webhook request check
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream    | openshift/ruby:2.2 |
+      | image_stream    | openshift/ruby                                |
       | code            | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     When I run the :describe client command with:
@@ -33,7 +33,7 @@ Feature: Webhook REST Related Tests
   Scenario Outline: Trigger build manually with webhook contained invalid/blank commit ID or branch name
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:2.2 |
+      | image_stream | openshift/ruby:latest |
       | app_repo     | https://github.com/openshift-qe/ruby-ex#test-tcms438840|
     Then the step should succeed
     Given the "ruby-ex-1" build completes
@@ -92,7 +92,7 @@ Feature: Webhook REST Related Tests
   Scenario Outline: Trigger build manually with webhook contained specified branch and commit
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:2.2 |
+      | image_stream | openshift/ruby:latest |
       | app_repo     | https://github.com/openshift-qe/ruby-ex#test-tcms438840 |
     Then the step should succeed
     Given the "ruby-ex-1" build completes
