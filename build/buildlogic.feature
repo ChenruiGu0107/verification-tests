@@ -73,6 +73,10 @@ Feature: buildlogic.feature
   Scenario Outline: ForcePull image for build using ImageSteamImage
     Given I have a project
     When I run the :get client command with:
+      | resource      | istag       |
+      | resource_name | ruby:latest |
+      | o             | json        |
+      | n             | openshift   |
       | resource      | istag          |
       | resource_name | ruby:latest    |
       | o             | json           |
@@ -292,7 +296,7 @@ Feature: buildlogic.feature
   Scenario: Build from private git repo with wrong auth method
     Given I have a project
     When I run the :new_build client command with:
-      | image_stream   | openshift/ruby:2.2                            |
+      | image_stream   | openshift/ruby:latest                         |
       | code           | https://github.com/openshift/ruby-hello-world |
       | name           | ruby-hello-world                              |
     Then the step should succeed
