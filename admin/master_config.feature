@@ -5,22 +5,20 @@ Feature: test master config related steps
   @admin
   @destructive
   Scenario: Check project limitation for users with and without label admin=true for online env
-    Given master config is merged with the following hash:
+    Given the "cluster" "openshiftapiserver" CRD is recreated after scenario
+    When I run the :patch admin command with:
+      | resource      | openshiftapiserver |
+      | resource_name | cluster            |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"admin":"true"}},{"maxProjects":1}]}}}}}}} |
+      | type          | merge              |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And I wait for the steps to pass:
     """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                admin: "true"
-            - maxProjects: 1
+    Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Available')['status'] == "True"
     """
-    And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
       | name     | <%= user.name %> |
@@ -614,21 +612,20 @@ Feature: test master config related steps
   @admin
   @destructive
   Scenario: User can customize the projectrequestlimit admission controller configuration
-    Given master config is merged with the following hash:
+    Given the "cluster" "openshiftapiserver" CRD is recreated after scenario
+    When I run the :patch admin command with:
+      | resource      | openshiftapiserver |
+      | resource_name | cluster            |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"maxProjects":1,"selector":{}}]}}}}}}} |
+      | type          | merge              |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And I wait for the steps to pass:
     """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector: {}
-              maxProjects: 1
+    Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Available')['status'] == "True"
     """
-    And the master service is restarted on all master nodes
     When I switch to the first user
     Given I create a new project
     Then the step should succeed
@@ -640,22 +637,19 @@ Feature: test master config related steps
       | object_type | project |
       | all         |         |
     Then the step should succeed
-    Given master config is merged with the following hash:
+    When I run the :patch admin command with:
+      | resource      | openshiftapiserver |
+      | resource_name | cluster            |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":1}]}}}}}}} |
+      | type          | merge              |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And I wait for the steps to pass:
     """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                level: "platinum"
-              maxProjects: 1
+    Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Available')['status'] == "True"
     """
-    And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
       | name     | <%= user.name %> |
@@ -688,24 +682,19 @@ Feature: test master config related steps
       | object_type | project |
       | all         |         |
     Then the step should succeed
-    Given master config is merged with the following hash:
+    When I run the :patch admin command with:
+      | resource      | openshiftapiserver |
+      | resource_name | cluster            |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":2},{"selector":{},"maxProjects":1}]}}}}}}} |
+      | type          | merge              |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And I wait for the steps to pass:
     """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                level: "platinum"
-              maxProjects: 2
-            - selector: {}
-              maxProjects: 1
+    Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Available')['status'] == "True"
     """
-    And the master service is restarted on all master nodes
     When I switch to the first user
     Given I create a new project
     Then the step should succeed
@@ -730,25 +719,19 @@ Feature: test master config related steps
       | object_type | project |
       | all         |         |
     Then the step should succeed
-    Given master config is merged with the following hash:
+    When I run the :patch admin command with:
+      | resource      | openshiftapiserver |
+      | resource_name | cluster            |
+      | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":1},{"selector":{"tag":"golden"},"maxProjects":2}]}}}}}}} |
+      | type          | merge              |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And I wait for the steps to pass:
     """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                level: "platinum"
-              maxProjects: 1
-            - selector:
-                tag: golden
-              maxProjects: 2
+    Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("openshift-apiserver").condition(type: 'Available')['status'] == "True"
     """
-    And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
       | name     | <%= user.name %> |
