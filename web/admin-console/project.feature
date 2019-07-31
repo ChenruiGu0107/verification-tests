@@ -11,7 +11,7 @@ Feature: projects related features via web
       | display_name    | pro_display      |
       | description     | description      |
     Then the step should succeed
-    When I perform the :click_button web action with:
+    When I perform the :click_button_if_needed web action with:
       | button_text | Dashboard |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
