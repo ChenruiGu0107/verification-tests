@@ -1246,7 +1246,7 @@ Feature: Testing route
     When I run the :logs admin command with:
       | resource_name | <%= cb.router_pod %>  |
     Then the step should succeed
-    And the output should not contain "error reloading router"
+    And the output should not contain "error reloading router: exit status"
 
     Given I switch to the first user
     Given I have a project
@@ -1257,10 +1257,10 @@ Feature: Testing route
       | name=test-pods |
     #Create route with hostname 'localhost'
     When I run the :expose client command with:
-      | resource      | service                        |
-      | resource_name | test-service                   |
-      | name          | routelocal                     |
-      | hostname      | localhost                      |
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | routelocal   |
+      | hostname      | localhost    |
     Then the step should succeed
     #Create another normal route and access it to make sure the router has been reloaded
     When I expose the "test-service" service
@@ -1274,4 +1274,4 @@ Feature: Testing route
     When I run the :logs admin command with:
       | resource_name | <%= cb.router_pod %>  |
     Then the step should succeed
-    And the output should not contain "error reloading router"
+    And the output should not contain "error reloading router: exit status"
