@@ -128,3 +128,47 @@ Feature: deployment/dc related features via web
     When I perform the :check_page_not_match web action with:
       | content | deployment config "mydc" is paused |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-24423
+  Scenario: Cancel support for Deployment Config
+    Given the master version >= "4.2"
+    Given I have a project
+    And I open admin console in a browser
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json  |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hooks            |
+      | replicas | 3                |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | deployment=hooks-1 |
+    When I perform the :goto_one_dc_page web action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+    Then the step should succeed
+    When I perform the :click_one_dropdown_action web action with:
+      | item | Start Rollout |
+    Then the step should succeed
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    Given the expression should be true> browser.url.match("/k8s/ns/<%= project.name %>/replicationcontrollers/hooks-2")
+    """
+    When I perform the :click_one_dropdown_action web action with:
+      | item | Cancel Rollout |
+    Then the step should succeed
+    When I run the :confirm_cancel_rollout web action
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Phase  |
+      | value | Failed |
+    Then the step should succeed
+    When I perform the :goto_one_dc_page web action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | RolloutCancelled |
+    Then the step should succeed
