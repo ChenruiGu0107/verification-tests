@@ -50,7 +50,7 @@ Feature: Testing DNS features
     Given I have a project
     And I have a pod-for-ping in the project
     When I execute on the pod:
-      | curl | -LI | www.redhat.com |
+      | curl | -LI | www.yahoo.com |
     Then the step should succeed
     And the output should contain "HTTP/2 200"
 
