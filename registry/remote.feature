@@ -275,16 +275,16 @@ Feature: remote registry related scenarios
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
-      | docker login -u dnm -p <%= service_account.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+      | podman login -u dnm -p <%= service_account.cached_tokens.first %> <%= cb.integrated_reg_ip %> |
     Then the step should succeed
     When I run commands on the host:
-      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | podman pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
     Given I run commands on the host:
-      | docker ps \|grep docker-registry: \| awk '{ print $1}'|
+      | podman ps \|grep image-registry: \| awk '{ print $1}'|
     Then the step should succeed
     Given I run commands on the host:
-      | docker exec  <%= @result[:response].strip() %> find /registry \| grep layer\| grep mystream |
+      | podman exec  <%= @result[:response].strip() %> find /registry \| grep layer\| grep mystream |
     Then the step should fail
     And the output should not match:
       | mystream |
@@ -327,63 +327,21 @@ Feature: remote registry related scenarios
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
     Then the step should succeed
-    When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
-    Then the step should succeed
-    And the "ruby-ex-1" build was created
-    Then the "ruby-ex-1" build completes
+    When I run the :import_image client command with:
+      | image_name | ruby-22-centos7        |
+      | from       | centos/ruby-22-centos7 |
+      | confirm    | true                   |
+    And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | inspect                    |
-      | --cert-dir                 |
-      | /opt/qe/ca                 |
-      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |
+    When I run commands on the host:
+      | podman pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-22-centos7:latest |
     Then the step should succeed
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | copy                       |
-      | --dest-cert-dir            |
-      | /opt/qe/ca                 |
-      | docker://docker.io/busybox |
-      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    When I run commands on the host:
+      | podman pull busybox                                                                |
+      | podman tag busybox <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | podman push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest        |
     Then the step should fail
-    And the output should contain:
-      | Unauthorized |
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :u1p2 clipboard
-    When I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
-    Then the step should succeed
-    And the "ruby-ex-1" build was created
-    Then the "ruby-ex-1" build completes
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | inspect                    |
-      | --cert-dir                 |
-      | /opt/qe/ca                 |
-      | docker://<%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/ruby-ex:latest |
-    Then the step should fail
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | copy                       |
-      | --dest-cert-dir            |
-      | /opt/qe/ca                 |
-      | docker://docker.io/busybox |
-      | docker://<%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest  |
-    Then the step should fail
-    And the output should contain:
-      | not authorized |
+
 
   # @author yinzhou@redhat.com
   # @case_id OCP-12158
