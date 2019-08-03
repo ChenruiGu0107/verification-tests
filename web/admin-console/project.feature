@@ -6,38 +6,34 @@ Feature: projects related features via web
     #Now we have to check project page from v4.1 since it has big changes about project overview page compared with v3.11.
     Given the master version >= "4.0"
     Given I open admin console in a browser
+    Given an 8 character random string of type :dns is stored into the :pro_name clipboard
     When I perform the :create_project web action with:
-      | project_name    | test             |
-      | display_name    | pro_display      |
-      | description     | description      |
+      | project_name    | <%= cb.pro_name %> |
+      | display_name    | pro_display        |
+      | description     | description        |
     Then the step should succeed
-    When I perform the :click_button_if_needed web action with:
-      | button_text | Dashboard |
+    When I run the :goto_project_details_page web action
     Then the step should succeed
     When I perform the :check_resource_details web action with:
-      | name         | test         |
-      | display_name | pro_display  |
+      | name         | <%= cb.pro_name %> |
+      | display_name | pro_display        |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item   | Delete Project |
     Then the step should succeed
     When I perform the :send_delete_string web action with:
-      | resource_name | test |
+      | resource_name | <%= cb.pro_name %>  |
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
-    Given I wait for the resource "project" named "test" to disappear
-    When I run the :get client command with:
-      | resource | project |
-    Then the step should succeed
-    And the output should contain:
-      | No resources found |
+    Given I wait for the resource "project" named "<%= cb.pro_name %> " to disappear
     When I perform the :create_project web action with:
       | project_name   | W          |
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | Error |
     Then the step should succeed
+
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-19669
