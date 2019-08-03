@@ -59,7 +59,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/pod-with-nodename.yaml |
     Then the step should fail
     And the output should contain:
-      | pods "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |
+      | Pod nodeName specification is not permitted on this cluster |
 
   # @author zhaliu@redhat.com
   # @case_id OCP-9903
