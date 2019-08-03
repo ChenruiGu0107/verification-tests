@@ -42,7 +42,6 @@ Feature: NFS Persistent Volume
 
   # @author lxia@redhat.com
   @admin
-  @destructive
   Scenario Outline: NFS volume plugin with access mode and reclaim policy
     # Preparations
     Given I have a project
@@ -56,22 +55,23 @@ Feature: NFS Persistent Volume
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                | <access_mode>                    |
       | ["spec"]["capacity"]["storage"]           | 5Gi                              |
+      | ["spec"]["storageClassName"]              | <%= project.name %>              |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
-      | ["spec"]["accessModes"][0]                   | <access_mode>            |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc                   |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %> |
+      | ["spec"]["storageClassName"]                 | <%= project.name %>     |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
+      | ["spec"]["accessModes"][0]                   | <access_mode>           |
     Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
+      | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
-    Given the pod named "mypod-<%= project.name %>" becomes ready
+    Given the pod named "mypod" becomes ready
     When I execute on the pod:
       | id |
     Then the step should succeed
@@ -90,8 +90,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
 
-    Given I ensure "mypod-<%= project.name %>" pod is deleted
-    And I ensure "nfsc-<%= project.name %>" pvc is deleted
+    Given I ensure "mypod" pod is deleted
+    And I ensure "mypvc" pvc is deleted
     And the PV becomes :<pv_status> within 300 seconds
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data/test_file |
