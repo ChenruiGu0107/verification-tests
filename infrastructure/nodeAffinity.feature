@@ -5,7 +5,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
     Then the step should fail
     When I run the :get client command with:
       | resource | pods |
@@ -13,7 +13,7 @@ Feature: nodeAffinity
     And the output should not contain:
       | node-affinity-preferred-weight-faction |
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*0.*must be in the range 1-100 |
@@ -23,7 +23,7 @@ Feature: nodeAffinity
     And the output should not contain:
       | node-affinity-preferred-weight-0 |
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*101.*must be in the range 1-100 |
@@ -39,7 +39,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified single value when `operator` is 'Lt' or 'Gt' |
@@ -55,7 +55,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified when `operator` is 'In' or 'NotIn' |
@@ -71,7 +71,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*name part must be non-empty |
@@ -88,7 +88,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -104,7 +104,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -120,7 +120,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*"Equals": not a valid selector operator |
