@@ -68,8 +68,6 @@ Feature: Testing haproxy rate limit related features
     Then the step should succeed
     And the output should contain 2 times:
       | 200 OK |
-    And the output should contain 2 times:
-      | ERROR |
 
 
   # @author hongli@redhat.com
