@@ -92,7 +92,8 @@ Feature: storageClass related feature
   Scenario Outline: PVC request storage class with specific provisioner
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
-      | ["provisioner"] | <provisioner> |
+      | ["provisioner"]       | <provisioner> |
+      | ["volumeBindingMode"] | Immediate     |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
