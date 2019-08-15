@@ -17,7 +17,7 @@ Feature: Webhook REST Related Tests
       | Generic  |
     When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pingevent.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/release-4.1/pkg/build/webhook/github/testdata/pingevent.json"
     When I perform the HTTP request:
     """
     :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github

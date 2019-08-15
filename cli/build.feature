@@ -1082,10 +1082,10 @@ Feature: build 'apps' with CLI
       | source_image_path | /non-existing-source/:destination-dir  |
       | name | app2 |
     Then the step should succeed
-    Given the "app2-1" build finishes
+    Given the "app2-1" build failed
     When I run the :logs client command with:
       | resource_name | build/app2-1 |
-    Then the output should contain "no such file or directory"
+    Then the output should contain "error copying source path"
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
