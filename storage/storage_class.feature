@@ -772,3 +772,22 @@ Feature: storageClass related feature
       | kubernetes.io/(aws-ebs\|vsphere-volume)                |
       | ReclaimPolicy:\s+Delete                                |
       | VolumeBindingMode:\s+(Immediate\|WaitForFirstConsumer) |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-22018
+  @admin
+  @destructive
+  Scenario: Admin can change default storage class to non-default
+    When I run the :get client command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should contain 1 times:
+      | is-default-class: "true" |
+    Given default storage class is patched to non-default
+    When I run the :get client command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should not contain:
+      | is-default-class: "true" |
