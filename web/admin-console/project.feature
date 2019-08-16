@@ -39,10 +39,6 @@ Feature: projects related features via web
   # @case_id OCP-19669
   Scenario: Console works for empty project
     Given I open admin console in a browser
-    When I perform the :goto_landing_page_for_empty_project web action with:
-      | project   | default |
-    Then the step should succeed
-
     When I perform the :check_message_and_doc_for_new_user web action with:
       | documentationbaseurl | docs.openshift.com/container-platform |
     Then the step should succeed
