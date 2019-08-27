@@ -11,7 +11,7 @@ Feature: customize console related
     I switch to cluster admin pseudo user
     I use the "openshift-console" project
     Given a pod becomes ready with labels:
-      | app=openshift-console |                      
+      | app=openshift-console |
     When admin executes on the pod:
       | cat | /var/console-config/console-config.yaml |
     Then the step should succeed
@@ -76,7 +76,7 @@ Feature: customize console related
     """
 
     When I run the :get admin command with:
-      | resource      | deployment        | 
+      | resource      | deployment        |
       | resource_name | console           |
       | o             | yaml              |
       | namespace     | openshift-console |
@@ -98,7 +98,7 @@ Feature: customize console related
     Given I wait for the steps to pass:
     """
     When I run the :get admin command with:
-      | resource      | deployment        | 
+      | resource      | deployment        |
       | resource_name | console           |
       | o             | yaml              |
       | namespace     | openshift-console |
@@ -113,7 +113,7 @@ Feature: customize console related
       | current  | 2 |
       | ready    | 2 |
 
-    Given I switch to the first user      
+    Given I switch to the first user
     And I open admin console in a browser
     When I perform the :check_header_brand web action with:
       | product_brand | OKD |
@@ -141,3 +141,74 @@ Feature: customize console related
       | type     | merge                  |
       | p        | {"spec":{"authentication": {"logoutRedirect":"www.ocptest.com"}}} |
     Then the step should fail
+
+  # @author yapei@redhat.com
+  # @case_id OCP-22640
+  @admin
+  @destructive
+  Scenario: Add HTPasswd IDP
+    Given the master version >= "4.1"
+
+    # restore oauth/cluster after scenarios
+    Given the "cluster" oauth CRD is restored after scenario
+
+    Given a "htpasswd" file is created with the following lines:
+    """
+    uiauto1:$apr1$WN1kdHU6$mnkMN9e5CSVnx8w6bpMTB1
+    """
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    When I run the :goto_cluster_oauth_configuration_page web action
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :check_page_contains web action with:
+      | content | Identity Providers |
+    Then the step should succeed
+    """
+    When I perform the :add_htpasswd_idp_upload_files web action with:
+      | idp_name  | ui-auto-htpasswd               |
+      | file_path | <%= expand_path("htpasswd") %> |
+    Then the step should succeed
+    Given the secret for "ui-auto-htpasswd" htpasswd is stored in the :htpasswd_secret_name clipboard
+    Given I register clean-up steps:
+    """
+    When I run the :delete admin command with:
+      | object_type       | secret                                                 |
+      | object_name_or_id | <%= o_auth('cluster').htpasswds['ui-auto-htpasswd'] %> |
+      | n                 | openshift-config                                       |
+    Then the step should succeed
+    """
+
+    # make sure authentication pods are recreated with new changes
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | oauth   |
+      | resource_name | cluster |
+      | o             | yaml    |
+    Then the step should succeed
+    And the output should contain "ui-auto-htpasswd"
+    Given I use the "openshift-authentication" project
+    And 1 pods become ready with labels:
+      | app=oauth-openshift |
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+
+    # logout and re-login using specified IDP
+    When I run the :click_logout web action
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I open web server via the "<%= browser.base_url %>" url
+    When I perform the :login_with_specified_idp web action with:
+      | idp_name | ui-auto-htpasswd  |
+      | username | uiauto1           |
+      | password | redhat            |
+    Then the step should succeed
+    """
+    When I run the :verify_logged_in_admin_console web action
+    Then the step should succeed
+
