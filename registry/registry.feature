@@ -702,3 +702,36 @@ Feature: Testing registry
       | reference to registry |
     And the output should not contain:
       | Import failed |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-18559
+  @admin
+  @destructive
+  Scenario: Use SAR request to access registry metrics
+    Given I switch to cluster admin pseudo user
+    Given I enable image-registry default route
+    Given default image registry route is stored in the :integrated_reg_host clipboard
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/ocp-18559/prometheus-role.yaml |
+    Then the step should succeed
+    And admin ensures "prometheus-scraper" clusterroles is deleted after scenario
+    And I switch to the first user
+    Given I have a pod-for-ping in the project
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
+    Then the output should contain:
+      | UNAUTHORIZED |
+    """
+    When I run the :oadm_add_cluster_role_to_user admin command with:
+      | role_name | prometheus-scraper |
+      | user_name | <%= user.name %> |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
+    Then the step should succeed
+    """
