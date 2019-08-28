@@ -79,14 +79,12 @@ Feature: Event related scenarios
     Given I store the schedulable nodes in the :nodes clipboard
     Given I register clean-up steps:
     """
-    I run the :oadm_manage_node admin command with:
+    I run the :oadm_uncordon_node admin command with:
       | node_name   | <%= cb.nodes[0].name %> |
-      | schedulable | true                    |
     the step should succeed
     """
-    When I run the :oadm_manage_node admin command with:
+    When I run the :oadm_cordon_node admin command with:
       | node_name   | <%= cb.nodes[0].name %> |
-      | schedulable | false                   |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
@@ -96,9 +94,8 @@ Feature: Event related scenarios
     Then the output should match:
       | Normal\\s+NodeNotSchedulable.*Node <%= cb.nodes[0].name %> status is now: NodeNotSchedulable |
     """
-    When I run the :oadm_manage_node admin command with:
+    When I run the :oadm_uncordon_node admin command with:
       | node_name   | <%= cb.nodes[0].name %> |
-      | schedulable | true                    |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
