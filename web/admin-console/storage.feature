@@ -102,6 +102,10 @@ Feature: storage (storageclass, pv, pvc) related
     
     # admin could create ResourceQuata and LimitRange
     Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simpledc.json |
+    Then the step should succeed
+
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota-pvc-storage.yaml" replacing paths:
@@ -118,6 +122,16 @@ Feature: storage (storageclass, pv, pvc) related
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+
+    # Add PVC to workloads so it can be Bound
+    When I run the :set_volume client command with:
+      | resource      | dc                      |   
+      | resource_name | hooks                   |   
+      | add           | true                    |   
+      | type          | pvc                     |   
+      | claim-name    | pvc-<%= project.name %> |      
+      | mount-path    | /tmp/data               |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
 

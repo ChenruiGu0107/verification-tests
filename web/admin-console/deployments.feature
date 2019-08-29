@@ -40,10 +40,7 @@ Feature: deployment/dc related features via web
     When I perform the :update_resource_count web action with:
       | resource_count | 2 |
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Desired Count |
-      | value | 2 pod         |
-    Then the step should succeed
+    Given I wait until number of replicas match "2" for deployment "example"
     When I perform the :click_one_dropdown_action web action with:
       | item   | Edit Update Strategy |
     Then the step should succeed
