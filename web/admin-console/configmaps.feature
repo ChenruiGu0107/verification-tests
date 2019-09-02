@@ -57,3 +57,36 @@ Feature: configmap related
     Then the step should succeed
     And the output should not contain:
      | example |
+
+  # @author yapei@redhat.com
+  # @case_id OCP-24342
+  Scenario: Show binary config map data
+    Given the master version >= "4.2"
+    Given I have a project
+    Given I download a big file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/hello"
+    Given I download a big file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/keystore.jks"
+    When I run the :create_configmap client command with:
+      | name      | twobinconfigmap |
+      | from_file | <%= File.join(localhost.workdir, "hello") %>        |
+      | from_file | <%= File.join(localhost.workdir, "keystore.jks") %> |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_configmaps_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :goto_one_configmap_page web action with:
+      | project_name   | <%= project.name %> |
+      | configmap_name | twobinconfigmap     |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | No Data Found |
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | No Binary Data Found |
+    Then the step should succeed
+    When I perform the :check_binary_data_contains web action with:
+      | binary_key | hello |
+    Then the step should succeed
+    When I perform the :check_binary_data_contains web action with:
+      | binary_key | keystore.jks |
+    Then the step should succeed 
