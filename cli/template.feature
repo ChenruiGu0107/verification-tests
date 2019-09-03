@@ -184,7 +184,7 @@ Feature: template related scenarios:
       | v | MYSQL_PASSWORD=cat                                                                                     |
       | v | MYSQL_DATABASE=mine                                                                                    |
     And the step succeeded
-    Given the "ruby22-sample-build-1" build completed
+    Given the "ruby-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
     When I run the :set_env client command with:
@@ -209,7 +209,7 @@ Feature: template related scenarios:
       | "template": "application-template-stibuild" | "<%= cb.lbl1 %>": "application-template-stibuild" |
     When I process and create "ruby22rhel7-template-sti.json"
     Then the step should succeed
-    Given the "ruby22-sample-build-1" build completes
+    Given the "ruby-sample-build-1" build completes
     When I run the :get client command with:
       | resource | services |
       | l | <%= cb.lbl1 %>=application-template-stibuild |
@@ -220,7 +220,7 @@ Feature: template related scenarios:
       | resource | buildconfigs |
       | l | <%= cb.lbl1 %>=application-template-stibuild |
     Then the output should contain:
-      | ruby22-sample-build |
+      | ruby-sample-build |
     When I run the :get client command with:
       | resource | deploymentconfigs |
       | l | <%= cb.lbl1 %>=application-template-stibuild |
@@ -231,12 +231,12 @@ Feature: template related scenarios:
       | resource | builds |
       | l | <%= cb.lbl1 %>=application-template-stibuild |
     Then the output should contain:
-      | ruby22-sample-build-1 |
+      | ruby-sample-build-1 |
     When I run the :get client command with:
       | resource | is |
       | l | <%= cb.lbl1 %>=application-template-stibuild |
     Then the output should contain:
-      | origin-ruby22-sample |
+      | origin-ruby-sample |
     When I run the :get client command with:
       | resource | routes |
       | l | <%= cb.lbl1 %>=application-template-stibuild |

@@ -273,37 +273,37 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I get project buildconfigs
     Then the step should succeed
-    And the output should contain "ruby22-sample-build"
-    And the "ruby22-sample-build-1" build was created
+    And the output should contain "ruby-sample-build"
+    And the "ruby-sample-build-1" build was created
     When I run the :cancel_build client command with:
-      | build_name | ruby22-sample-build-1 |
-    Then the "ruby22-sample-build-1" build was cancelled
+      | build_name | ruby-sample-build-1 |
+    Then the "ruby-sample-build-1" build was cancelled
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | follow      | true                |
-      | wait        | true                |
-      | _timeout    | 120                 |
+      | buildconfig | ruby-sample-build |
+      | follow      | true              |
+      | wait        | true              |
+      | _timeout    | 120               |
     And the output should contain:
       |Running: |
       |Finished in |
     When I run the :start_build client command with:
-      | from_build | ruby22-sample-build-1 |
-      | follow     | true                  |
-      | wait       | true                  |
-      | _timeout   | 120                   |
+      | from_build | ruby-sample-build-1 |
+      | follow     | true                |
+      | wait       | true                |
+      | _timeout   | 120                 |
     And the output should contain:
       |Running: |
       |Finished in |
     When I run the :patch client command with:
       | resource      | buildconfig                                                 |
-      | resource_name | ruby22-sample-build                                         |
+      | resource_name | ruby-sample-build                                           |
       | p             | {"spec":{"source":{"git":{"uri":"https://nondomain.com"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | follow      | true                |
-      | wait        | true                |
-      | _timeout    | 120                 |
+      | buildconfig | ruby-sample-build |
+      | follow      | true              |
+      | wait        | true              |
+      | _timeout    | 120               |
     Then the output should contain "unable to access 'https://nondomain.com/"
 
   # @author cryan@redhat.com
@@ -317,9 +317,9 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :set_env client command with:
-      | resource | pod |
+      | resource | pod                       |
       | env_name | ruby-sample-build-1-build |
-      | list | true |
+      | list     | true                      |
     Then the output should contain "http_proxy=http://squid.example.com:3128"
 
   # @author cryan@redhat.com
@@ -336,7 +336,7 @@ Feature: build 'apps' with CLI
       |deployment=frontend-1|
     Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
     When I run the :build_logs client command with:
-      | build_name | ruby22-sample-build-1 |
+      | build_name | ruby-sample-build-1 |
     Then the output should contain:
       | ENV RACK_ENV=production  |
       | ENV RAILS_ENV=production |
@@ -345,17 +345,17 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     And the output should contain "RACK_ENV=production"
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "DISABLE_ASSET_COMPILATION","value": "1"}, {"name":"RACK_ENV","value":"development"}]}}}} |
     Then the step should succeed
-    When I get project buildconfig named "ruby22-sample-build" as JSON
+    When I get project buildconfig named "ruby-sample-build" as JSON
     Then the output should contain "DISABLE_ASSET_COMPILATION"
     And the output should contain "RACK_ENV"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-sample-build |
     When I run the :build_logs client command with:
-      | build_name | ruby22-sample-build-2 |
+      | build_name | ruby-sample-build-2 |
     Then the output should contain:
       | ENV "DISABLE_ASSET_COMPILATION"="1" |
       | "RACK_ENV"="development"  |
@@ -423,7 +423,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :patch client command with:
-      | resource | buildconfig |
+      | resource      | buildconfig       |
       | resource_name | ruby-sample-build |
       | p | {"metadata": {"annotations": {"openshift.io/build-config.paused": "true"}}} |
     Then the step should succeed
@@ -556,7 +556,7 @@ Feature: build 'apps' with CLI
     And the "ruby22-sample-build-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.zip"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build       |
+      | buildconfig | ruby-sample-build         |
       | from_dir    | -                         |
       | _stdin      | <%= @result[:response] %> |
       | _binmode    |                           |
@@ -564,29 +564,29 @@ Feature: build 'apps' with CLI
     Then the "ruby22-sample-build-2" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build       |
+      | buildconfig | ruby-sample-build         |
       | from_dir    | -                         |
       | _stdin      | <%= @result[:response] %> |
       | _binmode    |                           |
     Then the step succeeded
-    Then the "ruby22-sample-build-3" build completes
+    Then the "ruby-sample-build-3" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar.gz"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build       |
+      | buildconfig | ruby-sample-build         | 
       | from_dir    | -                         |
       | _stdin      | <%= @result[:response] %> |
       | _binmode    |                           |
     Then the step succeeded
-    Then the "ruby22-sample-build-4" build completes
+    Then the "ruby-sample-build-4" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build       |
+      | buildconfig | ruby-sample-build       |
       | from_dir    | -                         |
       | _stdin      | <%= @result[:response] %> |
       | _binmode    |                           |
     Then the step should succeed
-    And the "ruby22-sample-build-5" build fails
+    And the "ruby-sample-build-5" build fails
 
   # @author pruan@redhat.com
   # @case_id OCP-12295
@@ -655,22 +655,22 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build completes
+    And the "ruby-sample-build-1" build completes
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | from_dir    | ruby-hello-world    |
+      | buildconfig | ruby-sample-build |
+      | from_dir    | ruby-hello-world  |
     Then the step should succeed
-    And the "ruby22-sample-build-2" build completes
+    And the "ruby-sample-build-2" build completes
     Given I create the "tc512258" directory
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | from_dir    | tc512258            |
+      | buildconfig | ruby-sample-build |
+      | from_dir    | tc512258          |
     Then the step should succeed
-    And the "ruby22-sample-build-3" build fails
+    And the "ruby-sample-build-3" build fails
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | from_dir    | dir_not_exist       |
+      | buildconfig | ruby-sample-build |
+      | from_dir    | dir_not_exist     | 
     Then the step should fail
     And the output should contain:
       | no such file or directory |
@@ -681,44 +681,44 @@ Feature: build 'apps' with CLI
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
-    Given the "ruby22-sample-build-1" build completes
+    Given the "ruby-sample-build-1" build completes
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"postCommit":{"script":"bundle exec rake test"}}} |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
+      | o             | json              |
     Then the output should contain "postCommit"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-2" build completes
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-2" build completes
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"], "args": null, "script":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-3" build completes
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-3" build completes
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"postCommit": {"args": ["bundle","exec","rake","test","--verbose"]}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-4" build completes
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-4" build completes
     When I run the :patch client command with:
       | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"postCommit": {"args": ["--verbose"],"command":null, "script": "bundle exec rake test $1"}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-5" build completes
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-5" build completes
 
   # @author cryan@redhat.com
   # @case_id OCP-11561
@@ -745,39 +745,39 @@ Feature: build 'apps' with CLI
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"resources": {"requests": {"cpu": "600m","memory": "200Mi"},"limits": {"cpu": "800m","memory": "200Mi"}}}} |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build was created
+    And the "ruby-sample-build-1" build was created
     Then I run the :delete client command with:
-      | object_type       | builds                |
-      | object_name_or_id | ruby22-sample-build-1 |
+      | object_type       | builds              |
+      | object_name_or_id | ruby-sample-build-1 |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-2" build fails
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-2" build fails
     When I run the :build_logs client command with:
-      | build_name | ruby22-sample-build-2 |
+      | build_name | ruby-sample-build-2 |
     Then the output should contain:
       | stress: FAIL |
     When I run the :patch client command with:
       | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-sample-build |
     Then the step should succeed
-    Given the "ruby22-sample-build-3" build was created
-    Given the "ruby22-sample-build-3" build completed
+    Given the "ruby-sample-build-3" build was created
+    Given the "ruby-sample-build-3" build completed
     When I run the :build_logs client command with:
-      | build_name | ruby22-sample-build-3 |
+      | build_name | ruby-sample-build-3 |
     Then the output should contain:
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
       | 614                                              |
@@ -1182,21 +1182,21 @@ Feature: build 'apps' with CLI
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      | buildconfig         |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec":{"resources": {"requests": {"cpu": "600m","memory": "200Mi"},"limits": {"cpu": "800m","memory": "200Mi"}}}} |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      | buildconfig         |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
     Then the step should succeed
     Then I run the :delete client command with:
-      | object_type       | builds                |
-      | object_name_or_id | ruby22-sample-build-1 |
+      | object_type       | builds              |
+      | object_name_or_id | ruby-sample-build-1 |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-sample-build |
       | follow   | true |
       | wait     | true |
       | _timeout | 120  |
@@ -1205,12 +1205,12 @@ Feature: build 'apps' with CLI
       | cat /sys/fs/cgroup/memory/memory.limit_in_bytes |
       | 209715200                                       |
     When I run the :patch client command with:
-      | resource      | buildconfig         |
-      | resource_name | ruby22-sample-build |
+      | resource      | buildconfig       |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-sample-build |
       | follow   | true |
       | wait     | true |
       | _timeout | 120  |
@@ -1563,18 +1563,18 @@ Feature: build 'apps' with CLI
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | build                 |
-      | name     | ruby22-sample-build-1 |
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
     Then the step should succeed
     When I run the :start_build client command with:
-      | from_build | ruby22-sample-build-1 |
+      | from_build | ruby-sample-build-1 |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | build                 |
-      | name     | ruby22-sample-build-2 |
+      | resource | build               |
+      | name     | ruby-sample-build-2 |
     Then the step should succeed
     And the output should contain "Manually triggered"
-    When I get project builds named "ruby22-sample-build-2" as YAML
+    When I get project builds named "ruby-sample-build-2" as YAML
     Then the step should succeed
     And the output should contain "Manually triggered"
 
