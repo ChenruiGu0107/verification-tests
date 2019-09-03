@@ -10,61 +10,61 @@ Feature: dockerbuild.feature
     When I run the :new_app client command with:
       | file  | <file_name> |
     Then the step should succeed
-    Given the "ruby22-sample-build-1" build was created
-    And the "ruby22-sample-build-1" build completed
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
     When I run the :describe client command with:
-      | resource        | build                       |
-      | name            | ruby22-sample-build-1       |
+      | resource        | build               |
+      | name            | ruby-sample-build-1 |
     Then the output should match:
-      | Commit:.*[a-zA-Z0-9]+                         |
-      | Output to:.*ImageStreamTag origin-ruby22-sample:latest |
-    When I replace resource "bc" named "ruby22-sample-build":
+      | Commit:.*[a-zA-Z0-9]+                                |
+      | Output to:.*ImageStreamTag origin-ruby-sample:latest |
+    When I replace resource "bc" named "ruby-sample-build":
       | github.com/openshift/ruby-hello-world.git | github.com/v3test/ruby-hello-world.git |
     Then the step should succeed
     And the output should contain "replaced"
-    When I get project build_config named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     Then the output should contain:
       |github.com/v3test/ruby-hello-world.git|
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    And the "ruby22-sample-build-2" build was created
-    And the "ruby22-sample-build-2" build completed
+      | buildconfig | ruby-sample-build |
+    And the "ruby-sample-build-2" build was created
+    And the "ruby-sample-build-2" build completed
     When I run the :describe client command with:
-      | resource        | build                       |
-      | name            | ruby22-sample-build-2       |
+      | resource        | build               |
+      | name            | ruby-sample-build-2 |
     Then the output should match:
-      | Commit:.*[a-zA-Z0-9]+                         |
-      | Output to:.*ImageStreamTag origin-ruby22-sample:latest |
+      | Commit:.*[a-zA-Z0-9]+ |
+      | Output to:.*ImageStreamTag origin-ruby-sample:latest |
     When I run the :patch client command with:
-      | resource      | bc                      |
-      | resource_name | ruby22-sample-build       |
+      | resource      | bc                |
+      | resource_name | ruby-sample-build |
       | p             | {"spec":{"output":{"to":{"kind":"DockerImage"}}}} |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | bc                 |
-      | resource_name | ruby22-sample-build  |
+      | resource      | bc                       |
+      | resource_name | ruby-sample-build        |
       | template      | {{.spec.output.to.kind}} |
     Then the step should succeed
     And the output should contain "DockerImage"
     Given evaluation of `"image-registry.openshift-image-registry.svc:5000"` is stored in the :integrated_reg_ip clipboard 
     When I run the :patch client command with:
-      | resource      | bc                                                                                                        |
-      | resource_name | ruby22-sample-build                                                                                       |
-      | p             |{"spec":{"output":{"to":{"name":"<%= cb.integrated_reg_ip %>/<%= project.name %>/origin-ruby22-sample:latest"}}}} |
+      | resource      | bc                |
+      | resource_name | ruby-sample-build |
+      | p             |{"spec":{"output":{"to":{"name":"<%= cb.integrated_reg_ip %>/<%= project.name %>/origin-ruby-sample:latest"}}}} |
     Then the step should succeed
-    When I get project build_config named "ruby22-sample-build" as YAML
+    When I get project build_config named "ruby-sample-build" as YAML
     Then the step should succeed
     And the output should contain "<%= cb.integrated_reg_ip %>"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    And the "ruby22-sample-build-3" build was created
-    And the "ruby22-sample-build-3" build completed
+      | buildconfig | ruby-sample-build |
+    And the "ruby-sample-build-3" build was created
+    And the "ruby-sample-build-3" build completed
     When I run the :describe client command with:
-      | resource        | build                       |
-      | name            | ruby22-sample-build-3       |
+      | resource        | build               |
+      | name            | ruby-sample-build-3 |
     Then the output should match:
-      | Commit:.*[a-zA-Z0-9]+                         |
-      | Output to:.*DockerImage.*                     |
+      | Commit:.*[a-zA-Z0-9]+     |
+      | Output to:.*DockerImage.* |
 
     Examples:
       | file                                                                                                      | file_name                        |

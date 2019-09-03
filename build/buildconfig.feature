@@ -215,8 +215,8 @@ Feature: buildconfig.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/ruby-rhel7-multivars.json |
     Then the step should succeed
-    Given the "ruby22-sample-build-1" build was created
-    And the "ruby22-sample-build-1" build completed
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
     Given 2 pods become ready with labels:
       | name=frontend |
     When I execute on the pod:
@@ -224,17 +224,17 @@ Feature: buildconfig.feature
     Then the output should contain "RACK_ENV=production"
     When I run the :patch client command with:
       | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
+      | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "EXAMPLE","value": "sample-app"}, {"name":"HTTP_PROXY","value":"http://incorrect.proxy:3128"}]}}}} |
     Then the step should succeed
-    When I get project build_config named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     Then the output should contain "HTTP_PROXY"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Given the "ruby22-sample-build-2" build was created
-    And the "ruby22-sample-build-2" build failed
+      | buildconfig | ruby-sample-build |
+    Given the "ruby-sample-build-2" build was created
+    And the "ruby-sample-build-2" build failed
     When I run the :build_logs client command with:
-      | build_name | ruby22-sample-build-2 |
+      | build_name | ruby-sample-build-2 |
     Then the output should contain:
       | lookup incorrect.proxy |
 

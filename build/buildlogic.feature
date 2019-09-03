@@ -77,10 +77,6 @@ Feature: buildlogic.feature
       | resource_name | ruby:latest |
       | o             | json        |
       | n             | openshift   |
-      | resource      | istag          |
-      | resource_name | ruby:latest    |
-      | o             | json           |
-      | n             | openshift      |
     Then the step should succeed
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
     When I run oc create over "<template>" replacing paths:
