@@ -268,13 +268,11 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"]   | pvc1  |
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
-    And the "pvc1" PVC becomes :bound
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc2  |
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
-    And the "pvc2" PVC becomes :bound
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-two-block-volumes.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
