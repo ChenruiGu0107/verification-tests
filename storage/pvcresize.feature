@@ -317,7 +317,13 @@ Feature: PVC resizing Test
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+    
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod                   |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/pvcresize          |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
 
     When I run the :patch client command with:
       | resource      | pvc                                                    |
