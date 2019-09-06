@@ -469,6 +469,6 @@ Feature: stibuild.feature
     And I repeat the following steps for each :pod in cb.pods:
     """
     And I run the logs: client command with:
-      | pod | <%= cb.pod %> |
+      | resource_name | <%= cb.pod %> |
     Then the output should contain "logSnippet"
     """
