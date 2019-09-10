@@ -3,6 +3,7 @@ Feature: environment related
   # @author yapei@redhat.com
   # @case_id OCP-19858
   Scenario: Add Build envs from ConfigMaps and Secrets
+    Given the master version >= "3.11"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml   |
@@ -24,6 +25,8 @@ Feature: environment related
     Then the step should succeed
     When I perform the :click_tab web action with:
       | tab_name | Environment |
+    Then the step should succeed
+    When I run the :check_env_editor_loaded web action
     Then the step should succeed
     When I run the :click_add_value_from_configmap_or_secret web action
     Then the step should succeed
@@ -63,6 +66,8 @@ Feature: environment related
     Then the step should succeed
     When I perform the :click_tab web action with:
       | tab_name | Environment |
+    Then the step should succeed
+    When I run the :check_env_editor_loaded web action
     Then the step should succeed
     When I perform the :update_env_vars web action with:
       | env_var_name    | ENV_FROM_SEC       |
