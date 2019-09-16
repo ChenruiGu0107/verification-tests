@@ -735,3 +735,43 @@ Feature: Testing registry
       | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
     Then the step should succeed
     """
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-22781
+  @admin
+  @destructive
+  Scenario: Set toleration field for image registry pod
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    Given current generation number of "image-registry" deployment is stored into :before_change clipboard
+    And all existing pods are ready with labels:
+      | docker-registry=default |
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"replicas": 1,"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]}} | 
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type       | configs.imageregistry.operator.openshift.io |
+      | object_name_or_id | cluster                                     |
+    Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
+    Given current generation number of "image-registry" deployment is stored into :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    """
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    Then the expression should be true> node(pod.node_name).is_master?
+    Given I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal","value": "myvalue"}]}} | 
+    And I wait for the steps to pass:
+    """
+    Given current generation number of "image-registry" deployment is stored into :change_twice clipboard
+    And the expression should be true> cb.change_twice - cb.after_change >=1
+    """
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    Then the expression should be true> node(pod.node_name).is_worker?
