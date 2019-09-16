@@ -312,4 +312,6 @@ Feature: environment related
     And the step should succeed
     Then the output by order should match:
       | env1=value1 |
+    And the output should not match:
+      | del1=deltest1 |
 
