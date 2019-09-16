@@ -279,3 +279,37 @@ Feature: environment related
       | env1=value1 |
       | # ENV_FROM_CM from configmap example-config, key example.property.2 |
 
+  # @author hasha@redhat.com
+  # @case_id OCP-25203
+    Scenario:  Check environment variables editor on DC creation page
+    Given the master version == "4.1"
+    Given I have a project
+    And I open admin console in a browser
+    When I perform the :goto_deploy_image_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :search_image web action with:
+      | search_content | openshift/hello-openshift |
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name  | del1     |
+      | env_var_value | deltest1 |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Delete |
+    Then the step should succeed
+    When I perform the :add_env_vars web action with:
+      | env_var_name  | env1   |
+      | env_var_value | value1 |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Deploy |
+    Then the step should succeed
+    Given I wait until the status of deployment "hello-openshift" becomes :complete
+    When I run the :set_env client command with:
+      | resource | dc/hello-openshift |
+      | list     | true               |
+    And the step should succeed
+    Then the output by order should match:
+      | env1=value1 |
+
