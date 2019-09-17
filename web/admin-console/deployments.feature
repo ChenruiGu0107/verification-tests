@@ -169,3 +169,51 @@ Feature: deployment/dc related features via web
     When I perform the :check_page_match web action with:
       | content | RolloutCancelled |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-20849
+  Scenario: Check basic process of create/delete DC from image
+    Given the master version >= "4.1"
+    Given I have a project
+    Given I open admin console in a browser
+    When I perform the :goto_deploy_image_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    # Check non-existed image error message
+    When I run the :search_nonexisted_image_and_check_message web action
+    Then the step should succeed  
+    # Check existed image creating page
+    When I perform the :search_and_deploy_image web action with:
+      | search_content | aosqe/hello-openshift |
+    Then the step should succeed 
+    # Check created resources
+    When I run the :get client command with:
+      | resource | all                 |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should match:
+      | deploymentconfig.*hello-openshift       |
+      | replicationcontroller/hello-openshift-1 |
+      | pod/hello-openshift-1                   |
+      | service/hello-openshift                 |
+      | route.*hello-openshift                  |
+      | imagestream.*hello-openshift            |
+    # Delete dc and check dependent objects
+    When I perform the :goto_one_dc_page web action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-openshift     |
+    Then the step should succeed
+    When I run the :delete_dc_with_dependency_objects web action
+    Then the step should succeed
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | all                 |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should not match:
+      | deploymentconfig.*python       |
+      | replicationcontroller/python-1 |
+      | pod/python-1"                  |
+    """
+    
