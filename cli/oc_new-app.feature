@@ -42,21 +42,21 @@ Feature: oc new-app related scenarios
     And the output should not contain:
       | 2.0 |
     When I run the :new_app client command with:
-      | image_stream | ruby:2.0 |
+      | image_stream | ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc               |
       | name     | ruby-hello-world |
-    Then the output should match "ImageStreamTag openshift/ruby:2.0"
+    Then the output should match "ImageStreamTag openshift/ruby:latest"
     When I run the :new_build client command with:
-      | image_stream | ruby:2.0 |
+      | image_stream | ruby:latest                   |
       | app_repo | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc      |
       | name     | ruby-ex |
-    Then the output should match "ImageStreamTag openshift/ruby:2.0"
+    Then the output should match "ImageStreamTag openshift/ruby:latest"
 
   # @author wewang@redhat.com
   # @case_id OCP-18190
