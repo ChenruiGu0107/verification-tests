@@ -89,3 +89,63 @@ Feature: overview cases
     Then the step should succeed
     When I run the :check_dc_available_action_menus web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-21000
+  Scenario: Show alerts on overview
+    Given the master version >= "4.2"
+    Given I have a project
+
+    # check build error on overview
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                 |
+      | code         | https://github.com/sclorg/django-ex.git |
+      | name         | python-sample                           |
+    Then the step should succeed
+    Given the "python-sample-1" build was created
+    When I run the :patch client command with:
+      | resource      | buildconfig     |
+      | resource_name | python-sample   |
+      | p             | {"spec":{"source":{"git":{"uri":"https://github.com/sclorg/testdjango-ex.git"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | python-sample |
+    Then the step should succeed
+    Given the "python-sample-2" build finished
+    Given I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_build_error_icon_and_text web action
+    Then the step should succeed
+    When I perform the :click_list_item web action with:
+      | resource_kind | DeploymentConfig |
+      | resource_name | python-sample    |
+    Then the step should succeed
+    When I run the :click_sidebar_resources_tab web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Failed to fetch the input source |
+    Then the step should succeed
+
+    # check deployment error on overview
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml" replacing paths:
+      | ["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |   
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource      | deployment              |
+      | resource_name | hello-openshift         |
+      | add           | true                    |
+      | claim-name    | pvc-<%= project.name %> |
+      | mount-path    | /tmp/data               |
+    Then the step should succeed
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_deploy_error_icon_and_text web action
+    Then the step should succeed
