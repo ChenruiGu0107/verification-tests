@@ -187,6 +187,8 @@ Feature: deployment/dc related features via web
       | search_content | aosqe/hello-openshift |
     Then the step should succeed 
     # Check created resources
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | all                 |
       | n        | <%= project.name %> |
@@ -196,8 +198,8 @@ Feature: deployment/dc related features via web
       | replicationcontroller/hello-openshift-1 |
       | pod/hello-openshift-1                   |
       | service/hello-openshift                 |
-      | route.*hello-openshift                  |
       | imagestream.*hello-openshift            |
+    """
     # Delete dc and check dependent objects
     When I perform the :goto_one_dc_page web action with:
       | project_name | <%= project.name %> |
