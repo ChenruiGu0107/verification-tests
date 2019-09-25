@@ -178,6 +178,8 @@ Feature: storage (storageclass, pv, pvc) related
     When I perform the :click_button web action with:
       | button_text | Create Storage Class |
     Then the step should succeed
+    When I run the :wait_form_loaded web action
+    Then the step should succeed
     When I perform the :check_button_disabled web action with:
       | button_text | Create |
     Then the step should succeed
@@ -212,7 +214,7 @@ Feature: storage (storageclass, pv, pvc) related
       | dropdown_item  | io1      |
     Then the step should succeed
     When I perform the :set_input_value web action with:
-      | input_field_id | iopsPerGB   |
+      | input_field_id | provisioner-settings-iopsPerGB |
       | input_value    | invalidtest |
     Then the step should succeed
     When I perform the :check_button_disabled web action with:
