@@ -188,3 +188,26 @@ Feature: route related
     And the expression should be true> route('reenroute').spec.tls_ca_certificate != ""
     And the expression should be true> route('reenroute').spec.tls_destination_ca_certificate != ""
 
+  # @author xiaocwan
+  # @case_id OCP-21461
+  @admin
+  Scenario: Check monitoring routes on console
+    Given the master version >= "4.1"
+    Given the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+    When I get project route
+    Then the output should contain:
+      | alertmanager-main-openshift-monitoring.apps   |
+      | grafana-openshift-monitoring.apps             |
+      | prometheus-k8s-openshift-monitoring.apps      |
+    When I get project configmap named "sharing-config" as YAML
+    Then the output should contain:
+      | alertmanagerURL: https://alertmanager-main-openshift-monitoring.apps |
+      | grafanaURL: https://grafana-openshift-monitoring.apps                |
+      | prometheusURL: https://prometheus-k8s-openshift-monitoring.apps      |
+    # login on console and check if the external link for menu works
+    Given I open admin console in a browser
+    When I run the :expand_monitoring web action
+    Then the step should succeed
+    When I run the :check_monitoring_urls web action
+    Then the step should succeed
