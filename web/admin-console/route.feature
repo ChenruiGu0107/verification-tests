@@ -116,3 +116,75 @@ Feature: route related
     And the expression should be true> route('edgeroute').spec.tls_certificate != ""
     And the expression should be true> route('edgeroute').spec.tls_key != ""
     And the expression should be true> route('edgeroute').spec.tls_ca_certificate != ""
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-21023
+  Scenario: Create re-encrypt route from form
+    Given the master version >= "4.1"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Then the step should succeed
+
+    Given I open admin console in a browser
+
+    When I perform the :goto_routes_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Create Route |
+    Then the step should succeed
+
+    When I perform the :create_route web action with:
+      | route_name                 | reenroute            |
+      | route_hostname             | reentest.example.com |
+      | route_path                 | /test                |
+      | service_name               | service-secure       |
+      | target_port                | https                |
+      | secure_route               | true                 |
+      | tls_termination_type       | reencrypt            |
+      | insecure_traffic_type      | Redirect             |
+      | certificate_path           | <%= File.join(localhost.workdir, "route_reencrypt-reen.example.com.crt") %> |
+      | private_key_path           | <%= File.join(localhost.workdir, "route_reencrypt-reen.example.com.key") %> |
+      | ca_certificate_path        | <%= File.join(localhost.workdir, "route_reencrypt.ca") %>                   |
+      | destination_ca_certificate | <%= File.join(localhost.workdir, "route_reencrypt_dest.ca") %>              |
+    Then the step should succeed
+
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Termination Type |
+      | value | reencrypt        |
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Insecure Traffic |
+      | value | Redirect         |
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Hostname             |
+      | value | reentest.example.com |
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Path  |
+      | value | /test |
+    Then the step should succeed
+
+    And the expression should be true> route('reenroute').spec.host == "reentest.example.com"
+    And the expression should be true> route('reenroute').spec.path == "/test"
+    And the expression should be true> route('reenroute').spec.target_port == "https"
+    And the expression should be true> route('reenroute').spec.tls_termination == "reencrypt"
+    And the expression should be true> route('reenroute').spec.tls_insecure_edge_termination_policy == "Redirect"
+    And the expression should be true> route('reenroute').spec.tls_certificate != ""
+    And the expression should be true> route('reenroute').spec.tls_key != ""
+    And the expression should be true> route('reenroute').spec.tls_ca_certificate != ""
+    And the expression should be true> route('reenroute').spec.tls_destination_ca_certificate != ""
+
