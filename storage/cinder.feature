@@ -33,29 +33,17 @@ Feature: Cinder Persistent Volume
   @admin
   Scenario Outline: Cinder volume racing condition
     Given I have a project
-    Given I have a 1 GB volume and save volume id in the :vid clipboard
-
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pv-rwx-default.json" where:
-      | ["metadata"]["name"]                      | pv-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
-      | ["spec"]["capacity"]["storage"]           | 5Gi                    |
-      | ["spec"]["cinder"]["volumeID"]            | <%= cb.vid %>          |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
-    Then the step should succeed
-
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pvc-rwx.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storaeg"] | 5Gi                      |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | mypvc |
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pod.json" replacing paths:
-      | ["metadata"]["name"]                                         | mypod-a-<%= project.name %>                                  |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
-      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
-      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                                           |
+      | ["metadata"]["name"]                                         | mypod1                                 |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc                                  |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %> |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                     |
     Then the step should succeed
-    Given the pod named "mypod-a-<%= project.name %>" becomes ready
+    Given the pod named "mypod1" becomes ready
 
     When I execute on the pod:
       | sh                            |
@@ -63,16 +51,16 @@ Feature: Cinder Persistent Volume
       | date > /mnt/cinder/<testfile> |
     Then the step should succeed
     Then I run the :delete client command with:
-      | object_type       | pod                         |
-      | object_name_or_id | mypod-a-<%= project.name %> |
+      | object_type       | pod    |
+      | object_name_or_id | mypod1 |
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/cinder/pod.json" replacing paths:
-      | ["metadata"]["name"]                                         | mypod-b-<%= project.name %>                                  |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
-      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %>                       |
-      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                                           |
+      | ["metadata"]["name"]                                         | mypod2                                 |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc                                  |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %> |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.mcs %>                     |
     Then the step should succeed
-    Given the pod named "mypod-b-<%= project.name %>" becomes ready
+    Given the pod named "mypod2" becomes ready
 
     Given I run the steps 6 times:
     """
