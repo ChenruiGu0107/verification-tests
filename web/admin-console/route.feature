@@ -195,19 +195,12 @@ Feature: route related
     Given the master version >= "4.1"
     Given the first user is cluster-admin
     And I use the "openshift-monitoring" project
-    When I get project route
-    Then the output should contain:
-      | alertmanager-main-openshift-monitoring.apps   |
-      | grafana-openshift-monitoring.apps             |
-      | prometheus-k8s-openshift-monitoring.apps      |
-    When I get project configmap named "sharing-config" as YAML
-    Then the output should contain:
-      | alertmanagerURL: https://alertmanager-main-openshift-monitoring.apps |
-      | grafanaURL: https://grafana-openshift-monitoring.apps                |
-      | prometheusURL: https://prometheus-k8s-openshift-monitoring.apps      |
-    # login on console and check if the external link for menu works
+    And evaluation of `route('grafana').spec.host` is stored in the :route_grafana clipboard
+
     Given I open admin console in a browser
-    When I run the :expand_monitoring web action
+    When I perform the :expand_primary_menu web action with:
+      | primary_menu | Monitoring |
     Then the step should succeed
-    When I run the :check_monitoring_urls web action
+    When I perform the :check_monitoring_urls web action with:
+      | dashboards_grafana_route | <%= cb.route_grafana %> |
     Then the step should succeed
