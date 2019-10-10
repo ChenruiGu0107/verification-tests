@@ -183,7 +183,6 @@ Feature: Dynamic provisioning
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
       | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
