@@ -20,8 +20,7 @@ Feature: imagestream related
     Then the step should succeed
 
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | IS         |
-      | resource_name | testdotnet |
+      | imagestream_name | testdotnet |
     Then the step should succeed
 
     When I perform the :check_link_and_text web action with:

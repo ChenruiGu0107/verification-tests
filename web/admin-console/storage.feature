@@ -19,8 +19,7 @@ Feature: storage (storageclass, pv, pvc) related
     """
 
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | SC      |
-      | resource_name | example |
+      | storageclass_name | example |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name            | example        |

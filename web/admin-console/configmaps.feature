@@ -12,8 +12,7 @@ Feature: configmap related
     When I run the :create_resource_by_default_yaml web action
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | CM      |
-      | resource_name | example |
+      | configmap_name | example |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name | example |
