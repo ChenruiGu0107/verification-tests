@@ -195,12 +195,13 @@ Feature: route related
     Given the master version >= "4.1"
     Given the first user is cluster-admin
     And I use the "openshift-monitoring" project
-    And evaluation of `route('grafana').spec.host` is stored in the :route_grafana clipboard
 
     Given I open admin console in a browser
     When I perform the :expand_primary_menu web action with:
       | primary_menu | Monitoring |
     Then the step should succeed
     When I perform the :check_monitoring_urls web action with:
-      | dashboards_grafana_route | <%= cb.route_grafana %> |
+      | alert_ui_route           | <%= route('alertmanager-main').spec.host %> |
+      | prometheus_ui_route      | <%= route('prometheus-k8s').spec.host %>    |
+      | dashboards_grafana_route | <%= route('grafana').spec.host %>           |
     Then the step should succeed
