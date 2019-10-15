@@ -172,7 +172,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14479=value14479" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14479.yaml |
@@ -186,7 +186,7 @@ Feature: nodeAffinity
   Scenario: pod will be scheduled to the node which matches node anti-affinity
     Given environment has at least 2 schedulable nodes
     Given I have a project
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14484=value14484" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-case14484.yaml |
@@ -204,7 +204,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14488=value14488" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14488.yaml |
@@ -235,7 +235,7 @@ Feature: nodeAffinity
   @admin
   Scenario: pod will not be scheduled if node affinity or node selector is not satisfied - node affinity
     Given I have a project
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "case14556=case14556" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml |
@@ -257,7 +257,7 @@ Feature: nodeAffinity
   @admin
   Scenario: pod will not be scheduled if node affinity or node selector is not satisfied - node selector
     Given I have a project
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "zone14557=case14557" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml |
@@ -284,7 +284,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14576=value14576" is added to the "<%= cb.nodes[0].name %>" node
     And label "company14576=redhat" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
@@ -298,7 +298,7 @@ Feature: nodeAffinity
   @admin
   Scenario: pod  will not be scheduled if not all matchExpressions can be satisfied
     Given I have a project
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14577=value14577" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml |
@@ -325,7 +325,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "case14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
     And label "zone14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
@@ -344,7 +344,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "case14568c=case14568" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml |
@@ -362,7 +362,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "case14520=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-exists-case14520.yaml |
@@ -376,7 +376,7 @@ Feature: nodeAffinity
   Scenario: pod will be scheduled to the node which matches node anti-affinity - DoesNotExist
     Given environment has at least 2 schedulable nodes
     And I have a project
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "case14521=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml |
@@ -395,7 +395,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14522=4" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14522=6" is added to the "<%= cb.nodes[1].name %>" node
     When I run the :create client command with:
@@ -415,7 +415,7 @@ Feature: nodeAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "key14525=6" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14525=4" is added to the "<%= cb.nodes[1].name %>" node
     When I run the :create client command with:
@@ -439,7 +439,7 @@ Feature: nodeAffinity
       schedulerConfigFile: /etc/origin/master/<scheduler_file>
     """
     And the master service is restarted on all master nodes
-    And I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     And label "<label>" is added to the "<%= cb.nodes[0].name %>" node
     Then the step should succeed
     Given I have a project
