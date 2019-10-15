@@ -73,11 +73,11 @@ Feature: Pod related networking scenarios
     Then evaluation of `pod.node_name` is stored in the :node_name clipboard
 
     # Get the node hostsubnet
-    And evaluation of `host_subnet("<%= cb.node_name %>").subnet` is stored in the :hostnetwork clipboard
+    And evaluation of `host_subnet(cb.node_name).subnet` is stored in the :hostnetwork clipboard
     # Get the max available IP
-    And evaluation of `IPAddr.new("<%= cb.hostnetwork.chomp %>").to_range().max` is stored in the :broadcastip clipboard
-    And evaluation of `IPAddr.new("<%= cb.broadcastip %>").to_i - 1` is stored in the :maxipint clipboard
-    And evaluation of `IPAddr.new(<%= cb.maxipint %>, Socket::AF_INET).to_s` is stored in the :maxip clipboard
+    And evaluation of `IPAddr.new(cb.hostnetwork.chomp).to_range().max` is stored in the :broadcastip clipboard
+    And evaluation of `IPAddr.new(cb.broadcastip).to_i - 1` is stored in the :maxipint clipboard
+    And evaluation of `IPAddr.new(cb.maxipint, Socket::AF_INET).to_s` is stored in the :maxip clipboard
     # Write the max IP to the cni last reserved ip file
     When I run command on the "<%= cb.node_name %>" node's sdn pod:
       | bash | -c | printf "<%= cb.maxip %>" > $(find /var/lib/cni/networks/openshift-sdn/ -name "last_reserve*") |
