@@ -61,7 +61,6 @@ Feature: service related scenarios
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11364
-  @admin
   Scenario: Create nodeport service
     Given I have a project
     When I run the :create client command with:
@@ -79,9 +78,9 @@ Feature: service related scenarios
     And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport)` is stored in the :node_port clipboard
     Then the step should succeed
     Given I wait for the "hello-openshift" service to become ready up to 300 seconds
-    And I select a random node's host
-    When I run commands on the host:
-      | curl <%= cb.hostip %>:<%= cb.node_port %> |
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl | <%= cb.hostip %>:<%= cb.node_port %> |
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift! |
@@ -95,15 +94,13 @@ Feature: service related scenarios
       | nodeport           | <%= cb.random_node_port %> |
       | tcp                | <%= cb.hostport2 %>:8080   |
     Then the step should succeed
-    And I select a random node's host
-    When I run commands on the host:
-      | curl <%= cb.hostip %>:<%= cb.random_node_port %> |
+    When I execute on the pod:
+      | curl | <%= cb.hostip %>:<%= cb.random_node_port %> |
     Then the step should succeed
 
 
   # @author yinzhou@redhat.com
   # @case_id OCP-10970
-  @admin
   Scenario: Create service with multiports
     Given I have a project
     When I run the :create client command with:
@@ -122,14 +119,14 @@ Feature: service related scenarios
     And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport2)` is stored in the :node_port2 clipboard
     Then the step should succeed
     Given I wait for the "hello-openshift" service to become ready up to 300 seconds
-    And I select a random node's host
-    When I run commands on the host:
-      | curl <%= cb.hostip %>:<%= cb.node_port %> |
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl | <%= cb.hostip %>:<%= cb.node_port %> |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 http-8080 |
-    When I run commands on the host:
-      | curl -k https://<%= cb.hostip %>:<%= cb.node_port2 %> |
+    When I execute on the pod:
+      | curl | -k | https://<%= cb.hostip %>:<%= cb.node_port2 %> |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 https-8443 |
@@ -144,14 +141,13 @@ Feature: service related scenarios
     Then the step should succeed
     Given I wait for the "hello-openshift" service to become ready up to 300 seconds
     And evaluation of `service('hello-openshift').ip(user: user,cached: false)` is stored in the :cluster_ip clipboard
-    And I select a random node's host
-    When I run commands on the host:
-      | curl <%= service.url(cached: false) %> |
+    When I execute on the pod:
+      | curl | <%= service.url(cached: false) %> |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 http-8080 |
-    When I run commands on the host:
-      | curl -k https://<%= cb.cluster_ip %>:<%= cb.hostport2 %> |
+    When I execute on the pod:
+      | curl | -k | https://<%= cb.cluster_ip %>:<%= cb.hostport2 %> |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 https-8443 |
