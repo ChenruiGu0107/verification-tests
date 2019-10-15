@@ -350,28 +350,28 @@ Feature: SDN related networking scenarios
   Scenario: ovs-port should be deleted after delete pods
     Given I have a project
     And I have a pod-for-ping in the project
+    Then evaluation of `pod.node_name` is stored in the :node_name clipboard
     When I execute on the pod:
       | bash | -c | ip link show eth0 \| awk -F@ '{ print $2 }' \| awk -F: '{ print $1 }' |
     Then the output should contain "if"    
     And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
-    Then I use the "<%= pod.node_name(user: user) %>" node    
-    When I run commands on the host:
-      | ip addr show <%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ip addr show <%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
     Then the output should contain "veth"
     And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
-    When I run the ovs commands on the host:
-      | ovs-ofctl -O openflow13 show br0 |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ovs-ofctl -O openflow13 show br0 |
     Then the output should contain "<%= cb.veth_index %>"
     When I run the :delete client command with:
       | object_type       | pods      |
       | object_name_or_id | hello-pod |
     Then the step should succeed
     Then I wait for the resource "pod" named "hello-pod" to disappear within 20 seconds
-    When I run commands on the host:
-      | ip a s <%= cb.veth_index %>: |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ip a s <%= cb.veth_index %>: |
     Then the step should fail
-    When I run the ovs commands on the host:
-      | ovs-ofctl -O openflow13 show br0 |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ovs-ofctl -O openflow13 show br0 |
     Then the output should not contain "<%= cb.veth_index %>"
 
   # @author zzhao@redhat.com
@@ -726,25 +726,25 @@ Feature: SDN related networking scenarios
     And the env is using networkpolicy plugin
     And I have a project
     And I have a pod-for-ping in the project
-    Then I use the "<%= pod.node_name(user: user) %>" node
+    Then evaluation of `pod.node_name` is stored in the :node_name clipboard
     When I run the :get admin command with:
       | resource | netnamespace |
       | resource_name | <%= project.name %> |
       | template | {{.netid}} |
     Then the step should succeed
     And evaluation of `@result[:response].strip.to_f.to_i.to_s(16)` is stored in the :proj1netid clipboard
-    When I run the ovs commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.proj1netid %> |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.proj1netid %> |
     Then the step should succeed
     And the output should contain "table=80"
     When I run the :delete client command with:
       | object_type       | project             |
       | object_name_or_id | <%= project.name %> |
     Then the step should succeed
-    And I wait up to 20 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
-    When I run the ovs commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 |
+    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+      | bash | -c | ovs-ofctl dump-flows br0 -O openflow13 |
     Then the step should succeed
     And the output should not contain "<%= cb.proj1netid %>"
     """
