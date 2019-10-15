@@ -58,16 +58,13 @@ Feature: overview cases
     When I run the :click_sidebar_resources_tab web action
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | Service       |
-      | resource_name | python-sample |
+      | service_name | python-sample |
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | BuildConfig   |
-      | resource_name | python-sample |
+      | buildconfig_name | python-sample |
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | Route         |
-      | resource_name | python-sample |
+      | route_name | python-sample |
     Then the step should succeed
 
     # check resource links are correct

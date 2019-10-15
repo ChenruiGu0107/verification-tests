@@ -27,8 +27,7 @@ Feature: cronjob related
       | cronjob_name | mycron-job          |
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | CJ         |
-      | resource_name | mycron-job |
+      | cronjob_name | mycron-job |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name               | mycron-job  |
@@ -59,8 +58,7 @@ Feature: cronjob related
       | job_name     | <%= job.name %>     |
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | icon_text     | J               |
-      | resource_name | <%= job.name %> |
+      | job_name | <%= job.name %> |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name                | <%= cb.job_name %>  |
