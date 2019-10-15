@@ -241,7 +241,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
     :method: post
     :headers:
       :content-type: application/json
@@ -249,8 +249,9 @@ Feature: dockerbuild.feature
     """
     Then the step should succeed
     Given the "ruby-hello-world-2" build was created
-    When I run the :export client command with:
+    When I run the :get client command with:
       | resource | build/ruby-hello-world-2 |
+      | o        | yaml                     |
     Then the step should succeed
     And the output should match:
       | name:\\s+foo      |
@@ -261,7 +262,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
     :method: post
     :headers:
       :content-type: application/json
@@ -269,8 +270,9 @@ Feature: dockerbuild.feature
     """
     Then the step should succeed
     Given the "ruby-hello-world-3" build was created
-    When I run the :export client command with:
+    When I run the :get client command with:
       | resource | build/ruby-hello-world-3 |
+      | o        | yaml                     |
     Then the step should succeed
     And the output should match:
       | name:\\s+ARG       |
