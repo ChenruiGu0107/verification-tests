@@ -656,16 +656,17 @@ Feature: PVC resizing Test
   # @author piqin@redhat.com
   # @case_id OCP-19333
   @admin
-  Scenario: Resize PVC using StorageClass without allowVolumeExpansion enable
+  Scenario: Resize PVC using StorageClass with allowVolumeExpansion set to false
     Given I have a project
-    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion disabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["allowVolumeExpansion"] | false     |
+      | ["volumeBindingMode"]    | Immediate |
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
-      | ["metadata"]["name"]                         | mypvc                  |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                    |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "mypvc" PVC becomes :bound within 240 seconds
+    And the "mypvc" PVC becomes :bound
 
     When I run the :patch client command with:
       | resource      | pvc                                                   |
