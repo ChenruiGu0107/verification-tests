@@ -838,13 +838,15 @@ Then the step should succeed
     And I check that the "ups-binding" servicebinding exists
     And I ensure "ups-binding" servicebinding is deleted
     When I run the :delete client command with:
-      | object_type | serviceinstance/ups-instance |
+      | wait              | false           |
+      | object_type       | serviceinstance |
+      | object_name_or_id | ups-instance    |
     Then the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | serviceinstance |
-    Then the output should match "Error deprovisioning.*no route to host"
+    Then the output should match "DeprovisionCallFailed"
     """
 
   # @author chezhang@redhat.com
