@@ -188,3 +188,20 @@ Feature: route related
     And the expression should be true> route('reenroute').spec.tls_ca_certificate != ""
     And the expression should be true> route('reenroute').spec.tls_destination_ca_certificate != ""
 
+  # @author xiaocwan
+  # @case_id OCP-21461
+  @admin
+  Scenario: Check monitoring routes on console
+    Given the master version >= "4.1"
+    Given the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+
+    Given I open admin console in a browser
+    When I perform the :expand_primary_menu web action with:
+      | primary_menu | Monitoring |
+    Then the step should succeed
+    When I perform the :check_monitoring_urls web action with:
+      | alert_ui_route           | <%= route('alertmanager-main').spec.host %> |
+      | prometheus_ui_route      | <%= route('prometheus-k8s').spec.host %>    |
+      | dashboards_grafana_route | <%= route('grafana').spec.host %>           |
+    Then the step should succeed
