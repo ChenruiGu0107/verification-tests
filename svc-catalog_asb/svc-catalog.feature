@@ -1483,8 +1483,8 @@ Then the step should succeed
       secretTransforms:
       - addKeysFrom:
           secretRef: 
-            namespace: default
-            name: router-certs
+            namespace: openshift-console
+            name: console-oauth-config
     """
     When I run the :create client command with:
       | f | bind3.yaml |
@@ -1495,8 +1495,8 @@ Then the step should succeed
       | resource_name | bind3  |
       | o             | yaml   |
     Then the step should succeed
-    And the output should contain "tls.crt"
-    And the output should contain "tls.key"
+    And the output should contain "DB_HOST"
+    And the output should contain "DB_NAME"
     
     # quote a non-exist secret
     Given a "bind4.yaml" file is created with the following lines:
