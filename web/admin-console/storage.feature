@@ -219,3 +219,85 @@ Feature: storage (storageclass, pv, pvc) related
     When I perform the :check_button_disabled web action with:
       | button_text | Create |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24415
+  Scenario: Select container when attach/remove volume
+    Given the master version >= "4.2"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :create_persistent_volume_claims web action with:
+      | project_name     | <%= project.name %> |
+      | pvc_name         | pvc1                |
+      | pvc_request_size | 1                   |
+    Then the step should succeed
+    When I perform the :create_persistent_volume_claims web action with:
+      | project_name     | <%= project.name %> |
+      | pvc_name         | pvc2                |
+      | pvc_request_size | 1                   |
+    Then the step should succeed
+
+    When I perform the :attach_storage_to_container web action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | dctest              |
+      | pvc_name           | pvc1                |
+      | mount_path         | /test               |
+      | use_none_container | true                |
+    Then the step should succeed
+    When I perform the :select_one_container web action with:
+      | container_name | dctest-1 |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    When I perform the :check_volume_missing_on_workload_page web action with:
+      | volume_name    | pvc1     |
+      | mount_path     | /test    |
+      | pvc_name       | pvc1     |
+      | container_name | dctest-2 |
+    Then the step should succeed
+
+    When I perform the :attach_storage_to_container web action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | dctest              |
+      | pvc_name           | pvc2                |
+      | mount_path         | /test2              |
+      | use_all_containers | true                |
+    Then the step should succeed
+    When I perform the :check_volume_on_workload_page web action with:
+      | volume_name    | pvc2     |
+      | mount_path     | /test2   |
+      | pvc_name       | pvc2     |
+      | container_name | dctest-1 |
+    Then the step should succeed
+    When I perform the :check_volume_on_workload_page web action with:
+      | volume_name    | pvc2     |
+      | mount_path     | /test2   |
+      | pvc_name       | pvc2     |
+      | container_name | dctest-2 |
+    Then the step should succeed
+
+    When I perform the :remove_volume_from_container web action with:
+      | volume_name    | pvc1          |
+      | container_name | dctest-1      |
+      | button_text    | Cancel        |
+    Then the step should succeed
+    When I perform the :remove_volume_from_container web action with:
+      | volume_name    | pvc2          |
+      | container_name | dctest-2      |
+      | button_text    | Remove Volume |
+    Then the step should succeed
+    When I perform the :check_volume_missing_on_workload_page web action with:
+      | volume_name    | pvc2     |
+      | mount_path     | /test2   |
+      | pvc_name       | pvc2     |
+      | container_name | dctest-2 |
+    Then the step should succeed
+    When I perform the :check_volume_on_workload_page web action with:
+      | volume_name    | pvc2     |
+      | mount_path     | /test2   |
+      | pvc_name       | pvc2     |
+      | container_name | dctest-1 |
+    Then the step should succeed
