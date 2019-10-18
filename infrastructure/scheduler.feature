@@ -6,7 +6,7 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: [origin_runtime_646] Fixed predicates rules testing - PodFitsPorts
     Given I have a project
-    Given a node that can run pods in the "<%=project.name%>" project is selected
+    Given I store the schedulable workers in the clipboard
     Given label "multihostports=true" is added to the "<%=node.name%>" node
     Given I run the :patch admin command with:
       | resource | namespace |
@@ -48,7 +48,7 @@ Feature: Scheduler predicates and priority test suites
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/multiple-schedulers/custom-scheduler.yaml |
     Then the step should succeed
     Given the pod named "custom-scheduler" becomes present
-    Given a node that can run pods in the "<%=project.name%>" project is selected
+    Given I store the schedulable workers in the clipboard
     When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/multiple-schedulers/binding.json 
     And the step should succeed
     Given the pod named "custom-scheduler" becomes ready
@@ -98,8 +98,7 @@ Feature: Scheduler predicates and priority test suites
   Scenario: Scheduler should use "allocatable" for pod scheduling
     Given I have a project
     Given environment has at least 2 schedulable nodes
-    Given I store the schedulable nodes in the :nodes clipboard
-    Given a node that can run pods in the "<%=project.name%>" project is selected
+    Given I store the schedulable workers in the :nodes clipboard
     And the expression should be true> cb.nodes.delete(node)
     Given the taints of the nodes in the clipboard are restored after scenario
     # make sure only one node can be scheduled for testing pod,
