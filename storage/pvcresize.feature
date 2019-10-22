@@ -251,7 +251,6 @@ Feature: PVC resizing Test
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
@@ -269,8 +268,9 @@ Feature: PVC resizing Test
     Then the step should succeed
     And I wait up to 800 seconds for the steps to pass:
     """
-    Given the expression should be true> pv(pvc.volume_name).capacity_raw(cached: false) == "2Gi"
+    Given the expression should be true> pv(pvc("pvc-<%= project.name %>").volume_name).capacity_raw(cached: false) == "2Gi"
     """
+
     # re-create the pod
     Given I ensures "mypod-<%= project.name %>" pod is deleted
 
