@@ -228,8 +228,17 @@ Feature: oc set image related tests
       | dest        | <%= project.name %>/ho:latest         |
     Then the step should succeed
     And evaluation of `image_stream("ho").latest_tag_status.imageref.name` is stored in the :image_id clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/imagesignature.yaml"
-    Then the step should succeed
+    Given a "imagesignature.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: ImageSignature
+    metadata:
+     name: <%= cb.image_id %>@imagesignaturetest
+    type: valid
+    content:
+    - 25
+    imageIdentity: "registry.company.ltd/app/core:v1.2"
+    """
     When I run the :create client command with:
       | f        | imagesignature.yaml |
       | loglevel | 6                   |
@@ -239,8 +248,6 @@ Feature: oc set image related tests
       | object_name_or_id | <%= cb.image_id %>@imagesignaturetest |
     Then the step should fail
     Given cluster role "system:image-signer" is added to the "first" user
-    And I replace lines in "imagesignature.yaml":
-      | name: ["metadata"]@["name"] | name:  <%= cb.image_id %>@imagesignaturetest |
     When I run the :create client command with:
       | f        | imagesignature.yaml |
       | loglevel | 6                   |
@@ -256,7 +263,7 @@ Feature: oc set image related tests
       | signatures |
       | name: <%= cb.image_id %>@imagesignaturetest |
     And I replace lines in "imagesignature.yaml":
-      | name:  <%= cb.image_id %>@imagesignaturetest | name: <%= cb.image_id %>@imagesignaturetest2 |
+      | name: <%= cb.image_id %>@imagesignaturetest | name: <%= cb.image_id %>@imagesignaturetest2 |
       | - 25 | - 20 |
     When I run the :create client command with:
       | f | imagesignature.yaml |

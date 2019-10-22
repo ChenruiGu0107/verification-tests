@@ -31,3 +31,85 @@ Feature: REST related features
       | verb | update |
       | resource | pods |
     Then the output should contain "<%= user.name %>"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-18984
+  @admin
+  Scenario: Request to view all imagestreams via registry catalog api	
+    Given I have a project
+    Given I enable image-registry default route
+    Given default image registry route is stored in the :registry_route clipboard
+    When I perform the HTTP request:
+    """ 
+    :url: https://<%= cb.registry_route %>/v2/_catalog?n=5
+    :method: :get
+    :headers:
+      :Authorization: Bearer <%= user.cached_tokens.first %>
+    """
+    Then the step should fail
+    #Then the output should contain "401 Unauthorized"
+    Given cluster role "registry-viewer" is added to the "first" user
+    When I perform the HTTP request:
+    """ 
+    :url: https://<%= cb.registry_route %>/v2/_catalog?n=5
+    :method: :get
+    :headers:
+      :Authorization: Bearer <%= user.cached_tokens.first %>
+    """
+    Then the step should succeed
+    #Then the output should contain "401"
+
+  #@author xiuwang@redhat.com
+  # @case_id OCP-12958
+  @admin
+  Scenario: Read and write image signatures with registry endpoint
+    Given I have a project
+    When I run the :tag client command with:
+      | source      | docker.io/openshift/hello-openshift   |
+      | dest        | <%= project.name %>/ho:latest         |
+    Then the step should succeed
+    And evaluation of `image_stream("ho").latest_tag_status.imageref.name` is stored in the :image_id clipboard
+    Given I enable image-registry default route
+    Given default image registry route is stored in the :registry_route clipboard
+    Given a "imagesignature.json" file is created with the following lines:
+     """
+     {
+       "schemaVersion": 2,
+       "type": "atomic",
+       "name": "<%= cb.image_id %>@imagesignature12958test",
+       "content": "MjIK"
+      }
+     """
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.registry_route %>/extensions/v2/<%= project.name %>/ho/signatures/<%= cb.image_id %>
+    :method: PUT
+    :headers:
+      :content-type: application/json
+      :Authorization: Bearer <%= user.cached_tokens.first %>
+    :payload: <%= File.read("imagesignature.json").to_json %>
+    """
+    Then the step should fail
+    Given cluster role "system:image-signer" is added to the "first" user
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.registry_route %>/extensions/v2/<%= project.name %>/ho/signatures/<%= cb.image_id %>
+    :method: PUT
+    :headers:
+      :content-type: application/json
+      :Authorization: Bearer <%= user.cached_tokens.first %>
+    :payload: <%= File.read("imagesignature.json").to_json %>
+    """
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | image              |
+      | resource_name | <%= cb.image_id %> |
+      | o             | yaml               |
+    Then the step should succeed
+    Then the output should contain:
+      | signatures |
+      | name: <%= cb.image_id %>@imagesignature12958test |
+    When I run the :delete client command with:
+      | object_type | imagesignature |
+      | object_name_or_id | <%= cb.image_id %>@imagesignature12958test  |
+    Then the step should succeed
