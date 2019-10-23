@@ -749,3 +749,37 @@ Feature: SDN related networking scenarios
     And the output should not contain "<%= cb.proj1netid %>"
     """
 
+  # @author zzhao@redhat.com
+  # @case_id OCP-24395
+  @admin
+  Scenario: The arping should be installed in openshift-sdn
+    Given I store the ready and schedulable nodes in the :nodes clipboard
+    When I run command on the "<%= cb.nodes[0].name %>" node's sdn pod:
+      | bash | -c | which arping |
+    Then the step should succeed
+    And the output should contain "/usr/sbin/arping"
+
+  #author zzhao@redhat.com
+  # @case_id OCP-23337
+  @admin
+  @destructive
+  Scenario: Application pod should NOT be killed after the ovs restart
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    #Create one test pod and check it's ip did not be changed when ovs pod is restarted.
+    And I have a pod-for-ping in the project
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Then evaluation of `pod.node_name` is stored in the :node_name clipboard
+    Given I restart the ovs pod on the "<%= cb.node_name %>" node
+    Then the step should succeed
+    Then the expression should be true> cb.pod_ip == cb.ping_pod.ip(cached: false)
+    #Create another pod and check the above pod if work well
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.pod_ip %>:8080 |
+    And the output should contain "Hello"
