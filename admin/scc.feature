@@ -733,6 +733,7 @@ Feature: SCC policy related scenarios
       | resource      | scc                                 |
       | resource_name | restricted                          |
       | p             | {"allowPrivilegeEscalation": false} |
+      | type          | merge                               |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_request_allowprivilegeescalation.yaml |
