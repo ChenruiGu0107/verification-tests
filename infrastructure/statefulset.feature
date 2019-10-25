@@ -36,9 +36,8 @@ Feature: StatefulSet related tests
     And the output should contain:
       | test-statefulset-1 |
     Given node schedulable status should be restored after scenario
-    When I run the :oadm_manage_node admin command with:
-      | node_name   | <%= cb.pod1_node %> |
-      | schedulable | false               |
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.pod1_node %> |
     Then the step should succeed
     Given I ensure "hello-statefulset-0" pod is deleted
     Given the pod named "hello-statefulset-0" becomes ready
@@ -47,13 +46,11 @@ Feature: StatefulSet related tests
     Then the step should succeed
     And the output should contain:
       | test-statefulset-0 |
-    When I run the :oadm_manage_node admin command with:
-      | node_name   | <%= cb.pod1_node %> |
-      | schedulable | true                |
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.pod1_node %> |
     Then the step should succeed
-    When I run the :oadm_manage_node admin command with:
-      | node_name   | <%= cb.pod2_node %> |
-      | schedulable | false               |
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.pod2_node %> |
     Then the step should succeed
     Given I ensure "hello-statefulset-0" pod is deleted
     Given the pod named "hello-statefulset-1" becomes ready
