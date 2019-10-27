@@ -51,8 +51,6 @@ Feature: Api proxy related cases
       | resource_name | client-cert         |
       | port_name     | 9443-tcp            |
     Then the step should succeed
-    And the output should match:
-      |system:master-proxy|
     """
     # check https pod proxy
     When I perform the :proxy_get_request_to_resource rest request with:
@@ -62,5 +60,3 @@ Feature: Api proxy related cases
       | resource_name | <%= pod.name  %>    |
       | port_name     | 9443                |
     Then the step should succeed
-    And the output should match:
-      |system:master-proxy|
