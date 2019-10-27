@@ -1,0 +1,93 @@
+Feature: Node related
+
+  # @author hasha@redhat.com
+  # @case_id OCP-23044
+  @admin
+  @destructive
+  Scenario: Taints and Tolerations support on console
+    Given I store the schedulable workers in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    Given the master version >= "4.1"
+    Given I have a project
+    And I open admin console in a browser
+    Given the first user is cluster-admin
+    When I perform the :add_taint_to_node web action with:
+      | node_name      | <%= cb.nodes[0].name %> |
+      | key            | Taints                  |
+      | affinity_key   | taint_test              | 
+      | affinity_value | taint                   |
+      | effect         | NoSchedule              |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | node                    |
+      | resource_name | <%= cb.nodes[0].name %> |
+      | o             | yaml                    |
+    Then the step should succeed
+    And the output should contain:
+      | effect: NoSchedule  |
+      | key: taint_test     |
+      | value: taint        |
+    """
+    When I run the :new_app client command with:
+      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    When I perform the :add_tolerations_to_pod web action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           |  ruby-ex            |
+      | key               | Tolerations         |
+      | affinity_key      | taint_test          |
+      | affinity_value    | taint               |
+      | effect            | NoSchedule          |
+      | operator          | Equal               |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource     | dc      |
+      |resource_name | ruby-ex |
+      | o            | yaml    |
+    Then the step should succeed
+    And the output should contain:
+      | key: taint_test    |
+      | operator: Equal    |
+      | value: taint       |
+      | effect: NoSchedule |
+    """
+    When I perform the :remove_tolerations_from_pod web action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           |  ruby-ex            |
+      | key               | Tolerations         |
+      | affinity_key      | taint_test          |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | dc      |
+      | resource_name | ruby-ex |
+      | o             | yaml    |
+    Then the step should succeed
+    And the output should not contain:
+      | key: taint_test    |
+      | operator: Equal    |
+      | value: taint       |
+      | effect: NoSchedule |
+    """
+    When I perform the :remove_taint_from_node web action with:
+      | node_name      | <%= cb.nodes[0].name %> |
+      | key            | Taints                  |
+      | affinity_key   | taint_test              |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | node                    |
+      | resource_name | <%= cb.nodes[0].name %> |
+      | o             | yaml                    |
+    Then the step should succeed
+    And the output should not contain:
+      | effect: NoSchedule  |
+      | key: taint_test     |
+      | value: taint        |
+     """
