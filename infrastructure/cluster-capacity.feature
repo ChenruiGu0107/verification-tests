@@ -37,9 +37,8 @@ Feature: cluster-capacity related features
     Then the expression should be true> @result[:response].to_i == cb.expected_number_per_node.reduce(&:+)   
     # following is for unschedulable scenario
     Given node schedulable status should be restored after scenario
-    When I run the :oadm_manage_node admin command with:
-      | node_name   | <%= cb.nodes[1].name %> |
-      | schedulable | false                   |
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
     When I run the :exec client command with:
       | pod               | cluster-capacity              |
