@@ -205,3 +205,42 @@ Feature: route related
       | prometheus_ui_route      | <%= route('prometheus-k8s').spec.host %>    |
       | dashboards_grafana_route | <%= route('grafana').spec.host %>           |
     Then the step should succeed
+ 
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-23580
+  Scenario: Check canonical router hostname and popover help
+    Given the master version >= "4.2"
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                 |
+      | code         | https://github.com/sclorg/django-ex.git |
+      | name         | python-sample                           |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | svc           |
+      | resource_name | python-sample |
+    Then the step should succeed
+    Given I open admin console in a browser
+    Given I store default router subdomain in the :subdomain clipboard
+    When I perform the :goto_one_route_page web action with:
+      | project_name | <%= project.name %> |
+      | route_name   | python-sample       |
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Canonical Router Hostname |
+      | value | <%= cb.subdomain %>       |
+    Then the step should succeed
+
+    When I run the :annotate client command with:
+      | resource     | route                               |
+      | resourcename | python-sample                       |
+      | keyval       | openshift.io/host.generated='false' |
+      | overwrite    | true                                |
+    Then the step should succeed
+
+    When I run the :check_custom_dns_help_link web action
+    Then the step should succeed
+    When I run the :open_custom_dns_help_modal web action
+    Then the step should succeed
+    When I run the :check_custom_dns_help_info web action
+    Then the step should succeed
