@@ -212,3 +212,23 @@ Feature: customize console related
     When I run the :verify_logged_in_admin_console web action
     Then the step should succeed
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-24287
+  @admin
+  Scenario: Let users customize CLI downloads
+    Given the master version >= "4.2"
+
+    Given I open admin console in a browser
+    When I run the :browse_to_cli_tools_page web action
+    Then the step should succeed
+    When I run the :check_default_oc_download_links web action
+    Then the step should succeed
+
+    Given admin ensures "clidownloadtest" consoleclidownload is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/clidownload.yaml |
+    Then the step should succeed
+    When I run the :goto_cli_tools_page web action
+    Then the step should succeed
+    When I run the :check_customized_oc_download_links web action
+    Then the step should succeed
