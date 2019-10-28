@@ -340,23 +340,95 @@ Feature: buildconfig.feature
 
   # @author xiuwang@redhat.com
   # @case_id OCP-23639
-  Scenario: Do incremental builds for sti-build in openshift
+  Scenario: Do incremental builds for binary build
     Given I have a project
+    Given a "imagestream.yaml" file is created with the following lines:
+    """
+    apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: sti-bc
+      name: sti
+    spec:
+      lookupPolicy:
+        local: false
+    """
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482207/bc.json |
+      | f | imagestream.yaml |
     Then the step should succeed
-    And the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    # Test clean build firstly
-    When I run the :build_logs client command with:
-      | build_name      | ruby-sample-build-1 |
-    Then the output should match "Clean build will be performed"
-    # Test incremental build secondly
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/build_config.yaml |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/sti-app.tar"
     When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
+      | buildconfig  | sti-bc      |
+      | from_archive | sti-app.tar |
     Then the step should succeed
-    And the "ruby-sample-build-2" build was created
-    And the "ruby-sample-build-2" build completed
-    When I run the :build_logs client command with:
-      | build_name      | ruby-sample-build-2 |
-    Then the output should match "Saving build artifacts from image"
+    And the "sti-bc-2" build was created
+    Given the "sti-bc-2" build completed
+    When I run the :logs client command with:
+      | resource_name | build/sti-bc-2 |
+    And the output should contain "Downloading"
+    When I run the :start_build client command with:
+      | buildconfig  | sti-bc      |
+      | from_archive | sti-app.tar |
+    Then the step should succeed
+    And the "sti-bc-3" build was created
+    Given the "sti-bc-3" build completed
+    When I run the :logs client command with:
+      | resource_name | build/sti-bc-3|
+    And the output should not contain "Downloading"
+    And the output should contain:
+      | COPY --from=cached /tmp/artifacts.tar /tmp/artifacts.tar |
+      | COPY upload/src /tmp/src |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23781
+  Scenario: Use shell variable in build config environment variable section
+    Given I have a project
+    Given a "imagestream.yaml" file is created with the following lines:
+    """
+    apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: env-var-bc
+      name: sti
+    spec:
+      lookupPolicy:
+        local: false
+    """
+    And I run the :create client command with:
+      | f | imagestream.yaml |
+    Then the step should succeed
+    Given a "env-var-bc.yaml" file is created with the following lines:
+    """
+    kind: BuildConfig
+    apiVersion: build.openshift.io/v1
+    metadata:
+      name: env-var-bc
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: 'sti:latest'
+      strategy:
+        type: Source
+        sourceStrategy:
+          from:
+            kind: DockerImage
+            name: 'registry.access.redhat.com/jboss-eap-7/eap72-openshift:1.0'
+          env:
+            - name: TEST
+              value: '${user.home}'
+      source:
+        type: None
+      triggers:
+        - type: ConfigChange
+        """
+    And I run the :create client command with:
+      | f | env-var-bc.yaml |
+    Then the step should succeed
+    And the "env-var-bc-1" build was created
+    Given the "env-var-bc-1" build completed

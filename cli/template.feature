@@ -406,3 +406,38 @@ Feature: template related scenarios:
       | dry_run  | true                                   |
     Then the step should succeed
     And the output should contain "<%= project.name %>"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23251
+  Scenario: Deal with crd resources with new-app
+    Given I have a project
+    Given a "template-with-crd.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: Template
+    metadata:
+      name: template-with-crd
+    objects:
+    - kind: CustomResourceDefinition
+      apiVersion: apiextensions.k8s.io/v1beta1
+      metadata:
+        name: installations.istio.openshift.com
+      spec:
+        group: istio.openshift.com
+        names:
+          kind: Installation
+          plural: installations
+          singular: installation
+        scope: Namespaced
+        version: v1alpha1
+    """
+    And I run the :new_app client command with:
+      | resource | template-with-crd.yaml |
+    And the output should contain:
+      | oc process -f <template> \| oc create |
+    Then the step should fail
+    And I run the :new_app client command with:
+      | file | template-with-crd.yaml |
+    Then the step should fail
+    And the output should contain:
+      | oc process -f <template> \| oc create |
