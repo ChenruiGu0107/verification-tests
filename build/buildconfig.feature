@@ -154,57 +154,51 @@ Feature: buildconfig.feature
     When I get project is named "ruby" as YAML
     Then the output should match "name:\s+ruby"
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+   # When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    When I run the :new_app client command with:
+      | image_stream | ruby                                    |
+      | app_repo     | https://github.com/openshift-qe/ruby-ex |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build completes
+    And the "ruby-ex-1" build completes
     When I run the :patch client command with:
-      | resource      | buildconfig                                                                                              |
-      | resource_name | ruby22-sample-build                                                                                      |
-      | p | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha %>"}},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                               |
+      | resource_name | ruby-ex                                                                                                                   |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@<%= cb.imagesha %>"}}},"type": "Source"}} |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | buildconfig           |
-      | name     | ruby22-sample-build   |
+      | resource | buildconfig |
+      | name     | ruby-ex     |
     Then the step should succeed
-    And the output should match "ImageStreamImage\s+ruby@<%= cb.imagesha %>"
+    And the output should contain "ImageStreamImage"
     #And the output should match:
     #| ImageStreamImage\s+ruby@<%= cb.imagesha %> |
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-ex |
     Then the step should succeed
-    Given the "ruby22-sample-build-2" build completes
+    Given the "ruby-ex-2" build completes
     When I run the :describe client command with:
-      | resource | build                 |
-      | name     | ruby22-sample-build-2 |
+      | resource | build     |
+      | name     | ruby-ex-2 |
     Then the step should succeed
     And the output should match "DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %>"
     #And the output should match:
     #  | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
-      | resource      | buildconfig                                                                                                                                                 |
-      | resource_name | ruby22-sample-build                                                                                                                                         |
-      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha[0..15] %>"}},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                            |
+      | resource_name | ruby-ex                                                                                                                |
+      | p             | {"spec": {"strategy": {"sourceStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@123"}}},"type": "Source"}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Then the step should succeed
-    Given the "ruby22-sample-build-3" build was created
-    When I run the :patch client command with:
-      | resource      | buildconfig                                                                                                                               |
-      | resource_name | ruby22-sample-build                                                                                                                       |
-      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@123456" }},"type":"Docker","sourceStrategy":null}}} |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-ex |
     Then the step should fail
     And the output should match "(not found|unable to find)"
     When I run the :patch client command with:
-      | resource      | buildconfig                                                                                                                        |
-      | resource_name | ruby22-sample-build                                                                                                                |
-      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@"}},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                         |
+      | resource_name | ruby-ex                                                                                                             |
+      | p             | {"spec": {"strategy": {"sourceStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@"}}},"type": "Source"}} |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby-ex |
     Then the step should fail
     And the output should match "must (be retrieved|have a name and ID)"
 
