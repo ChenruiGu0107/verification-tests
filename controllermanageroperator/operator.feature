@@ -46,16 +46,7 @@ Feature: Testing openshift-controller-manager-operator
       | type          | merge                          |
     Then the step should succeed
     """
-    When I run the :get client command with:
-      | resource      | co                           |
-      | resource_name | openshift-controller-manager |
-      | w             | true                         |
-      | o             | yaml                         |
-    Then the step should succeed
-    And the output should contain:
-      | reason: ProgressingDesiredStateNotYetAchieved |
-      | status: "True"    |
-      | type: Progressing |
+    Then the expression should be true> cluster_operator("openshift-controller-manager").conditions.any? {|c| c.reason == "ProgressingDesiredStateNotYetAchieved" && c.status == "True" && c.type == "Progressing"}
     When I run the :delete client command with:
       | object_type       | svc                          |
       | object_name_or_id | controller-manager           |
