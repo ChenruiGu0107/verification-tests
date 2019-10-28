@@ -237,15 +237,10 @@ Feature: Azure disk and Azure file specific scenarios
     Then the step should succeed
     Given all existing pods die with labels:
       | run=hello-openshift |
+    Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
       | node_name | <%= pod.node_name %> |
     Then the step should succeed
-    Given I register clean-up steps:
-    """
-    I run the :oadm_uncordon_node admin command with:
-      | node_name | <%= cb.pod_node %> |
-    the step should succeed
-    """
     When I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | hello-openshift  |

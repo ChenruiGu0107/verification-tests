@@ -77,12 +77,7 @@ Feature: Event related scenarios
   Scenario: Node events should be logged
     Given I have a project
     Given I store the schedulable nodes in the :nodes clipboard
-    Given I register clean-up steps:
-    """
-    I run the :oadm_uncordon_node admin command with:
-      | node_name   | <%= cb.nodes[0].name %> |
-    the step should succeed
-    """
+    Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
       | node_name   | <%= cb.nodes[0].name %> |
     Then the step should succeed
