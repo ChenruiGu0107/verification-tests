@@ -1246,7 +1246,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15168/example-job.yaml |
     Then the step should succeed
-    And I wait for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I get project pods
     Then the output should contain "ErrImagePull"
