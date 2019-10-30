@@ -61,6 +61,7 @@ Feature: customize console related
   @destructive
   @admin
   Scenario: console customization
+    Given the master version >= "4.1"
     Given I register clean-up steps:
     """
     When I run the :patch admin command with:
@@ -116,7 +117,8 @@ Feature: customize console related
     Given I switch to the first user
     And I open admin console in a browser
     When I perform the :check_header_brand web action with:
-      | product_brand | OKD |
+      | logo_source  | okd-logo |
+      | product_name | OKD      |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | documentation               |
@@ -232,3 +234,76 @@ Feature: customize console related
     Then the step should succeed
     When I run the :check_customized_oc_download_links web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24016
+  @destructive
+  @admin
+  Scenario: Add custom branding to config map
+    Given the master version >= "4.2"
+    Given admin ensures "myconfig" configmap is deleted from the "openshift-config" project after scenario
+    Given I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster         |
+      | type     | merge                            |
+      | p        | {"spec":{"customization": null}} |
+    Then the step should succeed
+    """
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/mypic.jpg"
+    Then the step should succeed
+    When I run the :create_configmap admin command with:
+      | name      | myconfig         |
+      | from_file | mypic.jpg        |
+      | namespace | openshift-config |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-console" project
+    Given evaluation of `deployment("console").annotation("deployment.kubernetes.io/revision", user: admin).to_i` is stored in the :version_before_deploy clipboard
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"customProductName":"my-custom-name","customLogoFile":{"name":"myconfig","key":"mypic.jpg"}}}} |
+    Then the step should succeed
+
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> deployment("console").annotation("deployment.kubernetes.io/revision", user: admin, cached: false).to_i > <%= cb.version_before_deploy %>
+    """
+    Given number of replicas of the current replica set for the "console" deployment becomes:
+      | desired  | 2 |
+      | current  | 2 |
+      | ready    | 2 |
+
+    Given I switch to the first user
+    And I open admin console in a browser
+    When I perform the :check_header_brand web action with:
+      | logo_source  | custom-logo    |
+      | product_name | my-custom-name |
+    Then the step should succeed
+
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"brand":"test"}}} |
+    Then the step should fail
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"customLogoFile":{"name":"myconfig","key":"nonexist.jpg"}}}} |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And current replica set name of "console" deployment stored into :console_rs clipboard
+    Given evaluation of `replica_set("<%= cb.console_rs %>").labels(user: admin)["pod-template-hash"]` is stored in the :pod_label clipboard
+    Given status becomes :running of 1 pods labeled:
+      | pod-template-hash=<%= cb.pod_label %> |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | could not read logo file  |
+      | no such file or directory |
+    """
