@@ -301,3 +301,18 @@ Feature: storage (storageclass, pv, pvc) related
       | pvc_name       | pvc2     |
       | container_name | dctest-1 |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-20964
+  @admin
+  Scenario: admin create storage class from Form
+    Given the master version >= "4.1"
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    Given admin ensures "testsc-20964" storageclass is deleted after scenario
+    When I perform the :create_storageclass_from_form web action with:
+      | sc_name     | testsc-20964 |
+      | provisioner | local        |
+    Then the step should succeed
+    Given the expression should be true> storage_class('testsc-20964').provisioner == "kubernetes.io/no-provisioner"
+    Given the expression should be true> storage_class('testsc-20964').reclaim_policy == "Delete"
