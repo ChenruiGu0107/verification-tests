@@ -342,20 +342,8 @@ Feature: buildconfig.feature
   # @case_id OCP-23639
   Scenario: Do incremental builds for binary build
     Given I have a project
-    Given a "imagestream.yaml" file is created with the following lines:
-    """
-    apiVersion: image.openshift.io/v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: sti-bc
-      name: sti
-    spec:
-      lookupPolicy:
-        local: false
-    """
     And I run the :create client command with:
-      | f | imagestream.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
     Then the step should succeed
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/build_config.yaml |
@@ -387,48 +375,11 @@ Feature: buildconfig.feature
   # @case_id OCP-23781
   Scenario: Use shell variable in build config environment variable section
     Given I have a project
-    Given a "imagestream.yaml" file is created with the following lines:
-    """
-    apiVersion: image.openshift.io/v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: env-var-bc
-      name: sti
-    spec:
-      lookupPolicy:
-        local: false
-    """
     And I run the :create client command with:
-      | f | imagestream.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
     Then the step should succeed
-    Given a "env-var-bc.yaml" file is created with the following lines:
-    """
-    kind: BuildConfig
-    apiVersion: build.openshift.io/v1
-    metadata:
-      name: env-var-bc
-    spec:
-      output:
-        to:
-          kind: ImageStreamTag
-          name: 'sti:latest'
-      strategy:
-        type: Source
-        sourceStrategy:
-          from:
-            kind: DockerImage
-            name: 'registry.access.redhat.com/jboss-eap-7/eap72-openshift:1.0'
-          env:
-            - name: TEST
-              value: '${user.home}'
-      source:
-        type: None
-      triggers:
-        - type: ConfigChange
-        """
     And I run the :create client command with:
-      | f | env-var-bc.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23781/build_config.yaml |
     Then the step should succeed
     And the "env-var-bc-1" build was created
     Given the "env-var-bc-1" build completed
