@@ -226,7 +226,7 @@ Feature: customize console related
     When I run the :check_default_oc_download_links web action
     Then the step should succeed
 
-    Given admin ensures "clidownloadtest" consoleclidownload is deleted after scenario
+    Given admin ensures "clidownloadtest" console_cli_download_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/clidownload.yaml |
     Then the step should succeed
