@@ -287,19 +287,17 @@ Feature: Dynamic provisioning
     Then the step should succeed
 
   # @author jhou@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-20728
   @admin
   Scenario: The reclaimPolicy is Retain when set as empty string
     Given I have a project
-
-    # When reclaimPolicy=""
-    And admin clones storage class "sc1-<%= project.name %>" from ":default" with:
-      | ["reclaimPolicy"] | "" |
-
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["reclaimPolicy"]     | ""        |
+      | ["volumeBindingMode"] | Immediate |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
-      | ["spec"]["storageClassName"]                 | sc1-<%= project.name %>  |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the expression should be true> pv(pvc("pvc1-<%= project.name %>").volume_name).reclaim_policy == "Retain"
+    And the "mypvc" PVC becomes :bound
+    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
