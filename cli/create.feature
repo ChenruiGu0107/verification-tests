@@ -808,7 +808,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     Given the pod named "kubernetes-metadata-volume-example" becomes ready
     When I execute on the pod:
-      | ls | -laR | /etc |
+      | ls | -laR | /data/podinfo-dir |
     Then the step should succeed
     And the output should contain:
       | annotations -> |
