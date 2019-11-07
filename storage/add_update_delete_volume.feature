@@ -458,80 +458,46 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author lxia@redhat.com
   # @case_id OCP-9845
   Scenario: Pod should be able to mount multiple PVCs
-    # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:latest   |
-      | env          | MONGODB_USER=tester        |
-      | env          | MONGODB_PASSWORD=xxx       |
-      | env          | MONGODB_DATABASE=testdb    |
-      | env          | MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                       |
+      | template | mysql-persistent |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=mydb |
+      | name=mysql |
 
-    # add pvc to dc
     When I run the :volume client command with:
-      | resource   | dc/mydb               |
+      | resource   | dc/mysql              |
       | action     | --add                 |
       | type       | persistentVolumeClaim |
-      | mount-path | /opt1                 |
-      | name       | volume1               |
-      | claim-name | pvc1                  |
+      | mount-path | /mypath1              |
+      | name       | myvolume1             |
       | claim-size | 1Gi                   |
     Then the step should succeed
-    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
-    And a pod becomes ready with labels:
-      | app=mydb |
     When I run the :volume client command with:
-      | resource   | dc/mydb               |
+      | resource   | dc/mysql              |
       | action     | --add                 |
       | type       | persistentVolumeClaim |
-      | mount-path | /opt2                 |
-      | name       | volume2               |
-      | claim-name | pvc2                  |
+      | mount-path | /mypath2              |
+      | name       | myvolume2             |
       | claim-size | 2Gi                   |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
-      | app=mydb |
-
-    # check after add pvc to dc
-    When I get project deploymentconfig as YAML
-    Then the step should succeed
-    And the output should contain:
-      | mountPath: /opt1       |
-      | mountPath: /opt2       |
-      | name: volume1          |
-      | name: volume2          |
-      | persistentVolumeClaim: |
-      | claimName: pvc1        |
-      | claimName: pvc2        |
+      | name=mysql |
 
     When I execute on the pod:
       | df |
     Then the step should succeed
     And the output should contain:
-      | /opt1 |
-      | /opt2 |
+      | /mypath1 |
+      | /mypath2 |
     When I execute on the pod:
       | mount |
     Then the step should succeed
     And the output should contain:
-      | /opt1 |
-      | /opt2 |
+      | /mypath1 |
+      | /mypath2 |
 
-    When I get project pods as YAML
-    Then the step should succeed
-    And the output should contain:
-      | mountPath: /opt1       |
-      | mountPath: /opt2       |
-      | name: volume1          |
-      | name: volume2          |
-      | persistentVolumeClaim: |
-      | claimName: pvc1        |
-      | claimName: pvc2        |
 
   # @author wehe@redhat.com
   @admin
