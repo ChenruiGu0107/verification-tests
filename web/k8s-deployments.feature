@@ -26,7 +26,7 @@ Feature: Features about k8s deployments
       | pvc_name | nfsc |
     Then the step should succeed
     And the expression should be true> browser.url.include? "browse/persistentvolumeclaims"
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | deployment                 |
       | resource_name | hello-openshift            |
       | action        | --remove                   |

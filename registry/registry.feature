@@ -175,7 +175,7 @@ Feature: Testing registry
       | namespace       | default        |
     Then the step should succeed
     And admin ensures "registryconfig" secrets is deleted from the "default" project after scenario
-    And I run the :volume admin command with:
+    And I run the :set_volume admin command with:
       | resource    | dc/docker-registry |
       | add         | true               |
       | name        | config             |
@@ -617,7 +617,7 @@ Feature: Testing registry
     Given default docker-registry deployment config is restored after scenario
     Given I switch to cluster admin pseudo user
     Given SCC "privileged" is added to the "registry" service account
-    And I run the :volume admin command with:
+    And I run the :set_volume admin command with:
       | resource    | dc/docker-registry |
       | add         | true               |
       | name        | registry-storage   |

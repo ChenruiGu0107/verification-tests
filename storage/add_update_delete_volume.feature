@@ -21,7 +21,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     # add pvc to dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb                 |
       | action     | --add                   |
       | type       | persistentVolumeClaim   |
@@ -51,7 +51,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt1 | /proc/mounts |
     Then the step should succeed
     # remove pvc from dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | dc/mydb  |
       | action   | --remove |
       | name     | v1       |
@@ -72,7 +72,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt1 | /proc/mounts |
     Then the step should fail
     # add pvc to rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | rc/mydb-3               |
       | action     | --add                   |
       | type       | persistentVolumeClaim   |
@@ -99,7 +99,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt2 | /proc/mounts |
     Then the step should succeed
     # remove pvc from rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/mydb-3 |
       | action   | --remove  |
       | name     | v2        |
@@ -120,7 +120,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt2 | /proc/mounts |
     Then the step should fail
     # add pvc to dc with '--overwrite' option
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb                 |
       | action     | --add                   |
       | type       | persistentVolumeClaim   |
@@ -129,7 +129,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should fail
     And the output should contain:
       | already exists |
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb                 |
       | action     | --add                   |
       | type       | persistentVolumeClaim   |
@@ -139,7 +139,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should fail
     And the output should contain:
       | Use --overwrite to replace |
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb                 |
       | action     | --add                   |
       | type       | persistentVolumeClaim   |
@@ -171,7 +171,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # add emptyDir to dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb  |
       | action     | --add    |
       | type       | emptyDir |
@@ -198,7 +198,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt1 | /proc/mounts |
     Then the step should succeed
     # remove emptyDir from dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | dc/mydb  |
       | action   | --remove |
       | name     | v1       |
@@ -219,7 +219,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt1 | /proc/mounts |
     Then the step should fail
     # add emptyDir to rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | rc/mydb-3 |
       | action     | --add     |
       | type       | emptyDir  |
@@ -244,7 +244,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt2 | /proc/mounts |
     Then the step should succeed
     # remove emptyDir from rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/mydb-3 |
       | action   | --remove  |
       | name     | v2        |
@@ -285,7 +285,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # add hostPath to dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mydb  |
       | action     | --add    |
       | type       | hostPath |
@@ -318,7 +318,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ls | /opt1/sbin |
     Then the step should succeed
     # remove hostPath from dc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | dc/mydb  |
       | action   | --remove |
       | name     | v1       |
@@ -342,7 +342,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ls | /opt1/sbin |
     Then the step should fail
     # add hostPath to rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | rc/mydb-3 |
       | action     | --add     |
       | type       | hostPath  |
@@ -372,7 +372,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ls | /opt2/sbin |
     Then the step should succeed
     # remove hostPath from rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/mydb-3 |
       | action   | --remove  |
       | name     | v2        |
@@ -421,7 +421,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc                       |
       | resource_name | mydb                     |
       | action        | --add                    |
@@ -433,7 +433,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path    | /opt111                  |
     Then the step should succeed
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc     |
       | resource_name | mydb   |
       | action        | --list |
@@ -465,7 +465,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | name=mysql |
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mysql              |
       | action     | --add                 |
       | type       | persistentVolumeClaim |
@@ -473,7 +473,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | myvolume1             |
       | claim-size | 1Gi                   |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | dc/mysql              |
       | action     | --add                 |
       | type       | persistentVolumeClaim |
@@ -531,7 +531,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path    | /opt111                |
       | claim-class   | sc-<%= project.name %> |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc     |
       | resource_name | mydb   |
       | action        | --list |

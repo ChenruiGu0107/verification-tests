@@ -56,7 +56,7 @@ Feature: Add pvc to pod from web related
       | exec_command_arg | /proc/mounts|
     Then the step should succeed
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | rc/mytest-1             |
       | action        | --remove                |
       | name          | v1                      |
@@ -86,7 +86,7 @@ Feature: Add pvc to pod from web related
       | exec_command_arg | /proc/mounts|
     Then the step should succeed
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc/mytest               |
       | action        | --remove                |
       | name          | v2                      |

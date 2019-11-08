@@ -8,7 +8,7 @@ Feature: oc_volume.feature
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
       | name         | myapp                |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | pod |
       | all | true |
       | selector | frontend |
@@ -49,7 +49,7 @@ Feature: oc_volume.feature
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :version clipboard
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource    | rc        |
       | all         | true      |
       | action      | --add     |
@@ -62,7 +62,7 @@ Feature: oc_volume.feature
       | myrc1 |
       | myrc2 |
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc     |
       | all      | true   |
       | action   | --list |
@@ -84,13 +84,13 @@ Feature: oc_volume.feature
     Then the step should succeed
     And the output should not contain "<%= cb.version %>"
     """
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc       |
       | all      | true     |
       | action   | --remove |
       | confirm  | true     |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc     |
       | all      | true   |
       | action   | --list |
@@ -106,14 +106,14 @@ Feature: oc_volume.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc                |
       | resource_name | database          |
       | name          | v1                |
       | action        | --add             |
       | mount-path    | /opt              |
     Then the step should succeed
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc                |
       | resource_name | database          |
       | name          | v2                |
@@ -144,12 +144,12 @@ Feature: oc_volume.feature
       | name         | ruby-hello-world          |
       | key_val      | volume=emptydir         |
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | pods                     |
       | action        | --list                   |
       | selector      | volume=nfs             |
     Then the output should contain "pods/testpod"
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource      | dc                       |
       | action        | --list                   |
       | selector      | volume=emptydir        |
@@ -165,7 +165,7 @@ Feature: oc_volume.feature
 
     # Add volume to dc
     Given I wait until replicationController "database-1" is ready
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource   | rc/database-1 |
       | resource   | dc/database   |
       | action     | --add         |
@@ -174,18 +174,18 @@ Feature: oc_volume.feature
       | mount-path | /etc/         |
     Then the step should succeed
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | dc/database |
       | action   | --list      |
     Then the output should contain "emptyvol"
 
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/database-1 |
       | action   | --list        |
     Then the output should contain "emptyvol"
 
     # Remove multiple volumes without giving volume name and '--confirm' option
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/database-1 |
       | resource | dc/database   |
       | action   | --remove      |
@@ -193,7 +193,7 @@ Feature: oc_volume.feature
     And the output should contain "error: must provide --confirm"
 
     # Remove volume from multiple resources
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/database-1 |
       | resource | dc/database   |
       | action   | --remove      |
@@ -201,7 +201,7 @@ Feature: oc_volume.feature
     Then the step should succeed
 
     # Volumes are removed from dc and rc
-    When I run the :volume client command with:
+    When I run the :set_volume client command with:
       | resource | rc/database-1 |
       | resource | dc/database   |
       | action   | --list        |
