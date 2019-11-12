@@ -338,3 +338,48 @@ Feature: buildconfig.feature
     And the output should not contain:
       | passwd |
 
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23639
+  Scenario: Do incremental builds for binary build
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
+    Then the step should succeed
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/build_config.yaml |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/sti-app.tar"
+    When I run the :start_build client command with:
+      | buildconfig  | sti-bc      |
+      | from_archive | sti-app.tar |
+    Then the step should succeed
+    And the "sti-bc-2" build was created
+    Given the "sti-bc-2" build completed
+    When I run the :logs client command with:
+      | resource_name | build/sti-bc-2 |
+    And the output should contain "Downloading"
+    When I run the :start_build client command with:
+      | buildconfig  | sti-bc      |
+      | from_archive | sti-app.tar |
+    Then the step should succeed
+    And the "sti-bc-3" build was created
+    Given the "sti-bc-3" build completed
+    When I run the :logs client command with:
+      | resource_name | build/sti-bc-3|
+    And the output should not contain "Downloading"
+    And the output should contain:
+      | COPY --from=cached /tmp/artifacts.tar /tmp/artifacts.tar |
+      | COPY upload/src /tmp/src |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23781
+  Scenario: Use shell variable in build config environment variable section
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
+    Then the step should succeed
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23781/build_config.yaml |
+    Then the step should succeed
+    And the "env-var-bc-1" build was created
+    Given the "env-var-bc-1" build completed

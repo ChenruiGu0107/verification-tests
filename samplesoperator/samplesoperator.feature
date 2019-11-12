@@ -112,5 +112,5 @@ Feature: samplesoperator
     """
     Then I wait up to 60 seconds for the steps to pass:
     """
-    Then the expression should be true> is("ruby", project("openshift")).tag_statuses(cached: false, user: admin).first.imageref.uri.include? "registry.access.redhat.com"
+    Then the expression should be true> image_stream("ruby", project("openshift")).tag_statuses(cached: false, user: admin).first.imageref.uri.include? "registry.access.redhat.com"
     """
