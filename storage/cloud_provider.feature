@@ -130,6 +130,7 @@ Feature: kubelet restart and node restart
       | provisioner    |
       | aws-ebs        | # @case_id OCP-24015
       | azure-disk     | # @case_id OCP-24336
+      | cinder         | # @case_id OCP-25884
       | gce-pd         | # @case_id OCP-24337
       | vsphere-volume | # @case_id OCP-24014
 
