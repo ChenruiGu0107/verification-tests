@@ -1,17 +1,26 @@
 Feature: Azure disk and Azure file specific scenarios
 
   # @author wehe@redhat.com
+  # @author wduan@redhat.com
   @admin
   Scenario Outline: azureDisk volume with readwrite/readonly cachingmode and xfs fstype
     Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/<azpodname>-pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
+    When admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["parameters"]["cachingMode"] | <cachingMode> |
+      | ["parameters"]["fsType"]      | xfs           |
     Then the step should succeed
-    Given the pod named "<azpodname>" becomes ready
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc                   |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    Given the pod named "mypod" becomes ready
     When I execute on the pod:
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
@@ -21,11 +30,19 @@ Feature: Azure disk and Azure file specific scenarios
     When I execute on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
+    # Verify PV with correct cachingMode and fsType
+    When I run the :get admin command with:
+      | resource      | pv                     |
+      | resource_name | <%= pvc.volume_name %> |
+      | o             | yaml                   |
+    Then the output should contain:
+      | cachingMode: <cachingMode>             |
+      | fsType: xfs                            |
 
     Examples:
-      | azpodname |
-      | azcaro    | # @case_id OCP-10204
-      | azrarw    | # @case_id OCP-10205
+      | cachingMode |
+      | ReadOnly    | # @case_id OCP-10204
+      | ReadWrite   | # @case_id OCP-10205
 
   # @author wehe@redhat.com
   # @case_id OCP-10206
