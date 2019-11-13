@@ -55,13 +55,13 @@ Feature: NFS Persistent Volume
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                | <access_mode>                    |
       | ["spec"]["capacity"]["storage"]           | 5Gi                              |
-      | ["spec"]["storageClassName"]              | <%= project.name %>              |
+      | ["spec"]["storageClassName"]              | sc-<%= project.name %>           |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                   |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %> |
-      | ["spec"]["storageClassName"]                 | <%= project.name %>     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
       | ["spec"]["accessModes"][0]                   | <access_mode>           |
     Then the step should succeed

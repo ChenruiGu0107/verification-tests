@@ -316,11 +316,11 @@ Feature: GCE specific scenarios
     Given I have a project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
-      | ["spec"]["storageClassName"] | <%= project.name %>    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
-      | ["metadata"]["name"]         | mypvc               |
-      | ["spec"]["storageClassName"] | <%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -331,11 +331,11 @@ Feature: GCE specific scenarios
     Given I have a project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
-      | ["metadata"]["name"]         | mypvc               |
-      | ["spec"]["storageClassName"] | <%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -346,10 +346,10 @@ Feature: GCE specific scenarios
     Given I have a project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
-      | ["spec"]["storageClassName"] | <%= project.name %>    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | mypvc               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %> |
+      | ["metadata"]["name"]                                                   | mypvc                  |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
