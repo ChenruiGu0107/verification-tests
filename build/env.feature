@@ -62,7 +62,7 @@ Feature: env.feature
   Scenario: Can set env vars on buildconfig with new-build --build-env and --build-env-file
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | app_repo  | ruby:2.5~https://github.com/openshift/ruby-hello-world |
       | build_env | abc=123                                                |
     Then the step should succeed
     When I run the :set_env client command with:
@@ -75,7 +75,7 @@ Feature: env.feature
     abc=456
     """
     When I run the :new_build client command with:
-      | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | app_repo       | ruby:2.5~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                   |
     Then the step should succeed
     When I run the :set_env client command with:
