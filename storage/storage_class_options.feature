@@ -37,9 +37,3 @@ Feature: Dynamic provision via storage class with options
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes :bound
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | mypod |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
-    Then the step should succeed
-    And the pod named "mypod" becomes ready
