@@ -296,36 +296,30 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-12974
   @admin
   Scenario: PV volume is unmounted and detached without failure if the namespace of PVC and pod is deleted
-    Given admin creates a project with a random schedulable node selector
+    Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
-
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod                   |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
+      | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
+    And the "mypvc" PVC becomes :bound
     And the pod named "mypod" becomes ready
 
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should succeed
-
-    When I execute on the pod:
-      | ls | /mnt/ocp_pv/ |
-    Then the step should succeed
-    When I execute on the pod:
-      | touch | /mnt/ocp_pv/testfile |
-    Then the step should succeed
+      | mount |
+    Then the output should contain:
+      | <%= pvc.volume_name %> |
 
     Given I ensure "<%= project.name %>" project is deleted
 
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should fail
+      | mount |
+    Then the output should not contain:
+      | <%= pvc.volume_name %> |
 
   # @author lzhou@redhat.com
   # @author jhou@redhat.com
