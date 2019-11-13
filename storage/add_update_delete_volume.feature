@@ -499,42 +499,32 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | /mypath2 |
 
 
-  # @author wehe@redhat.com
+  # @author lxia@redhat.com
   @admin
   Scenario Outline: oc set volume with claim-class parameter test
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %>      |
-      | ["provisioner"]      | kubernetes.io/<provisioner> |
-    Then the step should succeed
-
-    # new-app
     When I run the :new_app client command with:
-      | image_stream | openshift/postgresql       |
-      | env          | POSTGRESQL_USER=tester     |
-      | env          | POSTGRESQL_PASSWORD=xxx    |
-      | env          | POSTGRESQL_DATABASE=testdb |
-      | name         | mydb                       |
+      | template | postgresql-persistent |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=mydb |
+      | name=postgresql |
 
     When I run the :set_volume client command with:
-      | resource      | dc                     |
-      | resource_name | mydb                   |
-      | action        | --add                  |
-      | type          | pvc                    |
-      | claim-mode    | rwo                    |
-      | claim-name    | pvcsc                  |
-      | claim-size    | 1G                     |
-      | name          | gcevolume              |
-      | mount-path    | /opt111                |
-      | claim-class   | sc-<%= project.name %> |
+      | resource      | dc                   |
+      | resource_name | postgresql           |
+      | action        | --add                |
+      | type          | pvc                  |
+      | claim-mode    | rwo                  |
+      | claim-name    | pvcsc                |
+      | claim-size    | 1G                   |
+      | name          | gcevolume            |
+      | mount-path    | /opt111              |
+      | claim-class   | <storage-class-name> |
     Then the step should succeed
     When I run the :set_volume client command with:
-      | resource      | dc     |
-      | resource_name | mydb   |
-      | action        | --list |
+      | resource      | dc         |
+      | resource_name | postgresql |
+      | action        | --list     |
     Then the step should succeed
     Then the output should contain:
       | pvcsc              |
@@ -542,24 +532,18 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
-      | app=mydb |
-    #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
-    And the "pvcsc" PVC becomes :bound within 120 seconds
-    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
+      | name=postgresql |
+    And the "pvcsc" PVC becomes :bound
+    And the expression should be true> pvc.storage_class == "<storage-class-name>"
     And the expression should be true> pvc.access_modes[0] == "ReadWriteOnce"
     And the expression should be true> pvc.capacity == "1Gi"
 
-    #Verify the pod has mounted
-    When I execute on the pod:
-      | grep | opt111 | /proc/mounts |
-    Then the step should succeed
-
     Examples:
-      | provisioner |
-      | gce-pd      | # @case_id OCP-10414
-      | aws-ebs     | # @case_id OCP-10489
-      | cinder      | # @case_id OCP-10490
-      | azure-disk  | # @case_id OCP-13729
+      | provisioner | storage-class-name |
+      | gce-pd      | standard           | # @case_id OCP-10414
+      | aws-ebs     | gp2                | # @case_id OCP-10489
+      | cinder      | standard           | # @case_id OCP-10490
+      | azure-disk  | managed-premium    | # @case_id OCP-13729
 
   # @author wehe@redhat.com
   # @case_id OCP-10415
