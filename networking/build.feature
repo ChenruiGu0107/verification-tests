@@ -4,6 +4,7 @@ Feature: Testing the isolation during build scenarios
   # @bug_id 1487652
   @admin
   Scenario Outline: EgressNetworkPolicy constrained build process to extranet for multitenant plugin
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
@@ -26,7 +27,6 @@ Feature: Testing the isolation during build scenarios
       | resource_name | build/ruby-docker-test-1 |
     Then the output should contain 2 times:
       | access yahoo.com fail |
-    And the output should contain "Network is unreachable"    
 
     Examples:
       | type   | repo                                                                   |
