@@ -63,10 +63,10 @@ Feature: oc_expose.feature
   Scenario: Expose services from pod
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/perl:5.16                   |
+      | image_stream | openshift/perl:5.26                   |
       | code         | https://github.com/sclorg/s2i-perl-container |
       | l            | app=test-perl                         |
-      | context dir  | 5.16/test/sample-test-app/            |
+      | context dir  | 5.26/test/sample-test-app/            |
       | name         | myapp                                 |
     Then the step should succeed
     And a pod becomes ready with labels:

@@ -154,7 +154,7 @@ Feature: oc_process.feature
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                            |
       | resource_name | ruby22-sample-build                                                                                                    |
-      | p             | {"spec":{"strategy":{"dockerStrategy": {"from":{"kind":"ImageStreamTag","name":"ruby:2.2","namespace":"openshift"}}}}} |
+      | p             | {"spec":{"strategy":{"dockerStrategy": {"from":{"kind":"ImageStreamTag","name":"ruby:2.5","namespace":"openshift"}}}}} |
     Then the step should succeed
     And I run the :delete client command with:
       | object_type      | build                  |

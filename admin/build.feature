@@ -201,7 +201,7 @@ Feature: admin build related features
     And the output should contain:
       | doesn't have a resource type "not-existing" |
     When I run the :oadm_build_chain client command with:
-      | imagestreamtag | ruby:2.2 |
+      | imagestreamtag | ruby:latest |
       | all | true |
     Then the step should fail
     And the output should contain "Error"

@@ -7,16 +7,16 @@ Feature: oc_set_probe.feature
   Scenario: Remove probe in dc
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mysql:5.6 |
-      | env          | MYSQL_USER=user     |
-      | env          | MYSQL_PASSWORD=pass |
-      | env          | MYSQL_DATABASE=db   |
+      | image_stream | openshift/mysql:latest |
+      | env          | MYSQL_USER=user        |
+      | env          | MYSQL_PASSWORD=pass    |
+      | env          | MYSQL_DATABASE=db      |
     Then the step should succeed
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6 |
-      | env          | MONGODB_USER=test     |
-      | env          | MONGODB_PASSWORD=test |
-      | env          | MONGODB_DATABASE=test |
+      | image_stream | openshift/mongodb:latest    |
+      | env          | MONGODB_USER=test           |
+      | env          | MONGODB_PASSWORD=test       |
+      | env          | MONGODB_DATABASE=test       |
       | env          | MONGODB_ADMIN_PASSWORD=test |
     Then the step should succeed
     Given I wait until the status of deployment "mysql" becomes :complete

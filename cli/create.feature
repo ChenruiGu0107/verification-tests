@@ -190,11 +190,11 @@ Feature: creating 'apps' with CLI
   Scenario: Create an application from images
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/python:3.4                        |
-      | image_stream | openshift/mysql:5.6                         |
+      | image_stream | openshift/python:3.6                        |
+      | image_stream | openshift/mysql:latest                      |
       | code         | git://github.com/sclorg/s2i-python-container|
-      | context_dir  | 3.4/test/standalone-test-app                |
-      | group        | openshift/python:3.4+openshift/mysql:5.6    |
+      | context_dir  | 3.6/test/standalone-test-app                |
+      | group        | openshift/python:3.6+openshift/mysql:latest |
       | env          | MYSQL_USER=test                             |
       | env          | MYSQL_PASSWORD=test                         |
       | env          | MYSQL_DATABASE=ccytest                      |

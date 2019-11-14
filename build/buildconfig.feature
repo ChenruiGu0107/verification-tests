@@ -280,7 +280,7 @@ Feature: buildconfig.feature
   Scenario: S2I build failure reason display if use incorrect assemble script
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:2.2 |
+      | image_stream | openshift/ruby:latest                                            |
       | app_repo     | https://github.com/openshift-qe/ruby-hello-world#invalidassemble |
     Then the step should succeed
     When the "ruby-hello-world-1" build failed

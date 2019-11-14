@@ -216,14 +216,14 @@ Feature: build 'apps' with CLI
     And the "postgresql" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream      | openshift/ruby                                                                                    |
-      | image_stream      | <%= project.name %>/ruby:2.2                                                                      |
-      | docker_image      | <%= product_docker_repo %>rhscl/ruby-22-rhel7                                                     |
+      | image_stream      | <%= project.name %>/ruby:latest                                                                      |
+      | docker_image      | <%= product_docker_repo %>rhscl/ruby-25-rhel7                                                     |
       | image_stream      | openshift/postgresql                                                                              |
-      | image_stream      | <%= project.name %>/postgresql:9.4                                                                |
-      | docker_image      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7                                               |
+      | image_stream      | <%= project.name %>/postgresql:latest                                                                |
+      | docker_image      | <%= product_docker_repo %>rhscl/postgresql-10-rhel7                                               |
       | group             | openshift/ruby+openshift/postgresql                                                               |
-      | group             | <%= project.name %>/ruby:2.2+<%= project.name %>/postgresql:9.4                                   |
-      | group             | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | group             | <%= project.name %>/ruby:latest+<%= project.name %>/postgresql:latest                                   |
+      | group             | <%= product_docker_repo %>rhscl/ruby-25-rhel7+<%= product_docker_repo %>rhscl/postgresql-10-rhel7 |
       | code              | https://github.com/openshift/ruby-hello-world                                                     |
       | env               | POSTGRESQL_USER=user                                                                              |
       | env               | POSTGRESQL_DATABASE=db                                                                            |
@@ -242,7 +242,7 @@ Feature: build 'apps' with CLI
 
     # check all specified is tags are served by a service
     Given I store the image stream tag of the "openshift/ruby" image stream latest tag in the clipboard
-    Given evaluation of `[ cb.tag, istag("ruby:2.2"), istag("ruby-22-rhel7:latest") ]` is stored in the :istags clipboard
+    Given evaluation of `[ cb.tag, istag("ruby:latest"), istag("ruby-22-rhel7:latest") ]` is stored in the :istags clipboard
     When I repeat the following steps for each :svc in cb.services:
     """
     # service has a dc
@@ -522,7 +522,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a file passed,Docker build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo |  openshift/ruby:2.2~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo |  openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world.git |
       | strategy |  docker                                                               |
     Then the step should succeed
     Then the "ruby-hello-world-1" build completed

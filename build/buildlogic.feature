@@ -175,7 +175,7 @@ Feature: buildlogic.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/ruby-ex sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
-      | image_stream   | openshift/ruby:2.2                            |
+      | image_stream   | openshift/ruby:latest                         |
       | code           | https://github.com/openshift/ruby-hello-world |
       | name           | ruby-hello-world                              |
     Then the step should succeed
@@ -227,7 +227,7 @@ Feature: buildlogic.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/ruby-ex sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
-      | image_stream   | openshift/ruby:2.2                            |
+      | image_stream   | openshift/ruby:latest                         |
       | code           | https://github.com/openshift/ruby-hello-world |
       | name           | ruby-hello-world                              |
     Then the step should succeed
@@ -521,7 +521,7 @@ Feature: buildlogic.feature
   Scenario: Check the events for started/completed/failed builds
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:2.2                   |
+      | image_stream | openshift/ruby:latest                  |
       | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     Given the "ruby-ex-1" build completed
