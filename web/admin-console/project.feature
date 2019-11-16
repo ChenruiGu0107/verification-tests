@@ -12,7 +12,8 @@ Feature: projects related features via web
       | display_name    | pro_display        |
       | description     | description        |
     Then the step should succeed
-    When I run the :goto_project_details_page web action
+    When I perform the :goto_project_details_page web action with:
+      | project_name    | <%= cb.pro_name %> |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name         | <%= cb.pro_name %> |
