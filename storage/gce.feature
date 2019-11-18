@@ -164,17 +164,14 @@ Feature: GCE specific scenarios
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
     Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
 
     Given I run the steps 30 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod                   |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
+      | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
     When I execute on the pod:
