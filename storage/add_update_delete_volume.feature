@@ -545,25 +545,20 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | cinder      | standard           | # @case_id OCP-10490
       | azure-disk  | managed-premium    | # @case_id OCP-13729
 
-  # @author wehe@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-10415
   @admin
   Scenario: Negetive test of oc set volume with claim-class paraters
     Given I have a project
-
-    # new-app
     When I run the :new_app client command with:
-      | image_stream | openshift/postgresql       |
-      | env          | POSTGRESQL_USER=tester     |
-      | env          | POSTGRESQL_PASSWORD=xxx    |
-      | env          | POSTGRESQL_DATABASE=testdb |
-      | name         | mydb                       |
+      | template | mysql-persistent |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=mydb |
+      | name=mysql |
+
     When I run the :set_volume client command with:
       | resource      | dc                     |
-      | resource_name | mydb                   |
+      | resource_name | mysql                  |
       | action        | --add                  |
       | type          | pvc                    |
       | claim-mode    | rwo                    |
@@ -575,13 +570,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And the "pvcsc" PVC status is :pending
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-    Then the step should succeed
+    Given admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | | |
 
     When I run the :set_volume client command with:
       | resource      | dc                     |
-      | resource_name | mydb                   |
+      | resource_name | mysql                  |
       | action        | --add                  |
       | type          | pvc                    |
       | claim-mode    | rwo                    |
