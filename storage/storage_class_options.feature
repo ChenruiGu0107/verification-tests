@@ -37,3 +37,20 @@ Feature: Dynamic provision via storage class with options
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes :bound
+
+  # @author lxia@redhat.com
+  @admin
+  Scenario Outline: Storage class option volumeBindingMode with invalid value
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    And I switch to cluster admin pseudo user
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" replacing paths:
+      | ["metadata"]["name"]  | sc-<%= cb.proj_name %> |
+      | ["volumeBindingMode"] | <value>                |
+    Then the step should fail
+    And the output should contain:
+      | Unsupported value:                                    |
+      | supported values: "Immediate", "WaitForFirstConsumer" |
+    Examples:
+      | value   |
+      | ''      | # @case_id OCP-26071
+      | invalid | # @case_id OCP-26073
