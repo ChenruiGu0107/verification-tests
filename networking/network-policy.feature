@@ -4,7 +4,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12801
   @admin
   Scenario: The network between projects are flat and can be managed by admin when using networkpolicy plugin
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -70,7 +69,6 @@ Feature: Network policy plugin scenarios
   @admin
   @destructive
   Scenario: Set networkpolicy to project which does not have the annoation will not take effect
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -128,7 +126,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12804
   @admin
   Scenario: Use networkpolicy plugin with "allow local connections" policy
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -252,7 +249,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12805
   @admin
   Scenario: Use networkpolicy plugin with "allow connections from specific project" policy
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -392,7 +388,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12806
   @admin
   Scenario: Use networkpolicy plugin with "allow all connections" policy
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -515,7 +510,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12876
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow from
-    Given the env is using networkpolicy plugin
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -647,7 +641,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12877
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow to
-    Given the env is using networkpolicy plugin
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -757,7 +750,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12945
   @admin
   Scenario: Use podSelector to control access for pods with network policy - allow from red to blue
-    Given the env is using networkpolicy plugin
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -829,7 +821,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12807
   @admin
   Scenario: Multiple networkpolicys can work together on a single project
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -901,7 +892,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-13304
   @admin
   Scenario: podSelector allow-to and allow-from can work together
-    Given the env is using networkpolicy plugin
     # create project and pods with label added
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -987,7 +977,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12851
   @admin
   Scenario: Allow the specific ports to be accessible via network policy
-    Given the env is using networkpolicy plugin
     # create project and pods for tcp and udp
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -1110,7 +1099,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-12800
   @admin
   Scenario: The network policy will also restrict the connection between node and pod
-    Given the env is using networkpolicy plugin
     And environment has at least 2 nodes
     And I store the nodes in the :nodes clipboard
     # create project and pod
@@ -1157,7 +1145,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-14668
   @admin
   Scenario: Use networkpolicy plugin with "allow local connections" policy for service
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -1262,7 +1249,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-14669
   @admin
   Scenario: Use networkpolicy plugin with "allow connections from specific project" policy for service
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -1395,7 +1381,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-14671
   @admin
   Scenario: Use networkpolicy plugin with "allow all connections" policy for service
-    Given the env is using networkpolicy plugin
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -1544,7 +1529,6 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: Egress type rule in network policy should not affect the policy function
     Given the master version >= "3.9"
-    And the env is using networkpolicy plugin
 
     # create project and pods
     Given I have a project
@@ -1613,7 +1597,6 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: If only egress type of rule appears in the networkpolicy then the networkpolicy will not take effect    
     Given the master version >= "3.9"
-    And the env is using networkpolicy plugin
 
     # create project and pods
     Given I have a project
@@ -1667,7 +1650,6 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: A policy with an ingress rule with an ipBlock element behaves like it would if that rule was removed
     Given the master version >= "3.9"
-    And the env is using networkpolicy plugin
 
     # create project and pods
     Given I have a project
@@ -1744,7 +1726,6 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: Should not break the cluster when creating network policy with incorrect json structure
     Given the master version >= "3.9"
-    And the env is using networkpolicy plugin
 
     # Create project via user and create invalid networkpolicy in it
     Given I have a project
@@ -1768,7 +1749,6 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-21219
   @admin
   Scenario: Use networkpolicy plugin with allow connections from specific project and pod at same policy for service
-    Given the env is using networkpolicy plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
