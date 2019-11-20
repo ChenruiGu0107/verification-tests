@@ -28,24 +28,13 @@ Feature: route related
       | tls_termination_type  | passthrough      |
       | insecure_traffic_type | Redirect         |
     Then the step should succeed
-
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Termination Type |
-      | value | passthrough      |
+    When I perform the :check_resource_details web action with:
+      | termination_type | passthrough |
+      | insecure_traffic | Redirect    |
     Then the step should succeed
 
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Insecure Traffic |
-      | value | Redirect         |
-    Then the step should succeed
-
-    When I run the :get client command with:
-      | resource | route |
-      | o        | yaml  |
-    Then the step should succeed
-    And the output should contain:
-      | termination: passthrough                |
-      | insecureEdgeTerminationPolicy: Redirect |
+    And the expression should be true> route('passthroughroute').spec.tls_termination == "passthrough"
+    And the expression should be true> route('passthroughroute').spec.tls_insecure_edge_termination_policy == "Redirect"
 
     Given I store default router subdomain in the :subdomain clipboard
     When I open web server via the "http://passthroughroute-<%= project.name %>.<%= cb.subdomain %>" url
@@ -92,22 +81,13 @@ Feature: route related
       | ca_certificate_path   | <%= File.join(localhost.workdir, "ca.pem") %>                      |
     Then the step should succeed
 
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Termination Type |
-      | value | edge             |
+    When I perform the :check_resource_details web action with:
+      | termination_type | edge                 |
+      | insecure_traffic | Allow                |
+      | hostname         | edgetest.example.com |
+      | path             | /test                |
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Insecure Traffic |
-      | value | Allow            |
-    Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Hostname             |
-      | value | edgetest.example.com |
-    Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Path  |
-      | value | /test |
-    Then the step should succeed
+
     And the expression should be true> route('edgeroute').spec.host == "edgetest.example.com"
     And the expression should be true> route('edgeroute').spec.target_port == "http"
     And the expression should be true> route('edgeroute').spec.tls_termination == "edge"
@@ -161,21 +141,11 @@ Feature: route related
       | destination_ca_certificate | <%= File.join(localhost.workdir, "route_reencrypt_dest.ca") %>              |
     Then the step should succeed
 
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Termination Type |
-      | value | reencrypt        |
-    Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Insecure Traffic |
-      | value | Redirect         |
-    Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Hostname             |
-      | value | reentest.example.com |
-    Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Path  |
-      | value | /test |
+    When I perform the :check_resource_details web action with:
+      | termination_type | reencrypt            |
+      | insecure_traffic | Redirect             |
+      | hostname         | reentest.example.com |
+      | path             | /test                |
     Then the step should succeed
 
     And the expression should be true> route('reenroute').spec.host == "reentest.example.com"
@@ -226,9 +196,8 @@ Feature: route related
       | project_name | <%= project.name %> |
       | route_name   | python-sample       |
     Then the step should succeed
-    When I perform the :check_resource_details_key_and_value web action with:
-      | key   | Canonical Router Hostname |
-      | value | <%= cb.subdomain %>       |
+    When I perform the :check_resource_details web action with:
+      | canonical_hostname | <%= cb.subdomain %> |
     Then the step should succeed
 
     When I run the :annotate client command with:
