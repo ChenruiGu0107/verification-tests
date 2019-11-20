@@ -46,7 +46,19 @@ Feature: storage (storageclass, pv, pvc) related
       | access_mode        | ReadWriteOnce           |
       | pvc_size_unit      | Mi                      |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 60 seconds
+    # Create DC to consume PVC then it can become Bound
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simpledc.json |
+    Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource      | dc                      |
+      | resource_name | hooks                   |
+      | add           | true                    |
+      | type          | pvc                     |
+      | claim-name    | pvc-<%= project.name %> |
+      | mount-path    | /tmp/data               |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     When I perform the :goto_one_pvc_page web action with:
       | project_name | <%= project.name %>     |
       | pvc_name     | pvc-<%= project.name %> |
