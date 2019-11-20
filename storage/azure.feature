@@ -464,3 +464,47 @@ Feature: Azure disk and Azure file specific scenarios
       | NOPAR  | azfpvc  | # @case_id OCP-10203
       | MODIR  | azpvc   | # @case_id OCP-13689
       | MOUID  | azpvc   | # @case_id OCP-15852
+
+
+  # @author wduan@redhat.com
+  @admin
+  Scenario Outline: AzureDisk dynamic provisioning with managed storage class for storageaccounttype in OCP4.x
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-MANAGED.yaml" where:
+      | ["metadata"]["name"]                 | sc-<%= project.name %> |
+      | ["parameters"]["storageaccounttype"] | <storageaccounttype>   |
+      | ["volumeBindingMode"]                | WaitForFirstConsumer   |
+      | ["reclaimPolicy"]                    | Delete                 |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi   |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    Given the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    When I execute on the pod:
+      | rm | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    Given I ensure "mypod" pod is deleted
+    And I ensure "mypvc" pvc is deleted
+    And I switch to cluster admin pseudo user
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
+
+    Examples:
+      | storageaccounttype |
+      | Standard_LRS       |    # @case_id OCP-26094
+      | Premium_LRS        |    # @case_id OCP-26095
+      | StandardSSD_LRS    |    # @case_id OCP-26096
+
