@@ -141,7 +141,7 @@ Feature: oc tag related scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Then I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
+      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
       | name     | origin-ruby-sample                                              |
     Then the step should succeed
     Given the "origin-ruby-sample-1" build was created
@@ -161,7 +161,7 @@ Feature: oc tag related scenarios
       | app_repo | deadbeef533103:tag1 |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=deadbeef533103 |
+      | deploymentconfig=deadbeef533103 |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-12212

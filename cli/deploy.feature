@@ -555,7 +555,7 @@ Feature: deployment related features
   Scenario: app deploy successfully with correct registry credentials
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     Given the "ruby-hello-world-1" build was created
     Given the "ruby-hello-world-1" build completed

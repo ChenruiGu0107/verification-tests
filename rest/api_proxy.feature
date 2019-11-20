@@ -11,7 +11,7 @@ Feature: Api proxy related cases
       |app_repo | openshift/hello-openshift:latest |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=hello-openshift |
+      | deploymentconfig=hello-openshift |
     # check http service proxy
     When I perform the :proxy_get_request_to_resource rest request with:
       | project_name  | <%= project.name %> |
@@ -39,7 +39,7 @@ Feature: Api proxy related cases
       |app_repo |liggitt/client-cert:latest       |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | app=client-cert |
+      | deploymentconfig=client-cert |
     # check https service proxy
     # there need slowdown the network
     And I wait up to 60 seconds for the steps to pass:

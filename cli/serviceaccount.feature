@@ -51,7 +51,7 @@ Feature: ServiceAccount and Policy Managerment
       | resource_name  | view         |
       | o              | wide         |
     Then the output should match:
-      | view.+default         |
+      | view.+(default)? |
 
     Given I find a bearer token of the default service account
     And I switch to the default service account
