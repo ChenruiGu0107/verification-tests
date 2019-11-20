@@ -74,10 +74,11 @@ Feature: build related
     Given the "python-sample-2" build was created
 	  When I perform the :goto_one_build_page web action with:
 	    | project_name  | <%= project.name %>  |
-	    | build_name    | python-sample-1      |
+	    | build_name    | python-sample-2      |
 	  Then the step should succeed
     When I perform the :check_resource_details web action with:
       | triggered_by | Manually |
+    Then the step should succeed
 
     # Delete BC and its builds
     When I perform the :goto_one_buildconfig_page web action with:
