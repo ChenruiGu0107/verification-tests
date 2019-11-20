@@ -426,15 +426,17 @@ Feature: storageClass related feature
   # @case_id OCP-13666
   @admin
   Scenario: Dynamic provisioning using default storageclass
-    Given the master version >= "3.6"
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | name=mysql |
+
+    Given the "mysql" PVC becomes :bound
     When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
+      | resource | pvc   |
+      | name     | mysql |
     Then the step should succeed
     And the output should match "StorageClass:\s+[a-z]+"
     When I run the :describe admin command with:
