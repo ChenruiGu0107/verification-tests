@@ -114,9 +114,9 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which has zone set to empty string
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc-<%= project.name %> |
-      | ["parameters"]["zone"] |                        |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]  | Immediate |
+      | ["parameters"]["zone"] | ''        |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
@@ -126,9 +126,9 @@ Feature: GCE specific scenarios
     When I run the :describe client command with:
       | resource | pvc/pvc |
     Then the step should succeed
-    And the output should contain:
-      | ProvisioningFailed   |
-      | it's an empty string |
+    And the output should match:
+      | ProvisioningFailed                                   |
+      | (it's an empty string\|does not have a node in zone) |
 
   # @author lxia@redhat.com
   # @case_id OCP-10219
