@@ -663,8 +663,8 @@ Feature: Testing route
 
     #Create the unsecure route
     When I run the :expose client command with:
-      | resource      | service                                   |
-      | resource_name | service-unsecure                          |
+      | resource      | service          |
+      | resource_name | service-unsecure |
     Then the step should succeed
     #access the route using capitals words
     And I wait up to 20 seconds for the steps to pass:
@@ -678,7 +678,6 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for edge route
     Given the master version >= "3.6"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
@@ -690,25 +689,12 @@ Feature: Testing route
     Then the step should succeed
     #Create the edge route
     When I run the :create_route_edge client command with:
-      | name           | route-edge                                |
-      | service        | service-unsecure                          |
+      | name    | route-edge       |
+      | service | service-unsecure |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("route-edge", service("service-unsecure")).dns(by: user).upcase %>" url
-    And the output should contain "Hello-OpenShift-1 http-8080"
-    """
-    # for no-sni
-    And I wait up to 20 seconds for the steps to pass:
-    """
-    When I execute on the pod:
-      | curl |
-      | -s   |
-      | -H   |
-      | Host:<%= route("route-edge", service("service-unsecure")).dns(by: user).upcase %> |
-      | https://<%= cb.router_ip[0] %> |
-      | -k |
-    Then the step should succeed
     And the output should contain "Hello-OpenShift-1 http-8080"
     """
 
@@ -727,11 +713,10 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
-    Given I have a pod-for-ping in the project
     #Create passthrough route
     When I run the :create_route_passthrough client command with:
-      | name           | route-pass                                |
-      | service        | service-secure                            |
+      | name    | route-pass     |
+      | service | service-secure |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -744,29 +729,14 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for reencrypt route
     Given the master version >= "3.6"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
-    Given I have a pod-for-ping in the project
 
     And I wait up to 20 seconds for the steps to pass:
     """
     When I open web server via the "https://<%= route("route-reencrypt", service("service-secure")).dns(by: user).upcase %>" url
-    And the output should contain "Hello-OpenShift"
-    """
-    #for no-sni
-    And I wait up to 20 seconds for the steps to pass:
-    """
-    When I execute on the pod:
-      | curl |
-      | -s   |
-      | -H   |
-      | Host:<%= route("route-reencrypt", service("service-secure")).dns(by: user).upcase %> |
-      | https://<%= cb.router_ip[0] %> |
-      | -k |
-    Then the step should succeed
     And the output should contain "Hello-OpenShift"
     """
 
