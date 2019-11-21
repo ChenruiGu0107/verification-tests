@@ -221,91 +221,67 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-12972
   @admin
   Scenario: PV volume is unmounted and detached without failure if PV is deleted before pod referencing the volume
-    Given admin creates a project with a random schedulable node selector
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the "mysql" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | name=mysql |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod                   |
-    Then the step should succeed
-    And the pod named "mypod" becomes ready
-
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should succeed
-
-    When I execute on the pod:
-      | ls | /mnt/ocp_pv/ |
-    Then the step should succeed
-    When I execute on the pod:
-      | touch | /mnt/ocp_pv/testfile |
-    Then the step should succeed
+      | mount |
+    Then the output should contain:
+      | <%= pvc.volume_name %> |
 
     Given admin ensures "<%= pvc.volume_name %>" pv is deleted
     And I ensure "<%= project.name %>" project is deleted
 
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should fail
+      | mount |
+    Then the output should not contain:
+      | <%= pvc.volume_name %> |
 
   # @author lxia@redhat.com
   # @case_id OCP-12973
   @admin
   Scenario: PV volume is unmounted and detached without failure if PVC is deleted before pod referencing the volume
-    Given admin creates a project with a random schedulable node selector
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the "mysql" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | name=mysql |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod                   |
-    Then the step should succeed
-    And the pod named "mypod" becomes ready
-
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should succeed
+      | mount |
+    Then the output should contain:
+      | <%= pvc.volume_name %> |
 
-    When I execute on the pod:
-      | ls | /mnt/ocp_pv/ |
-    Then the step should succeed
-    When I execute on the pod:
-      | touch | /mnt/ocp_pv/testfile |
-    Then the step should succeed
+    Given I ensure "<%= pvc.name %>" pvc is deleted
+    And I ensure "<%= pod.name %>" pod is deleted
 
-    When I run the :delete client command with:
-      | object_type       | pvc                     |
-      | object_name_or_id | pvc-<%= project.name %> |
-    Then the step should succeed
-    And I ensure "mypod" pod is deleted
-
-    Given I use the "<%= node.name %>" node
+    Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
-      | mount \| grep <%= pvc.volume_name %> |
-    Then the step should fail
+      | mount |
+    Then the output should not contain:
+      | <%= pvc.volume_name %> |
 
   # @author lxia@redhat.com
   # @case_id OCP-12974
   @admin
   Scenario: PV volume is unmounted and detached without failure if the namespace of PVC and pod is deleted
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | mypvc |
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
-      | ["metadata"]["name"]                                         | mypod |
-    Then the step should succeed
-    And the "mypvc" PVC becomes :bound
-    And the pod named "mypod" becomes ready
+    And the "mysql" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | name=mysql |
 
     Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
