@@ -4,10 +4,9 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which has zones set to empty string
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-zones.yaml" where:
-      | ["metadata"]["name"]    | sc-<%= project.name %> |
-      | ["provisioner"]         | kubernetes.io/gce-pd   |
-      | ["parameters"]["zones"] |                        |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]   | Immediate |
+      | ["parameters"]["zones"] | ''        |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
@@ -26,9 +25,8 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which has comma separated list of zones
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-zones.yaml" where:
-      | ["metadata"]["name"]    | sc-<%= project.name %>      |
-      | ["provisioner"]         | kubernetes.io/gce-pd        |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]   | Immediate                   |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
     And I run the steps 10 times:
@@ -40,7 +38,7 @@ Feature: GCE specific scenarios
     And the "pvc-#{cb.i}" PVC becomes :bound
     When I run the :get admin command with:
       | resource | pv/<%= pvc.volume_name %> |
-      | o        | json                                  |
+      | o        | json                      |
     Then the output should match:
       | us-central1-[ab] |
     """
@@ -50,8 +48,8 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which has parameter zone set with multiple values should fail
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc-<%= project.name %>      |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]  | Immediate                   |
       | ["parameters"]["zone"] | us-central1-a,us-central1-b |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
@@ -71,8 +69,8 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which has both parameter zone and parameter zones set should fail
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]    | sc-<%= project.name %>      |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]   | Immediate                   |
       | ["parameters"]["zone"]  | us-central1-a               |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
@@ -93,9 +91,9 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Dynamic provision with storageclass which contains invalid parameter should fail
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]           | sc-<%= project.name %> |
-      | ["parameters"]["invalidParam"] | test                   |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]          | Immediate |
+      | ["parameters"]["invalidParam"] | test      |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
