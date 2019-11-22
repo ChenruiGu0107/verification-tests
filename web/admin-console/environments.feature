@@ -252,8 +252,7 @@ Feature: environment related
     When I perform the :search_image web action with:
       | search_content | openshift/hello-openshift |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text | Deployment Configuration |
+    When I run the :open_env_edit_for_dc web action
     Then the step should succeed
     When I perform the :add_env_vars web action with:
       | env_var_name  | del1     |
