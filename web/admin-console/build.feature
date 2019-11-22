@@ -94,3 +94,20 @@ Feature: build related
     Given I wait for the resource "buildconfig" named "python-sample" to disappear within 60 seconds
     Given I wait for the resource "builds" named "python-sample-1" to disappear within 60 seconds
 
+  # @author yapei@redhat.com
+  # @case_id OCP-25795
+  Scenario: Check deprecation note of pipeline build strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | source_spec | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_one_buildconfig_page web action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | sample-pipeline      |
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | Pipeline build strategy deprecation |
+    Then the step should succeed
+    When I run the :check_links_in_pipeline_deprecation_note web action
+    Then the step should succeed

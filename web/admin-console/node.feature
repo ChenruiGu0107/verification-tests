@@ -91,3 +91,38 @@ Feature: Node related
       | key: taint_test     |
       | value: taint        |
      """
+
+  # @author yapei@redhat.com
+  # @case_id OCP-25764
+  @admin
+  Scenario: Filter Machines should also search for node name
+    Given the master version >= "4.3"
+    Given the first user is cluster-admin
+    Given I store the schedulable workers in the :schedule_workers clipboard
+    Given I store all machines in the :machines clipboard
+
+    And I open admin console in a browser
+    When I run the :click_to_machines_page web action
+    Then the step should succeed
+
+    # filter by machine name
+    When I perform the :set_filter_strings web action with:
+      | filter_text | <%= cb.machines[0].name %> |
+    Then the step should succeed
+    When I perform the :check_item_in_table web action with:
+      | item | <%= cb.machines[0].name %> |
+    Then the step should succeed
+    When I perform the :check_item_in_table web action with:
+      | item | <%= cb.machines[1].name %> |
+    Then the step should fail
+
+    # filter by node name
+    When I perform the :set_filter_strings web action with:
+      | filter_text | <%= cb.schedule_workers[0].name %> |
+    Then the step should succeed
+    When I perform the :check_item_in_table web action with:
+      | item | <%= cb.schedule_workers[0].name %> |
+    Then the step should succeed
+    When I perform the :check_item_in_table web action with:
+      | item | <%= cb.schedule_workers[2].name %> |
+    Then the step should fail
