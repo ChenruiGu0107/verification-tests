@@ -7,7 +7,7 @@ Feature: Get the build dependencies
     Then evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :import_image client command with:
       | image_name   | ruby |
-      | from         | centos/ruby-22-centos7 |
+      | from         | centos/ruby-25-centos7 |
       | confirm      | true |
     Then the step should succeed
     When I get project is as JSON

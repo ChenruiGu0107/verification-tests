@@ -87,7 +87,7 @@ Feature: stibuild.feature
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
     And a pod becomes ready with labels:
-      | app=ruby-hello-world |
+      | deploymentconfig=ruby-hello-world |
     When I expose the "ruby-hello-world" service
     Then I wait for a web server to become available via the "ruby-hello-world" route
     And  the output should contain "Welcome to an OpenShift v3 Demo App! - QE Test"
@@ -103,7 +103,7 @@ Feature: stibuild.feature
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
     And a pod becomes ready with labels:
-      | app=ruby-hello-world |
+      | deploymentconfig=ruby-hello-world |
     When I expose the "ruby-hello-world" service
     Then I wait for a web server to become available via the "ruby-hello-world" route
     And  the output should contain "Hello from OpenShift v3!!! CUSTOM DEMORRRR"

@@ -264,7 +264,7 @@ Feature: jenkins.feature
     Then the step should succeed
     When I run the :import_image client command with:
       | image_name | ruby                  |
-      | from       | aosqe/ruby-22-centos7 |
+      | from       | centos/ruby-25-centos7 |
       | confirm    | true                  |
     Then the step should succeed
     When I run the :get client command with:
@@ -323,7 +323,7 @@ Feature: jenkins.feature
     And I have a jenkins v<ver> application
     When I run the :import_image client command with:
       | image_name | ruby                      |
-      | from       | openshift/ruby-22-centos7 |
+      | from       | centos/ruby-25-centos7 |
       | confirm    | true                      |
     Given I have a jenkins browser
     And I log in to jenkins
@@ -460,7 +460,7 @@ Feature: jenkins.feature
     And I have a jenkins v<ver> application
     When I run the :import_image client command with:
       | image_name | ruby                      |
-      | from       | openshift/ruby-22-centos7 |
+      | from       | centos/ruby-25-centos7 |
       | confirm    | true                      |
     Given I have a jenkins browser
     And I log in to jenkins

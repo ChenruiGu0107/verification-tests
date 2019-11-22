@@ -328,13 +328,13 @@ Feature: remote registry related scenarios
       | user name       | system:anonymous  |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | ruby-22-centos7        |
-      | from       | centos/ruby-22-centos7 |
+      | image_name | ruby-25-centos7        |
+      | from       | centos/ruby-25-centos7 |
       | confirm    | true                   |
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     When I run commands on the host:
-      | podman pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-22-centos7:latest |
+      | podman pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-25-centos7:latest |
     Then the step should succeed
     When I run commands on the host:
       | podman pull busybox                                                                |

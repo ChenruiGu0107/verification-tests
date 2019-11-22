@@ -2251,7 +2251,7 @@ Feature: build 'apps' with CLI
       | resource | build               |
       | name     | ruby-hello-world-1  |
     Then the output should contain:
-      | configmaps "unexisted" not found |
+      | "unexisted" not found |
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
     Then the step should succeed

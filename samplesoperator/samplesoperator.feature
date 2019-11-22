@@ -31,7 +31,7 @@ Feature: samplesoperator
   @destructive
   Scenario: Can't recreate/update/delete imagestream/template after defined skippedImagestreams and skippedTemplates
     Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
-      | {"spec":{"skippedImagestreams":["jenkins","perl","mysql"],"skippedTemplates":["rails-pgsql-persistent","jenkins-persistent"]}} |
+      | {"spec":{"skippedImagestreams":["jenkins","perl","mysql"],"skippedTemplates":["rails-pgsql-persistent","httpd-example"]}} |
     And admin ensures "cluster" config_samples_operator_openshift_io is deleted after scenario
     And I switch to cluster admin pseudo user
     And I use the "openshift" project
@@ -47,7 +47,7 @@ Feature: samplesoperator
       | l        | samples.operator.openshift.io/managed=true |
     Then the output should not contain:
       | rails-pgsql-persistent |
-      | jenkins-persistent     |
+      | httpd-example          |
     When I run the :delete admin command with:
       | object_type       | is        |
       | object_name_or_id | perl      |

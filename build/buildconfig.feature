@@ -148,7 +148,7 @@ Feature: buildconfig.feature
     Given I have a project
     When I run the :import_image client command with:
       | image_name | ruby                   |
-      | from       | centos/ruby-22-centos7 |
+      | from       | centos/ruby-25-centos7 |
       | confirm    | true                   |
     Then the step should succeed
     When I get project is named "ruby" as YAML
@@ -180,7 +180,7 @@ Feature: buildconfig.feature
       | resource | build     |
       | name     | ruby-ex-2 |
     Then the step should succeed
-    And the output should match "DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %>"
+    And the output should match "DockerImage\s+centos/ruby-25-centos7@<%= cb.imagesha %>"
     #And the output should match:
     #  | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
@@ -237,12 +237,12 @@ Feature: buildconfig.feature
   Scenario: Trigger multiple builds from a single image update
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
-    Then the "ruby-20-centos7" image stream was created
+    Then the "ruby-25-centos7" image stream was created
     And the "ruby-hello-world-1" build was created
     When I run the :new_build client command with:
-      | image_stream | ruby-20-centos7                      |
+      | image_stream | ruby-25-centos7                      |
       | code         | https://github.com/sclorg/ruby-ex |
       | name         | ruby-ex                              |
     Then the step should succeed
@@ -250,7 +250,7 @@ Feature: buildconfig.feature
     When I run the :tag client command with:
       | source_type | docker                 |
       | source      | centos/ruby-22-centos7 |
-      | dest        | ruby-20-centos7:latest |
+      | dest        | ruby-25-centos7:latest |
     Then the step should succeed
     And the "ruby-hello-world-2" build was created
     And the "ruby-ex-2" build was created
