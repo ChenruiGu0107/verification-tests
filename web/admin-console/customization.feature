@@ -307,3 +307,137 @@ Feature: customize console related
       | could not read logo file  |
       | no such file or directory |
     """
+
+  # @author yapei@redhat.com
+  # @case_id OCP-25791
+  @admin
+  Scenario: Project scoped ConsoleLink
+    Given the master version >= "4.3"
+    Given admin ensures "link-for-some-ns" console_links_console_openshift_io is deleted after scenario
+    Given admin ensures "link-for-all-ns" console_links_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-consolelink-1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-consolelink-2.yaml |
+    Then the step should succeed
+
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+
+    # make sure ConsoleLink not targeting any space are shown correctly
+    When I perform the :goto_one_project_page web action with:
+      | project_name | default |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This appears in all namespaces |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This only appear in some projects |
+    Then the step should fail
+
+    # make sure ConsoleLink targetting specific project are shown correctly
+    When I perform the :goto_one_project_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This appears in all namespaces |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This only appear in some projects |
+    Then the step should succeed
+
+    # make sure namespace overview also have Launcher section
+    When I perform the :goto_one_namespace_page web action with:
+      | namespace_name | openshift-console |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This appears in all namespaces |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | This only appear in some projects |
+    Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-25840
+  @admin
+  Scenario: Add label selector to namespace-scoped ConsoleLink
+    Given the master version >= "4.3"
+    When I run the :new_project client command with:
+      | project_name | uiautotest1 |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | uiautotest2 |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | uiautotest3 |
+    Then the step should succeed
+
+    # create ConsoleLink and clean up steps
+    Given admin ensures "exampleone" console_links_console_openshift_io is deleted after scenario
+    Given admin ensures "exampletwo" console_links_console_openshift_io is deleted after scenario
+    Given admin ensures "examplethree" console_links_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-2.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-3.yaml |
+    Then the step should succeed
+
+    # add label to some projects
+    When I run the :label admin command with:
+      | resource | namespace   |
+      | name     | uiautotest1 |
+      | key_val  | test=one    |
+    Then the step should succeed
+    When I run the :label admin command with:
+      | resource | namespace   |
+      | name     | uiautotest2 |
+      | key_val  | test=two    |
+    Then the step should succeed
+    When I run the :label admin command with:
+      | resource | namespace   |
+      | name     | uiautotest2 |
+      | key_val  | newtest=two |
+    Then the step should succeed
+
+    And I open admin console in a browser
+
+    # matchExpressions and matchLabels
+    When I perform the :goto_one_project_page web action with:
+      | project_name | uiautotest1 |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link one |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link two |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link three |
+    Then the step should fail
+
+    # matchLabels and matchExpressions
+    When I perform the :goto_one_project_page web action with:
+      | project_name | uiautotest2 |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link two |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link three |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link one |
+    Then the step should fail
+
+    # namespaces
+    When I perform the :goto_one_project_page web action with:
+      | project_name | uiautotest3 |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link one |
+    Then the step should succeed
+    When I perform the :check_external_link web action with:
+      | link_text | Special link two |
+    Then the step should fail
+    When I perform the :check_external_link web action with:
+      | link_text | Special link three |
+    Then the step should fail
