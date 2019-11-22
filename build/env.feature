@@ -65,6 +65,7 @@ Feature: env.feature
       | app_repo  | ruby:latest~https://github.com/openshift/ruby-hello-world |
       | build_env | abc=123                                                   |
     Then the step should succeed
+    Given the "ruby-hello-world-1" build completed
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |

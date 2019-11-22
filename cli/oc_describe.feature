@@ -42,9 +42,9 @@ Feature: Return description with cli
       | resource | bc |
       | name     | :false |
     Then the output should contain:
-      | URL:			https://github.com/openshift/ruby-hello-world.git|
-      |From Image:		ImageStreamTag ruby-22-centos7:latest|
-      |Output to:		ImageStreamTag origin-ruby-sample:latest|
+      | URL:			https://github.com/openshift/ruby-hello-world.git |
+      | From Image:		ImageStreamTag openshift/ruby:2.5             |
+      | Output to:		ImageStreamTag origin-ruby-sample:lates       |
 
     When  I run the :describe client command with:
       | resource | rc |

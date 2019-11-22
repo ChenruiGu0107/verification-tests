@@ -187,7 +187,7 @@ Feature: oc_rsync.feature
       | docker_image | aosqe/scratch:tarrsync       |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | app=scratch |
+      | deployment=scratch-1 |
     When I run the :rsync background client command with:
       | source      | <%= localhost.workdir %>/test |
       | destination | <%= pod.name %>:/tmp |
