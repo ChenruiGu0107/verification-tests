@@ -810,3 +810,25 @@ Feature: Persistent Volume Claim binding policies
     When I run commands on the host:
       | mount \| grep "<%= cb.vid %>" |
     Then the step should fail
+
+  # @author lxia@redhat.com
+  # @case_id OCP-18797
+  @admin
+  Scenario: Recreate pv when pv is in pv-protection state should fail
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
+    Then the step should succeed
+    And the "mysql" PVC becomes :bound
+
+    When I run the :delete admin command with:
+      | object_type       | pv                     |
+      | object_name_or_id | <%= pvc.volume_name %> |
+      | wait              | false                  |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-retain.json" where:
+      | ["metadata"]["name"] | <%= pvc.volume_name %> |
+    Then the step should fail
+    And the output should contain:
+      | AlreadyExists           |
+      | object is being deleted |
