@@ -354,8 +354,9 @@ Feature: build 'apps' with CLI
     And the output should contain "RACK_ENV"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
-    When I run the :build_logs client command with:
-      | build_name | ruby-sample-build-2 |
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-2 |
+      | f             |                           |
     Then the output should contain:
       | ENV "DISABLE_ASSET_COMPILATION"="1" |
       | "RACK_ENV"="development"  |
