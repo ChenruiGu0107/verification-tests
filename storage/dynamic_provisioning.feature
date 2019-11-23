@@ -237,7 +237,6 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                   |
     Then the step should succeed
-    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |

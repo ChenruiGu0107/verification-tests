@@ -537,11 +537,9 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem             |
     Then the step should succeed
-    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author piqin@redhat.com
@@ -554,11 +552,9 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                  |
     Then the step should succeed
-    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Block"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
@@ -579,12 +575,10 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem              |
     Then the step should succeed
-    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Filesystem"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author piqin@redhat.com
@@ -597,13 +591,11 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
-    And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode == "Block"
     Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
