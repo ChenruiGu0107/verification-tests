@@ -680,6 +680,8 @@ Feature: Network policy plugin scenarios
 
     # access the labeled pod and un-labeled pod in project 1 via pods in both projects
     Given I use the "<%= cb.proj1 %>" project
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should succeed
@@ -697,6 +699,7 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+    """
 
     # Add label to an existing pod and a new pod in project1
     Given I use the "<%= cb.proj1 %>" project
@@ -711,6 +714,8 @@ Feature: Network policy plugin scenarios
 
     # access the label new added pods
     Given I use the "<%= cb.proj1 %>" project
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
     Then the step should succeed
@@ -728,6 +733,7 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1pod4ip %>:8080 |
     Then the step should succeed
     And the output should contain "Hello"
+    """
 
     # remove the label from pod and access again
     Given I use the "<%= cb.proj1 %>" project
@@ -736,6 +742,8 @@ Feature: Network policy plugin scenarios
       | name      | <%= cb.p1pod2 %> |
       | key_val   | type- |
     Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should fail
@@ -745,6 +753,7 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-12945
