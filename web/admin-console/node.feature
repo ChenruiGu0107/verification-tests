@@ -97,11 +97,11 @@ Feature: Node related
   @admin
   Scenario: Filter Machines should also search for node name
     Given the master version >= "4.3"
+    Given I open admin console in a browser
     Given the first user is cluster-admin
     Given I store the schedulable workers in the :schedule_workers clipboard
     Given I store all machines in the :machines clipboard
 
-    And I open admin console in a browser
     When I run the :click_to_machines_page web action
     Then the step should succeed
 

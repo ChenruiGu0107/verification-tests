@@ -158,8 +158,8 @@ Feature: customize console related
     """
     uiauto1:$apr1$WN1kdHU6$mnkMN9e5CSVnx8w6bpMTB1
     """
+    Given I open admin console in a browser
     Given the first user is cluster-admin
-    And I open admin console in a browser
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:
@@ -357,8 +357,8 @@ Feature: customize console related
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-consolelink-2.yaml |
     Then the step should succeed
 
+    Given I open admin console in a browser
     Given the first user is cluster-admin
-    And I open admin console in a browser
 
     # make sure ConsoleLink not targeting any space are shown correctly
     When I perform the :goto_one_project_page web action with:

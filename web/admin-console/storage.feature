@@ -5,8 +5,8 @@ Feature: storage (storageclass, pv, pvc) related
   @admin
   @destructive
   Scenario: Storage Classes
-    Given the first user is cluster-admin
     Given I open admin console in a browser
+    Given the first user is cluster-admin
     When I run the :goto_storageclass_page web action
     Then the step should succeed
     When I run the :create_resource_by_default_yaml web action
@@ -182,8 +182,8 @@ Feature: storage (storageclass, pv, pvc) related
   @admin
   Scenario: storage class creation negative testing	
     Given the master version >= "4.1"
-    Given the first user is cluster-admin
     Given I open admin console in a browser
+    Given the first user is cluster-admin
     When I run the :goto_storageclass_page web action
     Then the step should succeed
     When I perform the :click_button web action with:
@@ -319,8 +319,8 @@ Feature: storage (storageclass, pv, pvc) related
   @admin
   Scenario: admin create storage class from Form
     Given the master version >= "4.1"
-    Given the first user is cluster-admin
     Given I open admin console in a browser
+    Given the first user is cluster-admin
     Given admin ensures "testsc-20964" storageclass is deleted after scenario
     When I perform the :create_storageclass_from_form web action with:
       | sc_name     | testsc-20964 |
