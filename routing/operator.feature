@@ -187,3 +187,14 @@ Feature: Testing Ingress Operator related scenarios
     Then the step should succeed
     And the output should contain "nbthread 4"
 
+  # @author hongli@redhat.com
+  # @case_id OCP-26150
+  @admin
+  Scenario: integrate ingress operator metrics with Prometheus
+    Given the master version >= "4.0"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ingress-operator" project
+    Then the expression should be true> service_monitor('ingress-operator').exists?
+    Then the expression should be true> role_binding('prometheus-k8s').exists?
+    Then the expression should be true> namespace('openshift-ingress-operator').labels['openshift.io/cluster-monitoring'] == 'true'
+

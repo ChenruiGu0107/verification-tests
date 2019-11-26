@@ -147,3 +147,14 @@ Feature: Testing DNS features
     Then the expression should be true> role_binding('prometheus-k8s').exists?
     Then the expression should be true> namespace('openshift-dns').labels['openshift.io/cluster-monitoring'] == 'true'
 
+  # @author hongli@redhat.com
+  # @case_id OCP-26151
+  @admin
+  Scenario: integrate DNS operator metrics with Prometheus
+    Given the master version >= "4.0"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-dns-operator" project
+    Then the expression should be true> service_monitor('dns-operator').exists?
+    Then the expression should be true> role_binding('prometheus-k8s').exists?
+    Then the expression should be true> namespace('openshift-dns-operator').labels['openshift.io/cluster-monitoring'] == 'true'
+
