@@ -40,6 +40,7 @@ Feature: admin console api related
   @admin
   Scenario: Expose console_url metrics in console-operator metric
     Given the master version >= "4.3"
+    Given I open admin console in a browser
     And the first user is cluster-admin
 
     # get sa/prometheus-k8s token
@@ -72,7 +73,6 @@ Feature: admin console api related
     And the output should match 1 times:
       | ^console_url.*url.*https://<%= cb.console_route %>.*1 |
 
-    Given I open admin console in a browser
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
     When I perform the :query_metrics web action with:
