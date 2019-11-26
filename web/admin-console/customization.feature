@@ -233,6 +233,43 @@ Feature: customize console related
     When I run the :goto_cli_tools_page web action
     Then the step should succeed
     When I run the :check_customized_oc_download_links web action
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-24316
+  @admin
+  Scenario: check ConsoleNotification extension CRD
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    Given the first user is cluster-admin
+    Given admin ensures "notification3" console_notifications_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-notification.yaml |
+    Then the step should succeed
+
+    When I perform the :check_console_notification web action with:
+      | name              | notification3   |
+      | location          | BannerTopBottom |
+      | notification_text | Subscribe       |
+      | background        | yellow          |
+      | color             | blue            |
+      | link_text         | Youtube         |
+      | link_url          | https://www.youtube.com |
+    Then the step should succeed
+
+    Given I run the :patch admin command with:
+      | resource      | consolenotifications |
+      | resource_name | notification3        |
+      | type          | json                 |
+      | p | [{"op": "replace", "path": "/spec/backgroundColor","value":"orange"},{"op": "replace", "path": "/spec/color","value":"navy"},{"op": "replace", "path": "/spec/location","value":"BannerTop"}]|
+    Then the step should succeed
+    When I perform the :check_console_notification web action with:
+      | name              | notification3           |
+      | location          | BannerTop               |
+      | notification_text | Subscribe               |
+      | background        | orange                  |
+      | color             | navy                    |
+      | link_text         | Youtube                 |
+      | link_url          | https://www.youtube.com |
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
