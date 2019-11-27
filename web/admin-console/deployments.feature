@@ -142,17 +142,13 @@ Feature: deployment/dc related features via web
     Then the step should succeed
     Given 3 pods become ready with labels:
       | deployment=hooks-1 |
-    When I perform the :goto_one_dc_page web action with:
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
+    Then the step should succeed
+    When I perform the :goto_one_rc_page web action with:
       | project_name | <%= project.name %> |
-      | dc_name      | hooks               |
+      | rc_name      | hooks-2             |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item | Start Rollout |
-    Then the step should succeed
-    Given I wait up to 10 seconds for the steps to pass:
-    """
-    Given the expression should be true> browser.url.match("/k8s/ns/<%= project.name %>/replicationcontrollers/hooks-2")
-    """
     When I perform the :click_one_dropdown_action web action with:
       | item | Cancel Rollout |
     Then the step should succeed

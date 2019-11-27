@@ -50,9 +50,6 @@ Feature: overview cases
       | key            | Annotations  |
       | text_in_action | 1 Annotation |
     Then the step should succeed
-    When I perform the :check_pod_number web action with:
-      | pod_number | 1 |
-    Then the step should succeed
 
     # check builds, service, routes info on resources view
     When I run the :click_sidebar_resources_tab web action
