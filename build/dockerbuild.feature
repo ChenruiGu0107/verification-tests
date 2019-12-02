@@ -207,7 +207,7 @@ Feature: dockerbuild.feature
     And I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build was created
+    And the "ruby-sample-build-1" build was created
     Given I create a new project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |

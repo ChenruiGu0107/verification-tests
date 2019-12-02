@@ -412,12 +412,12 @@ Feature: template related scenarios:
   Scenario: Deal with crd resources with new-app
     Given I have a project
     And I run the :new_app client command with:
-      | source_spec | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
-    And the output should contain:
+      | source_spec | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23251/template-with-crd.yaml |
+    And the output should contain: 
       | oc process -f <template> \| oc create |
     Then the step should fail
     And I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23639/imagestream.yaml |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23251/template-with-crd.yaml |
     Then the step should fail
     And the output should contain:
       | oc process -f <template> \| oc create |

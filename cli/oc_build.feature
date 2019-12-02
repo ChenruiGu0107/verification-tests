@@ -55,7 +55,7 @@ Feature: oc build related scenarios
     When I run the :new_build client command with:
       | app_repo    | https://github.com/openshift/ruby-hello-world.git |
       | strategy    | docker                                            |
-      | docker_image| centos/ruby-22-centos7                            |
+      | docker_image| centos/ruby-25-centos7                            |
       | name        | forcepullapp                                      |
     Then the step should succeed
     When I run the :patch client command with:

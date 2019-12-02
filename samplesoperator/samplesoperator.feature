@@ -75,11 +75,14 @@ Feature: samplesoperator
     Then the output should match:
       | jenkins |
       | mysql   |
+    Then I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | template                                   |
       | l        | samples.operator.openshift.io/managed=true |
     Then the output should match:
       | No resources found. |
+    """
     Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
       | {"spec":{"samplesRegistry":"test.registry.fake.com","managementState":"Managed"}} |
     Then I wait up to 120 seconds for the steps to pass:
