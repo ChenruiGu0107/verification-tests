@@ -324,11 +324,12 @@ Feature: buildconfig.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo | openshift/nodejs~https://github.com/sclorg/nodejs-ex                  |
-      | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
-      | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
-      | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
-      | e        | HTTPS_PROXY=http://user:passwd@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | app_repo | openshift/nodejs~https://github.com/sclorg/nodejs-ex                    |
+      | e        | http_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e        | https_proxy=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | e        | HTTP_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
+      | e        | HTTPS_PROXY=http://tester:redhat@<%= cb.proxy_ip %>:<%= cb.proxy_port %>|
+      | e        | NO_PROXY=.cluster.local,.svc,127.0.0.1,localhost                        |
     Then the step should succeed
     Given the "nodejs-ex-1" build completes
     When I run the :logs client command with:
