@@ -188,6 +188,39 @@ Feature: Testing Ingress Operator related scenarios
     And the output should contain "nbthread 4"
 
   # @author hongli@redhat.com
+  @admin
+  Scenario Outline: the tlsSecurityProfile of ingresscontroller can be set to Old, Intermediate, Modern and Custom
+    Given the master version >= "4.0"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "<name>" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    # create custom ingresscontroller
+    When I run oc create over "<ingressctl>" replacing paths:
+      | ["metadata"]["name"] | <name>                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","<name>") %> |
+    Then the step should succeed
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=<name> |
+    # ensure tls cipher is correct
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | grep | ssl-min-ver | haproxy.config |
+    Then the output should contain "<tls-version>"
+    When I execute on the pod:
+      | grep | ssl-default-bind-ciphers | haproxy.config |
+    Then the output should contain "<ciphers>"
+    """
+  Examples:
+    | name | ingressctl | tls-version | ciphers |
+    | test-25665 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-old.yaml | TLSv1.1 | AES128-GCM-SHA256:AES256-GCM-SHA384 | # @case_id OCP-25665
+    | test-25666 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-intmd.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
+    | test-25667 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-modern.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
+    | test-25668 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-custom.yaml | TLSv1.1 | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
+
+  # @author hongli@redhat.com
   # @case_id OCP-26150
   @admin
   Scenario: integrate ingress operator metrics with Prometheus
