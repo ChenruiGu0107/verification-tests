@@ -508,3 +508,25 @@ Feature: Azure disk and Azure file specific scenarios
       | Premium_LRS        |    # @case_id OCP-26095
       | StandardSSD_LRS    |    # @case_id OCP-26096
 
+
+  # @author wduan@redhat.com
+  # @case_id OCP-26173
+  @admin
+  Scenario: AzureDisk dynamic provisioning with managed storage class for invalid resourceGroup
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-MANAGED.yaml" where:
+      | ["metadata"]["name"]            | sc-<%= project.name %> |
+      | ["parameters"]["resourceGroup"] | invalid                |
+      | ["volumeBindingMode"]           | Immediate              |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pvc   |
+      | name     | mypvc |
+    Then the output should match:
+      | ProvisioningFailed  |
+      | AuthorizationFailed |
+    And the "mypvc" PVC status is :pending
