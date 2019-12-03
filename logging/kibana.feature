@@ -37,3 +37,29 @@ Feature: kibana web UI related cases for logging
     And evaluation of `deployment('kibana').container_spec(user: user, name: 'kibana-proxy').memory_limit` is stored in the :kibana_proxy_deploy_res_limit clipboard
     Then the expression should be true> cb.kibana_container_res_limit == cb.kibana_deploy_res_limit
     Then the expression should be true> cb.kibana_proxy_container_res_limit == cb.kibana_proxy_deploy_res_limit
+
+  # @author qitang@redhat.com
+  # @case_id OCP-20172
+  @admin
+  @destructive
+  Scenario: Logout kibana web console
+    Given I switch to the first user
+    And the first user is cluster-admin
+    Given evaluation of `route('kibana', service('kibana',project('openshift-logging', switch: false))).dns(by: admin)` is stored in the :kibana_route clipboard
+    Given I login to kibana logging web console
+    Then the step should succeed
+    And I log out kibana logging web console
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :click_kibana_link_in_console web action with:
+      | kibana_route   | https://<%= cb.kibana_route %> |
+    Then the step should succeed
+    And I perform the :kibana_login web action in ":url=>https://<%= cb.kibana_route %>" window with:
+      | username   | <%= user.name %>               |
+      | password   | <%= user.password %>           |
+      | kibana_url | https://<%= cb.kibana_route %> |
+      | idp        | <%= env.idp %>                 |
+    Then the step should succeed
+    And I perform the :logout_kibana web action in ":url=>https://<%= cb.kibana_route %>" window with:
+      | kibana_url | https://<%= cb.kibana_route %> |
+    Then the step should succeed
