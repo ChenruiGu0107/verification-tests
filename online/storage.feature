@@ -140,3 +140,31 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | storage_size    | 0.001                  |
       | storage_unit    | TiB                    |
     Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-19480
+  Scenario Outline: create pvc with annotation in aws using dedicated env
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/online/dynamic_persistent_volumes/<pvc-name>.json |
+    Then the step should succeed
+    And the "<pvc-name>" PVC becomes :<status>
+    When I run the :describe client command with:
+      | resource | pvc        |
+      | name     | <pvc-name> |
+    Then the step should succeed
+    And the output should match:
+      | <output> |
+    Then I run the :delete client command with:
+      | object_type       | pvc        |
+      | object_name_or_id | <pvc-name> |
+    Then the step should succeed
+
+    Examples: create pvc with annotation in aws using dedicated env
+      | pvc-name                | status  | output                                                                     |
+      | pvc-annotation-default  | bound   | StorageClass:\s+gp2-encrypted                                              |
+      | pvc-annotation-notexist | pending | "yasun-test-class-not-exist" not found                                     |
+      | pvc-annotation-blank    | pending | no persistent volumes available for this claim and no storage class is set |
+      | pvc-annotation-alpha    | bound   | StorageClass:\s+gp2-encrypted                                              |
+      | pvc-annotation-gp2      | bound   | StorageClass:\s+gp2                                                        |
+      
