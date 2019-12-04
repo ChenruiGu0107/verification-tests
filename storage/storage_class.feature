@@ -759,8 +759,8 @@ Feature: storageClass related feature
       | provisioner: kubernetes.io/ |
       | reclaimPolicy: Delete       |
     And the output should match:
-      | kubernetes.io/(aws-ebs\|gce-pd\|vsphere-volume)        |
-      | volumeBindingMode:\s+(Immediate\|WaitForFirstConsumer) |
+      | kubernetes.io/(aws-ebs\|gce-pd\|vsphere-volume\|cinder) |
+      | volumeBindingMode:\s+(Immediate\|WaitForFirstConsumer)  |
     When I run the :describe client command with:
       | resource | storageclass |
     Then the step should succeed
@@ -769,11 +769,11 @@ Feature: storageClass related feature
       | Parameters:   |
       | Provisioner:  |
     And the output should match:
-      | AllowVolumeExpansion:                                  |
-      | IsDefaultClass:\s+(Yes\|No)                            |
-      | kubernetes.io/(aws-ebs\|gce-pd\|vsphere-volume)        |
-      | ReclaimPolicy:\s+Delete                                |
-      | VolumeBindingMode:\s+(Immediate\|WaitForFirstConsumer) |
+      | AllowVolumeExpansion:                                   |
+      | IsDefaultClass:\s+(Yes\|No)                             |
+      | kubernetes.io/(aws-ebs\|gce-pd\|vsphere-volume\|cinder) |
+      | ReclaimPolicy:\s+Delete                                 |
+      | VolumeBindingMode:\s+(Immediate\|WaitForFirstConsumer)  |
 
   # @author lxia@redhat.com
   # @case_id OCP-22018
