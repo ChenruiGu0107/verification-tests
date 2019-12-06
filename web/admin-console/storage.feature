@@ -99,10 +99,13 @@ Feature: storage (storageclass, pv, pvc) related
       | pvc_request_size | 2  |
       | pvc_size_unit    | Gi |
     Then the step should succeed
-    And I wait up to 300 seconds for the steps to pass:
-    """
-    Given the expression should be true> pv(pvc("pvc-#{project.name}").volume_name).capacity_raw(cached: false) == "2Gi"
-    """
+
+    # check spec.resources.requests.storage is 2Gi
+    When I run the :get client command with:
+      | resource | pvc/pvc-<%= project.name %>  |
+      | o        | yaml                         |
+    Then the step should succeed
+    Given the expression should be true> @result[:parsed]['spec']['resources']['requests']['storage'] == "2Gi"
 
 
   # @author yapei@redhat.com

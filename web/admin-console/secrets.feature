@@ -41,16 +41,17 @@ Feature: secrets related
       | project_name        | <%= project.name %>    |
       | secret_name         | webhooksecret1         |
     Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.webhook_skey %> |
+    Then the step should fail
     When I run the :click_reveal_values web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | <%= cb.webhook_skey %> |
     Then the step should succeed
-    When I run the :click_hide_values web action
-    Then the step should succeed
     When I perform the :check_page_contains web action with:
-      | content | <%= cb.webhook_skey %> |
-    Then the step should fail
+      | content | Hide Values |
+    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-20020
@@ -127,17 +128,22 @@ Feature: secrets related
     Then the step should succeed
 
     # Check created secret
+    When I perform the :goto_one_secret_page web action with:
+      | project_name        | <%= project.name %>    |
+      | secret_name         | genericsecret1         |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | value_1 |
+    Then the step should fail
     When I run the :click_reveal_values web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | value_1 |
     Then the step should succeed
-    When I run the :click_hide_values web action
-    Then the step should succeed
     When I perform the :check_page_contains web action with:
-      | content | value_1 |
-    Then the step should fail
- 
+      | content | Hide Values |
+    Then the step should succeed
+
     # Edit secret
     When I perform the :click_one_dropdown_action web action with:
       | item   | Edit Secret |

@@ -90,6 +90,29 @@ Feature: overview cases
     Given the master version >= "4.2"
     Given I have a project
 
+    # check deployment error on overview
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml" replacing paths:
+      | ["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
+    Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource      | deployment              |
+      | resource_name | hello-openshift         |
+      | add           | true                    |
+      | claim-name    | pvc-<%= project.name %> |
+      | mount-path    | /tmp/data               |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_error_icon_for_overview_item web action
+    Then the step should succeed
+
     # check build error on overview
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                 |
@@ -106,11 +129,10 @@ Feature: overview cases
       | buildconfig | python-sample |
     Then the step should succeed
     Given the "python-sample-2" build finished
-    Given I open admin console in a browser
     When I perform the :goto_project_resources_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I run the :check_build_error_icon_and_text web action
+    When I run the :check_error_icon_for_overview_item web action
     Then the step should succeed
     When I perform the :click_list_item web action with:
       | resource_kind | DeploymentConfig |
@@ -122,24 +144,3 @@ Feature: overview cases
       | content | Failed to fetch the input source |
     Then the step should succeed
 
-    # check deployment error on overview
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml" replacing paths:
-      | ["spec"]["replicas"] | 1 |
-    Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |   
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
-    Then the step should succeed
-    When I run the :set_volume client command with:
-      | resource      | deployment              |
-      | resource_name | hello-openshift         |
-      | add           | true                    |
-      | claim-name    | pvc-<%= project.name %> |
-      | mount-path    | /tmp/data               |
-    Then the step should succeed
-    When I perform the :goto_project_resources_page web action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-    When I run the :check_deploy_error_icon_and_text web action
-    Then the step should succeed
