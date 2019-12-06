@@ -31,6 +31,43 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :check_user_starter_guide_message_when_no_projects web action
     Then the step should succeed
+    When I perform the :check_message_and_doc_for_new_user web action with:
+      | documentationbaseurl | docs.openshift.com/container-platform |
+    Then the step should succeed
+    Given I saved following keys to list in :resources clipboard:
+      | Deployment Config         | |
+      | Pod                       | |
+      | Deployment                | |
+      | Stateful Set              | |
+      | Config Map                | |
+      | Cron Job                  | |
+      | Job                       | |
+      | Daemon Set                | |
+      | Replication Controller    | |
+      | Horizontal Pod Autoscaler | |
+      | Service                   | |
+      | Route                     | |
+      | Persistent Volume Claim   | |
+      | Build Config              | |
+      | Image Stream              | |
+      | Service Account           | |
+
+    When I repeat the following steps for each :resource in cb.resources:
+    """
+    Given evaluation of `cb.resource.downcase` is stored in the :resource_url clipboard
+    When I perform the :goto_resource_page_under_default_project web action with:
+      | resource_url_name   | <%= cb.resource_url.id2name.delete(" ")+"s" %> |
+    Then the step should succeed
+
+    When I run the :check_getting_started web action
+    Then the step should succeed
+    When I perform the :check_dim_resource_list web action with:
+      | resource_url_name | <%= cb.resource_url.id2name.delete(" ")+"s" %>  |
+      | resource_singular | <%= cb.resource %>  |
+    Then the step should succeed
+    """
+
+    # create project
     When I perform the :create_project web action with:
       | project_name | <%= cb.pro_name %> |
     Then the step should succeed

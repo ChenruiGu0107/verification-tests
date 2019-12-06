@@ -58,6 +58,9 @@ Feature: events related
       | type | pod |
     Then the step should succeed
 
+    When I perform the :goto_project_events web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I perform the :search_by_type web action with:
       | type | Build |
     Then the step should succeed
