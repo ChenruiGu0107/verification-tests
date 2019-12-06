@@ -101,10 +101,14 @@ Feature: Node related
     Given the first user is cluster-admin
     Given I store the schedulable workers in the :schedule_workers clipboard
     Given I store all machines in the :machines clipboard
-
+    
+    When I run the :goto_node_page web action
+    Then the step should succeed
+    Given I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :click_to_machines_page web action
     Then the step should succeed
-
+    """
     # filter by machine name
     When I perform the :set_filter_strings web action with:
       | filter_text | <%= cb.machines[0].name %> |

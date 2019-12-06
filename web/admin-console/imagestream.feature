@@ -70,9 +70,11 @@ Feature: imagestream related
     Then the step should succeed
     When I run the :wait_box_loaded web action
     Then the step should succeed
-    When I perform the :check_imagestream_help_link web action with:
-      | existing | false |
+    When I run the :get admin command with:
+      | resource | configs.imageregistry.operator.openshift.io/cluster |
+      | o        | yaml |
     Then the step should succeed
+    Given evaluation of `@result[:parsed]["spec"]["defaultRoute"]` is stored in the :defaultroute clipboard
     When I run the :patch admin command with:
       | resource | configs.imageregistry.operator.openshift.io/cluster |
       | type     | merge                                               |
@@ -83,7 +85,7 @@ Feature: imagestream related
     When I run the :patch admin command with:
       | resource | configs.imageregistry.operator.openshift.io/cluster |
       | type     | merge                                               |
-      | p        | {"spec":{"defaultRoute": false}}                    |
+      | p        | {"spec":{"defaultRoute": <%= cb.defaultroute %>}}   |
     Then the step should succeed
     """
 

@@ -166,7 +166,8 @@ Feature: route related
     Given I open admin console in a browser
     Given the first user is cluster-admin
     And I use the "openshift-monitoring" project
-
+    When I run the :goto_node_page web action
+    Then the step should succeed
     When I perform the :expand_primary_menu web action with:
       | primary_menu | Monitoring |
     Then the step should succeed
