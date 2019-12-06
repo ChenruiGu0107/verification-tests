@@ -2,10 +2,12 @@ Feature: Testing ingress to route object
 
   # @author zzhao@redhat.com
   # @case_id OCP-18790
-  Scenario: Ingress with path
+  Scenario: Ingress with path can be worked well
     Given the master version >= "3.10"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -14,34 +16,31 @@ Feature: Testing ingress to route object
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/path-ingress.json" replacing paths:
-      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |    
+      | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
+      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | ingress      |
       | resource_name | path-ingress |
     Then the step should succeed
-    And the output should contain "foo.bar.com"
+    And the output should contain "<%= cb.proj_name %>.<%= cb.subdomain %>"
 
     Given I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
       | curl |
-      | --resolve |
-      | foo.bar.com:80:<%= cb.router_ip[0] %> |
-      | http://foo.bar.com/ |
+      | http://<%= cb.proj_name %>.<%= cb.subdomain %> |
       | -v |
     Then the step should succeed
     And the output should contain "503 Service Unavailable"
     When I execute on the "hello-pod" pod:
       | curl |
-      | --resolve |
-      | foo.bar.com:80:<%= cb.router_ip[0] %> |
-      | http://foo.bar.com/test/ |
+      | http://<%= cb.proj_name %>.<%= cb.subdomain %>/test/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-Path-Test"
     
   # @author zzhao@redhat.com
   # @case_id OCP-18791
-  Scenario: Ingress with TLS
+  Scenario: haproxy support ingress object with TLS
     Given the master version >= "3.10"
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -90,7 +89,9 @@ Feature: Testing ingress to route object
   Scenario: The path and service can be updated for ingress
     Given the master version >= "3.10"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -99,13 +100,14 @@ Feature: Testing ingress to route object
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/path-ingress.json" replacing paths:
+      | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | ingress      |
       | resource_name | path-ingress |
     Then the step should succeed
-    And the output should contain "foo.bar.com"
+    And the output should contain "<%= cb.proj_name %>.<%= cb.subdomain %>"
     
     # create another pod and service for updating service later 
     When I run the :create client command with:
@@ -120,14 +122,12 @@ Feature: Testing ingress to route object
     When I run the :patch client command with:
       | resource      | ingress      |
       | resource_name | path-ingress |
-      | p             | {"spec":{"rules":[{"host":"foo.bar.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":27017},"path":"/"}]}}]}} |
+      | p             | {"spec":{"rules":[{"host":"<%= cb.proj_name %>.<%= cb.subdomain %>","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":27017},"path":"/"}]}}]}} |
     Then the step should succeed
     Given I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
       | curl |
-      | --resolve |
-      | foo.bar.com:80:<%= cb.router_ip[0] %> |
-      | http://foo.bar.com/ |
+      | http://<%= cb.proj_name %>.<%= cb.subdomain %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
 
@@ -135,15 +135,13 @@ Feature: Testing ingress to route object
     When I run the :patch client command with:
       | resource      | ingress      |
       | resource_name | path-ingress |
-      | p             | {"spec":{"rules":[{"host":"foo.bar.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure-2","servicePort":27017}}]}}]}} |
+      | p             | {"spec":{"rules":[{"host":"<%= cb.proj_name %>.<%= cb.subdomain %>","http":{"paths":[{"backend":{"serviceName":"service-unsecure-2","servicePort":27017}}]}}]}} |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
     When I execute on the "hello-pod" pod:
       | curl |
-      | --resolve |
-      | foo.bar.com:80:<%= cb.router_ip[0] %> |
-      | http://foo.bar.com/ |
+      | http://<%= cb.proj_name %>.<%= cb.subdomain %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-2"
     """
