@@ -756,6 +756,7 @@ Feature: SCC policy related scenarios
       | resource      | scc                                       |
       | resource_name | restricted                                |
       | p             | {"defaultAllowPrivilegeEscalation": true} |
+      | type          | merge                                     |
     Then the step should succeed
     Given I have a project
     When I run the :create client command with:
@@ -765,17 +766,20 @@ Feature: SCC policy related scenarios
       | resource      | scc                                 |
       | resource_name | restricted                          |
       | p             | {"allowPrivilegeEscalation": false} |
+      | type          | merge                               |
     Then the step should fail
     And the output should contain "Cannot set DefaultAllowPrivilegeEscalation to true without also setting AllowPrivilegeEscalation to true"
     When I run the :patch admin command with:
       | resource      | scc                                        |
       | resource_name | restricted                                 |
       | p             | {"defaultAllowPrivilegeEscalation": false} |
+      | type          | merge                                      |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scc                                 |
       | resource_name | restricted                          |
       | p             | {"allowPrivilegeEscalation": false} |
+      | type          | merge                               |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
@@ -784,6 +788,7 @@ Feature: SCC policy related scenarios
       | resource      | scc                                |
       | resource_name | restricted                         |
       | p             | {"allowPrivilegeEscalation": null} |
+      | type          | merge                              |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |

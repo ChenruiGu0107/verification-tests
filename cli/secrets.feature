@@ -237,7 +237,7 @@ Feature: secrets related scenarios
   Scenario: Deploy will fail with incorrently formed pull secrets
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
       | name     | test |
     Then the step should succeed
 

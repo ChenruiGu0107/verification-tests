@@ -12,7 +12,7 @@ Feature: test master config related steps
       | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"admin":"true"}},{"maxProjects":1}]}}}}}}} |
       | type          | merge              |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given 100 seconds have passed
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -626,7 +626,7 @@ Feature: test master config related steps
       | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"maxProjects":1,"selector":{}}]}}}}}}} |
       | type          | merge              |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given 100 seconds have passed
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -650,7 +650,7 @@ Feature: test master config related steps
       | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":1}]}}}}}}} |
       | type          | merge              |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given 100 seconds have passed
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -695,7 +695,7 @@ Feature: test master config related steps
       | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":2},{"selector":{},"maxProjects":1}]}}}}}}} |
       | type          | merge              |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given 100 seconds have passed
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -732,7 +732,7 @@ Feature: test master config related steps
       | p             | {"spec":{"unsupportedConfigOverrides":{"admission":{"enabledPlugins":["project.openshift.io/ProjectRequestLimit"],"pluginConfig":{"project.openshift.io/ProjectRequestLimit":{"configuration":{"apiVersion":"project.openshift.io/v1","kind":"ProjectRequestLimitConfig","limits":[{"selector":{"level":"platinum"},"maxProjects":1},{"selector":{"tag":"golden"},"maxProjects":2}]}}}}}}} |
       | type          | merge              |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given 100 seconds have passed
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-apiserver").condition(cached: false, type: 'Progressing')['status'] == "False"
