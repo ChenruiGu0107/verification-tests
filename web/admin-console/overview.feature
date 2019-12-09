@@ -44,11 +44,9 @@ Feature: overview cases
     Then the step should succeed
     When I perform the :check_key_and_action_link web action with:
       | key            | Tolerations   |
-      | text_in_action | 0 Tolerations |
     Then the step should succeed
     When I perform the :check_key_and_action_link web action with:
       | key            | Annotations  |
-      | text_in_action | 1 Annotation |
     Then the step should succeed
 
     # check builds, service, routes info on resources view
