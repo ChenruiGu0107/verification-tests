@@ -61,12 +61,6 @@ Feature: podAffinity
   # @case_id OCP-14603
   Scenario: pod will not be scheduled if pod affinity not match
     Given I have a project
-    When I run the :get client command with:
-      | resource | pods        |
-      | l        | security=s1 |
-    Then the step should succeed
-    And the output should contain:
-      | No resources found. |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
     Then the step should succeed
