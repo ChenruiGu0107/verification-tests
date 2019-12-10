@@ -6,7 +6,7 @@ Feature: oc_rsync.feature
     When I run the :new_app client command with:
       | app_repo | aosqe/scratch:tarrsync |
     Given a pod becomes ready with labels:
-      | app=scratch |
+      | deployment=scratch-1 |
     When I execute on the pod:
       | touch | /tmp/test1 |
     Then the step should succeed
@@ -92,7 +92,7 @@ Feature: oc_rsync.feature
     When I run the :new_app client command with:
       | app_repo | aosqe/scratch:tarrsync |
     Given a pod becomes ready with labels:
-      | app=scratch |
+      | deploymentconfig=scratch |
     Given I create the "test" directory
     Given the "test/testfile1" file is created with the following lines:
     """
@@ -159,7 +159,7 @@ Feature: oc_rsync.feature
       | group        | aosqe/scratch:tarrsync+aosqe/scratch:latest |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | app=scratch |
+      | deployment=scratch-1 |
     When I run the :rsync client command with:
       | source      | <%= localhost.workdir %>/test |
       | destination | <%= pod.name %>:/tmp          |
