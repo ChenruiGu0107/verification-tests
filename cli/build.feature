@@ -1940,9 +1940,6 @@ Feature: build 'apps' with CLI
     Given a pod becomes ready with labels:
       | run=nogit |
     Given I execute on the pod:
-      | rm | /usr/bin/git |
-    Then the step should succeed
-    Given I execute on the pod:
       | bash                                                                                                                              |
       | -c                                                                                                                                |
       | cd /tmp; wget --no-check-certificate https://github.com/openshift/ruby-hello-world/archive/master.tar.gz; tar -xvzf master.tar.gz |

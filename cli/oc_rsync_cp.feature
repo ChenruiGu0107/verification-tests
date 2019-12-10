@@ -51,7 +51,7 @@ Feature: oc_rsync.feature
     When I run the :new_app client command with:
       | app_repo | aosqe/scratch:tarrsync |
     Given a pod becomes ready with labels:
-      | app=scratch |
+      | deploymentconfig=scratch |
     Given I create the "test1" directory
     Given a "test1/testfile1" file is created with the following lines:
     """
@@ -201,6 +201,7 @@ Feature: oc_rsync.feature
     And the output should contain "test"
     """
     Given I create the "test/test1" directory
+    Then the step should succeed
     Given I wait for the steps to pass:
     """
     When I execute on the pod:

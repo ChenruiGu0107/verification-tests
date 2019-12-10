@@ -155,9 +155,9 @@ Feature: dockerbuild.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build was created
+    And the "ruby-sample-build-1" build was created
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
-    When I get project build_config named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc.json
     And I replace lines in "bc.json":
@@ -167,15 +167,15 @@ Feature: dockerbuild.feature
       | f | bc.json |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-    Then the "ruby22-sample-build-2" build was created
+      | buildconfig | ruby-sample-build |
+    Then the "ruby-sample-build-2" build was created
 
     Given I switch to the second user
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
-    When I get project build_config named "ruby22-sample-build" as JSON
+    When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc1.json
     And I replace lines in "bc1.json":
