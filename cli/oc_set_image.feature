@@ -227,7 +227,10 @@ Feature: oc set image related tests
       | source      | docker.io/openshift/hello-openshift   |
       | dest        | <%= project.name %>/ho:latest         |
     Then the step should succeed
-    And evaluation of `image_stream("ho").latest_tag_status.imageref.name` is stored in the :image_id clipboard
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    And evaluation of `image_stream_tag("ho:latest").digest` is stored in the :image_id clipboard
+    """
     Given a "imagesignature.yaml" file is created with the following lines:
     """
     apiVersion: v1

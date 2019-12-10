@@ -1786,23 +1786,12 @@ Feature: jenkins.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "nodejs" slave image for jenkins <version> server
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | jenkins/nodejs=true |
     Given the "sample-pipeline-1" build completes
-    When I perform the :goto_jenkins_buildlog_page web action with:
-      | namespace|<%= project.name %>                 |
-      | job_name| <%= project.name %>-sample-pipeline |
-      | job_num | 1                                   |
-    Then the step should succeed
-    When I get the visible text on web html page
-    Then the output should contain:
-      | Finished: SUCCESS |
 
     Examples:
       | version |
@@ -1990,9 +1979,6 @@ Feature: jenkins.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "nodejs" slave image for jenkins 2 server
     And I run the :start_build client command with:
       | buildconfig | sample-pipeline |
     Then the step should succeed

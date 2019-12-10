@@ -68,7 +68,10 @@ Feature: REST related features
       | source      | docker.io/openshift/hello-openshift   |
       | dest        | <%= project.name %>/ho:latest         |
     Then the step should succeed
-    And evaluation of `image_stream("ho").latest_tag_status.imageref.name` is stored in the :image_id clipboard
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    And evaluation of `image_stream_tag("ho:latest").digest` is stored in the :image_id clipboard
+    """
     Given I enable image-registry default route
     Given default image registry route is stored in the :registry_route clipboard
     Given a "imagesignature.json" file is created with the following lines:

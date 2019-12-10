@@ -221,7 +221,7 @@ Feature: stibuild.feature
   Scenario: Setting incremental with wrong info on s2i build request
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -319,7 +319,7 @@ Feature: stibuild.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo      | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | app_repo      | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
       | source_secret | mysecret |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -342,7 +342,7 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_build client command with:
-      | app_repo     | openshift/ruby:2.3~<%= cb.git_repo %> |
+      | app_repo     | openshift/ruby:2.5~<%= cb.git_repo %> |
       | source_secret| mysecret                              | 
     Then the step should succeed
     And the "sample-1" build was created
@@ -383,7 +383,7 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo      | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
+      | app_repo      | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
       | source_secret | nonsecret |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -396,7 +396,7 @@ Feature: stibuild.feature
       | object_name_or_id | ruby-hello-world |
     Then the step should succeed
     When I run the :new_app client command with:
-      | app_repo     | openshift/ruby:2.3~<%= cb.git_repo %> |
+      | app_repo     | openshift/ruby:2.5~<%= cb.git_repo %> |
       | source_secret| mysecret                              |
     Then the step should succeed
     And the "sample-1" build was created
