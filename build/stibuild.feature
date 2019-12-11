@@ -141,11 +141,12 @@ Feature: stibuild.feature
       | app_repo | https://github.com/sclorg/ruby-ex |
       | image_stream | ruby |
     Then the step should succeed
+    And evaluation of `image_stream_tag("ruby:latest",project("openshift")).digest` is stored in the :image_id clipboard
     When I run the :describe client command with:
       | resource | build     |
       | name     | ruby-ex-1 |
     Then the output should match:
-      | From Image:[^\\n]*@sha256 |
+      | <%= cb.image_id %> |
 
   # @author wewang@redhat.com
   # @case_id OCP-14967
@@ -468,7 +469,8 @@ Feature: stibuild.feature
       | app=openshift-controller-manager |
     And I repeat the following steps for each :pod in cb.pods:
     """
-    And I run the logs: client command with:
-      | resource_name | <%= cb.pod %> |
-    Then the output should contain "logSnippet"
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name} |
+    Then the step should succeed
     """
+    Then the output should contain "logSnippet"
