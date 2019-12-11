@@ -39,7 +39,7 @@ Feature: admin console api related
   # @case_id OCP-25816
   @admin
   Scenario: Expose console_url metrics in console-operator metric
-    Given the master version >= "4.3"
+    Given the master version >= "4.2"
     Given I open admin console in a browser
     And the first user is cluster-admin
 

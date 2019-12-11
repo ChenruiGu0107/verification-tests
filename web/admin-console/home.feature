@@ -54,15 +54,14 @@ Feature: Home related pages via admin console
 
     When I repeat the following steps for each :resource in cb.resources:
     """
-    Given evaluation of `cb.resource.downcase` is stored in the :resource_url clipboard
     When I perform the :goto_resource_page_under_default_project web action with:
-      | resource_url_name   | <%= cb.resource_url.id2name.delete(" ")+"s" %> |
+      | resource_url_name   | <%= cb.resource.downcase.to_s.delete(" ")+"s" %> |
     Then the step should succeed
 
     When I run the :check_getting_started web action
     Then the step should succeed
     When I perform the :check_dim_resource_list web action with:
-      | resource_url_name | <%= cb.resource_url.id2name.delete(" ")+"s" %>  |
+      | resource_url_name | <%= cb.resource.downcase.to_s.delete(" ")+"s" %>  |
       | resource_singular | <%= cb.resource %>  |
     Then the step should succeed
     """
