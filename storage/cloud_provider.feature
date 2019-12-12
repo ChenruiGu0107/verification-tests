@@ -170,3 +170,31 @@ Feature: kubelet restart and node restart
       | mode        |
       | ""          | # @case_id OCP-24089
       | invalidMode | # @case_id OCP-24090
+
+
+  # @author lxia@redhat.com
+  @admin
+  Scenario Outline: kubelet have cloud provider configured
+    Given I store the schedulable nodes in the :nodes clipboard
+    And I use the "<%= cb.nodes[0].name %>" node
+    When I run commands on the host:
+      | ps -eaf \| grep '/usr/bin/hyperkube kubelet' |
+    Then the step should succeed
+    And the output should contain:
+      | --cloud-provider=<provider> |
+
+    And I use the "<%= cb.nodes[-1].name %>" node
+    When I run commands on the host:
+      | ps -eaf \| grep '/usr/bin/hyperkube kubelet' |
+    Then the step should succeed
+    And the output should contain:
+      | --cloud-provider=<provider> |
+
+    Examples:
+      | provider  |
+      | aws       | # @case_id OCP-26261
+      | azure     | # @case_id OCP-26263
+      | gce       | # @case_id OCP-26260
+      | openstack | # @case_id OCP-26262
+      | vsphere   | # @case_id OCP-26264
+      |           | # @case_id OCP-26265
