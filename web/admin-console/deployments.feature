@@ -215,3 +215,41 @@ Feature: deployment/dc related features via web
       | pod/python-1"                  |
     """
     
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25773
+  @admin
+  Scenario: Add rs/rc tab under deployment/dc page
+    Given the master version >= "4.3"
+    Given I open admin console in a browser
+    Given I have a project
+    When I perform the :goto_dc_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :run client command with:
+       | name    | example                 |
+       | image   | busybox                 |
+    Then the step should succeed
+    When I perform the :goto_one_dc_page web action with:
+      | project_name | <%= project.name %>  |
+      | dc_name      | example              |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Replication Controllers |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | example-1                        |
+      | link_url | replicationcontrollers/example-1 |
+    Then the step should succeed
+
+    Given the first user is cluster-admin
+    When I perform the :goto_one_deployment_page web action with:
+      | project_name | openshift-console |
+      | deploy_name  | console           |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Replica Sets |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | console-             |
+      | link_url | replicasets/console- |
+    Then the step should succeed
