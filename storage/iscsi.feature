@@ -3,20 +3,19 @@ Feature: ISCSI volume plugin testing
   # @case_id OCP-23400
   @admin
   Scenario: Check iSCSI dependencies on the node
-    Given I use the first master host
+    Given I store the schedulable nodes in the :nodes clipboard
+    And I use the "<%= cb.nodes.first.name %>" node
     When I run commands on the host:
       | rpm -qa \| grep -i iscsi |
     Then the step should succeed
     And the output should contain "iscsi-initiator-utils"
+
+    And I use the "<%= cb.nodes.last.name %>" node
     When I run commands on the host:
-      | systemctl is-enabled iscsid |
+      | rpm -qa \| grep -i iscsi |
     Then the step should succeed
-    And the output should contain "enabled"
-    When I run commands on the host:
-      | systemctl is-active iscsid |
-    Then the step should succeed
-    And the output should contain "active"
-    And the output should not contain "inactive"
+    And the output should contain "iscsi-initiator-utils"
+
 
   # @author jhou@redhat.com
   # @case_id OCP-9706
