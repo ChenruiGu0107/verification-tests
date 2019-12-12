@@ -510,6 +510,38 @@ Feature: Azure disk and Azure file specific scenarios
 
 
   # @author wduan@redhat.com
+  # @case_id OCP-26172
+  @admin
+  Scenario: AzureDisk dynamic provisioning with managed storage class for resourceGroup
+    Given I have a project
+    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-MANAGED.yaml" where:
+      | ["metadata"]["name"]            | sc-<%= project.name %>      |
+      | ["parameters"]["resourceGroup"] | <%= cb.vid.split("/")[4] %> |
+      | ["volumeBindingMode"]           | WaitForFirstConsumer        |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]            | mypvc                  |
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    Given the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    When I execute on the pod:
+      | rm | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+
+  # @author wduan@redhat.com
   # @case_id OCP-26173
   @admin
   Scenario: AzureDisk dynamic provisioning with managed storage class for invalid resourceGroup
