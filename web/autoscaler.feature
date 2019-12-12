@@ -123,9 +123,9 @@ Feature: AutoScaler relative cases
     Then the step should succeed
     And the output should contain "element not found"
 
-# @author yanpzhan@redhat.com
-# @case_id OCP-11287
-Scenario: Create,Edit and Delete HPA from replication controller page
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-11287
+  Scenario: Create,Edit and Delete HPA from replication controller page
     Given I have a project
     # Create a standalone rc
     When I run the :run client command with:

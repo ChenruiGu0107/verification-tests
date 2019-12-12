@@ -661,10 +661,10 @@ Feature: SCC policy related scenarios
     And the pod named "pod-uid-outrange" status becomes :running
     And the expression should be true> pod.container(name: "pod-uid-outrange").spec.scc["runAsUser"] == 1000
 
-   # @author scheng@redhat.com
-   # @case_id OCP-18828
-   @admin
-   Scenario: Allow scc access via RBAC at project level
+  # @author scheng@redhat.com
+  # @case_id OCP-18828
+  @admin
+  Scenario: Allow scc access via RBAC at project level
     Given I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/OCP-18828/allow_scc_access_via_rbac_project.yaml |
@@ -688,10 +688,10 @@ Feature: SCC policy related scenarios
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
 
-   # @author scheng@redhat.com
-   # @case_id OCP-18836
-   @admin
-   Scenario: Allow scc access via RBAC at cluster level
+  # @author scheng@redhat.com
+  # @case_id OCP-18836
+  @admin
+  Scenario: Allow scc access via RBAC at cluster level
     Given admin ensures "crole-18836" cluster_role is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml |

@@ -830,11 +830,11 @@ Feature: Quota related scenarios
       | aosqe/fedora_base:latest    | # @case_id OCP-11797
       | aosqe/singlelayer:latest    | # @case_id OCP-11963
 
-   # @author weinliu@redhat.com
-   # @case_id OCP-15821
-   @admin
-   @destructive
-   Scenario: Release quota for a pod if its terminating and exceeded grace period
+  # @author weinliu@redhat.com
+  # @case_id OCP-15821
+  @admin
+  @destructive
+  Scenario: Release quota for a pod if its terminating and exceeded grace period
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project

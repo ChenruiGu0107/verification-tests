@@ -297,7 +297,6 @@ Feature: Persistent Volume Claim binding policies
     Then the output should not contain:
       | <%= pvc.volume_name %> |
 
-  # @author lzhou@redhat.com
   # @author jhou@redhat.com
   @admin
   Scenario Outline: Volume should be successfully detached if pod is deleted via namespace deletion

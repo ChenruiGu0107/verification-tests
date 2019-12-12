@@ -59,7 +59,7 @@ Feature: REST related features
     Then the step should succeed
     #Then the output should contain "401"
 
-  #@author xiuwang@redhat.com
+  # @author xiuwang@redhat.com
   # @case_id OCP-12958
   @admin
   Scenario: Read and write image signatures with registry endpoint

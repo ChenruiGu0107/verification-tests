@@ -633,7 +633,7 @@ Feature: web secrets related
       | resource_key  | mysql-password |
     Then the step should succeed
 
-  # @author yanpzhan@redhat
+  # @author yanpzhan@redhat.com
   # @case_id OCP-18291
   Scenario: Create generic secret by uploading file on web console
     Given the master version >= "3.10"	

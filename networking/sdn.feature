@@ -759,7 +759,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should contain "/usr/sbin/arping"
 
-  #author zzhao@redhat.com
+  # @author zzhao@redhat.com
   # @case_id OCP-23337
   @admin
   @destructive

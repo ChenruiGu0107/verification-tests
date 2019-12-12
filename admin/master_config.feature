@@ -190,11 +190,11 @@ Feature: test master config related steps
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
 
-    # @author chuyu@redhat.com
-    # @case_id OCP-10792
-    @admin
-    @destructive
-    Scenario: Configure openshift to consume extended identity attributes from auth proxy
+  # @author chuyu@redhat.com
+  # @case_id OCP-10792
+  @admin
+  @destructive
+  Scenario: Configure openshift to consume extended identity attributes from auth proxy
     Given master config is merged with the following hash:
     """
     oauthConfig:
@@ -1693,7 +1693,7 @@ Feature: test master config related steps
     Then the "ruby-hello-world-1" build status is any of:
       | pending |
 
- # @author scheng@redhat.com
+  # @author scheng@redhat.com
   # @case_id OCP-17481
   @admin
   Scenario: AccessTokenInactivityTimeoutSeconds should greater than 300s
