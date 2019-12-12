@@ -399,15 +399,15 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author chaoyang@redhat.com
   # @case_id OCP-9606
   @admin
-  @destructive
   Scenario: Create a claim when adding volumes to dc/rc
     Given I have a project
     Given I have a NFS service in the project
 
     # Creating PV
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv.json" where:
-      | ["metadata"]["name"]      | pv-<%= project.name %>           |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]         | pv-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]    | <%= service("nfs-service").ip %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>           |
     Then the step should succeed
 
     # new-app
@@ -431,6 +431,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claim-size    | 5                        |
       | name          | mydb                     |
       | mount-path    | /opt111                  |
+      | claim-class   | sc-<%= project.name %>   |
     Then the step should succeed
 
     When I run the :set_volume client command with:
