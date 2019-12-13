@@ -176,14 +176,14 @@ Feature: kubelet restart and node restart
   @admin
   Scenario Outline: kubelet have cloud provider configured
     Given I store the schedulable nodes in the :nodes clipboard
-    And I use the "<%= cb.nodes[0].name %>" node
+    And I use the "<%= cb.nodes.first.name %>" node
     When I run commands on the host:
       | ps -eaf \| grep '/usr/bin/hyperkube kubelet' |
     Then the step should succeed
     And the output should contain:
       | --cloud-provider=<provider> |
 
-    And I use the "<%= cb.nodes[-1].name %>" node
+    And I use the "<%= cb.nodes.last.name %>" node
     When I run commands on the host:
       | ps -eaf \| grep '/usr/bin/hyperkube kubelet' |
     Then the step should succeed
