@@ -101,10 +101,12 @@ Feature: deployment/dc related features via web
     When I perform the :click_one_dropdown_action web action with:
       | item  | Pause Rollouts |
     Then the step should succeed
-
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :check_page_match web action with:
       | content | Resume Rollouts |
     Then the step should succeed
+    """
     When I perform the :click_one_dropdown_action web action with:
       | item  | Start Rollout |
     Then the step should succeed
