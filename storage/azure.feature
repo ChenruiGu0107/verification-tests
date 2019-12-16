@@ -143,28 +143,27 @@ Feature: Azure disk and Azure file specific scenarios
       | SKUACCT  | # @case_id OCP-14675
       | DESKU    | # @case_id OCP-18293
 
-  # @author wehe@redhat.com
+
+  # @author wduan@redhat.com
   # @case_id OCP-10200
   @admin
-  @destructive
   Scenario: azureDisk volume with RWO access mode and Delete policy
     Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvdelete.yaml" where:
-      | ["metadata"]["name"]              | ad-<%= project.name %>        |
-      | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azsc-NOPAR.yaml" where:
+      | ["metadata"]["name"]  | sc-<%= project.name %> |
+      | ["volumeBindingMode"] | WaitForFirstConsumer   |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
-      | ["metadata"]["name"] | azpvc |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | azpvcpo    |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
     Then the step should succeed
-    Given the pod named "azpvcpo" becomes ready
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    Given the pod named "mypod" becomes ready
     When I execute on the pod:
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
@@ -173,10 +172,11 @@ Feature: Azure disk and Azure file specific scenarios
     Then the step should succeed
     When I execute on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
-    Given I ensure "azpvcpo" pod is deleted
-    And I ensure "azpvc" pvc is deleted
+    Given I ensure "mypod" pod is deleted
+    And I ensure "mypvc" pvc is deleted
     Given I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pv.name %>" to disappear within 1200 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
+
 
   # @author wehe@redhat.com
   @admin
