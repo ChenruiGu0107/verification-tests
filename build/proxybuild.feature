@@ -1,5 +1,5 @@
 Feature: proxybuild.feature
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-24347
   @admin
   Scenario: Build take proxy in buildconfig prior to global proxy
@@ -41,7 +41,7 @@ Feature: proxybuild.feature
     Then the output should contain:
       | Could not resolve proxy |
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-24339
   @admin
   @destructive

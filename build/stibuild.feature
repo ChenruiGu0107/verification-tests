@@ -243,7 +243,7 @@ Feature: stibuild.feature
     Then the output should contain:
       | Access your application via route 'www.example.com' |
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-15974
   Scenario: Create an application with no host value in template
     Given I have a project
@@ -253,7 +253,7 @@ Feature: stibuild.feature
     And the output should match:
       | Access your application via route 'route-edge[-a-zA-Z0-9_.]+' |
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-10940
   @admin
   @destructive
@@ -303,7 +303,7 @@ Feature: stibuild.feature
     Then the output should contain:
       | Restoring artifacts |
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-15506
   Scenario: Create a build configuration based on a private remote git repository
     Given I have a project
@@ -349,7 +349,7 @@ Feature: stibuild.feature
     And the "sample-1" build was created
     And the "sample-1" build completed
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-15507
   Scenario: Creates a new application based on the source code in a private remote repository
     Given I have a project
@@ -403,7 +403,7 @@ Feature: stibuild.feature
     And the "sample-1" build was created
     And the "sample-1" build completed
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-19632
   @admin
   @destructive
@@ -445,7 +445,7 @@ Feature: stibuild.feature
       | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>  | 
       | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
 
-  # @wewang@redhat.com
+  # @author wewang@redhat.com
   # @case_id OCP-20999
   @admin
   Scenario: Build update that sets phase status failed should contain log snippet data

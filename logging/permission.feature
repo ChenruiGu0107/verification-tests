@@ -116,7 +116,7 @@ Feature: logging permission related tests
     And the output should not contain:
       | project.<%= cb.proj_name_2 %>   |
 
-  # @auther qitang@redhat.com
+  # @author qitang@redhat.com
   # @case_id OCP-26295
   @admin @destructive
   Scenario: [BZ1316216]Logging should restricted to to current owner/group of a namespace

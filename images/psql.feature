@@ -168,7 +168,7 @@ Feature: Postgresql images test
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | postgresql:9.5 | postgresql:9.2 | postgresql_replica.json |
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  |                |                | postgresql_replica.json | # @case_id OCP-12446
 
-  # wewang@redhat.com
+  # @author wewang@redhat.com
   @smoke
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage
     Given I have a project

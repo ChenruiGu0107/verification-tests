@@ -1,5 +1,5 @@
 Feature: Update sql apb related feature
- # @author zitang@redhat.com
+  # @author zitang@redhat.com
   @admin
   Scenario Outline: [APB] Data will be preserved if version of PostgreSQL APB update
     Given I save the first service broker registry prefix to :prefix clipboard

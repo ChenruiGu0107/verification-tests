@@ -111,113 +111,113 @@ Feature: Ansible-service-broker related scenarios
       | name               | ansible-service-broker   |
     And the output should contain "x509: certificate signed by unknown authority"
 
-    # @author jiazha@redhat.com
-    # @case_id OCP-15362
-    @admin
-    @destructive
-    Scenario: [ASB] Filter APB images by whitelist/blacklist
-      When I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
-      Given the "ansible-service-broker" cluster service broker is recreated after scenario
-      Given admin redeploys "asb" dc after scenario
-      And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
+  # @author jiazha@redhat.com
+  # @case_id OCP-15362
+  @admin
+  @destructive
+  Scenario: [ASB] Filter APB images by whitelist/blacklist
+    When I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given the "ansible-service-broker" cluster service broker is recreated after scenario
+    Given admin redeploys "asb" dc after scenario
+    And the "broker-config" configmap is recreated by admin in the "openshift-ansible-service-broker" project after scenario
 
-      Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
-      And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
-      And evaluation of `cluster_role("access-ansible-service-broker-openshift-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
+    Given evaluation of `route("asb-1338").dns` is stored in the :asb_url clipboard
+    And evaluation of `secret('ansible-service-broker-client').token` is stored in the :asb_token clipboard
+    And evaluation of `cluster_role("access-ansible-service-broker-openshift-ansible-service-broker-role").rules.first.non_resource_urls.first` is stored in the :asb_endpoint clipboard
 
-      # white list only
-      Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
-      """
-      registry:
-        - type: dockerhub
-          name: dh
-          url:  registry.hub.docker.com
-          org:  ansibleplaybookbundle
-          tag:  latest
-          white_list: ['.*mediawiki-apb$']
-      """
-      And admin redeploys "asb" dc
-      Given I switch to the first user
-      And I have a project
-      And I have a pod-for-ping in the project
-      When I execute on the pod:
-        | curl                                                             |
-        | -H                                                               |
-        | Authorization: Bearer <%= cb.asb_token %>                        |
-        | -sk                                                              |
-        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog      |
-      Then the output should contain "mediawiki-apb"
+    # white list only
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: dh
+        url:  registry.hub.docker.com
+        org:  ansibleplaybookbundle
+        tag:  latest
+        white_list: ['.*mediawiki-apb$']
+    """
+    And admin redeploys "asb" dc
+    Given I switch to the first user
+    And I have a project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer <%= cb.asb_token %>                  |
+      | -sk                                                        |
+      | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog |
+    Then the output should contain "mediawiki-apb"
 
-      # black list only
-      And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
-      Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
-      """
-      registry:
-        - type: dockerhub
-          name: dh
-          url:  registry.hub.docker.com
-          org:  ansibleplaybookbundle
-          tag:  latest
-          black_list: ['.*mediawiki-apb$']
-      """
-      And admin redeploys "asb" dc
-      Given I switch to the first user
-      When I execute on the pod:
-        | curl                                                             |
-        | -H                                                               |
-        | Authorization: Bearer <%= cb.asb_token %>                        |
-        | -sk                                                              |
-        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
-      Then the output should contain "[]"
+    # black list only
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: dh
+        url:  registry.hub.docker.com
+        org:  ansibleplaybookbundle
+        tag:  latest
+        black_list: ['.*mediawiki-apb$']
+    """
+    And admin redeploys "asb" dc
+    Given I switch to the first user
+    When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer <%= cb.asb_token %>                  |
+      | -sk                                                        |
+      | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog |
+    Then the output should contain "[]"
 
-      # both white and black list
-      And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
-      Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
-      """
-      registry:
-        - type: dockerhub
-          name: dh
-          url:  registry.hub.docker.com
-          org:  ansibleplaybookbundle
-          tag:  latest
-          white_list: ['.*-apb$']
-          black_list: ['.*mediawiki-apb$']
-      """
-      And admin redeploys "asb" dc
-      Given I switch to the first user
-      When I execute on the pod:
-        | curl                                                             |
-        | -H                                                               |
-        | Authorization: Bearer <%= cb.asb_token %>                        |
-        | -sk                                                              |
-        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
-      Then the output should not contain "mediawiki-apb"
+    # both white and black list
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: dh
+        url:  registry.hub.docker.com
+        org:  ansibleplaybookbundle
+        tag:  latest
+        white_list: ['.*-apb$']
+        black_list: ['.*mediawiki-apb$']
+    """
+    And admin redeploys "asb" dc
+    Given I switch to the first user
+    When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer <%= cb.asb_token %>                  |
+      | -sk                                                        |
+      | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog |
+    Then the output should not contain "mediawiki-apb"
 
-      And I switch to cluster admin pseudo user
-      And I use the "openshift-ansible-service-broker" project
-      Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
-      """
-      registry:
-        - type: dockerhub
-          name: dh
-          url:  registry.hub.docker.com
-          org:  ansibleplaybookbundle
-          tag:  latest
-          white_list: ['.*mediawiki-apb$']
-          black_list: ['.*mediawiki-apb$']
-      """
-      And admin redeploys "asb" dc
-      Given I switch to the first user
-      When I execute on the pod:
-        | curl                                                             |
-        | -H                                                               |
-        | Authorization: Bearer <%= cb.asb_token %>                        |
-        | -sk                                                              |
-        | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog       |
-      Then the output should contain "[]"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ansible-service-broker" project
+    Given value of "broker-config" in configmap "broker-config" as YAML is merged with:
+    """
+    registry:
+      - type: dockerhub
+        name: dh
+        url:  registry.hub.docker.com
+        org:  ansibleplaybookbundle
+        tag:  latest
+        white_list: ['.*mediawiki-apb$']
+        black_list: ['.*mediawiki-apb$']
+    """
+    And admin redeploys "asb" dc
+    Given I switch to the first user
+    When I execute on the pod:
+      | curl                                                       |
+      | -H                                                         |
+      | Authorization: Bearer <%= cb.asb_token %>                  |
+      | -sk                                                        |
+      | https://<%= cb.asb_url %><%= cb.asb_endpoint %>/v2/catalog |
+    Then the output should contain "[]"
 
   # @author zitang@redhat.com
   # @case_id OCP-16367
