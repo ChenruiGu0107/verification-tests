@@ -961,7 +961,7 @@ Feature: deployment related features
   # @case_id OCP-11834
   Scenario: Paused deployments shouldn't update the image to template
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11384/application-template-stibuild.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     When I process and create "application-template-stibuild.json"
     Then the step should succeed
     When I run the :rollout_pause client command with:
