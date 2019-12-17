@@ -88,7 +88,6 @@ Feature: Webhook REST Related Tests
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author yantan@redhat.com dyan@redhat.com
-  # @case_id 438840 438851
   Scenario Outline: Trigger build manually with webhook contained specified branch and commit
     Given I have a project
     When I run the :new_app client command with:
@@ -98,7 +97,7 @@ Feature: Webhook REST Related Tests
     Given the "ruby-ex-1" build completes
     When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/release-4.1/pkg/build/webhook/<path><file>"
     And I replace lines in "<file>":
       | refs/heads/master                        | refs/heads/test-tcms438840               |
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051 | 89af0dd3183f71b9ec848d5cc2b55599244de867 |
@@ -147,8 +146,8 @@ Feature: Webhook REST Related Tests
       | "commit"      |
     Examples:
       | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex |
-      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
+      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | # @case_id OCP-12763
+      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         | # @case_id OCP-12760
 
   # @author dyan@redhat.com
   # @case_id OCP-10832
