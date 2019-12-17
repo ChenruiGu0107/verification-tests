@@ -77,7 +77,7 @@ Feature: Add env variables to image feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json | # @case_id OCP-12385
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-57-env-var-test.json | # @case_id OCP-12393
 
-  # @author wewang@redhat.com cryan@redhat.com
+  # @author wewang@redhat.com
   Scenario Outline: Add env variables to postgresql image
     Given I have a project
     When I run the :new_app client command with:

@@ -1,6 +1,7 @@
 Feature: Check status via oc status, wait etc
 
-  # @author akostadi@redhat.com xxia@redhat.com
+  # @author akostadi@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12383
   Scenario: [origin_runtime_613]Get project status from CLI
     Given I have a project

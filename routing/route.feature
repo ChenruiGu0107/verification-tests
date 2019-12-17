@@ -141,7 +141,7 @@ Feature: Testing route
     And the output should contain:
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
 
-  # @author zzhao@redhat.com cryan@redhat.com
+  # @author zzhao@redhat.com
   # @case_id OCP-12575
   Scenario: The path specified in route can work well for unsecure
     Given I have a project

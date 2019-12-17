@@ -67,7 +67,7 @@ Feature: Testing registry
       | project_name | test |
     Then the step should succeed
 
-  # @author cryan@redhat.com xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-9896
   Scenario: Create ImageStream pull specific tags from remote repository on atomic-registry console
     Given I have a project
@@ -104,7 +104,7 @@ Feature: Testing registry
       | tag_label    | user1001            |
     Then the step should succeed
 
-  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-9895
   Scenario: Create ImageStream which sync all tags from remote repository on atomic-registry console
     Given I have a project
@@ -224,7 +224,7 @@ Feature: Testing registry
       | tag_label    | latest              |
     Then the step should succeed
 
-  # @author cryan@redhat.com xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-9902
   Scenario: Create project and imagestream with invalid name on registry console
     Given I open registry console in a browser
@@ -246,7 +246,7 @@ Feature: Testing registry
       | prompt_msg        | contains invalid characters                   |
     Then the step should succeed
 
-  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-9893
   Scenario: Check Projects page on atomic-registry web console
     Given I create 2 new projects
@@ -284,7 +284,7 @@ Feature: Testing registry
     When I run the :check_all_projects_page_in_iframe web action
     Then the step should succeed
 
-  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-9894
   Scenario: Check Overview page on atomic-registry web console
     Given I have a project
@@ -315,7 +315,7 @@ Feature: Testing registry
       | image_name   | mystream            |
     Then the step should succeed
 
-  # @author cryan@redhat.com yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-10498
   Scenario: Create shared project on registry console
     Given I open registry console in a browser

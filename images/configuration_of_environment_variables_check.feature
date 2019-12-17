@@ -159,7 +159,7 @@ Feature: Configuration of environment variables check
       | test7=\$\$\$\$\$\$\(zzhao\)     |
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
-  # @author cryan@redhat.com haowang@redhat.com
+  # @author haowang@redhat.com
   @no-online
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project

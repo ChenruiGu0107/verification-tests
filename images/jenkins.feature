@@ -2069,7 +2069,7 @@ Feature: jenkins.feature
       | build_status | Failed |
     Then the step should fail
 
-  # @author cryan@redhat.com xiuwang@redhat.com
+  # @author xiuwang@redhat.com
   # @bug_id 1389482
   Scenario Outline: oauth flow is still working after deleting a pipeline buildConfig
     Given I have a project
