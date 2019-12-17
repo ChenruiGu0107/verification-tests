@@ -384,3 +384,53 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the "env-var-bc-1" build was created
     Given the "env-var-bc-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-11469
+  Scenario: Docker build with imageStreamImage in buildConfig
+    Given I have a project
+    When I run the :import_image client command with:
+      | image_name | ruby                   |
+      | from       | centos/ruby-25-centos7 |
+      | confirm    | true                   |
+    Then the step should succeed
+    And the expression should be true> image_stream("ruby").exists?(user: user)
+    And evaluation of `image_stream_tag("ruby:latest").digest` is stored in the :imagesha clipboard
+    When I run the :new_app client command with:
+      | image_stream | ruby                                          |
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | strategy     | docker                                        |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completes
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                                               |
+      | resource_name | ruby-hello-world                                                                                                          |
+      | p | {"spec": {"strategy": {"dockerStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@<%= cb.imagesha %>"}}},"type": "Source"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build completes
+    When I run the :describe client command with:
+      | resource | build              |
+      | name     | ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should match "DockerImage\s+centos/ruby-25-centos7@<%= cb.imagesha %>"
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                                            |
+      | resource_name | ruby-hello-world                                                                                                       |
+      | p             | {"spec": {"strategy": {"dockerStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@123"}}},"type": "Source"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should fail
+    And the output should match "(not found|unable to find)"
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                                         |
+      | resource_name | ruby-hello-world                                                                                                    |
+      | p             | {"spec": {"strategy": {"dockerStrategy": {"from": {"kind": "ImageStreamImage","name": "ruby@"}}},"type": "Source"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should fail
+    And the output should match "must (be retrieved|have a name and ID)"
