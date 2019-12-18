@@ -68,7 +68,14 @@ Feature: Testing image registry operator
     Given current generation number of "image-registry" deployment is stored into :before_change clipboard
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"resources":{"limits":{"cpu":"100m","memory":"512Mi"}}}} | 
-    And admin ensures "cluster" config_imageregistry_operator_openshift_io is deleted after scenario
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type       | configs.imageregistry.operator.openshift.io |
+      | object_name_or_id | cluster                                     |
+      | wait              | false                                       |
+    Then the step should succeed
+    """
     Given current generation number of "image-registry" deployment is stored into :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     Given a pod is present with labels:
@@ -84,7 +91,14 @@ Feature: Testing image registry operator
     Given I switch to cluster admin pseudo user
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"nodeSelector":{"node-role.kubernetes.io/master": "abc"}}} | 
-    And admin ensures "cluster" config_imageregistry_operator_openshift_io is deleted after scenario
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type       | configs.imageregistry.operator.openshift.io |
+      | object_name_or_id | cluster                                     |
+      | wait              | false                                       |
+    Then the step should succeed
+    """
     When I use the "openshift-image-registry" project
     Given a pod is present with labels:
       | docker-registry=default |

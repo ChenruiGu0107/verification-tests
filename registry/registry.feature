@@ -708,6 +708,7 @@ Feature: Testing registry
   @admin
   @destructive
   Scenario: Use SAR request to access registry metrics
+    Given I have a project
     Given I switch to cluster admin pseudo user
     Given I enable image-registry default route
     Given default image registry route is stored in the :integrated_reg_host clipboard
@@ -720,7 +721,7 @@ Feature: Testing registry
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
+      | bash | -c | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
     Then the output should contain:
       | UNAUTHORIZED |
     """
@@ -728,11 +729,10 @@ Feature: Testing registry
       | role_name | prometheus-scraper |
       | user_name | <%= user.name %> |
     Then the step should succeed
-    Given I have a pod-for-ping in the project
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
+      | bash | -c | curl -v -s -u openshift:<%= user.cached_tokens.first %> https://<%= cb.integrated_reg_host %>/extensions/v2/metrics -k |
     Then the step should succeed
     """
 
@@ -753,6 +753,7 @@ Feature: Testing registry
     When I run the :delete client command with:
       | object_type       | configs.imageregistry.operator.openshift.io |
       | object_name_or_id | cluster                                     |
+      | wait              | false                                       |
     Then the step should succeed
     """
     And I wait for the steps to pass:
