@@ -19,12 +19,12 @@ Feature: dockerbuild.feature
       | Commit:.*[a-zA-Z0-9]+                                |
       | Output to:.*ImageStreamTag origin-ruby-sample:latest |
     When I replace resource "bc" named "ruby-sample-build":
-      | github.com/openshift/ruby-hello-world.git | github.com/openshift-qe/ruby-hello-world-main.git |
+      | github.com/openshift/ruby-hello-world.git | github.com/openshift-qe/ruby-hello-world.git |
     Then the step should succeed
     And the output should contain "replaced"
     When I get project build_config named "ruby-sample-build" as JSON
     Then the output should contain:
-      |github.com/openshift-qe/ruby-hello-world-main.git|
+      |github.com/openshift-qe/ruby-hello-world.git|
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     And the "ruby-sample-build-2" build was created
