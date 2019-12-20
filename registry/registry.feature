@@ -463,7 +463,8 @@ Feature: Testing registry
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
     Then the step should succeed
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    Given I enable image-registry default route
+    Given default image registry route is stored in the :integrated_reg_ip clipboard
     When I execute on the pod:
       | skopeo                     |
       | --debug                    |
