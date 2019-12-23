@@ -478,3 +478,47 @@ Feature: customize console related
     When I perform the :check_external_link web action with:
       | link_text | Special link three |
     Then the step should fail
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-24416
+  @admin
+  Scenario: Add back pod log link extension
+    Given the master version >= "4.2"
+    Given I have a project
+    Given the first user is cluster-admin
+    Given admin ensures "consolelog1" console_external_log_link is deleted after scenario
+    Given admin ensures "consolelog2" console_external_log_link is deleted after scenario
+    Given admin ensures "consolelog3" console_external_log_link is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_one_pod_log_page web action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | hello-openshift     |
+    Then the step should succeed
+    When I perform the :check_external_log_link web action with:
+      | text     | externalloglink1 |
+      | link_url | stackoverflow    |
+    Then the step should succeed
+    When I perform the :check_external_log_link web action with:
+      | text     | Example Logs  |
+      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels=%7B%22name%22%3A%22hello-openshift%22%7D |
+    Then the step should succeed
+    When I perform the :check_external_log_link web action with:
+      | text     | userprojectLogLink3 |
+      | link_url | stackoverflow       |
+    Then the step should succeed
+    When I perform the :goto_one_pod_log_page web action with:
+      | project_name | openshift-monitoring |
+      | pod_name     | alertmanager-main-0  |
+    Then the step should succeed
+    When I perform the :check_external_log_link web action with:
+      | text     | userprojectLogLink3 |
+      | link_url | stackoverflow       |
+    Then the step should fail
