@@ -522,3 +522,40 @@ Feature: customize console related
       | text     | userprojectLogLink3 |
       | link_url | stackoverflow       |
     Then the step should fail
+
+  # @author hasha@redhat.com
+  # @case_id OCP-24286
+  @admin
+  Scenario: Check ConsoleLink extension CRD	
+    Given the master version >= "4.2"
+    Given admin ensures "applicationmenu1" console_links_console_openshift_io is deleted after scenario
+    Given admin ensures "helpmenu1" console_links_console_openshift_io is deleted after scenario
+    Given admin ensures "usermenu1" console_links_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-link.yaml |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :check_consolelink web action with:
+      | location | User menu    |
+      | text     | usermenutest |
+    Then the step should succeed
+    When I perform the :check_consolelink web action with:
+      | location  | Application launcher      |
+      | text      | stackoverflow             |
+      | link_url  | https://stackoverflow.com |
+      | image_src | stackoverflow/company/img/logos/so/so-logo.svg |
+    Then the step should succeed
+    When I perform the :check_consolelink web action with:
+      | location | Help menu |
+      | text     | Baidu     |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | consolelink |
+      | object_name_or_id | usermenu1   |
+    Then the step should succeed
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I perform the :check_consolelink web action with:
+      | location | User menu    |
+      | text     | usermenutest |
+    Then the step should fail
