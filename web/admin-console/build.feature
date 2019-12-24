@@ -46,11 +46,11 @@ Feature: build related
     #  | link_url | https://172.30.0.1:443/apis/build.openshift.io/v1/namespaces/yapei/buildconfigs/python-sample/webhooks/<secret>/generic |
     # Then the step should succeed    
 
-	  # check Builds details
-	  When I perform the :goto_one_build_page web action with:
-	    | project_name  | <%= project.name %>  |
-	    | build_name    | python-sample-1      |
-	  Then the step should succeed
+    # check Builds details
+    When I perform the :goto_one_build_page web action with:
+      | project_name  | <%= project.name %>  |
+      | build_name    | python-sample-1      |
+    Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name         | python-sample-1     |
       | type         | Source              |
@@ -72,10 +72,10 @@ Feature: build related
       | item | Start Build |
     Then the step should succeed
     Given the "python-sample-2" build was created
-	  When I perform the :goto_one_build_page web action with:
-	    | project_name  | <%= project.name %>  |
-	    | build_name    | python-sample-2      |
-	  Then the step should succeed
+    When I perform the :goto_one_build_page web action with:
+      | project_name  | <%= project.name %>  |
+      | build_name    | python-sample-2      |
+    Then the step should succeed
     When I perform the :check_resource_details web action with:
       | triggered_by | Manually |
     Then the step should succeed
@@ -111,3 +111,61 @@ Feature: build related
     Then the step should succeed
     When I run the :check_links_in_pipeline_deprecation_note web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24232
+  Scenario: Support Cancel action for Builds
+    Given the master version >= "4.2"
+    Given I have a project
+    Given I open admin console in a browser
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                 |
+      | code         | https://github.com/sclorg/ruby-ex.git |
+      | name         | ruby-sample                           |
+    Then the step should succeed
+
+    # cancel running build from one build page
+    Given the "ruby-sample-1" build becomes :running
+    When I perform the :goto_one_build_page web action with:
+      | project_name  | <%= project.name %>  |
+      | build_name    | ruby-sample-1        |
+    Then the step should succeed
+    When I perform the :click_one_dropdown_action web action with:
+      | item   | Cancel Build |
+    Then the step should succeed
+    When I perform the :confirm_cancel_action web action with:
+      | cancel | true |
+    Then the step should succeed
+
+    When I perform the :click_one_dropdown_action web action with:
+      | item   | Rebuild |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample |
+    Then the step should succeed
+    When I perform the :click_one_dropdown_action web action with:
+      | item   | Cancel Build |
+    Then the step should succeed
+    When I perform the :confirm_cancel_action web action with:
+      | cancel | false |
+    Then the step should succeed
+
+    # cancel new build from builds list page
+    When I perform the :goto_builds_page web action with:
+      | project_name  | <%= project.name %>  |
+    Then the step should succeed
+    Given the "ruby-sample-3" build becomes :new
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the :click_one_operation_in_kebab web action with:
+      | resource_name | ruby-sample-3 |
+      | button_text    | Cancel Build  |
+    Then the step should succeed
+    When I perform the :confirm_cancel_action web action with:
+      | cancel | true |
+    Then the step should succeed
+    """
+    When I get project builds
+    Then the output should match:
+      | ruby-sample-1.+Cancelled      |
+      | ruby-sample-3.+Cancelled      |
