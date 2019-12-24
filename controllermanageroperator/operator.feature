@@ -56,3 +56,18 @@ Feature: Testing openshift-controller-manager-operator
       | namespace         | openshift-controller-manager |
     Then the step should succeed
     And admin wait for the "controller-manager" svc to appear in the "openshift-controller-manager" project
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23653
+  Scenario: oc explain works for openshift-controller-manager operator
+    When I run the :explain client command with:
+      | resource    | openshiftcontrollermanagers |
+    Then the step should succeed
+    And the output should contain:
+      | OpenShiftControllerManager provides information to configure an operator to |
+      | manage openshift-controller-manager.                                        |
+      | APIVersion defines the versioned schema of this representation of an        |
+      | object                                                                      |
+      | Kind is a string value representing the REST resource this object           | 
+      | represents.                                                                 |
+      | Standard object's metadata                                                  |

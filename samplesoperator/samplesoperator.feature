@@ -117,3 +117,17 @@ Feature: samplesoperator
     """
     Then the expression should be true> image_stream("ruby", project("openshift")).tag_statuses(cached: false, user: admin).first.imageref.uri.include? "registry.access.redhat.com"
     """
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23654
+  Scenario: oc explain with samples operator crd
+    When I run the :explain client command with:
+      | resource    | configs                          |
+      | api_version | samples.operator.openshift.io/v1 |
+    Then the step should succeed
+    And the output should contain:
+      | Config contains the configuration and detailed condition status for the |
+      | Samples Operator                                                        |
+      | ConfigSpec contains the desired configuration and state for the Samples |
+      | Operator                                                                | 
+      | ConfigStatus contains the actual configuration in effect                | 

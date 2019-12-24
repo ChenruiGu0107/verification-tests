@@ -107,3 +107,16 @@ Feature: Testing image registry operator
       | name     | <%= pod.name %> |
     Then the output should contain:
       | didn't match node selector |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23651
+  Scenario: oc explain work for image-registry operator
+    When I run the :explain client command with:
+      | resource    | configs                                |
+      | api_version | imageregistry.operator.openshift.io/v1 |
+    Then the step should succeed
+    And the output should contain:
+      | Config is the configuration object for a registry instance managed by the | 
+      | registry operator                                                         |
+      | ImageRegistrySpec defines the specs for the running registry.             | 
+      | ImageRegistryStatus reports image registry operational status             |
