@@ -428,7 +428,7 @@ Feature: Azure disk and Azure file specific scenarios
       | rm | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
 
-  # @author wehe@redhat.com
+  # @author wduan@redhat.com
   @admin
   Scenario Outline: azureFile dynamic provisioning with storage class
     Given I have a project
@@ -436,15 +436,19 @@ Feature: Azure disk and Azure file specific scenarios
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
-    And the "azpvc" PVC becomes :bound within 120 seconds
-    When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/<podname>pod.yaml | 
-      | n | <%= project.name %>                                                                                                |
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
     Then the step should succeed
-    Given the pod named "azfpod" becomes ready
+    And the "mypvc" PVC becomes :bound within 120 seconds
+    Given the pod named "mypod" becomes ready
     When admin executes on the pod:
       | touch | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
@@ -454,16 +458,12 @@ Feature: Azure disk and Azure file specific scenarios
     When admin executes on the pod:
       | rm | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
-    Given I ensure "azfpod" pod is deleted
-    And I ensure "azpvc" pvc is deleted
-    And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
 
     Examples:
-      | sctype | podname |
-      | NOPAR  | azfpvc  | # @case_id OCP-10203
-      | MODIR  | azpvc   | # @case_id OCP-13689
-      | MOUID  | azpvc   | # @case_id OCP-15852
+      | sctype |
+      | NOPAR  | # @case_id OCP-10203
+      | MODIR  | # @case_id OCP-13689
+      | MOUID  | # @case_id OCP-15852
 
 
   # @author wduan@redhat.com
