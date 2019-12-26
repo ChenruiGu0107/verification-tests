@@ -206,7 +206,7 @@ Feature: Testing route
   # @case_id OCP-12506
   Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -296,7 +296,7 @@ Feature: Testing route
   # @case_id OCP-11325
   Scenario: Limit the number of http request per ip
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
@@ -329,7 +329,7 @@ Feature: Testing route
   # @note requires v3.4+
   Scenario: Default haproxy router should be able to skip invalid cert route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -703,7 +703,7 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for passthrough route
     Given the master version >= "3.6"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
@@ -929,7 +929,7 @@ Feature: Testing route
   Scenario: Harden haproxy to prevent the PROXY header from being passed for edge route
     Given the master version >= "3.6"
     And I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     Given I have a header test service in the project
     #Create the edge route
     When I run the :create_route_edge client command with:
@@ -970,7 +970,7 @@ Feature: Testing route
   Scenario: Harden haproxy to prevent the PROXY header from being passed for reencrypt route
     Given the master version >= "3.6"
     And I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     #Create the pod/svc/route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/header-reecrypt-without-CA.json |

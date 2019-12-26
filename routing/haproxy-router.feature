@@ -236,7 +236,7 @@ Feature: Testing haproxy router
   Scenario: haproxy cookies based sticky session for reencrypt termination routes
     #create route and service which has two endpoints
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -1805,7 +1805,7 @@ Feature: Testing haproxy router
   @smoke
   Scenario: Disable haproxy hash based sticky session for reencrypt termination routes
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -2975,7 +2975,6 @@ Feature: Testing haproxy router
   @admin
   Scenario: Health check when there are multi service and each service has one backend
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed

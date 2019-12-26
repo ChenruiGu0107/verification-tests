@@ -4,7 +4,7 @@ Feature: Testing haproxy rate limit related features
   # @case_id OCP-18483
   Scenario Outline: set negative value for the max concurrent connections a pod can receive
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
@@ -39,7 +39,7 @@ Feature: Testing haproxy rate limit related features
   # @case_id OCP-18489
   Scenario: limits backend pod max concurrent connections for passthrough route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
@@ -74,7 +74,7 @@ Feature: Testing haproxy rate limit related features
   # @case_id OCP-18490
   Scenario: limits multiple backend pods max concurrent connections
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
 
     # create two httpbin pods which have same labels
     When I run the :create client command with:

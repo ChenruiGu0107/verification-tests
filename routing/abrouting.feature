@@ -261,7 +261,6 @@ Feature: Testing abrouting
   # @case_id OCP-11306
   Scenario: Set negative backends weight for ab routing
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
     Then the step should succeed
@@ -311,7 +310,6 @@ Feature: Testing abrouting
   # @case_id OCP-12088
   Scenario: Set multiple backends weight for route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
     Then the step should succeed
