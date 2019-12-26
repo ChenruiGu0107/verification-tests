@@ -6,12 +6,24 @@ Feature: quota related feature
   Scenario: Show resource quota on project status page
     Given the master version >= "4.1"
     Given I have a project
+
+    # create a quota with cpu, memory limits
     When I run the :create_quota admin command with:
       | name | myquota1                   |
       | hard | cpu=1,requests.memory=1G,limits.cpu=2,limits.memory=2G,pods=2,services=3 |
       | n    | <%= project.name %>        |
     Then the step should succeed
+
+    # create a quota only with resource count limits
+    When I run the :create_quota admin command with:
+      | name | myquota2            |
+      | hard | pods=3,services=13  |
+      | n    | <%= project.name %> |
+    Then the step should succeed
+
     Given I open admin console in a browser
+
+    # quota with cpu, memory limits will show up in project dashboard
     When I perform the :goto_one_project_dashboard_page web action with:
       | project_name  | <%= project.name %> |
     Then the step should succeed
@@ -27,11 +39,12 @@ Feature: quota related feature
       | memory_limit_ratio   | 0% |
     Then the step should succeed
 
-    When I run the :create_quota admin command with:
-      | name | myquota2            |
-      | hard | pods=3,services=13  |
-      | n    | <%= project.name %> |
+    # quota without cpu, memory limits will not show up in project dashboard
+    When I perform the :check_page_not_match web action with:
+      | content | myquota2 |
     Then the step should succeed
+
+    # normal quota will still show up on quotas page
     When I perform the :goto_quotas_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -39,15 +52,8 @@ Feature: quota related feature
       | text     | myquota2 |
       | link_url | <%= project.name %>/resourcequotas/myquota2 |
     Then the step should succeed
-    When I perform the :goto_one_project_dashboard_page web action with:
-      | project_name  | <%= project.name %> |
-    Then the step should succeed
-    When I run the :wait_box_loaded web action
-    Then the step should succeed
-    When I perform the :check_page_not_match web action with:
-      | content | myquota2 |
-    Then the step should succeed
 
+    # create other types of quota with specific scopes
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml |
       | n | <%= project.name %> |
@@ -56,6 +62,8 @@ Feature: quota related feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-notbesteffort.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
+
+    # quota with specific scopes will show up on project dashboard
     When I perform the :goto_one_project_dashboard_page web action with:
       | project_name  | <%= project.name %> |
     Then the step should succeed

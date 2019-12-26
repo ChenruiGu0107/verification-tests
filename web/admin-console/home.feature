@@ -67,11 +67,10 @@ Feature: Home related pages via admin console
     """
 
     # create project
-    When I perform the :create_project web action with:
+    When I perform the :create_project_from_get_started_instru web action with:
       | project_name | <%= cb.pro_name %> |
     Then the step should succeed
-    When I perform the :goto_project_resources_page web action with:
-      | project_name | <%= cb.pro_name %> |
+    When I run the :nagivate_to_project_resources_page web action
     Then the step should succeed
     When I run the :check_get_started_message_when_no_resources web action
     Then the step should succeed
