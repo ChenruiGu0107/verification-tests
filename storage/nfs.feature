@@ -3,7 +3,6 @@ Feature: NFS Persistent Volume
   # @author lxia@redhat.com
   # @case_id OCP-12671
   @admin
-  @destructive
   Scenario: NFS volume failed to mount returns more verbose message
     # Preparations
     Given I have a project
@@ -16,11 +15,13 @@ Feature: NFS Persistent Volume
       | ["spec"]["capacity"]["storage"] | 5Gi                              |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
       | ["metadata"]["name"]            | nfs-<%= project.name %>          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %>           |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>   |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -31,13 +32,13 @@ Feature: NFS Persistent Volume
     When I get project pod named "mypod-<%= project.name %>"
     Then the output should not contain:
       | Running |
-    And I wait up to 300 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | pod                       |
       | name     | mypod-<%= project.name %> |
-    Then the output should contain:
-      | Unable to mount volumes for pod |
+    Then the output should match:
+      | (Unable to mount volumes for pod\|FailedMount) |
     """
 
   # @author lxia@redhat.com
