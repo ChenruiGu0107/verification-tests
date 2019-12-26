@@ -142,3 +142,64 @@ Feature: overview cases
       | content | Failed to fetch the input source |
     Then the step should succeed
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25792
+  @admin
+  Scenario: Check popover help on resource detail page
+    Given the master version >= "4.3"
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                 |
+      | code         | https://github.com/sclorg/django-ex.git |
+      | name         | python-sample                           |
+    Then the step should succeed
+    Given I open admin console in a browser
+    # check BC page
+    When I perform the :goto_one_buildconfig_page web action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | python-sample        |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Run Policy |
+    Then the step should succeed
+    # check build page
+    When I perform the :goto_one_build_page web action with:
+      | project_name  | <%= project.name %>  |
+      | build_name    | python-sample-1      |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Triggered By |
+    Then the step should succeed
+    # check DC page
+    When I perform the :goto_one_dc_page web action with:
+      | project_name  | <%= project.name %>  |
+      | dc_name       | python-sample        |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Update Strategy |
+    Then the step should succeed
+    # check deployment page
+    Given the first user is cluster-admin
+    When I perform the :goto_one_deployment_page web action with:
+      | project_name | openshift-console |
+      | deploy_name  | console           |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Namespace |
+    Then the step should succeed
+    # check secret page
+    When I perform the :goto_one_secret_page web action with:
+      | project_name | openshift-console    |
+      | secret_name  | console-serving-cert |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Labels |
+    Then the step should succeed
+    # check route page
+    When I perform the :goto_one_route_page web action with:
+      | project_name | openshift-console    |
+      | route_name   | console              |
+    Then the step should succeed
+    When I perform the :check_popover_info web action with:
+      | popover_item | Service |
+    Then the step should succeed
