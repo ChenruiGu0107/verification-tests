@@ -425,9 +425,10 @@ Feature: ISCSI volume plugin testing
 
   # testcase for bug: #1583058
   # @author piqin@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-19150
   @admin
-  Scenario: ReadOnly PV should not be written in Pod
+  Scenario: iSCSI ReadOnly block volume should not be written in Pod
     Given I have a iSCSI setup in the environment
     Given I have a project
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
@@ -435,7 +436,6 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
       | ["spec"]["volumeMode"]             | Block                         |
-      | ["spec"]["iscsi"]["readOnly"]      | true                          |
     And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | mypvc                  |
       | ["spec"]["volumeName"] | pv-<%= project.name %> |
@@ -448,6 +448,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/dpath |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["readOnly"]  | true       |
     Then the step should succeed
     And the pod named "mypod" becomes ready
 
@@ -458,5 +459,5 @@ Feature: ISCSI volume plugin testing
     When I execute on the pod:
       | /bin/dd | if=/dev/zero | of=/dev/dpath | bs=1M | count=10 |
     Then the step should fail
-    And the output should contain:
-      | Permission denied |
+    And the output should match:
+      | (Permission denied\|Operation not permitted) |
