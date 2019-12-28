@@ -1143,7 +1143,7 @@ Feature: Network policy plugin scenarios
     Given I use the "<%= node(-2).name %>" node
     When I run commands on the host:
       | curl -sS --connect-timeout 5 http://<%= cb.p1pod1ip %>:8080 |
-    Then the step should fail
+    Then the output should contain "Connection timed out"
     And the output should not contain "Hello"
     When I run commands on the host:
       | curl -sS --connect-timeout 5 http://<%= cb.p2pod1ip %>:8080 |
