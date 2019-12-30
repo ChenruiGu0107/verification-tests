@@ -1,4 +1,5 @@
-@clusterlogging @commonlogging
+@clusterlogging
+@commonlogging
 Feature: elasticsearch related tests
 
   # @author pruan@redhat.com
@@ -6,9 +7,7 @@ Feature: elasticsearch related tests
   @admin
   @destructive
   Scenario: max_local_storage_nodes default value should be 1 to prevent permitting multiple nodes to share the same data directory
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
-    And evaluation of `YAML.load(config_map('elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
     And the expression should be true> cb.data.dig('node', 'max_local_storage_nodes') == 1
     And the expression should be true> cb.data.dig('gateway','recover_after_nodes') == cb.data.dig('discovery.zen','minimum_master_nodes')
 
@@ -17,9 +16,7 @@ Feature: elasticsearch related tests
   @admin
   @destructive
   Scenario: Check the existence of index template named "viaq"
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
-    And evaluation of `%w(project operations)` is stored in the :urls clipboard
+    Given evaluation of `%w(project operations)` is stored in the :urls clipboard
     Given I repeat the following steps for each :url in cb.urls:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
@@ -57,8 +54,6 @@ Feature: elasticsearch related tests
   @admin
   @destructive
   Scenario: [Bug 1568361] Elasticsearch log files are on persistent volume
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
     Given a pod becomes ready with labels:
       | es-node-master=true |
     And I execute on the pod:
@@ -76,9 +71,34 @@ Feature: elasticsearch related tests
   @admin
   @destructive
   Scenario: Make sure the searchguard index that is created upon pod start
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
     When I wait for the ".searchguard" index to appear in the ES pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['docs.count'] > "0"
     When I wait for the ".operations." index to appear in the ES pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['docs.count'] > "0"
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21099
+  @admin
+  @destructive
+  Scenario: Access Elasticsearch prometheus Endpoints via token
+    Given I switch to the first user
+    And the first user is cluster-admin
+    Then I use the "openshift-logging" project
+    Given evaluation of `service("elasticsearch-metrics").ip` is stored in the :service_ip clipboard
+
+    Given I run curl command on the ES pod to get metrics with:
+      | object     | elasticsearch                   |
+      | service_ip | <%= cb.service_ip %>            |
+      | token      | <%= user.cached_tokens.first %> |
+    Then the step should succeed
+    And the output should contain:
+      | es_cluster_nodes_number                   |
+      | es_cluster_shards_active_percent          |
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21313
+  @admin
+  @destructive
+  Scenario: The default index.mode is shared_ops
+    And evaluation of `YAML.load(config_map('elasticsearch').value_of('elasticsearch.yml'))` is stored in the :data clipboard
+    And the expression should be true> cb.data.dig('openshift.kibana.index.mode') == "shared_ops"
