@@ -310,7 +310,7 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed
@@ -356,7 +356,7 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed
@@ -474,3 +474,111 @@ Feature: stibuild.feature
     Then the step should succeed
     """
     Then the output should contain "logSnippet"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-23174
+  Scenario: Image source extraction w/ symlink should success when running a build	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-both.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-both |
+    Then the step should succeed
+    And the "symlink-rel-both-1" build completed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-link.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-link |
+    Then the step should succeed
+    And the "symlink-rel-link-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-abs-both.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-abs-both |
+    Then the step should succeed
+    And the "symlink-abs-both-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-abs-link.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-abs-link |
+    Then the step should succeed
+    And the "symlink-abs-link-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-single.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-single |
+    Then the step should succeed
+    And the "symlink-rel-single-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20973
+  @admin
+  Scenario: No panic in the build controller after delete build pod when build in complete phase 
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    And I save the response to file> build_output.yaml
+    When I delete matching lines from "build_output.yaml":
+      | completionTimestamp: |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f | build_output.yaml |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | pod                      |
+      | object_name_or_id | ruby-hello-world-1-build |
+    Then the step should succeed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    And I save the response to file> build_output.yaml
+    When I delete matching lines from "build_output.yaml":
+      | completionTimestamp: |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f | build_output.yaml |
+    Then the step should succeed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    Then the output should contain "completionTimestamp:"
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-controller-manager" project
+    Then I store in the :pods clipboard the pods labeled:
+      | app=openshift-controller-manager |
+    And I repeat the following steps for each :pod in cb.pods:
+    """
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name} |
+    Then the step should succeed
+    """
+    And the output should not contain:
+      | invalid memory address  |
+      | nil pointer dereference |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-23414
+  @admin
+  Scenario: Build should succeed with no error logs and delay	
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/sclorg/nginx-ex/master/openshift/templates/nginx.json |
+      | p        | NGINX_VERSION=latest |
+    Then the step should succeed
+    And the "nginx-example-1" build completed
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-controller-manager" project
+    Then I store in the :pods clipboard the pods labeled:
+      | app=openshift-controller-manager |
+    And I repeat the following steps for each :pod in cb.pods:
+    """
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name} |
+      | loglevel      | 5              | 
+    Then the step should succeed
+    """
+    Then the output should not contain "invalid phase transition"
