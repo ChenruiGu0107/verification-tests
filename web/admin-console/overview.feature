@@ -203,3 +203,55 @@ Feature: overview cases
     When I perform the :check_popover_info web action with:
       | popover_item | Service |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-21256
+  Scenario: Check stateful set on overview page
+    Given the master version >= "4.1"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=hello |
+
+    Given I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    # check pods links to correct page
+    When I perform the :check_pod_number_and_link web action with:
+      | text | 1 of 1 pods |
+      | link | /k8s/ns/<%= project.name %>/statefulsets/hello/pods |
+    Then the step should succeed
+
+    # open sidebar
+    When I perform the :click_list_item web action with:
+      | resource_kind | StatefulSet |
+      | resource_name | hello       |
+    Then the step should succeed
+
+    # check info in Overview sidebar
+    When I run the :click_sidebar_overview_tab web action
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Name   |
+      | value | hello  |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | hello |
+      | link_url | /k8s/ns/<%= project.name %>/statefulsets/hello |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | <%= project.name %>                          |
+      | link_url | /k8s/cluster/namespaces/<%= project.name %>  |
+    Then the step should succeed
+
+    # check info in Resources sidebar
+    When I run the :click_sidebar_resources_tab web action
+    Then the step should succeed
+    When I perform the :check_pod_info_on_overview_sidebar web action with:
+      | content | <%= pod.name %> |
+    Then the step should succeed
+
