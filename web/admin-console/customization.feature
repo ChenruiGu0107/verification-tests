@@ -479,7 +479,6 @@ Feature: customize console related
       | link_text | Special link three |
     Then the step should fail
 
-
   # @author hasha@redhat.com
   # @case_id OCP-24416
   @admin
@@ -559,3 +558,66 @@ Feature: customize console related
       | location | User menu    |
       | text     | usermenutest |
     Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25868
+  @admin
+  Scenario: Check projectUID in external logging link on pod log tab
+    Given the master version >= "4.3"
+    Given admin ensures "example" console_external_log_links_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-external-log-link.yaml |
+    Then the step should succeed
+
+    # Given I open admin console in a browser
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_one_pod_log_page web action with:
+      | project_name  | <%= project.name %> |
+      | resource_name | doublecontainers    |
+    Then the step should succeed
+
+    # check the first container  
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | resourceName=doublecontainers |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | containerName=hello-openshift |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | resourceNamespace=<%= project.name %> |
+    Then the step should succeed  
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                            |
+      | link_url | resourceNamespaceUID=<%= project.uid %> |
+    Then the step should succeed 
+
+    # check the second container
+    When I perform the :switch_to_other_container web action with:
+      | dropdown_item     | hello-openshift-fedora |
+    Then the step should succeed 
+    When I perform the :check_text_not_a_link web action with:
+      | text | hello-openshift-fedora |
+    Then the step should succeed    
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | resourceName=doublecontainers         |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | containerName=hello-openshift-fedora  |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | resourceNamespace=<%= project.name %> |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                            |
+      | link_url | resourceNamespaceUID=<%= project.uid %> |
+    Then the step should succeed 
