@@ -195,7 +195,7 @@ Feature: secrets related scenarios
   Scenario: User can pull a private image from a docker registry when a pull secret is defined
     Given I have a project
     And I run the :new_build client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | app_repo | centos/ruby-25-centos7~https://github.com/openshift/ruby-hello-world |
       | name     | test |
     Then the step should succeed
 
