@@ -168,9 +168,12 @@ Feature: Target pvc to a specific pv
       | file | pv8.json |
     Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc8.json" replacing paths:
-      | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
-      | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
-      | ["items"][2]["metadata"]["name"] | nfsc3-<%= project.name %> |
+      | ["items"][0]["metadata"]["name"]         | nfsc1-<%= project.name %> |
+      | ["items"][0]["spec"]["storageClassName"] | ""                        |
+      | ["items"][1]["metadata"]["name"]         | nfsc2-<%= project.name %> |
+      | ["items"][1]["spec"]["storageClassName"] | ""                        |
+      | ["items"][2]["metadata"]["name"]         | nfsc3-<%= project.name %> |
+      | ["items"][2]["spec"]["storageClassName"] | ""                        |
     Then the step should succeed
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
     And the "nfsc2-<%= project.name %>" PVC becomes bound to the "nfspv2-<%= project.name %>" PV
