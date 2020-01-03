@@ -486,9 +486,9 @@ Feature: customize console related
     Given the master version >= "4.2"
     Given I have a project
     Given the first user is cluster-admin
-    Given admin ensures "consolelog1" console_external_log_link is deleted after scenario
-    Given admin ensures "consolelog2" console_external_log_link is deleted after scenario
-    Given admin ensures "consolelog3" console_external_log_link is deleted after scenario
+    Given admin ensures "consolelog1" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog2" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog3" console_external_log_links_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
     Then the step should succeed
@@ -507,7 +507,7 @@ Feature: customize console related
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | Example Logs  |
-      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels=%7B%22name%22%3A%22hello-openshift%22%7D |
+      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels={"name":"hello-openshift"} |
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | userprojectLogLink3 |
@@ -577,7 +577,7 @@ Feature: customize console related
     Given I open admin console in a browser
     When I perform the :goto_one_pod_log_page web action with:
       | project_name  | <%= project.name %> |
-      | resource_name | doublecontainers    |
+      | pod_name      | doublecontainers    |
     Then the step should succeed
 
     # check the first container  
