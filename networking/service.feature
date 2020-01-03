@@ -96,19 +96,27 @@ Feature: Service related networking scenarios
       | f |  nodeport_service.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
+    And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
 
-    When I open web server via the "<%= env.hosts.first.hostname %>:<%= cb.port %>" url
-    Then the output should contain "Hello OpenShift!"
-
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=test-pods |    
+    When I execute on the pod:
+      | curl | <%= cb.hostip %>:<%= cb.port %> |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift! |
     When I run the :delete client command with:
       | object_type | service |
       | object_name_or_id | hello-pod |
     Then I wait for the resource "service" named "hello-pod" to disappear
-    Then I wait up to 20 seconds for the steps to pass:
-    """
-    When I open web server via the "<%= env.hosts.first.hostname %>:<%= cb.port %>" url
+    When I execute on the pod:
+      | curl | <%= cb.hostip %>:<%= cb.port %> |
     Then the step should fail
-    """
+    And the output should not contain:
+      | Hello OpenShift! |
 
   # @author bmeng@redhat.com
   # @case_id OCP-11341

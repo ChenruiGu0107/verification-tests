@@ -1826,3 +1826,51 @@ Feature: Network policy plugin scenarios
     Given I switch to cluster admin pseudo user
     And the expression should be true> namespace('openshift-ingress').labels['network.openshift.io/policy-group'] == 'ingress'
     And the expression should be true> namespace('openshift-monitoring').labels['network.openshift.io/policy-group'] == 'monitoring'
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-22659
+  @admin
+  @destructive
+  Scenario: The old and new created networkpolicy should work well when the sdn pod is recreated
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
+    Then the step should succeed
+ 
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    Given I restart the ovs pod on the "<%= cb.node_name %>" node
+    #Add one policy to make sure the pod can ping each other
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+    Then the step should succeed
+
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+    When I run the :delete client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+    Then the step should succeed
+
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"    
