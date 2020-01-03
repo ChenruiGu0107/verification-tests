@@ -474,3 +474,43 @@ Feature: stibuild.feature
     Then the step should succeed
     """
     Then the output should contain "logSnippet"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-23174
+  Scenario: Image source extraction w/ symlink should success when running a build	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-both.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-both |
+    Then the step should succeed
+    And the "symlink-rel-both-1" build completed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-link.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-link |
+    Then the step should succeed
+    And the "symlink-rel-link-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-abs-both.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-abs-both |
+    Then the step should succeed
+    And the "symlink-abs-both-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-abs-link.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-abs-link |
+    Then the step should succeed
+    And the "symlink-abs-link-1" build failed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23174/symlink-rel-single.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | symlink-rel-single |
+    Then the step should succeed
+    And the "symlink-rel-single-1" build completed
