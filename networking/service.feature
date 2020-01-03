@@ -4,19 +4,24 @@ Feature: Service related networking scenarios
   @smoke
   Scenario: Linking external services to OpenShift multitenant
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service.json |
+    And I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
+    Then the step should succeed
+    And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service.json" replacing paths:
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.google_ip %> |
     Then the step should succeed
     Given I use the "external-http" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
     When I run the :get client command with:
       | resource      | endpoints  |
       | resource_name | external-http |
-    Then the output should contain "61.135.218.25:80"
-    Given I have a pod-for-ping in the project
+    Then the output should contain:
+      | <%= cb.google_ip %>:80 |
     When I execute on the "hello-pod" pod:
       | /usr/bin/curl | <%= cb.service_ip %>:10086 |
-    Then the output should contain "www.youdao.com"
+    Then the output should contain "www.google.com"
 
   # @author bmeng@redhat.com
   # @case_id OCP-9644
