@@ -619,3 +619,53 @@ Feature: Egress-ingress related networking scenarios
       | curl | -ILs | www.test.com |    
     And the output should contain "HTTP/1.1 200"
 
+  # @author huirwang@redhat.com
+  # @case_id OCP-12167
+  @admin
+  Scenario: The endpoints in EgressNetworkPolicy denying cidrSelector will be ignored
+    Given I have a project
+    And I have a pod-for-ping in the project
+    And evaluation of `pod.node_name` is stored in the :node_name clipboard
+    When I execute on the "hello-pod" pod:
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
+    Then the step should succeed
+    And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
+
+    # Create service/endpoint, endpoint ip is google_ip
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/service_endpoint.json" replacing paths:
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] |  <%= cb.google_ip %> |
+      | ["items"][1]["subsets"][0]["ports"][0]["port"]   |  80                  |
+      | ["items"][0]["spec"]["ports"][0]["targetPort"]   |  80                  |
+    Then the step should succeed
+    Given I use the "selector-less-service" service
+    And evaluation of `service.ip` is stored in the :service_ip clipboard
+
+    #Enter the pod and curl the service should succeed
+    When I execute on the "hello-pod" pod:
+      | /usr/bin/curl | <%= cb.service_ip %>:10086 |
+    Then the step should succeed
+    And the output should contain "www.google.com"
+
+    #Create EgressNetworkPolicy with denying to IP
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json" replacing paths:
+      | ["spec"]["egress"][0]["to"]["cidrSelector"] | <%= cb.google_ip %>/32 |
+    Then the step should succeed
+    And I switch to the first user
+
+    #Enter the pod and curl the service should fail
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.service_ip %>:10086 |
+    Then the step should fail
+    And the output should contain "Connection timed out"
+    # Check sdn logs
+    Given I select a random node's host
+    And I get the networking components logs of the node since "1m" ago
+    Then the output should contain "Service 'selector-less-service' in namespace '<%= project.name %>' has an Endpoint pointing to firewalled destination (<%= cb.google_ip %>)"
+    # check iptables on the node
+    When I run command on the "<%= cb.node_name%>" node's sdn pod:
+      | iptables-save |
+    Then the step should succeed
+    And the output should not contain:
+      | "<%= cb.google_ip %>" |
