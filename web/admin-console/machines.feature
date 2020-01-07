@@ -48,6 +48,7 @@ Feature: machineconfig/machineconfig pool related
   # @author yapei@redhat.com
   # @case_id OCP-23688
   @admin
+  @destructive
   Scenario: Machine Autoscaler support on console
     Given the master version >= "4.2"
     Given the first user is cluster-admin
