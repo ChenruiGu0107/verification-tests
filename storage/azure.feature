@@ -562,3 +562,17 @@ Feature: Azure disk and Azure file specific scenarios
       | ProvisioningFailed  |
       | AuthorizationFailed |
     And the "mypvc" PVC status is :pending
+
+  # @author wduan@redhat.com
+  # @case_id OCP-26785
+  @admin
+  Scenario: Check azure-file dependencies cifs-utils on the node
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I repeat the following steps for each :node in cb.nodes:
+    """
+    And I use the "#{cb.node.name}" node
+    When I run commands on the host:
+      | rpm -qa \| grep -i cifs-utils |
+    Then the step should succeed
+    And the output should contain "cifs-utils"
+    """
