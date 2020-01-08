@@ -255,3 +255,136 @@ Feature: overview cases
       | content | <%= pod.name %> |
     Then the step should succeed
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-24106
+  @admin
+  Scenario: Check breadcrumb on resource detail page
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    Given I have a project
+    Given the first user is cluster-admin
+    # check Installed Operator and Install Plan page
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | etcd                   |
+      | catalog_name     | community-operators    |
+      | target_namespace | <%= project.name %>    |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text  | Subscribe |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the :check_page_contains web action with:
+      | content | InstallSucceeded |
+    Then the step should succeed
+    """
+    When I perform the :click_first_item_from_gridcell_list_and_check_breadcrumb web action with:
+      | layer_number | 1                              |
+      | link         | operators.coreos.com~v1alpha1~ClusterServiceVersion |
+      | text         | InstalledOperators             |
+    Then the step should succeed
+    
+    When I run the :browse_to_install_plan web action
+    Then the step should succeed
+    When I perform the :check_link_in_breadcrumb web action with:
+      | layer_number | 1                         |
+      | link         | operators.coreos.com~v1alpha1~InstallPlan |
+      | text         | InstallPlans              |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 2                         |
+      | text         | InstallPlanDetails        |
+    Then the step should succeed 
+
+    # check project page
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                         |
+      | link         | cluster/projects          |
+      | text         | Projects                  |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 2                         |
+      | text         | ProjectDetails            |
+    Then the step should succeed
+
+    # check replica sets page
+    When I perform the :goto_replica_sets_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                         |
+      | link         | /replicasets              |
+      | text         | ReplicaSets               |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 2                         |
+      | text         | ReplicaSetDetails         |
+    Then the step should succeed   
+
+    # check machine page
+    When I run the :goto_all_machines_page web action
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                         |
+      | link         | /machine.openshift.io~v1beta1~Machine |
+      | text         | Machines                  |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 2                         |
+      | text         | MachineDetails            |
+    Then the step should succeed    
+    # check machine set page
+    When I run the :goto_all_machine_sets_page web action
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                         |
+      | link         | /machine.openshift.io~v1beta1~MachineSet |
+      | text         | MachineSets               |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 2                         |
+      | text         | MachineSetDetails         |
+    Then the step should succeed   
+
+    # check pod and container page
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | openshift-console | 
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                              |
+      | link         | /k8s/ns/openshift-console/pods |
+      | text         | Pods                           |
+    Then the step should succeed
+    And evaluation of `browser.url` is stored in the :url clipboard
+    When I perform the :click_first_item_from_sub_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 2                              |
+      | link         | pods/<%= cb.url.split("pods/")[-1].gsub("/","") %> |
+      | text         | <%= cb.url.split("pods/")[-1].gsub("/","") %>      |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 3                              |
+      | text         | ContainerDetails               |
+    Then the step should succeed
+
+    # check image stream and image stream tag page
+    When I run the :goto_all_imagestreams_list web action
+    Then the step should succeed
+    When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 1                              |
+      | link         | imagestreams                   |
+      | text         | ImageStreams                   |
+    Then the step should succeed
+    And evaluation of `browser.url` is stored in the :url clipboard
+    When I perform the :click_first_item_from_sub_resource_list_and_check_breadcrumb web action with:
+      | layer_number | 2                              |
+      | link         | imagestreams/<%= cb.url.split("imagestreams/")[-1].gsub("/","") %> |
+      | text         | <%= cb.url.split("imagestreams/")[-1].gsub("/","") %>              |
+    Then the step should succeed
+    When I perform the :check_text_in_breadcrumb web action with:
+      | layer_number | 3                              |
+      | text         | ImageStreamTagDetails          |
+    Then the step should succeed
+
+    
