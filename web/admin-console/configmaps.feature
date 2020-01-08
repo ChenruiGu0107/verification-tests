@@ -33,7 +33,6 @@ Feature: configmap related
       | labels | test1=one |
     Then the step should succeed
     When I perform the :add_annotation_for_resource web action with:
-      | item             | Edit Annotations |
       | annotation_key   | annota1          |
       | annotation_value | annotaone        |
     Then the step should succeed

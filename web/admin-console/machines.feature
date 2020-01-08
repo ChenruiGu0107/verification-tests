@@ -107,3 +107,63 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :check_max_replicas web action with:
       | replicas_value | 9 |
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-25800
+  @admin
+  Scenario: check MachineHealthCheck page on console
+    Given the master version >= "4.3"
+    And I open admin console in a browser
+    Given I have a project
+    Given the first user is cluster-admin
+    When I perform the :goto_machinehealthcheck_page web action with:
+     | project_name  | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | name              | example  |
+      | max_unhealthy     | 40%      |
+      | expected_machines | -        |
+      | current_healthy   | -        |
+    Then the step should succeed
+    When I perform the :check_unhealthy_conditions_table web action with:
+      | status  | Unknown |
+      | timeout | 300s    |
+      | type    | Ready   |
+    Then the step should succeed
+    When I perform the :check_unhealthy_conditions_table web action with:
+      | status  | False |
+      | timeout | 300s  |
+      | type    | Ready |
+    Then the step should succeed
+    When I perform the :add_annotation_for_resource web action with:
+      | annotation_key   | machinecheck     |
+      | annotation_value | test             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | machinehealthcheck |
+      | resource_name | example   |
+      | o             | yaml      |
+    Then the output should contain:
+      | machinecheck: test |
+    # filter on MachineHealthCheck page
+    When I perform the :goto_machinehealthcheck_page web action with:
+      | project_name  | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :set_filter_strings web action with:
+      | filter_text | filterout |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | No Machine Health Checks Found |
+    Then the step should succeed
+    When I perform the :goto_machinehealthcheck_page web action with:
+      | project_name  | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :click_one_operation_in_kebab web action with:
+      | resource_name | example  |
+      | button_text   | Delete Machine Health Check |
+    Then the step should succeed
+    When I run the :submit_changes web action
+    Then the step should succeed
+    And I check that there are no machinehealthcheck in the project
