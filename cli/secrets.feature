@@ -15,7 +15,7 @@ Feature: secrets related scenarios
   # @case_id OCP-12599
   Scenario: Generate dockercfg type secrets via oc secrets new-dockercfg
     Given I have a project
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       |secret_name      |test                     |
       |docker_email     |serviceaccount@redhat.com|
       |docker_password  |password                 |
@@ -70,7 +70,7 @@ Feature: secrets related scenarios
   # @case_id OCP-12254
   Scenario: Create new secrets for basic authentication
     Given I have a project
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret |
       |username    |tester     |
       |password    |password   |
@@ -84,7 +84,7 @@ Feature: secrets related scenarios
       |password:|
       |username:|
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret2 |
       |username    |tester      |
       |password    |password    |
@@ -100,7 +100,7 @@ Feature: secrets related scenarios
       |username:|
       |ca.crt:  |
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/.gitconfig"
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret3 |
       |username    |tester      |
       |password    |password    |
@@ -352,7 +352,7 @@ Feature: secrets related scenarios
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret                          |
       |password    |<%= user.cached_tokens.first %>|
     Then the step should succeed
@@ -395,7 +395,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-2" build completes
 
     #Trigger third build automaticlly with incorrect secret
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret2     |
       |password    |incorrecttoken|
     Then the step should succeed
@@ -604,7 +604,7 @@ Feature: secrets related scenarios
       | resource | dc/git                    |
       | e        | ALLOW_ANON_GIT_PULL=false |
     Then the step should succeed
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret |
       |username    |openshift|
       |password    |redhat   |
@@ -648,7 +648,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-2" build completes
 
     #Trigger third build automaticlly with password alone
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret2 |
       |password    |redhat    |
     Then the step should succeed
@@ -669,7 +669,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-3" build completes
 
     #Trigger build automaticlly with username alone
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret3 |
       |username    |openshift |
     Then the step should succeed
@@ -690,7 +690,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-4" build fails
 
     #Trigger build automaticlly with invaild password
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       |secret_name |mysecret4 |
       |username    |openshift |
       |password    |invaild   |
@@ -805,7 +805,7 @@ Feature: secrets related scenarios
 
     # Use well-formed pull secret with incorrect credentials
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       |secret_name      |test                       |
       |docker_email     |serviceaccount@redhat.com  |
       |docker_password  |password                   |
@@ -1092,7 +1092,7 @@ Feature: secrets related scenarios
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret    |
       | secret_name    | sshsecret |
     Then the step should succeed

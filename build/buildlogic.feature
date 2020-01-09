@@ -100,7 +100,7 @@ Feature: buildlogic.feature
   # @case_id OCP-10596
   Scenario: Failed to push image with invalid Docker secret
     Given I have a project
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       | secret_name     | pushme |
       | docker_username | dyan |
       | docker_password | xxxxxx |
@@ -165,7 +165,7 @@ Feature: buildlogic.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %>  |
-    When I run the :oc_secrets_new_sshauth client command with:
+    When I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret           |
       | secret_name    | mysecret         |
     Then the step should succeed
@@ -217,7 +217,7 @@ Feature: buildlogic.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %>  |
-    When I run the :oc_secrets_new_sshauth client command with:
+    When I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret           |
       | secret_name    | mysecret         |
     Then the step should succeed
@@ -306,7 +306,7 @@ Feature: buildlogic.feature
     Given a 20 characters random string of type :dns is stored into the :ssh_secret clipboard
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_secret %>      |
-    When I run the :oc_secrets_new_sshauth client command with:
+    When I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed

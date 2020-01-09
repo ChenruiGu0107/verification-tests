@@ -4,7 +4,7 @@ Feature: web secrets related
   # @case_id OCP-10996
   Scenario: Add secrets in Deploy Image page
     Given I have a project
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       | secret_name     | dockerhub1            |
       | docker_server   | private1.registry.com |
       | docker_username | anyuser1              |
@@ -49,7 +49,7 @@ Feature: web secrets related
   Scenario: Add secrets to source strategy BC for source repo and image repo
     Given the master version >= "3.4"
     Given I have a project
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       | secret_name     | dockerhub1            |
       | docker_server   | private1.registry.com |
       | docker_username | anyuser1              |
@@ -429,14 +429,14 @@ Feature: web secrets related
       | image | aosqe/hello-openshift |
     Then the step should succeed
     Given I wait until the status of deployment "mydc" becomes :complete
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       | secret_name     | dockerhub1           |
       | docker_server   | private.registry.com |
       | docker_username | anyuser1             |
       | docker_password | 12345678             |
       | docker_email    | any1@example.com     |
     Then the step should succeed
-    When I run the :oc_secrets_new_dockercfg client command with:
+    When I run the :secrets_new_dockercfg client command with:
       | secret_name     | dockerhub2           |
       | docker_server   | private.registry.com |
       | docker_username | anyuser2             |

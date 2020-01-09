@@ -310,7 +310,7 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed
@@ -356,7 +356,7 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed
