@@ -726,7 +726,7 @@ Feature: Testing registry
     Then the output should contain:
       | UNAUTHORIZED |
     """
-    When I run the :oadm_add_cluster_role_to_user admin command with:
+    When I run the :oadm_policy_add_cluster_role_to_user admin command with:
       | role_name | prometheus-scraper |
       | user_name | <%= user.name %> |
     Then the step should succeed

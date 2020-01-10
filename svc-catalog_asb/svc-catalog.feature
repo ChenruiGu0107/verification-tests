@@ -1014,7 +1014,7 @@ Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
-    When I run the :oadm_add_cluster_role_to_user admin command with:
+    When I run the :oadm_policy_add_cluster_role_to_user admin command with:
       | role_name | clusterservicebroker-admin |
       | user_name | <%= user(0).name %>        |
     Then the step should succeed
@@ -1067,7 +1067,7 @@ Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
-    When I run the :oadm_add_cluster_role_to_user admin command with:
+    When I run the :oadm_policy_add_cluster_role_to_user admin command with:
       | role_name | clusterservicebroker-admin |
       | user_name | <%= user(0).name %>        |
     Then the step should succeed
