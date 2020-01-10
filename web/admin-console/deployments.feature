@@ -256,3 +256,70 @@ Feature: deployment/dc related features via web
       | text     | console-             |
       | link_url | replicasets/console- |
     Then the step should succeed
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-25793
+  Scenario: Workload list views have created and owner
+    Given the master version >= "4.3"
+    Given I open admin console in a browser
+    Given I have a project
+    When I run the :run client command with:
+      | name  | exampletest           |
+      | image | aosqe/hello-openshift |
+    Then the step should succeed
+    When I perform the :goto_rc_list_page web action with:
+      | project_name | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Created |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Owner |
+    Then the step should succeed
+    When I perform the :goto_one_rc_page web action with:
+      | project_name | <%= project.name %>  |
+      | rc_name      | exampletest-1        |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | created_at | |
+      | owner      | exampletest |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rs   |
+      | o        | json |
+    Then the step succeeded
+    Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rs_name clipboard
+    And a pod is present with labels:
+      | app=hello-openshift |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+    When I perform the :goto_rs_list_page web action with:
+      | project_name | <%= project.name %>  |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Created |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Owner |
+    Then the step should succeed
+    When I perform the :goto_one_rs_page web action with:
+      | project_name | <%= project.name %>  |
+      | rs_name      | <%= cb.rs_name %>    |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | created_at | |
+      | owner      | hello-openshift |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= project.name %>  |
+      | resource_name | <%= cb.pod_name %>   |
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | <%= cb.rs_name %> |
+      | link_url | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %> |
+    Then the step should succeed
