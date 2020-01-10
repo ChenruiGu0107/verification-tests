@@ -514,3 +514,48 @@ Feature: stibuild.feature
       | buildconfig | symlink-rel-single |
     Then the step should succeed
     And the "symlink-rel-single-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20973
+  @admin
+  Scenario: No panic in the build controller after delete build pod when build in complete phase 
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    And I save the response to file> build_output.yaml
+    When I delete matching lines from "build_output.yaml":
+      | completionTimestamp: |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f | build_output.yaml |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | pod                      |
+      | object_name_or_id | ruby-hello-world-1-build |
+    Then the step should succeed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    And I save the response to file> build_output.yaml
+    When I delete matching lines from "build_output.yaml":
+      | completionTimestamp: |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f | build_output.yaml |
+    Then the step should succeed
+    When I get project builds named "ruby-hello-world-1" as YAML
+    Then the output should contain "completionTimestamp:"
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-controller-manager" project
+    Then I store in the :pods clipboard the pods labeled:
+      | app=openshift-controller-manager |
+    And I repeat the following steps for each :pod in cb.pods:
+    """
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name} |
+    Then the step should succeed
+    """
+    And the output should not contain:
+      | invalid memory address  |
+      | nil pointer dereference |
