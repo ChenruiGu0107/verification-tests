@@ -14,7 +14,7 @@ Feature: change the policy of user/service account
       | READY  |
     And the output should not contain:
       | cannot |
-    When I run the :oadm_remove_cluster_role_from_user admin command with:
+    When I run the :oadm_policy_remove_cluster_role_from_user admin command with:
       | role_name  | cluster-admin    |
       | user_name  | <%= user.name %> |
     Then the step should succeed
@@ -53,7 +53,7 @@ Feature: change the policy of user/service account
       | viewservices |
 
     ##admin try to add one user to the project as vs role
-    When I run the :oadm_add_role_to_user admin command with:
+    When I run the :oadm_policy_add_role_to_user admin command with:
       | role name       |   viewservices    |
       | user name       |   <%= user.name %>    |
       | role namespace  |   <%= project.name %> |
@@ -81,7 +81,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
     ##admin try to add one user to the project as vs role
-    When I run the :oadm_add_role_to_user client command with:
+    When I run the :oadm_policy_add_role_to_user client command with:
       | role name       |   viewservices    |
       | user name       |   <%= user.name %>    |
       | role namespace  |   <%= project.name %> |
@@ -457,14 +457,14 @@ Feature: change the policy of user/service account
     Given I run the :get client command with:
       | resource | nodes |
     Then the step should fail
-    Given I run the :oadm_add_cluster_role_to_user admin command with:
+    Given I run the :oadm_policy_add_cluster_role_to_user admin command with:
       | role_name | system:node-reader  |
       | z         | default             |
       | n         | <%= project.name %> |
     Then the step should succeed
     And I register clean-up steps:
       """
-      Given I run the :oadm_remove_cluster_role_from_user admin command with:
+      Given I run the :oadm_policy_remove_cluster_role_from_user admin command with:
         | role_name | system:node-reader  |
         | z         | default             |
         | n         | <%= project.name %> |
@@ -486,7 +486,7 @@ Feature: change the policy of user/service account
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/tc467927/role.json
     Then the step should succeed
     Given admin waits for the "tc467927" clusterrole to appear
-    And I run the :oadm_add_cluster_role_to_user client command with:
+    And I run the :oadm_policy_add_cluster_role_to_user client command with:
       | role_name | tc467927                           |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed

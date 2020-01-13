@@ -762,7 +762,6 @@ Feature: Testing route
     """
     When I open secure web server via the "edge-route" route
     Then the step should fail
-    And expression should be true> @result[:exitstatus] == -1
     """
 
     # Add IP whitelist for route
@@ -806,7 +805,6 @@ Feature: Testing route
     """
     When I open secure web server via the "pass-route" route
     Then the step should fail
-    And expression should be true> @result[:exitstatus] == -1
     """
 
     # Add IP whitelist for route
@@ -846,7 +844,6 @@ Feature: Testing route
     """
     When I open secure web server via the "reen-route" route
     Then the step should fail
-    And expression should be true> @result[:exitstatus] == -1
     """
 
     # Add IP whitelist for route
@@ -879,7 +876,6 @@ Feature: Testing route
     """
     When I open web server via the route
     Then the step should fail
-    And expression should be true> @result[:exitstatus] == -1
     """
 
     # Add 0.0.0.0/0 in whitelist

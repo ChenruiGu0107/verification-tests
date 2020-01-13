@@ -333,7 +333,7 @@ Feature: oc global options (oc options) related scenarios
     Then the step should fail
     And the output should match "([Tt]imeout|[Uu]nable to connect)"
 
-    When I run the :oadm_add_role_to_user client command with:
+    When I run the :oadm_policy_add_role_to_user client command with:
       | role_name        | view               |
       | user_name        | <%= user.name %>   |
       | request-timeout  | 1ms                |

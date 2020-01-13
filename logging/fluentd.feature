@@ -6,8 +6,6 @@ Feature: fluentd related tests
   @admin
   @destructive
   Scenario: [intservice] [bz1399761] Logging fluentD daemon set should set quota for the pods
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
     Given a pod becomes ready with labels:
       | component=fluentd |
     And evaluation of `pod.container(user: user, name: 'fluentd').spec.memory_limit` is stored in the :fluentd_pod_mem_limit clipboard
@@ -53,8 +51,15 @@ Feature: fluentd related tests
       | relative_url | project.<%= cb.org_project %>*/_search?pretty |
       | op           | GET                                           |
     Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? <message>
-
     Examples:
-    | file                                                                                                                       | message                                                 |
-    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
-    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
+      | file                                                                                                                       | message                                                 |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21083
+  @admin
+  @destructive
+  Scenario: the priority class are added in Logging collector
+    Given the expression should be true> daemon_set('fluentd').template['spec']['priorityClassName'] == "cluster-logging"
+

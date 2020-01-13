@@ -94,7 +94,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11075
   Scenario: Project admin could not grant cluster-admin permission to other users
     When I have a project
-    And I run the :oadm_add_cluster_role_to_user client command with:
+    And I run the :oadm_policy_add_cluster_role_to_user client command with:
       | role_name | cluster-admin  |
       | user_name | <%= user(1).name %>  |
     Then the step should fail

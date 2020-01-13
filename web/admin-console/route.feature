@@ -214,3 +214,79 @@ Feature: route related
     Then the step should succeed
     When I run the :check_custom_dns_help_info web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-26170
+  Scenario: Support create route with multiple services
+    Given the master version >= "4.3"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json   |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+
+    # create route with multiple services
+    Given I open admin console in a browser
+    When I perform the :goto_routes_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_create_route_button web action
+    Then the step should succeed
+    When I perform the :create_route web action with:
+      | route_name                 | mytestroute        |
+      | service_name               | service-unsecure   |
+      | service_weight             | 30                 |
+      | alternative_service_name   | service-unsecure-2 |
+      | alternative_service_weight | 70                 |
+      | target_port                | http               |
+    Then the step should succeed
+
+    # check Traffic table is shown
+    When I run the :check_route_traffic_table_shown web action
+    Then the step should succeed
+
+    # check data in Traffic table
+    When I perform the :check_data_in_traffic_table web action with:
+      | resource_type | Service          |
+      | resource_name | service-unsecure |
+      | resource_link | /k8s/ns/<%= project.name %>/services/service-unsecure |
+      | weight        | 30               |
+      | percent       | 30.0%            |
+    Then the step should succeed
+    When I perform the :check_data_in_traffic_table web action with:
+      | resource_type | Service            |
+      | resource_name | service-unsecure-2 |
+      | resource_link | /k8s/ns/<%= project.name %>/services/service-unsecure-2 |
+      | weight        | 70                 |
+      | percent       | 70.0%              |
+    Then the step should succeed
+
+    # Remove Alternative Service will remove entry for alternative service
+    When I perform the :goto_route_creation_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :set_service_name web action with:
+      | service_name | service-unsecure |
+    Then the step should succeed
+    When I run the :click_add_alternative_service web action
+    Then the step should succeed
+    When I run the :check_inputs_for_alternative_services_exists web action
+    Then the step should succeed
+    When I run the :click_remove_alternative_service web action
+    Then the step should succeed
+    When I run the :check_inputs_for_alternative_services_missing web action
+    Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-26040
+  @admin
+  Scenario: Check metrics charts on route page
+    Given the master version >= "4.3"
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :goto_one_route_page web action with:
+      | project_name | openshift-console |
+      | route_name   | console           |
+    Then the step should succeed
+    When I run the :check_metrics_charts_on_route_overview web action
+    Then the step should succeed

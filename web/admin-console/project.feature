@@ -34,3 +34,38 @@ Feature: projects related features via web
     When I perform the :check_page_contains web action with:
       | content | Error |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-19725
+  Scenario: Check Service account page under project scope
+    Given the master version >= "4.1"
+    Given I have a project
+    Given I open admin console in a browser
+    When I perform the :goto_serviceaccounts_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text | builder |
+      | link_url | <%= project.name %>/serviceaccounts/builder |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text | default |
+      | link_url | <%= project.name %>/serviceaccounts/default |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text | deployer |
+      | link_url | <%= project.name %>/serviceaccounts/deployer |
+    Then the step should succeed
+
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+
+    When I perform the :click_one_dropdown_action web action with:
+      | item | Delete Service Account |
+    Then the step should succeed
+    When I run the :delete_resource_panel web action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | serviceaccount |
+    Then the step should succeed
+    And the output should not contain "example"

@@ -118,7 +118,7 @@ Feature: REST policy related features
   Scenario: 4.x Check if the given user or group have the privilege via SubjectAccessReview
     When admin creates a project
     Then the step should succeed
-    When I run the :oadm_add_role_to_user admin command with:
+    When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | view                |
       | user_name | <%= user.name %>    |
       | n         | <%= project.name %> |
@@ -135,7 +135,7 @@ Feature: REST policy related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 403
 
-    When I run the :oadm_add_role_to_user admin command with:
+    When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | edit                 |
       | user_name | <%= user(1).name  %> |
       | n         | <%= project.name %>  |
@@ -151,7 +151,7 @@ Feature: REST policy related features
       | user                 | <%= user(1).name  %>          |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 403
-    When I run the :oadm_add_role_to_user admin command with:
+    When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | admin                |
       | user_name | <%= user(2).name  %> |
       | n         | <%= project.name %>  |

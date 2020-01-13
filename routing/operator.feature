@@ -15,6 +15,7 @@ Feature: Testing Ingress Operator related scenarios
   # @author hongli@redhat.com
   # @case_id OCP-21873
   @admin
+  @destructive
   Scenario: the replicas of router deployment is controlled by ingresscontroller
     Given the master version >= "4.0"
     And I have a project
@@ -49,6 +50,7 @@ Feature: Testing Ingress Operator related scenarios
   # @author hongli@redhat.com
   # @case_id OCP-21143
   @admin
+  @destructive
   Scenario: the wildcard route certificate of router is controlled by ingresscontroller
     Given the master version >= "4.0"
     And I have a project
@@ -86,6 +88,7 @@ Feature: Testing Ingress Operator related scenarios
   # @author hongli@redhat.com
   # @case_id OCP-22636
   @admin
+  @destructive
   Scenario: the namespaceSelector of router is controlled by ingresscontroller
     Given the master version >= "4.0"
     And I have a project
@@ -132,6 +135,7 @@ Feature: Testing Ingress Operator related scenarios
   # @author hongli@redhat.com
   # @case_id OCP-22637
   @admin
+  @destructive
   Scenario: the routeSelector of router is controlled by ingresscontroller
     Given the master version >= "4.0"
     And I have a project
@@ -189,6 +193,7 @@ Feature: Testing Ingress Operator related scenarios
 
   # @author hongli@redhat.com
   @admin
+  @destructive
   Scenario Outline: the tlsSecurityProfile of ingresscontroller can be set to Old, Intermediate, Modern and Custom
     Given the master version >= "4.0"
     And I have a project

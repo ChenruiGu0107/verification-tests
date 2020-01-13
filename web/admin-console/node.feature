@@ -20,16 +20,27 @@ Feature: Node related
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | node                    |
-      | resource_name | <%= cb.nodes[0].name %> |
-      | o             | yaml                    |
-    Then the step should succeed
-    And the output should contain:
-      | effect: NoSchedule  |
-      | key: taint_test     |
-      | value: taint        |
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the output should match:
+      | Taints:\\s+taint_test=taint:NoSchedule | 
     """
+    When I perform the :remove_taint_from_node web action with:
+      | node_name      | <%= cb.nodes[0].name %> |
+      | key            | Taints                  |
+      | affinity_key   | taint_test              |
+    Then the step should succeed
+    # This wait up here is for node safe and the whole running will be terminated if failed
+    And I wait up to 90 seconds for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the output should not match:
+      | Taints:\\s+taint_test=taint:NoSchedule | 
+    """
+    
     When I run the :new_app client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
@@ -74,23 +85,6 @@ Feature: Node related
       | value: taint       |
       | effect: NoSchedule |
     """
-    When I perform the :remove_taint_from_node web action with:
-      | node_name      | <%= cb.nodes[0].name %> |
-      | key            | Taints                  |
-      | affinity_key   | taint_test              |
-    Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource      | node                    |
-      | resource_name | <%= cb.nodes[0].name %> |
-      | o             | yaml                    |
-    Then the step should succeed
-    And the output should not contain:
-      | effect: NoSchedule  |
-      | key: taint_test     |
-      | value: taint        |
-     """
 
   # @author yapei@redhat.com
   # @case_id OCP-25764

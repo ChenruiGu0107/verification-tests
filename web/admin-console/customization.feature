@@ -479,7 +479,6 @@ Feature: customize console related
       | link_text | Special link three |
     Then the step should fail
 
-
   # @author hasha@redhat.com
   # @case_id OCP-24416
   @admin
@@ -487,9 +486,9 @@ Feature: customize console related
     Given the master version >= "4.2"
     Given I have a project
     Given the first user is cluster-admin
-    Given admin ensures "consolelog1" console_external_log_link is deleted after scenario
-    Given admin ensures "consolelog2" console_external_log_link is deleted after scenario
-    Given admin ensures "consolelog3" console_external_log_link is deleted after scenario
+    Given admin ensures "consolelog1" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog2" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog3" console_external_log_links_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
     Then the step should succeed
@@ -508,7 +507,7 @@ Feature: customize console related
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | Example Logs  |
-      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels=%7B%22name%22%3A%22hello-openshift%22%7D |
+      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels={"name":"hello-openshift"} |
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | userprojectLogLink3 |
@@ -559,3 +558,160 @@ Feature: customize console related
       | location | User menu    |
       | text     | usermenutest |
     Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25868
+  @admin
+  Scenario: Check projectUID in external logging link on pod log tab
+    Given the master version >= "4.3"
+    Given admin ensures "example" console_external_log_links_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-external-log-link.yaml |
+    Then the step should succeed
+
+    # Given I open admin console in a browser
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I perform the :goto_one_pod_log_page web action with:
+      | project_name  | <%= project.name %> |
+      | pod_name      | doublecontainers    |
+    Then the step should succeed
+
+    # check the first container  
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | resourceName=doublecontainers |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | containerName=hello-openshift |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                  |
+      | link_url | resourceNamespace=<%= project.name %> |
+    Then the step should succeed  
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                            |
+      | link_url | resourceNamespaceUID=<%= project.uid %> |
+    Then the step should succeed 
+
+    # check the second container
+    When I perform the :switch_to_other_container web action with:
+      | dropdown_item     | hello-openshift-fedora |
+    Then the step should succeed 
+    When I perform the :check_text_not_a_link web action with:
+      | text | hello-openshift-fedora |
+    Then the step should succeed    
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | resourceName=doublecontainers         |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | containerName=hello-openshift-fedora  |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                          |
+      | link_url | resourceNamespace=<%= project.name %> |
+    Then the step should succeed 
+    When I perform the :check_link_and_text web action with:
+      | text     | Example Logs                            |
+      | link_url | resourceNamespaceUID=<%= project.uid %> |
+    Then the step should succeed 
+    
+  # @author yapei@redhat.com
+  # @case_id OCP-25817
+  @admin
+  Scenario: Add support for ConsoleYAMLSample CRD
+    Given the master version >= "4.3"
+
+    # create ConsoleYAMLSample instance
+    Given admin ensures "example" console_yaml_samples_console_openshift_io is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-yaml-sample.yaml |
+    Then the step should succeed
+
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    
+    # check YAML sample when create Jobs
+    When I perform the :goto_jobs_page web action with:
+      | project_name | default |
+    Then the step should succeed
+    When I perform the :click_button_text web action with:
+      | button_text | Create Job |
+    Then the step should succeed
+    When I run the :wait_until_no_loading web action
+    Then the step should succeed
+
+    # check Schema sidebar
+    When I perform the :click_button_text web action with:
+      | button_text | Schema |
+    Then the step should succeed
+    When I perform the :check_sidebar_item web action with:
+      | sidebar_item | kind |
+    Then the step should succeed
+    When I perform the :check_sidebar_item web action with:
+      | sidebar_item | metadata |
+    Then the step should succeed
+
+    # check Samples sidebar
+    When I perform the :click_button_text web action with:
+      | button_text | Samples |
+    Then the step should succeed
+    When I perform the :check_sidebar_item web action with:
+      | sidebar_item | example Job YAML sample |
+    Then the step should succeed
+
+    # click try it will auto fill the yaml editor
+    Given admin ensures "countdown" jobs is deleted from the "default" project after scenario
+    When I perform the :click_button_text web action with:
+      | button_text | Try it |
+    Then the step should succeed
+    When I perform the :click_button_text web action with:
+      | button_text | Create |
+    Then the step should succeed
+    And the expression should be true> job('countdown').exists?
+
+    # snippet: true will show Snippets tab
+    When I run the :patch admin command with:
+      | resource | consoleyamlsample/example    |
+      | type     | merge                        |
+      | p        | {"spec":{"snippet":true}}    |
+    Then the step should succeed
+    When I perform the :goto_jobs_page web action with:
+      | project_name | default |
+    Then the step should succeed
+    When I perform the :click_button_text web action with:
+      | button_text | Create Job |
+    Then the step should succeed
+    When I run the :wait_until_no_loading web action
+    Then the step should succeed
+    When I perform the :click_button_text web action with:
+      | button_text | Snippets |
+    Then the step should succeed
+
+    # Click 'Show YAML' will display YAML snippet
+    When I perform the :click_button_text web action with:
+      | button_text | Show YAML |
+    Then the step should succeed
+    When I perform the :check_content_in_yaml_editor web action with:
+      | yaml_content | countdown |
+    Then the step should succeed
+    When I perform the :click_button_text web action with:
+      | button_text | Hide YAML |
+    Then the step should succeed
+    When I perform the :check_content_in_yaml_editor web action with:
+      | yaml_content | countdown |
+    Then the step should fail
+
+    # Click 'Insert snippet' will insert code snippet into YAML editor
+    When I perform the :click_button_text web action with:
+      | button_text | Insert Snippet |
+    Then the step should succeed
+    When I perform the :check_content_in_yaml_editor web action with:
+      | yaml_content | countdown |
+    Then the step should succeed

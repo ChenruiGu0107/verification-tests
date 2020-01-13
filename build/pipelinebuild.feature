@@ -20,7 +20,7 @@ Feature: pipelinebuild.feature
       | -c                                                                                                                                 |
       | cd /var/lib/git/ && git clone --bare https://github.com/openshift-qe/jenkins-pipeline-nodejsmongodb-test jenkins-pipeline-test.git |
     Then the step should succeed
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       | secret_name | mysecret  |
       | username    | openshift |
       | password    | redhat    |
@@ -43,7 +43,7 @@ Feature: pipelinebuild.feature
     When the "nodejs-mongodb-example-1" build becomes :running
     Then the "nodejs-mongodb-example-1" build completed
     Then the "sample-pipeline-1" build completed
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       | secret_name | mysecret1 |
       | username    | openshift |
       | password    | invaild   |
@@ -70,7 +70,7 @@ Feature: pipelinebuild.feature
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed
@@ -133,7 +133,7 @@ Feature: pipelinebuild.feature
       | -c                                                                                                                 |
       | cd /var/lib/git/ && git clone --bare https://github.com/openshift/openshift-jee-sample.git openshift-jee-sample.git|
     Then the step should succeed
-    When I run the :oc_secrets_new_basicauth client command with:
+    When I run the :secrets_new_basicauth client command with:
       | secret_name | mysecret  |
       | username    | openshift |
       | password    | redhat    |
@@ -205,7 +205,7 @@ Feature: pipelinebuild.feature
     When I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :oc_secrets_new_sshauth client command with:
+    And I run the :secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
     Then the step should succeed

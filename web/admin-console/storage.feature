@@ -33,6 +33,7 @@ Feature: storage (storageclass, pv, pvc) related
   # @author yapei@redhat.com
   # @case_id OCP-23681
   @admin
+  @destructive
   Scenario: Expand PVC when no quota or limit is set
     Given the master version >= "4.2"
     Given I have a project
@@ -111,6 +112,7 @@ Feature: storage (storageclass, pv, pvc) related
   # @author yapei@redhat.com
   # @case_id OCP-23682
   @admin
+  @destructive
   Scenario: Expand PVC when there is limitrange and quota set
     Given the master version >= "4.2"
     

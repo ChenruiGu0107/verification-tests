@@ -7,8 +7,6 @@ Feature: logging permission related tests
   @admin
   @destructive
   Scenario: Couldn't access .operations index without permit
-    Given I switch to cluster admin pseudo user
-    Given I use the "openshift-logging" project
     And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
     Given I switch to the first user
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard

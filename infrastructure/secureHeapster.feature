@@ -223,7 +223,7 @@ Feature: Secure Heapster APIs scenarios
     Then the output should contain:
       | <%= node.name %>                  |
     # Check token authn
-    When I run the :oadm_add_role_to_user admin command with:
+    When I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | cluster-admin         |
       | user_name | <%= user.name %>      |
       | namespace | <%= project.name %>   |
@@ -285,7 +285,7 @@ Feature: Secure Heapster APIs scenarios
       | https://<%= service.ip(user: user) %>/apis/metrics/v1alpha1/namespaces/<%= project.name %>/pods |
     Then the output should contain:
       | User "<%= env.users[word_to_num('second')].name %>" cannot list pods.metrics in the namespace "<%= project.name %>" |
-    And I run the :oadm_add_role_to_user admin command with:
+    And I run the :oadm_policy_add_role_to_user admin command with:
       | role_name | cluster-admin                                 |
       | user_name | <%= env.users[word_to_num("second")].name %>  |
       | namespace | <%= project.name %>                           |
