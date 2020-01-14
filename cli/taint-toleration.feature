@@ -321,7 +321,7 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: Taint Toleration pod with wildcard toleration can be scheduled to taint node
     Given I have a project
-    Given I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
