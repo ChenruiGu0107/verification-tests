@@ -175,20 +175,21 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-12680
   # @bug_id 1337106
   @admin
-  @destructive
   Scenario: Pre-bound PV with invalid PVC should have consistent status
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/preboundpv-rwo.yaml" where:
-      | ["metadata"]["name"]              | pv-<%= project.name %>   |
-      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>      |
-      | ["spec"]["claimRef"]["name"]      | pvc1-<%= project.name %> |
-    Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwx.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"]              | pv-<%= project.name %> |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
+      | ["spec"]["claimRef"]["name"]      | non-exist-pvc          |
+      | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author wehe@redhat.com

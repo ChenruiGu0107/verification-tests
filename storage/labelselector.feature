@@ -182,14 +182,13 @@ Feature: Target pvc to a specific pv
   # @author chaoyang@redhat.com
   # @case_id OCP-11307
   @admin
-  @destructive
   Scenario: PVC without any VolumeSelector could bind a PV with any labels
     Given I have a project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/claim.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed

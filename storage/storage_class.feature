@@ -1,7 +1,6 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
   @admin
-  @destructive
   Scenario Outline: pre-bound still works with storage class
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
@@ -11,19 +10,14 @@ Feature: storageClass related feature
       | ["spec"]["accessModes"][0]                  | ReadWriteOnce          |
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
-      | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                        |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["volumeName"]       | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     Examples:
       | provisioner | storage_type         | volume_name | path_to_file               |
@@ -34,7 +28,6 @@ Feature: storageClass related feature
   # @author lxia@redhat.com
   # @case_id OCP-10469
   @admin
-  @destructive
   Scenario: storage class creation negative testing
     Given I have a project
     Given admin ensures "slow-<%= project.name %>" storage_class is deleted after scenario
@@ -64,22 +57,21 @@ Feature: storageClass related feature
   # @author lxia@redhat.com
   # @case_id OCP-12299
   @admin
-  @destructive
   Scenario: Do not allow creation of GCE PDs in unmanaged zones
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc-<%= project.name %> |
-      | ["parameters"]["zone"] | europe-west1-d         |
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["parameters"]["zone"] | europe-west1-d |
+      | ["volumeBindingMode"]  | Immediate      |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "mypvc" PVC becomes :pending
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pvc/pvc-<%= project.name %> |
+      | resource | pvc/mypvc |
     Then the output should match:
       | ProvisioningFailed                                                    |
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
@@ -88,7 +80,6 @@ Feature: storageClass related feature
 
   # @author lxia@redhat.com
   @admin
-  @destructive
   Scenario Outline: PVC request storage class with specific provisioner
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
