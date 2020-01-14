@@ -126,7 +126,7 @@ Feature: environment related
     Given 1 pods become ready with labels:
       | run=dctest          |
       | deployment=dctest-2 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/<%= pod.name %> |
       | list     | true                |
     Then the step should succeed
@@ -154,7 +154,7 @@ Feature: environment related
     Given 1 pods become ready with labels:
       | run=dctest          |
       | deployment=dctest-3 |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | pod/<%= pod.name %> |
       | list     | true                |
     Then the step should succeed

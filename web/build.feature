@@ -164,7 +164,7 @@ Feature: build related feature on web console
       | env_var_key   | testkey              |
       | env_var_value | testvalue            |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | bc/ruby-sample-build |
       | e        | key1=value1          |
     Then the step should succeed

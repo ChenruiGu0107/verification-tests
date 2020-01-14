@@ -699,7 +699,7 @@ Feature: deployment related features
     Then the step should succeed
     And evaluation of `@result[:parsed]['metadata']['generation']` is stored in the :prev_generation clipboard
     And evaluation of `@result[:parsed]['status']['observedGeneration']` is stored in the :prev_observed_generation clipboard
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | e        | TEST=1   |
     Then the step should succeed
