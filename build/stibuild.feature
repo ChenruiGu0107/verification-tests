@@ -559,3 +559,74 @@ Feature: stibuild.feature
     And the output should not contain:
       | invalid memory address  |
       | nil pointer dereference |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-17650
+  @admin
+  Scenario: Create an application using -i and code
+    Given scc policy "restricted" is restored after scenario
+    When I have a project
+    Then I run the :new_app client command with:
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby                                    |
+      | app_repo     | https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby                                    |
+      | code         | https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
+    Then I run the :new_app client command with:
+      | image_stream | openshift/ruby     |
+      | app_repo     | ./ruby-hello-world |
+    And the step should succeed
+    And the "ruby-hello-world-1" build completed
+    And as admin I replace resource "scc" named "restricted":
+      | MustRunAsRange | RunAsAny |
+    When I run the :policy_add_role_to_user client command with:
+      | role           | edit    |
+      | serviceaccount | default |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name    | nogit                                      |
+      | image   | <%= project_docker_repo %>openshift/origin |
+      | env     | POD_NAMESPACE=<%= project.name %>          |
+      | command | true                                       |
+      | cmd     | sleep                                      |
+      | cmd     | 3600                                       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=nogit |
+    Given I execute on the pod:
+      | oc | new-app | --image-stream=openshift/ruby | --code=https://github.com/openshift/ruby-hello-world |
+    Then the step should fail
+    And the output should contain "Cannot find git"
+    Given I execute on the pod:
+      | oc | new-app | --code=https://github.com/openshift/ruby-hello-world |
+    Then the step should fail
+    And the output should contain "Cannot find git"
+    Given I execute on the pod:
+      | bash                                                                                                                              |
+      | -c                                                                                                                                |
+      | cd /tmp; wget --no-check-certificate https://github.com/openshift/ruby-hello-world/archive/master.tar.gz; tar -xvzf master.tar.gz |
+    Then the step should succeed
+    Given I execute on the pod:
+      | oc | new-app | --code=/tmp/ruby-hello-world-master | --name=test-no-git |
+    Then the step should succeed
