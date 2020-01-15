@@ -167,11 +167,6 @@ Feature: nodeAffinity
   @admin
   Scenario: pod will be scheduled to the node which matches node affinity
     Given I have a project
-    Given I run the :patch admin command with:
-      | resource | namespace |
-      | resource_name | <%=project.name%> |
-      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
-    Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14479=value14479" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
@@ -390,11 +385,6 @@ Feature: nodeAffinity
   Scenario: pod will be scheduled to the node which matches node affinity - Gt
     Given environment has at least 2 schedulable nodes
     And I have a project
-    Given I run the :patch admin command with:
-      | resource | namespace |
-      | resource_name | <%=project.name%> |
-      | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
-    Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14522=4" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14522=6" is added to the "<%= cb.nodes[1].name %>" node
