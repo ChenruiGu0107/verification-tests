@@ -1,7 +1,7 @@
 Feature: projects related features via web
 
   # @author hasha@redhat.com
-  # @case_id OCP-19577
+  # @case_id OCP-26910
   Scenario: Check project page
     #Now we have to check project page from v4.1 since it has big changes about project overview page compared with v3.11.
     Given the master version >= "4.0"
