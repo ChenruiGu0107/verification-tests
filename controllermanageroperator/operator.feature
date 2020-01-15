@@ -71,3 +71,19 @@ Feature: Testing openshift-controller-manager-operator
       | Kind is a string value representing the REST resource this object           | 
       | represents.                                                                 |
       | Standard object's metadata                                                  |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-26828
+  @admin
+  @destructive
+    Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 	
+    Given the master version == "4.1"
+    When I switch to cluster admin pseudo user
+    And I register clean-up steps:
+    """
+    Admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
+    """
+    Then Admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Unmanaged
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "Unknown"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Progressing')['status'] == "Unknown"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Degraded')['status'] == "Unknown"

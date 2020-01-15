@@ -1935,7 +1935,7 @@ Feature: build 'apps' with CLI
       | env     | POD_NAMESPACE=<%= project.name %>          |
       | command | true                                       |
       | cmd     | sleep                                      |
-      | cmd     | 3600                                       |
+      | cmd     | 360                                        |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | run=nogit |
