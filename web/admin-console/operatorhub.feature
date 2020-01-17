@@ -18,21 +18,28 @@ Feature: operatorhub feature related
     When I perform the :click_button web action with:
       | button_text  | Subscribe |
     Then the step should succeed
+    """
 
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
+    # wait until etcd operator is successfully installed
+    Given I use the "<%= project.name %>" project
+    Given a pod becomes ready with labels:
+      | name=etcd-operator-alm-owned |
+
+    # create etcd Cluster via Edit Form
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I perform the :create_custom_resource web action with:
       | api      | etcd Cluster |
     Then the step should succeed
-    """
     When I perform the :click_button web action with:
       | button_text  | Edit Form |
     Then the step should succeed
-    When I perform the :clear_input_value web action with:
-     | clear_field_id | metadata.name |
+    When I run the :clear_custom_resource_name_in_form web action
     Then the step should succeed
     When I run the :click_create_button web action
+    Then the step should succeed
+    When I run the :check_error_message_for_missing_required_name web action
     Then the step should succeed
     Given I wait for the steps to pass:
     """

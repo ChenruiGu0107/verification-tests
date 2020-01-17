@@ -102,7 +102,7 @@ Feature: User management related
     When I perform the :add_user web action with:
       | user_name | testuser3 |
     Then the step should succeed
-    When I run the :click_confirm_button web action
+    When I run the :submit_changes web action
     Then the step should succeed
     When I run the :describe client command with:
       | resource | group/example |
