@@ -32,6 +32,7 @@ Feature: logging permission related tests
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
+    Given I wait for the "project.<%= cb.proj_name %>" index to appear in the ES pod with labels "es-node-master=true"
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | project.<%= cb.proj_name %> |
       | op           | GET                         |
