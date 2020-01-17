@@ -322,6 +322,7 @@ Feature: storage (storageclass, pv, pvc) related
   # @author yanpzhan@redhat.com
   # @case_id OCP-20964
   @admin
+  @destructive
   Scenario: admin create storage class from Form
     Given the master version >= "4.1"
     Given I open admin console in a browser
