@@ -223,7 +223,8 @@ Feature: customize console related
     Given I open admin console in a browser
     When I run the :browse_to_cli_tools_page web action
     Then the step should succeed
-    When I run the :check_default_oc_download_links web action
+    # check_default_oc_download_links is covered by OCP-25802
+    When I run the :check_default_odo_download_links web action
     Then the step should succeed
 
     Given admin ensures "clidownloadtest" console_cli_download_console_openshift_io is deleted after scenario

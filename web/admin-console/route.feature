@@ -290,3 +290,16 @@ Feature: route related
     Then the step should succeed
     When I run the :check_metrics_charts_on_route_overview web action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25802
+  @admin
+  Scenario: Download oc for multiple OS
+    Given the master version >= "4.3"
+    Given default admin-console downloads route is stored in the clipboard
+    Given I open admin console in a browser
+    When I run the :goto_cli_tools_page web action
+    Then the step should succeed
+    When I perform the :check_default_oc_download_links web action with:
+      | downloads_route | <%= cb.downloads_route %> | 
+    Then the step should succeed
