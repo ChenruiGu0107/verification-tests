@@ -487,9 +487,9 @@ Feature: customize console related
     Given the master version >= "4.2"
     Given I have a project
     Given the first user is cluster-admin
-    Given admin ensures "consolelog1" console_external_log_links_console_openshift_io is deleted after scenario
-    Given admin ensures "consolelog2" console_external_log_links_console_openshift_io is deleted after scenario
-    Given admin ensures "consolelog3" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog1" console_external_log_link_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog2" console_external_log_link_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog3" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
     Then the step should succeed
@@ -565,7 +565,7 @@ Feature: customize console related
   @admin
   Scenario: Check projectUID in external logging link on pod log tab
     Given the master version >= "4.3"
-    Given admin ensures "example" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "example" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-external-log-link.yaml |
     Then the step should succeed
