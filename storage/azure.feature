@@ -576,3 +576,31 @@ Feature: Azure disk and Azure file specific scenarios
     Then the step should succeed
     And the output should contain "cifs-utils"
     """
+
+  # @author wduan@redhat.com
+  # @case_id OCP-19192
+  @admin
+  Scenario: Azure file can not dynamic provision block volume
+    Given I have a project
+    And azure file dynamic provisioning is enabled in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-NOPAR.yaml" where:
+      | ["metadata"]["name"]  | sc-<%= project.name %> |
+      | ["volumeBindingMode"] | Immediate              |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["volumeMode"]       | Block                  |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :pending
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc   |
+      | name     | mypvc |
+    Then the output should match:
+      | ProvisioningFailed                                                    |
+      | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
+      | does not support block volume provisioning                            |
+    """
+
