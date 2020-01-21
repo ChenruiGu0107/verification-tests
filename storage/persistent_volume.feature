@@ -156,19 +156,20 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-10145
   # @bug_id 1337106
   @admin
-  @destructive
   Scenario: Pre-bound PVC with invalid PV should have consistent status
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"] | pv-<%= project.name %> |
-    Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-<%= project.name %> |
-      | ["spec"]["volumeName"] | pv1-<%= project.name %> |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                   |
+      | ["spec"]["volumeName"]       | pv1-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author lxia@redhat.com
