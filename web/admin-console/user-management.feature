@@ -39,7 +39,7 @@ Feature: User management related
     When I perform the :check_secondary_menu web action with:
       | secondary_menu | Users |
     Then the step should succeed
-    Given cluster role "cluster-admin" is added to the "first" user
+    Given the first user is cluster-admin
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
       | button_text   | Impersonate User "<%= user(0, switch: false).name %>" |
