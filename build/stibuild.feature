@@ -630,3 +630,47 @@ Feature: stibuild.feature
     Given I execute on the pod:
       | oc | new-app | --code=/tmp/ruby-hello-world-master | --name=test-no-git |
     Then the step should succeed
+    
+  # @author wewang@redhat.com
+  # @case_id OCP-18926
+  Scenario: Setting Paused boolean in buildconfig when images are changed	
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-18926/paused-build.json |
+      | name     | paused-build |                                       
+    Then the step should succeed
+    And the "paused-build-1" build completed
+    When I run the :tag client command with:
+      | source       | registry.access.redhat.com/rhscl/ruby-25-rhel7 |
+      | dest         | ruby-25-centos7:latest                         |
+    Then the step should succeed
+    And the "paused-build-2" build completed
+    When I run the :patch client command with:
+      | resource      | bc           |
+      | resource_name | paused-build |
+      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"paused":abc},"type":"ImageChange"}]}}' |
+    Then the step should fail
+    When I run the :patch client command with:
+      | resource      | bc           |
+      | resource_name | paused-build |
+      | p             | '{"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"abcott. habcat. fiabci. ruvabc. rvoabc. nabcep. rpnabc. spoabc.":true},"type":"ImageChange"}]}}' |
+    When I get project buildconfig as YAML
+    And the output should not contain:
+      | abcott. habcat. fiabci. ruvabc. rvoabc. nabcep. rpnabc. spoabc. |
+    When I run the :patch client command with:
+      | resource      | bc           |
+      | resource_name | paused-build |
+      | p             | {"spec":{"triggers":[{"imageChange":{"from":{"kind":"ImageStreamTag","name":"ruby-25-centos7:latest"},"paused":true},"type":"ImageChange"}]}} |
+    Then the step should succeed
+    When I get project buildconfig as YAML
+    And the output should contain:
+      |  paused: true |
+    When I run the :tag client command with:
+      | source       | centos/ruby-25-centos7  |
+      | dest         | ruby-25-centos7:latest  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | builds |
+    Then the step should succeed
+    And the output should not contain:
+      | paused-build-3 |
