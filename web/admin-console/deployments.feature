@@ -296,7 +296,7 @@ Feature: deployment/dc related features via web
     And a pod is present with labels:
       | app=hello-openshift |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
-    When I perform the :goto_rs_list_page web action with:
+    When I perform the :goto_replica_sets_page web action with:
       | project_name | <%= project.name %>  |
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
@@ -308,6 +308,8 @@ Feature: deployment/dc related features via web
     When I perform the :goto_one_rs_page web action with:
       | project_name | <%= project.name %>  |
       | rs_name      | <%= cb.rs_name %>    |
+    Then the step should succeed
+    When I run the :wait_until_no_loading web action
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | created_at | |
