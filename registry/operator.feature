@@ -6,11 +6,11 @@ Feature: Testing image registry operator
   @destructive
   Scenario:Check registry status by changing managementState for image-registry
     Given I switch to cluster admin pseudo user
-    Given Admin updated the operator crd "configs.imageregistry" managementstate operand to Removed
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Removed
     Then the step should succeed
     And I register clean-up steps:
     """
-    Given Admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
     """
     And I wait for the steps to pass:
     """
@@ -20,7 +20,7 @@ Feature: Testing image registry operator
     And the output should not match:
       | ^image-registry |
     """
-    Given Admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
     Then the step should succeed
     Given I use the "openshift-image-registry" project
     And a pod is present with labels:
