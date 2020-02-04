@@ -5,10 +5,10 @@ Feature: samplesoperator
   @admin
   @destructive
   Scenario: Samples operator finalizer
-    Given Admin updated the operator crd "config.samples" managementstate operand to Removed
+    Given admin updated the operator crd "config.samples" managementstate operand to Removed
     And I register clean-up steps:
     """
-    Admin updated the operator crd "config.samples" managementstate operand to Managed
+    admin updated the operator crd "config.samples" managementstate operand to Managed
     """
     And I switch to cluster admin pseudo user
     And I use the "openshift" project
@@ -60,7 +60,7 @@ Feature: samplesoperator
     Given I wait for the "php" image_stream to appear up to 60 seconds
     And I wait for the resource "imagestream" named "perl" to disappear
     And I wait for the resource "template" named "rails-pgsql-persistent" to disappear
-    Given Admin updated the operator crd "config.samples" managementstate operand to Removed
+    Given admin updated the operator crd "config.samples" managementstate operand to Removed
     Then I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
