@@ -167,3 +167,81 @@ Feature: cluster-logging-operator related cases
       And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector(user: user, cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       And the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').node_selector(user: user, cached: false, quiet: false)['es'] == nil
       """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21831
+  @admin
+  @destructive
+  Scenario: Add Management Spec field to CRs.
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                   |
+      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | log_collector       | fluentd                                                                                                |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').management_state == "Managed"
+    And the expression should be true> elasticsearch('elasticsearch').management_state == "Managed"
+    Given evaluation of `cron_job('curator').schedule` is stored in the :curator_schedule_1 clipboard
+    Then the expression should be true> cb.curator_schedule_1 == cluster_logging('instance').curation_schedule
+    When I run the :patch client command with:
+      | resource      | clusterlogging                                                    |
+      | resource_name | instance                                                          |
+      | p             | {"spec": {"curation": {"curator": {"schedule": "*/15 * * * *"}}}} |
+      | type          | merge                                                             |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').curation_schedule == "*/15 * * * *"
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> cron_job('curator').schedule(cached: false, quiet: true) == "*/15 * * * *"
+    """
+    When I run the :patch client command with:
+      | resource      | cronjob                                 |
+      | resource_name | curator                                 |
+      | p             | {"spec": {"schedule": "*/20 * * * *" }} |
+    Then the step should succeed
+    Given 60 seconds have passed
+    And the expression should be true> cron_job('curator').schedule(cached: false, quiet: true) == "*/15 * * * *"
+
+    When I run the :patch client command with:
+      | resource      | clusterlogging                             |
+      | resource_name | instance                                   |
+      | p             | {"spec": {"managementState": "Unmanaged"}} |
+      | type          | merge                                      |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').management_state == "Unmanaged"
+    When I run the :patch client command with:
+      | resource      | clusterlogging                                                    |
+      | resource_name | instance                                                          |
+      | p             | {"spec": {"curation": {"curator": {"schedule": "*/25 * * * *"}}}} |
+      | type          | merge                                                             |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').curation_schedule == "*/25 * * * *"
+    Given 60 seconds have passed
+    And the expression should be true> cron_job('curator').schedule(cached: false, quiet: true) == "*/15 * * * *"
+
+    When I run the :patch client command with:
+      | resource      | cronjob                                 |
+      | resource_name | curator                                 |
+      | p             | {"spec": {"schedule": "*/30 * * * *" }} |
+    Then the step should succeed
+    And the expression should be true> cron_job('curator').schedule(cached: false, quiet: true) == "*/30 * * * *"
+    Given 60 seconds have passed
+    And the expression should be true> cron_job('curator').schedule(cached: false, quiet: true) == "*/30 * * * *"
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21736
+  @admin
+  @destructive
+  @commonlogging
+  Scenario: [BZ 1564944]The pod podAntiAffinity
+    Given a pod becomes ready with labels:
+      | cluster-name=elasticsearch,component=elasticsearch |
+    And evaluation of `pod` is stored in the :es_pod clipboard
+    Given a pod becomes ready with labels:
+      | component=kibana,logging-infra=kibana |
+    And evaluation of `pod` is stored in the :kibana_pod clipboard
+    Given a pod becomes ready with labels:
+      | logging-infra=fluentd |
+    And evaluation of `pod` is stored in the :fluentd_pod clipboard
+    Then the expression should be true> cb.es_pod.raw_resource['spec']['affinity'] != nil
+    And the expression should be true> cb.kibana_pod.raw_resource['spec']['affinity'] != nil
+    And the expression should be true> cb.fluentd_pod.raw_resource['spec']['affinity'] != nil
