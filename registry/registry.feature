@@ -811,7 +811,7 @@ Feature: Testing registry
     Given evaluation of `project.name` is stored in the :saved_name clipboard
     Given I switch to cluster admin pseudo user
     When I use the "openshift-apiserver" project
-    And evaluation of `daemon_set("apiserver").generation_number` is stored in the :before_change clipboard
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :before_change clipboard
     And evaluation of `daemon_set("apiserver").desired_replicas` is stored in the :desired_num clipboard
     And <%= cb.desired_num %> pods become ready with labels:
       | pod-template-generation=<%= cb.before_change %> |
@@ -824,7 +824,7 @@ Feature: Testing registry
     """
     And I wait for the steps to pass:
     """
-    And evaluation of `daemon_set("apiserver").generation_number` is stored in the :after_change clipboard
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
     And <%= cb.desired_num %> pods become ready with labels:
@@ -852,7 +852,7 @@ Feature: Testing registry
       | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":true}]}} | 
     And I wait for the steps to pass:
     """
-    And evaluation of `daemon_set("apiserver").generation_number` is stored in the :third_change clipboard
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :third_change clipboard
     And the expression should be true> cb.third_change - cb.after_change >=1
     """
     And <%= cb.desired_num %> pods become ready with labels:

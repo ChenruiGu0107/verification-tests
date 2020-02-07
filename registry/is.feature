@@ -205,7 +205,7 @@ Feature: Testing imagestream
     Given all existing pods die with labels:
       | app=openshift-controller-manager-operator |
     When I use the "openshift-controller-manager" project
-    And evaluation of `daemon_set("controller-manager").generation_number` is stored in the :before_change clipboard
+    And evaluation of `daemon_set("controller-manager").generation_number(user: user, cached: false)` is stored in the :before_change clipboard
     And evaluation of `daemon_set("controller-manager").desired_replicas` is stored in the :desired_num clipboard
     And <%= cb.desired_num %> pods become ready with labels:
       | pod-template-generation=<%= cb.before_change %> |
@@ -223,7 +223,7 @@ Feature: Testing imagestream
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    And evaluation of `daemon_set("controller-manager").generation_number` is stored in the :after_change clipboard
+    And evaluation of `daemon_set("controller-manager").generation_number(user: user, cached: false)` is stored in the :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
     And <%= cb.desired_num %> pods become ready with labels:
