@@ -113,3 +113,45 @@ Feature: tests on catalog page
     Then the step should succeed
     And the output should not contain "dotnet-example"
     """
+
+  # @author hasha@redhat.com
+  # @case_id OCP-21111
+  Scenario: Add support for `hidden` tag to the catalog
+    Given the master version >= "4.1"
+    Given I have a project
+    And I open admin console in a browser
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild.json" replacing paths:
+      | ["metadata"]["annotations"]["tags"] | instant-app,ruby,mysql,hidden |
+      | ["metadata"]["namespace"]           | <%= project.name %>           |
+    Then the step should succeed
+    When I perform the :goto_catalog_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :wait_for_catalog_loaded web action
+    Then the step should succeed
+    When I perform the :filter_by_keyword web action with:
+      | keyword | ruby-helloworld-sample |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | No Results Match the Filter Criteria |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is        |
+      | resource_name | python    |
+      | o             | json      |
+      | n             | openshift |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]['spec']['tags'].find_all { |n| n['annotations']['tags'] == "hidden,builder,python"}` is stored in the :hidden_tag clipboard
+    And evaluation of `cb.hidden_tag[0]['annotations']['version']` is stored in the :hidden_version clipboard
+    When I perform the :goto_create_app_from_imagestream_page web action with:
+      | project_name | <%= project.name %> |
+      | is_name      | python              |
+    Then the step should succeed
+    When I run the :click_image_tag_dropdown web action
+    Then the step should succeed
+    When I perform the :check_item_in_list web action with:
+      | item | 2.7 |
+    Then the step should succeed
+    When I perform the :check_item_in_list web action with:
+      | item | <%=cb.hidden_version %> |
+    Then the step should fail
