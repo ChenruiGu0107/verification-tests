@@ -440,12 +440,15 @@ Feature: change the policy of user/service account
       | group_name | <%= cb.group_name %> |
       | n | <%= project.name %> |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     And I run the :get client command with:
       | resource | projects |
     Then the step should succeed
     And the output should match:
       | <%= project.name%> |
       | Active             |
+    """
 
   # @author chuyu@redhat.com
   # @case_id OCP-13095
