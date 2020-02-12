@@ -35,22 +35,6 @@ Feature: operatorhub feature related
     When I perform the :click_button web action with:
       | button_text  | Edit Form |
     Then the step should succeed
-    When I run the :clear_custom_resource_name_in_form web action
-    Then the step should succeed
-    When I run the :click_create_button web action
-    Then the step should succeed
-    When I run the :check_error_message_for_missing_required_name web action
-    Then the step should succeed
-    Given I wait for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | Error.*Required value: name or generateName is required |
-    """
-    When I perform the :set_input_value web action with:
-      | input_field_id | metadata.name |
-      | input_value    | example       |
-    Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
     When I run the :get client command with:

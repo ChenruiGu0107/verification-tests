@@ -508,7 +508,7 @@ Feature: customize console related
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | Example Logs  |
-      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels={"name":"hello-openshift"} |
+      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %> |
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | userprojectLogLink3 |

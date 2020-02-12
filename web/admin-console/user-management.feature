@@ -126,9 +126,8 @@ Feature: User management related
     # create fake user by oc instead of by oauth login, 
     Given an 8 character random string of type :dns952 is stored into the :my_random clipboard
     And admin ensures "fake-user-<%= cb.my_random %>" user is deleted after scenario
-    When I run the :create admin command with:
-      | resource_type | user                          |
-      | resource_name | fake-user-<%= cb.my_random %> |
+    When I run the :create_user admin command with:
+      | username | fake-user-<%= cb.my_random %> |
     Then the step should succeed
 
     Given I open admin console in a browser
