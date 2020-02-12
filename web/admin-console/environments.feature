@@ -220,13 +220,11 @@ Feature: environment related
       | container_name | wait |
     Then the step should succeed
     """
-    And I wait up to 10 seconds for the steps to pass:
-    """
+
+    When I run the :check_sections_on_container_details web action
+    Then the step should succeed
     When I get the html of the web page
     Then the output should contain:
-      | Container Overview                            |
-      | Image Details                                 |
-      | Network                                       |
       | Ports                                         |
       | Mounted Volumes                               |
       | Environment Variables                         |
@@ -234,8 +232,6 @@ Feature: environment related
       | value1                                        |
       | ENV_FROM_CM                                   |
       | config-map: example-config/example.property.2 |
-
-    """
 
   # @author hasha@redhat.com
   # @case_id OCP-21085
