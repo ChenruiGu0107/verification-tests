@@ -4,17 +4,14 @@ Feature: ISCSI volume plugin testing
   @admin
   Scenario: Check iSCSI dependencies on the node
     Given I store the schedulable nodes in the :nodes clipboard
-    And I use the "<%= cb.nodes.first.name %>" node
+    And I repeat the following steps for each :node in cb.nodes:
+    """
+    And I use the "#{cb.node.name}" node
     When I run commands on the host:
       | rpm -qa \| grep -i iscsi |
     Then the step should succeed
     And the output should contain "iscsi-initiator-utils"
-
-    And I use the "<%= cb.nodes.last.name %>" node
-    When I run commands on the host:
-      | rpm -qa \| grep -i iscsi |
-    Then the step should succeed
-    And the output should contain "iscsi-initiator-utils"
+    """
 
 
   # @author jhou@redhat.com
