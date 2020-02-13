@@ -45,12 +45,13 @@ Feature: tests on catalog page
     And the expression should be true> browser.url.end_with? "category=languages&keyword=php"
     When I run the :filter_by_sourcetoimage_type web action
     Then the step should succeed
+    And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ImageStream/
     When I run the :filter_by_serviceclass_type web action
     Then the step should succeed
-    And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ClusterServiceClass.*ImageStream/
+    And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ClusterServiceClass/
     When I run the :clear_filter_by_keyword web action
     Then the step should succeed
-    And the expression should be true>  browser.url =~ /category=languages&kind=.*ClusterServiceClass.*ImageStream/
+    And the expression should be true>  browser.url !~ /category=languages&keyword=php.*/
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-23615
