@@ -65,23 +65,6 @@ Feature: projects related features via cli
     And the output should contain:
       | The ProjectRequest "$pe#cial&" is invalid |
 
-  # @author pruan@redhat.com
-  # @case_id 478983
-  @admin
-  @destructive
-  Scenario: A user could create a project successfully via CLI
-    Given I have a project
-    When I run the :get client command with:
-      | resource | project |
-    Then the step should succeed
-    Then the output should contain:
-      | <%= project.name %> |
-      | Active              |
-    Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
-    When I create a new project
-    Then the step should fail
-    And the output should contain:
-      | You may not request a new project via this API |
 
   # @author pruan@redhat.com
   # @case_id OCP-12548

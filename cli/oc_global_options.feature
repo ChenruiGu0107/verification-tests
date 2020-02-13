@@ -68,25 +68,6 @@ Feature: oc global options (oc options) related scenarios
     And the output should contain "invalid argument"
 
   # @author xxia@redhat.com
-  # @case_id 509017
-  Scenario: Check the empty values for kubeconfig options
-    Given I have a project
-    And I run the :run client command with:
-      | name  | mydc |
-      | image | <%= project_docker_repo %>openshift/hello-openshift |
-    Then the step should succeed
-
-    Given I wait until the status of deployment "mydc" becomes :running
-    When I run the :get client command with:
-      | resource  | dc |
-      | context   |    |
-      | user      |    |
-      | cluster   |    |
-    Then the step should succeed
-    And the output should contain:
-      | mydc |
-
-  # @author xxia@redhat.com
   # @case_id OCP-12143
   Scenario: Use invalid values in kubeconfig-related global options -- negative
     Given I have a project

@@ -59,7 +59,6 @@ Feature: Postgresql images test
       | 9.5     |  # @case_id OCP-11799 
 
   # @author wewang@redhat.com
-  # @case_id 501057  508089
   Scenario Outline: Verify clustered postgresql can be connect after redeployment
     Given I have a project
     And I download a file from "<file>"

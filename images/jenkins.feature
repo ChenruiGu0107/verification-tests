@@ -34,25 +34,6 @@ Feature: jenkins.feature
     And the output should contain:
       | Dashboard [Jenkins] |
 
-  # @author cryan@redhat.com
-  # @case_id 525984
-  Scenario: Jenkins service created with bc of jenkinpipeline strategy
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/fabric8io/openshift-jenkins-sync-plugin/master/src/test/resources/sampleBC.yml |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    When I use the "jenkins" service
-    When I open secure web server via the "jenkins" route
-    Then the output should contain "hudson"
-    When I run the :delete client command with:
-      | object_type       | bc   |
-      | object_name_or_id | edam |
-    Then the step should succeed
-    Given I get project pods
-    Then the output should contain "jenkins"
 
   # @author cryan@redhat.com
   # @case_id OCP-10884 OCP-10979
@@ -120,39 +101,6 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
-  # @author cryan@redhat.com
-  # @case_id 525985
-  Scenario: Jenkins service existed with bc of jenkinpipeline strategy
-    Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/fabric8io/openshift-jenkins-sync-plugin/master/src/test/resources/sampleBC.yml"
-    When I run the :create client command with:
-      | f | sampleBC.yml |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=jenkins |
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    When I use the "jenkins" service
-    When I open secure web server via the "jenkins" route
-    Then the output should contain "hudson"
-    #Create second bc
-    Given I replace lines in "sampleBC.yml":
-      | name: edam | name: edam1 |
-    When I run the :create client command with:
-      | f | sampleBC.yml |
-    Then the step should succeed
-    When I use the "jenkins" service
-    When I open secure web server via the "jenkins" route
-    Then the output should contain "hudson"
-    When I run the :get client command with:
-      | resource | bc |
-    Then the step should succeed
-    And the output should contain:
-      | edam  |
-      | edam1 |
-    When I run the :create client command with:
-      | f | sampleBC.yml |
-    Then the step should fail
-    And the output should contain "already exists"
 
   # @author shiywang@redhat.com
   # @case_id OCP-10747 OCP-10976
@@ -589,87 +537,6 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
-  # @author shiywang@redhat.com
-  # @case_id 520288 520287 520286
-  # NOTE: The behavior outlined here is now outdated, and should be refactored
-  # in accordance with:
-  # https://github.com/openshift/origin/tree/master/examples/jenkins#advanced
-  # Until then, the missing master-slave scripts can be found in v3-testfiles.
-  Scenario Outline: Use Jenkins as S2I builder and with Kubernetes Slaves
-    Given I have a project
-    When I run the :policy_add_role_to_user client command with:
-      | role      | edit                                            |
-      | user_name | system:serviceaccount:<%=project.name%>:default |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc520288/jenkins-slave-template.json  |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc520288/jenkins-master-template.json |
-    Then the step should succeed
-    When I perform the :create_app_from_template_with_blank_form web console action with:
-      | project_name  | <%= project.name %>                                       |
-      | template_name | jenkins-slave-builder                                     |
-      | namespace     | <%= project.name %>                                       |
-      | param_one     | <%= product_docker_repo %><image_url>                     |
-      | param_two     | <image>                                                   |
-      | param_three   | https://github.com/openshift-qe/jenkins-slave-rhel7repo   |
-      | param_four    | :null                                                     |
-      | param_five    | master                                                    |
-    Then the step should succeed
-    And the "<image>-jenkins-slave-1" build was created
-    And the "<image>-jenkins-slave-1" build completed
-    And I run the :get client command with:
-      | resource      | imagestreams          |
-      | resource_name | <image>-jenkins-slave |
-    Then the step should succeed
-    And the output should match:
-      | <image>-jenkins-slave |
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %> |
-      | template_name | jenkins-master      |
-      | namespace     | <%= project.name %> |
-      | param_one     | :null               |
-      | param_two     | :null               |
-      | param_three   | :null               |
-      | param_four    | :null               |
-      | param_five    | :null               |
-    Then the step should succeed
-    And the "jenkins-master-1" build was created
-    And the "jenkins-master-1" build completed
-    And I wait for the "jenkins" service to become ready up to 300 seconds
-    And I get the service pods
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
-    Then the output should contain "Jenkins"
-    And the output should not contain "ready to work"
-    """
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    When I run the :jenkins_install_kubernetes_plugin web action
-    Then the step should succeed
-    When I run the :jenkins_check_kubernetes_plugin web action
-    Then the step should succeed
-    When I perform the :jenkins_change_configure_label web action with:
-      | job_name | ruby-hello-world-test |
-      | label    | <image>               |
-    When I perform the :jenkins_change_execute_shell_command web action with:
-      | job_name | ruby-hello-world-test |
-      | input    | <execute_shell_param> |
-    Then the step should succeed
-    When I perform the :jenkins_build_now web action with:
-      | job_name | ruby-hello-world-test |
-    Then the step should succeed
-    When I perform the :jenkins_verify_job_success web action with:
-      | job_name   | ruby-hello-world-test |
-      | job_number | 1                     |
-      | time_out   | 300                   |
-    Then the step should succeed
-    Examples:
-      | image      | image_url                       | execute_shell_param                                                                                             |
-      | ruby-22    | rhscl/ruby-22-rhel7:latest      | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
-      | ruby-20    | openshift3/ruby-20-rhel7:latest | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
-      | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
 
   # @author cryan@redhat.com
   # @case_id OCP-12389 OCP-12392
@@ -975,41 +842,6 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
-  # @author cryan@redhat.com
-  # @case_id 529770
-  Scenario: Show annotation when deployment triggered by image built from jenkins pipeline
-    Given I have a project
-    And I have a jenkins v2 application
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
-    Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role      | admin                                           |
-      | user_name | system:serviceaccount:<%=project.name%>:default |
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    When I perform the :jenkins_create_freestyle_job web action with:
-      | job_name | <%= project.name %>             |
-    Then the step should succeed
-    When I perform the :jenkins_create_openshift_build_trigger web action with:
-      | job_name      | <%= project.name %>         |
-      | build_config  | frontend                    |
-      | store_project | <%= project.name %>         |
-    Then the step should succeed
-    When I perform the :jenkins_build_now web action with:
-      | job_name      | <%= project.name %>         |
-    Then the step should succeed
-    Given the "frontend-1" build completes
-    And a pod becomes ready with labels:
-      | name=frontend |
-    When I run the :get client command with:
-      | resource      | replicationcontrollers |
-      | resource_name | frontend-1             |
-      | o             | yaml                   |
-    And the output should contain:
-      | job/<%= project.name %>        |
-      | openshift.io/jenkins-build-uri |
 
   # @author cryan@redhat.com
   # @case_id OCP-12425 OCP-12426
