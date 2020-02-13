@@ -52,7 +52,7 @@ Feature: machineconfig/machineconfig pool related
   Scenario: Machine Autoscaler support on console
     Given the master version >= "4.2"
     Given the first user is cluster-admin
-    Given I store all machinesets to the :machinesets clipboard
+    Given I store all machinesets in the "openshift-machine-api" project to the :machinesets clipboard
     And I open admin console in a browser
     When I run the :goto_machine_sets_page web action
     Then the step should succeed

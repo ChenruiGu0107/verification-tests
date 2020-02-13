@@ -94,7 +94,7 @@ Feature: Node related
     Given I open admin console in a browser
     Given the first user is cluster-admin
     Given I store the schedulable workers in the :schedule_workers clipboard
-    Given I store all machines in the :machines clipboard
+    Given I store all machines in the "openshift-machine-api" project to the :machines clipboard
     
     When I run the :goto_node_page web action
     Then the step should succeed
