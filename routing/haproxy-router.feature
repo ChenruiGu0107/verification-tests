@@ -131,7 +131,7 @@ Feature: Testing haproxy router
     # check only the cert files for the updated route are changed
     When I switch to cluster admin pseudo user
     And I use the router project
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
@@ -1587,7 +1587,7 @@ Feature: Testing haproxy router
 
     Given I switch to cluster admin pseudo user
     And I use the router project
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
@@ -1629,7 +1629,7 @@ Feature: Testing haproxy router
     # check the backend of route after annotation
     Given I switch to cluster admin pseudo user
     And I use the router project
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
@@ -2941,7 +2941,7 @@ Feature: Testing haproxy router
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
@@ -2960,7 +2960,7 @@ Feature: Testing haproxy router
       | name=caddy-pods |
     Given I switch to cluster admin pseudo user
     And I use the router project
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | -C | 1 | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
@@ -3005,7 +3005,7 @@ Feature: Testing haproxy router
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%=cb.router_pod %>" pod:
       | grep | -C | 1 | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
