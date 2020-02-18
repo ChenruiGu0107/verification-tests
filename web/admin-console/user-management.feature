@@ -39,7 +39,7 @@ Feature: User management related
     When I perform the :check_secondary_menu web action with:
       | secondary_menu | Users |
     Then the step should succeed
-    Given cluster role "cluster-admin" is added to the "first" user
+    Given the first user is cluster-admin
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
       | button_text   | Impersonate User "<%= user(0, switch: false).name %>" |
@@ -102,7 +102,7 @@ Feature: User management related
     When I perform the :add_user web action with:
       | user_name | testuser3 |
     Then the step should succeed
-    When I run the :click_confirm_button web action
+    When I run the :submit_changes web action
     Then the step should succeed
     When I run the :describe client command with:
       | resource | group/example |
@@ -117,3 +117,32 @@ Feature: User management related
     When I run the :click_remove_group_action web action
     Then the step should succeed
     Given I wait for the resource "group" named "example" to disappear
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-25763
+  @admin
+  Scenario: Users management on console
+    Given the master version >= "4.3"
+    # create fake user by oc instead of by oauth login, 
+    Given an 8 character random string of type :dns952 is stored into the :my_random clipboard
+    And admin ensures "fake-user-<%= cb.my_random %>" user is deleted after scenario
+    When I run the :create_user admin command with:
+      | username | fake-user-<%= cb.my_random %> |
+    Then the step should succeed
+
+    Given I open admin console in a browser
+    Given the first user is cluster-admin
+    # delete fake user and check
+    When I perform the :check_user_in_users_page web action with:
+      | text          | fake-user-<%= cb.my_random %>                                       |
+      | link_url      | k8s/cluster/user.openshift.io~v1~User/fake-user-<%= cb.my_random %> |
+    Then the step should succeed
+    When I perform the :delete_user_from_kebab web action with:
+      | resource_name | fake-user-<%= cb.my_random %> |
+    Then the step should succeed
+    Given I wait for the resource "user" named "fake-user-<%= cb.my_random %>" to disappear within 30 seconds
+    When I perform the :check_user_in_users_page web action with:
+      | text          | fake-user-<%= cb.my_random %>                                       |
+      | link_url      | k8s/cluster/user.openshift.io~v1~User/fake-user-<%= cb.my_random %> |
+    Then the step should fail
+

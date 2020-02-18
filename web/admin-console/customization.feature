@@ -223,7 +223,8 @@ Feature: customize console related
     Given I open admin console in a browser
     When I run the :browse_to_cli_tools_page web action
     Then the step should succeed
-    When I run the :check_default_oc_download_links web action
+    # check_default_oc_download_links is covered by OCP-25802
+    When I run the :check_default_odo_download_links web action
     Then the step should succeed
 
     Given admin ensures "clidownloadtest" console_cli_download_console_openshift_io is deleted after scenario
@@ -486,9 +487,9 @@ Feature: customize console related
     Given the master version >= "4.2"
     Given I have a project
     Given the first user is cluster-admin
-    Given admin ensures "consolelog1" console_external_log_links_console_openshift_io is deleted after scenario
-    Given admin ensures "consolelog2" console_external_log_links_console_openshift_io is deleted after scenario
-    Given admin ensures "consolelog3" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog1" console_external_log_link_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog2" console_external_log_link_console_openshift_io is deleted after scenario
+    Given admin ensures "consolelog3" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
     Then the step should succeed
@@ -507,7 +508,7 @@ Feature: customize console related
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | Example Logs  |
-      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %>&podLabels={"name":"hello-openshift"} |
+      | link_url | resourceName=hello-openshift&containerName=hello-openshift&resourceNamespace=<%= project.name %> |
     Then the step should succeed
     When I perform the :check_external_log_link web action with:
       | text     | userprojectLogLink3 |
@@ -564,7 +565,7 @@ Feature: customize console related
   @admin
   Scenario: Check projectUID in external logging link on pod log tab
     Given the master version >= "4.3"
-    Given admin ensures "example" console_external_log_links_console_openshift_io is deleted after scenario
+    Given admin ensures "example" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-external-log-link.yaml |
     Then the step should succeed

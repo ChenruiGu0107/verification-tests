@@ -393,7 +393,7 @@ Feature: Testing abrouting
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -412,7 +412,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -431,7 +431,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -450,7 +450,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -491,7 +491,7 @@ Feature: Testing abrouting
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -510,7 +510,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -528,7 +528,7 @@ Feature: Testing abrouting
       | service   | service-secure-2=1 |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -547,7 +547,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -596,7 +596,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -614,7 +614,7 @@ Feature: Testing abrouting
       | service   | service-secure-2=1 |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -633,7 +633,7 @@ Feature: Testing abrouting
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
@@ -885,7 +885,7 @@ Feature: Testing abrouting
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I wait up to 5 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep                             |

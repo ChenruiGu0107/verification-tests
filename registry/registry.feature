@@ -777,3 +777,90 @@ Feature: Testing registry
     And a pod becomes ready with labels:
       | docker-registry=default |
     Then the expression should be true> node(pod.node_name).is_worker?
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-21482
+  @admin
+  Scenario: Set default externalRegistryHostname in image policy config globally
+    Given I have a project
+    Given docker config for default image registry is stored to the :dockercfg_file clipboard
+    Then I run the :describe admin command with:
+      | resource | image.config.openshift.io |
+      | name     | cluster                   |
+    And the output should match:
+      | External Registry Hostnames |
+      | Internal Registry Hostname  |
+      | <%= cb.integrated_reg_ip %> |
+    Then I run the :image_mirror client command with:
+      | source_image | <%= cb.integrated_reg_ip %>/openshift/ruby:2.5                 |
+      | dest_image   | <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage:latest |
+      | a            | <%= cb.dockercfg_file %>                                       |
+      | insecure     | true                                                           |
+    And the step should succeed
+    And the output should match:
+      | Mirroring completed in |
+    Given the "myimage" image stream was created
+    And the "myimage" image stream becomes ready
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-21510
+  @admin
+  @destructive
+  Scenario: Set the white list of image registry via allowedRegistriesForImport 
+    Given I have a project
+    Given evaluation of `project.name` is stored in the :saved_name clipboard
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-apiserver" project
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :before_change clipboard
+    And evaluation of `daemon_set("apiserver").desired_replicas` is stored in the :desired_num clipboard
+    And <%= cb.desired_num %> pods become ready with labels:
+      | pod-template-generation=<%= cb.before_change %> |
+    And I successfully merge patch resource "image.config.openshift.io/cluster" with:
+      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":false}]}} | 
+    And I register clean-up steps:
+    """
+    And I successfully merge patch resource "image.config.openshift.io/cluster" with:
+      | {"spec":{"allowedRegistriesForImport":[]}} | 
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    """
+    And <%= cb.desired_num %> pods become ready with labels:
+      | pod-template-generation=<%= cb.after_change %> |
+    And I run the :tag client command with:
+      | source | docker.io/centos/ruby-25-centos7:latest |
+      | dest   | myimage:v1                              |
+      | n      | <%= cb.saved_name %>                    |
+    Then the step should fail
+    And the output should contain:
+      | Forbidden: registry "docker.io" not allowed by whitelist |
+      | registry.redhat.io:443                                   |
+      | registry.access.redhat.com:443                           |
+    And I run the :tag client command with:
+      | source | registry.redhat.io/rhscl/ruby-25-rhel7:latest |
+      | dest   | myimage1:v1                                   |
+      | n      | <%= cb.saved_name %>                          |
+    Then the step should succeed
+    And I run the :tag client command with:
+      | source | registry.access.redhat.com/rhscl/ruby-25-rhel7:latest |
+      | dest   | myimage2:v1                                           |
+      | n      | <%= cb.saved_name %>                                  |
+    Then the step should succeed
+    And I successfully merge patch resource "image.config.openshift.io/cluster" with:
+      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":true}]}} | 
+    And I wait for the steps to pass:
+    """
+    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :third_change clipboard
+    And the expression should be true> cb.third_change - cb.after_change >=1
+    """
+    And <%= cb.desired_num %> pods become ready with labels:
+      | pod-template-generation=<%= cb.third_change %> |
+    And I run the :tag client command with:
+      | source | registry.access.redhat.com/rhscl/ruby-25-rhel7:latest |
+      | dest   | myimage4:v1                                           |
+      | n      | <%= cb.saved_name %>                                  |
+    Then the step should fail
+    And the output should contain:
+      | registry.access.redhat.com:80 |

@@ -692,14 +692,18 @@ Feature: SCC policy related scenarios
   # @case_id OCP-18836
   @admin
   Scenario: Allow scc access via RBAC at cluster level
-    Given admin ensures "crole-18836" cluster_role is deleted after scenario
-    When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml |
+    Given a 5 characters random string of type :dns is stored into the :random_name clipboard
+    And admin ensures "crole-18836-<%= cb.random_name %>" cluster_role is deleted after scenario
+    And admin ensures "scc-crolebinding-<%= cb.random_name %>" cluster_role_binding is deleted after scenario
+
+    Given I switch to cluster admin pseudo user
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml" replacing paths:
+      | ["metadata"]["name"] | crole-18836-<%= cb.random_name %> |
     Then the step should succeed
-    When I run the :create_clusterrolebinding admin command with:
-      | name         | scc-crolebinding                     |
-      | user         | <%= user(0, switch: false).name %>   |
-      | clusterrole  | crole-18836                          |
+    When I run the :create_clusterrolebinding client command with:
+      | name         | scc-crolebinding-<%= cb.random_name %> |
+      | user         | <%= user(0, switch: false).name %>     |
+      | clusterrole  | crole-18836-<%= cb.random_name %>      |
     Then the step should succeed
     Given I switch to the first user
     Given I have a project

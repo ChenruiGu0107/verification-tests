@@ -387,4 +387,133 @@ Feature: overview cases
       | text         | ImageStreamTagDetails          |
     Then the step should succeed
 
-    
+  # @author yapei@redhat.com
+  # @case_id OCP-21270
+  Scenario: Group resources
+    Given the master version >= "4.1"
+    Given I have a project
+    And I open admin console in a browser
+
+    # check Group by dropdown only have Application, Resource when no resources in project
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_groupby_dropdown_button web action
+    Then the step should succeed
+    When I perform the :check_groupby_dropdown_menu_item web action with:
+      | dropdown_menu_item | Application |
+    Then the step should succeed
+    When I perform the :check_groupby_dropdown_menu_item web action with:
+      | dropdown_menu_item | Resource |
+    Then the step should succeed
+    When I run the :check_groupby_label_header_missing web action
+    Then the step should succeed
+
+    # add app resources
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                         |
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | name         | ruby |
+    Then the step should succeed
+
+    # add non-app resources
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simpledc.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simple-deployment.yaml |
+    Then the step should succeed
+
+    # Group by: Application
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :group_by_application web action
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | ruby |
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | other resources |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | ruby             |
+      | resource_type      | DeploymentConfig |
+      | resource_name      | ruby             |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | other resources |
+      | resource_type      | Deployment      |
+      | resource_name      | example         |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | other resources  |
+      | resource_type      | DeploymentConfig |
+      | resource_name      | hooks            |
+    Then the step should succeed
+
+    # Group by: Resource
+    When I run the :group_by_resource web action
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | Deployment |
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | Deployment Config |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | Deployment |
+      | resource_type      | Deployment |
+      | resource_name      | example    |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | Deployment Config |
+      | resource_type      | DeploymentConfig  |
+      | resource_name      | hooks             |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | Deployment Config |
+      | resource_type      | DeploymentConfig  |
+      | resource_name      | ruby              |
+    Then the step should succeed
+
+    # Group by: label
+    When I run the :label client command with:
+      | resource | deployment |
+      | name     | example    |
+      | key_val  | testlabel1=testvalue1 |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | deploymentconfig      |
+      | name     | hooks                 |
+      | key_val  | testlabel2=testvalue2 |
+    Then the step should succeed
+
+    # group by 'testlabel1' will show 'testvalue1' and 'other resources'
+    When I perform the :group_by_label web action with:
+      | label | testlabel1 |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | testvalue1 |
+      | resource_type      | Deployment |
+      | resource_name      | example    |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | other resources  |
+      | resource_type      | DeploymentConfig |
+      | resource_name      | hooks            |
+    Then the step should succeed
+    When I perform the :check_overview_group_items web action with:
+      | group_heading_name | other resources  |
+      | resource_type      | DeploymentConfig |
+      | resource_name      | ruby             |
+    Then the step should succeed
+
+    # group by 'testlabel2' will show 'testvalue2' and 'other resources'
+    When I perform the :group_by_label web action with:
+      | label | testlabel2 |
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | testvalue2 |
+    Then the step should succeed
+    When I perform the :check_overview_group_heading web action with:
+      | group_heading_name | other resources |
+    Then the step should succeed

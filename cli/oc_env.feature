@@ -6,7 +6,7 @@ Feature: oc_env.feature
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11384/application-template-stibuild.json"
     And the step succeeded
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | list | true |
     Then the step should succeed
@@ -14,7 +14,7 @@ Feature: oc_env.feature
       |MYSQL_USER    |
       |MYSQL_PASSWORD|
       |MYSQL_DATABASE|
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc |
       | list | true |
       | all  | true |
@@ -31,11 +31,11 @@ Feature: oc_env.feature
     And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-11384/application-template-stibuild.json"
     And the step succeeded
     # set one enviroment variable
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | e        | key=value     |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | list     | true |
     Then the step should succeed
@@ -45,11 +45,11 @@ Feature: oc_env.feature
       | MYSQL_DATABASE |
       | key=value      |
     # set multiple enviroment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | e        | key1=value1,key2=value2 |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | list     | true |
     Then the step should succeed
@@ -61,12 +61,12 @@ Feature: oc_env.feature
       | key1=value1    |
       | key2=value2    |
     # set enviroment variable via STDIN
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | e        | -             |
       | _stdin   | key3=value3   |
     Then the step should succeed
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | list     | true |
     Then the step should succeed
@@ -79,7 +79,7 @@ Feature: oc_env.feature
       | key2=value2    |
       | key3=value3    |
     # set invalid enviroment variable
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | rc/database-1 |
       | e        | pe#cial%=1234 |
     Then the step should fail
@@ -162,36 +162,36 @@ Feature: oc_env.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step succeeded
     # set environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | e        | test=1234   |
     Then the step succeeded
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | list     | true        |
     Then the step should succeed
     And the output should contain:
       | test=1234 |
     # remove environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | env_name | test-       |
     Then the step succeeded
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | list     | true        |
     Then the step should succeed
     And the output should not contain:
       | test=1234 |
     # set multiple enviroment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks  |
       | e        | key1=value1,key2=value2,key3=value3 |
     Then the step should succeed
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | list     | true        |
     Then the step should succeed
@@ -200,13 +200,13 @@ Feature: oc_env.feature
       | key2=value2 |
       | key3=value3 |
     # remove multiple environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | env_name | key1- |
       | env_name | key2- |
     Then the step should succeed
     # list environment variables
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks    |
       | list     | true        |
     Then the step should succeed

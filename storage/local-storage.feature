@@ -97,7 +97,7 @@ Feature: Local Persistent Volume
     Then the step should succeed
 
     Given 10 seconds have passed
-    And There are no PVs with local path "/mnt/local-storage/fast/volfile1"
+    And there are no PVs with local path "/mnt/local-storage/fast/volfile1"
 
     When I get the log of local storage provisioner for node "<%= node.name %>"
     Then the step should succeed

@@ -696,3 +696,27 @@ Feature: deployment related steps
     Then the step should succeed
     And the output should match:
       | .*[iI]mage.*openshift/nonexist1.* |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-19922
+  Scenario: Terminating pod should removed from endpoints list for service
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-shutdown-gracefully.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | deploymentconfigs |
+      | resource_name | nettest           |
+    Then the step should succeed
+    And I wait until the status of deployment "nettest" becomes :complete
+    Given status becomes :running of 1 pods labeled:
+      | app=nettest                       |
+    When I run the :rollout_latest client command with:
+      | resource | dc/nettest             |
+    Then the step should succeed
+    Given the pod named "<%= pod.name %>" becomes terminating
+    When I run the :describe client command with:
+      | resource | svc                    |
+      | name     | nettest                |
+    Then the output should not match:
+      | <%= pod.ip %>:8080                |

@@ -229,8 +229,7 @@ Feature: storage (storageclass, pv, pvc) related
       | dropdown_field | Type     |
       | dropdown_item  | io1      |
     Then the step should succeed
-    When I perform the :set_input_value web action with:
-      | input_field_id | provisioner-settings-iopsPerGB |
+    When I perform the :set_iops_value web action with:
       | input_value    | invalidtest |
     Then the step should succeed
     When I perform the :check_button_disabled web action with:
@@ -322,6 +321,7 @@ Feature: storage (storageclass, pv, pvc) related
   # @author yanpzhan@redhat.com
   # @case_id OCP-20964
   @admin
+  @destructive
   Scenario: admin create storage class from Form
     Given the master version >= "4.1"
     Given I open admin console in a browser

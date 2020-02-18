@@ -1853,7 +1853,8 @@ Feature: Network policy plugin scenarios
     Then the step should fail
     And the output should not contain "Hello"
 
-    Given I restart the ovs pod on the "<%= cb.node_name %>" node
+    Given I use the "<%= cb.node_name %>" node
+    And I restart the network components on the node
     #Add one policy to make sure the pod can ping each other
 
     Given I use the "<%= cb.proj1 %>" project
@@ -1866,6 +1867,11 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     And the output should contain "Hello"
 
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"    
+
     When I run the :delete client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
     Then the step should succeed
@@ -1873,4 +1879,9 @@ Feature: Network policy plugin scenarios
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
     Then the step should fail
-    And the output should not contain "Hello"    
+    And the output should not contain "Hello"
+
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"

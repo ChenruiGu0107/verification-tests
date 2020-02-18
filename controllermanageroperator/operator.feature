@@ -5,10 +5,10 @@ Feature: Testing openshift-controller-manager-operator
   @destructive
   Scenario: Controller Manager Status reported by openshift-cluster-openshift-controller-manager-operator
     Given I switch to cluster admin pseudo user
-    When Admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Unmanaged
+    When admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Unmanaged
     And I register clean-up steps:
     """
-    Admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
+    admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
     """
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "True"
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Progressing')['status'] == "False"
@@ -24,7 +24,7 @@ Feature: Testing openshift-controller-manager-operator
     Then the step should succeed
     And the output should contain:
       | controller-manager |
-    When Admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
+    When admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
     And I wait up to 100 seconds for the steps to pass:
     """
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "True"
@@ -71,3 +71,19 @@ Feature: Testing openshift-controller-manager-operator
       | Kind is a string value representing the REST resource this object           | 
       | represents.                                                                 |
       | Standard object's metadata                                                  |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-26828
+  @admin
+  @destructive
+    Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 	
+    Given the master version == "4.1"
+    When I switch to cluster admin pseudo user
+    And I register clean-up steps:
+    """
+    admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Managed
+    """
+    Then admin updated the operator crd "openshiftcontrollermanager" managementstate operand to Unmanaged
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "Unknown"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Progressing')['status'] == "Unknown"
+    And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Degraded')['status'] == "Unknown"

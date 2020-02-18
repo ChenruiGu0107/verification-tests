@@ -4,17 +4,14 @@ Feature: ISCSI volume plugin testing
   @admin
   Scenario: Check iSCSI dependencies on the node
     Given I store the schedulable nodes in the :nodes clipboard
-    And I use the "<%= cb.nodes.first.name %>" node
+    And I repeat the following steps for each :node in cb.nodes:
+    """
+    And I use the "#{cb.node.name}" node
     When I run commands on the host:
       | rpm -qa \| grep -i iscsi |
     Then the step should succeed
     And the output should contain "iscsi-initiator-utils"
-
-    And I use the "<%= cb.nodes.last.name %>" node
-    When I run commands on the host:
-      | rpm -qa \| grep -i iscsi |
-    Then the step should succeed
-    And the output should contain "iscsi-initiator-utils"
+    """
 
 
   # @author jhou@redhat.com
@@ -194,11 +191,12 @@ Feature: ISCSI volume plugin testing
       | touch | /mnt/iscsi/testfile |
     Then the step should succeed
 
-  # @author piqin@redhat.com
-  # @case_id OCP-13395
+
+  # @author wduan@redhat.com
+  # @case_id OCP-27014
   @admin
   @destructive
-  Scenario: Two Pod reference the same iscsi volume with different accessmode RO and RW
+  Scenario: Two pod reference the same iscsi volume with different readonly option
     Given I have a iSCSI setup in the environment
     And I have a project
 
@@ -221,16 +219,26 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["volumes"][0]["iscsi"]["readOnly"]      | false                         |
       | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pod    |
-      | name     | mypod2 |
+    And the pod named "mypod2" becomes ready
+
+    When I execute on the "mypod1" pod:
+      | grep | iscsi | /proc/mounts |
+    Then the output should contain:
+      | ro |
+    When I execute on the "mypod1" pod:
+      | touch | /mnt/iscsi/testfile-ro |
+    Then the step should fail
+    And the output should contain:
+      | Read-only file system |
+
+    When I execute on the "mypod2" pod:
+      | grep | iscsi | /proc/mounts |
+    Then the output should contain:
+      | rw |
+    When I execute on the "mypod2" pod:
+      | touch | /mnt/iscsi/testfile-rw |
     Then the step should succeed
-    And the output should match:
-      | FailedScheduling                    |
-      | (NoDiskConflict\|no available disk) |
-    """
+
 
   # @author piqin@redhat.com
   # @case_id OCP-13394

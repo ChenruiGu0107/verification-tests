@@ -184,34 +184,30 @@ Feature: NFS Persistent Volume
   # @author lxia@redhat.com
   # @case_id OCP-9846
   @admin
-  @destructive
   Scenario: PV/PVC status should be consistent
     Given I have a project
     And I have a NFS service in the project
 
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["capacity"]["storage"]           | 5Gi                              |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto-nfs-recycle-rwo.json" where:
+      | ["spec"]["nfs"]["server"]     | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]          | pv-<%= project.name %>           |
+      | ["spec"]["storageClassName"]  | sc-<%= project.name %>           |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["volumeName"]       | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-    When I run the :get admin command with:
-      | resource | pv/nfs-<%= project.name %> |
-    Then the output should not contain:
-      | Bound |
+    Given I ensure "mypvc" pvc is deleted
+    And the PV becomes :available within 60 seconds
 
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["volumeName"]       | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes :bound within 900 seconds
+    And the "mypvc" PVC becomes :bound within 900 seconds
     And the PV becomes :bound
 
   # @author lxia@redhat.com

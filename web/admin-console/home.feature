@@ -74,3 +74,91 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :check_get_started_message_when_no_resources web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24306
+  @admin
+  Scenario: Check API explorer
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+
+    #normal user checks api explore page
+    When I run the :goto_api_explore_page web action
+    Then the step should succeed
+    When I perform the :click_on_resource_name web action with:
+      | item | ConfigMap |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | kind        | ConfigMap |
+      | api_version | v1        |
+      | namespaced  | true      |
+      | short_names | cm        | 
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Instances |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Restricted Access |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Access Review |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Error Loading Access Review |
+    Then the step should succeed
+    When I perform the :create_project_from_dropdown web action with:
+      | project_name | project-ocp-24306 |
+    Then the step should succeed
+    When I perform the :goto_one_api_explore_page web action with:
+      | project_name     | project-ocp-24306 |
+      | api_explore_name | core~v1~ConfigMap |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Access Review |
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Error Loading Access Review |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Instances |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | No Config Maps Found |
+    Then the step should succeed
+
+    #cluster admin checks api explore page
+    Given the first user is cluster-admin
+    When I run the :goto_api_explore_page web action
+    Then the step should succeed
+    When I perform the :set_filter_strings web action with:
+      | filter_text | build |
+    Then the step should succeed
+    When I perform the :click_item_in_resource_list web action with:
+      | line_index | 3 |
+    Then the step should succeed
+    When I perform the :check_dropdown_missing web action with:
+      | dropdown_name | namespace-bar |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | kind        | Build               |
+      | api_group   | config.openshift.io |
+      | api_version | v1                  |
+      | namespaced  | false               |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Schema |
+    Then the step should succeed
+    When I run the :check_info_in_schema web action
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Instances |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | cluster |
+      | link_url | /k8s/cluster/config.openshift.io~v1~Build/cluster |
+    Then the step should succeed
+    When I perform the :click_tab web action with:
+      | tab_name | Access Review |
+    Then the step should succeed
+    When I run the :check_access_review_table web action
+    Then the step should succeed

@@ -37,7 +37,7 @@ Feature: HPA relate features
       | oc_opts_end      |                                                   |
       | exec_command     | sh                                                |
       | exec_command_arg | -c                                                |
-      | exec_command_arg | while true;do curl http://<%= service.url %>;done |
+      | exec_command_arg | while true;do curl -sS http://<%= service.url %>;done |
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """
@@ -88,7 +88,7 @@ Feature: HPA relate features
       | oc_opts_end      |                                                   |
       | exec_command     | sh                                                |
       | exec_command_arg | -c                                                |
-      | exec_command_arg | while true;do curl http://<%= service.url %>;done |
+      | exec_command_arg | while true;do curl -sS http://<%= service.url %>;done |
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """

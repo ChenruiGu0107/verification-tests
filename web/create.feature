@@ -94,7 +94,7 @@ Feature: create app on web console related
       | namespace     | <%= project.name %>    |
     Then the step should succeed
 
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/frontend |
       | list     | true        |
     Then the step should succeed
@@ -348,7 +348,7 @@ Feature: create app on web console related
     And I wait for the "hello-openshift" svc to appear
     And a pod is present with labels:
       | mylabel=my-hello-openshift |
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hello-openshift |
       | list     | true               |
     Then the step should succeed

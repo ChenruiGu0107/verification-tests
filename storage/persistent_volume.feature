@@ -101,94 +101,85 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author lxia@redhat.com
-  # @case_id OCP-9928
   @admin
-  @destructive
-  Scenario: PVC should bound the PV with most appropriate access mode and size
+  Scenario Outline: PVC should bound the PV with most appropriate access mode and size
     Given I have a project
-    And I have a NFS service in the project
-    And I register clean-up steps:
-      | I run the :delete admin command with: |
-      | ! object_type ! pv               !    |
-      | ! l           ! usedFor=tc522127 !    |
-      | the step should succeed               |
+    And evaluation of `%w{127Mi 128Mi 129Mi 255Mi 256Mi 257Mi}` is stored in the :pv_sizes clipboard
+    And evaluation of `%w{1Mi   128Mi 130Mi 258Mi}` is stored in the :pvc_sizes clipboard
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/pv-template.json"
-    Then I replace lines in "pv-template.json":
-      | #NS#             | <%= project.name %>              |
-      | #NFS-Service-IP# | <%= service("nfs-service").ip %> |
-    Then I run the :new_app admin command with:
-      | file | pv-template.json |
+    Given I run the steps 6 times:
+    """
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]            | pv-<%= project.name %>-#{cb.i} |
+      | ["spec"]["accessModes"][0]      | <access_mode>                  |
+      | ["spec"]["capacity"]["storage"] | #{cb.pv_sizes[cb.i-1]}         |
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %>         |
     Then the step should succeed
-
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/pvc-template.json"
-    Then I replace lines in "pvc-template.json":
-      | #NS# | <%= project.name %> |
-    Then I run the :new_app client command with:
-      | file | pvc-template.json |
+    """
+    Given I run the steps 4 times:
+    """
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc-#{cb.i}             |
+      | ["spec"]["accessModes"][0]                   | <access_mode>             |
+      | ["spec"]["resources"]["requests"]["storage"] | #{cb.pvc_sizes[cb.i-1]}   |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>    |
     Then the step should succeed
+    """
 
-    Given the "pvcname-1m-rox-<%= project.name %>" PVC becomes bound to the "pvname-127m-rox-<%= project.name %>" PV
-    And the "pvcname-128m-rox-<%= project.name %>" PVC becomes bound to the "pvname-128m-rox-<%= project.name %>" PV
-    And the "pvcname-130m-rox-<%= project.name %>" PVC becomes bound to the "pvname-255m-rox-<%= project.name %>" PV
-    And the "pvname-129m-rox-<%= project.name %>" PV status is :available
-    And the "pvname-256m-rox-<%= project.name %>" PV status is :available
-    And the "pvname-257m-rox-<%= project.name %>" PV status is :available
-    And the "pvcname-258m-rox-<%= project.name %>" PVC becomes :pending
+    Given the "mypvc-1" PVC becomes bound to the "pv-<%= project.name %>-1" PV
+    Given the "mypvc-2" PVC becomes bound to the "pv-<%= project.name %>-2" PV
+    Given the "mypvc-3" PVC becomes bound to the "pv-<%= project.name %>-4" PV
+    Given the "mypvc-4" PVC becomes :pending
+    Given the "pv-<%= project.name %>-3" PV status is :available
+    Given the "pv-<%= project.name %>-5" PV status is :available
+    Given the "pv-<%= project.name %>-6" PV status is :available
 
-    Given the "pvcname-1m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-127m-rwo-<%= project.name %>" PV
-    And the "pvcname-128m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-128m-rwo-<%= project.name %>" PV
-    And the "pvcname-130m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-255m-rwo-<%= project.name %>" PV
-    And the "pvname-129m-rwo-<%= project.name %>" PV status is :available
-    And the "pvname-256m-rwo-<%= project.name %>" PV status is :available
-    And the "pvname-257m-rwo-<%= project.name %>" PV status is :available
-    And the "pvcname-258m-rwo-<%= project.name %>" PVC becomes :pending
+    Examples:
+      | access_mode   |
+      | ReadWriteOnce | # @case_id OCP-27724
+      | ReadWriteMany | # @case_id OCP-27723
+      | ReadOnlyMany  | # @case_id OCP-27722
 
-    Given the "pvcname-1m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-127m-rwx-<%= project.name %>" PV
-    And the "pvcname-128m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-128m-rwx-<%= project.name %>" PV
-    And the "pvcname-130m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-255m-rwx-<%= project.name %>" PV
-    And the "pvname-129m-rwx-<%= project.name %>" PV status is :available
-    And the "pvname-256m-rwx-<%= project.name %>" PV status is :available
-    And the "pvname-257m-rwx-<%= project.name %>" PV status is :available
-    And the "pvcname-258m-rwx-<%= project.name %>" PVC becomes :pending
 
   # @author lxia@redhat.com
   # @case_id OCP-10145
   # @bug_id 1337106
   @admin
-  @destructive
   Scenario: Pre-bound PVC with invalid PV should have consistent status
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"] | pv-<%= project.name %> |
-    Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-<%= project.name %> |
-      | ["spec"]["volumeName"] | pv1-<%= project.name %> |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                   |
+      | ["spec"]["volumeName"]       | pv1-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author lxia@redhat.com
   # @case_id OCP-12680
   # @bug_id 1337106
   @admin
-  @destructive
   Scenario: Pre-bound PV with invalid PVC should have consistent status
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/preboundpv-rwo.yaml" where:
-      | ["metadata"]["name"]              | pv-<%= project.name %>   |
-      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>      |
-      | ["spec"]["claimRef"]["name"]      | pvc1-<%= project.name %> |
-    Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwx.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"]              | pv-<%= project.name %> |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
+      | ["spec"]["claimRef"]["name"]      | non-exist-pvc          |
+      | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "mypvc" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author wehe@redhat.com

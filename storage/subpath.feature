@@ -411,3 +411,37 @@ Feature: volumeMounts should be able to use subPath
       | stat | /mnt/run/test.sock |
     Then the step should succeed
     And the output should contain "socket"
+
+  # @author wduan@redhat.com
+  # @case_id OCP-18428
+  @admin
+  Scenario: Subpath with azure-file
+    Given I have a project
+    And azure file dynamic provisioning is enabled in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %>   |
+      | ["provisioner"]      | kubernetes.io/azure-file |
+    Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/subpath/common-subpath.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/iaas/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | /mnt/iaas/ |
+    Then the output should contain:
+      | testfile |
+      | hello    |
+    When I execute on the pod:
+      | /mnt/iaas/hello |
+    Then the output should contain:
+      | Hello OpenShift Storage |
+

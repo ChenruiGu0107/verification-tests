@@ -36,7 +36,7 @@ Feature: Testing timeout route
   # @case_id OCP-11347
   Scenario: Set timeout server for edge route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
@@ -79,7 +79,7 @@ Feature: Testing timeout route
   # @case_id OCP-11826
   Scenario: Set timeout server for reencrypt route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod-2.json |
     Then the step should succeed

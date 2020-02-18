@@ -132,62 +132,6 @@ Feature: deployment related features
     And the output should match:
       | Error\\s+.*\\s+"docker-registry" not found |
 
-  # @author pruan@redhat.com
-  # @case_id 487644
-  Scenario: New deployment will be created once the old one is complete - single deployment
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
-    # simulate 'oc edit'
-    When I get project dc named "hooks" as YAML
-    And I save the output to file>hooks.yaml
-    And I replace lines in "hooks.yaml":
-      | 200              | 10               |
-      | latestVersion: 1 | latestVersion: 2 |
-    When I run the :replace client command with:
-      | f | hooks.yaml |
-    Then the step should succeed
-    And I wait until the status of deployment "hooks" becomes :running
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And the output should contain:
-      | hooks #2 deployment pending on update |
-      | hooks #1 deployment running           |
-    And I wait until the status of deployment "hooks" becomes :complete
-    And I run the :describe client command with:
-      | resource | dc    |
-      | name     | hooks |
-    Then the step should succeed
-    And the output should match:
-      | Latest Version:\\s+2 |
-      | Deployment\\s+#2\\s+ |
-      | Status:\\s+Complete  |
-      | Deployment #1:       |
-      | Status:\\s+Complete  |
-
-
-  # @author pruan@redhat.com
-  # @case_id 484483
-  Scenario: Deployment succeed when running time is less than ActiveDeadlineSeconds
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-    # simulate 'oc edit'
-    When the pod named "hooks-1-deploy" becomes ready
-    When I get project pod named "hooks-1-deploy" as YAML
-    And I save the output to file>hooks.yaml
-   And I replace lines in "hooks.yaml":
-      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 300 |
-    When I run the :replace client command with:
-      | f | hooks.yaml |
-    Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | deployment=hooks-1     |
-      | deploymentconfig=hooks |
 
   # @author pruan@redhat.com
   # @case_id OCP-10633
@@ -210,41 +154,6 @@ Feature: deployment related features
     Then the output should match:
       | failed progressing |
 
-  # @author pruan@redhat.com
-  # @case_id 490716
-  Scenario: Make a new deployment by using a invalid LatestVersion
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-    And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
-    And I wait until the status of deployment "hooks" becomes :complete
-    And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
-      | latestVersion: 2 | latestVersion: -1 |
-    Then the step should fail
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
-      | template      | {{.status.latestVersion}} |
-    Then the output should match "2"
-    And I replace resource "dc" named "hooks":
-      | latestVersion: 2 | latestVersion: 0 |
-    Then the step should fail
-    When I run the :get client command with:
-      | resource      | dc                        |
-      | resource_name | hooks                     |
-      | template      | {{.status.latestVersion}} |
-    Then the output should match "2"
-    And I replace resource "dc" named "hooks":
-      | latestVersion: 2 | latestVersion: 5 |
-    Then the step should fail
-    When I run the :get client command with:
-      | resource      | dc                        |
-      | resource_name | hooks                     |
-      | template      | {{.status.latestVersion}} |
-    Then the output should match "2"
 
   # @author pruan@redhat.com
   # @case_id OCP-10635
@@ -699,7 +608,7 @@ Feature: deployment related features
     Then the step should succeed
     And evaluation of `@result[:parsed]['metadata']['generation']` is stored in the :prev_generation clipboard
     And evaluation of `@result[:parsed]['status']['observedGeneration']` is stored in the :prev_observed_generation clipboard
-    When I run the :env client command with:
+    When I run the :set_env client command with:
       | resource | dc/hooks |
       | e        | TEST=1   |
     Then the step should succeed

@@ -62,7 +62,7 @@ Feature: kibana web UI related cases for logging
       | kibana_url | https://<%= cb.kibana_route %> |
     Then the step should succeed
 
-  # @author @qitang@redhat.com
+  # @author qitang@redhat.com
   # @case_id OCP-21485
   @admin
   @destructive

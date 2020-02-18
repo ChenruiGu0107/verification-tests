@@ -47,12 +47,23 @@ Feature: deployment/dc related features via web
     When I perform the :update_rollout_strategy web action with:
       | update_strategy | Recreate |
     Then the step should succeed
+
+    # after changes we first check using CLI
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    Then the expression should be true>  deployment("example").strategy(cached: false)["type"] == "Recreate"
+    """
+
+    # reload page to reflect changes
+    When I perform the :goto_one_deployment_page web action with:
+      | project_name | <%= project.name %>  |
+      | deploy_name  | example              |
+    Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name            | example  |
       | update_strategy | Recreate |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name| Environment |
+    When I run the :click_environment_tab web action
     Then the step should succeed
     When I perform the :add_env_vars web action with:
       | env_var_name    | test_key         |
@@ -66,14 +77,13 @@ Feature: deployment/dc related features via web
     And the step should succeed
     And the output should contain:
       | test_key=test_value |
-    When I perform the :click_tab web action with:
-      | tab_name | Overview |
+    When I run the :click_overview_tab web action
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item   | Delete Deployment |
     Then the step should succeed
     When I perform the :delete_resource_panel web action with:
-      | cascade       | true              |
+      | cascade       | true |
     Then the step should succeed
     Given I wait up to 70 seconds for the steps to pass:
     """
@@ -296,7 +306,7 @@ Feature: deployment/dc related features via web
     And a pod is present with labels:
       | app=hello-openshift |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
-    When I perform the :goto_rs_list_page web action with:
+    When I perform the :goto_replica_sets_page web action with:
       | project_name | <%= project.name %>  |
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
@@ -308,6 +318,8 @@ Feature: deployment/dc related features via web
     When I perform the :goto_one_rs_page web action with:
       | project_name | <%= project.name %>  |
       | rs_name      | <%= cb.rs_name %>    |
+    Then the step should succeed
+    When I run the :wait_until_no_loading web action
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | created_at | |
