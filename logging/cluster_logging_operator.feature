@@ -242,6 +242,53 @@ Feature: cluster-logging-operator related cases
     Given a pod becomes ready with labels:
       | logging-infra=fluentd |
     And evaluation of `pod` is stored in the :fluentd_pod clipboard
-    Then the expression should be true> cb.es_pod.raw_resource['spec']['affinity'] != nil
-    And the expression should be true> cb.kibana_pod.raw_resource['spec']['affinity'] != nil
-    And the expression should be true> cb.fluentd_pod.raw_resource['spec']['affinity'] != nil
+    Then the expression should be true> cb.es_pod.raw_resource['spec']['affinity']
+    And the expression should be true> cb.kibana_pod.raw_resource['spec']['affinity']
+    And the expression should be true> cb.fluentd_pod.raw_resource['spec']['affinity']
+
+  # @author qitang@redhat.com
+  # @case_id OCP-23742
+  @admin
+  @destructive
+  Scenario: Fluentd alert rules check.
+    Given the master version >= "4.2"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                   |
+      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | log_collector       | fluentd                                                                                                |
+    Then the step should succeed
+    Given I wait for the "fluentd" prometheus_rule to appear
+    
+    Then the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "critical"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthBurst').severity == "warning"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthIncreasing').severity == "critical"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdErrorsHigh').severity == "critical"
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['name'] == "logging_fluentd.alerts"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "critical"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthBurst'}['labels']['severity'] == "warning"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthIncreasing'}['labels']['severity'] == "critical"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdErrorsHigh'}['labels']['severity'] == "critical"
+    """
+
+    Given I run the :patch client command with:
+      | resource      | prometheusrule |
+      | resource_name | fluentd |
+      | p             | {"spec": {"groups": [{"name": "logging_fluentd.alerts", "rules": [{"alert": "FluentdNodeDown","expr": "absent(up{job='fluentd'} == 1)", "labels": {"severity": "warning"}}]}]}} |
+      | type          | merge |
+    Then the step should succeed
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "warning"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rules.count == 1
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
+    And the output should not contain:
+      | FluentdQueueLengthBurst      |
+      | FluentdQueueLengthIncreasing |
+      | FluentdErrorsHigh            |
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "warning"
+    """

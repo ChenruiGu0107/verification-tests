@@ -73,3 +73,48 @@ Feature: elasticsearch operator related tests
     And the expression should be true> cb.es_cluster_health_2['status'] == cb.es_cr_status_2['status']
     And the expression should be true> cb.es_cluster_health_2['unassigned_shards'] == cb.es_cr_status_2['unassignedShards']
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21260
+  @admin
+  @destructive
+  Scenario: The prometheus-rules can be created by elasticsearch operator
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                   |
+      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | log_collector       | fluentd                                                                                                |
+    Then the step should succeed
+    Given I wait for the "elasticsearch-prometheus-rules" prometheus_rule to appear
+    And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rules` is stored in the :es_alert_rules_1 clipboard
+
+    Given evaluation of `cb.es_alert_rules_1.select {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}` is stored in the :es_cluster_not_healthy_alerts clipboard
+    And evaluation of `cb.es_alert_rules_1.select {|e| e['alert'].start_with? 'ElasticsearchNodeDiskWatermarkReached'}` is stored in the :es_node_disk_watermare_alerts clipboard
+    Then the expression should be true> cb.es_cluster_not_healthy_alerts.find {|e| e['for'] == "2m"}["labels"]["severity"] == "critical"
+    And the expression should be true> cb.es_cluster_not_healthy_alerts.find {|e| e['for'] == "20m"}["labels"]["severity"] == "warning"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchBulkRequestsRejectionJumps').severity == "warning"
+    And the expression should be true> cb.es_node_disk_watermare_alerts.find {|e| e['annotations']['message'].start_with? 'Disk Low Watermark Reached'}['labels']['severity'] == "alert"
+    And the expression should be true> cb.es_node_disk_watermare_alerts.find {|e| e['annotations']['message'].start_with? 'Disk High Watermark Reached'}['labels']['severity'] == "high"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchJVMHeapUseHigh').severity == "alert"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'AggregatedLoggingSystemCPUHigh').severity == "alert"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchProcessCPUHigh').severity == "alert"
+
+    Given I run the :patch client command with:
+      | resource      | prometheusrule |
+      | resource_name | elasticsearch-prometheus-rules |
+      | p             | {"spec": {"groups": [{"name": "logging_elasticsearch.alerts", "rules": [{"alert": "ElasticsearchClusterNotHealthy","expr": "sum by (cluster) (es_cluster_status == 2)", "for": "5m", "labels": {"severity": "critical"}}]}]}} |
+      | type          | merge |
+    Then the step should succeed
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchClusterNotHealthy').for == "5m"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rules.count == 1
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I check the "elasticsearch-prometheus-rules" prometheus rule in the "openshift-logging" project on the prometheus server
+    And the output should not contain:
+      | ElasticsearchNodeDiskWatermarkReached |
+      | ElasticsearchBulkRequestsRejectionJumps |
+      | ElasticsearchJVMHeapUseHigh |
+      | AggregatedLoggingSystemCPUHigh |
+      | ElasticsearchProcessCPUHigh |
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}['for'] == "5m"
+    """

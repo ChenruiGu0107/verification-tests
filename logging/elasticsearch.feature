@@ -85,11 +85,10 @@ Feature: elasticsearch related tests
     And the first user is cluster-admin
     Then I use the "openshift-logging" project
     Given evaluation of `service("elasticsearch-metrics").ip` is stored in the :service_ip clipboard
-
-    Given I run curl command on the ES pod to get metrics with:
-      | object     | elasticsearch                   |
-      | service_ip | <%= cb.service_ip %>            |
-      | token      | <%= user.cached_tokens.first %> |
+    Given a pod becomes ready with labels:
+      | cluster-name=elasticsearch,component=elasticsearch |
+    And I execute on the pod:
+      | bash | -c | curl -k -H "Authorization: Bearer <%= user.cached_tokens.first %>" -H "Content-type: application/json" https://<%= cb.service_ip %>:60000/_prometheus/metrics |
     Then the step should succeed
     And the output should contain:
       | es_cluster_nodes_number                   |
