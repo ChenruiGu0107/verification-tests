@@ -310,9 +310,10 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :secrets_new_sshauth client command with:
-      | ssh_privatekey | secret   |
-      | secret_name    | mysecret |
+    And I run the :create_secret client command with:
+      | secret_type | generic               |   
+      | name        | mysecret              |   
+      | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I execute on the pod:
       | bash |
@@ -356,9 +357,10 @@ Feature: stibuild.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :secrets_new_sshauth client command with:
-      | ssh_privatekey | secret   |
-      | secret_name    | mysecret |
+    And I run the :create_secret client command with:
+      | secret_type | generic               |   
+      | name        | mysecret              |   
+      | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I execute on the pod:
       | bash |

@@ -113,7 +113,7 @@ Feature: pipelinebuild.feature
       | 2   | # @case_id OCP-11858
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-17229
+  # @case_id OCP-17299
   Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
     Given I have a project
     Given I have a jenkins v2 application

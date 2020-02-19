@@ -35,9 +35,11 @@ Feature: build 'apps' with CLI
   # @author chunchen@redhat.com
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
-    When I run the :new_secret client command with:
-      | secret_name     | sec-push            |
-      | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    When I run the :create_secret client command with:
+     | name        | sec-push                                                                        |
+     | secret_type | generic                                                                         |
+     | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | 
+     | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
     When I run the :new_app client command with:
       | file            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/<template_file> |

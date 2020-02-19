@@ -306,9 +306,10 @@ Feature: buildlogic.feature
     Given a 20 characters random string of type :dns is stored into the :ssh_secret clipboard
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_secret %>      |
-    When I run the :secrets_new_sshauth client command with:
-      | ssh_privatekey | secret   |
-      | secret_name    | mysecret |
+    And I run the :create_secret client command with:
+      | secret_type | generic               |   
+      | name        | mysecret              |   
+      | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I run the :patch client command with:
       | resource       | buildconfig              |

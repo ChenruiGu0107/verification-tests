@@ -401,9 +401,11 @@ Feature: Testing registry
   # @case_id OCP-10788
   Scenario: Can import private image from docker hub and another openshift embed docker registry
     Given I have a project
-    When I run the :new_secret client command with:
-      | secret_name     | docker-secret                                                        |
-      | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    And I run the :create_secret client command with:
+      | secret_type | generic                                                                         | 
+      | name        | docker-secret                                                                   |
+      | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+      | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
     When I run the :new_app client command with:
       | docker_image | qeopenshift/ruby-22-centos7:latest |
