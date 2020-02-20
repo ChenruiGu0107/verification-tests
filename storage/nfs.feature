@@ -213,7 +213,6 @@ Feature: NFS Persistent Volume
   # @author lxia@redhat.com
   # @case_id OCP-12672
   @admin
-  @destructive
   Scenario: User permission to write to nfs
     Given I have a project
     And I have a NFS service in the project
@@ -278,7 +277,6 @@ Feature: NFS Persistent Volume
   # @author lxia@redhat.com
   # @case_id OCP-12673
   @admin
-  @destructive
   Scenario: group permission to write to nfs
     Given I have a project
     And I have a NFS service in the project
