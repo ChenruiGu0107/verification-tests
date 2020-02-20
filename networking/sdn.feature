@@ -554,7 +554,6 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: the rules in OPENSHIFT-ADMIN-OUTPUT-RULES should be applied after EgressNetworkPoliy
     Given the master version >= "3.6"
-    Given the env is using multitenant network
     Given I have a project
     And I have a pod-for-ping in the project
     Then I use the "<%= pod.node_name(user: user) %>" node
