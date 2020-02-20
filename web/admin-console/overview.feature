@@ -195,14 +195,6 @@ Feature: overview cases
     When I perform the :check_popover_info web action with:
       | popover_item | Labels |
     Then the step should succeed
-    # check route page
-    When I perform the :goto_one_route_page web action with:
-      | project_name | openshift-console    |
-      | route_name   | console              |
-    Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Service |
-    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-21256
