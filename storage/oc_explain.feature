@@ -43,7 +43,7 @@ Feature: oc explain resources for storage
 
   # @author lxia@redhat.com
   # @case_id OCP-27779
-  Scenario Outline: Explain for CSI snapshot related resources
+  Scenario Outline: Use oc explain to see detailed documentation of CSI snapshot related resources
     Given the master version >= "4.4"
     When I run the :explain client command with:
       | resource | <resource> |
