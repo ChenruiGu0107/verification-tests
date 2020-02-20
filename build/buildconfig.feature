@@ -227,8 +227,8 @@ Feature: buildconfig.feature
       | buildconfig | ruby-sample-build |
     Given the "ruby-sample-build-2" build was created
     And the "ruby-sample-build-2" build failed
-    When I run the :build_logs client command with:
-      | build_name | ruby-sample-build-2 |
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-2 |
     Then the output should match "lookup incorrect.proxy|Name or service not known"
 
   # @author haowang@redhat.com

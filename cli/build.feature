@@ -337,8 +337,8 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       |deployment=frontend-1|
     Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
-    When I run the :build_logs client command with:
-      | build_name | ruby-sample-build-1 |
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-1 |
     Then the output should contain:
       | ENV RACK_ENV=production  |
       | ENV RAILS_ENV=production |
@@ -836,8 +836,8 @@ Feature: build 'apps' with CLI
       | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-badproxy.git" |
     Given I process and create "ruby20rhel7-template-sti.json"
     Given the "ruby-sample-build-1" build finishes
-    When I run the :build_logs client command with:
-      | build_name | ruby-sample-build-1 |
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-1 |
     Then the step should succeed
     And the output should contain "Could not fetch specs"
 
