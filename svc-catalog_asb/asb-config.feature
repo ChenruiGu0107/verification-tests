@@ -33,6 +33,9 @@ Feature: Ansible-service-broker related scenarios
   @admin
   @destructive
   Scenario: Configure multiple registries for an adapter in one broker
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    Then the expression should be true> cb.csc.values.find {|c| c.cluster_svc_broker_name == "ansible-service-broker"}
+    
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
