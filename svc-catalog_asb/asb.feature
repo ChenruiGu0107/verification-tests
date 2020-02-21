@@ -622,6 +622,9 @@ Feature: Ansible-service-broker related scenarios
   @admin
   @destructive
   Scenario: [ASB] check apb bundle resource in crd when asb refresh
+    Given cluster service classes are indexed by external name in the :csc clipboard
+    Then the expression should be true> cb.csc.values.find {|c| c.cluster_svc_broker_name == "ansible-service-broker"}
+    
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
 
