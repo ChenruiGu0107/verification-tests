@@ -395,3 +395,21 @@ Feature: pipelinebuild.feature
       | job_num    | 3                                      |
       | time_out   | 300                                    |
     Then the step should fail
+
+  # @author wewang@redhat.com
+  # @case_id OCP-20036
+  Scenario: Build history limit cannot be saved with invalid string
+    And I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc              |
+      | resource_name | sample-pipeline |
+      | p             | {"spec": {"successfulBuildsHistoryLimit": 3, "failedBuildsHistoryLimit": 2}} |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc              |
+      | resource_name | sample-pipeline |
+      | p             | {"spec": {"successfulBuildsHistoryLimit": 'abc', "failedBuildsHistoryLimit": 'abc'}} |
+    Then the step should fail
