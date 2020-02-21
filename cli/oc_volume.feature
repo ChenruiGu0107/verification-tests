@@ -23,21 +23,21 @@ Feature: oc_volume.feature
     When I run the :run client command with:
       | name      | myrc1                 |
       | image     | aosqe/hello-openshift |
-      | generator | run-controller/v1     |
+      | generator | run/v1                |
       | limits    | cpu=200m,memory=512Mi |
       | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
     When I run the :run client command with:
       | name      | myrc2                 |
       | image     | aosqe/hello-openshift |
-      | generator | run-controller/v1     |
+      | generator | run/v1                |
       | limits    | cpu=200m,memory=512Mi |
       | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
-    When I run the :secrets client command with:
-      | action | new        |
-      | name   | my-secret  |
-      | source | /etc/hosts |
+    When I run the :create_secret client command with:
+      | name          | my-secret    |
+      | secret_type   | generic      |
+      | from_file     | /etc/hosts   |
     Then the step should succeed
 
     Given a pod becomes ready with labels:
