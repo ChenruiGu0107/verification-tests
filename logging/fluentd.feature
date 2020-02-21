@@ -56,10 +56,178 @@ Feature: fluentd related tests
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
+  # ||
   # @author qitang@redhat.com
   # @case_id OCP-21083
   @admin
   @destructive
   Scenario: the priority class are added in Logging collector
     Given the expression should be true> daemon_set('fluentd').template['spec']['priorityClassName'] == "cluster-logging"
+
+  # @author qitang@redhat.com
+  # @case_id OCP-22985
+  @admin
+  @destructive
+  Scenario: Properly handle merge of JSON log messages - fluentd
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    Given I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "es-node-master=true"
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                                                          |
+    Then the step should succeed
+    And the output should contain:
+      | "message" : "{\"message\": \"MERGE_JSON_LOG=true\", \"level\": \"debug\",\"Layer1\": \"layer1 0\",      | 
+      | \"layer2\": {\"name\":\"Layer2 1\", \"tips\":\"Decide by PRESERVE_JSON_LOG\"}, \"StringNumber\":\"10\", |
+      | \"Number\": 10,\"foo.bar\":\"Dot Item\",\"{foobar}\":\"Brace Item\",                                    |
+      | \"[foobar]\":\"Bracket Item\", \"foo:bar\":\"Colon Item\",\"foo bar\":\"Space Item\" }",                |
+    Given I register clean-up steps:
+    """
+    When I run the :patch client command with:
+      | resource      | clusterlogging                           |
+      | resource_name | instance                                 |
+      | p             | {"spec": {"managementState": "Managed"}} |
+      | type          | merge                                    |
+    Then the step should succeed
+    """
+    When I run the :patch client command with:
+      | resource      | clusterlogging                             |
+      | resource_name | instance                                   |
+      | p             | {"spec": {"managementState": "Unmanaged"}} |
+      | type          | merge                                      |
+    Then the step should succeed
+
+    # MERGE_JSON_LOG=true
+    When I run the :set_env client command with:
+      | resource | ds/fluentd          |
+      | e        | MERGE_JSON_LOG=true |
+    Then the step should succeed
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
+    And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
+    """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                                                          |
+    Then the step should succeed
+    And the output should contain:
+      | "message" : "MERGE_JSON_LOG=true",         |
+      | "Layer1" : "layer1 0",                     |
+      |   "layer2" : {                             |
+      |     "name" : "Layer2 1",                   |
+      |     "tips" : "Decide by PRESERVE_JSON_LOG" |
+      |   },                                       |
+      |   "StringNumber" : "10",                   |
+      |   "Number" : 10,                           |
+      |   "foo.bar" : "Dot Item",                  |
+      |   "{foobar}" : "Brace Item",               |
+      |   "[foobar]" : "Bracket Item",             |
+      |   "foo:bar" : "Colon Item",                |
+      |   "foo bar" : "Space Item",                |
+    """
+
+    # MERGE_JSON_LOG=true CDM_UNDEFINED_TO_STRING=true
+    When I run the :set_env client command with:
+      | resource | ds/fluentd                   |
+      | e        | CDM_UNDEFINED_TO_STRING=true |
+    Then the step should succeed
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
+    And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
+    """
+    Given a pod becomes ready with labels:
+      | es-node-master=true |
+    When I execute on the pod:
+      | es_util                                |
+      | --query=project.<%= cb.org_project %>* |
+      | -XDELETE                               |
+    Then the step should succeed
+    And the output should contain:
+      | "acknowledged":true |
+    Given I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "es-node-master=true"
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                                                          |
+    Then the step should succeed
+    And the output should contain:
+      | "message" : "MERGE_JSON_LOG=true",                                                     |
+      | "Layer1" : "layer1 0",                                                                 |
+      | "layer2" : "{\\"name\\":\\"Layer2 1\\",\\"tips\\":\\"Decide by PRESERVE_JSON_LOG\\"}", |
+      | "StringNumber" : "10",                                                                 |
+      | "Number" : "10",                                                                       |
+      | "foo.bar" : "Dot Item",                                                                |
+      | "{foobar}" : "Brace Item",                                                             |
+      | "[foobar]" : "Bracket Item",                                                           |
+      | "foo:bar" : "Colon Item",                                                              |
+      | "foo bar" : "Space Item",                                                              |
+    """
+
+    # MERGE_JSON_LOG=true CDM_UNDEFINED_TO_STRING=true CDM_UNDEFINED_DOT_REPLACE_CHAR=_
+    When I run the :set_env client command with:
+      | resource | ds/fluentd                       |
+      | e        | CDM_UNDEFINED_DOT_REPLACE_CHAR=_ |
+    Then the step should succeed
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
+    And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
+    """
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                                                          |
+    Then the step should succeed
+    And the output should contain:
+      | "message" : "MERGE_JSON_LOG=true",                                             |
+      | "Layer1" : "layer1 0",                                                         |
+      | "layer2" : "{\"name\":\"Layer2 1\",\"tips\":\"Decide by PRESERVE_JSON_LOG\"}", |
+      |   "StringNumber" : "10",                                                       |
+      |   "Number" : "10",                                                             |
+      |   "foo_bar" : "Dot Item",                                                      |
+      |   "{foobar}" : "Brace Item",                                                   |
+      |   "[foobar]" : "Bracket Item",                                                 |
+      |   "foo:bar" : "Colon Item",                                                    |
+      |   "foo bar" : "Space Item",                                                    |
+    """
+
+    # MERGE_JSON_LOG=true CDM_UNDEFINED_TO_STRING=true CDM_UNDEFINED_DOT_REPLACE_CHAR=_ CDM_UNDEFINED_MAX_NUM_FIELDS=5
+    When I run the :set_env client command with:
+      | resource | ds/fluentd                     |
+      | e        | CDM_UNDEFINED_MAX_NUM_FIELDS=5 |
+    Then the step should succeed
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
+    And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
+    """
+
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                                                          |
+    Then the step should succeed
+    And the output should contain:
+      | "message" : "MERGE_JSON_LOG=true",                                                                                   |
+      | "undefined" : "{\"Layer1\":\"layer1 0\",\"layer2\":{\"name\":\"Layer2 1\",\"tips\":\"Decide by PRESERVE_JSON_LOG\"}, |
+      | \"StringNumber\":\"10\",\"Number\":10,\"foo.bar\":\"Dot Item\",\"{foobar}\":\"Brace Item\",                          | 
+      | \"[foobar]\":\"Bracket Item\",\"foo:bar\":\"Colon Item\",\"foo bar\":\"Space Item\"}",                               |
+    """
+
 
