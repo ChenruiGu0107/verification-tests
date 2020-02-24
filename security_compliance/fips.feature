@@ -2,7 +2,7 @@ Feature: security and compliance related scenarios
   # @author xiyuan@redhat.com
   # @case_id OCP-25821
   @admin
-  Scenario: check whether fips enabled on nodes
+  Scenario: FIPS mode checking command works for a cluster with fip mode on
     #check whether fips enabled for master node
     Given I store the masters in the :masters clipboard
     When I run the :debug admin command with:
