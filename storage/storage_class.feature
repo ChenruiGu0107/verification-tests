@@ -270,7 +270,6 @@ Feature: storageClass related feature
 
   # @author lxia@redhat.com
   @admin
-  @destructive
   Scenario Outline: Create storageclass with specific api
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-beta-annotations.yaml" where:
@@ -279,22 +278,10 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                    |
       | ["provisioner"]                                                                 | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-beta-annotations.yaml" where:
-      | ["apiVersion"]                                                                  | storage.k8s.io/<version> |
-      | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %>    |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                     |
-      | ["provisioner"]                                                                 | kubernetes.io/manual     |
-    Then the step should succeed
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/<version> |
-      | ["metadata"]["name"]                                                       | sc3-<%= cb.sc_name %>    |
+      | ["metadata"]["name"]                                                       | sc2-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                    |
-      | ["provisioner"]                                                            | kubernetes.io/manual     |
-    Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-stable-annotations.yaml" where:
-      | ["apiVersion"]                                                             | storage.k8s.io/<version> |
-      | ["metadata"]["name"]                                                       | sc4-<%= cb.sc_name %>    |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                     |
       | ["provisioner"]                                                            | kubernetes.io/manual     |
     Then the step should succeed
 
@@ -302,22 +289,14 @@ Feature: storageClass related feature
       | resource | storageclass          |
       | name     | sc1-<%= cb.sc_name %> |
       | name     | sc2-<%= cb.sc_name %> |
-      | name     | sc3-<%= cb.sc_name %> |
-      | name     | sc4-<%= cb.sc_name %> |
     Then the step should succeed
     And the output by order should match:
       | sc1-<%= cb.sc_name %>                                  |
       | IsDefaultClass:\s+No                                   |
       | storageclass.beta.kubernetes.io/is-default-class=false |
       | sc2-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\s+Yes                                  |
-      | storageclass.beta.kubernetes.io/is-default-class=true  |
-      | sc3-<%= cb.sc_name %>                                  |
       | IsDefaultClass:\s+No                                   |
       | storageclass.kubernetes.io/is-default-class=false      |
-      | sc4-<%= cb.sc_name %>                                  |
-      | IsDefaultClass:\s+Yes                                  |
-      | storageclass.kubernetes.io/is-default-class=true       |
 
     Examples:
       | version |
