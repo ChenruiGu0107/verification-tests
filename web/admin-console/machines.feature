@@ -162,7 +162,7 @@ Feature: machineconfig/machineconfig pool related
     Then the step should succeed
     When I perform the :click_one_operation_in_kebab web action with:
       | resource_name | example  |
-      | button_text   | Delete Machine Health Check |
+      | kebab_item    | Delete Machine Health Check |
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed

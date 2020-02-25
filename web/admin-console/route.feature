@@ -187,6 +187,7 @@ Feature: route related
       | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                           |
     Then the step should succeed
+    Given I wait for the "python-sample" service to be created
     When I run the :expose client command with:
       | resource      | svc           |
       | resource_name | python-sample |

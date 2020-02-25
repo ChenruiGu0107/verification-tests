@@ -78,7 +78,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I perform the :click_one_operation_in_kebab web action with:
       | resource_name | custom-logging       |
-      | button_text   | Delete CatalogSource |
+      | kebab_item    | Delete CatalogSource |
     Then the step should succeed
     When I perform the :confirm_deletion web action with:
       | resource_name | custom-logging |

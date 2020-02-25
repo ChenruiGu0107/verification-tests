@@ -155,17 +155,18 @@ Feature: build related
       | project_name  | <%= project.name %>  |
     Then the step should succeed
     Given the "ruby-sample-3" build becomes :new
-    And I wait up to 60 seconds for the steps to pass:
-    """
     When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | ruby-sample-3 |
-      | button_text    | Cancel Build  |
+      | resource_name  | ruby-sample-3 |
+      | kebab_item     | Cancel Build  |
     Then the step should succeed
     When I perform the :confirm_cancel_action web action with:
       | cancel | true |
     Then the step should succeed
+
+    Given I wait up to 10 seconds for the steps to pass:
     """
     When I get project builds
     Then the output should match:
-      | ruby-sample-1.+Cancelled      |
-      | ruby-sample-3.+Cancelled      |
+      | ruby-sample-1.+Cancelled  |
+      | ruby-sample-3.+Cancelled  |
+    """
