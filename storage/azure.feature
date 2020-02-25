@@ -359,73 +359,107 @@ Feature: Azure disk and Azure file specific scenarios
       | No such file or directory | 
     """
 
-  # @author wehe@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-10174
   @admin
   Scenario: Azure file with secretNamespace parameter of different project
     Given I have a project
-    And azure file dynamic provisioning is enabled in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
-      | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
-      | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
+    And azure file dynamic provisioning is enabled in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-NOPAR.yaml" where:
+      | ["metadata"]["name"]  | sc-<%= cb.proj1 %> |
+      | ["volumeBindingMode"] | Immediate          |
     Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= cb.proj1 %> |
+      | ["metadata"]["name"]         | mypvc01            |
+    Then the step should succeed
+    And the "mypvc01" PVC becomes :bound within 120 seconds
+    And admin ensures "<%= pvc('mypvc01').volume_name %>" pv is deleted after scenario
+    When I run the :get admin command with:
+      | resource      | pv                             |
+      | resource_name | <%= pvc.volume_name %>         |
+      | template      | {{.spec.azureFile.secretName}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :secretName clipboard
+    When I run the :get admin command with:
+      | resource      | pv                            |
+      | resource_name | <%= pvc.volume_name %>        |
+      | template      | {{.spec.azureFile.shareName}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :shareName clipboard
     Given I create a new project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
-      | ["metadata"]["name"]                     | azpv-<%= project.name %> |
-      | ["spec"]["azureFile"]["secretNamespace"] | <%= cb.proj1 %>          |
+      | ["metadata"]["name"]                     | mypv-<%= cb.proj1 %>  |
+      | ["spec"]["azureFile"]["secretName"]      | <%= cb.secretName %>  |
+      | ["spec"]["azureFile"]["shareName"]       | <%= cb.shareName %>   |
+      | ["spec"]["storageClassName"]             | sc-<%= cb.proj1 %>    |
+      | ["spec"]["azureFile"]["secretNamespace"] | <%= cb.proj1 %>       |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
-      | ["spec"]["accessModes"][0] | ReadWriteMany |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= cb.proj1 %> |
+      | ["metadata"]["name"]         | mypvc              |
+      | ["spec"]["accessModes"][0]   | ReadWriteMany      |
     Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
-      | n | <%= project.name %>                                                                                             |
+    And the "mypvc" PVC becomes bound to the "mypv-<%= cb.proj1 %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
     Then the step should succeed
-    Given the pod named "azfpod" becomes ready
+    Given the pod named "mypod" becomes ready
     When I execute on the pod:
       | touch | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
 
-  # @author wehe@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-14526
   @admin
-  Scenario: Azure file with secretNamespace parameter of current project 
+  Scenario: Azure file with secretNamespace parameter of current project
     Given I have a project
-    And the azure file secret name and key are stored to the clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azure-secret.yaml" replacing paths:
-      | ["data"]["azurestorageaccountname"] | <%= cb.asan %> |
-      | ["data"]["azurestorageaccountkey"]  | <%= cb.asak %> |
+    And azure file dynamic provisioning is enabled in the project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfsc-NOPAR.yaml" where:
+      | ["metadata"]["name"]  | sc-<%= project.name %> |
+      | ["volumeBindingMode"] | Immediate              |
     Then the step should succeed
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc01                |
+    Then the step should succeed
+    And the "mypvc01" PVC becomes :bound within 120 seconds
+    And admin ensures "<%= pvc('mypvc01').volume_name %>" pv is deleted after scenario
+    When I run the :get admin command with:
+      | resource      | pv                             |
+      | resource_name | <%= pvc.volume_name %>         |
+      | template      | {{.spec.azureFile.secretName}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :secretName clipboard
+    When I run the :get admin command with:
+      | resource      | pv                            |
+      | resource_name | <%= pvc.volume_name %>        |
+      | template      | {{.spec.azureFile.shareName}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :shareName clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
-      | ["metadata"]["name"]                     | azpv-<%= project.name %> |
-      | ["spec"]["azureFile"]["secretNamespace"] | <%= project.name %>      |
+      | ["metadata"]["name"]                | mypv-<%= project.name %> |
+      | ["spec"]["azureFile"]["secretName"] | <%= cb.secretName %>     |
+      | ["spec"]["azureFile"]["shareName"]  | <%= cb.shareName %>      |
+      | ["spec"]["storageClassName"]        | sc-<%= project.name %>   |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
-      | ["spec"]["accessModes"][0] | ReadWriteMany |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
-      | n | <%= project.name %>                                                                                             |
+    And the "mypvc" PVC becomes bound to the "mypv-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
     Then the step should succeed
-    Given the pod named "azfpod" becomes ready
+    Given the pod named "mypod" becomes ready
     When I execute on the pod:
       | touch | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
 
   # @author wduan@redhat.com
