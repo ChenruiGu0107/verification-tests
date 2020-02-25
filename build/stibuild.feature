@@ -563,6 +563,28 @@ Feature: stibuild.feature
       | nil pointer dereference |
 
   # @author wewang@redhat.com
+  # @case_id OCP-23414
+  @admin
+  Scenario: Build should succeed with no error logs and delay	
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/sclorg/nginx-ex/master/openshift/templates/nginx.json |
+      | p        | NGINX_VERSION=latest |
+    Then the step should succeed
+    And the "nginx-example-1" build completed
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-controller-manager" project
+    Then I store in the :pods clipboard the pods labeled:
+      | app=openshift-controller-manager |
+    And I repeat the following steps for each :pod in cb.pods:
+    """
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name} |
+      | loglevel      | 5              | 
+    Then the step should succeed
+    """
+    Then the output should not contain "invalid phase transition"
+
   # @case_id OCP-17650
   @admin
   Scenario: Create an application using -i and code
