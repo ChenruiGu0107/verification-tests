@@ -48,10 +48,10 @@ Feature: events related
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed    
-    When I perform the :search_by_type web action with:
+    When I perform the :search_by_resource_type web action with:
       | type | Pod |
     Then the step should succeed
-    When I perform the :search_by_catagory web action with:
+    When I perform the :search_by_event_catagory web action with:
       | catagory| All |
     Then the step should succeed
     When I perform the :check_results_contain_correct_type web action with:
@@ -61,12 +61,10 @@ Feature: events related
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :search_by_type web action with:
-      | type | Build |
+    When I perform the :search_by_api_group web action with:
+      | api_group | build.openshift.io/v1 |
     Then the step should succeed
-    When I perform the :search_by_catagory web action with:
-      | catagory | Error |
+    When I run the :search_by_event_catagory web action
     Then the step should succeed
-    When I perform the :check_result_contain_correct_catagory web action with:
-      | catagory | Error |
+    When I run the :check_result_not_contain_warning_catagory web action
     Then the step should succeed
