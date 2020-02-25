@@ -12,7 +12,7 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
 
     #Add label to the first node "<%= cb.proj_name %>=testfor510646"
-    Given I store the ready and schedulable nodes in the :nodes clipboard
+    Given I store the ready and schedulable workers in the :nodes clipboard
     And label "<%= cb.proj_name %>=testfor510646" is added to the "<%= cb.nodes[0].name %>" node
 
     #Create a dir on the first node
@@ -34,90 +34,32 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
     And the pod named "localpd-<%= project.name %>" becomes ready
 
-    When I run the :exec client command with:
-      | pod          | localpd-<%= cb.proj_name %> |
-      | container    | a                           |
-      | exec_command | id                          |
+    When I execute on the pod:
+      | id |
     Then the output should contain:
       | 1000130001 |
       | 123456     |
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %> |
-      | container        | a                           |
-      | oc_opts_end      |                             |
-      | exec_command     | ls                          |
-      | exec_command_arg | -lZd                        |
-      | exec_command_arg | /example/hostpath/a         |
+    When I execute on the pod:
+      | ls | -ld | /example/hostpath |
     Then the step should succeed
     And the output should contain:
       | 123456 |
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %>   |
-      | container        | a                             |
-      | oc_opts_end      |                               |
-      | exec_command     | touch                         |
-      | exec_command_arg | /example/hostpath/a/testfilea |
+    When I execute on the pod:
+      | touch | /example/hostpath/testfilea |
     Then the step should succeed
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %>   |
-      | container        | a                             |
-      | oc_opts_end      |                               |
-      | exec_command     | ls                            |
-      | exec_command_arg | -lZ                           |
-      | exec_command_arg | /example/hostpath/a/testfilea |
+    When I execute on the pod:
+      | ls | -l | /example/hostpath/testfilea |
     Then the step should succeed
-    And the output should contain:
+      And the output should contain:
       | 1000130001 |
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %> |
-      | container        | a                           |
-      | oc_opts_end      |                             |
-      | exec_command     | cp                          |
-      | exec_command_arg | /hello                      |
-      | exec_command_arg | /example/hostpath/a         |
+    When I execute on the pod:
+      | cp | /hello | /example/hostpath |
     Then the step should succeed
-    When I run the :exec client command with:
-      | pod          | localpd-<%= cb.proj_name %> |
-      | container    | a                           |
-      | oc_opts_end  |                             |
-      | exec_command | /example/hostpath/a/hello   |
+    When I execute on the pod:
+      | /example/hostpath/hello |
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
 
-    When I run the :exec client command with:
-      | pod          | localpd-<%= cb.proj_name %> |
-      | container    | b                           |
-      | exec_command | id                          |
-    Then the output should contain:
-      | 1000130002 |
-      | 123456     |
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %> |
-      | container        | b                           |
-      | oc_opts_end      |                             |
-      | exec_command     | ls                          |
-      | exec_command_arg | -lZd                        |
-      | exec_command_arg | /example/hostpath/b         |
-    Then the step should succeed
-    And the output should contain:
-      | 123456 |
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %>   |
-      | container        | b                             |
-      | oc_opts_end      |                               |
-      | exec_command     | touch                         |
-      | exec_command_arg | /example/hostpath/b/testfileb |
-    Then the step should succeed
-    When I run the :exec client command with:
-      | pod              | localpd-<%= cb.proj_name %>   |
-      | container        | b                             |
-      | oc_opts_end      |                               |
-      | exec_command     | ls                            |
-      | exec_command_arg | -lZ                           |
-      | exec_command_arg | /example/hostpath/b/testfileb |
-    Then the step should succeed
-    And the output should contain:
-      | 1000130002 |
 
   # @author jhou@redhat.com
   # @case_id OCP-13676
