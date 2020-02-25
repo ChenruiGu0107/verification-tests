@@ -4,30 +4,17 @@ Feature: env.feature
   # @case_id OCP-11411
   Scenario: Set environment variables when creating application using DeploymentConfig template
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/sclorg/mongodb-container/master/examples/petset/mongodb-petset-persistent.yaml"
     When I run the :new_app client command with:
-      | app_repo | mongodb-petset-persistent.yaml |
-      | e        | VOLUME_CAPACITY=2Gi            |
+      | app_repo | jenkins-persistent |
+      | e        | APPLE1=apple       |
+      | e        | APPLE2=tesla       |
+      | e        | APPLE3=linux       |
     Then the step should succeed
-    Given the pod named "mongodb-0" status becomes :running
+    And a pod becomes ready with labels: 
+      | deployment=jenkins-1 |
     When I run the :set_env client command with:
-      | resource | pod/mongodb-0 |
-      | list     | true          |
-    And the step should succeed
-    And the output should contain:
-      | VOLUME_CAPACITY=2Gi |
-    When I delete all resources from the project
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | app_repo | mongodb-petset-persistent.yaml |
-      | e        | APPLE1=apple                   |
-      | e        | APPLE2=tesla                   |
-      | e        | APPLE3=linux                   |
-    Then the step should succeed
-    Given the pod named "mongodb-0" status becomes :running
-    When I run the :set_env client command with:
-      | resource | pod/mongodb-0 |
-      | list     | true          |
+      | resource | pod/<%= pod.name %> |
+      | list     | true                |
     And the step should succeed
     And the output should contain:
       | APPLE1=apple |
