@@ -226,14 +226,14 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod1-<%= project.name %>         |
+      | ["metadata"]["name"]                                 | pod1                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100001                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
       | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod2-<%= project.name %>         |
+      | ["metadata"]["name"]                                 | pod2                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100002                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
@@ -243,36 +243,36 @@ Feature: NFS Persistent Volume
     Given 2 pods become ready with labels:
       | name=frontendhttp |
 
-    When I execute on the "pod1-<%= project.name %>" pod:
+    When I execute on the "pod1" pod:
       | id |
     Then the output should contain:
       | 1000100001 |
-    When I execute on the "pod1-<%= project.name %>" pod:
+    When I execute on the "pod1" pod:
       | ls | -ld | /mnt/nfs |
     Then the output should contain:
       | drwx------ |
-    When I execute on the "pod1-<%= project.name %>" pod:
-      | touch | /mnt/nfs/pod1 |
+    When I execute on the "pod1" pod:
+      | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
     Then the step should succeed
 
-    When I execute on the "pod2-<%= project.name %>" pod:
+    When I execute on the "pod2" pod:
       | id |
     Then the output should contain:
       | 1000100002 |
-    When I execute on the "pod2-<%= project.name %>" pod:
+    When I execute on the "pod2" pod:
       | ls | -ld | /mnt/nfs |
     Then the output should contain:
       | drwx------ |
-    When I execute on the "pod2-<%= project.name %>" pod:
-      | touch | /mnt/nfs/pod2 |
+    When I execute on the "pod2" pod:
+      | cp | /proc/cpuinfo | /mnt/nfs/from-pod2 |
     Then the step should fail
 
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data |
-    Then the output should contain:
-      | pod1 |
-    And the output should not contain:
-      | pod2 |
+    Then the output should not contain:
+      | from-pod2 |
+    And the output should contain:
+      | from-pod1 |
 
   # @author lxia@redhat.com
   # @case_id OCP-12673
@@ -290,14 +290,14 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510690/pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod1-<%= project.name %>         |
+      | ["metadata"]["name"]                                 | pod1                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100011                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
       | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod2-<%= project.name %>         |
+      | ["metadata"]["name"]                                 | pod2                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100022                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
@@ -307,36 +307,36 @@ Feature: NFS Persistent Volume
     Given 2 pods become ready with labels:
       | name=frontendhttp |
 
-    When I execute on the "pod1-<%= project.name %>" pod:
+    When I execute on the "pod1" pod:
       | id |
     Then the output should contain:
       | 1000100011 |
-    When I execute on the "pod1-<%= project.name %>" pod:
+    When I execute on the "pod1" pod:
       | ls | -ld | /mnt/nfs |
     Then the output should contain:
       | d---rwx--- |
-    When I execute on the "pod1-<%= project.name %>" pod:
-      | touch | /mnt/nfs/pod1 |
+    When I execute on the "pod1" pod:
+      | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
     Then the step should succeed
 
-    When I execute on the "pod2-<%= project.name %>" pod:
+    When I execute on the "pod2" pod:
       | id |
     Then the output should contain:
       | 1000100022 |
-    When I execute on the "pod2-<%= project.name %>" pod:
+    When I execute on the "pod2" pod:
       | ls | -ld | /mnt/nfs |
     Then the output should contain:
       | d---rwx--- |
-    When I execute on the "pod2-<%= project.name %>" pod:
-      | touch | /mnt/nfs/pod2 |
+    When I execute on the "pod2" pod:
+      | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
     Then the step should fail
 
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data |
-    Then the output should contain:
-      | pod1 |
-    And the output should not contain:
-      | pod2 |
+    Then the output should not contain:
+      | from-pod2 |
+    And the output should contain:
+      | from-pod1 |
 
   # @author lxia@redhat.com
   # @case_id OCP-10032
