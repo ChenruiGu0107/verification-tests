@@ -509,3 +509,54 @@ Feature: overview cases
     When I perform the :check_overview_group_heading web action with:
       | group_heading_name | other resources |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-20983
+  Scenario: Check daemon set on Home Overview page
+    Given the master version >= "4.1"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+    Then the step should succeed
+    And "hello-daemonset" daemonset becomes ready in the "<%= project.name %>" project
+    And evaluation of `daemon_set("hello-daemonset").desired_replicas(cached: false)` is stored in the :ds_disired_replicas clipboard
+    And evaluation of `daemon_set("hello-daemonset").current_replicas(cached: false)` is stored in the :ds_current_replicas clipboard
+    And evaluation of `daemon_set("hello-daemonset").pods(cached: false)` is stored in the :ds_all_pods clipboard
+
+    # check pods links to correct page
+    And I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_list_item web action with:
+      | resource_kind | DaemonSet        |
+      | resource_name | hello-daemonset  |
+    Then the step should succeed
+    When I perform the :check_pod_number_and_link web action with:
+      | text | <%= cb.ds_current_replicas %> of <%= cb.ds_disired_replicas %> pods |
+      | link | /k8s/ns/<%= project.name %>/daemonsets/hello-daemonset/pods         |
+    Then the step should succeed
+
+    # check basic info on overview view
+    When I perform the :click_list_item web action with:
+      | resource_kind | DaemonSet        |
+      | resource_name | hello-daemonset  |
+    Then the step should succeed
+    When I run the :sidebar_is_loaded web action
+    Then the step should succeed
+    When I run the :click_sidebar_overview_tab web action
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Name            |
+      | value | hello-daemonset |
+    Then the step should succeed
+
+    # make sure the 1st and last pod of daemonset are shown on page
+    When I run the :click_sidebar_resources_tab web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.ds_all_pods[0].name %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.ds_all_pods[-1].name %> |
+    Then the step should succeed
