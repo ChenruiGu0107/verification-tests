@@ -57,11 +57,8 @@ Feature: secrets related scenarios
     Then the output should match:
       | secrets.*1 |
     """
-    When I run the :secrets admin command with:
-      | action | new                                                    |
-      | name   | <%= "secret2"+project.name %>                          |
-      | source | myquota.yaml |
-      | n        | <%= project.name %> |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
     Then the step should not succeed
     And the output should contain:
       |  limit |
@@ -271,10 +268,10 @@ Feature: secrets related scenarios
     # TODO: check secrets "notexist-secret" not found?
 
     # Not matched secret
-    When I run the :secrets client command with:
-      | action | new             |
-      | name   | notmatch-secret |
-      | source | dc.yaml         |
+    When I run the :create_secret client command with:
+      | secret_type | generic         |
+      | name        | notmatch-secret |
+      | from_file   | dc.yaml         |
     Then the step should succeed
     When I run oc create with "dc.yaml" replacing paths:
       | ["metadata"]["name"]                                             | newdc                     |
@@ -805,12 +802,13 @@ Feature: secrets related scenarios
 
     # Use well-formed pull secret with incorrect credentials
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    When I run the :secrets_new_dockercfg client command with:
-      |secret_name      |test                       |
-      |docker_email     |serviceaccount@redhat.com  |
-      |docker_password  |password                   |
-      |docker_server    |<%= cb.integrated_reg_ip %>|
-      |docker_username  |username                   |
+    When I run the :create_secret client command with:
+      | secret_type      | docker-registry             |
+      | name             | test                        |
+      | docker_email     | serviceaccount@redhat.com   |
+      | docker_password  | password                    |
+      | docker_server    | <%= cb.integrated_reg_ip %> |
+      | docker_username  | username                    |
     Then the step should succeed
 
     When I run oc create with "dc.yaml" replacing paths:

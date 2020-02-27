@@ -22,14 +22,16 @@ Feature: oc_secrets.feature
     Given a "test1/testfile1" file is created with the following lines:
     |test1|
     Given I have a project
-    When I run the :new_secret client command with:
-      | secret_name     | testsecret1     |
-      | credential_file | test1/testfile1 |
+    When I run the :create_secret client command with:
+      | secret_type | generic         |
+      | name        | testsecret1     |
+      | from_file   | test1/testfile1 |
     Then the step should succeed
 
-    When I run the :new_secret client command with:
-      | secret_name     | testsecret2     |
-      | credential_file | test1/testfile1 |
+    When I run the :create_secret client command with:
+      | secret_type | generic         |
+      | name        | testsecret2     |
+      | from_file   | test1/testfile1 |
     Then the step should succeed
  
     When I run the :secrets client command with:
