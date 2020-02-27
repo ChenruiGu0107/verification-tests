@@ -69,3 +69,29 @@ Feature: projects related features via web
       | resource | serviceaccount |
     Then the step should succeed
     And the output should not contain "example"
+
+  # @author yapei@redhat.com
+  # @case_id OCP-26984
+  @admin
+  Scenario: Add metrics to project list page
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+
+    # check CPU and Memory column shown
+    Given I open admin console in a browser
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | CPU |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Memory |
+    Then the step should succeed
+
+    # check data is correctly shown for one project
+    When I perform the :check_memory_data_for_one_project_in_table web action with:
+      | project_name | openshift-apiserver |
+    Then the step should succeed
+    When I perform the :check_cpu_data_for_one_project_in_table web action with:
+      | project_name | openshift-apiserver |
+    Then the step should succeed
