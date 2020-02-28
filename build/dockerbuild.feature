@@ -365,7 +365,7 @@ Feature: dockerbuild.feature
     And evaluation of `pod.node_name` is stored in the :node clipboard
     Given I use the "<%= cb.node %>" node
     When I run commands on the host:
-      |docker ps -a --no-trunc\| grep "exit" |
+      | podman ps -a --no-trunc |
     Then the step should succeed
     And the output should not contain "/bin/sh -c 'exit 1'"
 
