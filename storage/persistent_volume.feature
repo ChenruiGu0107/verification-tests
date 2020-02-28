@@ -698,28 +698,24 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["storageClassName"]    | sc-1          | ["spec"]["storageClassName"]                 | sc-2          | # @case_id OCP-17559
 
   # @author piqin@redhat.com
+  # @author lxia@redhat.com
   @admin
   Scenario Outline: PV and PVC with different specified VolumeMode should not be bound
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
-      | ["metadata"]["name"]   | pv-<%= project.name %> |
-      | ["spec"]["volumeMode"] | <pv_volumeMode>        |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"]       | <pv_volumeMode>        |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
-      | ["metadata"]["name"]         | pvc-<%= project.name %> |
-      | ["spec"]["volumeMode"]       | <pvc_volumeMode>        |
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["volumeMode"]       | <pvc_volumeMode>       |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     Given 30 seconds have passed
-    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "mypvc" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | FailedBinding                   |
-      | no persistent volumes available |
 
     Examples:
       | pv_volumeMode | pvc_volumeMode |
