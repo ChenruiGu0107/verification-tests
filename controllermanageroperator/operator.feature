@@ -48,7 +48,7 @@ Feature: Testing openshift-controller-manager-operator
     """
     When I wait for the steps to pass: 
     """
-    Then the expression should be true> cluster_operator("openshift-controller-manager").conditions(cached:false).any? {|c| c["reason"] == "ProgressingDesiredStateNotYetAchieved" && c["status"] == "True" && c["type"] == "Progressing"}
+    Then the expression should be true> cluster_operator("openshift-controller-manager").conditions(cached:false).any? {|c| c["reason"] =~ /DesiredStateNotYetAchieved/ && c["status"] == "True" && c["type"] == "Progressing"}
     """
     When I run the :delete client command with:
       | object_type       | svc                          |
