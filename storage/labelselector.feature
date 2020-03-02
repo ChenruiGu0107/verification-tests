@@ -1,194 +1,225 @@
 Feature: Target pvc to a specific pv
 	
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-12220
   @admin
-  @destructive
   Scenario: Target pvc to a specific pv with label selector
     Given I have a project
-    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv1-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                 |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]         | pv2-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+    Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv1.json"
-    Then I replace lines in "pv1.json":
-      | nfs-pv-1a | nfspv1-<%= project.name %> |
-      | nfs-pv-1b | nfspv2-<%= project.name %> |
-    Then I run the :new_app admin command with:
-      | file | pv1.json |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc                  |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc1.json" replacing paths:
-      | ["metadata"]["name"]| nfsc-<%= project.name %> |
-    Then the step should succeed
-    Then the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    And the "nfspv2-<%= project.name %>" PV status is :available
+    Then the "mypvc" PVC becomes bound to the "pv1-<%= project.name %>" PV
+    And the "pv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-12077
   @admin
-  @destructive
   Scenario: PVC could not bind PV with label selector matches but binding requirements are not met
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
-      | ["metadata"]["name"] | nfspv-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc2.json" replacing paths:
-      | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
-      | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc1                 |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"]  | mytype1                |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
     Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes :pending
-    And the "nfsc2-<%= project.name %>" PVC becomes :pending
-    And the "nfspv-<%= project.name %>" PV status is :available
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc2                 |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
+      | ["spec"]["accessModes"][0]                  | ReadWriteMany          |
+    Then the step should succeed
+    And the "mypvc1" PVC becomes :pending
+    And the "mypvc2" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-10890
   @admin
-  @destructive
   Scenario: PVC with less label selectors could bound to PV
     Given I have a project
-    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv1-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                 |
+      | ["metadata"]["labels"]["zone"] | myzone1                 |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]         | pv2-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+    Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv3.json"
-    Then I replace lines in "pv3.json":
-      | nfs-pv-3a | nfspv1-<%= project.name %> |
-      | nfs-pv-3b | nfspv2-<%= project.name %> |
-    Then I run the :new_app admin command with:
-      | file | pv3.json |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc1                 |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc3.json" replacing paths:
-      | ["items"][0]["metadata"]["name"]         | nfsc1-<%= project.name %> |
-      | ["items"][0]["spec"]["storageClassName"] | ""                        |
-      | ["items"][1]["metadata"]["name"]         | nfsc2-<%= project.name %> |
-      | ["items"][1]["spec"]["storageClassName"] | ""                        |
-      | ["items"][2]["metadata"]["name"]         | nfsc3-<%= project.name %> |
-      | ["items"][2]["spec"]["storageClassName"] | ""                        |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc2                 |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype2                |
+      | ["spec"]["selector"]["matchLabels"]["zone"] | myzone1                |
     Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    And the "nfsc2-<%= project.name %>" PVC becomes :pending
-    And the "nfsc3-<%= project.name %>" PVC becomes :pending
-    And the "nfspv2-<%= project.name %>" PV status is :available
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc3                 |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
+      | ["spec"]["selector"]["matchLabels"]["zone"] | myzone1                |
+      | ["spec"]["selector"]["matchLabels"]["more"] | any-value              |
+    Then the step should succeed
+
+    And the "mypvc1" PVC becomes bound to the "pv1-<%= project.name %>" PV
+    And the "mypvc2" PVC becomes :pending
+    And the "mypvc3" PVC becomes :pending
+    And the "pv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-12164
   @admin
-  @destructive
   Scenario: Target pvc to a best fit size pv with same label selector
     Given I have a project
-    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]            | pv1-<%= project.name %> |
+      | ["metadata"]["labels"]["type"]  | mytype1                 |
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %>  |
+      | ["spec"]["capacity"]["storage"] | 101Gi                   |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]            | pv2-<%= project.name %> |
+      | ["metadata"]["labels"]["type"]  | mytype1                 |
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %>  |
+      | ["spec"]["capacity"]["storage"] | 102Gi                   |
+    Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv4.json"
-    Then I replace lines in "pv4.json":
-      | nfs-pv-4a | nfspv1-<%= project.name %> |
-      | nfs-pv-4b | nfspv2-<%= project.name %> |
-    Then I run the :new_app admin command with:
-      | file | pv4.json |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc                  |
+      | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"]  | mytype1                |
+      | ["spec"]["resources"]["requests"]["storage"] | 100Gi                  |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc4.json" replacing paths:
-      | ["metadata"]["name"] | nfsc1-<%= project.name %> |
-    Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    And the "nfspv2-<%= project.name %>" PV status is :available
+    And the "mypvc" PVC becomes bound to the "pv1-<%= project.name %>" PV
+    And the "pv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-11971
   @admin
-  @destructive
   Scenario: PVC could bind prebound PV with mismatched label
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv5.json" where:
-      | ["metadata"]["name"]              | nfspv1-<%= project.name %> |
-      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>        |
-      | ["spec"]["claimRef"]["name"]      | nfsc1-<%= project.name %>  |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv5.json" where:
+      | ["metadata"]["name"]              | pv-<%= project.name %> |
+      | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
+      | ["spec"]["claimRef"]["name"]      | mypvc                  |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc5.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc5.json" replacing paths:
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-11609
   @admin
-  @destructive
   Scenario: Prebound PVC could bind to pv and ignore the label selector
     Given I have a project
-    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
-
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv6.json"
-    Then I replace lines in "pv6.json":
-      | nfs-pv-6a | nfspv1-<%= project.name %> |
-      | nfs-pv-6b | nfspv2-<%= project.name %> |
-    Then I run the :new_app admin command with:
-      | file | pv6.json |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv1-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                 |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc6.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
-      | ["spec"]["volumeName"] | nfspv2-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]         | pv2-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv2-<%= project.name %>" PV
-    And the "nfspv1-<%= project.name %>" PV status is :available
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc                   |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %>  |
+      | ["spec"]["volumeName"]                      | pv2-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                 |
+    Then the step should succeed
+    And the "mypvc" PVC becomes bound to the "pv2-<%= project.name %>" PV
+    And the "pv1-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-11810
   @admin
-  @destructive
   Scenario: PVC and PV still bound after remove the pv label
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv7.json" where:
-      | ["metadata"]["name"] | nfspv1-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc7.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc                   |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %>  |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                 |
     Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    Then I run the :label admin command with:
-      | resource | pv                         |
-      | name     | nfspv1-<%= project.name %> |
-      | key_val  | aws-availability-zone-     |
-      | key_val  | ebs-volume-type-           |
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I run the :label admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+      | key_val  | type-                  |
+    Then the step should succeed
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-12268
   @admin
-  @destructive
   Scenario: Target pvc to pv with same label selector and multi accessmode
     Given I have a project
-    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
-    And admin ensures "nfspv3-<%= project.name %>" pv is deleted after scenario
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]     | ReadWriteOnce          |
+      | ["spec"]["accessModes"][1]     | ReadWriteMany          |
+      | ["spec"]["accessModes"][2]     | ReadOnlyMany           |
+    Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv8.json"
-    Then I replace lines in "pv8.json":
-      | nfs-pv-8a | nfspv1-<%= project.name %> |
-      | nfs-pv-8b | nfspv2-<%= project.name %> |
-      | nfs-pv-8c | nfspv3-<%= project.name %> |
-    Then I run the :new_app admin command with:
-      | file | pv8.json |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
+      | ["metadata"]["name"]                        | mypvc                  |
+      | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
+      | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc8.json" replacing paths:
-      | ["items"][0]["metadata"]["name"]         | nfsc1-<%= project.name %> |
-      | ["items"][0]["spec"]["storageClassName"] | ""                        |
-      | ["items"][1]["metadata"]["name"]         | nfsc2-<%= project.name %> |
-      | ["items"][1]["spec"]["storageClassName"] | ""                        |
-      | ["items"][2]["metadata"]["name"]         | nfsc3-<%= project.name %> |
-      | ["items"][2]["spec"]["storageClassName"] | ""                        |
-    Then the step should succeed
-    And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    And the "nfsc2-<%= project.name %>" PVC becomes bound to the "nfspv2-<%= project.name %>" PV
-    And the "nfsc3-<%= project.name %>" PVC becomes bound to the "nfspv3-<%= project.name %>" PV
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
   # @case_id OCP-11307
   @admin
   Scenario: PVC without any VolumeSelector could bind a PV with any labels
     Given I have a project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv2.json" where:
-      | ["metadata"]["name"]         | pv-<%= project.name %> |
-      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pv.json" where:
+      | ["metadata"]["name"]           | pv-<%= project.name %> |
+      | ["metadata"]["labels"]["type"] | mytype1                |
+      | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/labelmatch/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
