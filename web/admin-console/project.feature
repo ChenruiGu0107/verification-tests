@@ -4,7 +4,7 @@ Feature: projects related features via web
   # @case_id OCP-26910
   Scenario: Check project page
     #Now we have to check project page from v4.1 since it has big changes about project overview page compared with v3.11.
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     Given I open admin console in a browser
     Given an 8 character random string of type :dns is stored into the :pro_name clipboard
     When I perform the :create_project web action with:

@@ -119,7 +119,7 @@ Feature: Testing DNS features
   # @case_id OCP-21391
   @admin
   Scenario: the image-registry service IP is added to node's hosts file
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     Given I use the "openshift-image-registry" project
     And I use the "image-registry" service
@@ -140,7 +140,7 @@ Feature: Testing DNS features
   # @case_id OCP-23278
   @admin
   Scenario: Integrate coredns metrics with monitoring component
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     And I use the "openshift-dns" project
     Then the expression should be true> service_monitor('dns-default').exists?
@@ -151,7 +151,7 @@ Feature: Testing DNS features
   # @case_id OCP-26151
   @admin
   Scenario: integrate DNS operator metrics with Prometheus
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     And I use the "openshift-dns-operator" project
     Then the expression should be true> service_monitor('dns-operator').exists?
