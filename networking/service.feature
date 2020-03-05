@@ -102,7 +102,7 @@ Feature: Service related networking scenarios
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=test-pods |    
+      | name=test-pods |
     When I execute on the pod:
       | curl | <%= cb.hostip %>:<%= cb.port %> |
     Then the step should succeed
@@ -273,7 +273,7 @@ Feature: Service related networking scenarios
 
     # Check the conntrack entry generated on the node
     When I run command on the "<%= cb.node %>" node's sdn pod:
-      | bash | -c | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
+      | bash | -c | conntrack -L -d <%= cb.service_ip %> |
     Then the step should succeed
     And the output should contain:
       | udp |
@@ -282,6 +282,6 @@ Feature: Service related networking scenarios
     Given I ensure "udp-pod" pod is deleted
     # Check the conntrack entry is deleted with the svc
     When I run command on the "<%= cb.node %>" node's sdn pod:
-      | bash | -c | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
+      | bash | -c | conntrack -L -d <%= cb.service_ip %> |
     Then the step should succeed
     And the output should not contain "dst=<%= cb.service_ip %>"
