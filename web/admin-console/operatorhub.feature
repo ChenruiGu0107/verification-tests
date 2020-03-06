@@ -103,3 +103,83 @@ Feature: operatorhub feature related
     """
     Then I wait for the "cluster-logging" packagemanifests to appear in the "default" project up to 30 seconds
     And the packagemanifests named "cluster-logging" does not exist in the "openshift-console" project
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-26029
+  @admin
+  @destructive
+  Scenario: Check container security on console
+    Given the master version >= "4.4"
+    Given I have a project
+    Then evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/vul_deployment.yaml |
+    Then the step should succeed
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+
+    # install container security operator
+    And I wait up to 420 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | container-security-operator |
+      | catalog_name     | community-operators         |
+      | target_namespace | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Subscribe |
+    Then the step should succeed
+    """
+    # wait until container security operator is successfully installed
+    Given I use the "openshift-operators" project
+    Given a pod becomes ready with labels:
+      | name=container-security-operator-alm-owned |
+    Then I wait for the "sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa" image_manifest_vuln to appear in the "<%= cb.proj_name %>" project up to 30 seconds
+
+
+    #check the display when have vulnerabilities in cluster
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :check_quay_image_security_exists_on_dashboard web action
+    Then the step should succeed
+    When I run the :click_quay_image_security_button web action
+    Then the step should succeed
+    When I perform the :check_quay_image_security_popup web action with:
+      | severity | 1 High       |
+      | text     | 1 namespace  |
+      | link_url | k8s/all-namespaces/secscan.quay.redhat.com~v1alpha1~ImageManifestVuln?name=sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
+    Then the step should succeed
+
+    #check Image Manifest Vulnerabilities page for 4.4 and above
+    When I perform the :goto_ImageManifestVuln_list_page web action with:
+      | project_name |  <%= cb.proj_name %> |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Highest Severity  |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Affected Pods |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Fixable |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Manifest  |
+    Then the step should succeed
+    When I perform the :goto_one_ImageManifestVuln_page web action with:
+      | project_name |  <%= cb.proj_name %> |
+      | manifest     | sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
+    Then the step should succeed
+    When I run the :check_affected_pods_tab web action
+    Then the step should succeed
+
+    #uninstall the operator on web console
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | openshift-operators |
+    Then the step should succeed
+    When I perform the :uninstall_operator_on_console web action with:
+      | resource_name | Container Security |
+    Then the step should succeed
+    Given I use the "<%= cb.proj_name %>" project
+    And I wait for the resource "subscription" named "container-security-operator" to disappear within 30 seconds
