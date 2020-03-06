@@ -91,7 +91,7 @@ Feature: environment related
   # @author yapei@redhat.com
   # @case_id OCP-20183
   Scenario: Check environment variable editor for resource
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
@@ -164,7 +164,7 @@ Feature: environment related
   # @author hasha@redhat.com
   # @case_id OCP-20954
   Scenario: Check environment editor for init container	 
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/initcontainer.yaml    |

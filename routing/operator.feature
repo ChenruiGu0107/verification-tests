@@ -4,7 +4,7 @@ Feature: Testing Ingress Operator related scenarios
   # @case_id OCP-21766
   @admin
   Scenario: Integrate router metrics with the monitoring component
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     And I use the "openshift-ingress" project
     Then the expression should be true> service_monitor('router-default').exists?
@@ -17,7 +17,7 @@ Feature: Testing Ingress Operator related scenarios
   @admin
   @destructive
   Scenario: the replicas of router deployment is controlled by ingresscontroller
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I have a project
     And I store default router subdomain in the :subdomain clipboard
     Given I switch to cluster admin pseudo user
@@ -52,7 +52,7 @@ Feature: Testing Ingress Operator related scenarios
   @admin
   @destructive
   Scenario: the wildcard route certificate of router is controlled by ingresscontroller
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I have a project
     And I store default router subdomain in the :subdomain clipboard
     Given I switch to cluster admin pseudo user
@@ -90,7 +90,7 @@ Feature: Testing Ingress Operator related scenarios
   @admin
   @destructive
   Scenario: the namespaceSelector of router is controlled by ingresscontroller
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
@@ -137,7 +137,7 @@ Feature: Testing Ingress Operator related scenarios
   @admin
   @destructive
   Scenario: the routeSelector of router is controlled by ingresscontroller
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
@@ -182,7 +182,7 @@ Feature: Testing Ingress Operator related scenarios
   # @case_id OCP-23168
   @admin
   Scenario: enable ROUTER_THREADS for haproxy router by default
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     And I use the "openshift-ingress" project
     And all default router pods become ready
@@ -195,7 +195,7 @@ Feature: Testing Ingress Operator related scenarios
   @admin
   @destructive
   Scenario Outline: the tlsSecurityProfile of ingresscontroller can be set to Old, Intermediate, Modern and Custom
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I have a project
     And I store default router subdomain in the :subdomain clipboard
     Given I switch to cluster admin pseudo user
@@ -229,7 +229,7 @@ Feature: Testing Ingress Operator related scenarios
   # @case_id OCP-26150
   @admin
   Scenario: integrate ingress operator metrics with Prometheus
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     And I switch to cluster admin pseudo user
     And I use the "openshift-ingress-operator" project
     Then the expression should be true> service_monitor('ingress-operator').exists?
