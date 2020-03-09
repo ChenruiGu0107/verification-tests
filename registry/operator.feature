@@ -120,3 +120,134 @@ Feature: Testing image registry operator
       | registry operator                                                         |
       | ImageRegistrySpec defines the specs for the running registry.             | 
       | ImageRegistryStatus reports image registry operational status             |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-24353
+  @admin
+  @destructive
+  Scenario: Registry operator storage setup - Azure 
+    Given a 4 characters random string of type :dns is stored into the :short_nm clipboard
+    Given a 25 characters random string of type :dns is stored into the :longer_nm clipboard
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I get project secret named "image-registry-private-configuration" as YAML
+    Then the output should contain:
+      | REGISTRY_STORAGE_AZURE_ACCOUNTKEY |
+    When I get project secret named "installer-cloud-credentials" as YAML
+    Then the output should contain:
+      | azure_client_secret |
+      | azure_region        |
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster|
+    Then the output should contain:
+      | Azure                    |
+      | Storage container exists |
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.short_nm %>"}}}} | 
+    And I register clean-up steps:
+    """
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    And evaluation of `@result[:parsed]['spec']['storage']['azure']['container']` is stored in the :cont clipboard
+    And evaluation of `@result[:parsed]['spec']['storage']['azure']['accountName']` is stored in the :aname clipboard
+    Given I save the output to file>imageregistry.yaml
+    And I replace lines in "imageregistry.yaml":
+      | accountName: <%= cb.aname %> | accountName: |
+      | container: <%= cb.cont %>    | container:   | 
+    When I run the :apply client command with:
+      | f | imageregistry.yaml |
+    Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    """
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster                                    |
+    Then the output should contain:
+      | Account Name:  <%= cb.short_nm %> |
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.longer_nm %>"}}}} | 
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    Then the output should contain:
+      | AzureError |
+    And evaluation of `@result[:parsed]['spec']['storage']['azure']['container']` is stored in the :container clipboard
+    Given I save the output to file>imageregistry.yaml
+    And I replace lines in "imageregistry.yaml":
+      | accountName: <%= cb.longer_nm %> | accountName: |
+      | container: <%= cb.container %>   | container:   | 
+    When I run the :apply client command with:
+      | f | imageregistry.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :third_change clipboard
+    And the expression should be true> cb.third_change - cb.after_change >=1
+    """
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster                                    |
+    Then the output should contain:
+      | Storage container exists |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-22945
+  @admin
+  @destructive
+  Scenario: Autoconfigure registry storage on AWS-UPI 
+    Given a 25 characters random string of type :dns is stored into the :custom_nm clipboard
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I get project secret named "image-registry-private-configuration" as YAML
+    Then the output should contain:
+      | REGISTRY_STORAGE_S3_ACCESSKEY |
+      | REGISTRY_STORAGE_S3_SECRETKEY | 
+    When I get project secret named "installer-cloud-credentials" as YAML
+    Then the output should contain:
+      | aws_access_key_id     |
+      | aws_secret_access_key |
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster                                    |
+    Then the output should contain:
+      | S3 Bucket Exists |
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"storage":{"s3":{"bucket":"<%= cb.custom_nm %>"}}}} | 
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    """
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    Then the output should contain:
+      | bucket: <%= cb.custom_nm %> | 
+    Given I save the output to file>imageregistry.yaml
+    And I replace lines in "imageregistry.yaml":
+      | bucket: <%= cb.custom_nm %> | |
+    When I run the :replace client command with:
+      | f | imageregistry.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster                                    |
+    Then the output should contain:
+      | S3 Bucket Exists |
+    And the output should not contain:
+      | bucket: <%= cb.custom_nm %> |
