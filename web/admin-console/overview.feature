@@ -560,3 +560,41 @@ Feature: overview cases
     When I perform the :check_page_contains web action with:
       | content | <%= cb.ds_all_pods[-1].name %> |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-20984
+  Scenario: Check k8s deployment on Home Overview page
+    Given the master version >= "4.1"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simple-deployment.yaml |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | app=hello-openshift |
+    Then current replica set name of "example" deployment stored into :rs_name clipboard
+    
+    Given I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    # check ds link
+    When I perform the :check_list_item web action with:
+      | resource_name | example         |
+      | resource_kind | Deployment      |
+    Then the step should succeed
+    # check rs link
+    When I perform the :check_link_and_text web action with:
+      | text     | 1 |
+      | link_url | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %> |
+    Then the step should succeed
+    When I perform the :check_pod_number_and_link web action with:
+      | text | 1 of 1 pods |
+      | link | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %>/pods |
+    Then the step should succeed
+    # check actions on expanded sidebar
+    When I perform the :click_list_item web action with:
+      | resource_name | example         |
+      | resource_kind | Deployment      |
+    Then the step should succeed
+    When I run the :check_deployment_availble_action_menus web action
+    Then the step should succeed
