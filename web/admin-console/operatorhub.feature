@@ -101,8 +101,10 @@ Feature: operatorhub feature related
       | image               | docker.io/aosqe/logging:latest |
     Then the step should succeed
     """
-    Then I wait for the "cluster-logging" packagemanifests to appear in the "default" project up to 30 seconds
-    And the packagemanifests named "cluster-logging" does not exist in the "openshift-console" project
+    Then I use the "default" project
+    And a pod becomes ready with labels:
+      | olm.catalogSource=custom-logging-ns |
+
 
 
   # @author hasha@redhat.com
