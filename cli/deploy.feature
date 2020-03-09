@@ -1352,10 +1352,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
-    When I run the :run client command with:
-      | name      | app                |
-      | generator | deployment/v1beta1 |
-      | image     | app:v1             |
+    When I run the :create_deployment client command with:
+      | name          | app                        |
+      | image         | app:v1                     |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1366,9 +1365,9 @@ Feature: deployment related features
       | deployment | deployment/app |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | deployment                                     |
-      | resource_name | app                                            |
-      | o             | jsonpath={.spec.template.metadata.annotations} |
+      | resource      | deployment                                            |
+      | resource_name | app                                                   |
+      | o             | jsonpath={.spec.template.metadata.annotations}        |
     Then the step should succeed
     And the output should match "alpha.image.policy.openshift.io/resolve-names"
     Given status becomes :running of 1 pods labeled:
