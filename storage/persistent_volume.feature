@@ -666,36 +666,52 @@ Feature: Persistent Volume Claim binding policies
       | - devicePath: /dev/xvda |
 
   # @author piqin@redhat.com
+  # @author wduan@redhat.com
   @admin
   Scenario Outline: PV and PVC with same VolumeMode, but with other invalid feild should not be bound
     Given I have a project
-
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
-      | ["metadata"]["name"]   | pv-<%= project.name %> |
-      | ["spec"]["volumeMode"] | Block                  |
-      | <pv_key>               | <pv_value>             |
+      | ["metadata"]["name"]         | pv-<%= project.name %> |
+      | ["spec"]["volumeMode"]       | Block                  |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | <pv_key>                     | <pv_value>             |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
       | <pvc_key>                    | <pvc_value>             |
     Then the step should succeed
     Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | FailedBinding                   |
-      | no persistent volumes available |
 
     Examples:
       | pv_key                          | pv_value      | pvc_key                                      | pvc_value     |
       | ["spec"]["capacity"]["storage"] | 1Gi           | ["spec"]["resources"]["requests"]["storage"] | 5Gi           | # @case_id OCP-17561
       | ["spec"]["accessModes"][0]      | ReadWriteOnce | ["spec"]["accessModes"][0]                   | ReadWriteMany | # @case_id OCP-17557
-      | ["spec"]["storageClassName"]    | sc-1          | ["spec"]["storageClassName"]                 | sc-2          | # @case_id OCP-17559
+  
+
+  # @author piqin@redhat.com
+  # @author wduan@redhat.com
+  # @case_id OCP-17559
+  @admin
+  Scenario: PV and PVC with the same VolumeMode but different StorageClass could not be bound
+    Given I have a project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]         | pv-<%= project.name %>   |
+      | ["spec"]["volumeMode"]       | Block                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>-1 |
+    Then the step should succeed
+    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %>  |
+      | ["spec"]["volumeMode"]       | Block                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>-2 |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+
 
   # @author piqin@redhat.com
   # @author lxia@redhat.com
