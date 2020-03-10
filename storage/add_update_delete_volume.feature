@@ -172,6 +172,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | env          | MONGODB_DATABASE=testdb    |
       | env          | MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                       |
+      | labels       | app=mydb                   |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
