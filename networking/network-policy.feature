@@ -1115,7 +1115,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Given I have a pod-for-ping in the project
     And evaluation of `pod.ip` is stored in the :p1pod1ip clipboard
-    And evaluation of `pod.node_name` is stored in the :podnodename clipboard    
+    And evaluation of `pod.node_name` is stored in the :podnodename clipboard
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -1560,7 +1560,7 @@ Feature: Network policy plugin scenarios
       | name=test-pods |
     And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
-    
+
     # create network policy with both ingress and egress field in project 1
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/ignore-egress-policy.yaml |
@@ -1604,7 +1604,7 @@ Feature: Network policy plugin scenarios
   # @author bmeng@redhat.com
   # @case_id OCP-19399
   @admin
-  Scenario: If only egress type of rule appears in the networkpolicy then the networkpolicy will not take effect    
+  Scenario: If only egress type of rule appears in the networkpolicy then the networkpolicy will not take effect
     Given the master version >= "3.9"
 
     # create project and pods
@@ -1734,8 +1734,9 @@ Feature: Network policy plugin scenarios
   # @case_id OCP-19552
   @admin
   Scenario: Should not break the cluster when creating network policy with incorrect json structure
-    Given the master version >= "3.9"
+    Given the master version >= "4.1"
 
+    Given I store the masters in the :masters clipboard
     # Create project via user and create invalid networkpolicy in it
     Given I have a project
     When I run the :create client command with:
@@ -1747,12 +1748,11 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
 
-    # Check if there is core dump generated on master node
-    Given I run commands on all masters:
-      | ls /var/lib/origin/ |
-    Then the step should succeed
-    And the output should not match:
-      | core.\d+ |
+    # Check if there is core dump generated on master nodes
+    Given I run commands on the nodes in the :masters clipboard:
+      | coredumpctl list |
+    Then all outputs should contain:
+      | No coredumps found. |
 
   # @author zzhao@redhat.com
   # @case_id OCP-21219
@@ -1846,7 +1846,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
- 
+
     Given I use the "<%= cb.proj1 %>" project
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
@@ -1870,7 +1870,7 @@ Feature: Network policy plugin scenarios
     When I execute on the "<%= cb.p1pod2 %>" pod:
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
     Then the step should succeed
-    And the output should contain "Hello"    
+    And the output should contain "Hello"
 
     When I run the :delete client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
