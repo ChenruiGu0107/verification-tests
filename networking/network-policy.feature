@@ -1885,3 +1885,102 @@ Feature: Network policy plugin scenarios
       | curl | -s | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+
+  # @author huirwang@redhat.com
+  # @case_id OCP-26207
+  @admin
+  @destructive
+  Scenario: A network policy with ingress rule with "ipBlock"
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
+    And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
+    And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
+    And evaluation of `pod(2).ip` is stored in the :pod2_ip clipboard
+
+    #Apply networpolicy with ipBlock as pod0 ip
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/nw_ipblock.yaml"
+    And I replace lines in "nw_ipblock.yaml":
+      | 10.131.0.25/32 | <%= cb.pod0_ip %>/32 |
+    And I run the :create admin command with:
+      | f | nw_ipblock.yaml |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+
+    #From pod0 access pod2 success, from pod1 access pod2 fail
+    When I execute on the "<%= cb.pod0_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod1_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    #delete network policy
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.proj1 %>" project
+    And admin ensures "test-podselector-and-ipblock" network_policy is deleted
+
+    # from pod0 and pod1 access pod2 success
+    When I execute on the "<%= cb.pod0_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod1_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+
+    # create another project and pods
+    Given I switch to the first user
+    And I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(3).name` is stored in the :pod3_name clipboard
+    And evaluation of `pod(3).ip` is stored in the :pod3_ip clipboard
+    And evaluation of `pod(4).name` is stored in the :pod4_name clipboard
+
+    #Apply networkpoicy to project 1 with ipBlock is pod3 ip
+    When I replace lines in "nw_ipblock.yaml":
+      | <%= cb.pod0_ip %>/32 | <%= cb.pod3_ip %>/32 |
+    And I run the :create admin command with:
+      | f | nw_ipblock.yaml |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+
+    #From pod3 in project 2 access pod2 success, from pod4 in project2 access pod2 fail
+    When I execute on the "<%= cb.pod3_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod4_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    #Delete networkpolicy
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.proj1 %>" project
+    And admin ensures "test-podselector-and-ipblock" networkpolicies is deleted
+
+    # From pod3 and pod4 access pod2 success.
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.pod3_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pod4_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
