@@ -50,13 +50,7 @@ Feature: Audit logs related scenarios
     Then the step should succeed
     And the pod named "mypod" becomes ready
 
-    # Create a serviceaccount, add clusterrole and proper permissions for the pod service account
-    Given a 5 characters random string of type :dns is stored into the :crolebinding clipboard
-    When I run the :create_clusterrolebinding admin command with:
-      | name           | <%= cb.crolebinding %>      |
-      | clusterrole    | cluster-admin               |
-      | serviceaccount | <%= project.name %>:default |
-    Then the step should succeed 
+    Given cluster role "cluster-admin" is added to the "system:serviceaccount:<%= project.name %>:default" service account
 
     # Verify if the normal user login entry captures in openshift-apiserver audit logs
     When admin executes on the pod:
