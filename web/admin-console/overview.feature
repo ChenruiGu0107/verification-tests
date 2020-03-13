@@ -264,12 +264,9 @@ Feature: overview cases
     When I perform the :click_button web action with:
       | button_text  | Subscribe |
     Then the step should succeed
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I perform the :check_page_contains web action with:
-      | content | InstallSucceeded |
-    Then the step should succeed
-    """
+    Given a pod becomes ready with labels:
+      | name=etcd-operator-alm-owned |
+
     When I perform the :click_first_item_from_gridcell_list_and_check_breadcrumb web action with:
       | layer_number | 1                              |
       | link         | operators.coreos.com~v1alpha1~ClusterServiceVersion |
