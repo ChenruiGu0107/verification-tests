@@ -168,11 +168,23 @@ Feature: customize console related
       | content | Identity Providers |
     Then the step should succeed
     """
+    When I run the :get admin command with:
+      | resource      | deployment               |
+      | resource_name | oauth-openshift          |
+      | o             | yaml                     |
+      | namespace     | openshift-authentication |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i` is stored in the :version_before_deploy clipboard
+
     When I perform the :add_htpasswd_idp_upload_files web action with:
       | idp_name  | ui-auto-htpasswd               |
       | file_path | <%= expand_path("htpasswd") %> |
     Then the step should succeed
-    Given the secret for "ui-auto-htpasswd" htpasswd is stored in the :htpasswd_secret_name clipboard
+    When I perform the :check_idp_in_table_list web action with:
+      | idp_name | ui-auto-htpasswd |
+      | idp_type | HTPasswd         |
+    Then the step should succeed
+
     Given I register clean-up steps:
     """
     When I run the :delete admin command with:
@@ -186,25 +198,25 @@ Feature: customize console related
     Given I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
+      | resource      | deployment               |
+      | resource_name | oauth-openshift          |
+      | o             | yaml                     |
+      | namespace     | openshift-authentication |
     Then the step should succeed
-    And the output should contain "ui-auto-htpasswd"
-    Given I use the "openshift-authentication" project
-    And 1 pods become ready with labels:
-      | app=oauth-openshift |
-    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
-    And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
-    And the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    And the expression should be true> @result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i > <%= cb.version_before_deploy %>
     """
+    And I use the "openshift-authentication" project
+    Given number of replicas of the current replica set for the "oauth-openshift" deployment becomes:
+      | desired  | 2 |
+      | current  | 2 |
+      | ready    | 2 |
 
     # logout and re-login using specified IDP
     When I run the :click_logout web action
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
-    When I open web server via the "<%= browser.base_url %>" url
+    When I access the "/k8s/cluser/projects" path in the web console    
     When I perform the :login_with_specified_idp web action with:
       | idp_name | ui-auto-htpasswd  |
       | username | uiauto1           |
