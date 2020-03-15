@@ -1,4 +1,69 @@
 Feature: storage security check
+  # @author lxia@redhat.com
+  @admin
+  Scenario Outline: Run pod with specific user/group by using securityContext
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | mypvc |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-security-context.yaml" replacing paths:
+      | ["spec"]["securityContext"]["<key>"] | 135246 |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | id |
+    Then the step should succeed
+    And the output should contain:
+      | 135246 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/storage/hello |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -l | /mnt/storage/hello |
+    Then the step should succeed
+    And the output should contain:
+      | 135246 |
+    When I execute on the pod:
+      | /mnt/storage/hello |
+    Then the step should succeed
+
+    Examples:
+      | key       |
+      | runAsUser | # @case_id OCP-28093
+      | fsGroup   | # @case_id OCP-28095
+
+  # @author lxia@redhat.com
+  # @case_id OCP-28097
+  @admin
+  Scenario: Run pod with specific SELinux by using seLinuxOptions in securityContext
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | mypvc |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-security-context.yaml" replacing paths:
+      | ["spec"]["securityContext"]["seLinuxOptions"] | {"level":"s0:c13,c2"} |
+    Then the step should succeed
+    And the pod named "mypod" becomes ready
+    When I execute on the pod:
+      | ls | -lZd | /mnt/storage |
+    Then the step should succeed
+    And the output should match:
+      | s0:c2,c13 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/storage/hello |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/storage/hello |
+    Then the step should succeed
+    And the output should contain:
+      | s0:c2,c13 |
+    When I execute on the pod:
+      | /mnt/storage/hello |
+    Then the step should succeed
 
   # @author wehe@redhat.com
   # @case_id OCP-13915
