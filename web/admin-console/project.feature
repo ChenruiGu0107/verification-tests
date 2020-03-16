@@ -95,3 +95,42 @@ Feature: projects related features via web
     When I perform the :check_cpu_data_for_one_project_in_table web action with:
       | project_name | openshift-apiserver |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-26841
+  Scenario: Check project list for display name and creation date
+    Given the master version >= "4.3"
+    Given an 8 character random string of type :dns is stored into the :pro_name clipboard
+    When I run the :new_project client command with:
+      | project_name | project-<%= cb.pro_name %> |
+      | display_name | display-<%= cb.pro_name %> |
+    Then the step should succeed
+    Then I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | project |
+    Then the step should succeed
+    And the output should contain:
+      | project-<%= cb.pro_name %> |
+      | display-<%= cb.pro_name %> |
+    """
+    Given I open admin console in a browser
+    When I run the :goto_projects_list_page web action
+
+    # check columns: display name and creation date
+    When I perform the :check_column_in_table web action with:
+      | field | Display Name |
+    And I perform the :check_column_in_table web action with:
+      | field | Created |
+    Then the step should succeed
+
+    # check same row: project name,  display name and creation time
+    When I perform the :check_resource_data_in_table web action with:
+      | resource_name | project-<%= cb.pro_name %> |
+      | data          | display-<%= cb.pro_name %> |
+    Then the step should succeed
+    When I perform the :check_resource_data_in_table web action with:
+      | resource_name | project-<%= cb.pro_name %> |
+      | data          | ago                        |
+    Then the step should succeed
+
