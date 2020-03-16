@@ -46,3 +46,27 @@ Feature: admin console api related
     When I perform the :check_metrics_query_result web action with:
       | metrics_name | console_url |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-27901
+  @admin
+  Scenario: Console backend should proxy requests for config maps for dashboard configuration
+    Given the master version >= "4.4"
+
+    # grant normal user auto-test-metrics-reader cluster role
+    Given admin ensures "auto-test-metrics-reader" cluster_role is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/metrics-reader-cluster-role.yaml |
+    Then the step should succeed
+    Given cluster role "auto-test-metrics-reader" is added to the "first" user
+
+    # normal user with metrics-reader role can view all Dashboards
+    Given I open admin console in a browser
+    When I perform the :click_secondary_menu web action with:
+      | primary_menu   | Monitoring |
+      | secondary_menu | Dashboards |
+    Then the step should succeed
+    When I run the :check_grafana_dashboard_body_loaded web action
+    Then the step should succeed
+    When I run the :check_dashboard_dropdown_items web action
+    Then the step should succeed
