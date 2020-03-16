@@ -644,7 +644,7 @@ Feature: Testing route
       | https://<%= route("route-reencrypt", service("service-secure")).dns(by: user) %>/ |
       | -k                                                                                |
     Then the step should succeed
-    And the output should contain "503 Service Unavailable"
+    And the output should match "HTTP.* 503"
 
   # @author zzhao@redhat.com
   # @case_id OCP-15028
