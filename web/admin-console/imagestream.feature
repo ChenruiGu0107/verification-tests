@@ -10,6 +10,11 @@ Feature: imagestream related
     Then the step should succeed
 
     Given I open admin console in a browser
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project istag
+    Then the output should contain "testdotnet:1.1"
+    """    
     When I perform the :goto_one_imagestream_page web action with:
       | project_name     | <%= project.name %> |
       | imagestream_name | testdotnet          |
@@ -32,11 +37,12 @@ Feature: imagestream related
       | project_name     | <%= project.name %> |
       | imagestream_name | testdotnet          |
     Then the step should succeed
-
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :check_page_contains web action with:
       | content | There are 1 warning alerts |
     Then the step should succeed
-
+    """
     When I perform the :click_button web action with:
       | button_text | Show |
     Then the step should succeed
