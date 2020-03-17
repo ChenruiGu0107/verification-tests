@@ -272,7 +272,7 @@ Feature: Service related networking scenarios
     Then the step should succeed
 
     # Check the conntrack entry generated on the node
-    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+    When I run command on the "<%= cb.node %>" node's sdn pod:
       | bash | -c | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
     Then the step should succeed
     And the output should contain:
@@ -281,7 +281,7 @@ Feature: Service related networking scenarios
 
     Given I ensure "udp-pod" pod is deleted
     # Check the conntrack entry is deleted with the svc
-    When I run command on the "<%= cb.node_name %>" node's sdn pod:
+    When I run command on the "<%= cb.node %>" node's sdn pod:
       | bash | -c | conntrack -L -d <%= cb.service_ip %> \|\| runc exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> \|\| docker exec atomic-openshift-node conntrack -L -d <%= cb.service_ip %> |
     Then the step should succeed
     And the output should not contain "dst=<%= cb.service_ip %>"
