@@ -29,16 +29,17 @@ Feature: Storage of Hostpath plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/security/hostpath.yaml" replacing paths:
-      | ["metadata"]["name"]                       | localpd-<%= cb.proj_name %>    |
-      | ["spec"]["volumes"][0]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
+      | ["metadata"]["name"]                                      | localpd-<%= cb.proj_name %>    |
+      | ["spec"]["volumes"][0]["hostPath"]["path"]                | /etc/origin/<%= cb.hostpath %> |
+      | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | 22222                          |
     Then the step should succeed
     And the pod named "localpd-<%= project.name %>" becomes ready
 
     When I execute on the pod:
       | id |
     Then the output should contain:
-      | 1000130001 |
-      | 123456     |
+      | 22222  |
+      | 123456 |
     When I execute on the pod:
       | ls | -ld | /example/hostpath |
     Then the step should succeed
@@ -51,7 +52,7 @@ Feature: Storage of Hostpath plugin testing
       | ls | -l | /example/hostpath/testfilea |
     Then the step should succeed
       And the output should contain:
-      | 1000130001 |
+      | 22222 |
     When I execute on the pod:
       | cp | /hello | /example/hostpath |
     Then the step should succeed
