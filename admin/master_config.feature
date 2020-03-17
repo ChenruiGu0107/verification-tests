@@ -2561,12 +2561,12 @@ Feature: test master config related steps
       | echo '    namespaces: ["<%= cb.project1 %>"]' >>/etc/origin/master/audit-policy.yaml |
     And the master service is restarted on all master nodes
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
     When I run the :create client command with:
-     | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+     | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -2589,7 +2589,7 @@ Feature: test master config related steps
     Given I create a new project
     And evaluation of `project.name` is stored in the :project3 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -2616,7 +2616,7 @@ Feature: test master config related steps
     Given I create a new project
     And evaluation of `project.name` is stored in the :project4 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/geliu2016/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |

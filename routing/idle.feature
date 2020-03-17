@@ -152,7 +152,7 @@ Feature: idle service related scenarios
   # @case_id OCP-20989
   Scenario: haproxy should load other routes even if headless service is idled
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/lihongan/v3-testfiles/master/routing/dns/headless-services.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/dns/headless-services.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given I wait until number of replicas match "1" for replicationController "caddy-rc"
