@@ -170,3 +170,65 @@ Feature: build related
       | ruby-sample-1.+Cancelled  |
       | ruby-sample-3.+Cancelled  |
     """
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-23967
+  Scenario: explore sidebar for YAML editor
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/python:latest                 |
+      | code         | https://github.com/sclorg/django-ex.git |
+      | name         | python-sample                           |
+    Then the step should succeed
+    Given I open admin console in a browser
+
+    # check BC breadcrumb_sidebar
+    When I perform the :goto_one_buildconfig_page web action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | python-sample        |
+    Then the step should succeed
+    When I run the :click_yaml_tab web action
+    Then the step should succeed
+    When I run the :open_view_sidebar web action
+    Then the step should succeed
+    When I run the :view_schema_definition_of_bc_output_name web action
+    Then the step should succeed
+    When I perform the :click_item_in_breadcrumb web action with:
+      | breadcrumb_item | output |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | output describes the container image the Strategy should produce. |
+    Then the step should succeed
+    When I run the :close_view_sidebar web action
+    Then the step should succeed
+
+    #check build breadcrumb_sidebar
+    When I perform the :goto_one_build_page web action with:
+      | project_name  | <%= project.name %>  |
+      | build_name    | python-sample-1      |
+    Then the step should succeed
+    When I run the :click_yaml_tab web action
+    Then the step should succeed
+    When I run the :open_view_sidebar web action
+    Then the step should succeed
+    When I run the :view_schema_definition_of_build_postcommit_command_field web action
+    Then the step should succeed
+    When I perform the :click_item_in_breadcrumb web action with:
+      | breadcrumb_item | spec |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | spec is all the inputs used to execute the build |
+    Then the step should succeed
+
+    #check breadcrumb_sidebar when creating resource by yaml editor
+    When I perform the :goto_deployment_page web action with:
+      | project_name  | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :click_yaml_create_button web action
+    Then the step should succeed
+    When I run the :view_schema_definition_of_for_replicas_field web action
+    Then the step should succeed
+    When I run the :close_view_sidebar web action
+    Then the step should succeed
+
