@@ -1432,3 +1432,33 @@ Feature: deployment related features
       | Labels:      |
       | Containers:  |
       | Annotations: |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-28016
+  Scenario: dnsPolicy: none works well
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | openshift/hello-openshift |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | dc              |
+      | resource_name | hello-openshift |
+      | p             | {"spec":{"template":{"spec":{"dnsPolicy": "None", "dnsConfig":{"nameservers":["8.8.8.8"], "searches":["svc.cluster.local","cluster.local"]}}}}} |
+    Then the step should succeed
+    And I wait until the status of deployment "hello-openshift" becomes :complete
+    Given 1 pods become ready with labels:
+      | deploymentconfig=hello-openshift |
+    When I run the :get client command with:
+      | resource      | pod                 |
+      | resource_name | <%= pod.name %>     |
+      | template      | {{.spec.dnsConfig}} |
+    Then the step should succeed
+    And the output should contain:
+      | svc.cluster.local cluster.local |
+    When I run the :get client command with:
+      | resource      | pod                 |
+      | resource_name | <%= pod.name %>     |
+      | template      | {{.spec.dnsPolicy}} |
+    Then the step should succeed
+    And the output should contain:
+      | None |
