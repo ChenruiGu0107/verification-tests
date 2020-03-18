@@ -50,62 +50,75 @@ Feature: operatorhub feature related
   Scenario: check Custom serviceCatalog on console
     Given the master version >= "4.3"
     Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
     Given the first user is cluster-admin
+    Given admin ensures "custom-cs-keycloak" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin ensures "custom-cs-keycloak-ns" catalog_source is deleted from the "default" project after scenario
+
+    # create cluster-wide CatalogSource
     Given I open admin console in a browser
-    Given admin ensures "custom-logging" catalog_source is deleted from the "openshift-marketplace" project after scenario
-    And admin ensures "custom-logging-ns" catalog_source is deleted from the "default" project after scenario
     When I perform the :create_catalog_source web action with:
-      | catalog_source_name | custom-logging        |
-      | display_name        | custom-logging        |
-      | publisher_name      | custom-logging        |
-      | image               | docker.io/aosqe/logging:latest |
+      | catalog_source_name | custom-cs-keycloak        |
+      | display_name        | Custom Catalog Source     |
+      | publisher_name      | OpenShift QE              |
+      | image               | docker.io/aosqe/custom-keycloak:latest |
     Then the step should succeed
-    And I wait up to 420 seconds for the steps to pass:
+    Given I use the "openshift-marketplace" project
+    And a pod becomes ready with labels:
+      | olm.catalogSource=custom-cs-keycloak |
+
+    # subscribe operator to one namespace
+    Given I wait up to 180 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | cluster-logging     |
-      | catalog_name     | custom-logging      |
-      | target_namespace | <%= project.name %> |
+      | package_name     | keycloak-operator   |
+      | catalog_name     | custom-cs-keycloak  |
+      | target_namespace | <%= cb.proj_name %> |
     Then the step should succeed
     When I perform the :click_button web action with:
       | button_text  | Subscribe |
     Then the step should succeed
     """
-    Then I wait for the "cluster-logging" subscription to appear in the "<%= project.name %>" project up to 30 seconds
+    Given I wait for the "keycloak-operator" subscription to appear in the "<%= cb.proj_name %>" project up to 30 seconds
+    
+    # console will show 'Catalog Source Removed' on Subscription page when CatalogSource is removed
     When I run the :goto_catalog_source_page web action
     Then the step should succeed
     When I run the :wait_box_loaded web action
     Then the step should succeed
     When I perform the :click_one_operation_in_kebab web action with:
-      | resource_name | custom-logging       |
+      | resource_name | custom-cs-keycloak   |
       | kebab_item    | Delete CatalogSource |
     Then the step should succeed
     When I perform the :confirm_deletion web action with:
-      | resource_name | custom-logging |
+      | resource_name | custom-cs-keycloak |
     Then the step should succeed
-    And I wait for the resource "catalogsource" named "cluster-logging" to disappear within 30 seconds
+    Given I use the "openshift-marketplace" project
+    Given I wait for the resource "catalogsource" named "custom-cs-keycloak" to disappear within 30 seconds
     When I perform the :goto_one_project_subscription_page web action with:
-      | project_name      | <%= project.name %> |
-      | subscription_name | cluster-logging     |
+      | project_name      | <%= cb.proj_name %>   |
+      | subscription_name | keycloak-operator     |
     Then the step should succeed
     When I perform the :check_page_match web action with:
       | content | Catalog Source Removed |
     Then the step should succeed
-    Then I wait up to 60 seconds for the steps to pass:
-    """
+
+    # create namespace scoped CatalogSource
     When I perform the :create_catalog_source web action with:
-      | catalog_source_name | custom-logging-ns |
-      | display_name        | custom-logging-ns |
-      | publisher_name      | custom-logging-ns |
-      | item                | default           |
-      | image               | docker.io/aosqe/logging:latest |
+      | catalog_source_name | custom-cs-keycloak-ns       |
+      | display_name        | Custom Catalog Source NS    |
+      | publisher_name      | OpenShift QE                |
+      | item                | default                     |
+      | image               | docker.io/aosqe/custom-keycloak:latest |
     Then the step should succeed
-    """
-    Then I use the "default" project
-    And a pod becomes ready with labels:
-      | olm.catalogSource=custom-logging-ns |
 
-
+    Given I use the "default" project
+    And a pod is present with labels:
+      | olm.catalogSource=custom-cs-keycloak-ns |
+    Given I use the "kube-system" project
+    When I get project pods
+    And the output should not contain:
+      | custom-cs-keycloak |
 
   # @author hasha@redhat.com
   # @case_id OCP-26029
