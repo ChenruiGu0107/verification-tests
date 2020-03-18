@@ -348,3 +348,73 @@ Feature: Scheduler predicates and priority test suites
     And the pod named "<%= cb.podthree %>" becomes terminating
     Given the pod named "<%= cb.podm %>" status becomes :running
     Then the expression should be true> pod.node_name == cb.nodethree
+
+  # @case_id OCP-19892
+  @admin
+  @destructive
+  Scenario: Higher priority pod should preempt the resource even when lower priority pod has nominated node name
+    Given the master version >= "4.1"
+    Given admin ensures "priorityl" priority_class is deleted after scenario
+    Given admin ensures "prioritym" priority_class is deleted after scenario
+    Given admin ensures "priorityh" priority_class is deleted after scenario
+    Given I store the schedulable workers in the :nodes clipboard
+    And the expression should be true> cb.nodes.delete(node)
+    Given the taints of the nodes in the clipboard are restored after scenario
+    # Creation of priority classes
+    When I run the :create admin command with:
+      | f | /<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
+    Then the step should succeed
+    And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+      | ["metadata"]["name"] | prioritym |
+      | ["value"]            | 99        |
+    Then the step should succeed
+    And the output should contain "priorityclass.scheduling.k8s.io/prioritym created"
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+      | ["metadata"]["name"] | priorityh |
+      | ["value"]            | 100       |
+    Then the step should succeed
+    And the output should contain "priorityclass.scheduling.k8s.io/priorityh created"
+    # Mark two nodes as unschedulable
+     When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    # Test runs
+    Given I have a project
+    And evaluation of `node.remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | env=test |
+    And evaluation of `pod.name` is stored in the :podl clipboard
+    Then the expression should be true> pod.node_name == node.name
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+      | ["metadata"]["generateName"]                                 | prioritym                      |
+      | ["metadata"]["labels"]                                       | env: testm                     |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+      | ["spec"]["priorityClassName"]                                | prioritym                      |
+    Then the step should succeed
+    Given status becomes :pending of 1 pods labeled:
+      | env=testm |
+    And evaluation of `pod.name` is stored in the :podm clipboard
+    Then the expression should be true> pod.nominated_node_name == node.name
+    And the pod named "<%= cb.podl %>" becomes terminating
+    Given a pod becomes ready with labels:
+      | env=testm |
+    Then the expression should be true> pod.node_name == node.name
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+      | ["metadata"]["generateName"]                                 | priorityh                      |
+      | ["metadata"]["labels"]                                       | env: testh                     |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
+      | ["spec"]["priorityClassName"]                                | priorityh                      |
+    Then the step should succeed
+    Given status becomes :pending of 1 pods labeled:
+      | env=testh |
+    And evaluation of `pod.name` is stored in the :podh clipboard
+    Then the expression should be true> pod.nominated_node_name == node.name
+    And the pod named "<%= cb.podm %>" becomes terminating
+    Given a pod becomes ready with labels:
+      | env=testh |
+    Then the expression should be true> pod.node_name == node.name
