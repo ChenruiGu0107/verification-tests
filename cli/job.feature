@@ -219,3 +219,21 @@ Feature: job.feature
     Then status becomes :running of 2 pods labeled:
       | run=sj1 |     
   
+  # @author yinzhou@redhat.com
+  # @case_id OCP-28003
+  Scenario: `oc status` run well when job's spec pointer is nil
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | job                   |
+      | resource_name | pi                    |
+      | template      | {{.spec.Completions}} |
+    Then the step should succeed
+    And the output should contain:
+      | <no value> |
+    When I run the :status client command
+    Then the step should succeed
+    And the output should match:
+      | job/pi manages |
