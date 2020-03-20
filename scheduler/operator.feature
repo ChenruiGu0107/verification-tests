@@ -283,3 +283,94 @@ Feature: Testing Scheduler Operator related scenarios
       | filename                          |
       | policy_aff_aff_antiaffi.json      | # @case_id OCP-11889
       | policy_aff_antiaffi_antiaffi.json | # @case_id OCP-12191
+
+  # @case_id OCP-12523
+  @admin
+  @destructive
+  Scenario: Tune the node priority by the weight attribute
+    Given the master version >= "4.1"
+    Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
+    Given node schedulable status should be restored after scenario
+    Given the "cluster" scheduler CR is restored after scenario
+    When I run the :create_configmap admin command with:
+      | name      | scheduler-policy                                                                                 |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_weightattribute.json |
+      | namespace | openshift-config                                                                                 |
+    Then the step should succeed
+
+    Given as admin I successfully merge patch resource "Scheduler/cluster" with:
+      | {"spec":{"policy":{"name":"scheduler-policy"}}} |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I store the schedulable workers in the :nodes clipboard
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    # Test for ServiceSpreadingPriority weight attribute
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :create_deployment client command with:
+      | name  | hello                            |
+      | image | openshift/hello-openshift:latest |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=hello |
+    When I run the :set_resources client command with:
+      | resource      | deployment |
+      | resourcename  | hello      |
+      | requests      | cpu=50m    |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=hello |
+    When I run the :create_deployment client command with:
+      | name  | hello1                           |
+      | image | openshift/hello-openshift:latest |
+    Then the step should succeed
+    Given I successfully patch resource "deployment/hello1" with:
+      | {"spec":{"replicas":2}} |
+    And I wait until number of replicas match "2" for deployment "hello1"
+    Given status becomes :running of 2 pods labeled:
+      | app=hello1 |
+    And evaluation of `@pods[1].node_name` is stored in the :nodename clipboard
+    And evaluation of `@pods[2].node_name` is stored in the :podnodename clipboard
+    Then the expression should be true> cb.podnodename != cb.nodename
+    # Edit weight attribute for leastrequestpriority
+    Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project
+    When I run the :create_configmap admin command with:
+      | name      | scheduler-policy                                                                                    |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_weightattributeone.json |
+      | namespace | openshift-config                                                                                    |
+    Then the step should succeed
+
+    Given as admin I successfully merge patch resource "Scheduler/cluster" with:
+      | {"spec":{"policy":{"name":"scheduler-policy"}}} |
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    # Test for LeastRequestedPriority weight attribute
+    Given I use the "<%= cb.proj_name%>" project
+    Given I use the "<%= cb.nodes[2].name %>" node
+    And evaluation of `cb.nodes[2].remaining_resources[:memory]` is stored in the :node_memory clipboard
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
+    Then the step should succeed
+    Given the pod named "pod-request" status becomes :running within 60 seconds
+    And evaluation of `pod.node_name` is stored in the :nodename clipboard
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-request5 |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
+    Then the step should succeed
+    And the pod named "pod-request5" becomes ready
+    And the expression should be true> pod.node_name != cb.nodename
