@@ -122,3 +122,24 @@ Feature: Scheduler predicates and priority test suites
     Then the step should succeed
     And the pod named "pod-with-remanent-memory" becomes ready
     Then the expression should be true> pod.node_name == node.name
+
+  # @author knarra@redhat.com
+  # @case_id OCP-24240
+  @admin
+  @destructive
+  Scenario: Configure master nodes schedulable
+    Given the master version >= "4.1"
+    Given I set all worker nodes status to unschedulable
+    Given node schedulable status should be restored after scenario
+    Given the "cluster" scheduler CR is restored after scenario
+    When I run the :patch admin command with:
+      | resource      | Scheduler                                     |
+      | resource_name | cluster                                       |
+      | p             | {"spec":{"mastersSchedulable":true}}          |
+      | type          | merge                                         |
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_ocp24240.yaml |
+    Then the step should succeed
+    And the pod named "empty-operator-pod" becomes ready
+    Then the expression should be true> node(pod.node_name).is_master?
