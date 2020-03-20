@@ -144,7 +144,7 @@ Feature: Testing Scheduler Operator related scenarios
 	    | deploymentconfig= openshift1 |
 
   # @author knarra@redhat.com
-  # @case_id OCP_12489
+  # @case_id OCP-12489
   @admin
   @destructive
   Scenario: Fixed priority rules testing - LeastRequestedPriority
