@@ -189,3 +189,44 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     And the pod named "pod-request1" becomes ready
     And the expression should be true> pod.node_name != cb.nodename
+
+  # @author yinzhou@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: Schedule pods within the same service for 4.x
+    Given the master version >= "4.1"
+    Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
+    Given the "cluster" scheduler CR is restored after scenario
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/<filename>"
+    When I run the :create_configmap admin command with:
+      | name      | my-scheduler-policy   |
+      | from_file | policy.cfg=<filename> |
+      | namespace | openshift-config      |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scheduler                                          |
+      | resource_name | cluster                                            |
+      | p             | {"spec":{"policy":{"name":"my-scheduler-policy"}}} |
+      | type          | merge                                              |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I store the schedulable workers in the :nodes clipboard
+    And label "usertestregion=r1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "usertestregion=r2" is added to the "<%= cb.nodes[1].name %>" node
+    And label "usertestzone=z21" is added to the "<%= cb.nodes[1].name %>" node
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | openshift/hello-openshift |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | deploymentconfig=hello-openshift |
+    Then the expression should be true> pod.node_name == <nodename>
+    Examples:
+      | filename                         | nodename         |
+      | policy-label-presence-false.json | cb.nodes[0].name | # @case_id OCP-11100
+      | policy-label-presence-true.json  | cb.nodes[1].name | # @case_id OCP-11465
