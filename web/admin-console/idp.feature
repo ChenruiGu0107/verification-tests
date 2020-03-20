@@ -31,19 +31,13 @@ Feature: add idp from console
       | idp_type | BasicAuth         |
     Then the step should succeed
 
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["basicAuth"]['ca']['name']` is stored in the :cm_name clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["basicAuth"]['tlsClientCert']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_basicauth_test')` is stored in the :idp clipboard
+    Given evaluation of `<%= cb.idp %>["basicAuth"]['ca']['name']` is stored in the :cm_name clipboard
+    Given evaluation of `<%= cb.idp %>["basicAuth"]['tlsClientCert']['name']` is stored in the :secret_name clipboard
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
     Given admin ensures "<%= cb.cm_name %>" configmap is deleted from the "openshift-config" project after scenario
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["basicAuth"]["url"] == 'https://www.openshift.com'
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_basicauth_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "BasicAuth"
+    And the expression should be true> <%= cb.idp %>["basicAuth"]["url"] == 'https://www.openshift.com'
+    And the expression should be true> <%= cb.idp %>["type"] == "BasicAuth"
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -104,18 +98,12 @@ Feature: add idp from console
       | idp_type | GitHub         |
     Then the step should succeed
 
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["github"]['clientSecret']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_github_test')` is stored in the :idp clipboard
+    Given evaluation of `<%= cb.idp %>["github"]['clientSecret']['name']` is stored in the :secret_name clipboard
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_github_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "GitHub"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["github"]["clientID"] == 'testid'
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["github"]["organizations"][0] == 'orgtest'
+    And the expression should be true> <%= cb.idp %>["type"] == "GitHub"
+    And the expression should be true> <%= cb.idp %>["github"]["clientID"] == 'testid'
+    And the expression should be true> <%= cb.idp %>["github"]["organizations"][0] == 'orgtest'
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -163,17 +151,12 @@ Feature: add idp from console
       | idp_name | ui_gitlab_test |
       | idp_type | GitLab         |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["gitlab"]['clientSecret']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_gitlab_test')` is stored in the :idp clipboard
+
+    Given evaluation of `<%= cb.idp %>["gitlab"]['clientSecret']['name']` is stored in the :secret_name clipboard
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "GitLab"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_gitlab_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["gitlab"]["clientID"] == "testid"
+    And the expression should be true> <%= cb.idp %>["type"] == "GitLab"
+    And the expression should be true> <%= cb.idp %>["gitlab"]["clientID"] == "testid"
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -215,24 +198,19 @@ Feature: add idp from console
       | idp_name | ui_ldap_test |
       | idp_type | LDAP         |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
 
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["ldap"]['bindPassword']['name']` is stored in the :secret_name clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["ldap"]['ca']['name']` is stored in the :cm_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_ldap_test')` is stored in the :idp clipboard
+
+    Given evaluation of `<%= cb.idp %>["ldap"]['bindPassword']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `<%= cb.idp %>["ldap"]['ca']['name']` is stored in the :cm_name clipboard
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
     Given admin ensures "<%= cb.cm_name %>" configmap is deleted from the "openshift-config" project after scenario
 
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "LDAP"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_ldap_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["ldap"]["url"] == "ldap://www.openshift.com"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["ldap"]["bindDN"] == "test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["ldap"]["attributes"]["preferredUsername"] == ["testuid"]
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["ldap"]["attributes"]["email"] == ["test@redhat.com"]
+    And the expression should be true> <%= cb.idp %>["type"] == "LDAP"
+    And the expression should be true> <%= cb.idp %>["ldap"]["url"] == "ldap://www.openshift.com"
+    And the expression should be true> <%= cb.idp %>["ldap"]["bindDN"] == "test"
+    And the expression should be true> <%= cb.idp %>["ldap"]["attributes"]["preferredUsername"] == ["testuid"]
+    And the expression should be true> <%= cb.idp %>["ldap"]["attributes"]["email"] == ["test@redhat.com"]
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -269,18 +247,13 @@ Feature: add idp from console
       | idp_type | Google         |
     Then the step should succeed
 
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["google"]['clientSecret']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_google_test')` is stored in the :idp clipboard
+
+    Given evaluation of `<%= cb.idp %>["google"]['clientSecret']['name']` is stored in the :secret_name clipboard
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_google_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "Google"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["google"]["clientID"] == 'testid'
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["google"]["hostedDomain"] == 'redhat.com'
+    And the expression should be true> <%= cb.idp %>["type"] == "Google"
+    And the expression should be true> <%= cb.idp %>["google"]["clientID"] == 'testid'
+    And the expression should be true> <%= cb.idp %>["google"]["hostedDomain"] == 'redhat.com'
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -320,22 +293,17 @@ Feature: add idp from console
       | idp_name | ui_openid_test |
       | idp_type | OpenID         |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
 
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["openID"]['clientSecret']['name']` is stored in the :secret_name clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["openID"]['ca']['name']` is stored in the :cm_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_openid_test')` is stored in the :idp clipboard
+
+    Given evaluation of `<%= cb.idp %>["openID"]['clientSecret']['name']` is stored in the :secret_name clipboard
+    Given evaluation of `<%= cb.idp %>["openID"]['ca']['name']` is stored in the :cm_name clipboard
     Given admin ensures "<%= cb.cm_name %>" configmap is deleted from the "openshift-config" project after scenario
     Given admin ensures "<%= cb.secret_name %>" secret is deleted from the "openshift-config" project after scenario
 
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_openid_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "OpenID"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["openID"]["clientID"] == "testid"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["openID"]["claims"]["preferredUsername"] == ["nickname"]
+    And the expression should be true> <%= cb.idp %>["type"] == "OpenID"
+    And the expression should be true> <%= cb.idp %>["openID"]["clientID"] == "testid"
+    And the expression should be true> <%= cb.idp %>["openID"]["claims"]["preferredUsername"] == ["nickname"]
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -377,22 +345,17 @@ Feature: add idp from console
       | idp_name | ui_requestheader_test |
       | idp_type | RequestHeader         |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'][<%= cb.idp_count %>-1]["requestHeader"]['ca']['name']` is stored in the :cm_name clipboard
+    Given evaluation of `o_auth('cluster').idp(name:'ui_requestheader_test')` is stored in the :idp clipboard
+
+    Given evaluation of `<%= cb.idp %>["requestHeader"]['ca']['name']` is stored in the :cm_name clipboard
     Given admin ensures "<%= cb.cm_name %>" configmap is deleted from the "openshift-config" project after scenario
 
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_requestheader_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "RequestHeader"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["requestHeader"]["loginURL"] == "https://www.example.com/login-proxy/oauth/authorize?${query}"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["requestHeader"]["headers"] == ["X-Remote-User","SSO-User"]
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["requestHeader"]["preferredUsernameHeaders"] == ["X-Remote-User-Login"] 
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["requestHeader"]["nameHeaders"] == ["X-Remote-User-Display-Name"] 
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["requestHeader"]["emailHeaders"] == ["X-Remote-User-Email"] 
+    And the expression should be true> <%= cb.idp %>["type"] == "RequestHeader"
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["loginURL"] == "https://www.example.com/login-proxy/oauth/authorize?${query}"
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["headers"] == ["X-Remote-User","SSO-User"]
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["preferredUsernameHeaders"] == ["X-Remote-User-Login"] 
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["nameHeaders"] == ["X-Remote-User-Display-Name"] 
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["emailHeaders"] == ["X-Remote-User-Email"] 
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
@@ -429,17 +392,12 @@ Feature: add idp from console
       | idp_name | ui_keystone_test |
       | idp_type | Keystone         |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | oauth   |
-      | resource_name | cluster |
-      | o             | yaml    |
-    Then the step should succeed
 
-    Given evaluation of `@result[:parsed]['spec']['identityProviders'].length()` is stored in the :idp_count clipboard
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["name"] == "ui_keystone_test"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["type"] == "Keystone"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["keystone"]["domainName"] == "default"
-    And the expression should be true> @result[:parsed]["spec"]["identityProviders"][<%= cb.idp_count %>-1]["keystone"]["url"] == "https://www.openshift.com"
+    Given evaluation of `o_auth('cluster').idp(name:'ui_keystone_test')` is stored in the :idp clipboard
+
+    And the expression should be true> <%= cb.idp %>["type"] == "Keystone"
+    And the expression should be true> <%= cb.idp %>["keystone"]["domainName"] == "default"
+    And the expression should be true> <%= cb.idp %>["keystone"]["url"] == "https://www.openshift.com"
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
