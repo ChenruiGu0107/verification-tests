@@ -157,3 +157,31 @@ Feature: oc get related command
       | object_type | all  |
       | all         | true |
     And the output should match "horizontalpodautoscaler.*php-apache.*deleted"
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-28012
+  @admin
+  @destructive
+  Scenario: oc get node -w with -o custom-columns, -o yaml, -o name woks well
+    Given I switch to cluster admin pseudo user
+    Given I store the schedulable nodes in the :nodes clipboard
+    And the node labels are restored after scenario
+    When I run the :get background admin command with:
+      | resource | node                                                        |
+      | o        | custom-columns=NAME:.metadata.name,Adress:.status.addresses |
+      | w        | true                                                        |
+    Then the step should succeed
+    And label "tc28012=vip1" is added to the "<%= cb.nodes[0].name %>" node
+    When I terminate last background process
+    Then the output should contain 6 times:
+      | <%= cb.nodes[0].name %> |
+
+    When I run the :get background admin command with:
+      | resource | node |
+      | o        | name |
+      | w        | true |
+    Then the step should succeed
+    And label "tc28012=vip2" is added to the "<%= cb.nodes[1].name %>" node
+    When I terminate last background process
+    Then the output should contain 2 times:
+      | <%= cb.nodes[1].name %> |
