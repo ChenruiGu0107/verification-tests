@@ -198,3 +198,35 @@ Feature: operatorhub feature related
     Then the step should succeed
     Given I use the "<%= cb.proj_name %>" project
     And I wait for the resource "subscription" named "container-security-operator" to disappear within 30 seconds
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-27495
+  @admin
+  Scenario: Check Operator hub link to IBM Marketplace
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+
+    # check link to Red Hat Marketplace and Developer Catalog
+    When I run the :check_link_for_marketplace web action
+    Then the step should succeed
+    When I run the :check_link_for_developer_catalog web action
+    Then the step should succeed
+
+    # check Marketplace item badge and description on overlay
+    When I perform the :check_catalog_badge_by_checkbox web action with:
+      | text | Marketplace |
+    Then the step should succeed
+    When I run the :check_marketplace_operator_description_on_overlay web action
+    Then the step should succeed
+
+    # check Community item badge and description on overlay
+    When I perform the :check_catalog_badge_by_checkbox web action with:
+      | text | Community |
+    Then the step should succeed
+    When I run the :check_community_operator_description_on_overlay web action
+    Then the step should succeed
+
