@@ -324,31 +324,39 @@ Feature: Azure disk and Azure file specific scenarios
       | rm | /mnt/azure/af-<%= project.name %> |
     Then the step should succeed
 
-  # @author wehe@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-16498
   @admin
-  Scenario: Azure file persistent volume parameters negative test 
+  Scenario: Azure file persistent volume parameters negative test
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azf-pv.yml" where:
-      | ["metadata"]["name"]               | azpv-<%= project.name %> |
-      | ["spec"]["azureFile"]["shareName"] | azfnoexist               |
+      | ["metadata"]["name"]                | pv-<%= project.name %> |
+      | ["spec"]["azureFile"]["secretName"] | <%= cb.secretName %>   |
+      | ["spec"]["azureFile"]["shareName"]  | noexist                |
+      | ["spec"]["storageClassName"]        | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure/azpvc.yaml" replacing paths:
-      | ["spec"]["accessModes"][0] | ReadWriteMany |
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+      | ["metadata"]["name"]         | mypvc                  |
+      | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/azure-file/azfpvcpod.yaml | 
-      | n | <%= project.name %>                                                                                             |
+    And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | mypod      |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
     Then the step should succeed
+    And the pod named "mypod" status becomes :pending
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pod/azfpod |
+      | resource | pod   |
+      | name     | mypod |
     Then the output should contain:
-      | No such file or directory | 
+      | FailedMount               |
+      | No such file or directory |
     """
 
   # @author wduan@redhat.com
