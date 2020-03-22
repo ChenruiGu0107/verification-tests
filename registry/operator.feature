@@ -153,7 +153,7 @@ Feature: Testing image registry operator
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
     And evaluation of `@result[:parsed]['spec']['storage']['azure']['container']` is stored in the :cont clipboard
     And evaluation of `@result[:parsed]['spec']['storage']['azure']['accountName']` is stored in the :aname clipboard
-    Given I save the output to file>imageregistry.yaml
+    Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | accountName: <%= cb.aname %> | accountName: |
       | container: <%= cb.cont %>    | container:   | 
@@ -180,7 +180,7 @@ Feature: Testing image registry operator
     Then the output should contain:
       | AzureError |
     And evaluation of `@result[:parsed]['spec']['storage']['azure']['container']` is stored in the :container clipboard
-    Given I save the output to file>imageregistry.yaml
+    Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | accountName: <%= cb.longer_nm %> | accountName: |
       | container: <%= cb.container %>   | container:   | 
@@ -238,7 +238,7 @@ Feature: Testing image registry operator
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
       | bucket: <%= cb.custom_nm %> | 
-    Given I save the output to file>imageregistry.yaml
+    Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | bucket: <%= cb.custom_nm %> | |
     When I run the :replace client command with:

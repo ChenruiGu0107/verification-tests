@@ -122,7 +122,7 @@ Feature: build 'apps' with CLI
     When I run the :process client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
     Then the step should succeed
-    Given I save the output to file>app-stibuild.json
+    Given I save the output to file> app-stibuild.json
     When I run the :create client command with:
       | f | app-stibuild.json |
     Then the step should succeed

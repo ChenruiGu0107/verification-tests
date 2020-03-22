@@ -95,7 +95,7 @@ Feature: oc debug related scenarios
       | [Ee]rror                                  |
       | [Ii]nvalid.*[Nn]ode\|unable.*create.*pod  |
     Given I get project pod as YAML
-    And I save the output to file>pod.yaml
+    And I save the output to file> pod.yaml
     When I run the :debug client command with:
       | f              | pod.yaml             |
       | oc_opts_end    | |

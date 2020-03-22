@@ -16,7 +16,7 @@ Feature: Machine features testing
       | namespace     | openshift-machine-api   |
       | o             | yaml                    |
     Then the step should succeed
-    And I save the output to file>machineset-invalid.yaml
+    And I save the output to file> machineset-invalid.yaml
     And I replace content in "machineset-invalid.yaml":
       | <%= machine_set.name %> | machineset-invalid |
       | <re_invalid_field>      | <invalid_value>    |

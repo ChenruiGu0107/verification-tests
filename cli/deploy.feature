@@ -142,7 +142,7 @@ Feature: deployment related features
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
     When I get project pod named "hooks-1-deploy" as YAML
-    And I save the output to file>hooks.yaml
+    And I save the output to file> hooks.yaml
     And I replace lines in "hooks.yaml":
       | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 2 |
     When I run the :replace client command with:

@@ -19,7 +19,7 @@ Feature: oc_set_build_hook
       | o           | json                        |
       | script      | bundle exec rake test       |
     Then the step should succeed
-    When I save the output to file>bc.json
+    When I save the output to file> bc.json
     And I run the :set_build_hook client command with:
       | f           | bc.json |
       | post_commit | true    |

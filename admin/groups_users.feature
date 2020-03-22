@@ -31,7 +31,7 @@ Feature: groups and users related features
       | resource_name | <%= project.name %>group |
       | o             | yaml  |
     Then the step should succeed
-    And I save the output to file>group.yaml
+    And I save the output to file> group.yaml
     Given I delete matching lines from "group.yaml":
       | <%= project.name %>user1 |
     When I run the :replace admin command with:

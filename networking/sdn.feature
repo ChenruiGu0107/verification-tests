@@ -407,7 +407,7 @@ Feature: SDN related networking scenarios
       | o             | yaml             |
     Then the step should succeed
     And evaluation of `@result[:parsed]['hostIP']` is stored in the :hostip clipboard
-    And I save the output to file>hostsubnet.yaml
+    And I save the output to file> hostsubnet.yaml
     And I replace lines in "hostsubnet.yaml":
       | hostIP: <%= cb.hostip %> | hostIP: 8.8.8.8 |
     When I run the :replace client command with:

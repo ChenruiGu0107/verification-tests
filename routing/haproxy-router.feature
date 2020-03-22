@@ -3027,7 +3027,7 @@ Feature: Testing haproxy router
     When I execute on the pod:
       | cat     |  haproxy-config.template  |
     Then the step should succeed
-    And I save the output to file>haproxy-config-custom.template
+    And I save the output to file> haproxy-config-custom.template
     And I replace lines in "haproxy-config-custom.template":
       | /(timeout http-request ).*"10s".*/ | \\11s |
     Then the step should succeed

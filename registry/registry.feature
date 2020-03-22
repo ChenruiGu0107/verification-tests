@@ -81,7 +81,7 @@ Feature: Testing registry
        | resource_name | docker-registry |
        | namespace     | default         |
        | o             | yaml            |
-    And I save the output to file>svc.yaml
+    And I save the output to file> svc.yaml
     Then admin ensures "docker-registry" service is deleted from the "default" project
     Given I run the :scale client command with:
       | resource | dc              |

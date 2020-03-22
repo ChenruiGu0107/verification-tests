@@ -38,7 +38,7 @@ Feature: Audit logs related scenarios
       | dry_run  | true                         |
       | o        | yaml                         |
     Then the step should succeed
-    And I save the output to file>debug_pod.yaml
+    And I save the output to file> debug_pod.yaml
     Given I have a project
     And I replace lines in "debug_pod.yaml":
       | /name.*debug/                          | name: mypod                    |

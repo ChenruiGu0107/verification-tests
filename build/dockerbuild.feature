@@ -159,7 +159,7 @@ Feature: dockerbuild.feature
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
-    Given I save the output to file>bc.json
+    Given I save the output to file> bc.json
     And I replace lines in "bc.json":
       | Docker | Source |
       |dockerStrategy|sourceStrategy|
@@ -177,7 +177,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
-    Given I save the output to file>bc1.json
+    Given I save the output to file> bc1.json
     And I replace lines in "bc1.json":
       | Source | Docker  |
       | sourceStrategy|dockerStrategy|

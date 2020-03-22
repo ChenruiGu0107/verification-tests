@@ -17,7 +17,7 @@ Feature: resouces related scenarios
       | resource_name | mydc               |
       | output        | yaml               |
     Then the step should succeed
-    When I save the output to file>dc.yaml
+    When I save the output to file> dc.yaml
     And I run the :replace client command with:
       | _tool | <tool>  |
       | f     | dc.yaml |
@@ -59,7 +59,7 @@ Feature: resouces related scenarios
       | dry_run      |                           |
       | -o           | yaml                      |
     Then the step should succeed
-    When I save the output to file>pod.yaml
+    When I save the output to file> pod.yaml
     And I run the :replace client command with:
       | _tool        | <tool>   |
       | f            | pod.yaml |

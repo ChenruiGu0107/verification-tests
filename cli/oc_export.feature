@@ -59,7 +59,7 @@ Feature: oc exports related scenarios
     # check for capitalized and missing fields (bug 1546443)
     And the output should not match "^ *[A-Z]"
     And the output should match "  metadata:$"
-    And I save the output to file>export.yaml
+    And I save the output to file> export.yaml
     Given I ensure "hello-openshift" deployments is deleted
     And I ensure "hello-openshift" hpa is deleted
     And I ensure "pi" jobs is deleted
