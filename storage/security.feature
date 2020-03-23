@@ -252,102 +252,42 @@ Feature: storage security check
   # @author chaoyang@redhat.com
   # @case_id OCP-9698
   @admin
-  @destructive
   Scenario: emptyDir volume security testing
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
     #Create two pods for selinux testing
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/emptydir/emptydir_pod_selinux_test.json |
+    When I run oc create over "ihttps://raw.githubusercontent.com/chao007/v3-testfiles/master/storage/security/emptydir_selinux.json" replacing paths
+      | ["spec"]["containers"]["image"] | aosqe/storage |
     Then the step should succeed
     Given the pod named "emptydir" becomes ready
 
     #Verify the seLinux options
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %> |
-      | c            | c1              |
-      | exec_command | id              |
+    When I execute on the pod:
+      | id |
     Then the output should match:
       | uid=1000160000.*groups=.*123456,654321 |
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c1              |
-      | exec_command     | --              |
-      | exec_command     | ls              |
-      | exec_command_arg | -lZd            |
-      | exec_command_arg | /tmp/           |
+    When I execute on the pod:
+      | ls | -lZd | /tmp |
     Then the output should match:
       | 123456                                   |
       | s0:c2,c13                                |
       | (svirt_sandbox_file_t\|container_file_t) |
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c1              |
-      | exec_command     | touch           |
-      | exec_command_arg | /tmp/file1      |
+    When I execute on the pod:
+      |  touch | /tmp/file1 |
     Then the step should succeed
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c1              |
-      | exec_command     | --              |
-      | exec_command     | ls              |
-      | exec_command_arg | -lZ             |
-      | exec_command_arg | /tmp/           |
+    When I execute on the pod:
+      | ls | -lZ | /tmp/file1 |
     Then the output should match:
       | 1000160000 123456                        |
       | s0:c2,c13                                |
       | (svirt_sandbox_file_t\|container_file_t) |
-   When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c1              |
-      | exec_command     | --              |
-      | exec_command     | cp              |
-      | exec_command_arg | /hello          |
-      | exec_command_arg | /tmp            |
     Then the step should succeed
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %> |
-      | c            | c1              |
-      | exec_command | --              |
-      | exec_command | /tmp/hello      |
+    When I execute on the pod:
+      | cp | /hello | /tmp/hello |
     Then the step should succeed
+    When I execute on the pod:
+      | /tmp/hello | 
     And the output should contain "Hello OpenShift Storage"
 
-    When I run the :exec client command with:
-      | pod          | <%= pod.name %> |
-      | c            | c2              |
-      | exec_command | id              |
-    Then the output should contain:
-      | uid=1000160200               |
-      | groups=0(root),123456,654321 |
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c2              |
-      | exec_command     | --              |
-      | exec_command     | ls              |
-      | exec_command_arg | -lZd            |
-      | exec_command_arg | /tmp/           |
-    Then the output should match:
-      | 123456                                   |
-      | s0:c2,c13                                |
-      | (svirt_sandbox_file_t\|container_file_t) |
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c2              |
-      | exec_command     | touch           |
-      | exec_command_arg | /tmp/file2      |
-    Then the step should succeed
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %> |
-      | c                | c2              |
-      | exec_command     | --              |
-      | exec_command     | ls              |
-      | exec_command_arg | -lZ             |
-      | exec_command_arg | /tmp/           |
-    Then the output should match:
-      | 1000160200 123456                        |
-      | s0:c2,c13                                |
-      | (svirt_sandbox_file_t\|container_file_t) |
-      | file2                                    |
