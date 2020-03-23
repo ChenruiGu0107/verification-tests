@@ -1371,7 +1371,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "alpha.image.policy.openshift.io/resolve-names"
     Given status becomes :running of 1 pods labeled:
-      | run=app |
+      | app=app |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-14211
