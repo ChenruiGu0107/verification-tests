@@ -146,3 +146,84 @@ Feature: User management related
       | link_url      | k8s/cluster/user.openshift.io~v1~User/fake-user-<%= cb.my_random %> |
     Then the step should fail
 
+  # @author hasha@redhat.com
+  # @case_id OCP-19675
+  @admin
+  Scenario: RBAC access check for cluster-wide/project-wide workload resources
+    Given the master version >= "4.3"
+    Given I have a project
+    Then evaluation of `project.name` is stored in the :project1_name clipboard
+
+    #user can view pod list only of another project when granted list permisson but without view detail permisson
+    When I run the :new_app client command with:
+      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=ruby-ex-1 |
+    Then evaluation of `pod.name` is stored in the :test_pod clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rbac/list_pod_role.yaml |
+    Then the step should succeed
+    When I run the :create_rolebinding admin command with:
+      | name  | list-pod                            |
+      | user  | <%= user(1, switch: false).name %>  |
+      | role  | list-pod                            |
+      | n     | <%= cb.project1_name %>             |
+    Then the step should succeed
+    Given I switch to the second user
+    Given I have a project
+    Given I open admin console in a browser
+    When I access the "k8s/ns/<%= cb.project1_name %>/pods" path in the web console
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.test_pod %> |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= cb.project1_name %> |
+      | resource_name | <%= cb.test_pod %>      |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | cannot get resource "pods" |
+    Then the step should succeed
+
+    #normal user
+    When I run the :check_Administration_menu_for_normal_user web action
+    Then the step should succeed
+    When I perform the :goto_rolebinding_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Cluster-wide Role Bindings |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Binding Type |
+    Then the step should succeed
+    When I run the :goto_storageclass_page web action
+    Then the step should succeed
+    When I run the :check_create_button_missing web action
+    Then the step should succeed
+    When I access the "k8s/cluster/namespaces" path in the web console
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | cannot list resource "namespaces" |
+    Then the step should succeed
+
+    #clusteradmin user
+    Given the second user is cluster-admin
+    When I perform the :goto_rolebinding_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | Cluster-wide Role Bindings |
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | Binding Type |
+    Then the step should succeed
+    When I run the :check_Administration_menu_for_admin_user web action
+    Then the step should succeed
