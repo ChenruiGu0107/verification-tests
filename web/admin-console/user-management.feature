@@ -189,7 +189,7 @@ Feature: User management related
     Then the step should succeed
 
     #normal user
-    When I run the :check_Administration_menu_for_normal_user web action
+    When I run the :check_administration_menu_for_normal_user web action
     Then the step should succeed
     When I perform the :goto_rolebinding_list_page web action with:
       | project_name | <%= project.name %> |
@@ -225,5 +225,5 @@ Feature: User management related
     When I perform the :check_page_match web action with:
       | content | Binding Type |
     Then the step should succeed
-    When I run the :check_Administration_menu_for_admin_user web action
+    When I run the :check_administration_menu_for_admin_user web action
     Then the step should succeed
