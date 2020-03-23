@@ -31,7 +31,7 @@ Feature: Machine features testing
     Given I store the last provisioned machine in the :invalid_machine clipboard
     And I wait up to 60 seconds for the steps to pass:
     """
-    Then the expression should be true> machine(cb.invalid_machine).phase == "Failed"
+    Then the expression should be true> machine(cb.invalid_machine).phase(cached: false) == "Failed"
     """
 
     # Verify alert is fired
@@ -51,5 +51,7 @@ Feature: Machine features testing
     """
 
     Examples:
-      | re_invalid_field | invalid_value        |
-      | /machineType:.*/ | machineType: invalid | # @case_id OCP-25927
+      | re_invalid_field  | invalid_value         |
+      | /machineType:.*/  | machineType: invalid  | # @case_id OCP-25927
+      | /instanceType:.*/ | instanceType: invalid | # @case_id OCP-28817
+      | /vmSize:.*/       | vmSize: invalid       | # @case_id OCP-28818
