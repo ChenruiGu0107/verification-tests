@@ -48,8 +48,8 @@ Feature: events related
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed    
-    When I perform the :search_by_resource_type web action with:
-      | type | Pod |
+    When I perform the :search_by_resource web action with:
+      | resource_kind | Pod |
     Then the step should succeed
     When I perform the :search_by_event_catagory web action with:
       | catagory| All |
@@ -61,10 +61,45 @@ Feature: events related
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :search_by_api_group web action with:
-      | api_group | build.openshift.io/v1 |
+    When I perform the :search_by_resource web action with:
+      | resource_kind  | Build                 |
+      | resource_group | build.openshift.io/v1 |
     Then the step should succeed
     When I run the :search_by_event_catagory web action
     Then the step should succeed
     When I run the :check_result_not_contain_warning_catagory web action
+    Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-27601
+  Scenario: Multiple resources could be selected on event page
+    Given the master version >= "4.4"
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                         |
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | name         | ruby |
+    Then the step should succeed
+    And I open admin console in a browser
+    When I perform the :goto_project_events web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    Given the "ruby-1" build was created
+    When I perform the :search_by_resource web action with:
+      | resource_kind  | Build                 |
+      | resource_group | build.openshift.io/v1 |
+    Then the step should succeed
+    When I perform the :search_by_resource web action with:
+      | resource_kind  | Pod |
+    Then the step should succeed
+    When I perform the :check_results_contain_correct_type web action with:
+      | type | pod |
+    Then the step should succeed
+    When I perform the :check_results_contain_correct_type web action with:
+      | type | build |
+    Then the step should succeed
+    When I run the :clear_resource_filters web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | All |
     Then the step should succeed
