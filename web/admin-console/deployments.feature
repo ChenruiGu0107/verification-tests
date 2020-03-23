@@ -192,6 +192,9 @@ Feature: deployment/dc related features via web
     When I run the :search_nonexisted_image_and_check_message web action
     Then the step should succeed  
     # Check existed image creating page
+    When I perform the :goto_deploy_image_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I perform the :search_and_deploy_image web action with:
       | search_content | aosqe/hello-openshift |
     Then the step should succeed 
