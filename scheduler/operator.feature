@@ -197,6 +197,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
+    Given node schedulable status should be restored after scenario
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | my-scheduler-policy   |
@@ -220,6 +221,8 @@ Feature: Testing Scheduler Operator related scenarios
     And label "usertestregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "usertestzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[2].name %> |
     When I run the :new_app client command with:
       | docker_image   | openshift/hello-openshift |
     Then the step should succeed
