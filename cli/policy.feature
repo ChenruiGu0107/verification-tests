@@ -484,20 +484,17 @@ Feature: change the policy of user/service account
   # @case_id OCP-11697
   @admin
   Scenario: Delete role though rolebinding existed for the role
-    Given the first user is cluster-admin
+    Given I switch to cluster admin pseudo user
     Given admin ensures "tc467927" cluster_role is deleted after scenario
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/tc467927/role.json
     Then the step should succeed
     Given admin waits for the "tc467927" clusterrole to appear
-    And I run the :oadm_policy_add_cluster_role_to_user client command with:
-      | role_name | tc467927                           |
-      | user_name | <%= user(1, switch: false).name %> |
-    Then the step should succeed
+    And cluster role "tc467927" is added to the "first" user
     And I run the :get client command with:
       |resource | clusterrolebinding |
       | o       | wide               |
     And the output should match:
-      | (ClusterRole\/)?tc467927.*(<%= user(1, switch: false).name %>)? |
+      | (ClusterRole\/)?tc467927.*(<%= user(0, switch: false).name %>)? |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13480
