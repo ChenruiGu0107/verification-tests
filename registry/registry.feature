@@ -164,7 +164,7 @@ Feature: Testing registry
     And all the image layers in the :layers clipboard do not exist in the registry
     And evaluation of `image_stream_tag("ruby-20-centos7:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/config.yml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/registry/config.yml"
     Then the step should succeed
     And I replace content in "config.yml":
       | mirrorpullthrough: true | mirrorpullthrough: false |
@@ -429,7 +429,7 @@ Feature: Testing registry
       | docker://docker.io/openshift/hello-openshift:latest |
       | docker://<%= cb.registry_ip %>/<%= project.name %>/hello-openshift:latest  |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/image-limit-range.yaml"
     Then the step should succeed
     And I replace lines in "image-limit-range.yaml":
       | storage: 1Gi | storage: 140Mi |
@@ -553,7 +553,7 @@ Feature: Testing registry
     Given I enable image-registry default route
     Given default image registry route is stored in the :integrated_reg_host clipboard
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/ocp-18559/prometheus-role.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/registry/ocp-18559/prometheus-role.yaml |
     Then the step should succeed
     And admin ensures "prometheus-scraper" clusterroles is deleted after scenario
     And I switch to the first user

@@ -8,7 +8,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/policy_hostname.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_hostname.json"
     Then the step should succeed
 
     When I run the :create_configmap admin command with:
@@ -31,7 +31,7 @@ Feature: Testing Scheduler Operator related scenarios
     """
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_with_nodename.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -46,7 +46,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/policy_servicespreadingpriority.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_servicespreadingpriority.json"
     Then the step should succeed
 
     When I run the :create_configmap admin command with:
@@ -70,7 +70,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/list_for_servicespreading.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/list_for_servicespreading.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :get client command with:
@@ -113,7 +113,7 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/policy_empty.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_empty.json"
     Then the step should succeed
 
     When I run the :create_configmap admin command with:
@@ -152,7 +152,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given I store the schedulable workers in the :nodes clipboard
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/policy_leastrequestedpriority.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_leastrequestedpriority.json"
     Then the step should succeed
 
     When I run the :create_configmap admin command with:
@@ -180,11 +180,11 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_ocp12489.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
     And evaluation of `pod.node_name` is stored in the :nodename clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod_ocp12489.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["metadata"]["name"] | pod-request1 |
     Then the step should succeed
     And the pod named "pod-request1" becomes ready
@@ -198,7 +198,7 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
     Given node schedulable status should be restored after scenario
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/<filename>"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | my-scheduler-policy   |
       | from_file | policy.cfg=<filename> |

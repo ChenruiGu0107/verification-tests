@@ -8,7 +8,7 @@ Feature: vSphere test scenarios
     And I have a 1 GB volume and save volume id in the :vid clipboard
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/vsphere/myDisk.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/vsphere/myDisk.yaml" replacing paths:
       | ["spec"]["volumes"][0]["vsphereVolume"]["volumePath"] | "<%= cb.vid %>" |
     Then the step should succeed
     And the pod named "vmdk" becomes ready

@@ -150,8 +150,8 @@ Feature: oc get related command
   Scenario: Check HPA resource is included in 'all' alias
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/php-dc.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml    |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/php-dc.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/hpa.yaml    |
     Then the step should succeed
     When I run the :delete client command with:
       | object_type | all  |

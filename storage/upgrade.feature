@@ -46,10 +46,10 @@ Feature: Scenarios which will be used both for function checking and upgrade che
     Given I log the messages:
       | Running <for> test ... |
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
     Then the step should succeed

@@ -61,7 +61,7 @@ Feature: create app on web console related
     Given the master version >= "3.7"
     Given admin ensures "testdotnet" image_stream is deleted from the "openshift" project after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/ui-netcore-is.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/ui-netcore-is.json |
       | n | openshift |
     Then the step should succeed
     Given admin waits for the "testdotnet" image_stream to appear in the "openshift" project

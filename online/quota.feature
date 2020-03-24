@@ -26,9 +26,9 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests']['memory'].match /<requests_memory>/
     Examples:
       | paths | memory | limits_cpu | limits_memory | requests_cpu | requests_memory |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517576/pod-limit-memory.yaml | {"limits":{"memory":"<%= cb.limit_memory.to_i*2 %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu.to_i*2 %>\|<%= cb.limit_cpu.to_i*2/1000 %> | <%= cb.limit_memory.to_i*2 %>\|<%= cb.limit_memory.to_i*2+1 %>\|<%= cb.limit_memory.to_i*2/1024 %> | <%= cb.requests_cpu.to_i*2 %>\|<%= cb.requests_cpu.to_i*2/1000 %> | <%= cb.request_memory.to_i*2 %>\|<%= cb.request_memory.to_i*2+1 %>\|<%= cb.request_memory.to_i*2/1024 %> | # @case_id OCP-9822
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517577/pod-no-limit-request.yaml | {} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.request_cpu %> | <%= cb.request_memory %> | # @case_id OCP-9823
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517567/pod-limit-request.yaml | {"limits":{"memory":"<%= cb.limit_memory %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.requests_cpu %> | <%= cb.requests_memory %> | # @case_id OCP-9820
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/tc517576/pod-limit-memory.yaml | {"limits":{"memory":"<%= cb.limit_memory.to_i*2 %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu.to_i*2 %>\|<%= cb.limit_cpu.to_i*2/1000 %> | <%= cb.limit_memory.to_i*2 %>\|<%= cb.limit_memory.to_i*2+1 %>\|<%= cb.limit_memory.to_i*2/1024 %> | <%= cb.requests_cpu.to_i*2 %>\|<%= cb.requests_cpu.to_i*2/1000 %> | <%= cb.request_memory.to_i*2 %>\|<%= cb.request_memory.to_i*2+1 %>\|<%= cb.request_memory.to_i*2/1024 %> | # @case_id OCP-9822
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/tc517577/pod-no-limit-request.yaml | {} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.request_cpu %> | <%= cb.request_memory %> | # @case_id OCP-9823
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/tc517567/pod-limit-request.yaml | {"limits":{"memory":"<%= cb.limit_memory %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.requests_cpu %> | <%= cb.requests_memory %> | # @case_id OCP-9820
 
   # @author zhaliu@redhat.com
   # @case_id OCP-12684
@@ -41,18 +41,18 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["max"]["storage"] == "1Gi"
     And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["min"]["storage"] == "1Gi"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-less.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-less.yaml |
     Then the step should fail
     And the output should match:
       | persistentvolumeclaims.*is forbidden:   |
       | minimum .* PersistentVolumeClaim is 1Gi |
       | but request is 600Mi                    |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml |
     Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-over.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-over.yaml |
     Then the step should fail
     And the output should match:
       | persistentvolumeclaims.*is forbidden:   |
@@ -70,10 +70,10 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the step should succeed
     And the expression should be true> @result[:parsed]["spec"]["hard"]["persistentvolumeclaims"] == "1"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml |
     Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml" replacing paths:
       | ["metadata"]["name"] | claim-equal-limit1 |
     Then the step should fail
     And the output should match:

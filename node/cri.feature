@@ -7,7 +7,7 @@ Feature:CRI related features
     And I use the first master host
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I execute on the pod:
@@ -47,7 +47,7 @@ Feature:CRI related features
     And the node service is restarted on all nodes 
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I execute on the pod:

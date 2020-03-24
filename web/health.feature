@@ -5,7 +5,7 @@ Feature: Health related feature on web console
     # One case, 2 scenarios: dc and standalone rc
     Given I have a project
     When I run the :create client command with:
-      | f    |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<kind>-with-two-containers.yaml |
+      | f    |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/<kind>-with-two-containers.yaml |
     Then the step should succeed
 
     Given a pod becomes ready with labels:
@@ -127,7 +127,7 @@ Feature: Health related feature on web console
   Scenario: Health Check for k8s deployment
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536593/deployment-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536593/deployment-with-two-containers.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-openshift |
@@ -227,7 +227,7 @@ Feature: Health related feature on web console
   Scenario: Health Check for k8s replicaset
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536594/replicaset-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536594/replicaset-with-two-containers.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=guestbook |

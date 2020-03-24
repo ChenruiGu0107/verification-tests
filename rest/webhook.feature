@@ -154,7 +154,7 @@ Feature: Webhook REST Related Tests
   Scenario: Existing parameter can be overlapped via generic webhook
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
@@ -226,7 +226,7 @@ Feature: Webhook REST Related Tests
   @destructive
   Scenario: Verify guestbook example of Atomic Host works
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/scc_privileged.yaml"
     Given the following scc policy is created: scc_privileged.yaml
     Then the step should succeed
     And I run the :patch admin command with:
@@ -235,7 +235,7 @@ Feature: Webhook REST Related Tests
       | p             | {"groups":["system:serviceaccounts:default","system:serviceaccounts:<%= project.name %>"]} |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/509014/redis-master-controller.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/509014/redis-master-controller.yaml |
     Then the step should succeed
     Then a pod becomes ready with labels:
       | app=redis,role=master |
@@ -251,7 +251,7 @@ Feature: Webhook REST Related Tests
       | f | https://raw.githubusercontent.com/kubernetes/kubernetes/f6f013b992441379a67bf98a5ba4b7e975c3470e/examples/guestbook/redis-slave-service.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/509014/frontend-controller.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/509014/frontend-controller.yaml |
     Then the step should succeed
     And 3 pods become ready with labels:
       | app=guestbook,tier=frontend |

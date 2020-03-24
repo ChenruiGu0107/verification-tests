@@ -68,6 +68,6 @@ Feature: dockerbuild.feature
 
     Examples:
       | file                                                                                                      | file_name                        |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json | ruby22rhel7-template-docker.json | # @case_id OCP-10743
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json    | ruby22rhel7-template-sti.json    | # @case_id OCP-11213
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json | ruby22rhel7-template-docker.json | # @case_id OCP-10743
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json    | ruby22rhel7-template-sti.json    | # @case_id OCP-11213
 

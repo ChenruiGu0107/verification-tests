@@ -73,9 +73,9 @@ Feature: Add env variables to image feature
 
     Examples:
       | template |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json | # @case_id OCP-11085
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json | # @case_id OCP-12385
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-57-env-var-test.json | # @case_id OCP-12393
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-55-env-var-test.json | # @case_id OCP-11085
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-56-env-var-test.json | # @case_id OCP-12385
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-57-env-var-test.json | # @case_id OCP-12393
 
   # @author wewang@redhat.com
   Scenario Outline: Add env variables to postgresql image
@@ -130,7 +130,7 @@ Feature: Add env variables to image feature
   Scenario: Add env variables to mongodb-24-centos7 image
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb-24-centos7-env-test.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mongodb-24-centos7-env-test.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=database |

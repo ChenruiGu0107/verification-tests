@@ -9,7 +9,7 @@ Feature: Service related networking scenarios
       | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.google_ip %> |
     Then the step should succeed
     Given I use the "external-http" service
@@ -39,7 +39,7 @@ Feature: Service related networking scenarios
     Given I have a pod-for-ping in the project
 
     ## Create selector less service in project2 which point to the pod in project1
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.pod1_ip %> |
     Then the step should succeed
     Given I use the "selector-less-service" service
@@ -58,7 +58,7 @@ Feature: Service related networking scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
@@ -72,7 +72,7 @@ Feature: Service related networking scenarios
     Given I have a pod-for-ping in the project
 
     ## Create selector less service in project2 which point to the service in project1
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_service.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_service.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.service1_ip %> |
     Then the step should succeed
     Given I use the "selector-less-service" service
@@ -89,7 +89,7 @@ Feature: Service related networking scenarios
   Scenario: Be able to access the service via the nodeport
     Given I have a project
     And evaluation of `rand(30000..32767)` is stored in the :port clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/nodeport_service.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/nodeport_service.json"
     And I replace lines in "nodeport_service.json":
       |30000|<%= cb.port %>|
     When I run the :create client command with:
@@ -98,7 +98,7 @@ Feature: Service related networking scenarios
     Given the pod named "hello-pod" becomes ready
     And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -124,21 +124,21 @@ Feature: Service related networking scenarios
   Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_ip clipboard
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | clustercidr |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.pod_ip %> |
     Then the step should fail
     And the output should match "endpoint address .* is not allowed"
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | servicecidr |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.service_ip %> |
     Then the step should fail
@@ -167,12 +167,12 @@ Feature: Service related networking scenarios
     Given I switch to the first user
     And I have a project
     And cluster role "system:endpoint-controller" is added to the "first" user
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | clustercidr |
       | ["items"][1]["metadata"]["name"] | clustercidr-endpoint |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.clusternetwork_1 %>.<%= cb.clusternetwork_2 %>.<%= rand(255) %>.<%= rand(1..255) %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | servicecidr |
       | ["items"][1]["metadata"]["name"] | servicecidr-endpoint |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.servicenetwork_1 %>.<%= cb.servicenetwork_2 %>.<%= rand(255) %>.<%= rand(1..255) %> |
@@ -192,7 +192,7 @@ Feature: Service related networking scenarios
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/externalip_service2.json |
     Then the step should fail
     And the output should contain:
       | externalIP is not allowed |
@@ -214,15 +214,15 @@ Feature: Service related networking scenarios
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     """
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/externalip_service1.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/externalip_service2.json |
     Then the step should succeed
 
     When I run the :get client command with:
@@ -250,7 +250,7 @@ Feature: Service related networking scenarios
     # Create pod and svc which is listening on the udp port
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/udp8080-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/udp8080-pod.json |
     Then the step should succeed
     And the pod named "udp-pod" becomes ready
     And evaluation of `pod("udp-pod").node_name` is stored in the :node_name clipboard

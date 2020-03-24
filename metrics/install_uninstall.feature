@@ -13,13 +13,13 @@ Feature: metrics logging and uninstall tests
     And I have a NFS service in the project
 
     # Create PV
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/metrics_pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
 
     # Deploy metrics
     Given cluster role "cluster-admin" is added to the "first" user
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-14055/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-14055/inventory |
 
     # Verify the storage are being used
     Given I use the "openshift-infra" project
@@ -44,7 +44,7 @@ Feature: metrics logging and uninstall tests
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     And metrics service is installed with ansible using:
-      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory |
+      | inventory        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12186/inventory |
       | copy_custom_cert | true                                                                                                   |
     # we have to run the curl in the first master because that is where the cert file is located
     Given I use the "<%= env.master_hosts.first.hostname %>" node
@@ -64,7 +64,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.5"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12879/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12879/inventory |
     Then status becomes :running of exactly 1 pods labeled:
       | metrics-infra=heapster |
       | name=heapster          |
@@ -78,7 +78,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.5"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11430/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11430/inventory |
     Then status becomes :running of exactly 2 pods labeled:
       | metrics-infra=hawkular-metrics |
       | name=hawkular-metrics          |
@@ -103,7 +103,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12112/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12112/inventory |
     Then the expression should be true> rc('hawkular-cassandra-1').suplemental_groups.include? 65531
     Then the expression should be true> rc('heapster').annotation('kubectl.kubernetes.io/last-applied-configuration').include? '--metric_resolution=15s'
     Then the expression should be true> rc('hawkular-metrics').annotation('kubectl.kubernetes.io/last-applied-configuration').include? "-Dhawkular.metrics.default-ttl=14"
@@ -116,7 +116,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.5"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11686/inventory |
+      | inventory     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11686/inventory |
     Then the expression should be true> pvc('metrics-cassandra-1').wait_to_appear(user, 60)
     Then the expression should be true> pvc('metrics-cassandra-1').ready?[:success]
     And a pod becomes ready with labels:
@@ -132,7 +132,7 @@ Feature: metrics logging and uninstall tests
     And I have a project
     And evaluation of `project` is stored in the :org_project clipboard
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12012/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12012/inventory |
     And I switch to first user
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -144,7 +144,7 @@ Feature: metrics logging and uninstall tests
     Given I perform the POST metrics rest request with:
       | project_name | <%= cb.org_project.name %>                                                                        |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     Then the step should succeed
     Given I perform the GET metrics rest request with:
       | project_name | <%= cb.org_project.name %> |
@@ -179,11 +179,11 @@ Feature: metrics logging and uninstall tests
   Scenario: deploy metrics stack with persistent storage
     Given I create a project with non-leading digit name
     And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/metrics_pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Given metrics service is installed in the system using:
-      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-14055/inventory              |
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10776/deployer_ocp10776.yaml |
+      | inventory       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-14055/inventory              |
+      | deployer_config | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-10776/deployer_ocp10776.yaml |
     # need to change the project to where metrics is installed under which we hard-coded to 'openshift-infra'
     And admin ensure "metrics-cassandra-1" pvc is deleted from the "openshift-infra" project after scenario
     And I switch to cluster admin pseudo user
@@ -198,7 +198,7 @@ Feature: metrics logging and uninstall tests
   Scenario: Metrics Admin Command - fresh deploy with resource limits
     Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12276/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12276/inventory |
     Then the expression should be true> rc('hawkular-cassandra-1').container_spec(name: 'hawkular-cassandra-1').memory_limit_raw == "1G"
     Then the expression should be true> rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_request_raw == "100m"
 
@@ -210,7 +210,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18507/inventory |
+      | inventory     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-18507/inventory |
       | negative_test | true                                                                                                   |
     And evaluation of `"registry.access.redhat.com/openshift3/"` is stored in the :expected_prefix clipboard
     # check all container spec has the expected url
@@ -228,7 +228,7 @@ Feature: metrics logging and uninstall tests
     Given the master version >= "3.4"
     Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-18506/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-18506/inventory |
       | negative_test | true                                                                                                   |
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-metrics |

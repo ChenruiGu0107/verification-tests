@@ -48,10 +48,10 @@ Feature: oc extract related scenarios
   Scenario: Extract configmap or secret to appointed directory
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :extract client command with:
       | resource | secret/test-secret       |
@@ -120,10 +120,10 @@ Feature: oc extract related scenarios
   Scenario: Extract only the keys from configmap or secret to directory
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :extract client command with:
       | resource | secret/test-secret      |

@@ -4,7 +4,7 @@ Feature: containers related features
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json|
+      | filename | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_two_containers.json|
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
     When I run the :exec client command with:
@@ -42,7 +42,7 @@ Feature: containers related features
   Scenario Outline: Dumps logs from a given Pod container
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
     When I run the :logs client command with:
@@ -62,7 +62,7 @@ Feature: containers related features
   Scenario: Add env variables to postgresql-92-centos7 image
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-centos7-env-test.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/postgresql-92-centos7-env-test.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=database-1 |
@@ -105,7 +105,7 @@ Feature: containers related features
   Scenario: Executing commands in a container that isn't running
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json|
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc472859/hello-pod.json|
     And the pod named "hello-openshift" status becomes :pending
     And I run the :exec client command with:
       | pod | hello-openshift |
@@ -120,7 +120,7 @@ Feature: containers related features
   Scenario: Executing command in inexistent containers
     When I have a project
     And I run the :create client command with:
-      | filename |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | filename |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     And the pod named "hello-openshift" becomes ready
     When I execute on the "hello-openshift_notexist" pod:

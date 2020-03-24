@@ -6,7 +6,7 @@ Feature: Independent link related scenarios
     Given the master version >= "3.5"
     # create a template under project openshift
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | n | openshift |
     Then the step should succeed
     And I register clean-up steps:
@@ -82,7 +82,7 @@ Feature: Independent link related scenarios
     Given the master version >= "3.5"
     # create a template under project openshift
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | n | openshift |
     Then the step should succeed
     And I register clean-up steps:

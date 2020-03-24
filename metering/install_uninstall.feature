@@ -9,7 +9,7 @@ Feature: Install and uninstall related scenarios
     Given I create a project with non-leading digit name
     And I store master major version in the clipboard
     And metering service is installed with ansible using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_install_metering_params |
+      | inventory     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/default_install_metering_params |
       | playbook_args | -e openshift_image_tag=v<%= cb.master_version %> -e openshift_release=<%= cb.master_version %>                     |
 
   # @author pruan@redhat.com
@@ -23,7 +23,7 @@ Feature: Install and uninstall related scenarios
     Given I create a project with non-leading digit name
     And I store master major version in the clipboard
     And metering service is installed with ansible using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_install_metering_params |
+      | inventory     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/default_install_metering_params |
       | playbook_args | -e openshift_image_tag=v<%= cb.master_version %> -e openshift_release=<%= cb.master_version %>                     |
     And a pod becomes ready with labels:
       | app=metering-operator |

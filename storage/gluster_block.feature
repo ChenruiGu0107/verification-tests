@@ -7,19 +7,19 @@ Feature: Gluster Block features testing file
     Given I have a StorageClass named "gluster-block"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/storageclass-mount-options.yml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster-block/storageclass-mount-options.yml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                         |
       | ["parameters"]["resturl"] | <%= storage_class("gluster-block").rest_url %> |
       | ["mountOptions"][0]       | rw                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/pvc-gluster-block.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster-block/pvc-gluster-block.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And I ensure "pvc-<%= project.name %>" pvc is deleted after scenario
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed
@@ -37,13 +37,13 @@ Feature: Gluster Block features testing file
     Given I have a StorageClass named "gluster-block"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/storageclass-retain.yml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster-block/storageclass-retain.yml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                         |
       | ["parameters"]["resturl"] | <%= storage_class("gluster-block").rest_url %> |
       | ["reclaimPolicy"]         | Retain                                         |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster-block/pvc-gluster-block.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster-block/pvc-gluster-block.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -66,7 +66,7 @@ Feature: Gluster Block features testing file
     Given I have a StorageClass named "gluster-block"
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1          |
       | ["spec"]["storageClassName"]                 | gluster-block |
       | ["spec"]["volumeMode"]                       | Block         |
@@ -74,7 +74,7 @@ Feature: Gluster Block features testing file
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block              |

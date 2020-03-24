@@ -6,7 +6,7 @@ Feature: Pod related features on web console
     Given the master version > "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp13569/pod-with-three-containers-and-logs.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp13569/pod-with-three-containers-and-logs.yaml |
     Then the step should succeed
     Given the pod named "counter" becomes ready
 
@@ -147,7 +147,7 @@ Feature: Pod related features on web console
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/initContainer.yaml  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/initContainers/initContainer.yaml  |
     Then the step should succeed
 
     When I perform the :goto_one_pod_page web console action with:

@@ -9,9 +9,9 @@ Feature: Storage of Ceph plugin testing
 
     #Create a invalid pv with rbd of wrong monitors
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/rbd-secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/rbd-secret.yaml |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pv-retain.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pv-retain.json"
     And I replace content in "pv-retain.json":
       | /\d{3}/ | 000 |
     When admin creates a PV from "pv-retain.json" where:
@@ -19,7 +19,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     #Create ceph pvc
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pvc-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"] | rbdc |
     Then the step should succeed
     And the PV becomes :bound
@@ -29,7 +29,7 @@ Feature: Storage of Ceph plugin testing
 
     #Create the pod
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pod.json |
     Then the step should succeed
     And I wait up to 500 seconds for the steps to pass:
     """
@@ -49,7 +49,7 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
 
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-rbd-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner          |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                         |
@@ -59,7 +59,7 @@ Feature: Storage of Ceph plugin testing
     # Switch to admin to bypass scc
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/auto/pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/auto/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | rbd-<%= project.name %>     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-rbd-<%= project.name %> |
     Then the step should succeed
@@ -110,7 +110,7 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
 
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
@@ -124,7 +124,7 @@ Feature: Storage of Ceph plugin testing
       | namespace     | default        |
       | o             | yaml           |
     And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+    And I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
@@ -133,7 +133,7 @@ Feature: Storage of Ceph plugin testing
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pod-inline.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pod-inline.json" replacing paths:
       | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["spec"]["volumes"][0]["rbd"]["image"]       | <%= cb.image %>                                     |
     Then the step should succeed
@@ -159,7 +159,7 @@ Feature: Storage of Ceph plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
 
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
@@ -173,7 +173,7 @@ Feature: Storage of Ceph plugin testing
       | namespace     | default        |
       | o             | yaml           |
     And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+    And I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
@@ -183,7 +183,7 @@ Feature: Storage of Ceph plugin testing
     And I use the "<%= project.name %>" project
 
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pod-inline.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pod-inline.json" replacing paths:
       | ["metadata"]["name"]                         | rbd-pod1-<%= project.name %>                        |
       | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["spec"]["volumes"][0]["rbd"]["image"]       | <%= cb.image %>                                     |
@@ -219,7 +219,7 @@ Feature: Storage of Ceph plugin testing
     And admin checks that the "cephrbd-secret" secret exists in the "default" project
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | cephrbdprovisioner      |
     Then the step should succeed
@@ -242,7 +242,7 @@ Feature: Storage of Ceph plugin testing
     And admin checks that the "cephrbd-secret" secret exists in the "default" project
 
     Given admin creates a project with a random schedulable node selector
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
@@ -256,13 +256,13 @@ Feature: Storage of Ceph plugin testing
       | namespace     | default        |
       | o             | yaml           |
     And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+    And I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
       | ["data"]["key"] | <%= cb.secret_key %> |
     Then the step should succeed
 
     # If a volume has no disk format, it can not be mounted readOnly. Ref: https://github.com/kubernetes/kubernetes/blob/master/pkg/util/mount/mount_linux.go#L503
     # Create a Pod here to have the disk formatted.
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
@@ -272,7 +272,7 @@ Feature: Storage of Ceph plugin testing
 
     Given I run the steps 2 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/pod-inline.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/pod-inline.json" replacing paths:
       | ["metadata"]["name"]                                 | rbd-pod#{cb.i}-<%= project.name %>                  |
       | ["spec"]["volumes"][0]["rbd"]["monitors"][0]         | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["spec"]["volumes"][0]["rbd"]["image"]               | <%= cb.image %>                                     |
@@ -295,14 +295,14 @@ Feature: Storage of Ceph plugin testing
     Given I have a StorageClass named "cephrbdprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
       | ["metadata"]["name"]            | sc-<%= project.name %>                              |
       | ["parameters"]["monitors"]      | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["parameters"]["imageFormat"]   | 1                                                   |
       | ["parameters"]["imageFeatures"] | layering                                            |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -317,7 +317,7 @@ Feature: Storage of Ceph plugin testing
     And evaluation of `secret.raw_value_of("key")` is stored in the :secret_key clipboard
 
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/storageclass_with_fstype.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/storageclass_with_fstype.yaml" where:
       | ["metadata"]["name"]          | sc-<%= project.name %>                              |
       | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["parameters"]["fstype"]      | <fstype>                                            |
@@ -325,16 +325,16 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+    Given I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
       | ["metadata"]["name"] | cephrbd-secret       |
       | ["data"]["key"]      | <%= cb.secret_key %> |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
@@ -358,14 +358,14 @@ Feature: Storage of Ceph plugin testing
     Given I have a StorageClass named "cephrbdprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/storageclass_retain.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/storageclass_retain.yaml" where:
       | ["metadata"]["name"]          | sc-<%= project.name %>                              |
       | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["parameters"]["imageFormat"] | 1                                                   |
       | ["reclaimPolicy"]             | Retain                                              |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
@@ -390,7 +390,7 @@ Feature: Storage of Ceph plugin testing
     And evaluation of `secret.raw_value_of("key")` is stored in the :secret_key clipboard
 
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/storageclass_mount_optins.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/storageclass_mount_optins.yaml" where:
       | ["metadata"]["name"]          | sc-<%= project.name %>                              |
       | ["parameters"]["monitors"]    | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["parameters"]["imageFormat"] | 1                                                   |
@@ -399,16 +399,16 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+    Given I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
       | ["metadata"]["name"] | cephrbd-secret       |
       | ["data"]["key"]      | <%= cb.secret_key %> |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
@@ -432,7 +432,7 @@ Feature: Storage of Ceph plugin testing
 
     And admin creates a project with a random schedulable node selector
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
@@ -441,14 +441,14 @@ Feature: Storage of Ceph plugin testing
 
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pv.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/block/pv.json" where:
       | ["metadata"]["name"]                 | pv-<%= project.name %>                              |
       | ["spec"]["accessModes"][0]           | ReadWriteOnce                                       |
       | ["spec"]["volumeMode"]               | Block                                               |
       | ["spec"]["rbd"]["monitors"][0]       | <%= storage_class("cephrbdprovisioner").monitors %> |
       | ["spec"]["rbd"]["image"]             | <%= cb.image %>                                     |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pvc.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/block/pvc.json" replacing paths:
       | ["metadata"]["name"]       | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce           |
       | ["spec"]["volumeMode"]     | Block                   |
@@ -456,7 +456,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/block/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/rbd5               |
@@ -475,7 +475,7 @@ Feature: Storage of Ceph plugin testing
     And admin checks that the "cephrbd-secret" secret exists in the "default" project
     And I have a project
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
       | ["spec"]["volumeMode"]                       | Block              |
@@ -483,7 +483,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the "pvc1" PVC becomes :bound within 120 seconds
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block              |

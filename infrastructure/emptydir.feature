@@ -5,7 +5,7 @@ Feature: emptyDir specific scenarios
   Scenario: EmptyDir won't lead to memory exhaustion
     Given I have a project
     When I run the :create client command with:
-      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/emptydir/pod-emptydir.yaml |
+      | filename  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/emptydir/pod-emptydir.yaml |
     Then the step should succeed
     Given I wait for the "pod-emptydir" pod to appear in the project
     And evaluation of `pod.node_name` is stored in the :pod_node clipboard
@@ -28,7 +28,7 @@ Feature: emptyDir specific scenarios
       | zero  |
     Given I ensure "pod-emptydir" pod is deleted
     When I run the :create client command with:
-      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/emptydir/pod-emptydir-oom.yaml |
+      | filename  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/emptydir/pod-emptydir-oom.yaml |
     Then the step should succeed
 
     Given I wait for the "pod-emptydir-oom" pod to appear in the project

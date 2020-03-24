@@ -1,0 +1,4 @@
+[OSEv3:vars]
+# Extra_Metrics
+openshift_prometheus_state=present
+openshift_prometheus_additional_rules_file=this_is_bogus_path

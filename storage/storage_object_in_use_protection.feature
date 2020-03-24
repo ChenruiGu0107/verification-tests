@@ -4,10 +4,10 @@ Feature: Storage object in use protection
   # @case_id OCP-17288
   Scenario: Recreate pvc when pvc is in pvc-protection state should fail
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                   |
     Then the step should succeed
@@ -19,7 +19,7 @@ Feature: Storage object in use protection
       | wait              | false                   |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes terminating
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should fail
 
@@ -27,10 +27,10 @@ Feature: Storage object in use protection
   # @case_id OCP-17568
   Scenario: Scheduling of a pod that uses a PVC that is being deleted should fail
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
@@ -42,7 +42,7 @@ Feature: Storage object in use protection
       | wait              | false |
     Then the step should succeed
     And the "mypvc" PVC becomes terminating
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc  |
       | ["metadata"]["name"]                                         | newpod |
     Then the step should succeed
@@ -63,11 +63,11 @@ Feature: Storage object in use protection
   Scenario: Should be able to delete pvc/pv which is created during PVCProtection is enabled and then disabled
     Given I check feature gate "PVCProtection" with admission "PVCProtection" is enabled
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
     And the "mypvc" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed

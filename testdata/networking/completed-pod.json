@@ -1,0 +1,18 @@
+{
+        "kind": "Pod",
+        "apiVersion":"v1",
+        "metadata": {
+                "generateName": "completed-pod-",
+                "labels": {
+                        "name": "completed-pod"
+                }
+        },
+        "spec": {
+                "containers": [{
+                        "command": [ "/bin/true" ],
+                        "name": "completed-pod",
+                        "image": "aosqe/pod-for-ping"
+                }],
+                "restartPolicy": "Never"
+        }
+}

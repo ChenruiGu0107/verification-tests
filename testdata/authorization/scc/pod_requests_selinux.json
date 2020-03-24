@@ -1,0 +1,30 @@
+{
+  "kind": "Pod",
+  "apiVersion":"v1",
+
+  "metadata": {
+        "name": "pod-request-selinux",
+        "labels": {
+                "name": "pod-request-selinux"
+        }
+  },
+
+  "spec": {
+      "containers": [{
+        "name": "pod-request-selinux",
+        "image": "bmeng/hello-openshift",
+        "ports": [
+          {
+            "containerPort": 8080
+          }
+        ],
+        "securityContext": {
+            "seLinuxOptions":{
+                "level":"s0:c9",
+                "user": "system_u",
+                "role":"object_r"
+            }
+        }
+      }]
+  }
+}

@@ -35,8 +35,8 @@ Feature: login related scenario
     Given I have a project
     And I login via web console
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/OCP-17421/configmap.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/OCP-17421/proxy.yaml     |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/OCP-17421/configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/OCP-17421/proxy.yaml     |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=proxy |

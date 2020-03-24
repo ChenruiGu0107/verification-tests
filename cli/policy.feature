@@ -43,7 +43,7 @@ Feature: change the policy of user/service account
 
     ##create role that only could view service
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json|
+      |f|<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/projectviewservice.json|
     Then the step should succeed
 
     ##no policybinding for this role in project
@@ -62,7 +62,7 @@ Feature: change the policy of user/service account
       | not found |
 
     ## download json filed for role and update the project name
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/policy.json"
     And I replace lines in "policy.json":
       |"namespace": "wsuntest"|"namespace": "<%= project.name %>"|
     Then the step should succeed
@@ -77,7 +77,7 @@ Feature: change the policy of user/service account
       | object type | roles |
       | all |  |
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json|
+      |f|<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/projectviewservice.json|
     Then the step should succeed
 
     ##admin try to add one user to the project as vs role
@@ -93,7 +93,7 @@ Feature: change the policy of user/service account
   Scenario: [origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
     Given admin creates a project
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/getlistwatch_projNamespace.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/getlistwatch_projNamespace.json"
     And I replace lines in "getlistwatch_projNamespace.json":
       |   vsp          |       <%= project.name %>            |
     Then the step should succeed
@@ -118,7 +118,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/policy.json"
     And I replace lines in "policy.json":
       | wsuntest | <%= project.name %> |
     Then the step should succeed
@@ -130,7 +130,7 @@ Feature: change the policy of user/service account
 
     When I switch to the first user
     And I run the :create client command with:
-      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/deleteservices.json |
+      | f        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/deleteservices.json |
       | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
@@ -172,7 +172,7 @@ Feature: change the policy of user/service account
       | project_name | <%= cb.project_1 %> |
     Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/policy.json"
     And I replace lines in "policy.json":
       | wsuntest | <%= cb.project_1 %> |
     Then the step should succeed
@@ -180,7 +180,7 @@ Feature: change the policy of user/service account
       | f        | policy.json         |
     Then the step should succeed
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/deleteservices.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/deleteservices.json"
     And I replace lines in "deleteservices.json":
       | deleteservices | <%= cb.project_1 %>     |
       | "delete"   | "watch","list","get"        |
@@ -486,7 +486,7 @@ Feature: change the policy of user/service account
   Scenario: Delete role though rolebinding existed for the role
     Given I switch to cluster admin pseudo user
     Given admin ensures "tc467927" cluster_role is deleted after scenario
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/tc467927/role.json
+    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/tc467927/role.json
     Then the step should succeed
     Given admin waits for the "tc467927" clusterrole to appear
     And cluster role "tc467927" is added to the "first" user
@@ -548,7 +548,7 @@ Feature: change the policy of user/service account
       | user_name  | <%= user(1).name  %>          |
     Then the step should succeed
     Given I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
       | n | <%= project.name %>                                                                                                           |
     Then the step should succeed
     Given I switch to the second user
@@ -586,7 +586,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users                              |
       | grouprestriction:                         | userrestriction:                               |
@@ -702,7 +702,7 @@ Feature: change the policy of user/service account
             kind: DefaultAdmissionConfig
     """
     And the master service is restarted on all master nodes
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users |
       | grouprestriction:                         | userrestriction:  |
@@ -739,7 +739,7 @@ Feature: change the policy of user/service account
        | group_name | groups-rolebindingrestriction       |
        | user_name  | <%= user(1, switch: false).name  %> |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | groups: ["groups-rolebindingrestriction"] | groups: [""] |
     Given I run the :create admin command with:
@@ -769,7 +769,7 @@ Feature: change the policy of user/service account
             kind: DefaultAdmissionConfig
     """
     And the master service is restarted on all master nodes
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount |
       | grouprestriction:                         | serviceaccountrestriction: |
@@ -820,7 +820,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount          |
       | grouprestriction:                         | serviceaccountrestriction:          |
@@ -882,7 +882,7 @@ Feature: change the policy of user/service account
       | user_name  | <%= user(1).name  %>          |
     Then the step should succeed
     Given I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
       | n | <%= project.name %>                                                                                                           |
     Then the step should succeed
     Given I switch to the second user
@@ -909,7 +909,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users                              |
       | grouprestriction:                         | userrestriction:                               |
@@ -991,7 +991,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: 4.x Restrict making a role binding to a user not matched any rolebindingrestriction
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users |
       | grouprestriction:                         | userrestriction:  |
@@ -1017,7 +1017,7 @@ Feature: change the policy of user/service account
        | group_name | groups-rolebindingrestriction       |
        | user_name  | <%= user(1, switch: false).name  %> |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | groups: ["groups-rolebindingrestriction"] | groups: [""] |
     Given I run the :create admin command with:
@@ -1036,7 +1036,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: 4.x Restrict making a role binding to a service account not matched any rolebindingrestriction
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount |
       | grouprestriction:                         | serviceaccountrestriction: |

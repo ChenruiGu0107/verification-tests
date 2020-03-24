@@ -5,7 +5,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml"
     And I replace lines in "quota.yaml":
       | memory: 750Mi | memory: 20Mi        |
     And I run the :create admin command with:
@@ -14,7 +14,7 @@ Feature: Quota related scenarios
     Then the step should succeed
 
     When I run the :create client command with:
-      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+      | f |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     And the output should match:
       | eployment.*onfig.*reated            |
@@ -32,12 +32,12 @@ Feature: Quota related scenarios
   Scenario: DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-resources.json |
     Then the step should succeed
 
     # update dc to be exceeded and triggered deployment
@@ -74,7 +74,7 @@ Feature: Quota related scenarios
   @admin
   Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml"
     And I replace lines in "quota.yaml":
       | 750Mi    | 110Mi               |
     Then the step should succeed
@@ -84,17 +84,17 @@ Feature: Quota related scenarios
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | specify.*memory |
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
       | n        | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     When I get project pod as YAML
     Then the output should match:
@@ -108,7 +108,7 @@ Feature: Quota related scenarios
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | xceeded quota |
@@ -134,15 +134,15 @@ Feature: Quota related scenarios
   Scenario: There is log event for deployment when they fail due to quota limits
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
       | hooks.*reated |
@@ -180,15 +180,15 @@ Feature: Quota related scenarios
   Scenario: Buildconfig should support providing cpu and memory usage
     Given I have a project
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota.yaml  |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/limits.yaml |
+      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/application-template-with-resources.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/application-template-with-resources.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample-with-resources |
     Then the step should succeed
@@ -233,7 +233,7 @@ Feature: Quota related scenarios
   Scenario: Admin can restrict the ability to use services.nodeports
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -243,7 +243,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -252,7 +252,7 @@ Feature: Quota related scenarios
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc2.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -261,7 +261,7 @@ Feature: Quota related scenarios
       | services\\s+2\\s+5           |
       | services.nodeports\\s+2\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc3.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
     Then the step should fail
     And the output should match:
       | xceeded quota: quota-service.*limited: services.nodeports=2 |
@@ -282,7 +282,7 @@ Feature: Quota related scenarios
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc3.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -297,7 +297,7 @@ Feature: Quota related scenarios
   Scenario: Service with multi nodeports should be charged properly in the quota system
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -307,7 +307,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532980/multi-nodeports-svc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532980/multi-nodeports-svc.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -332,7 +332,7 @@ Feature: Quota related scenarios
   Scenario: services.nodeports in quota system work well when change service type
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -342,7 +342,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -380,7 +380,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier BestEffort
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-besteffort.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -397,7 +397,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier Burstable
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-burstable.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-burstable.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -414,7 +414,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier Guaranteed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-guaranteed.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-guaranteed.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -433,7 +433,7 @@ Feature: Quota related scenarios
   Scenario: Resource quota value should not be fractional value
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509088/quota-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509088/quota-1.yaml |
       | n | <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain 6 times:
@@ -444,7 +444,7 @@ Feature: Quota related scenarios
     Then the step should fail
     And the output should contain "not found"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509088/quota-2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509088/quota-2.yaml |
       | n | <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain "quantities must match the regular expression"
@@ -460,7 +460,7 @@ Feature: Quota related scenarios
   Scenario: Resource quota value should not be negative
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509089/negquota.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509089/negquota.yaml |
       | n | <%= project.name %>                                                                             |
     Then the step should fail
     And the output should match 8 times:
@@ -477,11 +477,11 @@ Feature: Quota related scenarios
   Scenario: Precious resources should be restrained if they are covered in quota and not configured on the master
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-precious-resource.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                             |
     Then the step should succeed
     When I run the :describe client command with:
@@ -491,7 +491,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | persistentvolumeclaims\\s+1\\s+10                               |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | pvc-storage-class | pvc-storage-class-1 |
     When I run the :create client command with:
@@ -514,10 +514,10 @@ Feature: Quota related scenarios
   Scenario: Precious resources should be consumed without constraint in the absence of a covering quota if they are not configured on the master
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                             |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | pvc-storage-class | pvc-storage-class-1 |
       | "storage": "2Gi"  | "storage": "20Gi"   |
@@ -556,11 +556,11 @@ Feature: Quota related scenarios
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-precious-resource.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                             |
     Then the step should succeed
     When I run the :describe client command with:
@@ -570,7 +570,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                               |
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | pvc-storage-class | pvc-storage-class-2 |
     When I run the :create client command with:
@@ -597,7 +597,7 @@ Feature: Quota related scenarios
       | n    | <%= project.name %>                                                                                               |
       | hard | slow.storageclass.storage.k8s.io/requests.storage=20Gi,slow.storageclass.storage.k8s.io/persistentvolumeclaims=15 |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | gold | slow |
     Then the step should succeed
@@ -666,7 +666,7 @@ Feature: Quota related scenarios
       | n    | <%= project.name %> |
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | pvc-storage-class                                 | pvc-storage-class-slow                            |
       | "volume.beta.kubernetes.io/storage-class": "gold" | "volume.beta.kubernetes.io/storage-class": "slow" |
@@ -744,7 +744,7 @@ Feature: Quota related scenarios
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                             |
     Then the step should succeed
     When I run the :describe client command with:
@@ -756,7 +756,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                                |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
     And I replace lines in "pvc-storage-class.json":
       | pvc-storage-class | pvc-storage-class-bronze |
       | gold              | bronze                   |
@@ -808,7 +808,7 @@ Feature: Quota related scenarios
     Given I have a project
     And I have a skopeo pod in the project
     Given admin uses the "<%= project.name %>" project
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml" replacing paths:
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/image-limit-range.yaml" replacing paths:
       | ["spec"]["limits"][0]["max"]["storage"] | "100Mi" |
     Then the step should succeed
     And default registry service ip is stored in the :integrated_reg_ip clipboard
@@ -839,7 +839,7 @@ Feature: Quota related scenarios
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run the :create client command with:
-       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc15821/quota.yaml |
+       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc15821/quota.yaml |
        | n | <%= project.name %>                                                                         |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
@@ -852,7 +852,7 @@ Feature: Quota related scenarios
       | resourcequotas\\s+1\\s+1 |
     """
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
       | n | <%= project.name %>                                                                                        |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready

@@ -1,0 +1,19 @@
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "name": "fibrechannel"
+  },
+  "spec": {
+    "capacity": {
+        "storage": "5Gi"
+    },
+    "accessModes": [ "ReadWriteMany" ],
+    "fc": {
+        "targetWWNs": [ "50050768030539b6", "50050768030539b7"],
+        "lun": 0,
+        "fsType": "ext4"
+    },
+    "persistentVolumeReclaimPolicy": "Retain"
+  }
+}

@@ -4,7 +4,7 @@ Feature: Egress-ingress related networking scenarios
   Scenario: Invalid QoS parameter could not be set for the pod
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/invalid-iperf.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/invalid-iperf.json |
     Then the step should succeed
     Then I wait up to 20 seconds for the steps to pass:
     """
@@ -23,7 +23,7 @@ Feature: Egress-ingress related networking scenarios
     Given I have a project
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/invalid_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/invalid_policy.json |
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "invalid CIDR address"
@@ -36,13 +36,13 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "cannot create"
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
@@ -81,7 +81,7 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -104,10 +104,10 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= project.name %> |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -135,7 +135,7 @@ Feature: Egress-ingress related networking scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     Given I create a new project
@@ -182,7 +182,7 @@ Feature: Egress-ingress related networking scenarios
       | to      | <%= cb.proj4 %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj3 %> |
     Then the step should succeed
     Given I select a random node's host
@@ -211,7 +211,7 @@ Feature: Egress-ingress related networking scenarios
     Given I have a pod-for-ping in the project
     And the pod named "hello-pod" becomes ready
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     When I execute on the pod:
@@ -242,7 +242,7 @@ Feature: Egress-ingress related networking scenarios
       | project | <%= cb.proj2 %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj2 %> |
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
@@ -272,7 +272,7 @@ Feature: Egress-ingress related networking scenarios
 
     Given I have a pod-for-ping in the project
     And evaluation of `BushSlicer::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
       | 0.0.0.0/0 | <%= cb.github_ip %>/32 |
     And I run the :create admin command with:
@@ -285,7 +285,7 @@ Feature: Egress-ingress related networking scenarios
     And I have a pod-for-ping in the project
 
     Given I create the "policy2" directory
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json" into the "policy2" dir
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json" into the "policy2" dir
     And I replace lines in "policy2/limit_policy.json":
       | 0.0.0.0/0 | 8.8.8.8/32 |
     And I run the :create admin command with:
@@ -294,7 +294,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed
@@ -333,7 +333,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed
@@ -380,11 +380,11 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj2 clipboard
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
       | n | <%= cb.proj2 %> |
     Then the step should succeed
 
@@ -410,7 +410,7 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
       | 0.0.0.0/0 | 0.0.0.0/32 |
     And I run the :create admin command with:
@@ -439,7 +439,7 @@ Feature: Egress-ingress related networking scenarios
 
     # Create egress policy with allow and deny order
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -463,7 +463,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
  
     # Create new egress policy with deny and allow order
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy2.json"
     And I replace lines in "dns-egresspolicy2.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -490,7 +490,7 @@ Feature: Egress-ingress related networking scenarios
  
     # Create egress policy in project-1
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -512,7 +512,7 @@ Feature: Egress-ingress related networking scenarios
  
     # Create same egress policy in project-2
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -553,17 +553,17 @@ Feature: Egress-ingress related networking scenarios
  
     # Create egress policy 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy1.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy2.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy3.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy3.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
@@ -579,7 +579,7 @@ Feature: Egress-ingress related networking scenarios
 
     # Create egress policy to deny www.test.com
     And evaluation of `BushSlicer::Common::Net.dns_lookup("test.com")` is stored in the :test_ip clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json"
     And I replace lines in "policy.json":
       | 10.66.140.0/24 | <%= cb.test_ip %>/32 |
     And I run the :create admin command with:
@@ -589,7 +589,7 @@ Feature: Egress-ingress related networking scenarios
    
     # Create a service with a "externalname"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/service-externalName.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/service-externalName.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed 
     
@@ -610,7 +610,7 @@ Feature: Egress-ingress related networking scenarios
     
     # Create egress policy to allow www.test.com
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     
@@ -632,7 +632,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
 
     # Create service/endpoint, endpoint ip is google_ip
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/service_endpoint.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/service_endpoint.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] |  <%= cb.google_ip %> |
       | ["items"][1]["subsets"][0]["ports"][0]["port"]   |  80                  |
       | ["items"][0]["spec"]["ports"][0]["targetPort"]   |  80                  |
@@ -649,7 +649,7 @@ Feature: Egress-ingress related networking scenarios
     #Create EgressNetworkPolicy with denying to IP
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json" replacing paths:
       | ["spec"]["egress"][0]["to"]["cidrSelector"] | <%= cb.google_ip %>/32 |
     Then the step should succeed
     And I switch to the first user

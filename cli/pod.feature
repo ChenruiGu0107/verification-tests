@@ -6,7 +6,7 @@ Feature: pods related scenarios
   Scenario: Limit to create pod to access hostIPC
     Given I have a project
     And I select a random node's host
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509107/hostipc_true.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc509107/hostipc_true.json"
     Then I run the :create client command with:
       | f | hostipc_true.json |
     Then the step should fail
@@ -16,7 +16,7 @@ Feature: pods related scenarios
       | f | hostipc_true.json |
     Then the step should succeed
     Then I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509107/hostipc_cluster_admin.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc509107/hostipc_cluster_admin.json |
       | n | <%= project.name %>                                                                                         |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -42,7 +42,7 @@ Feature: pods related scenarios
   @admin
   Scenario: Limit to create pod to access hostPID
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509108/hostpid_true.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc509108/hostpid_true.json"
     Then I run the :create client command with:
       | f | hostpid_true.json |
     Then the step should fail
@@ -52,7 +52,7 @@ Feature: pods related scenarios
       | f | hostpid_true.json |
     Then the step should succeed
     Then I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509108/hostpid_true_admin.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc509108/hostpid_true_admin.json |
       | n | <%= project.name %>                                                                                      |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -90,44 +90,44 @@ Feature: pods related scenarios
   Scenario: PDB create
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_negative_absolute_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_negative_absolute_number.yaml |
       | n | <%= project.name %>                                                                                         	       |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_negative_percentage.yaml      |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_negative_percentage.yaml      |
       | n | <%= project.name %>                                                                                                        |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_zero_number.yaml	       |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_zero_number.yaml	       |
       | n | <%= project.name %>                                                                                                        |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_zero_percentage.yaml	       |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_zero_percentage.yaml	       |
       | n | <%= project.name %>                                                                                                        |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_non_absolute_number.yaml      |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_non_absolute_number.yaml      |
       | n | <%= project.name %>                                                                                                        |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_non_number_percentage.yaml    |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_non_number_percentage.yaml    |
       | n | <%= project.name %>                                                                                                        |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_more_than_full_percentage.yaml|
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_more_than_full_percentage.yaml|
       | n | <%= project.name %>                                                                                                        |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_positive_absolute_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>                                                                                                        |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_reasonable_percentage.yaml    |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_reasonable_percentage.yaml    |
       | n | <%= project.name %>                                                                                                        |
     Then the step should succeed
 
@@ -137,44 +137,44 @@ Feature: pods related scenarios
   Scenario: PDB create with beta1
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_negative_absolute_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_negative_absolute_number.yaml |
       | n | <%= project.name %>                                                                                                |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_negative_percentage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_negative_percentage.yaml |
       | n | <%= project.name %>                                                                                           |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_zero_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_zero_number.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_zero_percentage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_zero_percentage.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_non_absolute_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_non_absolute_number.yaml |
       | n | <%= project.name %>                                                                                           |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_non_number_percentage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_non_number_percentage.yaml |
       | n | <%= project.name %>                                                                                             |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_more_than_full_percentage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_more_than_full_percentage.yaml |
       | n | <%= project.name %>                                                                                                 |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_positive_absolute_number.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>                                                                                                |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_reasonable_percentage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_reasonable_percentage.yaml |
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
 
@@ -184,12 +184,12 @@ Feature: pods related scenarios
   Scenario: Specify safe namespaced kernel parameters for pod with invalid value	
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-safe-invalid1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-safe-invalid1.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value: "invalid": sysctl "invalid" not of the format sysctl_name |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-safe-invalid3.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-safe-invalid3.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -205,7 +205,7 @@ Feature: pods related scenarios
     """
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-safe-invalid2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-safe-invalid2.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -221,7 +221,7 @@ Feature: pods related scenarios
   Scenario: Specify safe namespaced kernel parameters for pod
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/sysctls/pod-sysctl-safe.yaml  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/sysctls/pod-sysctl-safe.yaml  |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I execute on the "hello-pod" pod:
@@ -236,7 +236,7 @@ Feature: pods related scenarios
       | 61000 |
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/sysctls/net_ipv4_tcp_syncookies.yaml  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/sysctls/net_ipv4_tcp_syncookies.yaml  |
     Then the step should succeed
     Given the pod named "hello-pod" becomes present
     When I run the :describe client command with:

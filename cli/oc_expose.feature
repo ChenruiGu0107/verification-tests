@@ -89,7 +89,7 @@ Feature: oc_expose.feature
   Scenario: Use service port name as route port.targetPort after 'oc expose service'
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/515695/svc_with_name.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/515695/svc_with_name.yaml |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | svc      |
@@ -110,7 +110,7 @@ Feature: oc_expose.feature
       | object_name_or_id | frontend |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/515695/svc_without_name.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/515695/svc_without_name.yaml |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | svc      |

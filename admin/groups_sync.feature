@@ -28,9 +28,9 @@ Feature: Group sync related scenarios
       |<get_regex>	|
     Examples:
       |file                                                                                                     |group1         |group2         |group3         |file_name          |sync_regex                                                         |get_regex                                                  |
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/ad/sync-config.yaml            |tc509126group1 |tc509126group2 |tc509126group3 |sync-config.yaml   |group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3   |tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s   |
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/sync-config.yaml       |tc509125group1 |tc509125group2 |tc509125group3 |sync-config.yaml   |group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3   |tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s   |
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/augmented-ad/sync-config.yaml  |tc509127group1 |tc509127group2 |tc509127group3 |sync-config.yaml   |group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3   |tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s   |
+      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ad/sync-config.yaml            |tc509126group1 |tc509126group2 |tc509126group3 |sync-config.yaml   |group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3   |tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s   |
+      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config.yaml       |tc509125group1 |tc509125group2 |tc509125group3 |sync-config.yaml   |group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3   |tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s   |
+      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/augmented-ad/sync-config.yaml  |tc509127group1 |tc509127group2 |tc509127group3 |sync-config.yaml   |group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3   |tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s   |
 
 
   # @author wjiang@redhat.com
@@ -46,7 +46,7 @@ Feature: Group sync related scenarios
     Given admin ensures "tc509128group3" group is deleted after scenario
     Given a "blacklist_ldap" file is created with the following lines:
       |cn=group1,ou=groups,ou=rfc2307,dc=example,dc=com|
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/sync-config-user-defined.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-user-defined.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-user-defined.yaml":
       |LDAP_SERVICE_IP:389|127.0.0.1:<%= cb.ldap_port %>|
@@ -61,7 +61,7 @@ Feature: Group sync related scenarios
     # Add users for group2 and group3
     When I run the :rsh client command with:
       |pod    |<%= cb.ldap_pod_name %>                                                                                                                                                                                                                                  |
-      |_stdin |curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/add-user-to-group.ldif > /tmp/add-user-to-group.ldif && ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+      |_stdin |curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/add-user-to-group.ldif > /tmp/add-user-to-group.ldif && ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
       |n      |<%= project.name %>                                                                                                                                                                                                                                  |
     Then the step should succeed
     
@@ -101,7 +101,7 @@ Feature: Group sync related scenarios
     Given a "whitelist_ldap" file is created with the following lines:
       |cn=group2,ou=groups,ou=rfc2307,dc=example,dc=com|
       |cn=group3,ou=groups,ou=rfc2307,dc=example,dc=com|
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/sync-config-partially-user-defined.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-partially-user-defined.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-partially-user-defined.yaml":
       |LDAP_SERVICE_IP:389|127.0.0.1:<%= cb.ldap_port %>|
@@ -118,7 +118,7 @@ Feature: Group sync related scenarios
 
     When I run the :rsh client command with:
       |pod    |<%= cb.ldap_pod_name %>                                                                                                                                                                                                                                         |
-      |_stdin |curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/add-user-to-group.ldif > /tmp/add-user-to-group.ldif && ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin   |
+      |_stdin |curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/add-user-to-group.ldif > /tmp/add-user-to-group.ldif && ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin   |
       |n      |<%= project.name %>                                                                                                                                                                                                                                         |
     Then the step should succeed
 
@@ -171,7 +171,7 @@ Feature: Group sync related scenarios
     Given admin ensures "tc515433group1" group is deleted after scenario
     Given admin ensures "tc515433group2" group is deleted after scenario
     Given admin ensures "tc515433group3" group is deleted after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/sync-config-tc515433.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-tc515433.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-tc515433.yaml":
       | LDAP_SERVICE_IP:389  | 127.0.0.1:<%= cb.ldap_port %>  |
@@ -257,7 +257,7 @@ Feature: Group sync related scenarios
     Given admin ensures "group1" group is deleted after scenario
     Given admin ensures "group2" group is deleted after scenario
     Given admin ensures "group3" group is deleted after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/sync-config-tolerating.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/sync-config-tolerating.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-tolerating.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -282,7 +282,7 @@ Feature: Group sync related scenarios
     Given admin ensures "extended-group1" group is deleted after scenario
     Given admin ensures "extended-group2" group is deleted after scenario
     Given admin ensures "extended-group3" group is deleted after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307_paging.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307_paging.yaml"
     Then the step should succeed
     And I replace lines in "rfc2307_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -303,7 +303,7 @@ Feature: Group sync related scenarios
       | object_name_or_id | group2 |
       | object_name_or_id | group3 |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/ad_paging.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ad_paging.yaml"
     Then the step should succeed
     And I replace lines in "ad_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -318,7 +318,7 @@ Feature: Group sync related scenarios
       | group1 |
       | group2 |
       | group3 |
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/ead_paging.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ead_paging.yaml"
     Then the step should succeed
     And I replace lines in "ead_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |

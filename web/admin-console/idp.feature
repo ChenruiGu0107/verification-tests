@@ -7,11 +7,11 @@ Feature: add idp from console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -177,7 +177,7 @@ Feature: add idp from console
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -273,7 +273,7 @@ Feature: add idp from console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -323,7 +323,7 @@ Feature: add idp from console
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -375,7 +375,7 @@ Feature: add idp from console
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
 
     Given I open admin console in a browser

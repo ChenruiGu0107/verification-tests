@@ -11,7 +11,7 @@ Feature: StatefulSet related tests
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/stable-storage.yaml  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/stable-storage.yaml  |
       | n | <%= project.name %> |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -70,7 +70,7 @@ Feature: StatefulSet related tests
   Scenario: Scaling up/down StatefulSet
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -104,7 +104,7 @@ Feature: StatefulSet related tests
   Scenario: Deleting StatefulSets
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/stable-storage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/stable-storage.yaml |
       | n | <%= project.name %>|
     Then the step should succeed
     And I wait for the "hello-statefulset" statefulset to appear
@@ -123,7 +123,7 @@ Feature: StatefulSet related tests
 
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/stable-storage.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/stable-storage.yaml |
       | n | <%= project.name %>|
     Then the step should succeed
     And I wait for the "hello-statefulset" statefulset to appear
@@ -150,7 +150,7 @@ Feature: StatefulSet related tests
   Scenario: Update container image in StatefulSet
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/update-statefulset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/update-statefulset.yaml |
       | n | <%=project.name %>                                                                                     |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -183,7 +183,7 @@ Feature: StatefulSet related tests
   Scenario: Pods in a StatefulSet is using stable network identities
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
       | n | <%=project.name %>                                                                                    |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -199,7 +199,7 @@ Feature: StatefulSet related tests
     Then the output should contain:
       | hello-statefulset-1 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/busybox-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/busybox-pod.yaml |
     Then the step should succeed
     Given the pod named "my-pod" becomes ready
     When I run the :exec client command with:

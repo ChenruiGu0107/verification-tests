@@ -7,7 +7,7 @@ Feature: custombuild.feature
     Given cluster role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
     Given I have a project
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479017/custombuild-template.json"
+    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479017/custombuild-template.json"
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     Given I wait up to 30 seconds for the steps to pass:
@@ -60,7 +60,7 @@ Feature: custombuild.feature
     Given I have a project
     #1
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completed
@@ -79,7 +79,7 @@ Feature: custombuild.feature
     And I delete all resources from the project
     #2
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completed
@@ -99,7 +99,7 @@ Feature: custombuild.feature
     And I delete all resources from the project
     #3
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completed
@@ -119,7 +119,7 @@ Feature: custombuild.feature
     And I delete all resources from the project
     #4
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completed

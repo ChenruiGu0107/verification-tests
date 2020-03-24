@@ -49,7 +49,7 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
     # Create DC to consume PVC then it can become Bound
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simpledc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/simpledc.json |
     Then the step should succeed
     When I run the :set_volume client command with:
       | resource      | dc                      |
@@ -119,22 +119,22 @@ Feature: storage (storageclass, pv, pvc) related
     # admin could create ResourceQuata and LimitRange
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/simpledc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/simpledc.json |
     Then the step should succeed
 
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/quota-pvc-storage.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/quota-pvc-storage.yaml" replacing paths:
       | ["spec"]["hard"]["persistentvolumeclaims"] | 4   |
       | ["spec"]["hard"]["requests.storage"]       | 2Gi |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/limits.yaml |
       | n | <%= project.name %>                                                                   |
     Then the step should succeed
 
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -242,7 +242,7 @@ Feature: storage (storageclass, pv, pvc) related
     Given the master version >= "4.2"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :create_persistent_volume_claims web action with:

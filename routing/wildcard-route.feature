@@ -12,14 +12,14 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_unsecure_test.example.com.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_unsecure_test.example.com.json |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -53,14 +53,14 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_edge.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_edge.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | route |
@@ -129,11 +129,11 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     Given an 6 characters random string of type :dns952 is stored into the :route_allow clipboard
     When I run the :expose client command with:
@@ -190,14 +190,14 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_edge.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_edge.json |
     Then the step should succeed
 
     When I run the :patch client command with:
@@ -262,27 +262,27 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_unsecure_test.example.com.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_unsecure_test.example.com.json |
     Then the step should succeed
 
     Given I switch to the second user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_unsecure_sub.test.example.com.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_unsecure_sub.test.example.com.json |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -313,7 +313,7 @@ Feature: Testing wildcard routes
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_wildcard_no_host.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_wildcard_no_host.json |
     Then the step should fail
     And the output should match "Invalid value.*host name not specified"
 
@@ -331,18 +331,18 @@ Feature: Testing wildcard routes
     And I store default router IPs in the :router_ip clipboard
     And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
     #Create the unsecure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     #Create the secure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
 
     #Create the unsecure wildcard route
@@ -395,7 +395,7 @@ Feature: Testing wildcard routes
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
     #Create reencrypt wildcard route
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name           | route-reen                                |
       | hostname       | wildcard.reen.example.com                 |
@@ -429,18 +429,18 @@ Feature: Testing wildcard routes
     And I store default router IPs in the :router_ip clipboard
     And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
     #Create the unsecure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     #Create the secure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
 
     #Create the unsecure route with wildcardpolicy is None
@@ -525,7 +525,7 @@ Feature: Testing wildcard routes
     Then the output should match "503"
 
     #Create reencrypt route with wildcardpolicy is None
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name           | route-reen                                |
       | hostname       | wildcard.reen.example.com                 |
@@ -563,7 +563,7 @@ Feature: Testing wildcard routes
   Scenario: wildcard route should not be created when the value is invalid
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | service                                   |
@@ -652,11 +652,11 @@ Feature: Testing wildcard routes
     And evaluation of `project.name` is stored in the :project clipboard
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     Given an 6 characters random string of type :dns952 is stored into the :route_allow clipboard
     When I run the :expose client command with:
@@ -765,11 +765,11 @@ Feature: Testing wildcard routes
     And I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name           | route-edge                                |
@@ -781,12 +781,12 @@ Feature: Testing wildcard routes
 
     #Create another app
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/dc.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=header-test |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/insecure-service.json |
     Then the step should succeed
     Given an 8 characters random string of type :dns952 is stored into the :header_route clipboard
     When I run the :expose client command with:

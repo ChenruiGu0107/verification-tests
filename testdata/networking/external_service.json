@@ -1,0 +1,47 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "id": "external-http",
+            "metadata": {
+                "name": "external-http"
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "port": 10086,
+                        "protocol": "TCP",
+                        "targetPort": 80
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Endpoints",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "external-http"
+            },
+            "subsets": [
+                {
+                    "addresses": [
+                        {
+                            "ip": "61.135.218.25"
+                        }
+                    ],
+                    "ports": [
+                        {
+                            "port": 80,
+                            "protocol": "TCP"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+

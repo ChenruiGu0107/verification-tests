@@ -4,7 +4,7 @@ Feature: rolling deployment related scenarios
   Scenario: Rolling-update pods with set maxSurge to 0
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/rolling.json |
     #And I wait until replicationController "hooks-1" is ready
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
@@ -48,7 +48,7 @@ Feature: rolling deployment related scenarios
   Scenario: Rolling-update an invalid value of pods - Negative test
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -67,7 +67,7 @@ Feature: rolling deployment related scenarios
   Scenario: Rolling-update pods with set maxUnavabilable to 0
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |
@@ -112,7 +112,7 @@ Feature: rolling deployment related scenarios
   Scenario: Rollback to one component of previous deployment
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc    |
@@ -131,7 +131,7 @@ Feature: rolling deployment related scenarios
 
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/updatev1.json |
     Then the step should succeed
 
     When I run the :get client command with:
@@ -173,7 +173,7 @@ Feature: rolling deployment related scenarios
   Scenario: [origin_runtime_509]Rollback to three components of previous deployment
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
 
     When I run the :get client command with:
@@ -193,7 +193,7 @@ Feature: rolling deployment related scenarios
 
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/updatev1.json |
     Then the step should succeed
 
     When I run the :get client command with:

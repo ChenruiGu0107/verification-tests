@@ -8,7 +8,7 @@ Feature: cluster-logging-operator related cases
   Scenario: The logging cluster operator shoud recreate the damonset
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
     And the expression should be true> cluster_logging('instance').management_state == "Managed"
@@ -30,7 +30,7 @@ Feature: cluster-logging-operator related cases
     Given I delete the clusterlogging instance
     Then the step should succeed
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/customresource-fluentd.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml |
     Then the step should succeed
     Given I register clean-up steps:
       """
@@ -77,7 +77,7 @@ Feature: cluster-logging-operator related cases
     Given I delete the clusterlogging instance
     Then the step should succeed
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/nodeSelector.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/nodeSelector.yaml |
     Then the step should succeed
     Given I register clean-up steps:
       """
@@ -93,7 +93,7 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> deployment('kibana').node_selector['kibana'] == 'deploy'
     And the expression should be true> cron_job('curator').node_selector['curator'] == 'deploy'
     When I run the :apply client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/nodeSelector_change.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/nodeSelector_change.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -116,7 +116,7 @@ Feature: cluster-logging-operator related cases
     Given I delete the clusterlogging instance
     Then the step should succeed
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
     Then the step should succeed
     Given I register clean-up steps:
       """
@@ -131,7 +131,7 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> deployment('kibana').node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> cron_job('curator').node_selector['kubernetes.io/os'] == 'linux'
     When I run the :apply client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/nodeSelector.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/nodeSelector.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -149,7 +149,7 @@ Feature: cluster-logging-operator related cases
       And the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').node_selector(user: user, cached: false, quiet: true)['es'] == 'deploy'
       """
     When I run the :apply client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/nodeSelector_override.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/nodeSelector_override.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -175,7 +175,7 @@ Feature: cluster-logging-operator related cases
   Scenario: Add Management Spec field to CRs.
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
     And the expression should be true> cluster_logging('instance').management_state == "Managed"
@@ -254,7 +254,7 @@ Feature: cluster-logging-operator related cases
     Given the master version >= "4.2"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
     Given I wait for the "fluentd" prometheus_rule to appear

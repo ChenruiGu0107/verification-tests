@@ -5,7 +5,7 @@ Feature: replicaSet related tests
   Scenario: Support to scale up/down with ReplicaSets in OpenShift
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc533163/rs.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc533163/rs.yaml |
     Then the step should succeed
     And I run the :scale client command with:
       | resource | replicaset |

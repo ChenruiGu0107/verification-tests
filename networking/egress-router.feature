@@ -12,7 +12,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -26,7 +26,7 @@ Feature: Egress router related features
     And evaluation of `service.ip(user: user)` is stored in the :egress_router_svc clipboard
 
     # Create a pod on the same node with egress router above
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-on-node.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/pod-on-node.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.egress_router_node %> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -56,7 +56,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -68,7 +68,7 @@ Feature: Egress router related features
     Then evaluation of `pod.node_name` is stored in the :egress_router_node clipboard
 
     # Create a pod on the same node with egress router above
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-on-node.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/pod-on-node.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.egress_router_node %> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -123,7 +123,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -156,7 +156,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -196,7 +196,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -240,7 +240,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -284,7 +284,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -340,7 +340,7 @@ Feature: Egress router related features
     Then the step should succeed
 
     # Create egress router which points to the configmap above
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-configmap.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-configmap.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -379,7 +379,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -394,7 +394,7 @@ Feature: Egress router related features
     # Create 2nd egress router on the same node
     # IP 5.196.70.86 to the external web services portquiz.net which serves on all the TCP ports
     Given I store a random unused IP address from the reserved range to the :valid_ip2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
       | ["items"][0]["metadata"]["labels"]["name"] | egress-rc-2 |
       | ["items"][0]["metadata"]["name"] | egress-rc-2 |
       | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
@@ -437,7 +437,7 @@ Feature: Egress router related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-router-init-container.json" replacing paths:
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %>/23 |
       | ["items"][0]["spec"]["template"]["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -470,7 +470,7 @@ Feature: Egress router related features
     And evaluation of `project.name` is stored in the :project clipboard
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
       | ["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -520,7 +520,7 @@ Feature: Egress router related features
     And evaluation of `project.name` is stored in the :project clipboard
     And SCC "privileged" is added to the "default" service account
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
       | ["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |
@@ -570,7 +570,7 @@ Feature: Egress router related features
     Given I have a project
     And evaluation of `project.name` is stored in the :project clipboard
     And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json" replacing paths:
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json" replacing paths:
       | ["spec"]["egress"][0]["type"] | Deny |
       | ["spec"]["egress"][0]["to"]["dnsName"] | bugzilla.redhat.com |
       | ["metadata"]["namespace"] | <%= cb.project %> |
@@ -586,7 +586,7 @@ Feature: Egress router related features
 
     # Create the egress http proxy to point to the denied network
     Given SCC "privileged" is added to the "default" service account
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/egress-router/egress-http-proxy.yaml" replacing paths:
       | ["spec"]["initContainers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
       | ["spec"]["initContainers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
       | ["spec"]["initContainers"][0]["env"][1]["value"] | <%= cb.gateway %> |

@@ -9,13 +9,13 @@ Feature: Testing ingress to route object
     And I store default router subdomain in the :subdomain clipboard
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/path-ingress.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
@@ -45,23 +45,23 @@ Feature: Testing ingress to route object
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     # create secret and TLS ingress
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
     When I run the :create_secret client command with:
       | secret_type    | tls                                           |
       | name           | mysecret                                      |
       | cert           | route_edge-www.edge.com.crt                   |
       | key            | route_edge-www.edge.com.key                   |     
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/tls-ingress.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ingress/tls-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
       | ["spec"]["rules"][0]["host"]  | zhao-ingress.example.com |
       | ["spec"]["tls"][0]["hosts"][0] | zhao-ingress.example.com |
@@ -93,13 +93,13 @@ Feature: Testing ingress to route object
     And I store default router subdomain in the :subdomain clipboard
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/path-ingress.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
@@ -111,11 +111,11 @@ Feature: Testing ingress to route object
     
     # create another pod and service for updating service later 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
     Then the step should succeed
     
     # updating the path
@@ -151,7 +151,7 @@ Feature: Testing ingress to route object
   Scenario: adding or updating host value of ingress resource is not permitted by default
     Given the master version >= "3.10"
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/test-ingress.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ingress/test-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:
@@ -202,14 +202,14 @@ Feature: Testing ingress to route object
     And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     """
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/test-ingress.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ingress/test-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:

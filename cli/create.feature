@@ -71,7 +71,7 @@ Feature: creating 'apps' with CLI
   Scenario: Create application from template via cli
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json |
     And I create a new application with:
       | template | ruby-helloworld-sample   |
       | param    | MYSQL_USER=admin         |
@@ -105,7 +105,7 @@ Feature: creating 'apps' with CLI
   Scenario: create app from existing template via CLI with parameter passed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -295,7 +295,7 @@ Feature: creating 'apps' with CLI
   Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-v1beta3.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-with-v1beta3.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I get project pod named "hello-pod" as YAML
@@ -306,7 +306,7 @@ Feature: creating 'apps' with CLI
   Scenario: Progress with invalid supplemental groups should not be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
     When I run the :create client command with:
-      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json |
+      | f       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_special_supplementalGroups.json |
     Then the step should fail
     And the output should contain:
       | Pod "hello-openshift" is invalid  |
@@ -317,7 +317,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11932
   Scenario: Process with special supplemental groups can be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_special_supplementalGroups.json"
     And I replace lines in "pod_with_special_supplementalGroups.json":
       |4294967296|0|
     Then the step should succeed
@@ -336,7 +336,7 @@ Feature: creating 'apps' with CLI
   Scenario: User can expose the environment variables to pods
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc467937/pod467937.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc467937/pod467937.yaml |
     Then the step should succeed
     Given the pod named "kubernetes-metadata-volume-example" becomes ready
     When I execute on the pod:
@@ -363,7 +363,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11707
   Scenario: update multiple existing resources with file
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json"
     Given I replace lines in "application-template-stibuild.json":
       | "name": "ruby-22-centos7:latest" | "name": "ruby:latest", "namespace": "openshift" |
     When I run the :new_app client command with:
@@ -450,12 +450,12 @@ Feature: creating 'apps' with CLI
       | resource      | project             |
       | resource_name | <%= project.name %> |
     And evaluation of `project.uid_range(user:user).begin` is stored in the :scc_limit clipboard
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/510541/scc_rules.json
+    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/510541/scc_rules.json
     Then the step should succeed
     When the pod named "hello-pod" status becomes :running
 
     Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     When I get project pods named "hello-pod"
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == cb.scc_limit
@@ -470,7 +470,7 @@ Feature: creating 'apps' with CLI
       | resource_name | <%= project.name %> |
     # create and save the invalid supplemental_group_id
     And evaluation of `project.supplemental_groups(user:user).begin - 1000` is stored in the :invalid_sgid clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510543/special_fs_groupid.json"
     And I replace lines in "special_fs_groupid.json":
       | 1000 | <%= cb.invalid_sgid %> |
       | 1001 | <%= cb.invalid_sgid %> |
@@ -481,12 +481,12 @@ Feature: creating 'apps' with CLI
       | unable to validate against any security context constraint |
       | <%= cb.invalid_sgid %> is not an allowed group             |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/scc_tc510543.yaml
+    Given the following scc policy is created: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510543/scc_tc510543.yaml
     Then the step should succeed
     Given SCC "scc-tc510543" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510543/special_fs_groupid.json |
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
     When I run the :exec client command with:
@@ -510,18 +510,18 @@ Feature: creating 'apps' with CLI
     Given as admin I replace resource "scc" named "restricted":
       | RunAsAny | MustRunAs |
     Then I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510546/tc510546_pod.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
       | 1000 is not an allowed group                               |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/scc_tc510546.yaml
+    Given the following scc policy is created: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510546/scc_tc510546.yaml
     Then the step should succeed
     Given SCC "scc-tc510546" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc510546/tc510546_pod.json |
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
     When I run the :exec client command with:
@@ -536,7 +536,7 @@ Feature: creating 'apps' with CLI
   @smoke
   Scenario: Create and update the docker images tag from remote repositories via api
     Given I have a project
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json
+    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/tc519471/image-stream-tag.json
     Then the step should succeed
     # Add wait step to avoid the async delay
     And I wait for the steps to pass:
@@ -546,7 +546,7 @@ Feature: creating 'apps' with CLI
     the output should contain:
       |<%= product_docker_repo %>rhel7.2|
     """
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag-update.json
+    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/tc519471/image-stream-tag-update.json
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -688,7 +688,7 @@ Feature: creating 'apps' with CLI
   Scenario: Opaque integer resources limits less than requests
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid5.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid5.yaml |
     Then the step should fail
     And the output should match:
       | .*requests.*must be less than or equal to.*limit\|.*limits.*must be greater than or equal to.*request |
@@ -698,12 +698,12 @@ Feature: creating 'apps' with CLI
   Scenario: Opaque integer resources requests invalid value
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_requests1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_requests1.yaml |
     Then the step should fail
     And the output should contain:
       | must be an integer |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_requests2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_requests2.yaml |
     Then the step should fail
     And the output should contain:
       | must be greater than or equal to 0 |
@@ -713,12 +713,12 @@ Feature: creating 'apps' with CLI
   Scenario: Opaque integer resources limits invalid value
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_limits3.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_limits3.yaml |
     Then the step should fail
     And the output should contain:
       | must be an integer |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_limits4.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_limits4.yaml |
     Then the step should fail
     And the output should contain:
       | must be greater than or equal to 0 |
@@ -729,12 +729,12 @@ Feature: creating 'apps' with CLI
   Scenario: Fail to create pod for podSpec.volumes if not in the volumes of matched scc
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/pod_requests_hostdir.json |
     Then the step should fail
     And the output should contain:
       | hostPath volumes are not allowed |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc472859/hello-pod.json |
     Then the step should succeed
 
 
@@ -747,7 +747,7 @@ Feature: creating 'apps' with CLI
     """
     When I run the :create client command with:
       | _tool    | <tool>   |
-      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.json |
+      | f        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11049/invalid.json |
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
@@ -770,7 +770,7 @@ Feature: creating 'apps' with CLI
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
     When I run the :create client command with:
       | _tool    | <tool>        |
-      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.yaml |
+      | f        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11049/invalid.yaml |
     Then the step should fail
     #And the output should match:
     #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
@@ -785,7 +785,7 @@ Feature: creating 'apps' with CLI
     Given the master version >= "3.7"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc467937/pod467937-new.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc467937/pod467937-new.yaml |
     Then the step should succeed
     Given the pod named "kubernetes-metadata-volume-example" becomes ready
     When I execute on the pod:

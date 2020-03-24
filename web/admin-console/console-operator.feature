@@ -29,7 +29,7 @@ Feature: console-operator related
     Given the first user is cluster-admin
     Given I use the "openshift-console" project
     When I run the :apply client command with:
-      | f          | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/console-operator-role.yaml |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/console-operator-role.yaml |
       | overwrite  | true |
     Then the step should succeed
     When I run the :delete client command with:

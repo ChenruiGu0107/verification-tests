@@ -8,7 +8,7 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/default_inventory_prometheus |
     And I remove metrics service using ansible
     # verify the project is gone
     And I wait for the resource "project" named "openshift-metrics" to disappear within 60 seconds
@@ -24,7 +24,7 @@ Feature: system metric related tests
     # inventory file expect cb.node_label to be set
     And evaluation of `"ocp15538"` is stored in the :node_label clipboard
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15538/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-15538/inventory |
 
   # @author pruan@redhat.com
   # @case_id OCP-15544
@@ -34,7 +34,7 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I have a project
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15544/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-15544/inventory |
 
   # @author pruan@redhat.com
   # @case_id OCP-15534
@@ -44,12 +44,12 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/default_inventory_prometheus |
     And I wait for the "alerts" service to become ready
     Given I ensure "alerts" service is deleted
     # rerun the ansible install again
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory_prometheus |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/default_inventory_prometheus |
     # check the service is brought back to life
     Then the expression should be true> service('alerts').name == 'alerts'
 
@@ -61,7 +61,7 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15529/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-15529/inventory |
     And a pod becomes ready with labels:
       | app=prometheus |
     # check the parameter for the 5 containers
@@ -95,7 +95,7 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed in the system using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-17206/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-17206/inventory |
     And I use the "openshift-metrics" project
     # check pvcs are all BOUND
     Then the expression should be true> pvc('prometheus').ready?[:success]
@@ -160,7 +160,7 @@ Feature: system metric related tests
     Given the master version >= "3.7"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-15535/inventory |
+      | inventory     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-15535/inventory |
       | negative_test | true                                                                                                   |
     Then the output should contain:
       | Could not find or access 'this_is_bogus_path' |
@@ -190,7 +190,7 @@ Feature: system metric related tests
     Given the master version >= "3.6"
     Given I create a project with non-leading digit name
     And metrics service is installed with ansible using:
-      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12234/inventory |
+      | inventory | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-12234/inventory |
     And a pod becomes ready with labels:
       | metrics-infra=hawkular-cassandra |
     And I execute on the pod:

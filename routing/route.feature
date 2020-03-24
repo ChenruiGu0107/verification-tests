@@ -6,10 +6,10 @@ Feature: Testing route
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
-      | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
+      | f  |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/dc.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/insecure-service.json |
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
@@ -33,10 +33,10 @@ Feature: Testing route
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.json" replacing paths:
       | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge.json" replacing paths:
       | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
 
@@ -108,10 +108,10 @@ Feature: Testing route
   Scenario: Check the header forward format
     Given I have a project
     When I run the :create client command with:
-      | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
+      | f  |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/dc.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/insecure-service.json |
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
@@ -123,12 +123,12 @@ Feature: Testing route
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | myroute          |
@@ -146,11 +146,11 @@ Feature: Testing route
   Scenario: The path specified in route can work well for unsecure
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | service          |
@@ -208,14 +208,14 @@ Feature: Testing route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     And the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -241,21 +241,21 @@ Feature: Testing route
   Scenario: Create a route without host named
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/tc/tc470732/route_withouthost1.json |
     Then the step should succeed
     When I use the "service-unsecure" service
     Then I wait for a web server to become available via the "service-unsecure1" route
     Then the output should contain "Hello-OpenShift"
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/tc/tc470732/route_withouthost2.json |
     Then the step should succeed
     When I use the "service-unsecure" service
     Then I wait for a web server to become available via the "service-unsecure2" route
@@ -266,12 +266,12 @@ Feature: Testing route
   Scenario: Cookie name should not use openshift prefix
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -298,7 +298,7 @@ Feature: Testing route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
@@ -331,16 +331,16 @@ Feature: Testing route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
@@ -365,16 +365,16 @@ Feature: Testing route
     """
     #create some invalid route
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_expire.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_ca.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_key.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_cert.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_noca.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_ca.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_cert.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_key.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_desca.json |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencry.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_expire.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_ca.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_key.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_cert.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_noca.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_ca.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_cert.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_key.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_desca.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencry.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | route |
@@ -383,12 +383,12 @@ Feature: Testing route
 
     #create one normal reencyption route to check if it can work after those invalid route
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
 
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
@@ -418,7 +418,7 @@ Feature: Testing route
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_caddy.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=caddy-pods |
@@ -472,10 +472,10 @@ Feature: Testing route
     Then the step should succeed
 
     #Create reencrypt route
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name | route-reencrypt |
@@ -531,7 +531,7 @@ Feature: Testing route
     When I use the "<%= cb.proj_name1 %>" project
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -550,12 +550,12 @@ Feature: Testing route
     When I use the "<%= cb.proj_name2 %>" project
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -568,7 +568,7 @@ Feature: Testing route
     Given I have a project
     Given I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -582,10 +582,10 @@ Feature: Testing route
   Scenario: The HTTP_X_FORWARDED_FOR should be the client IP for ELB env
     Given I have a project
     When I run the :create client command with:
-      | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json  |
+      | f  |   <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/dc.json  |
     Then the step should succeed
     When I run the :create client command with:
-      | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+      | f  |   <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/insecure-service.json |
     Then the step should succeed
     Given I have a pod-for-ping in the project
 
@@ -624,11 +624,11 @@ Feature: Testing route
   Scenario: route cannot be accessed if the backend cannot be matched the the default destination CA of router
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -652,13 +652,13 @@ Feature: Testing route
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
     #Create the unsecure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     #Create the unsecure route
@@ -679,13 +679,13 @@ Feature: Testing route
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
     #Create the unsecure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     #Create the edge route
     When I run the :create_route_edge client command with:
@@ -705,13 +705,13 @@ Feature: Testing route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
     #Create the secure service
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     #Create passthrough route
     When I run the :create_route_passthrough client command with:
@@ -730,7 +730,7 @@ Feature: Testing route
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
 
@@ -783,11 +783,11 @@ Feature: Testing route
     And I have a header test service in the project
     And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | pass-route       |
@@ -825,9 +825,9 @@ Feature: Testing route
     And I have a header test service in the project
     And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/secure-service.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/secure-service.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/head-test.pem"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/head-test.pem"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route |
       | service    | header-test-secure |
@@ -969,7 +969,7 @@ Feature: Testing route
     And I store an available router IP in the :router_ip clipboard
     #Create the pod/svc/route
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/header-reecrypt-without-CA.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/header-reecrypt-without-CA.json |
     Then the step should succeed
     Given I have a pod-for-ping in the project
     And all pods in the project are ready
@@ -1007,11 +1007,11 @@ Feature: Testing route
     Given the master version >= "3.7"
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -1028,7 +1028,7 @@ Feature: Testing route
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     # Create passthrough termination route
     When I run the :create_route_passthrough client command with:
@@ -1050,11 +1050,11 @@ Feature: Testing route
     Given the master version >= "3.7"
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name     | myroute          |
@@ -1114,7 +1114,7 @@ Feature: Testing route
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
@@ -1140,7 +1140,7 @@ Feature: Testing route
     Given the master version >= "3.10"
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
@@ -1152,12 +1152,12 @@ Feature: Testing route
 
     #Create another same route with path and same hostname
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | service                        |
@@ -1180,7 +1180,7 @@ Feature: Testing route
     Given the master version >= "3.9"
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge.json |
     Then the step should succeed
     Given I successfully patch resource "route/secured-edge-route" with:
       | {"spec":{"tls":{"key":"qe","certificate":"ocp","caCertificate":"redhat"}}} |
@@ -1190,9 +1190,9 @@ Feature: Testing route
   Scenario: Route validation should catch the cert which lack of dash
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_key.json    |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_cert.json   |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_lack_dash_for_cacert.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_lack_dash_for_key.json    |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_lack_dash_for_cert.json   |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_lack_dash_for_cacert.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | route  |
@@ -1216,7 +1216,7 @@ Feature: Testing route
 
     Given I switch to the first user
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:

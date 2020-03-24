@@ -12,7 +12,7 @@ Feature: log forwarding related tests
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/fluentd/insecure/logforwarding-insecure.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/fluentd/insecure/logforwarding-insecure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I register clean-up steps:
@@ -20,7 +20,7 @@ Feature: log forwarding related tests
     Given I delete the clusterlogging instance
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/clusterlogging.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -31,7 +31,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -58,7 +58,7 @@ Feature: log forwarding related tests
 
     Given elasticsearch receiver is deployed as insecure
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/elasticsearch/insecure/logforwarding-elasticsearch-insecure.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/elasticsearch/insecure/logforwarding-elasticsearch-insecure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I register clean-up steps:
@@ -66,7 +66,7 @@ Feature: log forwarding related tests
     Given I delete the clusterlogging instance
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/clusterlogging.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -77,7 +77,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -103,7 +103,7 @@ Feature: log forwarding related tests
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/fluentd/secure/logforwarding-secure.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/fluentd/secure/logforwarding-secure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I register clean-up steps:
@@ -111,7 +111,7 @@ Feature: log forwarding related tests
     Given I delete the clusterlogging instance
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/clusterlogging.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -122,7 +122,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -163,7 +163,7 @@ Feature: log forwarding related tests
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/elasticsearch/secure/logforwarding-elasticsearch.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/elasticsearch/secure/logforwarding-elasticsearch.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I register clean-up steps:
@@ -171,7 +171,7 @@ Feature: log forwarding related tests
     Given I delete the clusterlogging instance
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/clusterlogging.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -182,7 +182,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -216,13 +216,13 @@ Feature: log forwarding related tests
       | from_file    | ca-bundle.crt=ca.crt     |
     Then the step should succeed
     Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/forward_plugin/secure-forward-cm.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/forward_plugin/secure-forward-cm.yaml |
     Then the step should succeed
     And I wait for the "secure-forward" config_map to appear
 
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
 
@@ -231,7 +231,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -260,7 +260,7 @@ Feature: log forwarding related tests
 
     Given rsyslog receiver is deployed as insecure in the "openshift-logging" project
 
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
     When I run the :create_configmap client command with:
       | name      | syslog      |
@@ -270,7 +270,7 @@ Feature: log forwarding related tests
 
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
 
@@ -279,7 +279,7 @@ Feature: log forwarding related tests
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user

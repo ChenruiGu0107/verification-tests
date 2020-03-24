@@ -11,7 +11,7 @@ Feature: elasticsearch operator related tests
       Given I delete the clusterlogging instance
     """
     Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/<file> |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/<file> |
     Then the step should succeed
     Given I wait for the "elasticsearch" config_map to appear
     Then the expression should be true> elasticsearch('elasticsearch').redundancy_policy == <redundancy_policy>
@@ -81,7 +81,7 @@ Feature: elasticsearch operator related tests
   Scenario: The prometheus-rules can be created by elasticsearch operator
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                   |
-      | crd_yaml            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/clusterlogging/example.yaml |
+      | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
     Given I wait for the "elasticsearch-prometheus-rules" prometheus_rule to appear

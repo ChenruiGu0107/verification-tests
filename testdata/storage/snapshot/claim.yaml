@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: snapshot-pvc
+  namespace: myns
+  annotations:
+    snapshot.alpha.kubernetes.io/snapshot: snapshot-1
+spec:
+  storageClassName: snapshot-promoter
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

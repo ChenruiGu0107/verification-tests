@@ -12,7 +12,7 @@ Feature: Persistent Volume Recycling
 
     Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
     Given I run commands on all masters:
-      | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
+      | curl -sS <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
       | sed -i 's/127.0.0.1/<%= service("nfs-service").ip %>/' /etc/origin/master/my-recycler.json                                               |
     Given master config is merged with the following hash:
     """
@@ -27,16 +27,16 @@ Feature: Persistent Volume Recycling
     """
     And the master service is restarted on all master nodes
 
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                    |
     Then the step should succeed
@@ -66,7 +66,7 @@ Feature: Persistent Volume Recycling
   Scenario: Recycler using pod template without volume should fail with error
     Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
     When I run commands on all masters:
-      | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-recycler-invalid.json -o /etc/origin/master/my-recycler.json |
+      | curl -sS <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pv-recycler-invalid.json -o /etc/origin/master/my-recycler.json |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -106,16 +106,16 @@ Feature: Persistent Volume Recycling
     Then the step should succeed
 
     # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -151,7 +151,7 @@ Feature: Persistent Volume Recycling
 
     Given the "/etc/origin/master/my-recycler.json" path is removed on all masters after scenario
     Given I run commands on all masters:
-      | curl -sS https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
+      | curl -sS <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pv-scrubber.json -o /etc/origin/master/my-recycler.json |
       | sed -i 's/127.0.0.1/<%= service("nfs-service").ip %>/' /etc/origin/master/my-recycler.json                                               |
       | sed -i 's/\/mnt\/data/\//' /etc/origin/master/my-recycler.json                                                                           |
       | sed -i '/"args"/,+3d' /etc/origin/master/my-recycler.json                                                                                |
@@ -168,11 +168,11 @@ Feature: Persistent Volume Recycling
     """
     And the master service is restarted on all master nodes
 
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/local-recycle.yaml" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/local-recycle.yaml" where:
       | ["metadata"]["name"]            | pv-<%= project.name %>   |
       | ["spec"]["capacity"]["storage"] | 1Gi                      |
       | ["spec"]["hostPath"]["path"]    | /mnt/<%= project.name %> |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/hostpath/claim.yaml" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |

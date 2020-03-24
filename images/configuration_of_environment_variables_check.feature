@@ -8,7 +8,7 @@ Feature: Configuration of environment variables check
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-<os>.json |
       | n | <%= project.name %> |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-env-sti.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-env-sti.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready up to 300 seconds
     When I run the :describe client command with:
@@ -32,7 +32,7 @@ Feature: Configuration of environment variables check
   Scenario Outline: Check environment variables of perl image
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/<template> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/<template> |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
@@ -51,7 +51,7 @@ Feature: Configuration of environment variables check
   Scenario Outline: Configuration of enviroment variables check
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template> |
     Then the step should succeed
     Given the "php-sample-build-1" build was created
     Given the "php-sample-build-1" build completed
@@ -80,7 +80,7 @@ Feature: Configuration of environment variables check
   Scenario Outline: Openshift build and configuration of enviroment variables check - python
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template> |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready up to 300 seconds
     And I get the service pods
@@ -114,7 +114,7 @@ Feature: Configuration of environment variables check
   Scenario: Substitute environment variables into a container's command
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/commandtest.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/container/commandtest.json |
     Then the step should succeed
     Given the pod named "expansion-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -127,7 +127,7 @@ Feature: Configuration of environment variables check
   Scenario: Substitute environment variables into a container's args
     Given I have a project
     When I run the :create client command with:
-      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/argstest.json |
+      | f |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/container/argstest.json |
     Then the step should succeed
     Given the pod named "expansion-pod" status becomes :running
     When I run the :logs client command with:
@@ -142,7 +142,7 @@ Feature: Configuration of environment variables check
   Scenario: Substitute environment variables into a container's env
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc493678/envtest.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc493678/envtest.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
     When I run the :set_env client command with:
@@ -220,5 +220,5 @@ Feature: Configuration of environment variables check
     """
     Examples:
       | template        |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13141/template.json    |
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521461/template.json  |
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/OCP-13141/template.json |

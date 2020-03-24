@@ -46,8 +46,8 @@ Feature: quickstarts.feature
     Then the output should contain "OpenShift"
     Examples:
       | json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-27-rhel7-stibuild.json | # @case_id OCP-9605
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json | # @case_id OCP-12650
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-stibuild.json | # @case_id OCP-9605
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc499622/python-27-centos7-stibuild.json | # @case_id OCP-12650
 
   # @author wzheng@redhat.com
   # @case_id OCP-11178
@@ -152,7 +152,7 @@ Feature: quickstarts.feature
   Scenario: Use the template parameters for the entire config
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc479059/application-template-parameters.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc479059/application-template-parameters.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -203,8 +203,8 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | template                                                                                                | buildcfg             | output  | podno |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | # @case_id OCP-12602
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | # @case_id OCP-12603
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | # @case_id OCP-12602
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | # @case_id OCP-12603
 
   # @author xiuwang@redhat.com
   # @case_id OCP-13750

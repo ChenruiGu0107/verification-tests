@@ -17,7 +17,7 @@ Feature: events related
 
     # create 1st build
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc526202/bc.json |
     Then the step should succeed    
 
     # 2nd build will fail

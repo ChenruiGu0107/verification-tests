@@ -61,8 +61,8 @@ Feature: configmap related
   Scenario: Show binary config map data
     Given the master version >= "4.2"
     Given I have a project
-    Given I download a big file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/hello"
-    Given I download a big file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/keystore.jks"
+    Given I download a big file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/hello"
+    Given I download a big file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/keystore.jks"
     When I run the :create_configmap client command with:
       | name      | twobinconfigmap |
       | from_file | <%= File.join(localhost.workdir, "hello") %>        |

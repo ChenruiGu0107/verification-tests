@@ -1,0 +1,16 @@
+kind: LDAPSyncConfig
+apiVersion: v1
+url: ldap://LDAP_SERVICE_IP:389
+insecure: true
+groupUIDNameMapping:
+  group1: tc509126group1
+  group2: tc509126group2
+  group3: tc509126group3
+activeDirectory:
+    usersQuery:
+        baseDN: "ou=people,ou=ad,dc=example,dc=com"
+        scope: sub
+        derefAliases: never
+        filter: (objectclass=inetOrgPerson)
+    groupMembershipAttributes: [ testMemberOf ]
+    userNameAttributes: [ mail ]

@@ -34,10 +34,10 @@ Feature: NodeSelector related tests
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/ns1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
       | n | ns1 |   
     Then the step should succeed
     When I run the :get admin command with:
@@ -88,7 +88,7 @@ Feature: NodeSelector related tests
       | project_name | ns1 |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
       | n | ns1 |   
     Then the step should succeed
     When I run the :get admin command with:
@@ -100,7 +100,7 @@ Feature: NodeSelector related tests
       | "os": "fedora"   |
       | "region": "west" |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
       | n | ns1 |   
     Then the step should fail
     And the output should match:
@@ -138,10 +138,10 @@ Feature: NodeSelector related tests
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/ns1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
       | n | ns1 |   
     Then the step should succeed
     When I run the :get admin command with:
@@ -153,7 +153,7 @@ Feature: NodeSelector related tests
       | "infra": "fedora" |
       | "os": "fedora"    |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
       | n | ns1 |   
     Then the step should fail
     And the output should match:
@@ -194,7 +194,7 @@ Feature: NodeSelector related tests
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/ns1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
     Then the step should succeed
    When I run the :get admin command with:
       | resource      | namespace |
@@ -203,7 +203,7 @@ Feature: NodeSelector related tests
     Then the output should match:
       | "scheduler.alpha.kubernetes.io/node-selector": "env=test,infra=fedora" |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector3.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector3.yaml |
       | n | ns1 |   
     Then the step should succeed
     When I run the :get admin command with:
@@ -215,7 +215,7 @@ Feature: NodeSelector related tests
       | "infra": "fedora" |
       | "role": "vm"      |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admission/podnodeselector/pod-nodeSelector4.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector4.yaml |
       | n | ns1 |   
     Then the step should fail
     And the output should match:
@@ -227,7 +227,7 @@ Feature: NodeSelector related tests
   Scenario: Create namespace with node selector
     Given evaluation of `rand_str(5, :dns)` is stored in the :project1 clipboard
     And admin ensures "<%= cb.project1 %>" project is deleted after scenario
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/valid-namesapce.yaml" replacing paths:
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/projects/valid-namesapce.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project1 %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -238,7 +238,7 @@ Feature: NodeSelector related tests
       | "scheduler.alpha.kubernetes.io/node-selector": "region=east,country=china" |
     Given evaluation of `rand_str(5, :dns)` is stored in the :project2 clipboard
     And admin ensures "<%= cb.project2 %>" project is deleted after scenario
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/invalid-namespace.yaml" replacing paths:
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/projects/invalid-namespace.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project2 %> |
     Then the step should succeed
 
@@ -248,7 +248,7 @@ Feature: NodeSelector related tests
   Scenario: Shouldn't update node-selector after create namespace
     Given evaluation of `rand_str(5, :dns)` is stored in the :project clipboard
     And admin ensures "<%= cb.project %>" project is deleted after scenario
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/ns1.yaml" replacing paths:
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/projects/ns1.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project %> |
     Then the step should succeed
     When I run the :patch admin command with:

@@ -23,7 +23,7 @@ Feature: Testing Ingress Operator related scenarios
     Given I switch to cluster admin pseudo user
     And admin ensures "test-21873" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom ingresscontroller named test-21873 (replicas=1)
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingresscontroller-test.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingresscontroller-test.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-21873                                    |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-21873") %> |
@@ -60,8 +60,8 @@ Feature: Testing Ingress Operator related scenarios
     And admin ensures "test-certs-21143" secret is deleted from the "openshift-ingress" project after scenario
     And admin ensures "test-21143" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom wildcard route certificate
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.key"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.key"
     When I run the :create_secret client command with:
       | secret_type    | tls              |
       | name           | test-certs-21143 |
@@ -69,7 +69,7 @@ Feature: Testing Ingress Operator related scenarios
       | key            | ca.key           |
     Then the step should succeed
     # create custom ingresscontroller which use above secrect
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingresscontroller-test.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingresscontroller-test.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-21143                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-21143") %> |
       | ["spec"]["defaultCertificate"]["name"] | test-certs-21143                              |
@@ -96,11 +96,11 @@ Feature: Testing Ingress Operator related scenarios
     And I store default router subdomain in the :subdomain clipboard
     # create route in the project with label
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -112,7 +112,7 @@ Feature: Testing Ingress Operator related scenarios
     # create custom router with namespaceSelector
     Given I switch to cluster admin pseudo user
     And admin ensures "test-22636" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-namespace-selector.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-namespace-selector.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-22636                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22636") %> |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
@@ -143,11 +143,11 @@ Feature: Testing Ingress Operator related scenarios
     And I store default router subdomain in the :subdomain clipboard
     # create route with label
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -159,7 +159,7 @@ Feature: Testing Ingress Operator related scenarios
     # create custom router with routeSelector
     Given I switch to cluster admin pseudo user
     And admin ensures "test-22637" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-route-selector.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-route-selector.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-22637                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22637") %> |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
@@ -220,10 +220,10 @@ Feature: Testing Ingress Operator related scenarios
     """
   Examples:
     | name | ingressctl | tls-version | ciphers |
-    | test-25665 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-old.yaml | TLSv1.1 | AES128-GCM-SHA256:AES256-GCM-SHA384 | # @case_id OCP-25665
-    | test-25666 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-intmd.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
-    | test-25667 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-modern.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
-    | test-25668 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/operator/ingressctl-tls-custom.yaml | TLSv1.1 | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
+    | test-25665 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-old.yaml | TLSv1.1 | AES128-GCM-SHA256:AES256-GCM-SHA384 | # @case_id OCP-25665
+    | test-25666 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-intmd.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
+    | test-25667 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-modern.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
+    | test-25668 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-custom.yaml | TLSv1.1 | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
 
   # @author hongli@redhat.com
   # @case_id OCP-26150

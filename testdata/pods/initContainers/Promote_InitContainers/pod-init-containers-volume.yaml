@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-volume
+spec:
+  containers:
+  - name: app
+    image: docker.io/ocpqe/hello-pod
+    volumeMounts:
+    - name: workdir
+      mountPath: /init-test
+  initContainers:
+  - name: install
+    image: busybox
+    command:
+    - /bin/sh
+    - -c
+    - "echo This is OCP test wmeng > /work-dir/volume-test"
+    volumeMounts:
+    - name: workdir
+      mountPath: "/work-dir"
+  dnsPolicy: Default
+  volumes:
+  - name: workdir
+    emptyDir: {}

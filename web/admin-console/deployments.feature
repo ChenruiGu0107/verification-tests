@@ -6,7 +6,7 @@ Feature: deployment/dc related features via web
     Given the master version >= "3.11"		
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo-ui.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo-ui.json |
     Then the step should succeed
     And I open admin console in a browser
     When I perform the :goto_deployment_page web action with:
@@ -145,7 +145,7 @@ Feature: deployment/dc related features via web
     Given I have a project
     And I open admin console in a browser
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json  |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | deploymentconfig |
@@ -299,7 +299,7 @@ Feature: deployment/dc related features via web
       | owner      | exampletest |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536590/k8s-deployment.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | rs   |
