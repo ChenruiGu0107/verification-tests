@@ -14,6 +14,7 @@ Feature: alerts browser
     When I perform the :open_alert_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
+
     When I run the :silence_alert_from_action web action
     Then the step should succeed
     #Open Silence page, expire alert from alert detail page
@@ -31,7 +32,7 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :disable_silence_tab web action
     Then the step should succeed
-    When I perform the :click_alert_link_with_text web action with:
+    When I perform the :open_alert_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
 
