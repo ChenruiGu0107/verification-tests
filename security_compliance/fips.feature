@@ -82,7 +82,6 @@ Feature: security and compliance related scenarios
     # Reboot the master node
     When I run commands on the host:
       | systemctl reboot |
-    Then the step should succeed
     And admin wait for the "<%=cb.masters[0].name%>" node to appear
 
     # Verify if fips mode is enable on master node after reboot
@@ -119,7 +118,6 @@ Feature: security and compliance related scenarios
     # Reboot the worker node 
     When I run commands on the host:
       | systemctl reboot |
-    Then the step should succeed
     And admin wait for the "<%=cb.workers[0].name%>" node to appear
 
     # Verify if the fips mode is enable on RHCOS and RHEL worker node after reboot
@@ -178,7 +176,6 @@ Feature: security and compliance related scenarios
     # Reboot the master node
     When I run commands on the host:
       | systemctl reboot |
-    Then the step should succeed
     And admin wait for the "<%=cb.masters[0].name%>" node to appear
 
     # Verify if fips mode is disable on master node after reboot
@@ -215,7 +212,6 @@ Feature: security and compliance related scenarios
     # Reboot the worker node 
     When I run commands on the host:
       | systemctl reboot |
-    Then the step should succeed
     And admin wait for the "<%=cb.workers[0].name%>" node to appear
 
     # Verify if the fips mode is disable on RHCOS and RHEL worker node after reboot
