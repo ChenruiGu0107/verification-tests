@@ -237,3 +237,22 @@ Feature: job.feature
     Then the step should succeed
     And the output should match:
       | job/pi manages |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-15562
+  @admin
+  Scenario: Controllers burst via slow start - jobs
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-quota.yaml |
+      | n | <%= project.name %>                                                                     |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_long_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"] | 15 |
+      | ["spec"]["completions"] | 15 |
+    Then the step should succeed
+    Then status becomes :running of 2 pods labeled:
+      | app=pi |
+    When I get project events
+    Then the output should match:
+      | is forbidden: exceeded quota: myquota, requested: pods=1, used: pods=2, limited: pods=2 |
