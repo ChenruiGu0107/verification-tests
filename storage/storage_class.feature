@@ -49,7 +49,8 @@ Feature: storageClass related feature
     And the output should contain:
       | Invalid value: "@test@" |
 
-    When I run oc create as admin over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-noProvisioner.yaml
+    When I run the :create admin command with:
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-noProvisioner.yaml |
     Then the step should fail
     And the output should contain:
       | provisioner: Required value |

@@ -5,19 +5,16 @@ Feature: Quota related scenarios
   @admin
   Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml"
-    And I replace lines in "quota.yaml":
-      | memory: 750Mi | memory: 20Mi        |
-    And I run the :create admin command with:
-      | f             |  quota.yaml         |
-      | n             | <%= project.name %> |
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
+      | ["spec"]["hard"]["memory"] | 20Mi                |
+      | namespace                  | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
       | f |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig.*reated            |
+      | eployment.*onfig.*reated |
 
     When I get project pods
     Then the output should match:
@@ -74,13 +71,9 @@ Feature: Quota related scenarios
   @admin
   Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml"
-    And I replace lines in "quota.yaml":
-      | 750Mi    | 110Mi               |
-    Then the step should succeed
-    And I run the :create admin command with:
-      | f        | quota.yaml          |
-      | n        | <%= project.name %> |
+    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
+      | ["spec"]["hard"]["memory"] | 110Mi               |
+      | namespace                  | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
@@ -91,7 +84,7 @@ Feature: Quota related scenarios
 
     When I run the :create admin command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
-      | n        | <%= project.name %> |
+      | n | <%= project.name %>                                                     |
     Then the step should succeed
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
@@ -101,9 +94,9 @@ Feature: Quota related scenarios
       | cpu:\\s*100m     |
       | memory:\\s*100Mi |
     When I run the :describe admin command with:
-      | resource      | quota               |
-      | name          | quota               |
-      | n             | <%= project.name %> |
+      | resource | quota               |
+      | name     | quota               |
+      | n        | <%= project.name %> |
     Then the output should match:
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
@@ -112,7 +105,6 @@ Feature: Quota related scenarios
     Then the step should fail
     And the output should match:
       | xceeded quota |
-      | xceeded quota |
     When I run the :delete client command with:
       | object_type | pods |
       | all         |      |
@@ -120,9 +112,9 @@ Feature: Quota related scenarios
     And I wait for the steps to pass:
     """
     When I run the :describe admin command with:
-      | resource      | quota               |
-      | name          | quota               |
-      | n             | <%= project.name %> |
+      | resource | quota               |
+      | name     | quota               |
+      | n        | <%= project.name %> |
     Then the output should not match:
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
@@ -478,11 +470,10 @@ Feature: Quota related scenarios
     Given I have a project
     When I run the :create admin command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
-      | n | <%= project.name %>                                                                                   |
+      | n | <%= project.name %>                                                                      |
     Then the step should succeed
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
-      | n | <%= project.name %>                                                                             |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota                   |
@@ -491,12 +482,8 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | persistentvolumeclaims\\s+1\\s+10                               |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class | pvc-storage-class-1 |
-    When I run the :create client command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+      | ["metadata"]["name"] | pvc-storage-class-1 |
     Then the step should fail
     And the output should contain:
       | exceeded quota: quota-precious-resource, requested: gold.storageclass.storage.k8s.io/requests.storage=2Gi, used: gold.storageclass.storage.k8s.io/requests.storage=2Gi, limited: gold.storageclass.storage.k8s.io/requests.storage=3Gi |
@@ -513,25 +500,14 @@ Feature: Quota related scenarios
   # @case_id OCP-12826
   Scenario: Precious resources should be consumed without constraint in the absence of a covering quota if they are not configured on the master
     Given I have a project
-    When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
-      | n | <%= project.name %>                                                                             |
+    And evaluation of `%w{2Gi 20Gi 30Gi}` is stored in the :sizes clipboard
+    And I run the steps 3 times:
+    """
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+      | ["metadata"]["name"]                         | mypvc#{cb.i}        |
+      | ["spec"]["resources"]["requests"]["storage"] | #{cb.sizes[cb.i-1]} |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class | pvc-storage-class-1 |
-      | "storage": "2Gi"  | "storage": "20Gi"   |
-    When I run the :create client command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
-    Then the step should succeed
-    When I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class | pvc-storage-class-2 |
-      | "storage": "20Gi" | "storage": "30Gi"   |
-    And I run the :create client command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
-    Then the step should succeed
+    """
 
 
   # @author qwang@redhat.com
@@ -557,11 +533,11 @@ Feature: Quota related scenarios
     Given I have a project
     When I run the :create admin command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
-      | n | <%= project.name %>                                                                                   |
+      | n | <%= project.name %>                                                                      |
     Then the step should succeed
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
-      | n | <%= project.name %>                                                                             |
+      | n | <%= project.name %>                                                                |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota                   |
@@ -570,12 +546,8 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                               |
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class | pvc-storage-class-2 |
-    When I run the :create client command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+      | ["metadata"]["name"] | pvc-storage-class-2 |
     Then the step should fail
     And the output should contain:
       | exceeded quota: quota-precious-resource, requested: gold.storageclass.storage.k8s.io/requests.storage=2Gi, used: gold.storageclass.storage.k8s.io/requests.storage=2Gi, limited: gold.storageclass.storage.k8s.io/requests.storage=3Gi |
@@ -597,13 +569,10 @@ Feature: Quota related scenarios
       | n    | <%= project.name %>                                                                                               |
       | hard | slow.storageclass.storage.k8s.io/requests.storage=20Gi,slow.storageclass.storage.k8s.io/persistentvolumeclaims=15 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | gold | slow |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi               |
+      | ["spec"]["storageClassName"]                 | slow              |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -612,13 +581,10 @@ Feature: Quota related scenarios
     And the output should match:
       | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
       | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
-    When I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class                                 | pvc-storage-class-iamnotslow                            |
-      | "volume.beta.kubernetes.io/storage-class": "slow" | "volume.beta.kubernetes.io/storage-class": "iamnotslow" |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class-iamnotslow |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                          |
+      | ["spec"]["storageClassName"]                 | iamnotslow                   |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -627,10 +593,7 @@ Feature: Quota related scenarios
     And the output should match:
       | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
       | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
-    When I run the :delete client command with:
-      | object_type       | PersistentVolumeClaim |
-      | object_name_or_id | pvc-storage-class     |
-    Then the step should succeed
+    Given I ensure "pvc-storage-class" pvc is deleted
     When I run the :describe client command with:
       | resource | quota         |
       | name     | storage-quota |
@@ -638,10 +601,7 @@ Feature: Quota related scenarios
     And the output should match:
       | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+0\\s+15 |
       | slow.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi     |
-    When I run the :delete client command with:
-      | object_type       | PersistentVolumeClaim            |
-      | object_name_or_id | pvc-storage-class-iamnotslow     |
-    Then the step should succeed
+    Given I ensure "pvc-storage-class-iamnotslow" pvc is deleted
     When I run the :describe client command with:
       | resource | quota         |
       | name     | storage-quota |
@@ -666,17 +626,13 @@ Feature: Quota related scenarios
       | n    | <%= project.name %> |
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class                                 | pvc-storage-class-slow                            |
-      | "volume.beta.kubernetes.io/storage-class": "gold" | "volume.beta.kubernetes.io/storage-class": "slow" |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class-slow |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
+      | ["spec"]["storageClassName"]                 | slow                   |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | quota    |
+      | resource | quota |
     Then the step should succeed
     And the output should match:
       | persistentvolumeclaims\\s+1\\s+2                                   |
@@ -687,17 +643,13 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                    |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi   |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
-    When I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class-slow                            | pvc-storage-class-bronze                            |
-      | "volume.beta.kubernetes.io/storage-class": "slow" | "volume.beta.kubernetes.io/storage-class": "bronze" |
-      | "storage": "2Gi"                                  |  "storage": "3Gi"                                   |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class-bronze |
+      | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
+      | ["spec"]["storageClassName"]                 | bronze                   |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | quota    |
+      | resource | quota |
     Then the step should succeed
     And the output should match:
       | persistentvolumeclaims\\s+2\\s+2                                   |
@@ -708,19 +660,15 @@ Feature: Quota related scenarios
       | requests.storage\\s+5Gi\\s+50Gi                                    |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
-    When I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class-bronze                            | pvc-storage-class-gold                            |
-      | "volume.beta.kubernetes.io/storage-class": "bronze" | "volume.beta.kubernetes.io/storage-class": "gold" |
-      | "storage": "3Gi"                                    |  "storage": "4Gi"                                 |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class-gold |
+      | ["spec"]["resources"]["requests"]["storage"] | 4Gi                    |
+      | ["spec"]["storageClassName"]                 | gold                   |
     Then the step should fail
     And the output should contain:
       | persistentvolumeclaims "pvc-storage-class-gold" is forbidden: exceeded quota: my-quota, requested: persistentvolumeclaims=1,requests.storage=4Gi, used: persistentvolumeclaims=2,requests.storage=5Gi, limited: persistentvolumeclaims=2,requests.storage=5Gi |
     When I run the :describe client command with:
-      | resource | quota    |
+      | resource | quota |
     Then the step should succeed
     And the output should match:
       | persistentvolumeclaims\\s+2\\s+2                                   |
@@ -743,9 +691,8 @@ Feature: Quota related scenarios
       | n    | <%= project.name %> |
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
-    When I run the :create admin command with:
+    When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
-      | n | <%= project.name %>                                                                             |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -756,15 +703,10 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                                |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json"
-    And I replace lines in "pvc-storage-class.json":
-      | pvc-storage-class | pvc-storage-class-bronze |
-      | gold              | bronze                   |
-      | 2Gi               | 3Gi                      |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | pvc-storage-class.json |
-      | n | <%= project.name %>    |
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-storage-class-bronze |
+      | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
+      | ["spec"]["storageClassName"]                 | bronze                   |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -775,10 +717,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+2\\s+10                                  |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi   |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
-    When I run the :delete client command with:
-      | object_type       | PersistentVolumeClaim |
-      | object_name_or_id | pvc-storage-class     |
-    Then the step should succeed
+    Given I ensure "pvc-storage-class" pvc is deleted
     When I run the :describe client command with:
       | resource | quota         |
       | name     | storage-quota |
@@ -788,10 +727,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                                  |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
-    When I run the :delete client command with:
-      | object_type       | PersistentVolumeClaim    |
-      | object_name_or_id | pvc-storage-class-bronze |
-    Then the step should succeed
+    Given I ensure "pvc-storage-class-bronze" pvc is deleted
     When I run the :describe client command with:
       | resource | quota         |
       | name     | storage-quota |

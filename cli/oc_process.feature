@@ -71,8 +71,8 @@ Feature: oc_process.feature
     Given I have a project
     When I run the :process client command with:
       | f        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-      | template | MYSQL_USER=username                                                                                                                        |
-      | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                                                       |
+      | template | MYSQL_USER=username                                                                                                           |
+      | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                                          |
     Then the step should succeed
     And the output should not contain "invalid parameter assignment"
     And the output should contain:
@@ -80,18 +80,18 @@ Feature: oc_process.feature
       | -Dfoo2=bar -Dbar2=foo |
     When I run the :new_app client command with:
       | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-      | p       | MYSQL_USER=username                                                                                                                        |
-      | p       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo                                                                                                        |
-      | dry_run | true                                                                                                                                       |
+      | p       | MYSQL_USER=username                                                                                                           |
+      | p       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo                                                                                           |
+      | dry_run | true                                                                                                                          |
     Then the step should succeed
     And the output should contain:
-      | MYSQL_USER=username                           |
-      | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo           |
+      | MYSQL_USER=username                 |
+      | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo |
     When I run the :new_app client command with:
       | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-      | p       | MYSQL_USER=username                                                                                                                        |
-      | p       | MYSQL_PASSWORD=4,5,6                                                                                                                       |
-      | dry_run | true                                                                                                                                       |
+      | p       | MYSQL_USER=username                                                                                                           |
+      | p       | MYSQL_PASSWORD=4,5,6                                                                                                          |
+      | dry_run | true                                                                                                                          |
     Then the step should succeed
     And the output should not contain "error: environment variables must be of the form key=value"
     And the output should contain:
@@ -99,8 +99,8 @@ Feature: oc_process.feature
       | MYSQL_PASSWORD=4,5,6 |
     When I run the :new_app client command with:
       | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-      | p       | MYSQL_USER=username,MYSQL_PASSWORD=4,5                                                                                                     |
-      | dry_run | true                                                                                                                                       |
+      | p       | MYSQL_USER=username,MYSQL_PASSWORD=4,5                                                                                        |
+      | dry_run | true                                                                                                                          |
     # Don't care if the step could be succeed or not
     # only test if values "will be treated as a single key-value pair"
     And the output should contain:
@@ -220,30 +220,28 @@ Feature: oc_process.feature
     """
     aaa=123
     """
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/guestbook.json"
     When I run the :process client command with:
-      | f          | guestbook.json |
-      | param_file | test2          |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/guestbook.json |
+      | param_file | test2                                                                              |
     Then the step should succeed
     And the output should contain:
       | root      |
       | adminpass |
       | redispass |
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml"
     When I run the :process client command with:
-      | f          | template_required_params.yaml |
-      | param_file | test1                         |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | param_file | test1                                                                                             |
     And the output should contain "name": "first\nsecond"
     When I run the :process client command with:
-      | f          | template_required_params.yaml |
-      | param_file | test3                         |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | param_file | test3                                                                                             |
     And the step should fail
     And the output should contain:
       | unknown parameter name "aaa" |
     When I run the :process client command with:
-      | f          | template_required_params.yaml |
-      | param_file | test1                         |
-      | p          | required_param=good           |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | param_file | test1                                                                                             |
+      | p          | required_param=good                                                                               |
     And the step should succeed
     And the output should contain:
       | "name": "good" |

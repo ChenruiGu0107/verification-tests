@@ -51,12 +51,6 @@ Feature: route related
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
 
     Given I open admin console in a browser
 
@@ -76,9 +70,9 @@ Feature: route related
       | secure_route          | true                 |
       | tls_termination_type  | edge                 |
       | insecure_traffic_type | Allow                |
-      | certificate_path      | <%= File.join(localhost.workdir, "route_edge-www.edge.com.crt") %> |
-      | private_key_path      | <%= File.join(localhost.workdir, "route_edge-www.edge.com.key") %> |
-      | ca_certificate_path   | <%= File.join(localhost.workdir, "ca.pem") %>                      |
+      | certificate_path      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | private_key_path      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | ca_certificate_path   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
@@ -108,14 +102,6 @@ Feature: route related
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
-    Then the step should succeed
 
     Given I open admin console in a browser
 
@@ -135,10 +121,10 @@ Feature: route related
       | secure_route               | true                 |
       | tls_termination_type       | reencrypt            |
       | insecure_traffic_type      | Redirect             |
-      | certificate_path           | <%= File.join(localhost.workdir, "route_reencrypt-reen.example.com.crt") %> |
-      | private_key_path           | <%= File.join(localhost.workdir, "route_reencrypt-reen.example.com.key") %> |
-      | ca_certificate_path        | <%= File.join(localhost.workdir, "route_reencrypt.ca") %>                   |
-      | destination_ca_certificate | <%= File.join(localhost.workdir, "route_reencrypt_dest.ca") %>              |
+      | certificate_path           | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | private_key_path           | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | ca_certificate_path        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destination_ca_certificate | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
