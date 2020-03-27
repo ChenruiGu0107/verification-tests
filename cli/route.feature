@@ -4,14 +4,14 @@ Feature: route related features via cli
   Scenario: Create a route without route's name named ---should be failed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_nil_routename.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/negative/route_with_nil_routename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
     And the project is deleted
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_no_routename.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/negative/route_with_no_routename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
@@ -21,13 +21,13 @@ Feature: route related features via cli
   Scenario: Create a route without service named ---should be failed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_nil_servicename.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/negative/route_with_nil_servicename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_no_servicename.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/negative/route_with_no_servicename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
@@ -37,7 +37,7 @@ Feature: route related features via cli
   Scenario: Create a route with invalid host ---should be failed
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/negative/route_with_invaid__host.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/negative/route_with_invaid__host.json |
     Then the step should fail
     And the output should contain:
       | DNS 952 subdomain |
@@ -85,18 +85,18 @@ Feature: route related features via cli
     Given I have a project
     #Create PodA & serviceA
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
     Then the step should succeed
 
     #Create PodB & serviceB
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
     Then the step should succeed
 
     Given a pod becomes ready with labels:

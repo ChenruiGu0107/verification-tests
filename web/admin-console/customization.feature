@@ -241,7 +241,7 @@ Feature: customize console related
 
     Given admin ensures "clidownloadtest" console_cli_download_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/clidownload.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/clidownload.yaml |
     Then the step should succeed
     When I run the :goto_cli_tools_page web action
     Then the step should succeed
@@ -256,7 +256,7 @@ Feature: customize console related
     Given the first user is cluster-admin
     Given admin ensures "notification3" console_notifications_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-notification.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/console-notification.yaml |
     Then the step should succeed
 
     When I perform the :check_console_notification web action with:
@@ -300,7 +300,7 @@ Feature: customize console related
       | p        | {"spec":{"customization": null}} |
     Then the step should succeed
     """
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/mypic.jpg"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/mypic.jpg"
     Then the step should succeed
     When I run the :create_configmap admin command with:
       | name      | myconfig         |
@@ -366,8 +366,8 @@ Feature: customize console related
     Given admin ensures "link-for-some-ns" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "link-for-all-ns" console_links_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-consolelink-1.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-consolelink-2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/namespace-consolelink-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/namespace-consolelink-2.yaml |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -426,9 +426,9 @@ Feature: customize console related
     Given admin ensures "exampletwo" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "examplethree" console_links_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-1.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-2.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/namespace-label-consolelink-3.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/namespace-label-consolelink-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/namespace-label-consolelink-2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/namespace-label-consolelink-3.yaml |
     Then the step should succeed
 
     # add label to some projects
@@ -503,10 +503,10 @@ Feature: customize console related
     Given admin ensures "consolelog2" console_external_log_link_console_openshift_io is deleted after scenario
     Given admin ensures "consolelog3" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/consoleExternalLogLink.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/consoleExternalLogLink.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
       | n | <%= project.name %> |
     Then the step should succeed
     Given I open admin console in a browser
@@ -544,7 +544,7 @@ Feature: customize console related
     Given admin ensures "helpmenu1" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "usermenu1" console_links_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-link.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/console-link.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :check_consolelink web action with:
@@ -579,13 +579,13 @@ Feature: customize console related
     Given the master version >= "4.3"
     Given admin ensures "example" console_external_log_link_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-external-log-link.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/console-external-log-link.yaml |
     Then the step should succeed
 
     # Given I open admin console in a browser
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_two_containers.json |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_one_pod_log_page web action with:
@@ -644,7 +644,7 @@ Feature: customize console related
     # create ConsoleYAMLSample instance
     Given admin ensures "example" console_yaml_samples_console_openshift_io is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/customresource/console-yaml-sample.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/console-yaml-sample.yaml |
     Then the step should succeed
 
     Given the first user is cluster-admin

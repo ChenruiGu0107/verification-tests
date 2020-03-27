@@ -5,7 +5,7 @@ Feature: rsh.feature
   Scenario: Check oc rsh with invalid options
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_two_containers.json |
     Then the step should succeed
     When I run the :rsh client command with:
       | options | -l |

@@ -15,8 +15,8 @@ Feature: Stateful Set related feature on web console
       | resource_name | Stateful Set        |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml               |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-world_volume-envvar.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/statefulset-hello.yaml               |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/statefulset-world_volume-envvar.yaml |
     Then the step should succeed
 
     When I perform the :check_stateful_set_entry_on_stateful_sets_page web console action with:
@@ -184,9 +184,9 @@ Feature: Stateful Set related feature on web console
     Given the master version >= "3.7"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml                |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml           |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml                |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml           |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-pod |

@@ -1,0 +1,15 @@
+seLinuxContext:
+  seLinuxOptions:
+    user: system_u
+    level: s0:c0
+  type: MustRunAs
+runAsUser:
+  type: RunAsAny
+apiVersion: v1
+groups:
+- system:serviceaccounts:default
+kind: SecurityContextConstraints
+metadata:
+  labels:
+    name: scc-selinux-mustrunas
+  name: scc-selinux-mustrunas

@@ -5,7 +5,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
     Then the step should fail
     When I run the :get client command with:
       | resource | pods |
@@ -13,7 +13,7 @@ Feature: nodeAffinity
     And the output should not contain:
       | node-affinity-preferred-weight-faction |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*0.*must be in the range 1-100 |
@@ -23,7 +23,7 @@ Feature: nodeAffinity
     And the output should not contain:
       | node-affinity-preferred-weight-0 |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*101.*must be in the range 1-100 |
@@ -39,7 +39,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified single value when `operator` is 'Lt' or 'Gt' |
@@ -55,7 +55,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified when `operator` is 'In' or 'NotIn' |
@@ -71,7 +71,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*name part must be non-empty |
@@ -88,7 +88,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -104,7 +104,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -120,7 +120,7 @@ Feature: nodeAffinity
     # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*"Equals": not a valid selector operator |
@@ -135,7 +135,7 @@ Feature: nodeAffinity
   Scenario: pod will not be scheduled if node affinity not match
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14478.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14478.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                              |
@@ -151,7 +151,7 @@ Feature: nodeAffinity
   Scenario: pod will not be scheduled if node anti-affinity not match
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-case14480.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-case14480.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                                   |
@@ -170,7 +170,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14479=value14479" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14479.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14479.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-case14479" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -184,7 +184,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14484=value14484" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-case14484.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-case14484.yaml |
     Then the step should succeed
     Given the pod named "node-anti-affinity-required-case14484" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name != cb.nodes[0].name
@@ -202,7 +202,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14488=value14488" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14488.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14488.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-case14488" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -221,7 +221,7 @@ Feature: nodeAffinity
   Scenario: if no preferred nodes are available non-preferred nodes will be chosen
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-preferred-case14509" status becomes :running within 60 seconds
 
@@ -233,7 +233,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14556=case14556" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -255,7 +255,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "zone14557=case14557" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -283,7 +283,7 @@ Feature: nodeAffinity
     And label "key14576=value14576" is added to the "<%= cb.nodes[0].name %>" node
     And label "company14576=redhat" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-multiple-match-expressions-case14576.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-multiple-match-expressions-case14576.yaml |
     Then the step should succeed
     Given the pod named "multiple-match-expressions-case14576" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -296,7 +296,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14577=value14577" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -324,7 +324,7 @@ Feature: nodeAffinity
     And label "case14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
     And label "zone14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14566.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14566.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-selector-case14566" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -342,7 +342,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14568c=case14568" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-selector-terms-case14568" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -360,7 +360,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14520=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-exists-case14520.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-exists-case14520.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-exists-case14520" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -374,7 +374,7 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14521=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml |
     Then the step should succeed
     Given the pod named "node-anti-affinity-required-exists-case14521" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name != cb.nodes[0].name
@@ -389,7 +389,7 @@ Feature: nodeAffinity
     And label "key14522=4" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14522=6" is added to the "<%= cb.nodes[1].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-gt4-required-case14522.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-gt4-required-case14522.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-gt4-required-case14522" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[1].name
@@ -409,7 +409,7 @@ Feature: nodeAffinity
     And label "key14525=6" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14525=4" is added to the "<%= cb.nodes[1].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-lt6-required-case14525.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-lt6-required-case14525.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-lt6-required-case14525" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[1].name
@@ -424,11 +424,11 @@ Feature: nodeAffinity
     Then the step should succeed
     Given I have a project
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/<pod_file_name>.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/node-affinity/<pod_file_name>.yaml |
     Then the step should succeed
     Given the pod named "<pod_file_name>" status becomes :running within 300 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
     Examples:
-      | scheduler_file                          | label                         | pod_file_name                 |
-      | scheduler_nodeaffinity_priority_10.json | beta.kubernetes.io/arch=intel | node-anti-affinity-preferred  | # @case_id OCP-26287
-      | scheduler_nodeaffinity_priority_10.json | zone=us                       | node-affinity-preferred-us    | # @case_id OCP-26286
+      | label                         | pod_file_name                 |
+      | beta.kubernetes.io/arch=intel | node-anti-affinity-preferred  | # @case_id OCP-26287
+      | zone=us                       | node-affinity-preferred-us    | # @case_id OCP-26286

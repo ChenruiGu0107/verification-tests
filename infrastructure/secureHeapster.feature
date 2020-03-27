@@ -7,13 +7,13 @@ Feature: Secure Heapster APIs scenarios
     Given I have a project
     # Create configmap to use in heapster and the curl pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/cert-configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/cert-configmap.yaml |
     # Grant necessary permission to heapster serviceaccount
     Given cluster role "system:heapster" is added to the "heapster" service account
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>   |
     When I run the :create client command with:
@@ -28,7 +28,7 @@ Feature: Secure Heapster APIs scenarios
       | k8s-app=influxdb                  |
     # Create the heapster-client pod to do the curl command in the pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster-client.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster-client.yaml |
     Then the step should succeed
     And the pod named "heapster-client" becomes ready
     Given I use the "heapster" service
@@ -75,13 +75,13 @@ Feature: Secure Heapster APIs scenarios
     Given I have a project
     # Create configmap to use in heapster and the curl pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/cert-configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/cert-configmap.yaml |
     # Grant necessary permission to heapster serviceaccount
     Given cluster role "system:heapster" is added to the "heapster" service account
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %> |
       | User      | Username              |
@@ -98,7 +98,7 @@ Feature: Secure Heapster APIs scenarios
       | k8s-app=influxdb                  |
     # Create the heapster-client pod to do the curl command in the pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster-client.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster-client.yaml |
     Then the step should succeed
     And the pod named "heapster-client" becomes ready
     Given I use the "heapster" service
@@ -168,13 +168,13 @@ Feature: Secure Heapster APIs scenarios
     Given I have a project
     # Create configmap to use in heapster and the curl pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/cert-configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/cert-configmap.yaml |
     # Grant necessary permission to heapster serviceaccount
     Given cluster role "system:heapster" is added to the "heapster" service account
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>   |
       | tls-ca      | client-ca             |
@@ -190,7 +190,7 @@ Feature: Secure Heapster APIs scenarios
       | k8s-app=influxdb                  |
     # Create the heapster-client pod to do the curl command in the pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster-client.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster-client.yaml |
     Then the step should succeed
     And the pod named "heapster-client" becomes ready
     Given I use the "heapster" service
@@ -248,13 +248,13 @@ Feature: Secure Heapster APIs scenarios
     Given I have a project
     # Create configmap to use in heapster and the curl pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/cert-configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/cert-configmap.yaml |
     # Grant necessary permission to heapster serviceaccount
     Given cluster role "system:heapster" is added to the "heapster" service account
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>     |
     When I run the :create client command with:
@@ -269,7 +269,7 @@ Feature: Secure Heapster APIs scenarios
       | k8s-app=influxdb                  |
     # Create the heapster-client pod to do the curl command in the pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/secure_heapster/heapster-client.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster-client.yaml |
     Then the step should succeed
     And the pod named "heapster-client" becomes ready
     Given I use the "heapster" service

@@ -6,7 +6,7 @@ Feature: services related feature on web console
     Given the master version >= "3.5"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     When I run the :create_service_loadbalancer client command with:
       | name | hello-openshift |
@@ -28,7 +28,7 @@ Feature: services related feature on web console
   Scenario: Display details on service page for ExternalName type service
     Given the master version >= "3.5"
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-label-ports.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/services/ExternalSvc-with-label-ports.yaml"
     Then the step should succeed
     And I replace lines in "ExternalSvc-with-label-ports.yaml":
       | myproject | <%= project.name %> |
@@ -49,11 +49,11 @@ Feature: services related feature on web console
     Given the master version >= "3.5"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     When I perform the :goto_one_service_page web console action with:

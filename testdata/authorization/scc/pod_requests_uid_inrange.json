@@ -1,0 +1,26 @@
+{
+  "kind": "Pod",
+  "apiVersion":"v1",
+
+  "metadata": {
+        "name": "pod-uid-inrange",
+        "labels": {
+                "name": "pod-uid-inrange"
+        }
+  },
+
+  "spec": {
+      "containers": [{
+        "name": "pod-uid-inrange",
+        "image": "bmeng/hello-openshift",
+        "ports": [
+          {
+            "containerPort": 80
+          }
+        ],
+        "securityContext": {
+            "runAsUser": <%= cb.scc_uid_inrange %>
+        }
+      }]
+  }
+}

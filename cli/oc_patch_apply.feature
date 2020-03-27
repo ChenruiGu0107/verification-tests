@@ -4,7 +4,7 @@ Feature: oc patch/apply related scenarios
   Scenario Outline: oc patch to update resource fields using JSON format
     Given I have a project
     And I create a new application with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:
@@ -94,7 +94,7 @@ Feature: oc patch/apply related scenarios
   Scenario Outline: oc patch to update resource fields using YAML format
     Given I have a project
     And I create a new application with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "database" dc to appear
     When I run the :patch client command with:
@@ -160,11 +160,11 @@ Feature: oc patch/apply related scenarios
   Scenario: patch operation should use patched object to check admission control
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
@@ -197,7 +197,7 @@ Feature: oc patch/apply related scenarios
     Given I have a project
     When I run the :create client command with:
       | _tool  | <tool>               |
-      | f      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
+      | f      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/services/multi-portsvc.json |
     Then the step should succeed
 
     # check "json" type

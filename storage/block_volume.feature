@@ -5,7 +5,7 @@ Feature: Scenarios specific for block volume support
   @admin
   Scenario: VolumeMode defaults to Filesystem for manually provisioned volumes
     Given I have a project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pv-rwx.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/pv-rwx.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
     And the expression should be true> pv("pv-<%= project.name %>").volume_mode == "Filesystem"
@@ -15,7 +15,7 @@ Feature: Scenarios specific for block volume support
   @admin
   Scenario Outline: User can manually create PV with specific VolumeMode
     Given I have a project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/pv-rwx.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/pv-rwx.json" where:
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | <volume-mode>          |
     Then the step should succeed
@@ -33,7 +33,7 @@ Feature: Scenarios specific for block volume support
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["volumeBindingMode"] | Immediate |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -48,7 +48,7 @@ Feature: Scenarios specific for block volume support
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["volumeBindingMode"] | Immediate |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeMode"]       | <volume-mode>          |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |

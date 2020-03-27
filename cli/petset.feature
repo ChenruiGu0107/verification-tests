@@ -5,12 +5,12 @@ Feature: Petset Related Scenarios
   Scenario: Check network identity works well after create petset
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/petset/hello-petset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/petset/hello-petset.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-pod |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/k8s/busybox.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/k8s/busybox.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=busybox0 |
@@ -60,7 +60,7 @@ Feature: Petset Related Scenarios
   Scenario: Deleting the Pet Set will not delete any pets
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/petset/hello-petset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/petset/hello-petset.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-pod |
@@ -81,7 +81,7 @@ Feature: Petset Related Scenarios
   Scenario: The only updatable field on a PetSet is replicas
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/petset/hello-petset.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/petset/hello-petset.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-pod |

@@ -4,7 +4,7 @@ Feature: storageClass related feature
   Scenario Outline: pre-bound still works with storage class
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/<path_to_file>" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/<path_to_file>" where:
       | ["metadata"]["name"]                        | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]             | 1Gi                    |
       | ["spec"]["accessModes"][0]                  | ReadWriteOnce          |
@@ -12,7 +12,7 @@ Feature: storageClass related feature
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -32,24 +32,24 @@ Feature: storageClass related feature
     Given I have a project
     Given admin ensures "slow-<%= project.name %>" storage_class is deleted after scenario
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-invalidAPI.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-invalidAPI.yaml |
     Then the step should fail
     And the output should match:
       | no (matches for )?kind "StorageClass" (is registered for \|in )version "storage.k8s.io/invalid" |
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-emptyName.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-emptyName.yaml |
     Then the step should fail
     And the output should contain:
       | name or generateName is required |
 
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-invalidName.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-invalidName.yaml |
     Then the step should fail
     And the output should contain:
       | Invalid value: "@test@" |
 
-    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-noProvisioner.yaml
+    When I run oc create as admin over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-noProvisioner.yaml
     Then the step should fail
     And the output should contain:
       | provisioner: Required value |
@@ -63,7 +63,7 @@ Feature: storageClass related feature
       | ["parameters"]["zone"] | europe-west1-d |
       | ["volumeBindingMode"]  | Immediate      |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -85,7 +85,7 @@ Feature: storageClass related feature
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["provisioner"]       | <provisioner> |
       | ["volumeBindingMode"] | Immediate     |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -111,12 +111,12 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check the storage class detail by oc describe
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                       | sc1-<%= project.name %> |
       | ["provisioner"]                                                            | kubernetes.io/gce-pd    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     When I run the :describe admin command with:
@@ -138,10 +138,10 @@ Feature: storageClass related feature
   Scenario: Error messaging for failed provision via StorageClass
     Given I have a project
     # Scenario when StorageClass's rest url can't be reached
-    Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    Given admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
       | ["parameters"]["resturl"] | http://foo.com/        |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | invalid                |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -157,7 +157,7 @@ Feature: storageClass related feature
   # @case_id OCP-10459
   Scenario: Using both alpha and beta annotation in PVC
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"]  | sc2-<%= project.name %> |
@@ -177,12 +177,12 @@ Feature: storageClass related feature
   @admin
   Scenario: PVC with storage class will not provision io1 pv with wrong parameters for aws ebs volume
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
       | ["metadata"]["name"]        | sc1-<%=project.name%> |
       | ["parameters"]["iopsPerGB"] | 400000                |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 4Gi                      |
@@ -199,12 +199,12 @@ Feature: storageClass related feature
       | maximum is 50         |
     """
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
       | ["metadata"]["name"]        | sc2-<%=project.name%> |
       | ["parameters"]["iopsPerGB"] | 40                    |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
@@ -226,31 +226,31 @@ Feature: storageClass related feature
   @destructive
   Scenario Outline: dynamic provision with storage class in multi-zones
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]   | sc1-<%= project.name %>     |
       | ["provisioner"]        | kubernetes.io/<provisioner> |
       | ["parameters"]["zone"] | <region1_zone1>             |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]   | sc2-<%= project.name %>     |
       | ["provisioner"]        | kubernetes.io/<provisioner> |
       | ["parameters"]["zone"] | <region1_zone2>             |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]   | sc3-<%= project.name %>     |
       | ["provisioner"]        | kubernetes.io/<provisioner> |
       | ["parameters"]["zone"] | <region2_zone1>             |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | pvc1-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc1-<%= project.name %>  |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | pvc2-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc2-<%= project.name %>  |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | pvc3-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc3-<%= project.name %>  |
     Then the step should succeed
@@ -272,13 +272,13 @@ Feature: storageClass related feature
   @admin
   Scenario Outline: Create storageclass with specific api
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                    |
       | ["provisioner"]                                                                 | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                       | sc2-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                    |
@@ -309,12 +309,12 @@ Feature: storageClass related feature
   Scenario: Create storageclass without annotations
     Given the master version >= "3.6"
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["apiVersion"]       | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"] | sc1-<%= cb.sc_name %>  |
       | ["provisioner"]      | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["apiVersion"]       | storage.k8s.io/v1     |
       | ["metadata"]["name"] | sc2-<%= cb.sc_name %> |
       | ["provisioner"]      | kubernetes.io/manual  |
@@ -338,28 +338,28 @@ Feature: storageClass related feature
   Scenario: Create storageclass with both beta and stable annotations
     Given the master version >= "3.6"
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | false                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual  |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc3-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                   |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc4-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
@@ -421,11 +421,11 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning using non-default storageclass by annotations
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -439,11 +439,11 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning using non-default storageclass by attribute storageClassName
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -457,11 +457,11 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning with both annotations and atrribute storageClassName, reference the same storageclass
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
       | ["spec"]["storageClassName"]                                           | sc-<%= project.name %>  |
@@ -476,15 +476,15 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning with both annotations and atrribute storageClassName, reference different storageclass, annotation wins
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc1-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd    |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-without-annotations.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc2-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd    |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
       | ["spec"]["storageClassName"]                                           | sc2-<%= project.name %> |
@@ -499,7 +499,7 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation and no default storageclass
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -512,11 +512,11 @@ Feature: storageClass related feature
   @admin
   Scenario: Check storageclass info pv and pvc requested when pvc is using beta annotation
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/storageclass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/dynamic-provisioning/pvc.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -530,7 +530,7 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info when pvc using default storageclass
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
       | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
       | ["parameters"]["type"]                                                     | gp2                     |
@@ -538,7 +538,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-without-annotations.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -553,11 +553,11 @@ Feature: storageClass related feature
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/pv-rwo.yaml" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-<%= project.name %> |
       | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/ebs/pvc-retain.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pvc-retain.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
@@ -572,13 +572,13 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
       | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -591,13 +591,13 @@ Feature: storageClass related feature
   Scenario Outline: Configure 'Retain' reclaim policy for StorageClass
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-reclaim-policy.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-reclaim-policy.yaml" where:
       | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
       | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                       |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
@@ -625,11 +625,11 @@ Feature: storageClass related feature
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["mountOptions"] | ["discard"] |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod       |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc       |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypath |
@@ -657,14 +657,14 @@ Feature: storageClass related feature
     Given I have a project
     And I have a efs-provisioner in the project
 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass-reclaim-policy.yaml" where:
+    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-reclaim-policy.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/v1      |
       | ["metadata"]["name"]                                                       | sc-<%= project.name %> |
       | ["provisioner"]                                                            | openshift.org/aws-efs  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                  |
     Then the step should succeed
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |

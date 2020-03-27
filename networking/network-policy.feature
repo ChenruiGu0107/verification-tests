@@ -8,7 +8,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -20,7 +20,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -73,7 +73,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -82,7 +82,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -96,7 +96,7 @@ Feature: Network policy plugin scenarios
 
     # apply network policy to project which does not have the annotation
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
 
@@ -111,7 +111,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
       | n | <%= cb.proj2 %> |
     Then the step should succeed
 
@@ -130,7 +130,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -139,7 +139,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -152,7 +152,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
@@ -160,7 +160,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -253,7 +253,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -262,7 +262,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -286,7 +286,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
@@ -294,7 +294,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -392,7 +392,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -401,7 +401,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -414,7 +414,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -422,7 +422,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -513,7 +513,7 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -531,7 +531,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods and add label to 1 pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -549,7 +549,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-label.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -644,7 +644,7 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -663,7 +663,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -674,7 +674,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-to-label.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-to-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -762,7 +762,7 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -786,7 +786,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -797,7 +797,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-red-to-blue.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-from-red-to-blue.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -834,7 +834,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -844,7 +844,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -854,7 +854,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -865,11 +865,11 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
     # add team=blue label to project 2
@@ -904,7 +904,7 @@ Feature: Network policy plugin scenarios
     # create project and pods with label added
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 4 |
     Then the step should succeed
     Given 4 pods become ready with labels:
@@ -928,7 +928,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods with label added
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 2 |
     Then the step should succeed
     Given 2 pods become ready with labels:
@@ -945,11 +945,11 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-label.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-to-label.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-to-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -990,14 +990,14 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/udp8888-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/udp8888-pod.json |
     Then the step should succeed
     And the pod named "udp-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :p1udppodip clipboard
@@ -1005,7 +1005,7 @@ Feature: Network policy plugin scenarios
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1016,7 +1016,7 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-port.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-port.yaml |
       | n | <%= cb.proj1 %>                                                                                             |
     Then the step should succeed
 
@@ -1058,7 +1058,7 @@ Feature: Network policy plugin scenarios
 
     # add another network policy to allow project 2
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                                |
     Then the step should succeed
     When I run the :label admin command with:
@@ -1119,7 +1119,7 @@ Feature: Network policy plugin scenarios
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -1157,7 +1157,7 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1167,7 +1167,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1181,14 +1181,14 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1261,7 +1261,7 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1271,7 +1271,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1296,14 +1296,14 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1393,7 +1393,7 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1403,7 +1403,7 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1417,14 +1417,14 @@ Feature: Network policy plugin scenarios
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1502,7 +1502,7 @@ Feature: Network policy plugin scenarios
     # create project and networkpolicy
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | networkpolicy |
@@ -1528,7 +1528,7 @@ Feature: Network policy plugin scenarios
     # second user try to create networkpolicy in first user's project
     Given I switch to the second user
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
       | namespace | <%= cb.proj1 %> |
     Then the step should fail
     And the output should match "User "<%= user.name %>" cannot create"
@@ -1543,7 +1543,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1554,7 +1554,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1563,7 +1563,7 @@ Feature: Network policy plugin scenarios
 
     # create network policy with both ingress and egress field in project 1
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/ignore-egress-policy.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/ignore-egress-policy.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -1611,7 +1611,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1622,7 +1622,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1631,7 +1631,7 @@ Feature: Network policy plugin scenarios
 
     # create network policy with only egress policy in project 1
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/egress-default-deny.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/egress-default-deny.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -1664,7 +1664,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1682,7 +1682,7 @@ Feature: Network policy plugin scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1697,7 +1697,7 @@ Feature: Network policy plugin scenarios
 
     # create network policy with ingress.from.ipBlock element in project 1
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/ipblock.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/ipblock.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -1740,10 +1740,10 @@ Feature: Network policy plugin scenarios
     # Create project via user and create invalid networkpolicy in it
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/incorrect-structure.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/incorrect-structure.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1760,7 +1760,7 @@ Feature: Network policy plugin scenarios
   Scenario: Use networkpolicy plugin with allow connections from specific project and pod at same policy for service
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -1768,14 +1768,14 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod.ip` is stored in the :p1podip clipboard
     #Add the namespace and pod policy for project1 to make the matched namespaces and matched pods can access project1 pod
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-namespace-and-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-namespace-and-pod.yaml |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1835,7 +1835,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1859,7 +1859,7 @@ Feature: Network policy plugin scenarios
 
     Given I use the "<%= cb.proj1 %>" project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
     Then the step should succeed
 
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -1873,7 +1873,7 @@ Feature: Network policy plugin scenarios
     And the output should contain "Hello"
 
     When I run the :delete client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
     Then the step should succeed
 
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -1893,7 +1893,7 @@ Feature: Network policy plugin scenarios
   Scenario: A network policy with ingress rule with "ipBlock"
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -1904,7 +1904,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(2).ip` is stored in the :pod2_ip clipboard
 
     #Apply networpolicy with ipBlock as pod0 ip
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/nw_ipblock.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/networkpolicy/nw_ipblock.yaml"
     And I replace lines in "nw_ipblock.yaml":
       | 10.131.0.25/32 | <%= cb.pod0_ip %>/32 |
     And I run the :create admin command with:
@@ -1943,7 +1943,7 @@ Feature: Network policy plugin scenarios
     And I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |

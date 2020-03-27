@@ -5,7 +5,7 @@ Feature: template related scenarios:
   Scenario: template with code explicitly attached should not be supported when creating app with template via cli
     Given I have a project
     And I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | filename | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -30,7 +30,7 @@ Feature: template related scenarios:
     And the output should contain:
       | error                   |
       | I_do_no_exist |
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     # activate/install the template to the project
     And I run the :create client command with:
       | filename | application-template-stibuild-without-customize-route.json |
@@ -43,7 +43,7 @@ Feature: template related scenarios:
   # @case_id OCP-9562
   Scenario: Create app from template containing invalid type - cli
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc497538/application-template-stibuild.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc497538/application-template-stibuild.json"
     And I run the :create client command with:
       | filename | application-template-stibuild.json |
     Then the step should succeed
@@ -60,7 +60,7 @@ Feature: template related scenarios:
   Scenario Outline: Easy delete resources from template created
     Given I have a project
     And I process and create:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json|
+      |f|<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json|
       |l|<labels>|
     And the step succeeded
 
@@ -130,7 +130,7 @@ Feature: template related scenarios:
   Scenario: Override/set/get values for multiple parameters
     Given I have a project
     When I run the :process client command with:
-      | f          | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | parameters | true                                                                                                   |
     And the step succeeded
     And the output should match:
@@ -141,7 +141,7 @@ Feature: template related scenarios:
       | MYSQL_DATABASE\\s+database name\\s+\\s+root                                                        |
 
     When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | v | ADMIN_USERNAME=foo                                                                                     |
       | v | ADMIN_PASSWORD=bar                                                                                     |
       | v | MYSQL_USER=test                                                                                        |
@@ -156,7 +156,7 @@ Feature: template related scenarios:
       |"name": "MYSQL_DATABASE",\\s+"value": "mine"|
 
     When I run the :process client command with:
-      | f          | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | f          | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | v          | ADMIN_USERNAME=foo                                                                                     |
       | v          | ADMIN_PASSWORD=bar                                                                                     |
       | v          | MYSQL_USER=test                                                                                        |
@@ -169,7 +169,7 @@ Feature: template related scenarios:
 
     Given oc major.minor version is stored in the clipboard
     When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | v | NONEXIST=abcd                                                                                          |
     Then the expression should be true> @result[:success] == (cb.oc_version.split(".").last.to_i < 3)
     #And the step failed
@@ -177,7 +177,7 @@ Feature: template related scenarios:
       |unknown parameter name "NONEXIST"|
 
     And I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | v | ADMIN_USERNAME=foo                                                                                     |
       | v | ADMIN_PASSWORD=bar                                                                                     |
       | v | MYSQL_USER=test                                                                                        |
@@ -203,7 +203,7 @@ Feature: template related scenarios:
   # @bug_id 1330323
   Scenario: Add arbitrary labels to all objects during template processing
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
     Given an 8 characters random string of type :dns is stored into the :lbl1 clipboard
     Given I replace lines in "ruby22rhel7-template-sti.json":
       | "template": "application-template-stibuild" | "<%= cb.lbl1 %>": "application-template-stibuild" |
@@ -320,7 +320,7 @@ Feature: template related scenarios:
   Scenario: Show user getting start info after new-app a template with message defined
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/application-template-stibuild.json | 
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/application-template-stibuild.json | 
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | template                  |
@@ -412,12 +412,12 @@ Feature: template related scenarios:
   Scenario: Deal with crd resources with new-app
     Given I have a project
     And I run the :new_app client command with:
-      | source_spec | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23251/template-with-crd.yaml |
+      | source_spec | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23251/template-with-crd.yaml |
     And the output should contain: 
       | oc process -f <template> \| oc create |
     Then the step should fail
     And I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/OCP-23251/template-with-crd.yaml |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23251/template-with-crd.yaml |
     Then the step should fail
     And the output should contain:
       | oc process -f <template> \| oc create |

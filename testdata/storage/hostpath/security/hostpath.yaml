@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpathpd
+spec:
+  securityContext:
+    fsGroup: 123456
+    seLinuxOptions:
+      level: s0:c13,c2
+  containers:
+  - image: aosqe/hello-openshift
+    name: a
+    ports:
+      - containerPort: 8081
+        protocol: "TCP"
+    securityContext:
+      runAsUser: 1000130001
+    volumeMounts:
+      - mountPath: "/example/hostpath"
+        name: host-vol
+  volumes:
+    - name: host-vol
+      hostPath:
+        path: "/tmp/example-pod"
+

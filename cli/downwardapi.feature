@@ -6,7 +6,7 @@ Feature: Downward API
   Scenario: Could expose resouces limits and requests via ENV from Downward APIs by passing containerName
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-containername-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -20,7 +20,7 @@ Feature: Downward API
     # Test file without requests, use limits as requests by default
     Given I ensure "dapi-resources-env-containername-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-containername-pod-without-requests.yaml | 
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-requests.yaml | 
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-requests" status becomes :succeeded
     When I run the :logs client command with:
@@ -34,7 +34,7 @@ Feature: Downward API
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-containername-pod-without-requests" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml | 
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml | 
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-limits" status becomes :succeeded
     Given evaluation of `pod("dapi-resources-env-containername-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
@@ -70,7 +70,7 @@ Feature: Downward API
   Scenario: Could expose resouces limits and requests via ENV from Downward APIs with magic keys
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
@@ -84,7 +84,7 @@ Feature: Downward API
     # Test file without requests, use limits as requests by default
     Given I ensure "dapi-resources-env-magic-keys-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod-without-requests.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod-without-requests.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod-without-requests" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
@@ -98,7 +98,7 @@ Feature: Downward API
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-magic-keys-pod-without-requests" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod-without-limits" status becomes :succeeded within 300 seconds
     Given evaluation of `pod("dapi-resources-env-magic-keys-pod-without-limits").node_name(user: user)` is stored in the :node clipboard

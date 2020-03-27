@@ -102,7 +102,7 @@ Feature: projects related features via cli
     Given evaluation of `node.labels.keys.select{|key| key.include?("io/hostname")}.first` is stored in the :unique_key clipboard
     Given evaluation of `[cb.unique_key, node.labels[cb.unique_key]].join("=")` is stored in the :node_selector clipboard
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/projects/prj_with_invalid_node-selector.json"
     And I replace lines in "prj_with_invalid_node-selector.json":
       | "openshift.io/node-selector": "env,qa" | "openshift.io/node-selector": "<%= cb.node_selector %>" |
       | "name": "jhou"                         | "name": "<%= cb.proj_name %>"                           |
@@ -128,7 +128,7 @@ Feature: projects related features via cli
     # Create a pod in the project
     When I use the "<%= cb.proj_name %>" project
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
     Then  the step should succeed
     Given the pod named "hello-openshift" status becomes :running
     # Check pod is create on the correspond node

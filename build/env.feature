@@ -26,22 +26,22 @@ Feature: env.feature
   Scenario: Allow for non-string parameters in templates
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11007/cakephp1.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11007/cakephp1.json |
     Then the step should succeed
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
     Given I wait until number of replicas match "2" for replicationController "cakephp-example-1"
     And I delete all resources from the project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11007/cakephp2.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11007/cakephp2.json |
     Then the step should succeed
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
     When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11007/cakephp3.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11007/cakephp3.json |
     And the output should contain "a${{REPLICA_COUNT}}"
     When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11007/cakephp4.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11007/cakephp4.json |
     And the output should contain "{2"
 
   # @author shiywang@redhat.com

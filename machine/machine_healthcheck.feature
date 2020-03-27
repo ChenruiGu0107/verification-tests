@@ -12,7 +12,7 @@ Feature: MachineHealthCheck Test Scenarios
     And I clone a machineset named "machineset-clone-25741"
 
     # Create MHC
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cloud/mhc/mhc1.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cloud/mhc/mhc1.yaml" replacing paths:
       | n                                                                                  | openshift-machine-api       |
       | ["metadata"]["name"]                                                               | mhc-<%= machine_set.name %> |
       | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-cluster"]    | <%= machine_set.cluster %>  |

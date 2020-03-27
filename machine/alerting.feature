@@ -27,7 +27,7 @@ Feature: Alerting for machine-api
     Given I run the steps <%= cb.pending_csr %> times:
     """
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cloud/machine-approver/csr.yml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cloud/machine-approver/csr.yml |
     Then the step should succeed
     """
 

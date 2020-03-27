@@ -3,7 +3,7 @@ Feature: oc set image related tests
   # @author cryan@redhat.com
   Scenario Outline: oc set image to update pod with certain label
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
       | f | dc-with-two-containers.yaml |
     Then the step should succeed
@@ -77,7 +77,7 @@ Feature: oc set image related tests
     Given I have a project
     ## 1.  Create pod container(s) and ISs for project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     ## 2. oc set image with --source=imagestreamtag
     When I run the :set_image client command with:
@@ -115,7 +115,7 @@ Feature: oc set image related tests
     Given I have a project
     ## 1.  Create pod container(s) and dc,rc for project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     ## 2. set image with keywork python for compatibility between 3.6 and 3.7
     When I run the :set_image client command with:

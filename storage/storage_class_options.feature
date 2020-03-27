@@ -6,7 +6,7 @@ Feature: Dynamic provision via storage class with options
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["volumeBindingMode"] | WaitForFirstConsumer |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -18,7 +18,7 @@ Feature: Dynamic provision via storage class with options
     And the output should contain:
       | WaitForFirstConsumer |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
     Then the step should succeed
@@ -32,7 +32,7 @@ Feature: Dynamic provision via storage class with options
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["volumeBindingMode"] | Immediate |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -43,7 +43,7 @@ Feature: Dynamic provision via storage class with options
   Scenario Outline: Storage class option volumeBindingMode with invalid value
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     And I switch to cluster admin pseudo user
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass.yaml" replacing paths:
       | ["metadata"]["name"]  | sc-<%= cb.proj_name %> |
       | ["volumeBindingMode"] | <value>                |
     Then the step should fail

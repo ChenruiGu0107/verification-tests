@@ -4,7 +4,7 @@ Feature: dockerbuild.feature
   Scenario Outline: Push build with invalid github repo
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti-invalidrepo.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti-invalidrepo.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
@@ -25,7 +25,7 @@ Feature: dockerbuild.feature
   Scenario: Add empty ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
     When I run the :new_app client command with:
-      | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template-dockerbuild-blankvar.json |
+      | file |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template-dockerbuild-blankvar.json |
     Then the step should fail
     And the output should contain "invalid"
 
@@ -56,7 +56,7 @@ Feature: dockerbuild.feature
     Given project role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
     And I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479296/application-template-custombuild.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479296/application-template-custombuild.json |
     Then the step should succeed
     And I run the :describe client command with:
       | resource | buildconfig |
@@ -86,7 +86,7 @@ Feature: dockerbuild.feature
   # @case_id OCP-10789
   Scenario: Implement post-build command for docker build
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"script":"bundle exec rake test"}                   |
     Then the step should succeed
@@ -95,7 +95,7 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build-1 |
     Then the output should contain:
       | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["metadata"]["name"]                                   | ruby-sample-build2 |
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"command":["/bin/bash","-c","bundle exec rake test --verbose"]} |
@@ -105,7 +105,7 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build2-1 |
     Then the output should contain:
       | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["metadata"]["name"]                                   | ruby-sample-build3 |
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"args":["bundle","exec","rake","test","--verbose"]} |
@@ -115,7 +115,7 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build3-1 |
     Then the output should contain:
       | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["metadata"]["name"]                                   | ruby-sample-build4 |
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"args":["--verbose"],"script":"bundle exec rake test $1"} |
@@ -125,7 +125,7 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build4-1 |
     Then the output should contain:
       | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["metadata"]["name"]                                   | ruby-sample-build5 |
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"command":["/bin/bash","-c","bundle exec rake test"],"args":["--verbose"]} |
@@ -135,7 +135,7 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build5-1 |
     Then the output should contain:
       | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc479297/test-template-dockerbuild.json" replacing paths:
       | ["metadata"]["name"]                                   | ruby-sample-build6 |
       | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
       | ["spec"]["postCommit"]                                 | {"script":"bundle exec rake1 test --verbose"} |
@@ -153,7 +153,7 @@ Feature: dockerbuild.feature
   Scenario: Edit bc with an allowed strategy to use a restricted strategy
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
@@ -173,7 +173,7 @@ Feature: dockerbuild.feature
     Given I switch to the second user
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
@@ -194,7 +194,7 @@ Feature: dockerbuild.feature
     Given I have a project
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
     Given I create a new project
@@ -205,12 +205,12 @@ Feature: dockerbuild.feature
       | n               |   <%= cb.proj_name %> |
     Then the step should succeed
     And I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     Given I create a new project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
 
@@ -219,7 +219,7 @@ Feature: dockerbuild.feature
   Scenario: Error in buildlog when Docker build with invalid context dir
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-invalidcontext-docker.json |
     Then the step should succeed
     When the "ruby20-sample-build-1" build failed
     And I run the :logs client command with:
@@ -237,7 +237,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12856/push-generic-build-args.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12856/push-generic-build-args.json"
     Then the step should succeed
     When I perform the HTTP request:
     """

@@ -55,7 +55,7 @@ Feature: test master config related steps
     When I execute on the pod:
       | bash |
       | -c   |
-      | curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+      | curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -125,10 +125,10 @@ Feature: test master config related steps
 
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "2" |
     And I run the :create admin command with:
@@ -137,7 +137,7 @@ Feature: test master config related steps
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-pre-mid-post.yaml |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
@@ -169,10 +169,10 @@ Feature: test master config related steps
 
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "1" |
     And I run the :create admin command with:
@@ -350,7 +350,7 @@ Feature: test master config related steps
       | password | password                    |
     Then the step should fail
     Given I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_user.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc509116/tc509116_user.json |
     Then the step should succeed
     And I register clean-up steps:
       """
@@ -360,7 +360,7 @@ Feature: test master config related steps
       Then the step should succeed
       """
     Given I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_identity.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc509116/tc509116_identity.json |
     Then the step should succeed
     And I register clean-up steps:
       """
@@ -370,7 +370,7 @@ Feature: test master config related steps
       Then the step should succeed
       """
     Given I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_useridentitymapping.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc509116/tc509116_useridentitymapping.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource   | projects |
@@ -1456,7 +1456,7 @@ Feature: test master config related steps
     When I execute on the pod:
       | bash |
       | -c   |
-      | curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+      | curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -1522,7 +1522,7 @@ Feature: test master config related steps
     When I execute on the pod:
       | bash |
       | -c   |
-      | curl -Ss https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
+      | curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/tc521728_add_user_to_ldap.ldif \| ldapadd -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -1595,10 +1595,10 @@ Feature: test master config related steps
 
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "2" |
     And I run the :create admin command with:
@@ -1607,7 +1607,7 @@ Feature: test master config related steps
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-pre-mid-post.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-pre-mid-post.yaml |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollout_latest client command with:
@@ -1637,10 +1637,10 @@ Feature: test master config related steps
     Given the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc534581/limits.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "1" |
     And I run the :create admin command with:
@@ -2561,12 +2561,12 @@ Feature: test master config related steps
       | echo '    namespaces: ["<%= cb.project1 %>"]' >>/etc/origin/master/audit-policy.yaml |
     And the master service is restarted on all master nodes
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
     When I run the :create client command with:
-     | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+     | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret2.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -2589,7 +2589,7 @@ Feature: test master config related steps
     Given I create a new project
     And evaluation of `project.name` is stored in the :project3 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret2.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -2616,7 +2616,7 @@ Feature: test master config related steps
     Given I create a new project
     And evaluation of `project.name` is stored in the :project4 clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |

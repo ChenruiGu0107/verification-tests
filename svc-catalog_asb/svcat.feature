@@ -274,7 +274,7 @@ Feature: svcat related command
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
@@ -285,13 +285,13 @@ Feature: svcat related command
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
     # Create a servicebinding
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | SECRET_NAME=my-secret                                                                                    |
     Then the step should succeed
@@ -376,7 +376,7 @@ Feature: svcat related command
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
@@ -387,13 +387,13 @@ Feature: svcat related command
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-instance-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
     # Create a servicebinding
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-binding-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | SECRET_NAME=my-secret                                                                                    |
     Then the step should succeed
@@ -470,7 +470,7 @@ Feature: svcat related command
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the "ups-broker" cluster_service_broker to become ready up to 120 seconds
@@ -676,7 +676,7 @@ Feature: svcat related command
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/svc-catalog/ups-broker-template.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds

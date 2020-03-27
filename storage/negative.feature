@@ -5,7 +5,7 @@ Feature: negative testing
   Scenario: PVC creation negative testing
     # apiVersion
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
       | ["apiVersion"] | invalidVersion |
     Then the step should fail
     And the output should match:
@@ -14,7 +14,7 @@ Feature: negative testing
     And the project is deleted
     # metadata.name
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | abc@#$$#@cba |
     Then the step should fail
     And the output should match:
@@ -23,7 +23,7 @@ Feature: negative testing
     And the project is deleted
     # spec.accessModes
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
       | ["spec"]["accessModes"][0] | invalidMode |
     Then the step should fail
     And the output should match:
@@ -32,7 +32,7 @@ Feature: negative testing
     And the project is deleted
     # spec.resources.Size
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
       | ["spec"]["resources"]["requests"]["storage"] | invalidSizw |
     Then the step should fail
     And the output should contain:
@@ -46,10 +46,10 @@ Feature: negative testing
   Scenario: Check EMC scaleio volume plugin with invalid gateway
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/scaleio/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/scaleio/secret.yaml |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/scaleio/pod.yaml | 
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/scaleio/pod.yaml | 
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     When I run the :describe client command with:

@@ -1,0 +1,248 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "jenkins-master",
+    "creationTimestamp": null,
+    "annotations": {
+      "description": "Provides Jenkins master with Kubernetes slave support",
+      "iconClass": "icon-jenkins"
+    }
+  },
+  "labels": {
+    "template": "jenkins-master-template"
+  },
+  "parameters": [
+    {
+      "name": "JENKINS_SERVICE_NAME",
+      "description": "Jenkins service name",
+      "value": "jenkins"
+    },
+    {
+      "name": "JENKINS_PASSWORD",
+      "description": "Password for the Jenkins user",
+      "generate": "expression",
+      "value": "password"
+    },
+    {
+      "name": "JENKINS_S2I_REPO_URL",
+      "description": "The repository to use to build the Jenkins master",
+      "value": "https://github.com/openshift-qe/jenkins-example.git"
+    },
+    {
+      "name": "JENKINS_S2I_REPO_CONTEXTDIR",
+      "description": "The directory inside the repository",
+      "value": ""
+    },
+    {
+      "name": "JENKINS_S2I_REPO_REF",
+      "description": "The GIT ref to use to build the sources",
+      "value": ""
+    },
+    {
+      "name": "JENKINS_IMAGE_STREAM_TAG",
+      "displayName": "Jenkins ImageStreamTag",
+      "description": "Name of the ImageStreamTag to be used for the Jenkins image.",
+      "value": "jenkins:latest"
+    },
+    {
+        "name": "ENABLE_OAUTH",
+        "displayName": "Enable OAuth in Jenkins",
+        "description": "Whether to enable OAuth OpenShift integration. If false, the static account 'admin' will be initialized with the password 'password'.",
+        "value": "true"
+    }
+  ],
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${JENKINS_SERVICE_NAME}",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "web",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080,
+            "nodePort": 0
+          },
+          {
+            "name": "jnlp",
+            "protocol": "TCP",
+            "port": 49187,
+            "targetPort": 49187,
+            "nodePort": 0
+          }
+        ],
+        "selector": {
+          "name": "${JENKINS_SERVICE_NAME}"
+        },
+        "portalIP": "",
+        "type": "ClusterIP",
+        "sessionAffinity": "None"
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "${JENKINS_SERVICE_NAME}"
+        },
+        "port": {
+          "targetPort": 8080
+        },
+        "tls": {
+          "termination": "edge"
+        }
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-master"
+      },
+      "spec": {}
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-master",
+        "annotations": {
+          "description": "Customize OpenShift Jenkins image to install additional plugins"
+        },
+        "labels": {
+          "name": "jenkins-master"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "imageChange",
+            "imageChange": {}
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${JENKINS_S2I_REPO_URL}",
+            "ref": "${JENKINS_S2I_REPO_REF}"
+          }
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "jenkins:latest",
+              "namespace": "openshift"
+            }
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "jenkins-master:latest"
+          }
+        },
+        "resources": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${JENKINS_SERVICE_NAME}",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "jenkins"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${JENKINS_IMAGE_STREAM_TAG}"
+              },
+              "lastTriggeredImage": ""
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 1,
+        "selector": {
+          "name": "${JENKINS_SERVICE_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "name": "${JENKINS_SERVICE_NAME}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "jenkins",
+                "image": "jenkins-master",
+                "env": [
+                  {
+                    "name": "JENKINS_PASSWORD",
+                    "value": "${JENKINS_PASSWORD}"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "${JENKINS_SERVICE_NAME}-data",
+                    "mountPath": "/var/lib/jenkins"
+                  }
+                ],
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent",
+                "capabilities": {},
+                "securityContext": {
+                  "capabilities": {},
+                  "privileged": false
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "${JENKINS_SERVICE_NAME}-data",
+                "emptyDir": {
+                  "medium": ""
+                }
+              }
+            ],
+            "restartPolicy": "Always",
+            "dnsPolicy": "ClusterFirst"
+          }
+        }
+      }
+    }
+  ]
+}

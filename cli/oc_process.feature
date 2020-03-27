@@ -3,7 +3,7 @@ Feature: oc_process.feature
   # @author haowang@redhat.com
   Scenario Outline: Should give a error message while generator is nonexistent or the value is invalid
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-rhel7.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-rhel7.json"
     And I replace lines in "sample-php-rhel7.json":
       | <beforreplace> | <afterreplace> |
     Then I run the :process client command with:
@@ -24,7 +24,7 @@ Feature: oc_process.feature
     And the step should fail
     And the output should contain:
       | does not exist |
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-rhel7.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-rhel7.json"
     And I replace lines in "sample-php-rhel7.json":
       | , |  |
     Then I run the :process client command with:
@@ -70,7 +70,7 @@ Feature: oc_process.feature
   Scenario: Deal with multiple equal signs or commas in parameter with oc process or oc new-app
     Given I have a project
     When I run the :process client command with:
-      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | template | MYSQL_USER=username                                                                                                                        |
       | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                                                       |
     Then the step should succeed
@@ -79,7 +79,7 @@ Feature: oc_process.feature
       | username              |
       | -Dfoo2=bar -Dbar2=foo |
     When I run the :new_app client command with:
-      | file    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username                                                                                                                        |
       | p       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo                                                                                                        |
       | dry_run | true                                                                                                                                       |
@@ -88,7 +88,7 @@ Feature: oc_process.feature
       | MYSQL_USER=username                           |
       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo           |
     When I run the :new_app client command with:
-      | file    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username                                                                                                                        |
       | p       | MYSQL_PASSWORD=4,5,6                                                                                                                       |
       | dry_run | true                                                                                                                                       |
@@ -98,7 +98,7 @@ Feature: oc_process.feature
       | MYSQL_USER=username  |
       | MYSQL_PASSWORD=4,5,6 |
     When I run the :new_app client command with:
-      | file    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username,MYSQL_PASSWORD=4,5                                                                                                     |
       | dry_run | true                                                                                                                                       |
     # Don't care if the step could be succeed or not
@@ -110,7 +110,7 @@ Feature: oc_process.feature
   Scenario Outline: Docker build failure reason display if use incorrect config in buildconfig
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | app_repo |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build was created
     Given the "ruby22-sample-build-1" build completed
@@ -220,7 +220,7 @@ Feature: oc_process.feature
     """
     aaa=123
     """
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11680/guestbook.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/guestbook.json"
     When I run the :process client command with:
       | f          | guestbook.json |
       | param_file | test2          |
@@ -229,7 +229,7 @@ Feature: oc_process.feature
       | root      |
       | adminpass |
       | redispass |
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11680/template_required_params.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml"
     When I run the :process client command with:
       | f          | template_required_params.yaml |
       | param_file | test1                         |

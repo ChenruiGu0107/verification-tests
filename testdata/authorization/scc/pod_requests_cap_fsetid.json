@@ -1,0 +1,19 @@
+{
+  "kind": "Pod",
+  "apiVersion":"v1",
+  "metadata": {
+        "name": "pod-add-fsetid",
+        "labels": {
+                "name": "pod-add-fsetid"
+        }
+  },
+  "spec": {
+      "containers": [{
+        "name": "pod-add-fsetid",
+        "image": "bmeng/hello-openshift",
+        "securityContext": {
+                "capabilities": {"add":["FSETID"]}
+        }
+      }]
+  }
+}

@@ -5,10 +5,10 @@ Feature: Features about k8s deployments
     Given the master version >= "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536590/k8s-deployment.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rwo-ui.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo-ui.json |
     Then the step should succeed
     When I perform the :click_to_goto_one_deployment_page web console action with:
       | project_name         | <%= project.name %> |
@@ -44,7 +44,7 @@ Feature: Features about k8s deployments
   Scenario: Pause and Resume k8s deployment
     Given the master version >= "3.4"
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
 
@@ -104,7 +104,7 @@ Feature: Features about k8s deployments
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
     Then the step should succeed
     Given I wait until number of replicas match "1" for deployment "hello-openshift"
     When I perform the :add_label_on_edit_autoscaler_page_for_k8s_deployment web console action with:
@@ -155,7 +155,7 @@ Feature: Features about k8s deployments
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
     Then the step should succeed
     When I perform the :goto_deployments_page web console action with:
       | project_name | <%= project.name %> |
@@ -274,7 +274,7 @@ Feature: Features about k8s deployments
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+      | f      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
       | record | true                                                                                                           |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:

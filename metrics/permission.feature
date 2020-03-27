@@ -6,14 +6,14 @@ Feature: metrics permission related tests
   Scenario: User can insert data to hawkular metrics in their own tenant when USER_WRITE_ACCESS parameter is 'true'
     Given I have a project
     Given metrics service is installed in the system using:
-      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+      | inventory       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/inventory              |
+      | deployer_config | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     And I switch to the first user
     Given I have a project
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
       | path         | /metrics/gauges     |
@@ -28,13 +28,13 @@ Feature: metrics permission related tests
   Scenario: User can not create metrics in the tenant which owned by other user
     Given I have a project
     Given metrics service is installed in the system using:
-      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+      | inventory       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/inventory              |
+      | deployer_config | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     And I switch to the second user
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
@@ -53,7 +53,7 @@ Feature: metrics permission related tests
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
@@ -64,13 +64,13 @@ Feature: metrics permission related tests
   Scenario: User cannot create metrics in _system tenant even if USER_WRITE_ACCESS parameter is 'true'
     Given I have a project
     Given metrics service is installed in the system using:
-      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+      | inventory       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/inventory              |
+      | deployer_config | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     And I switch to the first user
     And I perform the POST metrics rest request with:
       | project_name | _system                                                                                           |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 403
 
   # @author pruan@redhat.com
@@ -91,7 +91,7 @@ Feature: metrics permission related tests
     Given I perform the POST metrics rest request with:
       | project_name | <%= cb.org_project.name %>                                                                        |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
@@ -102,11 +102,11 @@ Feature: metrics permission related tests
   Scenario: Insert data into Cassandra DB through external Hawkular Metrics API interface without Hawkular-tenant specified
     Given I have a project
     Given metrics service is installed in the system using:
-      | inventory       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory              |
-      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
+      | inventory       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/inventory              |
+      | deployer_config | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     Then I switch to the first user
     Given I perform the POST metrics rest request with:
       | project_name | :false                                                                                            |
       | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+      | payload      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 400

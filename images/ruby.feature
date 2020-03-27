@@ -20,16 +20,16 @@ Feature: ruby.feature
     """
     Examples:
       | template                                                                                                                  |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json  | # @case_id OCP-10810
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json  | # @case_id OCP-11257
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13135/template.json | # @case_id OCP-13135
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13136/template.json | # @case_id OCP-13136
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521461/template.json  | # @case_id OCP-10810
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521462/template.json  | # @case_id OCP-11257
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/OCP-13135/template.json | # @case_id OCP-13135
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/OCP-13136/template.json | # @case_id OCP-13136
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12370
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521462/template.json"
     And I replace lines in "template.json":
       |ruby:2.2|ruby:2.3|
     When I run the :create client command with:

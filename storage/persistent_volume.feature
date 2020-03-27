@@ -3,13 +3,13 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17734
   Scenario: Pod with overlapped mount points still works
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc1 |
     Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc2 |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-overlap-path.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-overlap-path.yaml" replacing paths:
       | ["metadata"]["name"] | mypod |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
@@ -32,12 +32,12 @@ Feature: Persistent Volume Claim binding policies
   @admin
   Scenario: describe pv should show messages and events
     Given I have a project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]     | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce           |
@@ -64,12 +64,12 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
     And I have a NFS service in the project
 
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
@@ -78,7 +78,7 @@ Feature: Persistent Volume Claim binding policies
 
     Given I run the steps 100 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -109,7 +109,7 @@ Feature: Persistent Volume Claim binding policies
 
     Given I run the steps 6 times:
     """
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]            | pv-<%= project.name %>-#{cb.i} |
       | ["spec"]["accessModes"][0]      | <access_mode>                  |
       | ["spec"]["capacity"]["storage"] | #{cb.pv_sizes[cb.i-1]}         |
@@ -118,7 +118,7 @@ Feature: Persistent Volume Claim binding policies
     """
     Given I run the steps 4 times:
     """
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc-#{cb.i}             |
       | ["spec"]["accessModes"][0]                   | <access_mode>             |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.pvc_sizes[cb.i-1]}   |
@@ -148,12 +148,12 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Pre-bound PVC with invalid PV should have consistent status
     Given I have a project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                   |
       | ["spec"]["volumeName"]       | pv1-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -168,14 +168,14 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Pre-bound PV with invalid PVC should have consistent status
     Given I have a project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/preboundpv-rwo.yaml" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | non-exist-pvc          |
       | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -188,10 +188,10 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Check the pvc capacity
     Given I have a project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-retain-rox.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-retain-rox.json" where:
       | ["metadata"]["name"]              | pv-<%= project.name %>   |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/claim-rox.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rox.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -203,7 +203,7 @@ Feature: Persistent Volume Claim binding policies
   @admin
   Scenario: PV creation negative testing
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/nfs-default.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-default.json |
     Then the step should fail
     And the output should contain:
       | Unsupported value: "Default" |
@@ -294,13 +294,13 @@ Feature: Persistent Volume Claim binding policies
     Given admin creates a project with a random schedulable node selector
 
     # Create storageclass
-    When admin creates a StorageClass in the node's zone from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/storageClass.yaml" where:
+    When admin creates a StorageClass in the node's zone from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
     # Create dynamic pvc
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                             |
@@ -313,7 +313,7 @@ Feature: Persistent Volume Claim binding policies
       | dynamic-pvc-<%= project.name %> |
 
     # Create pod using above pvc
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>       |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                 |
@@ -364,34 +364,34 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
     And I have a NFS service in the project
     And evaluation of `service("nfs-service").ip` is stored in the :nfs_ip clipboard
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-retain.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %> |
       | ["spec"]["nfs"]["server"] | <%= cb.nfs_ip %>        |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
     And I ensure "nfsc" pvc is deleted
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | noneexistone |
     Then the step should succeed
     And the "nfsc" PVC becomes :pending
     Given I create a new project
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-retain.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %> |
       | ["spec"]["nfs"]["server"] | <%= cb.nfs_ip %>        |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
 
@@ -400,28 +400,28 @@ Feature: Persistent Volume Claim binding policies
   # @bug_id 1496256
   Scenario: Deleted in use PVCs will not break the scheduler
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
     And I ensure "nfsc" pvc is deleted
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | nfsc         |
       | ["spec"]["volumeName"] | noneexistone |
     Then the step should succeed
     And the "nfsc" PVC becomes :pending
     Given I switch to the second user
     And I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
 
@@ -439,15 +439,15 @@ Feature: Persistent Volume Claim binding policies
     Given I store the ready and schedulable nodes in the clipboard
     And label "accessmodes=rwx1" is added to the "<%= cb.nodes[0].name %>" node
     And label "accessmodes=rwx2" is added to the "<%= cb.nodes[1].name %>" node
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-retain.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["metadata"]["name"]               | mypod1                |
       | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
       | ["spec"]["nodeSelector"]           | accessmodes: rwx1     |
@@ -456,7 +456,7 @@ Feature: Persistent Volume Claim binding policies
     When I execute on the pod:
       | touch | /mnt/mypod1 |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["metadata"]["name"]               | mypod2                |
       | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
       | ["spec"]["nodeSelector"]           | accessmodes: rwx2     |
@@ -482,11 +482,11 @@ Feature: Persistent Volume Claim binding policies
     Given I store the ready and schedulable nodes in the clipboard
     And label "accessmodes=rwo1" is added to the "<%= cb.nodes[0].name %>" node
     And label "accessmodes=rwo2" is added to the "<%= cb.nodes[1].name %>" node
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["metadata"]["name"]               | mypod1                |
       | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
       | ["spec"]["nodeSelector"]           | accessmodes: rwo1     |
@@ -495,7 +495,7 @@ Feature: Persistent Volume Claim binding policies
     When I execute on the pod:
       | touch | /mnt/mypod1 |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["metadata"]["name"]               | mypod2                |
       | ["spec"]["containers"][0]["image"] | aosqe/hello-openshift |
       | ["spec"]["nodeSelector"]           | accessmodes: rwo2     |
@@ -527,7 +527,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem             |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -542,7 +542,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                  |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     Given 30 seconds have passed
@@ -565,7 +565,7 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem              |
     Then the step should succeed
@@ -581,7 +581,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -607,7 +607,7 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
     And I have a NFS service in the project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]            | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
       | ["spec"]["capacity"]["storage"] | 5Gi                              |
@@ -615,7 +615,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
     Then the step should succeed
     And the expression should be true> pv("pv-<%= project.name %>").volume_mode != "Block"
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]                       | Block                   |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
@@ -623,7 +623,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     And the expression should be true> pvc("pvc-<%= project.name %>").volume_mode != "Block"
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
@@ -643,19 +643,19 @@ Feature: Persistent Volume Claim binding policies
     Given I have a project
     And I have a NFS service in the project
 
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]            | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
       | ["spec"]["capacity"]["storage"] | 5Gi                              |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
     Then the step should succeed
-    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/initcontainer-blockvolume-pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/initcontainer-blockvolume-pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -676,7 +676,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | <pv_key>                     | <pv_value>             |
     Then the step should succeed
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -703,7 +703,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]       | Block                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>-1 |
     Then the step should succeed
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/iscsi/claim.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %>  |
       | ["spec"]["volumeMode"]       | Block                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>-2 |
@@ -724,7 +724,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]       | <pv_volumeMode>        |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    And I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeMode"]       | <pvc_volumeMode>       |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -744,12 +744,12 @@ Feature: Persistent Volume Claim binding policies
   @destructive
   Scenario: Volume is detached after restart node service
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc |
     Then the step should succeed
     And the "dynamic-pvc" PVC becomes :bound
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc |
       | ["metadata"]["name"]                                         | mypod       |
     Then the step should succeed
@@ -777,12 +777,12 @@ Feature: Persistent Volume Claim binding policies
   @destructive
   Scenario: Volume could be successfully unmounted when Pod is force deleted during kubelet downtime
     Given I have a project
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc |
     Then the step should succeed
     And the "dynamic-pvc" PVC becomes :bound
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc |
       | ["metadata"]["name"]                                         | mypod       |
     Then the step should succeed
@@ -820,7 +820,7 @@ Feature: Persistent Volume Claim binding policies
       | object_name_or_id | <%= pvc.volume_name %> |
       | wait              | false                  |
     Then the step should succeed
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv-retain.json" where:
+    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"] | <%= pvc.volume_name %> |
     Then the step should fail
     And the output should contain:

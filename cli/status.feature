@@ -5,7 +5,7 @@ Feature: Check status via oc status, wait etc
   # @case_id OCP-12383
   Scenario: [origin_runtime_613]Get project status from CLI
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
+    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
 
     When I create a new application with:
       | file     | application-template-stibuild-without-customize-route.json |
@@ -79,7 +79,7 @@ Feature: Check status via oc status, wait etc
   # @case_id OCP-10650
   Scenario: Indicate when build failed to push in 'oc status'
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc544375/ruby22rhel7-template-docker.json.failtopush"
+    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc544375/ruby22rhel7-template-docker.json.failtopush"
     Then the step should succeed
     When I run the :new_app client command with:
       | file | ruby22rhel7-template-docker.json.failtopush |

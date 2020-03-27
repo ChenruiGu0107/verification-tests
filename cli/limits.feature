@@ -32,7 +32,7 @@ Feature: limit range related scenarios:
   Scenario: Check the openshift.io/imagestreams of quota in the project after build image
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/openshift-object-counts.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/openshift-object-counts.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -73,7 +73,7 @@ Feature: limit range related scenarios:
   Scenario: Check the quota after import-image with --all option
     Given I have a project
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/openshift-object-counts.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/openshift-object-counts.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -112,7 +112,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: When exceed openshift.io/image-tags will ban to create new image references in the project
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | openshift.io/image-tags: 20 | openshift.io/image-tags: 1 |
     Then the step should succeed
@@ -139,7 +139,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: When exceed openshift.io/images will ban to create image reference or push image to project
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | openshift.io/images: 30 | openshift.io/images: 1 |
     Then the step should succeed

@@ -58,7 +58,7 @@ Feature: web console customization related features
     Given I use the first master host
     Given the "/etc/origin/master/saas-offering.js" file is restored on host after scenario
     When I run commands on all masters:
-      | curl -o /etc/origin/master/saas-offering.js https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/extensions/saas-offering.js |
+      | curl -o /etc/origin/master/saas-offering.js <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/extensions/saas-offering.js |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -310,7 +310,7 @@ Feature: web console customization related features
     ## Scenario 4: Check defined category by tag
     Given admin ensures "myhttpd" image_stream is deleted from the "openshift" project after scenario
     When I run the :create admin command with:
-      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/httpd-istag.yaml |
+      | f    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/httpd-istag.yaml |
       | n    | openshift  |
     Then the step should succeed
     Given I run the :goto_home_page web console action
@@ -330,7 +330,7 @@ Feature: web console customization related features
       | generator | run/v1                |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-quota.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-quota.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     Then I run the :scale client command with:

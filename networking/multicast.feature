@@ -9,7 +9,7 @@ Feature: testing multicast scenarios
     # create some multicast testing pods in the project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 2 |
     Then the step should succeed
     Given 2 pods become ready with labels:
@@ -104,7 +104,7 @@ Feature: testing multicast scenarios
     # create some multicast testing pods in one project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -123,7 +123,7 @@ Feature: testing multicast scenarios
     # create some multicast testing pods in another project
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -185,7 +185,7 @@ Feature: testing multicast scenarios
     # create multicast testing pod in one project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -209,7 +209,7 @@ Feature: testing multicast scenarios
     Then the step should succeed
 
     Given admin ensures "mcast-rc" rc is deleted after scenario
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -271,7 +271,7 @@ Feature: testing multicast scenarios
 
     Given admin ensures "mcast-rc" rc is deleted after scenario
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/multicast-rc.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/multicast-rc.json |
     Then the step should succeed
     Given 3 pods become ready with labels:
       | name=mcast-pods |

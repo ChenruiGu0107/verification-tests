@@ -1,0 +1,21 @@
+{
+   "kind": "PersistentVolumeClaim",
+   "apiVersion": "v1",
+   "metadata": {
+     "name": "glusterblock",
+     "annotations": {
+     	"volume.beta.kubernetes.io/storage-class": "gluster-block"
+     }
+   },
+   "spec": {
+     "accessModes": [
+       "ReadWriteOnce"
+     ],
+     "resources": {
+       "requests": {
+         "storage": "100Mi"
+       }
+     }
+   }
+}
+

@@ -66,12 +66,12 @@ Feature: Node management
     And the node service is restarted on all nodes
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe-invalid1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-unsafe-invalid1.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value: "invalid": sysctl "invalid" not of the format sysctl_name |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe-invalid3.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-unsafe-invalid3.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -87,7 +87,7 @@ Feature: Node management
     """
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe-invalid2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-unsafe-invalid2.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -105,7 +105,7 @@ Feature: Node management
   Scenario: Specify unsafe namespaced kernel parameters for pod
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-unsafe.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -123,7 +123,7 @@ Feature: Node management
     And the node service is restarted on all nodes
     Given I ensure "hello-pod" pod is deleted
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/sysctls/pod-sysctl-unsafe.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/pod-sysctl-unsafe.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I execute on the pod:
@@ -192,7 +192,7 @@ Feature: Node management
     And the node service is restarted on all nodes
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-pull-by-tag.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
     Then the step should succeed
     And the pod named "pod-pull-by-tag" becomes ready
     Given evaluation of `pod("pod-pull-by-tag").node_name(user: user)` is stored in the :node clipboard
@@ -355,7 +355,7 @@ Feature: Node management
   Scenario: Kubelet should remove disk backed emptydir volumes when pod is terminated
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/emtydir-host.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/emtydir-host.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -387,7 +387,7 @@ Feature: Node management
     """
     And the node service is restarted on all nodes
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/emtydir-host.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/emtydir-host.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -633,7 +633,7 @@ Feature: Node management
       | key_val   | size-                   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/maximum-dead-containers-per-container.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/maximum-dead-containers-per-container.yaml |
     Then the step should succeed
     Given 90 seconds have passed
     Given I use the "<%= cb.nodes[0].name %>" node

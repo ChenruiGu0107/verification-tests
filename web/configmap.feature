@@ -58,8 +58,8 @@ Feature: ConfigMap related features
     Given I have a project
     # create configmap and DC
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml         |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml         |
     Then the step should succeed
     When I run the :run client command with:
       | name  | myrun                 |
@@ -222,8 +222,8 @@ Feature: ConfigMap related features
     Given the master version >= "3.5"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-1.yaml |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-2.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/OCP-11410/mysecret-1.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/OCP-11410/mysecret-2.yaml |
     Then the step should succeed
     When I run the :run client command with:
       | name  | myrun                 |
@@ -391,8 +391,8 @@ Feature: ConfigMap related features
     Given the master version > "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml         |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-env.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml         |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-env.yaml |
     Then the step should succeed
     Given the pod named "dapi-test-pod" status becomes :succeeded
     When I perform the :goto_one_pod_page web console action with:
@@ -415,8 +415,8 @@ Feature: ConfigMap related features
     Given the master version > "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml         |
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml         |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml |
     Then the step should succeed
     When I run the :label client command with:
       | resource | configmap      |
@@ -564,7 +564,7 @@ Feature: ConfigMap related features
     Given the master version >= "3.7"
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I run the :run client command with:
       | name       | testdc                |

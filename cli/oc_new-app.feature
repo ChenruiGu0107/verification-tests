@@ -15,7 +15,7 @@ Feature: oc new-app related scenarios
   # @case_id OCP-12255
   Scenario: cli:parameter requirement check works correctly
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     Given I backup the file "application-template-stibuild-without-customize-route.json"
     And I replace lines in "application-template-stibuild-without-customize-route.json":
       | "value": "root" | "value": "" |

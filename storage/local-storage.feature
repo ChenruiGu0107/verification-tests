@@ -8,7 +8,7 @@ Feature: Local Persistent Volume
 
     Given I have a project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | local-fast              |
@@ -32,14 +32,14 @@ Feature: Local Persistent Volume
       | p             | {"metadata": {"annotations": {"openshift.io/node-selector": ""}}} |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | local-fast              |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/local-storage      |
@@ -64,7 +64,7 @@ Feature: Local Persistent Volume
       |ls <%= pv(pvc.volume_name).local_path %>/hello |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod2-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/local-storage      |
@@ -118,14 +118,14 @@ Feature: Local Persistent Volume
       | p             | {"metadata": {"annotations": {"openshift.io/node-selector": ""}}} |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | local-fast              |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/local-storage      |
@@ -192,13 +192,13 @@ Feature: Local Persistent Volume
 
     Given I have a project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/rbd/block/pvc-dynamic.json" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/block/pvc-dynamic.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 100Mi                   |
       | ["spec"]["storageClassName"]                 | block-devices           |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/local0             |

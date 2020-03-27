@@ -53,8 +53,8 @@ Feature: fluentd related tests
     Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? <message>
     Examples:
       | file                                                                                                                       | message                                                 |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
+      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
   # ||
   # @author qitang@redhat.com
@@ -73,7 +73,7 @@ Feature: fluentd related tests
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging/loggen/container_json_log_template.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |

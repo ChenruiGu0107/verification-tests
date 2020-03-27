@@ -6,19 +6,19 @@ Feature: Persistent Volume reclaim policy tests
   Scenario: Recycle reclaim policy for persistent volumes
     Given I have a project
     And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/nfs/auto/pv.json" where:
+    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %>           |
       | ["spec"]["storageClassName"]              | sc-<%= project.name %>           |
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
@@ -36,7 +36,7 @@ Feature: Persistent Volume reclaim policy tests
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["volumeBindingMode"] | Immediate |
 
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed

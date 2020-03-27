@@ -33,7 +33,7 @@ Feature: secrets related scenarios
   @admin
   Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml"
     And I replace lines in "myquota.yaml":
       | name: myquota                | <%= "name: "+project.name %> |
       | cpu: "30"                    | cpu: "20"                    |
@@ -58,7 +58,7 @@ Feature: secrets related scenarios
       | secrets.*1 |
     """
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should not succeed
     And the output should contain:
       |  limit |
@@ -80,7 +80,7 @@ Feature: secrets related scenarios
     And the output should contain:
       |password:|
       |username:|
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/508970/ca.crt"
     When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret2 |
       |username    |tester      |
@@ -96,7 +96,7 @@ Feature: secrets related scenarios
       |password:|
       |username:|
       |ca.crt:  |
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/.gitconfig"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/508970/.gitconfig"
     When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret3 |
       |username    |tester      |
@@ -154,10 +154,10 @@ Feature: secrets related scenarios
     Given project role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret2.json |
     Then the step should succeed
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
     Then the step should succeed
@@ -416,7 +416,7 @@ Feature: secrets related scenarios
   # @case_id OCP-11523
   Scenario: Build from private repo with/without secret of gitconfig auth method
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508964/.gitconfig"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/508964/.gitconfig"
     When I run the :new_secret client command with:
       |secret_name     |mysecret  |
       |credential_file |.gitconfig|
@@ -713,7 +713,7 @@ Feature: secrets related scenarios
   Scenario: Consume secret via volume plugin with multiple volumes
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -722,7 +722,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/pod-multi-volume.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/pod-multi-volume.yaml |
     Then the step should succeed
     And the pod named "multiv-secret-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -737,7 +737,7 @@ Feature: secrets related scenarios
   Scenario: Consume same name secretes via volume plugin in different namespaces
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -746,7 +746,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -757,7 +757,7 @@ Feature: secrets related scenarios
       | secret-volume/data-1 |
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -766,7 +766,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:

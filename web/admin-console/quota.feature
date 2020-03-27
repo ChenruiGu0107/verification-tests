@@ -55,11 +55,11 @@ Feature: quota related feature
 
     # create other types of quota with specific scopes
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-notbesteffort.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-notbesteffort.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 

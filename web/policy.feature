@@ -190,13 +190,13 @@ Feature:policy related features on web console
     # project admin create some resources for the project
     Given I switch to the first user
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+      | f    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
+      | f    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml |
     Then the step should succeed
 
     # when build is running, check bc and build page, check buttons and links

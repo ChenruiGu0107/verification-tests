@@ -129,7 +129,7 @@ Feature: operatorhub feature related
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/vul_deployment.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/vul_deployment.yaml |
     Then the step should succeed
     Given the first user is cluster-admin
     Given I open admin console in a browser

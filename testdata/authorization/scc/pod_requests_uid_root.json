@@ -1,0 +1,26 @@
+{
+  "kind": "Pod",
+  "apiVersion":"v1",
+
+  "metadata": {
+        "name": "pod-uid-root",
+        "labels": {
+                "name": "pod-uid-root"
+        }
+  },
+
+  "spec": {
+      "containers": [{
+        "name": "pod-uid-root",
+        "image": "bmeng/hello-openshift",
+        "ports": [
+          {
+            "containerPort": 8080
+          }
+        ],
+        "securityContext": {
+            "runAsUser": 0
+        }
+      }]
+  }
+}

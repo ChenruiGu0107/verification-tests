@@ -1,0 +1,54 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "name": "iscsi2luns",
+        "labels": {
+            "name": "iscsi"
+        }
+    },
+    "spec": {
+        "containers": [
+            {
+                "name": "iscsi-rw",
+                "image": "aosqe/hello-openshift",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [{
+                    "containerPort": 6379
+                }],
+                "volumeMounts": [{
+                    "mountPath": "/mnt/iscsi",
+                    "name": "iscsi-rw",
+                    "readOnly": false
+                }]
+            },
+            {
+                "name": "iscsi-ro",
+                "image": "aosqe/nfs-web",
+                "imagePullPolicy": "IfNotPresent",
+                 "ports": [{
+                    "containerPort": 80
+                }],
+                "volumeMounts": [{
+                    "mountPath": "/mnt/iscsi",
+                    "name": "iscsi-ro",
+                    "readOnly": true
+                }]
+            }
+        ],
+        "volumes": [
+            {
+                "name": "iscsi-rw",
+                "persistentVolumeClaim": {
+                    "claimName": "iscsi-rw"
+                 }
+            },
+            {
+                 "name": "iscsi-ro",
+                 "persistentVolumeClaim": {
+                     "claimName": "iscsi-ro"
+                 }
+            }
+        ]
+    }
+}
