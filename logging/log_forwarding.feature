@@ -22,7 +22,7 @@ Feature: log forwarding related tests
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
 
@@ -68,7 +68,7 @@ Feature: log forwarding related tests
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
     
@@ -113,7 +113,7 @@ Feature: log forwarding related tests
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
     
@@ -173,7 +173,7 @@ Feature: log forwarding related tests
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
     Then the step should succeed
-    Given I wait for the "fluentd" daemon_set to appear
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
 
@@ -221,9 +221,9 @@ Feature: log forwarding related tests
     And I wait for the "secure-forward" config_map to appear
 
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                   |
+      | remove_logging_pods | true                                                                                      |
       | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                                |
+      | log_collector       | fluentd                                                                                   |
     Then the step should succeed
 
     # create project to generate logs
@@ -260,18 +260,18 @@ Feature: log forwarding related tests
 
     Given rsyslog receiver is deployed as insecure in the "openshift-logging" project
 
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
+    #Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
     When I run the :create_configmap client command with:
-      | name      | syslog      |
-      | from_file | syslog.conf |
+      | name      | syslog                                                                                                              |
+      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf |
     Then the step should succeed
     And I wait for the "syslog" config_map to appear
 
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                   |
+      | remove_logging_pods | true                                                                                      |
       | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                                |
+      | log_collector       | fluentd                                                                                   |
     Then the step should succeed
 
     # create project to generate logs
