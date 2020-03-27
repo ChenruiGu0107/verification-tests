@@ -68,3 +68,20 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | "node": |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-27998
+  @admin
+  Scenario: Duplicate sharing-config configmap into openshift-config-managed namespace
+    Given the master version >= "4.4"
+    And the first user is cluster-admin
+    And I use the "openshift-monitoring" project
+    And evaluation of `config_map('sharing-config').data['alertmanagerURL']` is stored in the :alertmanagerURL clipboard
+    And evaluation of `config_map('sharing-config').data['grafanaURL']` is stored in the :grafanaURL clipboard
+    And evaluation of `config_map('sharing-config').data['prometheusURL']` is stored in the :prometheusURL clipboard
+    And evaluation of `config_map('sharing-config').data['thanosURL']` is stored in the :thanosURL clipboard
+    And I use the "openshift-config-managed" project
+    Then the expression should be true> cb.alertmanagerURL == config_map('monitoring-shared-config').data['alertmanagerPublicURL']
+    Then the expression should be true> cb.grafanaURL == config_map('monitoring-shared-config').data['grafanaPublicURL']
+    Then the expression should be true> cb.prometheusURL == config_map('monitoring-shared-config').data['prometheusPublicURL']
+    Then the expression should be true> cb.thanosURL == config_map('monitoring-shared-config').data['thanosPublicURL']
