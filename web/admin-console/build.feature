@@ -175,6 +175,7 @@ Feature: build related
   # @author hasha@redhat.com
   # @case_id OCP-23967
   Scenario: explore sidebar for YAML editor
+    Given the master version >= "4.3"
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                 |

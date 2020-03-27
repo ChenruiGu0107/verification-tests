@@ -125,9 +125,8 @@ Feature: operatorhub feature related
   @admin
   @destructive
   Scenario: Check container security on console
-    Given the master version >= "4.4"
+    Given the master version >= "4.3"
     Given I have a project
-    Then evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/vul_deployment.yaml |
     Then the step should succeed
@@ -135,22 +134,25 @@ Feature: operatorhub feature related
     Given I open admin console in a browser
 
     # install container security operator
-    And I wait up to 420 seconds for the steps to pass:
-    """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | container-security-operator |
       | catalog_name     | community-operators         |
       | target_namespace | <%= project.name %>         |
     Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
     When I perform the :click_button web action with:
       | button_text | Subscribe |
     Then the step should succeed
-    """
+
     # wait until container security operator is successfully installed
-    Given I use the "openshift-operators" project
+    Given I use the "<%= project.name %>" project
     Given a pod becomes ready with labels:
       | name=container-security-operator-alm-owned |
-    Then I wait for the "sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa" image_manifest_vuln to appear in the "<%= cb.proj_name %>" project up to 30 seconds
+    Then I wait for the "sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa" image_manifest_vuln to appear in the "<%= project.name %>" project up to 30 seconds
 
 
     #check the display when have vulnerabilities in cluster
@@ -168,7 +170,7 @@ Feature: operatorhub feature related
 
     #check Image Manifest Vulnerabilities page for 4.4 and above
     When I perform the :goto_ImageManifestVuln_list_page web action with:
-      | project_name |  <%= cb.proj_name %> |
+      | project_name |  <%= project.name %> |
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
       | field | Highest Severity  |
@@ -183,7 +185,7 @@ Feature: operatorhub feature related
       | field | Manifest  |
     Then the step should succeed
     When I perform the :goto_one_ImageManifestVuln_page web action with:
-      | project_name |  <%= cb.proj_name %> |
+      | project_name |  <%= project.name %> |
       | manifest     | sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
     Then the step should succeed
     When I run the :check_affected_pods_tab web action
@@ -196,7 +198,7 @@ Feature: operatorhub feature related
     When I perform the :uninstall_operator_on_console web action with:
       | resource_name | Container Security |
     Then the step should succeed
-    Given I use the "<%= cb.proj_name %>" project
+    Given I use the "<%= project.name %>" project
     And I wait for the resource "subscription" named "container-security-operator" to disappear within 30 seconds
 
   # @author xiaocwan@redhat.com

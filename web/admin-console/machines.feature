@@ -3,6 +3,7 @@ Feature: machineconfig/machineconfig pool related
   # @author yanpzhan@redhat.com
   # @case_id OCP-22308
   @admin
+  @destructive
   Scenario: Check Machine Config Pools/Machine Configs page
     Given the master version >= "4.1"
     And I open admin console in a browser
