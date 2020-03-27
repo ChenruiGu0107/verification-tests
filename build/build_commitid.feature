@@ -2,7 +2,7 @@ Feature: dockerbuild.feature
   # @author wewang@redhat.com
   Scenario Outline: Store commit id in sti build
     Given I have a project
-    When I download a file from "<file>"
+    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/<file_name>"
     Then the step should succeed
     And I replace lines in "<file_name>":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
@@ -67,7 +67,7 @@ Feature: dockerbuild.feature
       | Output to:.*DockerImage.* |
 
     Examples:
-      | file                                                                                                      | file_name                        |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json | ruby22rhel7-template-docker.json | # @case_id OCP-10743
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json    | ruby22rhel7-template-sti.json    | # @case_id OCP-11213
+      | file_name                        |
+      | ruby22rhel7-template-docker.json | # @case_id OCP-10743
+      | ruby22rhel7-template-sti.json    | # @case_id OCP-11213
 

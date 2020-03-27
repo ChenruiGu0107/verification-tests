@@ -30,7 +30,7 @@ Feature: phpimages.feature
   Scenario Outline: Update php image to autoconfigure based on available memory
     Given I have a project
     When I run the :create client command with:
-      | f |  <template1> |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template1> |
     Then the step should succeed
     And the "php-app-1" build was created
     And the "php-app-1" build completed
@@ -44,7 +44,7 @@ Feature: phpimages.feature
     When I delete all resources by labels:
       | app=php-app |
     When I run the :create client command with:
-      | f |  <template2> |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template2> |
     Then the step should succeed
     And the "php-app-1" build was created
     And the "php-app-1" build completed
@@ -56,6 +56,6 @@ Feature: phpimages.feature
       | MaxRequestWorkers     256 |
       | ServerLimit           256 |
     Examples:
-      | template1 | template2|
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc526520/php-55-template.json | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc526520/php-55-template-noresource.json | # @case_id OCP-10838
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc526521/php-56-template.json |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc526521/php-56-template-noresource.json | # @case_id OCP-11274
+      | template1                     | template2|
+      | tc526520/php-55-template.json | tc526520/php-55-template-noresource.json | # @case_id OCP-10838
+      | tc526521/php-56-template.json | tc526521/php-56-template-noresource.json | # @case_id OCP-11274

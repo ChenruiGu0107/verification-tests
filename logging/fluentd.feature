@@ -52,11 +52,10 @@ Feature: fluentd related tests
       | op           | GET                                           |
     Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? <message>
     Examples:
-      | file                                     | message                                                 |
-      | container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
+      | file                                     | message                                                      |
+      | container_json_event_log_template.json   | "anlieventevent"                                             | # @case_id OCP-19431
       | container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
-  # ||
   # @author qitang@redhat.com
   # @case_id OCP-21083
   @admin
