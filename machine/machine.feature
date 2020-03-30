@@ -19,7 +19,7 @@ Feature: Machine features testing
     And I save the output to file> machineset-invalid.yaml
     And I replace content in "machineset-invalid.yaml":
       | <%= machine_set.name %> | machineset-invalid |
-      | <re_invalid_field>      | <invalid_value>    |
+      | <valid_field>           | <invalid_value>    |
       | /replicas:.*/           | replicas: 1        |
 
     When I run the :create admin command with:
@@ -51,7 +51,8 @@ Feature: Machine features testing
     """
 
     Examples:
-      | re_invalid_field  | invalid_value         |
+      | valid_field       | invalid_value         |
       | /machineType:.*/  | machineType: invalid  | # @case_id OCP-25927
       | /instanceType:.*/ | instanceType: invalid | # @case_id OCP-28817
       | /vmSize:.*/       | vmSize: invalid       | # @case_id OCP-28818
+      | /flavor:.*/       | flavor: invalid       | # @case_id OCP-28916
