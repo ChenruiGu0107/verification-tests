@@ -42,7 +42,7 @@ Feature: fluentd related tests
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | file | <file> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/<file> |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
@@ -52,9 +52,9 @@ Feature: fluentd related tests
       | op           | GET                                           |
     Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? <message>
     Examples:
-      | file                                                                                                                       | message                                                 |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
+      | file                                     | message                                                 |
+      | container_json_event_log_template.json   | "anlieventevent"                                        | # @case_id OCP-19431
+      | container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
   # ||
   # @author qitang@redhat.com

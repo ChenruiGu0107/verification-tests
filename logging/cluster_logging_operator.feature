@@ -7,9 +7,9 @@ Feature: cluster-logging-operator related cases
   @destructive
   Scenario: The logging cluster operator shoud recreate the damonset
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                   |
+      | remove_logging_pods | true                                                                                      |
       | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                                |
+      | log_collector       | fluentd                                                                                   |
     Then the step should succeed
     And the expression should be true> cluster_logging('instance').management_state == "Managed"
     Given evaluation of `daemon_set('fluentd').creation_time_stamp` is stored in the :timestamp_1 clipboard
@@ -36,8 +36,9 @@ Feature: cluster-logging-operator related cases
       """
       Given I delete the clusterlogging instance
       """
-    Given I wait for the "instance" cluster_logging to appear
-    And I wait for the "elasticsearch" elasticsearch to appear
+    Given I wait for the "instance" cluster_logging to appear up to 300 seconds
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     Then the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_limit_raw == "2Gi"
@@ -83,8 +84,9 @@ Feature: cluster-logging-operator related cases
       """
       Given I delete the clusterlogging instance
       """
-    Given I wait for the "instance" cluster_logging to appear
-    And I wait for the "elasticsearch" elasticsearch to appear
+    Given I wait for the "instance" cluster_logging to appear up to 300 seconds
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     Then the expression should be true> elasticsearch('elasticsearch').node_selector['es'] == 'deploy'
@@ -122,8 +124,9 @@ Feature: cluster-logging-operator related cases
       """
       Given I delete the clusterlogging instance
       """
-    Given I wait for the "instance" cluster_logging to appear
-    And I wait for the "elasticsearch" elasticsearch to appear
+    Given I wait for the "instance" cluster_logging to appear up to 300 seconds
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector['kubernetes.io/os'] == 'linux'
@@ -257,7 +260,7 @@ Feature: cluster-logging-operator related cases
       | crd_yaml            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
       | log_collector       | fluentd                                                                                                |
     Then the step should succeed
-    Given I wait for the "fluentd" prometheus_rule to appear
+    Given I wait for the "fluentd" prometheus_rule to appear up to 300 seconds
     
     Then the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "critical"
     And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthBurst').severity == "warning"
