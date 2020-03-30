@@ -1,6 +1,6 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: slow-<%= project.name %>
+  name: slow-qe-test-10469
   annotations:
     storageclass.beta.kubernetes.io/is-default-class: "false"

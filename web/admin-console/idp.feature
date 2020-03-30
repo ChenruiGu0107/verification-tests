@@ -7,12 +7,6 @@ Feature: add idp from console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -22,9 +16,9 @@ Feature: add idp from console
     When I perform the :add_basicauth_idp web action with:
       | idp_name   | ui_basicauth_test            |
       | remote_url | https://www.openshift.com    |
-      | ca_path    | <%= expand_path("ca.pem") %> |
-      | crt_path   | <%= expand_path("route_edge-www.edge.com.crt") %> |
-      | key_path   | <%= expand_path("route_edge-www.edge.com.key") %> |
+      | ca_path    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
+      | crt_path   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key_path   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_basicauth_test |
@@ -177,9 +171,6 @@ Feature: add idp from console
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
-
     Given I open admin console in a browser
     Given the first user is cluster-admin
     When I run the :goto_cluster_oauth_configuration_page web action
@@ -192,7 +183,7 @@ Feature: add idp from console
       | bind_passwd        | testpasswd                   |
       | preferred_username | testuid                      |
       | attr_email         | test@redhat.com              |
-      | ca_path            | <%= expand_path("ca.pem") %> |
+      | ca_path            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_ldap_test |
@@ -273,8 +264,6 @@ Feature: add idp from console
     Given the master version >= "4.2"
     # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -287,7 +276,7 @@ Feature: add idp from console
       | client_id          | testid                       |
       | client_secret      | testsecret                   |
       | preferred_username | nickname                     |
-      | ca_path            | <%= expand_path("ca.pem") %> |
+      | ca_path            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_openid_test |
@@ -323,8 +312,6 @@ Feature: add idp from console
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
 
     Given I open admin console in a browser
     Given the first user is cluster-admin
@@ -334,7 +321,7 @@ Feature: add idp from console
     When I perform the :add_requestheader_idp web action with:
       | idp_name                   | ui_requestheader_test        |
       | login_url                  | https://www.example.com/login-proxy/oauth/authorize?${query} |
-      | ca_path                    | <%= expand_path("ca.pem") %> |
+      | ca_path                    | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem |
       | headers                    | X-Remote-User                |
       | more_headers               | SSO-User                     |
       | preferred_username_headers | X-Remote-User-Login          |
@@ -375,8 +362,6 @@ Feature: add idp from console
     Given the master version >= "4.2"
    # restore oauth/cluster after scenarios
     Given the "cluster" oauth CRD is restored after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
-    Then the step should succeed
 
     Given I open admin console in a browser
     Given the first user is cluster-admin

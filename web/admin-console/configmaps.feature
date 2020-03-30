@@ -61,12 +61,10 @@ Feature: configmap related
   Scenario: Show binary config map data
     Given the master version >= "4.2"
     Given I have a project
-    Given I download a big file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/hello"
-    Given I download a big file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/keystore.jks"
     When I run the :create_configmap client command with:
-      | name      | twobinconfigmap |
-      | from_file | <%= File.join(localhost.workdir, "hello") %>        |
-      | from_file | <%= File.join(localhost.workdir, "keystore.jks") %> |
+      | name      | twobigconfigmap                                                                 |
+      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/hello        |
+      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/keystore.jks |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_configmaps_page web action with:
@@ -74,7 +72,7 @@ Feature: configmap related
     Then the step should succeed
     When I perform the :goto_one_configmap_page web action with:
       | project_name   | <%= project.name %> |
-      | configmap_name | twobinconfigmap     |
+      | configmap_name | twobigconfigmap     |
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | No Data Found |
