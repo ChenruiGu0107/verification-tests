@@ -215,15 +215,13 @@ Feature: Testing route
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
-    And the step should succeed
 
     Given I have a pod-for-ping in the project
     When I run the :create_route_reencrypt client command with:
-      | name | no-cert |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | no-cert                                                                                         |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                       |
+      | service    | service-secure                                                                                  |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -338,19 +336,16 @@ Feature: Testing route
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
-      | name | edge-route |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
-      | service | service-unsecure |
-      | cert | route_edge-www.edge.com.crt |
-      | key | route_edge-www.edge.com.key |
-      | cacert | ca.pem |
+      | name     | edge-route                                                                                     |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com                                                      |
+      | service  | service-unsecure                                                                               |
+      | cert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | cacert   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -385,19 +380,15 @@ Feature: Testing route
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
 
     When I run the :create_route_reencrypt client command with:
-      | name | route-recrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-recrypt                                                                                                |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -472,19 +463,14 @@ Feature: Testing route
     Then the step should succeed
 
     #Create reencrypt route
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
-    Then the step should succeed
     When I run the :create_route_reencrypt client command with:
-      | name | route-reencrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reencrypt                                                                                              |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
 
     Given 6 seconds have passed
@@ -827,11 +813,10 @@ Feature: Testing route
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/secure-service.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/head-test.pem"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route |
-      | service    | header-test-secure |
-      | destcacert | head-test.pem |
+      | name       | reen-route                                                                              |
+      | service    | header-test-secure                                                                      |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/header-test/head-test.pem |
     Then the step should succeed
     # Add another IP whitelist for route
     When I run the :annotate client command with:
