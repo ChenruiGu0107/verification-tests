@@ -67,32 +67,25 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
     When I run the :create_route_reencrypt client command with:
-      | name | route-reen |
-      | hostname | <%= rand_str(5, :dns) %>.reen.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reen                                                                                                   |
+      | hostname   | <%= rand_str(5, :dns) %>.reen.com                                                                            |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     When I run the :create_route_edge client command with:
-      | name | route-edge |
-      | hostname | <%= rand_str(5, :dns) %>.edge.com |
-      | service | service-unsecure |
-      | cert | route_edge-www.edge.com.crt |
-      | key | route_edge-www.edge.com.key |
-      | cacert | ca.pem |
+      | name     | route-edge                                                                                     |
+      | hostname | <%= rand_str(5, :dns) %>.edge.com                                                              |
+      | service  | service-unsecure                                                                               |
+      | cert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | cacert   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
     Then the step should succeed
 
     # get the cert files creation time on router pod
@@ -247,18 +240,14 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.pem"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name | route-reencrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | example_wildcard.pem |
-      | key | example_wildcard.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reencrypt                                                                                 |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                       |
+      | service    | service-secure                                                                                  |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.pem              |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.key              |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca      |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -350,19 +339,16 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
-      | name | edge-route |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
-      | service | service-unsecure |
-      | cert | route_edge-www.edge.com.crt |
-      | key | route_edge-www.edge.com.key |
-      | cacert | ca.pem |
+      | name     | edge-route                                                                                     |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com                                                      |
+      | service  | service-unsecure                                                                               |
+      | cert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | cacert   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -377,16 +363,16 @@ Feature: Testing haproxy router
     """
     #create some invalid route
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_expire.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_ca.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_key.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_cert.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_noca.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_ca.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_cert.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_key.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_expire.json             |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_ca.json         |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_key.json        |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_invalid_cert.json       |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/edge/route_edge_noca.json               |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_ca.json    |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_cert.json  |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_key.json   |
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencrypt_invalid_desca.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencry.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/invalid_route/reen/route_reencry.json                 |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | route |
@@ -397,19 +383,15 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
 
     When I run the :create_route_reencrypt client command with:
-      | name | route-recrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-recrypt                                                                                                |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -702,18 +684,14 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name | route-reen |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reen                                                                                                   |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     When I run the :label client command with:
       | resource | route |
@@ -1153,20 +1131,14 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
     """
     #reencrypt route
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
-
-    Then the step should succeed
     When I run the :create_route_reencrypt client command with:
-      | name | route-reencrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | route_reencrypt-reen.example.com.crt |
-      | key | route_reencrypt-reen.example.com.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reencrypt                                                                                              |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                                    |
+      | service    | service-secure                                                                                               |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
@@ -1539,11 +1511,10 @@ Feature: Testing haproxy router
       | name    | pass-route     |
       | service | service-secure |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route              |
-      | service    | service-secure          |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | reen-route     |
+      | service    | service-secure |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -1613,11 +1584,10 @@ Feature: Testing haproxy router
       | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route              |
-      | service    | service-secure          |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | reen-route     |
+      | service    | service-secure |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
@@ -1816,18 +1786,14 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.pem"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name | route-reencrypt |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | example_wildcard.pem |
-      | key | example_wildcard.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reencrypt                                                                                 |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                       |
+      | service    | service-secure                                                                                  |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.pem              |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/example_wildcard.key              |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca      |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
 
     When I run the :annotate client command with:
@@ -2550,17 +2516,14 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
 
     When I run the :create_route_edge client command with:
-      | name     | edge-route1      |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
-      | service  | service-unsecure |
-      | cert     | route_edge-www.edge.com.crt |
-      | key      | route_edge-www.edge.com.key |
-      | cacert   | ca.pem |
+      | name     | edge-route1                                                                                    |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com                                                      |
+      | service  | service-unsecure                                                                               |
+      | cert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | cacert   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem                           |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name     | edge-route2      |
@@ -2616,26 +2579,21 @@ Feature: Testing haproxy router
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
     Then the step should succeed
 
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
-
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route1 |
       | hostname   | <%= rand_str(5, :dns) %>.reen.com |
       | service    | service-secure |
-      | cert       | route_reencrypt-reen.example.com.crt |
-      | key        | route_reencrypt-reen.example.com.key |
-      | cacert     | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | cert       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
 
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route2 |
-      | hostname   | <%= rand_str(5, :dns) %>.reen.com |
-      | service    | service-secure |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | reen-route2                                                                                     |
+      | hostname   | <%= rand_str(5, :dns) %>.reen.com                                                               |
+      | service    | service-secure                                                                                  |
+      | destcacert | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
