@@ -46,7 +46,7 @@
             "metadata": {
                 "labels": {
                     "name": "service-secure"
-                },  
+                },
                 "name": "service-secure"
             },
             "spec": {
@@ -57,10 +57,10 @@
                         "protocol": "TCP",
                         "targetPort": 8443
                     }
-                ],  
+                ],
                 "selector": {
                     "name": "test-pods"
-                }   
+                }
             }
         },
        {
@@ -69,7 +69,7 @@
             "metadata": {
                 "labels": {
                     "name": "service-unsecure"
-                }, 
+                },
                 "name": "service-unsecure"
             },
             "spec": {

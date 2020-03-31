@@ -5,14 +5,14 @@
         {
       "kind": "Pod",
       "apiVersion":"v1",
-    
+
       "metadata": {
             "name": "hello-pod",
             "labels": {
                     "name": "hello-pod"
             }
       },
-    
+
       "spec": {
           "containers": [{
             "name": "hello-pod",
@@ -40,7 +40,7 @@
                             "port": 27017,
                             "nodePort": 30000,
                              "targetPort": 8081
-                           
+
                     }
             ],
             "type": "NodePort",

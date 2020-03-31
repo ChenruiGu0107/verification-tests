@@ -6,7 +6,7 @@
         },
         "spec": {
                 "wildcardPolicy": "Subdomain",
-                "to": { 
+                "to": {
                         "kind": "Service",
                         "name": "service-unsecure"
                 }

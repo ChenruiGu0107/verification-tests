@@ -2,11 +2,11 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: azpvc
-  annotations:        
-    volume.beta.kubernetes.io/storage-class: azsc 
+  annotations:
+    volume.beta.kubernetes.io/storage-class: azsc
 spec:
   accessModes:
-    - ReadWriteOnce 
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi

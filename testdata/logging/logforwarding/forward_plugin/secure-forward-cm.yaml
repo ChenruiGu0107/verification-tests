@@ -30,7 +30,7 @@ data:
         host fluentdserver.openshift-logging.svc  # or IP
         port 24224
       </server>
-    </store> 
+    </store>
 kind: ConfigMap
 metadata:
   name: secure-forward

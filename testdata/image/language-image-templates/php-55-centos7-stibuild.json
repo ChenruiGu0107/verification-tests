@@ -129,7 +129,7 @@
               "name": "php-55-centos7:latest"
             },
           "env": [
-             { 
+             {
               "name": "ERROR_REPORTING",
               "value": "E_ALL & ~E_NOTICE"
              },
@@ -152,7 +152,7 @@
             {
               "name": "INCLUDE_PATH",
               "value": "/opt/app-root/src"
-             },          
+             },
             {
               "name": "SESSION_PATH",
               "value": "/tmp/sessions"

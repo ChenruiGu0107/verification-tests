@@ -4,4 +4,4 @@ metadata:
   name: azsc
 provisioner: kubernetes.io/azure-disk
 parameters:
-  storageAccount: openshiftqestorage 
+  storageAccount: openshiftqestorage

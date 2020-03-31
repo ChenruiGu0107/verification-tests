@@ -36,7 +36,7 @@
             "metadata": {
                 "labels": {
                     "name": "service-spreading"
-                },  
+                },
                 "name": "service-spreading"
             },
             "spec": {
@@ -47,10 +47,10 @@
                         "protocol": "TCP",
                         "targetPort": 8080
                     }
-                ],  
+                ],
                 "selector": {
                     "name": "service-spreading"
-                }   
+                }
             }
         }
     ]

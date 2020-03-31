@@ -28,11 +28,11 @@
                                                                 {
                                                                         "name": "EGRESS_GATEWAY",
                                                                         "value": "egress_gw"
-                                                                },  
-                                                                { 
-                                                                        "name": "EGRESS_DESTINATION",  
-                                                                        "value": "egress_dest" 
-                                                                } 
+                                                                },
+                                                                {
+                                                                        "name": "EGRESS_DESTINATION",
+                                                                        "value": "egress_dest"
+                                                                }
                                                         ]
                                                 }
                                         ]

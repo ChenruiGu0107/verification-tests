@@ -22,7 +22,7 @@
                         ],
                         "containerName": "mongodb-helloworld-database",
                         "env": [
-                            {  
+                            {
                                 "name": "CUSTOM_VAR2",
                                 "value": "custom_value2"
                             }
@@ -37,12 +37,12 @@
                         ],
                         "containerName": "mongodb-helloworld-database",
                         "env": [
-                            {  
+                            {
                                 "name": "CUSTOM_VAR1",
                                 "value": "custom_value1"
                             }
                         ]
-                    }, 
+                    },
                     "failurePolicy": "Abort"
                 }
             },
@@ -117,6 +117,6 @@
                 "type": "ConfigChange"
             }
         ]
-    }, 
+    },
     "status": {}
 }

@@ -11,7 +11,7 @@
                     "protocol": "TCP",
                     "port": 27443,
                     "targetPort": 8443
-            } 
+            }
             ],
             "selector": {
                             "name": "httpbin-pod"
