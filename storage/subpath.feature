@@ -29,12 +29,12 @@ Feature: volumeMounts should be able to use subPath
     Given I have a project
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/secret.yaml |
-        | n | <%= project.name %>                                                                                       |
+        | n | <%= project.name %>                                                               |
     Then the step should succeed
 
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/secret-subpath.json |
-        | n | <%= project.name %>                                                                                               |
+        | n | <%= project.name %>                                                                       |
     Then the step should succeed
     And the pod named "subpath" becomes ready
 
@@ -44,12 +44,12 @@ Feature: volumeMounts should be able to use subPath
     Given I have a project
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/configmap.yaml |
-        | n | <%= project.name %>                                                                                          |
+        | n | <%= project.name %>                                                                  |
     Then the step should succeed
 
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/configmap-subpath.yaml |
-        | n | <%= project.name %>                                                                                                  |
+        | n | <%= project.name %>                                                                          |
     Then the step should succeed
     And the pod named "configmap" becomes ready
 
@@ -69,11 +69,11 @@ Feature: volumeMounts should be able to use subPath
     Given I have a project
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/secret.yaml |
-        | n | <%= project.name %>                                                                                       |
+        | n | <%= project.name %>                                                               |
     Then the step should succeed
     When I run the :create client command with:
         | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/subpath/configmap.yaml |
-        | n | <%= project.name %>                                                                                          |
+        | n | <%= project.name %>                                                                  |
     Then the step should succeed
 
     When I run the :create client command with:
