@@ -51,13 +51,11 @@ Feature: events related
     When I perform the :search_by_resource web action with:
       | resource_kind | Pod |
     Then the step should succeed
-    When I perform the :search_by_event_catagory web action with:
-      | catagory| All |
-    Then the step should succeed
     When I perform the :check_results_contain_correct_type web action with:
       | type | pod |
     Then the step should succeed
 
+    # show failed builds events
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -65,9 +63,9 @@ Feature: events related
       | resource_kind  | Build                 |
       | resource_group | build.openshift.io/v1 |
     Then the step should succeed
-    When I run the :search_by_event_catagory web action
+    When I run the :search_by_catagory_to_show_build_failures web action
     Then the step should succeed
-    When I run the :check_result_not_contain_warning_catagory web action
+    When I run the :check_results_contain_correct_build_failures_type web action
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
