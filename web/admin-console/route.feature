@@ -290,3 +290,99 @@ Feature: route related
     When I perform the :check_default_oc_download_links web action with:
       | downloads_route | <%= cb.downloads_route %> | 
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-19608
+  Scenario: Check route list and detail page  
+    Given the master version >= "4.1"
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json          |
+    Then the step should succeed
+
+    # create two routes, one is created from default YAML, the other is created by form 
+    Given I open admin console in a browser
+    When I perform the :goto_routes_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    When I perform the :goto_route_creation_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_route web action with:
+      | route_name            | mytestroute      |
+      | service_name          | service-unsecure |
+      | target_port           | http             |
+      | secure_route          | true             |
+      | tls_termination_type  | edge             |
+      | insecure_traffic_type | Redirect         |
+      | certificate_path      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/tc/OCP-19608/example.crt |
+      | private_key_path      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/tc/OCP-19608/example.key |
+      | ca_certificate_path   | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/tc/OCP-19608/example.csr |
+    Then the step should succeed
+    # to make sure all required routes are created
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I get project routes
+    Then the output should contain:
+      | example     |
+      | mytestroute |
+    """
+
+    # check Status, status icon and condition table on route details
+    When I perform the :goto_one_route_page web action with:
+      | project_name | <%= project.name %> |
+      | route_name   | mytestroute         |
+    Then the step should succeed
+    When I perform the :check_resource_details_key_and_value web action with:
+      | key   | Status   |
+      | value | Rejected |
+    Then the step should succeed
+    When I run the :check_rejected_icon_and_text web action
+    Then the step should succeed
+    When I perform the :check_conditions_table web action with:
+      | type    | Admitted                      |
+      | status  | False                         |
+      | reason  | ExtendedValidationFailed      |
+      | message | certificate signed by unknown |
+    Then the step should succeed
+
+    # filtering with route status
+    When I perform the :goto_routes_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :filter_and_show_accepted_routes web action
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | example |
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | mytestroute |
+    Then the step should fail
+    When I run the :select_all_filters web action
+    Then the step should succeed
+    When I run the :filter_and_show_rejected_routes web action
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | mytestroute |
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | example |
+    Then the step should fail
+    When I run the :select_all_filters web action
+    Then the step should succeed
+
+    # filtering with route name
+    When I perform the :set_filter_strings web action with:
+      | filter_text | example |
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | example |
+    Then the step should succeed
+    When I perform the :check_route_name_and_icon web action with:
+      | route_name | mytestroute |
+    Then the step should fail
+
