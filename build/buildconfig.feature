@@ -348,10 +348,9 @@ Feature: buildconfig.feature
     And I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/build_config.yaml |
     Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/sti-app.tar"
     When I run the :start_build client command with:
-      | buildconfig  | sti-bc      |
-      | from_archive | sti-app.tar |
+      | buildconfig  | sti-bc                                                                            |
+      | from_archive | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
     Then the step should succeed
     And the "sti-bc-2" build was created
     Given the "sti-bc-2" build completed
@@ -359,8 +358,8 @@ Feature: buildconfig.feature
       | resource_name | build/sti-bc-2 |
     And the output should contain "Downloading"
     When I run the :start_build client command with:
-      | buildconfig  | sti-bc      |
-      | from_archive | sti-app.tar |
+      | buildconfig  | sti-bc                                                                            |
+      | from_archive | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
     Then the step should succeed
     And the "sti-bc-3" build was created
     Given the "sti-bc-3" build completed
