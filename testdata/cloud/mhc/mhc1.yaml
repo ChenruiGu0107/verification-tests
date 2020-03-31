@@ -9,7 +9,7 @@ spec:
       machine.openshift.io/cluster-api-cluster:
       machine.openshift.io/cluster-api-machine-role: worker
       machine.openshift.io/cluster-api-machine-type: worker
-      machine.openshift.io/cluster-api-machineset: 
+      machine.openshift.io/cluster-api-machineset:
   unhealthyConditions:
   - type: Ready
     status: "False"

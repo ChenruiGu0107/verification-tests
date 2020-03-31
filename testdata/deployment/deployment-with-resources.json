@@ -16,7 +16,7 @@
             "resources": {
                  "limits": {
                      "cpu": "30m",
-                     "memory": "150Mi" 
+                     "memory": "150Mi"
                  }
            }
         },
@@ -72,7 +72,7 @@
                         "resources": {
                             "limits": {
                                 "cpu": "400m",
-                                "memory": "200Mi" 
+                                "memory": "200Mi"
                             }
                         },
                         "volumeMounts": [

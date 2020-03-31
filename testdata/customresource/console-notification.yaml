@@ -6,7 +6,7 @@ spec:
   backgroundColor: yellow
   color: blue
   link:
-    href: https://www.youtube.com 
+    href: https://www.youtube.com
     text: Youtube
   location: BannerTopBottom
   text: Subscribe

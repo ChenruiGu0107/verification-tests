@@ -6,4 +6,4 @@ spec:
   selector:
     matchLabels:
       foo4: bar
-  minAvailable: "0%" 
+  minAvailable: "0%"

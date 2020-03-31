@@ -7,4 +7,4 @@ spec:
   ingress:
   - from:
     - ipBlock:
-        cidr: 10.131.0.25/32 
+        cidr: 10.131.0.25/32

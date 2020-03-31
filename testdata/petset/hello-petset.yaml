@@ -35,7 +35,7 @@ spec:
           name: hello-pod
           ports:
             - containerPort: 8080
-              protocol: TCP 
+              protocol: TCP
           resources: {}
           securityContext:
             capabilities: {}
@@ -43,10 +43,10 @@ spec:
           terminationMessagePath: /dev/termination-log
           volumeMounts:
             - mountPath: /tmp
-              name: tmp 
+              name: tmp
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       serviceAccount: ""
       volumes:
         - emptyDir: {}
-          name: tmp 
+          name: tmp

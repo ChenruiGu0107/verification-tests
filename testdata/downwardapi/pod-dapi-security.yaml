@@ -1,13 +1,13 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: dapisec 
+  name: dapisec
   annotations:
     build: one
     builder: qe-one
 spec:
   containers:
-    - name: dapicont 
+    - name: dapicont
       image: jhou/hello-openshift
       volumeMounts:
       - mountPath: "/mnt/dapi"
@@ -17,7 +17,7 @@ spec:
     seLinuxOptions:
       level: "s0:c8,c2"
   volumes:
-    - name: dapi-volume 
+    - name: dapi-volume
       downwardAPI:
         items:
           - path: "annotations"

@@ -4,7 +4,7 @@ metadata:
   name: consolelog1
 spec:
   text: externalloglink1
-  hrefTemplate: https://stackoverflow.com/ 
+  hrefTemplate: https://stackoverflow.com/
 
 ---
 

@@ -127,7 +127,7 @@
               "namespace": "openshift",
               "name": "python:3.3"
             },
-            "env": [      
+            "env": [
             {
               "name": "APP_FILE",
               "value": "app.py"

@@ -37,7 +37,7 @@
             "metadata": {
                 "labels": {
                     "name": "service-secure-3"
-                },  
+                },
                 "name": "service-secure-3"
             },
             "spec": {
@@ -48,10 +48,10 @@
                         "protocol": "TCP",
                         "targetPort": 8443
                     }
-                ],  
+                ],
                 "selector": {
                     "type": "test3"
-                }   
+                }
             }
         },
        {
@@ -60,7 +60,7 @@
             "metadata": {
                 "labels": {
                     "name": "service-unsecure-3"
-                }, 
+                },
                 "name": "service-unsecure-3"
             },
             "spec": {

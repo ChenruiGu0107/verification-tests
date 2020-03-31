@@ -6,20 +6,20 @@ spec:
   containers:
   - name: container1
     image: kubernetes/pause
-    resources: 
-      limits: 
+    resources:
+      limits:
         cpu: "150m"
         memory: "120Mi"
-      requests: 
+      requests:
         cpu: "100m"
         memory: "100Mi"
   - name: container2
     image: kubernetes/pause
-    resources: 
-      limits: 
+    resources:
+      limits:
         cpu: "150m"
         memory: "120Mi"
-      requests: 
+      requests:
         cpu: "100m"
         memory: "100Mi"
   initContainers:
@@ -27,11 +27,11 @@ spec:
     image: centos:centos7
     command:
     - /bin/true
-    resources:  
-      limits:  
+    resources:
+      limits:
         cpu: "100m"
         memory: "100Mi"
-      requests:  
+      requests:
         cpu: "50m"
         memory: "50Mi"
   - name: init2

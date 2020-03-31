@@ -15,10 +15,10 @@ objects:
     secretTransforms:
     - renameKey:
         from: ${OLD_KEY_1}
-        to: ${NEW_KEY_1}       
+        to: ${NEW_KEY_1}
     - renameKey:
         from: ${OLD_KEY_2}
-        to: ${NEW_KEY_2}      
+        to: ${NEW_KEY_2}
 
 parameters:
 - description: Binding name

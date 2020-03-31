@@ -4,4 +4,4 @@ metadata:
   name: grs
 provisioner: kubernetes.io/azure-disk
 parameters:
-  skuName: Standard_GRS 
+  skuName: Standard_GRS

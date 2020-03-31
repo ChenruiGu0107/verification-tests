@@ -2,16 +2,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: cinder
-  labels: 
+  labels:
     name: cinder
-spec: 
-  containers: 
+spec:
+  containers:
     - resources:
         limits :
           cpu: 0.5
       image: aosqe/hello-openshift
       name: cinder
-      ports: 
+      ports:
         - containerPort: 3306
           name: mysql
       volumeMounts:

@@ -8,7 +8,7 @@
     }
   },
   "spec": {
-    "template": { 
+    "template": {
       "metadata": {
         "labels": {
           "name": "header-test"
@@ -33,16 +33,16 @@
         ]
       }
     },
-    "replicas": 1, 
+    "replicas": 1,
     "selector": {
       "name": "header-test"
     },
     "triggers": [
       {
-        "type": "ConfigChange" 
+        "type": "ConfigChange"
       }
     ],
-    "strategy": { 
+    "strategy": {
       "type": "Rolling"
     }
   }

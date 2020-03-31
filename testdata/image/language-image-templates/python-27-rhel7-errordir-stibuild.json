@@ -117,7 +117,7 @@
           "git": {
             "uri": "https://github.com/sclorg/s2i-python-container.git"
             },
-            "contextDir":"nonexist/test/django-test-app" 
+            "contextDir":"nonexist/test/django-test-app"
         },
         "strategy": {
           "type": "Source",

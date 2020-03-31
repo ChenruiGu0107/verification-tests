@@ -1,5 +1,5 @@
 kind: Pod
-apiVersion: v1 
+apiVersion: v1
 metadata:
   name: propaslave
 spec:
@@ -14,7 +14,7 @@ spec:
       volumeMounts:
         - mountPath: "/mnt/local"
           name: local
-          mountPropagation: HostToContainer 
+          mountPropagation: HostToContainer
   volumes:
     - name: local
       hostPath:

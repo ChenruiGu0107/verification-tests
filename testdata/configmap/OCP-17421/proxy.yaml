@@ -67,7 +67,7 @@ items:
           - mountPath: /etc/tls/private
             name: proxy-tls
           - mountPath: /data
-            name: test-userpass          
+            name: test-userpass
         - name: app
           image: openshift/hello-openshift:latest
         volumes:

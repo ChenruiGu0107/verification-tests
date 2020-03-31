@@ -1,5 +1,5 @@
 kind: Pod
-apiVersion: v1 
+apiVersion: v1
 metadata:
   name: propashare
 spec:
@@ -14,7 +14,7 @@ spec:
       volumeMounts:
         - mountPath: "/mnt/local"
           name: local
-          mountPropagation: Bidirectional 
+          mountPropagation: Bidirectional
   volumes:
     - name: local
       hostPath:

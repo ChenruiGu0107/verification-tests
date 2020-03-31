@@ -4,5 +4,5 @@ metadata:
   name: noaccount
 provisioner: kubernetes.io/azure-disk
 parameters:
-  skuName: Standard_LRS 
+  skuName: Standard_LRS
   location: westus2

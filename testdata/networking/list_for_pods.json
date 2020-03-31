@@ -29,7 +29,7 @@
                                   "limits":{
                                     "memory":"340Mi"
                                   }
-                                }   
+                                }
                             }
                         ]
                     }
@@ -42,7 +42,7 @@
             "metadata": {
                 "labels": {
                     "name": "test-service"
-                },  
+                },
                 "name": "test-service"
             },
             "spec": {
@@ -53,10 +53,10 @@
                         "protocol": "TCP",
                         "targetPort": 8080
                     }
-                ],  
+                ],
                 "selector": {
                     "name": "test-pods"
-                }   
+                }
             }
         }
     ]

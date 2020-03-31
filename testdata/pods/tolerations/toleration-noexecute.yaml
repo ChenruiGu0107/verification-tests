@@ -20,7 +20,7 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Always
   serviceAccount: ""
-  tolerations: 
+  tolerations:
     - key: "key1"
       operator: "Equal"
       value: "value1"

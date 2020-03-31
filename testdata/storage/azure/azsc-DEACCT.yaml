@@ -1,8 +1,8 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: addsc 
+  name: addsc
 provisioner: kubernetes.io/azure-disk
 parameters:
   kind: Dedicated
-  storageaccount: eastusimg 
+  storageaccount: eastusimg

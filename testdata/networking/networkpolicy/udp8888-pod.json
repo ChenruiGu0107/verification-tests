@@ -10,6 +10,6 @@
                         "name": "udp-pod",
                         "image": "bmeng/hello-openshift"
                 }],
-                "restartPolicy": "Always"                                                                                                                             
+                "restartPolicy": "Always"
         }
 }

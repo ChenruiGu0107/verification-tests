@@ -13,5 +13,5 @@ spec:
   volumes:
     - name: storage-volume
       configMap:
-        name: configmap-test-multi 
+        name: configmap-test-multi
   restartPolicy: Never
