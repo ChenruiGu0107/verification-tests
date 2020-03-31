@@ -724,13 +724,20 @@ Feature: secrets related scenarios
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/pod-multi-volume.yaml |
     Then the step should succeed
-    And the pod named "multiv-secret-pod" status becomes :succeeded
+    And the pod named "multiv-secret-pod" status becomes :running
     When I run the :logs client command with:
       | resource_name | multiv-secret-pod |
     Then the step should succeed
+    When I execute on the pod:
+      | cat | /etc/secret-volume/data-1 |
+    Then the step should succeed
     And the output should contain:
-      | value-1              |
-      | secret-volume/data-1 |
+      | value-1 |
+    When I execute on the pod:
+      | cat | /opt/qe-secret/data-2 |
+    Then the step should succeed
+    And the output should contain:
+      | value-2 |
 
   # @author wehe@redhat.com
   # @case_id OCP-10169

@@ -20,9 +20,14 @@ Feature: configMap
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-multi-volume.yaml |
     Then the step should succeed
-    And the pod named "pod-configmapd" status becomes :succeeded
-    When I run the :logs client command with:
-      | resource_name | pod-configmapd |
+    And the pod named "pod-configmapd" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/configmap-volume/data-1 |
+    Then the step should succeed
+    And the output should contain:
+      | value-1 |
+    When I execute on the pod:
+      | cat | /opt/qe-storage/data-1 |
     Then the step should succeed
     And the output should contain:
       | value-1 |
@@ -47,9 +52,9 @@ Feature: configMap
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
     Then the step should succeed
-    And the pod named "pod-same-configmap" status becomes :succeeded
-    When I run the :logs client command with:
-      | resource_name | pod-same-configmap |
+    And the pod named "pod-same-configmap" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/storage-volume/data-1 |
     Then the step should succeed
     And the output should contain:
       | value-1 |
@@ -71,9 +76,9 @@ Feature: configMap
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
     Then the step should succeed
-    And the pod named "pod-same-configmap" status becomes :succeeded
-    When I run the :logs client command with:
-      | resource_name | pod-same-configmap |
+    And the pod named "pod-same-configmap" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/storage-volume/data-1 |
     Then the step should succeed
     And the output should contain:
       | value-1 |
