@@ -3,7 +3,7 @@ Feature: security and compliance related scenarios
   # @case_id OCP-28717
   @admin
   Scenario: FIPS mode checking command works for a cluster with fip mode on
-    	       
+
     Given fips is enabled
     # check whether fips enabled for master node
     Given I store the masters in the :masters clipboard
@@ -14,7 +14,7 @@ Feature: security and compliance related scenarios
     And the output should match:
       | FIPS |
     When I run commands on the host:
-      | sysctl crypto.fips_enabled | 
+      | sysctl crypto.fips_enabled |
     Then the step should succeed
     And the output should match:
       | crypto.fips_enabled = 1 |
@@ -28,7 +28,7 @@ Feature: security and compliance related scenarios
     Given I store the workers in the :workers clipboard
     And I use the "<%= cb.workers[0].name %>" node
     When I run commands on the host:
-      | sysctl crypto.fips_enabled |  
+      | sysctl crypto.fips_enabled |
     Then the step should succeed
     And the output should match:
       | crypto.fips_enabled = 1 |
@@ -59,7 +59,7 @@ Feature: security and compliance related scenarios
     And the output should contain:
       | 99-fips-master |
       | 99-fips-worker |
-    
+
     # Verify if the fips is enable on master node
     Given I store the masters in the :masters clipboard
     And I use the "<%= cb.masters[0].name %>" node
@@ -79,13 +79,10 @@ Feature: security and compliance related scenarios
     And the output should contain:
       | RHCOS FIPS mode installation complete |
 
-    # Reboot the master node
-    When I run commands on the host:
-      | systemctl reboot |
-    And admin wait for the "<%=cb.masters[0].name%>" node to appear
+    Given the host is rebooted and I wait it to become available
 
     # Verify if fips mode is enable on master node after reboot
-    When I run commands on the host: 
+    When I run commands on the host:
       | update-crypto-policies --show |
     Then the step should succeed
     And the output should match:
@@ -114,11 +111,8 @@ Feature: security and compliance related scenarios
     Then the step should succeed
     And the output should contain:
       | fips=1 |
-      
-    # Reboot the worker node 
-    When I run commands on the host:
-      | systemctl reboot |
-    And admin wait for the "<%=cb.workers[0].name%>" node to appear
+
+    Given the host is rebooted and I wait it to become available
 
     # Verify if the fips mode is enable on RHCOS and RHEL worker node after reboot
     When I run commands on the host:
@@ -130,19 +124,19 @@ Feature: security and compliance related scenarios
       | cat /proc/cmdline |
     Then the step should succeed
     And the output should contain:
-      | fips=1 |      
+      | fips=1 |
 
   # @author pdhamdhe@redhat.com
   # @case_id OCP-25819
   @admin
-  @destructive	
+  @destructive
   Scenario: enable FIPS by MCO not supported
 
     Given fips is disabled
 
     # Create a MachineConfig on master & worker node to enable fips
     Given admin ensures "99-master-fips" machineconfig is deleted after scenario
-    Given admin ensures "99-worker-fips" machineconfig is deleted after scenario  	    
+    Given admin ensures "99-worker-fips" machineconfig is deleted after scenario
     When I run the :create admin command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-master-enable.yaml |
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-worker-enable.yaml |
@@ -151,7 +145,7 @@ Feature: security and compliance related scenarios
       | resource | mc |
     Then the step should succeed
     And the output should contain:
-      | 99-master-fips | 
+      | 99-master-fips |
       | 99-worker-fips |
 
     # Verify if the fips is disable on master node
@@ -162,7 +156,7 @@ Feature: security and compliance related scenarios
     Then the step should succeed
     And the output should match:
       | DEFAULT |
-    When I run commands on the host: 
+    When I run commands on the host:
       | sysctl crypto.fips_enabled |
     Then the step should succeed
     And the output should match:
@@ -172,11 +166,8 @@ Feature: security and compliance related scenarios
     Then the step should succeed
     And the output should contain:
       | 0 |
-      
-    # Reboot the master node
-    When I run commands on the host:
-      | systemctl reboot |
-    And admin wait for the "<%=cb.masters[0].name%>" node to appear
+
+    Given the host is rebooted and I wait it to become available
 
     # Verify if fips mode is disable on master node after reboot
     When I run commands on the host:
@@ -208,11 +199,8 @@ Feature: security and compliance related scenarios
     Then the step should succeed
     And the output should not contain:
       | fips=1 |
-      
-    # Reboot the worker node 
-    When I run commands on the host:
-      | systemctl reboot |
-    And admin wait for the "<%=cb.workers[0].name%>" node to appear
+
+    Given the host is rebooted and I wait it to become available
 
     # Verify if the fips mode is disable on RHCOS and RHEL worker node after reboot
     When I run commands on the host:
