@@ -25,7 +25,7 @@ Feature: User management related
     # impersonate the first user
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
-      | button_text   | Impersonate User "<%= user(0, switch: false).name %>" | 
+      | kebab_item    | Impersonate User "<%= user(0, switch: false).name %>" |
     Then the step should succeed
     # first user has no permission to access /user page
     When I perform the :check_secondary_menu_missing web action with:
@@ -42,7 +42,7 @@ Feature: User management related
     Given the first user is cluster-admin
     When I perform the :impersonate_one_user web action with:
       | resource_name | <%= user(0, switch: false).name %> |
-      | button_text   | Impersonate User "<%= user(0, switch: false).name %>" |
+      | kebab_item    | Impersonate User "<%= user(0, switch: false).name %>" |
     Then the step should succeed
     When I perform the :check_secondary_menu web action with:
       | secondary_menu | Users |
