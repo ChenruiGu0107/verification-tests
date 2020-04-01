@@ -15,18 +15,17 @@ Feature: oc new-app related scenarios
   # @case_id OCP-12255
   Scenario: cli:parameter requirement check works correctly
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
-    Given I backup the file "application-template-stibuild-without-customize-route.json"
-    And I replace lines in "application-template-stibuild-without-customize-route.json":
+    Given I backup the file "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    And I replace lines in "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json":
       | "value": "root" | "value": "" |
     When I run the :new_app client command with:
-      | file | application-template-stibuild-without-customize-route.json |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should fail
     And the output should match:
       | [Ee]rror.*is required and must be specified |
 
-    Given I restore the file "application-template-stibuild-without-customize-route.json"
-    When I run oc create over "application-template-stibuild-without-customize-route.json" replacing paths:
+    Given I restore the file "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json" replacing paths:
       | ["parameters"][0]["required"] | false |
     Then the step should succeed
     When I run the :new_app client command with:
