@@ -233,3 +233,55 @@ Feature: Testing Scheduler Operator related scenarios
       | filename                         | nodename         |
       | policy-label-presence-false.json | cb.nodes[0].name | # @case_id OCP-11100
       | policy-label-presence-true.json  | cb.nodes[1].name | # @case_id OCP-11465
+
+  # @author knarra@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: Schedule pods within the same service based on nested levels
+    Given the master version >= "4.1"
+    Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
+    Given the "cluster" scheduler CR is restored after scenario
+    Given node schedulable status should be restored after scenario
+    When I run the :create_configmap admin command with:
+      | name      | scheduler-policy      |
+      | from_file | policy.cfg=<filename> |
+      | namespace | openshift-config      |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | scheduler                                       |
+      | resource_name | cluster                                         |
+      | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
+      | type          | merge                                           |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
+    And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
+    """
+    Given I store the schedulable workers in the :nodes clipboard
+    And label "ocpaffrack=a111" is added to the "<%= cb.nodes[0].name %>" node
+    And label "ocpaffregion=r1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "ocpaffzone=z11" is added to the "<%= cb.nodes[0].name %>" node
+    And label "ocpaffrack=a211" is added to the "<%= cb.nodes[1].name %>" node
+    And label "ocpaffregion=r2" is added to the "<%= cb.nodes[1].name %>" node
+    And label "ocpaffzone=z21" is added to the "<%= cb.nodes[1].name %>" node
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[2].name %> |
+    Given I have a project
+    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<podfilename>"
+    Then the step should succeed
+    Given status becomes :running of 3 pods labeled:
+      | deploymentconfig=database |
+    Given evaluation of `@pods[0].node_name` is stored in the :nodename clipboard
+    When I run the :get client command with:
+      | resource | pod                       |
+      | l        | deploymentconfig=database |
+      | o        | wide                      |
+     Then the step should succeed
+     And the output should contain 3 times:
+       | <%= cb.nodename %> |
+     Examples:
+       | filename                                                                                          | podfilename       |                      |
+       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_aff_aff_antiaffi.json      | pod_ocp11889.json | # @case_id OCP-11889 |
+       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_aff_antiaffi_antiaffi.json | pod_ocp12191.json | # @case_id OCP-12191 |
