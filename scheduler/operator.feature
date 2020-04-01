@@ -8,13 +8,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_hostname.json"
-    Then the step should succeed
-
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                       |
-      | from_file | policy.cfg=<%= File.join(localhost.workdir, "policy_hostname.json") %> |
-      | namespace | openshift-config                                                       |
+      | name      | scheduler-policy                                                                                |
+      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_hostname.json |
+      | namespace | openshift-config                                                                                |
       Then the step should succeed
 
     When I run the :patch admin command with:
@@ -112,14 +109,10 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
-
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_empty.json"
-    Then the step should succeed
-
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                    |
-      | from_file | policy.cfg=<%= File.join(localhost.workdir, "policy_empty.json") %> |
-      | namespace | openshift-config                                                    |
+      | name      | scheduler-policy                                                                             |
+      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_empty.json |
+      | namespace | openshift-config                                                                             |
     Then the step should succeed
 
     When I run the :patch admin command with:
@@ -200,9 +193,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given node schedulable status should be restored after scenario
     And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename>"
     When I run the :create_configmap admin command with:
-      | name      | my-scheduler-policy   |
-      | from_file | policy.cfg=<filename> |
-      | namespace | openshift-config      |
+      | name      | my-scheduler-policy                                                                   |
+      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<filename> |
+      | namespace | openshift-config                                                                      |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scheduler                                          |
@@ -243,9 +236,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given the "cluster" scheduler CR is restored after scenario
     Given node schedulable status should be restored after scenario
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy      |
-      | from_file | policy.cfg=<filename> |
-      | namespace | openshift-config      |
+      | name      | scheduler-policy                                                                      |
+      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<filename> |
+      | namespace | openshift-config                                                                      |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scheduler                                       |
@@ -282,6 +275,6 @@ Feature: Testing Scheduler Operator related scenarios
      And the output should contain 3 times:
        | <%= cb.nodename %> |
      Examples:
-       | filename                                                                                          | podfilename       |                      |
-       | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_aff_aff_antiaffi.json      | pod_ocp11889.json | # @case_id OCP-11889 |
-       | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_aff_antiaffi_antiaffi.json | pod_ocp12191.json | # @case_id OCP-12191 |
+       | filename                          | podfilename       |
+       | policy_aff_aff_antiaffi.json      | pod_ocp11889.json | # @case_id OCP-11889
+       | policy_aff_antiaffi_antiaffi.json | pod_ocp12191.json | # @case_id OCP-12191
