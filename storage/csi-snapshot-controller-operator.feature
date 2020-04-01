@@ -1,21 +1,23 @@
 Feature: CSI snapshot operator related scenarios
   # @author lxia@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-27564
   @admin
   Scenario: CSI snapshot controller operator is installed by default	
     Given the master version >= "4.4"
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-csi-snapshot-controller-operator" project
+    And I use the "openshift-cluster-storage-operator" project
     And a pod becomes ready with labels:
       | app=csi-snapshot-controller-operator |
 
   # @author lxia@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-27567
   @admin
   Scenario: CSI snapshot controller operator installs CSI snapshot controller
     Given the master version >= "4.4"
     Given I switch to cluster admin pseudo user
-    And I use the "openshift-csi-snapshot-controller" project
+    And I use the "openshift-cluster-storage-operator" project
     And a pod becomes ready with labels:
       | app=csi-snapshot-controller |
 
