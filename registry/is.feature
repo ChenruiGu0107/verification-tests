@@ -209,7 +209,7 @@ Feature: Testing imagestream
     And evaluation of `daemon_set("controller-manager").desired_replicas` is stored in the :desired_num clipboard
     And <%= cb.desired_num %> pods become ready with labels:
       | pod-template-generation=<%= cb.before_change %> |
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/registry/registry.access.redhat.com.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/registry/registry.access.redhat.com.yaml"
     And I run the :create_configmap client command with:
       | name      | <%= cb.sign_name %>             | 
       | from_file | registry.access.redhat.com.yaml |

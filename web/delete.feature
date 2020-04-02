@@ -136,7 +136,7 @@ Feature: Delete the resources via web console
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
@@ -173,7 +173,7 @@ Feature: Delete the resources via web console
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-14215/k8s-deployment.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-14215/k8s-deployment.yaml |
     Then the step should succeed
     Given a pod is present with labels:
       | app=hello-openshift |
@@ -213,7 +213,7 @@ Feature: Delete the resources via web console
     Given the master version >= "3.6"
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     When I perform the :goto_one_buildconfig_page web console action with:
@@ -234,7 +234,7 @@ Feature: Delete the resources via web console
       | ruby-sample-build-1 |
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
     Then the step should succeed
     Given a pod is present with labels:
       | app=hello |

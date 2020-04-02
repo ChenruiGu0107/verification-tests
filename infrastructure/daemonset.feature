@@ -6,12 +6,12 @@ Feature: Features of daemonset
   Scenario: Create pod on every node with DaemonSet
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
     Then the step should fail
     And the output should match:
       | cannot create daemonsets.extensions |
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     And all existing pods are ready with labels:
@@ -31,7 +31,7 @@ Feature: Features of daemonset
       | resource_name | <%=project.name%>                                               |
       | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     And <%= env.nodes.count %> pods become ready with labels:
@@ -60,7 +60,7 @@ Feature: Features of daemonset
     And the expression should be true> @result[:response].strip == "<%= cb.allpods %>"
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     Given all pods in the project are ready
@@ -90,7 +90,7 @@ Feature: Features of daemonset
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     And the step should succeed
     Given all pods in the project are ready

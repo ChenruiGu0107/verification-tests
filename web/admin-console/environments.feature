@@ -6,10 +6,10 @@ Feature: environment related
     Given the master version >= "3.11"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml   |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.json           |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/OCP-11410/mysecret-1.yaml  |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/OCP-11410/mysecret-2.yaml  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml   |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.json           |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/OCP-11410/mysecret-1.yaml  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/OCP-11410/mysecret-2.yaml  |
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                    |
@@ -94,7 +94,7 @@ Feature: environment related
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | run=dctest |
@@ -167,8 +167,8 @@ Feature: environment related
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/initcontainer.yaml    |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/initcontainer.yaml    |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-openshift |
@@ -239,7 +239,7 @@ Feature: environment related
     Given the master version >= "4.2"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml   |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml   |
     Then the step should succeed
     And I open admin console in a browser
     When I perform the :goto_deploy_image_page web action with:

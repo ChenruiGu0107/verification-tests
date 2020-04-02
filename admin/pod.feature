@@ -4,14 +4,14 @@ Feature: pod related features
   Scenario: TolerationSeconds can only combine with NoExecute effect
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tolerations/tolerationSeconds.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid1.yaml |
     Then the step should fail
     And the output should contain "Invalid value"
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid2.yaml |
     Then the step should fail
     And the output should contain "Invalid value"
 
@@ -20,7 +20,7 @@ Feature: pod related features
   Scenario: 'net.ipv4.tcp_max_syn_backlog' shouldn't in whitelist
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/sysctls/sysctl-tcp_max_syn_backlog.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/sysctls/sysctl-tcp_max_syn_backlog.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | po   |
@@ -34,7 +34,7 @@ Feature: pod related features
   Scenario: Pods creation is ordered in StatefulSet
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/hello-statefulset-60sec-ready.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset-60sec-ready.yaml |
     Then the step should succeed
 
     Given the pod named "hello-statefulset-0" becomes present
@@ -53,7 +53,7 @@ Feature: pod related features
   Scenario: Expose shared memory of the pod via POSIX IPC sharing
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/container/sharememory.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/container/sharememory.json |
     And the pod named "hello-openshift" becomes ready
     Given I use the "<%= pod.node_name %>" node
     Given the system container id for the pod is stored in the clipboard
@@ -90,7 +90,7 @@ Feature: pod related features
     Given I have a project
     And I select a random node's host
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc521573/readonly_false.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_false.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod |
@@ -101,7 +101,7 @@ Feature: pod related features
     Then the output should match:
       | "ReadonlyRootfs":\s+false |
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc521573/readonly_true.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_true.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod-true |
@@ -123,13 +123,13 @@ Feature: pod related features
       | readOnlyRootFilesystem: false | readOnlyRootFilesystem: true |
     And I select a random node's host
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc521573/readonly_false.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_false.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
       | ReadOnlyRootFilesystem must be set to true                 |
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc521573/readonly_true.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_true.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod-true |
@@ -145,7 +145,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with absolute number
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: 5|
     Then I run the :create admin command with:
@@ -172,7 +172,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
       | "namespace": ""|"namespace": "<%= project.name %>"|
@@ -226,7 +226,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with percentage number
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -253,7 +253,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
       | "namespace": ""|"namespace": "<%= project.name %>"|
@@ -292,7 +292,7 @@ Feature: pod related features
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-hostname.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-hostname.yaml"
     When I replace lines in "pod-hostname.yaml":
       | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod:latest |
       | HOSTNAME                                  | <%= cb.nodes[0].name %>                 |
@@ -332,7 +332,7 @@ Feature: pod related features
       | docker images --digests \| grep docker.io/ocpqe/hello-pod                                                        |
     Then the step should fail
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-hostname.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-hostname.yaml"
     When I replace lines in "pod-hostname.yaml":
       | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
       | HOSTNAME                                  | <%= cb.nodes[0].name %>                                                                                  |
@@ -363,7 +363,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with absolute number with beta1
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: 5|
     Then I run the :create admin command with:
@@ -389,7 +389,7 @@ Feature: pod related features
     Given 6 pods become ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -462,7 +462,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with percentage number with beta1
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -490,7 +490,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
       | "name": "",                      |"name": "<%= cb.pod %>",           |
@@ -517,7 +517,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in StatefulSet
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -525,7 +525,7 @@ Feature: pod related features
       | n | <%= project.name %>               |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | statefulset       |
@@ -544,7 +544,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -571,7 +571,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in Deployment
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "90%"|
     Then I run the :create admin command with:
@@ -579,7 +579,7 @@ Feature: pod related features
       | n | <%= project.name %>               |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     And I wait until number of replicas match "10" for deployment "hello-openshift"
     Given 10 pods become ready with labels:
@@ -594,7 +594,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -621,7 +621,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in ReplicaSet
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -629,7 +629,7 @@ Feature: pod related features
       | n | <%= project.name %>               |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc533163/rs.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc533163/rs.yaml |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | replicaset |
@@ -648,7 +648,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/admin/Eviction.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
       | "name": "",                      |"name": "<%= cb.pod %>",           |
@@ -677,7 +677,7 @@ Feature: pod related features
     Given I have a project
     Given SCC "privileged" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/securityContext/pod-selinux.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/securityContext/pod-selinux.yaml |
     Then the step should succeed
     Given the pod named "selinux-pod" becomes ready
     When I run the :get client command with:

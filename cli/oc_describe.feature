@@ -5,7 +5,7 @@ Feature: Return description with cli
   Scenario: Return description with cli describe with invalid parameter
     Given I have a project
     When I run the :new_app client command with:
-      | file  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
+      | file  | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     Given the "ruby-sample-build-1" build completed
@@ -107,7 +107,7 @@ Feature: Return description with cli
   Scenario: Disable v1beta3 in REST API
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
     Then the step should succeed
     And all existing pods are ready with labels:
       | name=test-pods |
@@ -150,7 +150,7 @@ Feature: Return description with cli
     Given I log the message>  this scenario is only for oc 3.4+
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | event    |

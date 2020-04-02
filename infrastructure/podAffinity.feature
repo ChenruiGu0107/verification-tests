@@ -5,7 +5,7 @@ Feature: podAffinity
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-invalid-operator.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-invalid-operator.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*Equals.*not a valid selector operator |
@@ -21,7 +21,7 @@ Feature: podAffinity
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-exists-value.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-exists-value.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' | 
@@ -31,7 +31,7 @@ Feature: podAffinity
     And the output should not contain:
       | pod-affinity-exists-value |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-doesnotexist-value.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-doesnotexist-value.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -47,7 +47,7 @@ Feature: podAffinity
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-invalid-topologykey-empty.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-invalid-topologykey-empty.yaml |
     Then the step should fail
     And the output should match:
       | ([Rr]equired value.*can only be empty for PreferredDuringScheduling pod anti affinity\|[Rr]equired value:\s+can not be empty) |
@@ -62,7 +62,7 @@ Feature: podAffinity
   Scenario: pod will not be scheduled if pod affinity not match
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod             |
@@ -78,12 +78,12 @@ Feature: podAffinity
   Scenario: pod will be scheduled on the node which meets pod affinity - In
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
     Then the step should succeed
     Given the pod named "security-s1" status becomes :running within 60 seconds
     And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
     Then the step should succeed
     Given the pod named "pod-affinity-s1" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
@@ -93,12 +93,12 @@ Feature: podAffinity
   Scenario: pod will be scheduled on the node which meets pod affinity - Exists
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
     Then the step should succeed
     Given the pod named "security-s1" status becomes :running within 60 seconds
     And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-exists.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-exists.yaml |
     Then the step should succeed
     Given the pod named "pod-affinity-exists" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
@@ -109,13 +109,13 @@ Feature: podAffinity
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
     Then the step should succeed
     Given the pod named "security-s1" status becomes :running within 60 seconds
     And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
     And I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -130,7 +130,7 @@ Feature: podAffinity
     """
     Given I use the "<%= cb.proj_name%>" project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml |
     Then the step should succeed
     And the pod named "pod-affinity-proj-case14697" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
@@ -141,11 +141,11 @@ Feature: podAffinity
   Scenario: pod with pod affinity will not be scheduled if not all matchExpressions are satisfied
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-s1.yaml |
     Then the step should succeed
     Given the pod named "security-s1" status becomes :running within 300 seconds
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-multi-matchexpressions.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-multi-matchexpressions.yaml | 
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -169,12 +169,12 @@ Feature: podAffinity
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-dst-pod> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-dst-pod> |
     Then the step should succeed
     Given the pod named "<dst-pod-name>" status becomes :running within 300 seconds
     And evaluation of `pod("<dst-pod-name>").node_name` is stored in the :node clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-src-pod> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-src-pod> |
     Then the step should succeed
     And the pod named "<src-pod-name>" status becomes :running within 300 seconds
     Then the expression should be true> pod.node_name <same_node>= cb.node
@@ -192,12 +192,12 @@ Feature: podAffinity
     Given environment has at least 2 schedulable nodes
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-dst-pod-file> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-dst-pod-file> |
     Then the step should succeed
     Given the pod named "<dst-pod-name>" status becomes :running within 300 seconds
     And evaluation of `pod("<dst-pod-name>").node_name` is stored in the :pod_node clipboard
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-src-pod-file> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/<pod-affinity-src-pod-file> |
     Then the step should succeed
     And the pod named "<src-pod-name>" status becomes :running within 300 seconds
     Then the expression should be true> pod.node_name <equality> cb.pod_node

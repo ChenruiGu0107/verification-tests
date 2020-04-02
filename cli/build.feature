@@ -42,7 +42,7 @@ Feature: build 'apps' with CLI
      | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file            | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/<template_file> |
+      | file            | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/<template_file> |
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     When I run the :describe client command with:
@@ -120,7 +120,7 @@ Feature: build 'apps' with CLI
   Scenario: Set dump-logs and restart flag for cancel-build in openshift
     Given I have a project
     When I run the :process client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json |
     Then the step should succeed
     Given I save the output to file> app-stibuild.json
     When I run the :create client command with:
@@ -169,7 +169,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-12309
   Scenario: Cancel a build in openshift
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
     When I get project buildConfigs
     Then the output should contain:
@@ -267,7 +267,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-12382
   Scenario: Stream logs back automatically after start build
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
     Given I replace lines in "ruby22rhel7-template-sti.json":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
@@ -315,7 +315,7 @@ Feature: build 'apps' with CLI
     Given project role "system:build-strategy-custom" is added to the "first" user
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc479022/application-template-custombuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc479022/application-template-custombuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :set_env client command with:
@@ -328,7 +328,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-11517
   Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json"
     Given I replace lines in "ruby22rhel7-template-docker.json":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
@@ -375,7 +375,7 @@ Feature: build 'apps' with CLI
   Scenario: Order builds according to creation timestamps
     Given I have a project
     And I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
     Given the "ruby-22-centos7" image stream was created
     And the "ruby-22-centos7" image stream becomes ready
     And I run the :start_build client command with:
@@ -396,7 +396,7 @@ Feature: build 'apps' with CLI
   Scenario: Start build with option --wait
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc512096/test-build-cancle.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc512096/test-build-cancle.json |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | sample-build |
@@ -422,7 +422,7 @@ Feature: build 'apps' with CLI
   Scenario: Recreate bc when previous bc is deleting pending
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :patch client command with:
@@ -452,7 +452,7 @@ Feature: build 'apps' with CLI
     Then the output should not contain:
       | ruby-sample-build |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     Then the "ruby-sample-build-1" build completed
     And I run the :delete client command with:
@@ -554,7 +554,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using Docker build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.zip"
@@ -656,7 +656,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a directory passed ,using Docker build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build completes
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
@@ -683,7 +683,7 @@ Feature: build 'apps' with CLI
   Scenario: Implement post-build command for s2i build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Given the "ruby-sample-build-1" build completes
     When I run the :patch client command with:
       | resource      | buildconfig       |
@@ -728,13 +728,13 @@ Feature: build 'apps' with CLI
   Scenario: Implement post-build command for quickstart: Django
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc519486/django.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc519486/django.json |
     Given the "django-example-1" build completes
     When I run the :build_logs client command with:
       | build_name | django-example-1 |
     Then the output should match "Ran \d+ tests"
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc519486/django-postgresql.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc519486/django-postgresql.json |
     Given the "django-psql-example-1" build completes
     When I run the :build_logs client command with:
       | build_name | django-psql-example-1 |
@@ -745,7 +745,7 @@ Feature: build 'apps' with CLI
   Scenario: Can't allocate out of limits resources to container which builder pod launched for docker build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig       |
@@ -794,7 +794,7 @@ Feature: build 'apps' with CLI
   Scenario: Do sti build with the OnBuild instructions strategy and sti scripts via oc
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/template_onbuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/template_onbuild.json |
     Given the "ruby-sample-build-1" build completes
 
   # @author cryan@redhat.com
@@ -802,7 +802,7 @@ Feature: build 'apps' with CLI
   Scenario: Do source builds with blank builder image
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc470327/python-34-rhel7-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc470327/python-34-rhel7-stibuild.json |
     Then the step should fail
     And the output should match:
       | spec.strategy.sourceStrategy.from.name: [Rr]equired value |
@@ -831,7 +831,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-9950
   Scenario: Check bad proxy in .s2i/environment when performing s2i build
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
     Given I replace lines in "ruby20rhel7-template-sti.json":
       | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-badproxy.git" |
     Given I process and create "ruby20rhel7-template-sti.json"
@@ -845,7 +845,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-12500
   Scenario: Add ENV vars to .sti/environment when do sti build in openshift
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
     Given I replace lines in "ruby20rhel7-template-sti.json":
       | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-tc482216.git" |
     Given I process and create "ruby20rhel7-template-sti.json"
@@ -860,7 +860,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-10630
   Scenario: Sync build status after delete its related pod
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/php-55-rhel7-stibuild.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/php-55-rhel7-stibuild.json"
     Then the step should succeed
     Given the pod named "php-sample-build-1-build" status becomes :running
     When I run the :delete client command with:
@@ -916,7 +916,7 @@ Feature: build 'apps' with CLI
   Scenario: Overriding builder image scripts by invalid scripts in buildConfig
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
@@ -938,7 +938,7 @@ Feature: build 'apps' with CLI
   Scenario: Overriding builder image scripts in buildConfig under invalid proxy
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
@@ -1129,7 +1129,7 @@ Feature: build 'apps' with CLI
     Given I have a project
     And I have a proxy configured in the project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
@@ -1182,7 +1182,7 @@ Feature: build 'apps' with CLI
   Scenario: Can't allocate out of limits resources to container which builder pod launched for s2i build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig       |
@@ -1435,7 +1435,7 @@ Feature: build 'apps' with CLI
   Scenario: Sync pod status after delete its related build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/php-56-rhel7-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/php-56-rhel7-stibuild.json |
     Then the step should succeed
     Given the "php-sample-build-1" build becomes :pending
     When I run the :delete client command with:
@@ -1563,7 +1563,7 @@ Feature: build 'apps' with CLI
   Scenario: Show basic info about build reason when trigger build manually
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | build               |
@@ -1814,7 +1814,7 @@ Feature: build 'apps' with CLI
   Scenario: Change Parallel runpolicy to SerialLatestOnly build
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc526202/bc.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc526202/bc.json |
     Then the step should succeed
     And the "ruby-ex-1" build was created
     When I run the :start_build client command with:
@@ -2141,7 +2141,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with url
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11025/test-build.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11025/test-build.json |
     Then the step should succeed
     Given I download a file from "https://github.com/openshift/ruby-hello-world/archive/master.zip"
     When I run the :start_build client command with:

@@ -5,7 +5,7 @@ Feature: oc_portforward.feature
   Scenario: Forwarding a pod that isn't running
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod-bad.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod-bad.json |
     Given the pod named "hello-openshift" status becomes :pending
     When I run the :port_forward client command with:
       | pod | hello-openshift |
@@ -18,7 +18,7 @@ Feature: oc_portforward.feature
     Given I have a project
     When I run the :create client command with:
       | _tool    | <tool>   |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
@@ -58,7 +58,7 @@ Feature: oc_portforward.feature
     Given I have a project
     And evaluation of `rand(5000..7999)` is stored in the :porta clipboard
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod_with_two_containers.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_two_containers.json |
     Given the pod named "doublecontainers" status becomes :running
     And I run the :port_forward background client command with:
       | pod       | doublecontainers        |

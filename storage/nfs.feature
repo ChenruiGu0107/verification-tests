@@ -9,14 +9,14 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     # Creating PV and PVC
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
       | ["spec"]["nfs"]["path"]         | /non-exist-path                  |
       | ["spec"]["capacity"]["storage"] | 5Gi                              |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
       | ["metadata"]["name"]            | nfs-<%= project.name %>          |
       | ["spec"]["storageClassName"]    | sc-<%= project.name %>           |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
@@ -25,7 +25,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -52,14 +52,14 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Creating PV and PVC
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                | <access_mode>                    |
       | ["spec"]["capacity"]["storage"]           | 5Gi                              |
       | ["spec"]["storageClassName"]              | sc-<%= project.name %>           |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                   |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -68,7 +68,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/ |
@@ -113,18 +113,18 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    And admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
+    And admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
 
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
 
     # Create tester pod
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
 
     Given the pod named "nfs" becomes ready
@@ -152,17 +152,17 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    And admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto-nfs-default-rwx.json" where:
+    And admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto-nfs-default-rwx.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
 
     # Create tester pod
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
     Then the step should succeed
 
     Given the pod named "nfs" becomes ready
@@ -188,11 +188,11 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto-nfs-recycle-rwo.json" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto-nfs-recycle-rwo.json" where:
       | ["spec"]["nfs"]["server"]     | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]          | pv-<%= project.name %>           |
       | ["spec"]["storageClassName"]  | sc-<%= project.name %>           |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -202,7 +202,7 @@ Feature: NFS Persistent Volume
     Given I ensure "mypvc" pvc is deleted
     And the PV becomes :available within 60 seconds
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -225,14 +225,14 @@ Feature: NFS Persistent Volume
       | chmod | -R | 700 | /mnt/data |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod1                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100001                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
       | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod2                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100002                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
@@ -289,14 +289,14 @@ Feature: NFS Persistent Volume
       | chmod | -R | 070 | /mnt/data |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/510690/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/510690/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod1                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100011                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
       | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/510532/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod2                             |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100022                       |
@@ -347,13 +347,13 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
       | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
       | ["spec"]["capacity"]["storage"] | 5Gi                              |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-nfs-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 5Gi                         |
@@ -362,7 +362,7 @@ Feature: NFS Persistent Volume
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
     Given admin ensures "pv-nfs-<%= project.name %>" pv is deleted
     And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
       | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
       | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
@@ -377,7 +377,7 @@ Feature: NFS Persistent Volume
   Scenario: New pod could be running after nfs server lost connection
     Given I have a project
     And I have a NFS service in the project
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/auto-nfs-pv.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/auto-nfs-pv.json" where:
       | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
@@ -391,7 +391,7 @@ Feature: NFS Persistent Volume
     And I ensure "nfs-service" service is deleted
     And I ensure "mysql" dc is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
     Given all existing pods die with labels:
@@ -403,12 +403,12 @@ Feature: NFS Persistent Volume
   Scenario: External provisioner of NFS dynamic provisioning testing
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
@@ -436,12 +436,12 @@ Feature: NFS Persistent Volume
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/nfs-provisioner/master/deploy/kube-config/pod-sa.yaml" replacing paths:
       | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
@@ -464,7 +464,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS provisioner reclaim a provisioned volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -481,7 +481,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS provisioner's provision volume should have correct capacity
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
     Then the step should succeed
@@ -495,12 +495,12 @@ Feature: NFS Persistent Volume
   Scenario: NFS dynamic provisioner with deployment testing
     Given I have a project
     And I have a nfs-provisioner service in the project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
@@ -531,12 +531,12 @@ Feature: NFS Persistent Volume
   Scenario: NFS dynamic provisioner lost and recovering test
     Given I have a project
     And I have a nfs-provisioner service in the project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
@@ -570,13 +570,13 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     # Set read-only mount option
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
       | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
@@ -584,7 +584,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
@@ -612,13 +612,13 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     # Set read-only mount option
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
       | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec              |
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
@@ -626,7 +626,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
@@ -654,13 +654,13 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     # Set read-only mount option
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %>     |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                        |
       | ["spec"]["capacity"]["storage"]                                        | 1Gi                                  |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2 |
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
@@ -668,7 +668,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
@@ -693,7 +693,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["reclaimPolicy"]    | Retain                 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
@@ -716,20 +716,20 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                                             | ReadOnlyMany                     |
       | ["spec"]["capacity"]["storage"]                                        | 5Gi                              |
       | ["metadata"]["name"]                                                   | ro-<%= project.name %>           |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | ro-<%= project.name %> |
       | ["spec"]["volumeName"]     | ro-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadOnlyMany           |
     Then the step should succeed
     And the "ro-<%= project.name %>" PVC becomes bound to the "ro-<%= project.name %>" PV
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | podname                |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | ro-<%= project.name %> |
     Then the step should succeed
@@ -743,18 +743,18 @@ Feature: NFS Persistent Volume
     Given I ensure "podname" pod is deleted
     And I ensure "ro-<%= project.name %>" pvc is deleted
 
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"]       | rw-<%= project.name %>           |
       | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | rw-<%= project.name %> |
       | ["spec"]["volumeName"]     | rw-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce          |
     Then the step should succeed
     And the "rw-<%= project.name %>" PVC becomes bound to the "rw-<%= project.name %>" PV
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | podname                |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | rw-<%= project.name %> |
     Then the step should succeed
@@ -771,19 +771,19 @@ Feature: NFS Persistent Volume
   Scenario: Using mountOptions for NFS StorageClass 
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | example.com/nfs        |
       | ["mountOptions"][0]  | ro                     |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed

@@ -63,8 +63,8 @@ Feature: configmap related
     Given I have a project
     When I run the :create_configmap client command with:
       | name      | twobigconfigmap                                                                 |
-      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/hello        |
-      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/keystore.jks |
+      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/hello        |
+      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/keystore.jks |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_configmaps_page web action with:

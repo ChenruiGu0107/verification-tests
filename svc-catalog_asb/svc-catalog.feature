@@ -21,7 +21,7 @@ Feature: Service-catalog related scenarios
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -39,7 +39,7 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -51,13 +51,13 @@ Feature: Service-catalog related scenarios
 
     # Create two servicebindings
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | BINDING_NAME=ups-binding-1                                                                               |
       | p | SECRET_NAME=my-secret-1                                                                                  |
     Then the step should succeed
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | BINDING_NAME=ups-binding-2                                                                               |
       | p | SECRET_NAME=my-secret-2                                                                                  |
@@ -141,7 +141,7 @@ Feature: Service-catalog related scenarios
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -159,7 +159,7 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -180,7 +180,7 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -192,7 +192,7 @@ Feature: Service-catalog related scenarios
 
     # Create a servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     And I wait up to 10 seconds for the steps to pass:
@@ -217,7 +217,7 @@ Feature: Service-catalog related scenarios
 
     # Create the second servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | BINDING_NAME=ups-binding-2                                                                               |
       | p | SECRET_NAME=my-secret-2                                                                                  |
@@ -257,7 +257,7 @@ Feature: Service-catalog related scenarios
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -275,7 +275,7 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -312,7 +312,7 @@ Feature: Service-catalog related scenarios
 
     # Create servicebinding and check yaml of servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -375,7 +375,7 @@ Feature: Service-catalog related scenarios
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -393,7 +393,7 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
@@ -405,7 +405,7 @@ Feature: Service-catalog related scenarios
 
     # Create servicebinding and Check yaml of servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "my-secret" secret exists
@@ -438,7 +438,7 @@ Feature: Service-catalog related scenarios
     Given I have a project
     # Provision DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -447,7 +447,7 @@ Feature: Service-catalog related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -582,19 +582,19 @@ Feature: Service-catalog related scenarios
     Given I have a project
     Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-3.7.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-3.7.yaml |
     Then the step should succeed
     #Provision a serviceinstance
     Given I switch to the first user
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= project.name %>                                                                       |
     Then the step should succeed
     And I check that the "ups-instance" serviceinstance exists
 
     # Create servicebinding and Check yaml of servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= project.name %>                                                                      |
     Then the step should succeed
     Given I check that the "ups-binding" servicebinding exists
@@ -614,7 +614,7 @@ Feature: Service-catalog related scenarios
     Then I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -632,14 +632,14 @@ Feature: Service-catalog related scenarios
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
 
     # Create servicebinding and Check yaml of servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "ups-binding" servicebinding exists
@@ -659,7 +659,7 @@ Feature: Service-catalog related scenarios
     Then I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -681,11 +681,11 @@ Feature: Service-catalog related scenarios
     I ensure "ups-instance" serviceinstance is deleted
     """
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
 Then the step should succeed
     Given I check that the "ups-instance" serviceinstance exists
@@ -729,7 +729,7 @@ Then the step should succeed
     Given admin ensures "ups-broker" clusterservicebroker is deleted after scenario
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -758,7 +758,7 @@ Then the step should succeed
     I ensure "ups-instance" serviceinstance is deleted
     """
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for the "ups-instance" service_instance to become ready up to 60 seconds
@@ -767,7 +767,7 @@ Then the step should succeed
       | p        | {"spec":{"url": "http://testups-broker.<%= cb.ups_broker_project %>.svc.cluster.local"}} |
     Then the step should succeed
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
@@ -782,7 +782,7 @@ Then the step should succeed
     Then the output should match "ErrorReconciliationRetryTimeout.*Stopping reconciliation retries"
     """
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
       | p | INSTANCE_NAME=ups-instance-1                                                                              |
     Then the step should succeed
@@ -810,7 +810,7 @@ Then the step should succeed
     When I switch to cluster admin pseudo user
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 120 seconds
@@ -821,14 +821,14 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 60 seconds
     And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
     # Create servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
     Given I check that the "my-secret" secret exists
@@ -865,7 +865,7 @@ Then the step should succeed
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/broker-role.yaml
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
     When I run the :oadm_policy_add_cluster_role_to_user admin command with:
@@ -886,7 +886,7 @@ Then the step should succeed
     Then the step should succeed
     And the output should contain "yes"
     And I ensure "abroker" cluster_service_broker is deleted after scenario
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | <%= project.name %> |
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1.first.name %>  |
     Then the step should succeed
@@ -898,7 +898,7 @@ Then the step should succeed
     Given secret in the "atestproject2" project with name matching /default-token-.*/ are stored in the :secret2 clipboard
     # 6. Verify user1 doesn't have access to user2's auth secret, so user1 can't create a broker with user2's auth secret
     Given I switch to the first user
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
       | ["metadata"]["name"]                                     | bbroker            |
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | atestproject2      |
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret2.first.name %> |
@@ -918,7 +918,7 @@ Then the step should succeed
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/broker-role.yaml
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
     When I run the :oadm_policy_add_cluster_role_to_user admin command with:
@@ -939,7 +939,7 @@ Then the step should succeed
     Then the step should succeed
     And the output should contain "yes"
     And I ensure "abroker" cluster_service_broker is deleted after scenario
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker.yaml" replacing paths:
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["namespace"] | <%= project.name %> |
       | ["spec"]["authInfo"]["bearer"]["secretRef"]["name"]      | <%= cb.secret1.first.name %>  |
     Then the step should succeed
@@ -986,7 +986,7 @@ Then the step should succeed
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
@@ -1006,7 +1006,7 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
@@ -1046,7 +1046,7 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
@@ -1087,7 +1087,7 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
 
@@ -1129,7 +1129,7 @@ Then the step should succeed
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
@@ -1149,14 +1149,14 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
     Then the step should succeed
     And I wait for all service_instance in the project to become ready up to 60 seconds
 
     # Create a servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
@@ -1191,7 +1191,7 @@ Then the step should succeed
     And I use the "<%= cb.user_project %>" project
     # Create a servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
@@ -1225,7 +1225,7 @@ Then the step should succeed
     And I use the "<%= cb.user_project %>" project
     # Create a servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
     Then the step should succeed
 
@@ -1256,7 +1256,7 @@ Then the step should succeed
     
     # Provision DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                               |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                         |
       | p | PLAN_EXTERNAL_NAME=dev                                                      |
@@ -1265,7 +1265,7 @@ Then the step should succeed
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid(user: user)` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml        |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml        |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   |
@@ -1493,7 +1493,7 @@ Then the step should succeed
     # Set up the ups-broker
     And I use the "<%= cb.ups_broker_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-broker-template.yaml |
       | p | UPS_BROKER_PROJECT=<%= cb.ups_broker_project %>                                                         |
     Then the step should succeed
     Given I wait for the "ups-broker" cluster_service_broker to become ready up to 60 seconds
@@ -1510,7 +1510,7 @@ Then the step should succeed
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-instance-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                       |
       | param | CLASS_NAME=user-provided-service-with-schemas                                                             |
     Then the step should succeed
@@ -1518,7 +1518,7 @@ Then the step should succeed
 
     # Create a servicebinding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                      |
       | p | SECRET_NAME=ups-secret                                                                                   |
     Then the step should succeed
@@ -1537,7 +1537,7 @@ Then the step should succeed
 
     # Create a servicebinding by renaming one key
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
       | p | BINDING_NAME=ups-binding-1                                                                                      |
       | p | SECRET_NAME=ups-secret-1                                                                                        |
@@ -1559,7 +1559,7 @@ Then the step should succeed
 
     # Create a servicebinding by renaming one non-exist key
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
       | p | BINDING_NAME=ups-binding-2                                                                                      |
       | p | SECRET_NAME=ups-secret-2                                                                                        |
@@ -1585,7 +1585,7 @@ Then the step should succeed
 
     # Create a servicebinding by renaming multi keys
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/ups-binding-rename-template.yaml |
       | p | USER_PROJECT=<%= cb.user_project %>                                                                             |
       | p | BINDING_NAME=ups-binding-3                                                                                      |
       | p | SECRET_NAME=ups-secret-3                                                                                        |

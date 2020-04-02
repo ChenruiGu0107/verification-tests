@@ -6,11 +6,11 @@ Feature: Permission Data
   Scenario: User can specify a default permission mode for the whole configmap volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/configmap-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/configmap-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "configmap-permission-pod" becomes ready
     When I execute on the pod:
@@ -31,7 +31,7 @@ Feature: Permission Data
     Given I have a project
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/dapi-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-permission-pod" becomes ready
     When I execute on the pod:
@@ -61,10 +61,10 @@ Feature: Permission Data
   Scenario: User can specify a default permission mode for the whole secret volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/secret-permission-pod.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-permission-pod.yaml"
     Then I run the :create client command with:
       | f | secret-permission-pod.yaml |
     And the step should succeed
@@ -200,11 +200,11 @@ Feature: Permission Data
   Scenario: User can specify different permission for different files in configmap volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/configmap-keys-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/configmap-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "configmap-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -225,7 +225,7 @@ Feature: Permission Data
     Given I have a project
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -255,11 +255,11 @@ Feature: Permission Data
   Scenario: User can specify different permission for different files in secret volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/secret-keys-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "secret-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -279,11 +279,11 @@ Feature: Permission Data
   Scenario: User can specify right files permission when a default mode is supplied and the mode for a particular file is explicitly set
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/secret-mix-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-mix-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "secret-mix-permission-pod" becomes ready
     When I execute on the pod:
@@ -302,7 +302,7 @@ Feature: Permission Data
   Scenario: Permission mode work well in "privileged" policy with fsGroup
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-keys-permission-pod" becomes ready
     When I execute on the pod:

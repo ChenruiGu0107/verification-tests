@@ -37,7 +37,7 @@ Feature: AWS specific scenarios
       | ["spec"]["storageClassName"] | sc-<%= project.name %>     |
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/efs/double_containers.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/efs/double_containers.json" replacing paths:
       | ["metadata"]["name"]                                         | doublecontainers-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %>           |
     Then the step should succeed
@@ -104,7 +104,7 @@ Feature: AWS specific scenarios
   Scenario: Check AWS EFS storage is provisioned successfully with storageclass parameter gidMin and gidMax
     Given I have a project
     And I have a efs-provisioner in the project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/efs/class-gid.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/efs/class-gid.yaml" where:
       | ["metadata"]["name"]     | sc-<%= project.name %> |
       | ["parameters"]["gidMin"] | 40000                  |
       | ["parameters"]["gidMax"] | 49999                  |
@@ -115,7 +115,7 @@ Feature: AWS specific scenarios
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %>    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %> |
     Then the step should succeed
@@ -153,7 +153,7 @@ Feature: AWS specific scenarios
       | ["spec"]["storageClassName"] | sc-<%= project.name %>     |
     Then the step should succeed
     And the "efspvc-<%= project.name %>" PVC becomes :bound within 60 seconds
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %>    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %> |
     Then the step should succeed
@@ -185,14 +185,14 @@ Feature: AWS specific scenarios
     Given I have a project
     And I run the steps 10 times:
     """
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/claim.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/claim.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i} |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                 |
 
     Then the step should succeed
     And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i}   |
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift |
       | ["metadata"]["name"]                                         | mypod#{cb.i}          |
@@ -215,14 +215,14 @@ Feature: AWS specific scenarios
     Given I have a project
     And I run the steps 2 times:
     """
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/claim.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/claim.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i} |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                 |
 
     Then the step should succeed
     And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-#{cb.i}   |
       | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift |
       | ["metadata"]["name"]                                         | mypod#{cb.i}          |
@@ -250,19 +250,19 @@ Feature: AWS specific scenarios
   Scenario: Using mountOptions for AWS-EFS StorageClass
     Given I have a project
     And I have a efs-provisioner in the project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | openshift.org/aws-efs  |
       | ["mountOptions"][0]  | tcp                    |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed

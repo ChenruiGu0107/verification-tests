@@ -27,7 +27,7 @@ Feature: logging permission related tests
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
     Given I switch to the second user
     And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
@@ -49,14 +49,14 @@ Feature: logging permission related tests
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name_1 clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to the second user
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name_2 clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
     Given the second user is cluster-admin
 
@@ -123,7 +123,7 @@ Feature: logging permission related tests
     Given evaluation of `project.name` is stored in the :proj_name clipboard
     And evaluation of `project.uid` is stored in the :proj_uid_1 clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
@@ -137,7 +137,7 @@ Feature: logging permission related tests
     And I use the "<%= cb.proj_name %>" project
     And evaluation of `project.uid` is stored in the :proj_uid_2 clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_event_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_event_log_template.json |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project

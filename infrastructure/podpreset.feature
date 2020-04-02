@@ -24,11 +24,11 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
       | n | <%= project.name %>                                                                                               |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     Then I run the :describe client command with:
@@ -63,14 +63,14 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/configmap.yaml |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-configmap.yaml |
       | n | <%= project.name %>                                                                                                  |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     Then I run the :describe client command with:
@@ -110,11 +110,11 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     And I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
       | n | <%= project.name %>                                                                                               |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/pod-no-podpreset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/pod-no-podpreset.yaml |
     Then the step should succeed
     Given the pod named "no-podpreset" status becomes :running within 90 seconds
     Then I run the :describe client command with:
@@ -148,12 +148,12 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
     Then the step should succeed
     And I create a new project
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     Then I run the :get client command with:
@@ -187,10 +187,10 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/pod-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/pod-volume.yaml |
     Then the step should succeed
     Given the pod named "pod-volume" becomes ready
     And I run the :describe client command with:
@@ -223,13 +223,13 @@ Feature: podpreset
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset-simple.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/podpreset2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/podpreset2.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
     When I run the :get client command with:

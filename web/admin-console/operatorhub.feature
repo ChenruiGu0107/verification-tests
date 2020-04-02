@@ -128,7 +128,7 @@ Feature: operatorhub feature related
     Given the master version >= "4.4"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/vul_deployment.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/vul_deployment.yaml |
     Then the step should succeed
     Given the first user is cluster-admin
     Given I open admin console in a browser

@@ -5,12 +5,12 @@ Feature: Testing timeout route
   Scenario: Set timeout server for unsecure route
     Given I have a project
     When I run the :create client command with:
-      | f  |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f  |  <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
     When I run the :create client command with:
-      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     When I expose the "service-unsecure" service
@@ -38,12 +38,12 @@ Feature: Testing timeout route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f  |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f  |  <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
     When I run the :create client command with:
-      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     When I run the :create_route_edge client command with:
@@ -81,18 +81,18 @@ Feature: Testing timeout route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod-2.json |
+      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod-2.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
     When I run the :create client command with:
-      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/reencrypt/service_secure.json |
+      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/reencrypt/service_secure.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route                                |
       | hostname   | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -132,7 +132,7 @@ Feature: Testing timeout route
   Scenario: Set invalid timeout server for route
     Given I have a project
     When I run the :create client command with:
-      | f  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed

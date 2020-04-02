@@ -5,7 +5,7 @@ Feature: HPA relate features
   Scenario: Creates horizontal pod autoscaler for ReplicationController
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hpa/rc-hello-hpa.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/rc-hello-hpa.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | run=hello-hpa |
@@ -29,7 +29,7 @@ Feature: HPA relate features
     And expression should be true> hpa.current_replicas == 2
     """
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
@@ -56,7 +56,7 @@ Feature: HPA relate features
   Scenario: Creates horizontal pod autoscaler for deploymentConfig
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hpa/dc-hello-hpa.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/dc-hello-hpa.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | run=hello-hpa |
@@ -80,7 +80,7 @@ Feature: HPA relate features
     And expression should be true> hpa.current_replicas == 2
     """
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:

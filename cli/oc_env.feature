@@ -4,7 +4,7 @@ Feature: oc_env.feature
   # @case_id OCP-10614
   Scenario: Display environment variables for resources
     Given I have a project
-    And I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
+    And I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
     And the step succeeded
     When I run the :set_env client command with:
       | resource | rc/database-1 |
@@ -28,7 +28,7 @@ Feature: oc_env.feature
   # @case_id OCP-11473
   Scenario: Set environment variables for resources
     Given I have a project
-    And I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
+    And I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
     And the step succeeded
     # set one enviroment variable
     When I run the :set_env client command with:
@@ -90,7 +90,7 @@ Feature: oc_env.feature
   # @case_id OCP-11715
   Scenario: Update environment variables for resources
     Given I have a project
-    And I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
+    And I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
     And the step succeeded
     When I run the :get client command with:
       | resource | dc   |
@@ -159,7 +159,7 @@ Feature: oc_env.feature
   Scenario: Remove environment variables for resources
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step succeeded
     # set environment variables
     When I run the :set_env client command with:

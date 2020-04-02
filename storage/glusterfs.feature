@@ -8,25 +8,25 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a project
 
     #Create a invalid endpoint
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/endpoints.json"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/endpoints.json"
     And I replace content in "endpoints.json":
       | /\d{2}/ | 11 |
     And I run the :create client command with:
       | f | endpoints.json |
     Then the step should succeed
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pv-retain-rwo.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pv-retain-rwo.json" where:
       | ["metadata"]["name"] | gluster-<%= project.name %> |
     Then the step should succeed
 
     #Create gluster pvc
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | glusterc |
     Then the step should succeed
     And the PV becomes :bound
 
     #Create the pod
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pod.json |
     Then the step should succeed
     And I wait up to 500 seconds for the steps to pass:
     """
@@ -51,26 +51,26 @@ Feature: Storage of GlusterFS plugin testing
       | chmod | g+w | /vol |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/endpoints.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/endpoints.json" replacing paths:
       | ["metadata"]["name"]                 | glusterfs-cluster             |
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
     Then the step should succeed
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pv-retain-rwo.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pv-retain-rwo.json" where:
       | ["metadata"]["name"]                      | pv-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce                  |
       | ["spec"]["glusterfs"]["endpoints"]        | glusterfs-cluster              |
       | ["spec"]["glusterfs"]["path"]             | testvol                        |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                         |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
       | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %>  |
     Then the step should succeed
@@ -120,7 +120,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | glusterprovisioner |
       | ["spec"]["resources"]["requests"]["storage"] | 15Gi               |
@@ -137,7 +137,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc1               |
       | ["spec"]["storageClassName"] | glusterprovisioner |
     Then the step should succeed
@@ -167,10 +167,10 @@ Feature: Storage of GlusterFS plugin testing
     And evaluation of `@result[:parsed]["parameters"]["resturl"]` is stored in the :heketi_url clipboard
 
     # Create a tmp storageclass using the url
-    Given admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    Given admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %> |
       | ["parameters"]["resturl"] | <%= cb.heketi_url %>             |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %>          |
       | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -204,13 +204,13 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     # Create a StorageCLass for GlusterFS provisioner where gidMin > gidMax
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 2001                                                             |
       | ["parameters"]["gidMax"]  | 2000                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %>          |
       | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -226,13 +226,13 @@ Feature: Storage of GlusterFS plugin testing
     """
 
     # Create a StorageCLass for GlusterFS provisioner where gidMin/gidMax has negative values
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-neg-<%= project.name %>                             |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | -10000                                                           |
       | ["parameters"]["gidMax"]  | -1000                                                            |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc-neg-<%= project.name %>          |
       | ["spec"]["storageClassName"] | storageclass-neg-<%= project.name %> |
     Then the step should succeed
@@ -253,11 +253,11 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc1                             |
       | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -280,13 +280,13 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["gidMin"]  | 5555                                                             |
       | ["parameters"]["gidMax"]  | 5555                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc1                             |
       | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -294,7 +294,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
 
     # The 2nd PVC can't provision any because GID range is full
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]         | pvc2                             |
       | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -323,14 +323,14 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | disperse:4:2                                                     |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc1                             |
       | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 16Gi                             |
@@ -353,14 +353,14 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | none                                                             |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc1                             |
       | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                             |
@@ -382,14 +382,14 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     # Setting replica to 2
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:2                                                      |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc1                             |
       | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                             |
@@ -405,14 +405,14 @@ Feature: Storage of GlusterFS plugin testing
       | Distributed+Replica: 2     |
 
     # Setting replica to 0
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
       | ["metadata"]["name"]          | storageclass1-<%= project.name %>                                |
       | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["parameters"]["restuser"]    | admin                                                            |
       | ["parameters"]["restuserkey"] | test                                                             |
       | ["parameters"]["volumetype"]  | replicate:0                                                      |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc2                              |
       | ["spec"]["storageClassName"]                 | storageclass1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                              |
@@ -508,13 +508,13 @@ Feature: Storage of GlusterFS plugin testing
 
     # Prepare service for endpoints
     Given I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/service-endpoints.yaml |
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/endpoints.json" replacing paths:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/service-endpoints.yaml |
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/endpoints.json" replacing paths:
       | ["metadata"]["name"]                 | glusterfs-cluster             |
       | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
       | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
     Then the step should succeed
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pv-mount-options.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pv-mount-options.json" where:
       | ["metadata"]["name"]                                                   | pv-gluster-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro                             |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                  |
@@ -522,14 +522,14 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["glusterfs"]["path"]                                          | testvol                        |
       | ["spec"]["persistentVolumeReclaimPolicy"]                              | Retain                         |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
       | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %>  |
     Then the step should succeed
@@ -550,13 +550,13 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_retain.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_retain.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                                           |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["reclaimPolicy"]         | Retain                                                           |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1                       |
@@ -580,19 +580,19 @@ Feature: Storage of GlusterFS plugin testing
 
     And I have a project
 
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_mount_options.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_mount_options.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %>                              |
       | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
       | ["mountOptions"][0]       | ro                                                  |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1                       |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed
@@ -612,7 +612,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a StorageClass named "glusterprovisioner"
     And I have a project
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1               |
       | ["spec"]["storageClassName"]                 | glusterprovisioner |
       | ["spec"]["volumeMode"]                       | Block              |

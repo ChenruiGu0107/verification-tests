@@ -30,7 +30,7 @@ Feature:Create apps using new_app cmd feature
     Given I have a project
 
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc476349/ruby20rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc476349/ruby20rhel7-template-sti.json |
     Then the step should succeed
 
     When I run the :describe client command with:

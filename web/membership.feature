@@ -128,7 +128,7 @@ Feature: memberships related features via web
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rbac/OCP-12989/role.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/OCP-12989/role.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | rolebinding |

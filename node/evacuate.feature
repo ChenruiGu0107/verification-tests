@@ -16,10 +16,10 @@ Feature: Evacuate
     And label "env=dev" is added to the "<%= cb.nodes[0].name %>" node
     And label "env=qe" is added to the "<%= cb.nodes[1].name %>" node
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-qe.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-qe.yaml |
     Then the step should succeed
     #oadm manage-node <nodes> \--evacuate \--pod-selector=[selector] --dry-run
     When I run the :oadm_manage_node_evacuate admin command with:
@@ -88,13 +88,13 @@ Feature: Evacuate
   And label "env=dev" is added to the "<%= cb.nodes[0].name %>" node
   And label "env=qe" is added to the "<%= cb.nodes[1].name %>" node
   When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev.yaml |
   Then the step should succeed
   When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev2.yaml |
   Then the step should succeed
   When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-qe.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-qe.yaml |
   Then the step should succeed
   # oadm manage-node <nodes> \--list-pods
   When I run the :oadm_manage_node_evacuate admin command with:

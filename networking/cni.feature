@@ -6,7 +6,7 @@ Feature: CNI related features
     Given I have a project
     And SCC "privileged" is added to the "default" service account
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/hostnetwork-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/hostnetwork-pod.json |
     Then the step should succeed
     And the pod named "hostnetwork-pod" becomes ready
     And evaluation of `pod.node_name` is stored in the :node_name clipboard

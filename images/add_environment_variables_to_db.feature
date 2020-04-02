@@ -3,7 +3,7 @@ Feature: Add env variables to image feature
   Scenario Outline: Add env variables to mysql image
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/<template> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/<template> |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -130,7 +130,7 @@ Feature: Add env variables to image feature
   Scenario: Add env variables to mongodb-24-centos7 image
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mongodb-24-centos7-env-test.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb-24-centos7-env-test.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=database |

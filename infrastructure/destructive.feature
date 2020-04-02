@@ -7,7 +7,7 @@ Feature: relate with destructive features
   Scenario: Creating project with template with quota/limit range
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/create-bootstrap-quota-limit-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/create-bootstrap-quota-limit-template.yaml |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -59,7 +59,7 @@ Feature: relate with destructive features
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/limitrange.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/limitrange.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :describe client command with:
@@ -72,7 +72,7 @@ Feature: relate with destructive features
       | Container\\s+memory\\s+150Mi\\s+1Gi\\s+307Mi\\s+512Mi\\s+- |
       | Container\\s+cpu\\s+30m\\s+2\\s+60m\\s+1\\s+-              |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-resources.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-resources.json |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -111,7 +111,7 @@ Feature: relate with destructive features
       | key_val   | size-                   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/max-dead-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/max-dead-containers.yaml |
     Then the step should succeed
     Given status becomes :succeeded of exactly 5 pods labeled:
       | app=pi   |

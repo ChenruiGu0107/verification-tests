@@ -6,7 +6,7 @@ Feature: idle service related scenarios
   Scenario: The iptables rules for the service should be DNAT or REDIRECT to node after being idled
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And I wait until number of replicas match "1" for replicationController "test-rc"
@@ -72,7 +72,7 @@ Feature: idle service related scenarios
     Given I restart the network components on the node
 
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given I wait until replicationController "test-rc" is ready
@@ -90,7 +90,7 @@ Feature: idle service related scenarios
       | test-service.*none |
 
     # create pod-for-ping on the node which node-config has been modified
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
@@ -113,7 +113,7 @@ Feature: idle service related scenarios
   Scenario: should not return 503 errors during wakeup a pod which readiness is more than 30s
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/idle/long-readiness-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/idle/long-readiness-pod.json |
     Then the step should succeed
     Given I wait until replicationController "test-rc" is ready
     And I wait until number of replicas match "1" for replicationController "test-rc"
@@ -152,7 +152,7 @@ Feature: idle service related scenarios
   # @case_id OCP-20989
   Scenario: haproxy should load other routes even if headless service is idled
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/dns/headless-services.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/dns/headless-services.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given I wait until number of replicas match "1" for replicationController "caddy-rc"
@@ -165,12 +165,12 @@ Feature: idle service related scenarios
 
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed

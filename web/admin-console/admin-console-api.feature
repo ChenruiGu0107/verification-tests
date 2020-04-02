@@ -56,7 +56,7 @@ Feature: admin console api related
     # grant normal user auto-test-metrics-reader cluster role
     Given admin ensures "auto-test-metrics-reader" cluster_role is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rbac/metrics-reader-cluster-role.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/metrics-reader-cluster-role.yaml |
     Then the step should succeed
     Given cluster role "auto-test-metrics-reader" is added to the "first" user
 

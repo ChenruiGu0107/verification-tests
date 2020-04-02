@@ -22,7 +22,7 @@ Feature: ONLY ONLINE Images related scripts in this file
   Scenario: .NET Core application quickstart test using image dotnetcore-10-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/tc531502/dotnet-sqlite-example-template.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/tc531502/dotnet-sqlite-example-template.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :new_app client command with:
@@ -51,7 +51,7 @@ Feature: ONLY ONLINE Images related scripts in this file
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc532767/template.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/tc532767/template.json |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed

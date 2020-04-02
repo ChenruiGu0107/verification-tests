@@ -7,11 +7,11 @@ Feature: snapshot specific scenarios
 
     Given I have a project
     And evaluation of `project.name` is stored in the :proj clipboard
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc |
     Then the step should succeed
     And the "pvc" PVC becomes :bound
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc |
       | ["metadata"]["name"]                                         | pod |
     Then the step should succeed
@@ -22,7 +22,7 @@ Feature: snapshot specific scenarios
     Given 30 seconds have passed
 
     Given I switch to the second user
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/snapshot/snapshot.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/snapshot/snapshot.yaml" replacing paths:
       | ["metadata"]["name"]                  | ss-<%= cb.proj %> |
       | ["metadata"]["namespace"]             | <%= cb.proj %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc               |
@@ -36,14 +36,14 @@ Feature: snapshot specific scenarios
     When I execute on the pod:
       | touch | /mnt/gce/testfile3 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                 | snapshot-pvc      |
       | ["metadata"]["namespace"]                                            | <%= cb.proj %>    |
       | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= cb.proj %> |
       | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi               |
     Then the step should succeed
     And the "snapshot-pvc" PVC becomes :bound within 120 seconds
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | snapshot-pvc |
       | ["metadata"]["name"]                                         | mypod        |
     Then the step should succeed
@@ -71,11 +71,11 @@ Feature: snapshot specific scenarios
     And cluster role "volumesnapshot-admin" is added to the "default" user
 
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc |
     Then the step should succeed
     And the "pvc" PVC becomes :bound
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc |
       | ["metadata"]["name"]                                         | pod |
     Then the step should succeed
@@ -85,7 +85,7 @@ Feature: snapshot specific scenarios
     Then the step should succeed
     Given 30 seconds have passed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/snapshot/snapshot.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/snapshot/snapshot.yaml" replacing paths:
       | ["metadata"]["name"]                  | ss-<%= project.name %> |
       | ["metadata"]["namespace"]             | <%= project.name %>    |
       | ["spec"]["persistentVolumeClaimName"] | pvc                    |
@@ -98,14 +98,14 @@ Feature: snapshot specific scenarios
     When I execute on the pod:
       | touch | /mnt/gce/testfile3 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                 | snapshot-pvc           |
       | ["metadata"]["namespace"]                                            | <%= project.name %>    |
       | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | ss-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                         | 2Gi                    |
     Then the step should succeed
     And the "snapshot-pvc" PVC becomes :bound within 120 seconds
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | snapshot-pvc |
       | ["metadata"]["name"]                                         | mypod        |
     Then the step should succeed
@@ -128,17 +128,17 @@ Feature: snapshot specific scenarios
     And cluster role "volumesnapshot-admin" is added to the "default" user
 
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc |
     Then the step should succeed
     And the "pvc" PVC becomes :bound
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc |
       | ["metadata"]["name"]                                         | pod |
     Then the step should succeed
     Given the pod named "pod" becomes ready
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/snapshot/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                 | snapshot-pvc                  |
       | ["metadata"]["namespace"]                                            | <%= project.name %>           |
       | ["metadata"]["annotations"]["snapshot.alpha.kubernetes.io/snapshot"] | non-exist-<%= project.name %> |

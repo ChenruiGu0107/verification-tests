@@ -10,7 +10,7 @@ Feature: Testing the isolation during build scenarios
 
     # Create egress policy
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy2.json  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy2.json  |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     When I run the :new_app client command with:
@@ -38,7 +38,7 @@ Feature: Testing the isolation during build scenarios
   # @bug_id 1487652
   Scenario Outline: Build-container is able to access other projects pod for subnet plugin
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:

@@ -6,11 +6,11 @@ Feature: buildlogic.feature
   Scenario: if build fails to schedule because of quota, after the quota increase, the build should start
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/quota_pods.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/quota_pods.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     When I get project build
@@ -33,7 +33,7 @@ Feature: buildlogic.feature
   Scenario: Prevent STI builder images from running as root
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc499515/test-buildconfig-user0.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-user0.json |
     Then the step should succeed
     Given the "ruby-sample-build-user0-1" build was created
     And the "ruby-sample-build-user0-1" build failed
@@ -42,7 +42,7 @@ Feature: buildlogic.feature
     Then the output should match:
       | specify.*user |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc499515/test-buildconfig-userdefault.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-userdefault.json |
     Then the step should succeed
     Given the "ruby-sample-build-userdefault-1" build was created
     And the "ruby-sample-build-userdefault-1" build failed
@@ -51,7 +51,7 @@ Feature: buildlogic.feature
     Then the output should match:
       | specify.*user |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc499515/test-buildconfig-userroot.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-userroot.json |
     Then the step should succeed
     Given the "ruby-sample-build-userroot-1" build was created
     And the "ruby-sample-build-userroot-1" build failed
@@ -60,7 +60,7 @@ Feature: buildlogic.feature
     Then the output should match:
       | specify.*user |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc499515/test-buildconfig-usernon.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-usernon.json |
     Then the step should succeed
     Given the "ruby-sample-build-usernon-1" build was created
     And the "ruby-sample-build-usernon-1" build failed
@@ -79,7 +79,7 @@ Feature: buildlogic.feature
       | n             | openshift   |
     Then the step should succeed
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/forcePull/<template>" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/build/forcePull/<template>" replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
@@ -110,7 +110,7 @@ Feature: buildlogic.feature
       | sa_name | builder |
       | secret_name | pushme |
     Then the step should succeed
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc476354/pushimage.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/tc476354/pushimage.json"
     Then the step should succeed
     And the "ruby22-sample-build-1" build failed
     When I run the :logs client command with:
@@ -513,7 +513,7 @@ Feature: buildlogic.feature
   Scenario: Buildconfig cannot be created with long name label(more than64)
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc527410/longname-build-withlabel.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc527410/longname-build-withlabel.json |
     Then the step should fail
     And the output should contain "must be no more than 63 characters"
 

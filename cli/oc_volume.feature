@@ -104,7 +104,7 @@ Feature: oc_volume.feature
   Scenario: New volume can not have a same mount point that already exists in a container
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I run the :set_volume client command with:
       | resource      | dc                |

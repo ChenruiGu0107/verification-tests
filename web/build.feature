@@ -103,7 +103,7 @@ Feature: build related feature on web console
   # @case_id OCP-12211
   Scenario: Negative test for modify buildconfig
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name  | <%= project.name %>  |
@@ -192,7 +192,7 @@ Feature: build related feature on web console
   Scenario: Modify buildconfig for bc has ImageSource
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/image-source.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/image-source.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | bc               |
@@ -250,7 +250,7 @@ Feature: build related feature on web console
   Scenario: Check build trends chart when no buiilds under buildconfig
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sourcebuildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json |
     Then the step should succeed
     When I perform the :check_empty_buildconfig_environment web console action with:
       | project_name | <%= project.name %> |
@@ -573,7 +573,7 @@ Feature: build related feature on web console
   # @case_id OCP-12152
   Scenario: Modify buildconfig has DockerImage as build output
     Given I create a new project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc518660/application-template-stibuild.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc518660/application-template-stibuild.json"
     Then the step should succeed
     When I run the :describe client command with:
       | resource      | bc/python-sample-build-sti |
@@ -723,7 +723,7 @@ Feature: build related feature on web console
   Scenario: Check build trigger info when the trigger is ConfigChange on web
     Given I have a project
     When I run the :create client command with:
-      | f    |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc528951/bc_configchange.yaml |
+      | f    |  <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc528951/bc_configchange.yaml |
     Then the step should succeed
 
     Given the "ruby-ex-1" build was created
@@ -738,7 +738,7 @@ Feature: build related feature on web console
   Scenario: Check build trigger info when the trigger is manual start-build on web
     Given I have a project
     When I run the :create client command with:
-      | f    |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc528955/bc_no_trigger.yaml |
+      | f    |  <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc528955/bc_no_trigger.yaml |
     Then the step should succeed
 
     When I perform the :start_build_base_on_buildconfig web console action with:
@@ -764,7 +764,7 @@ Feature: build related feature on web console
       | n               |   <%= project.name %>        |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc525737/application-template-custombuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc525737/application-template-custombuild.json |
     Then the step should succeed
     When I perform the :goto_buildconfig_configuration_tab web console action with:
       | project_name   | <%= project.name %>  |
@@ -790,7 +790,7 @@ Feature: build related feature on web console
   # @case_id OCP-11269
   Scenario: Check settings for Source strategy build with no inputs
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc525738/application-template-stibuild.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc525738/application-template-stibuild.json"
     Then the step should succeed
     And I replace lines in "application-template-stibuild.json":
       | "host": "www.tc525738example.com", |      |
@@ -979,7 +979,7 @@ Feature: build related feature on web console
   Scenario Outline: Check build trigger info about webhook on web
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
@@ -1049,7 +1049,7 @@ Feature: build related feature on web console
   # @case_id OCP-10477
   Scenario: Check webhook URL are consistent
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc/ruby-sample-build |
@@ -1081,7 +1081,7 @@ Feature: build related feature on web console
   # @case_id OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/build-postcommit.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/build-postcommit.json"
     And I replace lines in "build-postcommit.json":
        | Parallel | <runpolicy> |
     Then the step should succeed
@@ -1399,7 +1399,7 @@ Feature: build related feature on web console
     Given I have a project
     # Check failure reason for wrong source repo
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-sti-wrong-source.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-sti-wrong-source.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build finishes
     When I perform the :check_build_failure_reason_on_bc_page web console action with:
@@ -1415,7 +1415,7 @@ Feature: build related feature on web console
 
     # Check failure reason for wrong scripts
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11417/test-buildconfig-wrong-scripts.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/test-buildconfig-wrong-scripts.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build finishes
     When I perform the :check_build_failure_reason_on_monitoring web console action with:
@@ -1430,7 +1430,7 @@ Feature: build related feature on web console
     Given I have a project
     # Check failure reason for wrong post commit hooks
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-docker-wrong-post-commit.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-docker-wrong-post-commit.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build finishes
     When I perform the :check_build_failure_reason_on_monitoring web console action with:
@@ -1445,10 +1445,10 @@ Feature: build related feature on web console
     Given I have a project
     # create configmap and secret
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.json          |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-example.yaml  |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml               |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/tc519256/testsecret1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.json          |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml               |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/tc519256/testsecret1.json |
     Then the step should succeed
     # check configmap/secret support during create app from image
     When I perform the :create_app_from_image_with_advanced_options web console action with:

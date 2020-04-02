@@ -8,7 +8,7 @@ Feature: F5 router related scenarios
     And admin ensures a F5 router pod is ready
 
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -18,9 +18,9 @@ Feature: F5 router related scenarios
     When I expose the "service-unsecure" service
     Then the step should succeed
 
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem"
     When I run the :create_route_edge client command with:
       | name     | edge-route |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
@@ -36,10 +36,10 @@ Feature: F5 router related scenarios
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
     Then the step should succeed
 
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | route-reen |
       | hostname   | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -115,10 +115,10 @@ Feature: F5 router related scenarios
     And admin ensures a F5 router pod is ready
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/wildcard_route/route_edge.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/wildcard_route/route_edge.json |
     Then the step should succeed
 
     Given I wait up to 120 seconds for the steps to pass:

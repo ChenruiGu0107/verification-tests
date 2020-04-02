@@ -25,7 +25,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     the step should succeed
     """
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml"
     Then the step should succeed
     And I replace lines in "pvc-equal.yaml":
       | 1Gi | <pvc_request> |
@@ -130,7 +130,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Then the expression should be true> cb.acrq.hard_quota(cached: false).storage_requests_raw  == "2Gi"
     """
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml"
     Then the step should succeed
     And I replace lines in "pvc-equal.yaml":
       | 1Gi | 5Gi |
@@ -726,7 +726,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Given I have a project
     When the "noncompute" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.hard_quota(cached: false).storage_requests_raw == "4Gi"
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-mongodb.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-mongodb.yaml"
     And I replace lines in "pvc-mongodb.yaml":
       | storage: 1Gi | storage: 3Gi |
     When I run the :create client command with:

@@ -4,7 +4,7 @@ Feature: oc build related scenarios
   Scenario: oc start-build with output flag
     Given I have a project
     When I run the :new_app client command with:
-      | file  | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file  | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-22-centos7" image stream becomes ready
     And the "origin-ruby-sample" image stream was created

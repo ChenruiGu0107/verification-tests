@@ -5,10 +5,10 @@ Feature: Testing websocket features
   Scenario: haproxy router support websocket via edge route
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/websocket/pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/websocket/pod.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/websocket/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/websocket/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | wss-edge    |

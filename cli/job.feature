@@ -73,7 +73,7 @@ Feature: job.feature
   Scenario: Schedule job with spec.startingDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/scheduledjob_with_startingDeadlineSeconds.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/scheduledjob_with_startingDeadlineSeconds.yaml |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | run=sj3 |
@@ -97,7 +97,7 @@ Feature: job.feature
   Scenario: Cronjob with spec.startingDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/cronjob_3.9_with_startingDeadlineSeconds.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/cronjob_3.9_with_startingDeadlineSeconds.yaml |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | run=sj3 |
@@ -224,7 +224,7 @@ Feature: job.feature
   Scenario: `oc status` run well when job's spec pointer is nil
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/job.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | job                   |

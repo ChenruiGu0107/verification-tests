@@ -143,7 +143,7 @@ Feature: resouces related scenarios
     When I run the :new_project client command with:
       | project_name | <%= cb.proj1 %> |
     Then the step should succeed
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
 
     Given I switch to the second user
@@ -151,7 +151,7 @@ Feature: resouces related scenarios
     When I run the :new_project client command with:
       | project_name | <%= cb.proj2 %> |
     Then the step should succeed
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
 
     When I run the :get admin command with:
@@ -389,7 +389,7 @@ Feature: resouces related scenarios
   Scenario: Templates could parameterize cpu and memory usage values for each container
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc481680/application-template-with-resources.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc481680/application-template-with-resources.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | template |

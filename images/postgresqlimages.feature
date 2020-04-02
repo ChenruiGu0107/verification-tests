@@ -5,7 +5,7 @@ Feature: Postgresql images test
   Scenario: Create nodejs postgresql applicaion - nodejs-010-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/nodejs-template-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/nodejs-template-stibuild.json |
     Then the step should succeed
     Given the "nodejs-sample-build-1" build completes
     Given I get project routes

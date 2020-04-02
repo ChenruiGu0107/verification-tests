@@ -5,7 +5,7 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                                                                                      |
       | p | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
       | p | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
@@ -14,7 +14,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
       | p | SECRET_NAME=<secret_name_1>                                                                                                             |
       | p | INSTANCE_NAME=<db_name>                                                                                                                 |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version_1>","postgresql_password":"test"} |
@@ -54,7 +54,7 @@ Feature: Update sql apb related feature
     # update apb
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
       | p | SECRET_NAME=<secret_name_2>                                                                                                             |
       | p | INSTANCE_NAME=<db_name>                                                                                                                 |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version_2>","postgresql_password":"test"} |
@@ -113,7 +113,7 @@ Feature: Update sql apb related feature
     #provision mysql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-<db_label>-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
@@ -122,7 +122,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-<db_label>-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters                                                                  |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                           |
       | p | PARAMETERS=<parameters_1>                                                                                               |
@@ -164,7 +164,7 @@ Feature: Update sql apb related feature
     # update apb
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters-new                                                              |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                           |
       | p | PARAMETERS=<parameters_2>                                                                                               |
@@ -224,7 +224,7 @@ Feature: Update sql apb related feature
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                                                                                      |
       | p | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
       | p | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
@@ -233,7 +233,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
       | p | SECRET_NAME=<secret_name>                                                                                                               |
       | p | INSTANCE_NAME=<db_name>                                                                                                                 |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version>","postgresql_password":"test"}   |
@@ -318,7 +318,7 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -327,7 +327,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -343,7 +343,7 @@ Feature: Update sql apb related feature
     #delete then create a new
     Given I ensures "<%= cb.prefix %>-postgresql-apb-parameters" secret is deleted from the project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.4","postgresql_password":"test"} |
@@ -374,7 +374,7 @@ Feature: Update sql apb related feature
     #provision mysql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                     |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mysql-apb                                                               |
       | p | PLAN_EXTERNAL_NAME=prod                                                                                      |
@@ -383,7 +383,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mysql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                                |
       | p | PARAMETERS={"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                |
@@ -414,7 +414,7 @@ Feature: Update sql apb related feature
     # update apb
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters-new                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                                |
       | p | PARAMETERS={"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                |
@@ -465,7 +465,7 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -474,7 +474,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"} |
@@ -507,7 +507,7 @@ Feature: Update sql apb related feature
     # update apb
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters-new                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.4","postgresql_password":"test"} |
@@ -559,7 +559,7 @@ Feature: Update sql apb related feature
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -568,7 +568,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -582,7 +582,7 @@ Feature: Update sql apb related feature
 
     # Create servicebinding of DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
@@ -626,7 +626,7 @@ Feature: Update sql apb related feature
     And I have a project  
     # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
@@ -634,7 +634,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mediawiki-apb").uid(user: user)` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | UID=<%= cb.mediawiki_uid %>                           |
@@ -647,7 +647,7 @@ Feature: Update sql apb related feature
 
     #update the media wiki with new parameters
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters-new |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | UID=<%= cb.mediawiki_uid %>                           |
@@ -684,7 +684,7 @@ Feature: Update sql apb related feature
     #provision database
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                     |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mysql-apb                                                               |
       | p | PLAN_EXTERNAL_NAME=prod                                                                                      |
@@ -693,7 +693,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mysql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                                |
       | p | PARAMETERS={"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                |
@@ -740,7 +740,7 @@ Feature: Update sql apb related feature
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -749,7 +749,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -764,7 +764,7 @@ Feature: Update sql apb related feature
     #update the secret,
     # create a update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters-new                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.1","postgresql_password":"test"} |
@@ -842,7 +842,7 @@ Feature: Update sql apb related feature
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -851,7 +851,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"} |
@@ -866,7 +866,7 @@ Feature: Update sql apb related feature
     #update the secret,
     # create a update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml        |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml        |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters-new                                                                     |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                  |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"newnew"} |
@@ -940,7 +940,7 @@ Feature: Update sql apb related feature
     And I have a project
     #Provision db-apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-<db_label>-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
@@ -949,7 +949,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-<db_label>-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml   |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml   |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters                                                                    |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                             |
       | p | PARAMETERS=<parameter_1>                                                                                                  |
@@ -959,7 +959,7 @@ Feature: Update sql apb related feature
 
     # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
@@ -967,7 +967,7 @@ Feature: Update sql apb related feature
     Then the step should succeed
     And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid(user: user)` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | UID=<%= cb.mediawiki_uid %>                           |
@@ -985,7 +985,7 @@ Feature: Update sql apb related feature
 
     # Create servicebinding of DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-<db_label>-apb-binding                                                        |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-credientials                                                    |
@@ -1011,7 +1011,7 @@ Feature: Update sql apb related feature
     # update apb 1#
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml  |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters-2                                                                 |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                            |
       | p | PARAMETERS=<parameter_2>                                                                                                 |
@@ -1052,7 +1052,7 @@ Feature: Update sql apb related feature
     #update 2#
     # create an update secret
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml  |
       | p | SECRET_NAME=<%= cb.prefix %>-<db_label>-apb-parameters-3                                                                 |
       | p | INSTANCE_NAME=<%= cb.prefix %>-<db_label>-apb                                                                            |
       | p | PARAMETERS=<parameter_3>                                                                                                 |

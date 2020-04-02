@@ -150,8 +150,8 @@ Feature: oc get related command
   Scenario: Check HPA resource is included in 'all' alias
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/php-dc.yaml |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/hpa.yaml    |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/hpa/php-dc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/hpa/hpa.yaml    |
     Then the step should succeed
     When I run the :delete client command with:
       | object_type | all  |

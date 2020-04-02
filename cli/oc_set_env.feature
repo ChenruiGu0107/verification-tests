@@ -5,7 +5,7 @@ Feature: oc_set_env.feature
   Scenario: Update environment variables for resources using oc set env
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json | 
+      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json | 
     And the step succeeded
     When I run the :set_env client command with:
       | resource | bc/ruby-sample-build    |
@@ -56,7 +56,7 @@ Feature: oc_set_env.feature
   Scenario: Set pod env vars from configmap
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -102,7 +102,7 @@ Feature: oc_set_env.feature
   Scenario: Set pod env vars from secrets
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | secret |
@@ -148,7 +148,7 @@ Feature: oc_set_env.feature
   Scenario: Special test for set pod env vars
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | secret      |

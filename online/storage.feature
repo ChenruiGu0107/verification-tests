@@ -89,7 +89,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | Error.*storageclasses.* at the cluster scope |
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml |
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |

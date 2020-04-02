@@ -4,7 +4,7 @@ Feature: oc exports related scenarios
   Scenario Outline: Export resource as json or yaml format by cli
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-centos7.json|
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
     Then the step should succeed
     When I run the :get client command with:
       | _tool         | <tool>   |
@@ -40,8 +40,8 @@ Feature: oc exports related scenarios
     # Cover bug 1546443 1553696 1552325 densely reported same issue
     When I run the :create client command with:
       | _tool   | <tool>   |
-      | f       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
-      | f       | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/job.yaml                                |
+      | f       | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
+      | f       | <%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml                                |
     Then the step should succeed
     When I run the :autoscale client command with:
       | _tool   | <tool>                     |
@@ -89,7 +89,7 @@ Feature: oc exports related scenarios
   Scenario: Export resource as template format by oc export
     Given I have a project
     And I run the :create client command with:
-      | filename | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-centos7.json|
+      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
     Then the step should succeed
     And I create a new application with:
       | template | php-helloworld-sample |
@@ -142,7 +142,7 @@ Feature: oc exports related scenarios
   Scenario: Negative test for oc export
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-centos7.json|
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
     Then the step should succeed
     When I run the :get client command with:
       | resource       | svc      |
@@ -172,7 +172,7 @@ Feature: oc exports related scenarios
   Scenario: Convert a file to specific version by oc export
     Given I have a project
     When I run the :export client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1v1beta3.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1v1beta3.json |
       | output_version | v1 |
       | output_format  | json |
     Given I save the response to file> export_489300_a.json

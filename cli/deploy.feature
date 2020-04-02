@@ -5,10 +5,10 @@ Feature: deployment related features
   Scenario: CLI rollback dry run
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     When I run the :replace client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/updatev1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/updatev1.json |
     Then the step should succeed
     When I get project dc named "hooks"
     Then the output should match:
@@ -138,7 +138,7 @@ Feature: deployment related features
   Scenario: Deployment is automatically stopped when running time is more than ActiveDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/sleepv1.json|
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/sleepv1.json|
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
     When I get project pod named "hooks-1-deploy" as YAML
@@ -160,7 +160,7 @@ Feature: deployment related features
   Scenario: Deployment will be failed if deployer pod no longer exists
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     # deployment 1
     And I wait until the status of deployment "hooks" becomes :complete
     # deployment 2
@@ -279,7 +279,7 @@ Feature: deployment related features
   Scenario Outline: Failure handler of pre-post deployment hook
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/<file_name>|
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/<file_name>|
     Then the step should succeed
     When the pod named "<pod_name>" becomes present
     And I wait up to 300 seconds for the steps to pass:
@@ -298,7 +298,7 @@ Feature: deployment related features
   Scenario: Could edit the deployer pod during deployment
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc515805/tc515805.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc515805/tc515805.json |
     Then the step should succeed
     Given the pod named "database-1-deploy" becomes ready
     When I replace resource "pod" named "database-1-deploy":
@@ -313,7 +313,7 @@ Feature: deployment related features
   Scenario: deployment hook volume inheritance -- that volume names which are not found
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc510607/hooks-unexist-volume.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc510607/hooks-unexist-volume.json |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -347,7 +347,7 @@ Feature: deployment related features
   Scenario: Check the deployments in a completed state on test deployment configs
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/test-deployment.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/test-deployment.json |
     Then the step should succeed
     And I run the :logs client command with:
       | f | true |
@@ -371,7 +371,7 @@ Feature: deployment related features
       | as_test  | true                  |
     Then the step should succeed
     #And I run the :create client command with:
-    #  | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/test-deployment.json |
+    #  | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/test-deployment.json |
     #Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :running
     Given I successfully patch resource "pod/hooks-1-deploy" with:
@@ -395,7 +395,7 @@ Feature: deployment related features
   Scenario: Scale the deployments will failed on test deployment config
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc518650/test.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc518650/test.json |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     Then I run the :scale client command with:
@@ -438,7 +438,7 @@ Feature: deployment related features
   # @case_id OCP-11586
   Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait until the status of deployment "frontend" becomes :complete
@@ -497,7 +497,7 @@ Feature: deployment related features
   # @case_id OCP-11790
   Scenario: Automatic set to true without ConfigChangeController on the DeploymentConfig
     Given I have a project
-    Given I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
+    Given I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait for the steps to pass:
@@ -525,7 +525,7 @@ Feature: deployment related features
   # @case_id OCP-11281
   Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
     And I replace lines in "build-deploy-without-configchange.json":
       | "automatic": true | "automatic": false |
     When I process and create "build-deploy-without-configchange.json"
@@ -558,7 +558,7 @@ Feature: deployment related features
   Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :set_env client command with:
@@ -598,7 +598,7 @@ Feature: deployment related features
   Scenario: Check the status for deployment configs
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
@@ -627,7 +627,7 @@ Feature: deployment related features
   Scenario: Support endpoints of Deployment in OpenShift
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/extensions/deployment.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/extensions/deployment.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | deployment |
@@ -697,7 +697,7 @@ Feature: deployment related features
   Scenario: Support MinReadySeconds in DC
     Given I have a project
     And evaluation of `60` is stored in the :min_ready_seconds clipboard
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc532415/min_ready.yaml
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc532415/min_ready.yaml
     Then the step should succeed
     And 20 seconds have passed
     And the expression should be true> dc('minreadytest').unavailable_replicas == 2
@@ -709,7 +709,7 @@ Feature: deployment related features
   Scenario: Pausing and Resuming a Deployment
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     When I run the :rollout_pause client command with:
       | resource | dc    |
@@ -748,7 +748,7 @@ Feature: deployment related features
   Scenario Outline: custom deployment for Recreate/Rolling strategy
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/<file> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/<file> |
     Then the step should succeed
     And I run the :logs client command with:
       | f             | true                 |
@@ -770,7 +770,7 @@ Feature: deployment related features
   Scenario: Should show deployment conditions correctly
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                                       |
@@ -779,7 +779,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "NewReplicationControllerCreated"
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/testhook.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
@@ -804,7 +804,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "ProgressDeadlineExceeded"
     """
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | replicationcontrollers: "30" | replicationcontrollers: "1" |
@@ -892,7 +892,7 @@ Feature: deployment related features
     Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                                       |
@@ -901,7 +901,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "NewReplicationControllerCreated"
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/testhook.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
@@ -925,7 +925,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "RolloutCancelled"
     """
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | replicationcontrollers: "30" | replicationcontrollers: "1" |
@@ -950,7 +950,7 @@ Feature: deployment related features
     Given I have a project
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
 
     Given number of replicas of "hello-openshift" deployment becomes:
@@ -1075,7 +1075,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1087,7 +1087,7 @@ Feature: deployment related features
       | image_stream | app |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-pod |
@@ -1102,7 +1102,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1111,7 +1111,7 @@ Feature: deployment related features
     """
     Given I ensure "example-pod" pod is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15167/example-pod-annotation.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-pod |
@@ -1126,7 +1126,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1138,7 +1138,7 @@ Feature: deployment related features
       | image_stream | app |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-job |
@@ -1153,7 +1153,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
     Then the step should succeed
     And I wait up to 240 seconds for the steps to pass:
     """
@@ -1162,7 +1162,7 @@ Feature: deployment related features
     """
     Given I ensure "example-job" job is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15168/example-job-annotation.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-job |
@@ -1177,7 +1177,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1189,7 +1189,7 @@ Feature: deployment related features
       | image_stream | app |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-rs |
@@ -1204,7 +1204,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1213,7 +1213,7 @@ Feature: deployment related features
     """
     Given I ensure "example-rs" replicaset is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15169/example-rs-annotation.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-rs |
@@ -1228,7 +1228,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1240,7 +1240,7 @@ Feature: deployment related features
       | image_stream | app |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | name=example-rc |
@@ -1255,7 +1255,7 @@ Feature: deployment related features
       | dest        | app:v1                          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1264,7 +1264,7 @@ Feature: deployment related features
     """
     Given I ensure "example-rc" replicationcontroller is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15170/example-rc-annotation.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | name=example-rc |
@@ -1274,7 +1274,7 @@ Feature: deployment related features
   Scenario: Imagestream updates triggering on Kubernetes Deployment
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15153/deployment-example.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15153/deployment-example.yaml |
     Then the step should succeed
     When I run the :tag client command with:
       | source_type | docker                          |
@@ -1378,7 +1378,7 @@ Feature: deployment related features
   Scenario: Mock a hash collision
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-openshift |

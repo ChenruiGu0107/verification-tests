@@ -168,7 +168,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision postgresql apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -178,7 +178,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :instance_id clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"} |
@@ -205,7 +205,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
@@ -276,7 +276,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision mariadb apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -286,7 +286,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :instance_id clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                |
       | p | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |
@@ -300,7 +300,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 
     # create binding
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials                                                     |

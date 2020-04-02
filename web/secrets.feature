@@ -69,7 +69,7 @@ Feature: web secrets related
       | credential_file | secretfile2 |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I perform the :click_to_goto_edit_bc_page web console action with:
       | project_name | <%= project.name %> |
@@ -173,7 +173,7 @@ Feature: web secrets related
   # @case_id OCP-12103
   Scenario: Create secret via create secret page
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/credential/.gitconfig"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/credential/.gitconfig"
     Given a "ssh_private_key" file is created with the following lines:
       | <%= CucuShift::SSH::Helper.gen_rsa_key.to_pem %> |
     # Create Source Secret of Basic Authentication type
@@ -499,13 +499,13 @@ Feature: web secrets related
     Given the master version >= "3.6"
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml   |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rc/idle-rc-1.yaml                    |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml   |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rc/idle-rc-1.yaml                    |
     Then the step should succeed
     Given a "secret.yaml" file is created with the following lines:
     """
@@ -659,7 +659,7 @@ Feature: web secrets related
       | my.value |
 
     #Create generic secret, uploading file
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/ca.pem"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem"
     Then the step should succeed
     When I perform the :create_generic_secret_from_file web console action with:
       | project_name    | <%= project.name %> |
@@ -680,7 +680,7 @@ Feature: web secrets related
       | <%= File.read("ca.pem") %> |
 
     #Uploading file larger than 5MiB
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/testbigfile"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/testbigfile"
     Then the step should succeed
     When I perform the :create_generic_secret_from_file web console action with:
       | project_name    | <%= project.name %> |

@@ -454,7 +454,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployments_nobc_cpulimit.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployments_nobc_cpulimit.json |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role      | admin                                  |

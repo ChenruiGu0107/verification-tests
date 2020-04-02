@@ -5,7 +5,7 @@ Feature: REST policy related features
   @admin
   Scenario: Project admin/edtor/viewer only could get the project subresources
     Given I have a project
-    When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-rhel7.json"
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-rhel7.json"
     Then the output should match:
       | imagestream\\s+"origin-php-sample"\\s+created |
 

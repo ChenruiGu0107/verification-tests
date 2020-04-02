@@ -2,7 +2,7 @@ Feature: dockerbuild.feature
   # @author wewang@redhat.com
   Scenario Outline: Store commit id in sti build
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/<file_name>"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/<file_name>"
     Then the step should succeed
     And I replace lines in "<file_name>":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |

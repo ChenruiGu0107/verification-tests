@@ -44,7 +44,7 @@ Feature: mysql_images.feature
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - mysql-55-rhel7
     Given I have a project
     And I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql55-ephemeral-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mysql55-ephemeral-template.json |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
     And a pod becomes ready with labels:
@@ -102,7 +102,7 @@ Feature: mysql_images.feature
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for persistent storage - mysql-55-rhel7
     Given I have a project
     And I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql55-persistent-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mysql55-persistent-template.json |
       | param    | MYSQL_USER=user              |
       | param    | MYSQL_PASSWORD=user          |
     Then the step should succeed

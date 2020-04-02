@@ -144,7 +144,7 @@ Feature: Ansible-service-broker related scenarios
     And I have a project
     # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=old-mediawiki-apb                       |
       | p | CLASS_EXTERNAL_NAME=old-mediawiki-apb                 |
       | p | SECRET_NAME=old-mediawiki-apb-parameters              |
@@ -152,7 +152,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("old-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=old-mediawiki-apb-parameters              |
       | p | INSTANCE_NAME=old-mediawiki-apb                       |
       | p | UID=<%= cb.mediawiki_uid %>                           |
@@ -161,7 +161,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Provision DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=old-postgresql-apb                               |
       | p | CLASS_EXTERNAL_NAME=old-postgresql-apb                         |
       | p | PLAN_EXTERNAL_NAME=dev                                         |
@@ -170,7 +170,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("old-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml     |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml     |
       | p | SECRET_NAME=old-postgresql-apb-parameters                                                                                   |
       | p | INSTANCE_NAME=old-postgresql-apb                                                                                            |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}|
@@ -187,7 +187,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Create servicebinding of DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=old-postgresql-apb                                                                             |
       | p | INSTANCE_NAME=old-postgresql-apb                                                                            |
       | p | SECRET_NAME=old-postgresql-apb-credentials                                                                  |
@@ -316,7 +316,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `project.name` is stored in the :project_1 clipboard
      # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb    |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
@@ -324,7 +324,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb          |
       | p | UID=<%= cb.mediawiki_uid %>                           |
@@ -332,7 +332,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     #provision postgresql apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -341,7 +341,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -388,7 +388,7 @@ Feature: Ansible-service-broker related scenarios
     And I use the "<%= cb.project_1 %>" project
     # Create servicebinding of DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
@@ -446,7 +446,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Provision DB apb with dev plan
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                                                                                      |
       | p | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -455,7 +455,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid(user: user)` is stored in the :uid1 clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<db_secret_name>                                                                                            |
       | p | INSTANCE_NAME=<db_name>                                                                                                 |
       | p | PARAMETERS=<db_parameters>                                                                                              |
@@ -473,7 +473,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Provision DB apb with prod plan
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                                                                                      |
       | p | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
       | p | PLAN_EXTERNAL_NAME=prod                                                                                      |
@@ -482,7 +482,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid(user: user)` is stored in the :uid2 clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<db_secret_name>                                                                                            |
       | p | INSTANCE_NAME=<db_name>                                                                                                 |
       | p | PARAMETERS=<db_parameters>                                                                                              |
@@ -508,7 +508,7 @@ Feature: Ansible-service-broker related scenarios
     Given I save the first service broker registry prefix to :prefix clipboard
     Given I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                               |
       | p | CLASS_EXTERNAL_NAME=<db_name>                         |
       | p | PLAN_EXTERNAL_NAME=<db_plan>                          |
@@ -518,7 +518,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
 
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<db_secret_name>                                                                                            |
       | p | INSTANCE_NAME=<db_name>                                                                                                 |
       | p | PARAMETERS=<db_parameters>                                                                                              |
@@ -543,7 +543,7 @@ Feature: Ansible-service-broker related scenarios
 
    # Create servicebinding of DB apb
    When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<db_name>                                                                                      |
       | p | INSTANCE_NAME=<db_name>                                                                                     |
       | p | SECRET_NAME=<db_credentials>                                                                                |
@@ -662,7 +662,7 @@ Feature: Ansible-service-broker related scenarios
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -671,7 +671,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -694,7 +694,7 @@ Feature: Ansible-service-broker related scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :project_1 clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                   |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                             |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -704,7 +704,7 @@ Feature: Ansible-service-broker related scenarios
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                         |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                         |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                                             |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                                      |
       | p | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}|
@@ -717,7 +717,7 @@ Feature: Ansible-service-broker related scenarios
       | deployment=<%= cb.db.first.name %>-1 |
     # Create servicebinding of DB apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-1                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-1                                                      |
@@ -738,7 +738,7 @@ Feature: Ansible-service-broker related scenarios
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-2                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-2                                                      |
@@ -746,7 +746,7 @@ Feature: Ansible-service-broker related scenarios
     And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding to become ready up to 120 seconds
     And evaluation of `service_binding.external_id` is stored in the :binding_id_2 clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-3                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-3                                                      |
@@ -900,7 +900,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                 |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb                                                           |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                        |
@@ -908,7 +908,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                                                                            |
       | p | PARAMETERS={"mediawiki_admin_user":"test","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWiki","mediawiki_admin_pass":"test"} |
@@ -962,7 +962,7 @@ Feature: Ansible-service-broker related scenarios
 
     # Provision mediawiki apb
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                 |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb                                                           |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                        |
@@ -970,7 +970,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                                                                            |
       | p | PARAMETERS={"mediawiki_admin_user":"test","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWiki","mediawiki_admin_pass":"test"} |
@@ -1010,7 +1010,7 @@ Feature: Ansible-service-broker related scenarios
     #provision postgresql
     And I have a project
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -1019,7 +1019,7 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     When I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |

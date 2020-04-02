@@ -51,10 +51,10 @@ Feature: Routes related features on web console
   Scenario: Create unsecured route on web console
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/pod_requests_nothing.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_nothing.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     When I perform the :open_create_route_page_from_service_page web console action with:
@@ -82,10 +82,10 @@ Feature: Routes related features on web console
     When I create a new project
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/services/multi-portsvc.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/multi-portsvc.json |
     Then the step should succeed
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
@@ -130,8 +130,8 @@ Feature: Routes related features on web console
     Given I create a new project
     # create pod, service
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json               |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/passthrough/service_secure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json               |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     # create passthrough route on web console
@@ -160,11 +160,11 @@ Feature: Routes related features on web console
 
     # create pod, service and pod used for curl command
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     # create edge route with policy for insecure traffic set to redirect
@@ -196,11 +196,11 @@ Feature: Routes related features on web console
 
     # create pod, service and pod used for curl command
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     # create edge route with policy for insecure traffic set to allow
@@ -234,11 +234,11 @@ Feature: Routes related features on web console
   Scenario: Edit route on web console
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
     When I perform the :open_create_route_page_from_service_page web console action with:
@@ -296,29 +296,29 @@ Feature: Routes related features on web console
   Scenario: Update route to point to multiple services
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
       | ["metadata"]["name"]           | caddy-docker-2 |
       | ["metadata"]["labels"]["name"] | caddy-docker-2 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-2 |
       | ["spec"]["selector"]["name"] | caddy-docker-2 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
       | ["metadata"]["name"]           | caddy-docker-3 |
       | ["metadata"]["labels"]["name"] | caddy-docker-3 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-3 |
       | ["spec"]["selector"]["name"] | caddy-docker-3 |
     Then the step should succeed
@@ -374,29 +374,29 @@ Feature: Routes related features on web console
   Scenario: Create route pointing to multiple services
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json" replacing paths:
       | ["metadata"]["name"]           | caddy-docker-2 |
       | ["metadata"]["labels"]["name"] | caddy-docker-2 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-2 |
       | ["spec"]["selector"]["name"] | caddy-docker-2 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-3 |
       | ["spec"]["selector"]["name"] | caddy-docker-3 |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-4 |
       | ["spec"]["selector"]["name"] | caddy-docker-4 |
     Then the step should succeed
@@ -537,7 +537,7 @@ Feature: Routes related features on web console
     And I login via web console
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
     Then the step should succeed
     When I perform the :create_route_specify_name_and_hostname_from_routes_page web console action with:
       | project_name | <%= project.name%> |

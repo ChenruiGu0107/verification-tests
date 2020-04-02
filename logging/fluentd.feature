@@ -42,7 +42,7 @@ Feature: fluentd related tests
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/<file> |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/<file> |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
@@ -72,7 +72,7 @@ Feature: fluentd related tests
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |

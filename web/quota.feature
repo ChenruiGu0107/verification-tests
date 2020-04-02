@@ -101,9 +101,9 @@ Feature: functions about resourcequotas
     Then the step should succeed
     Examples:
       | scope_type | quota_file | pod1_file | pod2_file |
-      | Not Best Effort | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-notbesteffort.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-notbesteffort.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-besteffort.yaml |
-      | Terminating | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-terminating.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-terminating.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-notterminating.yaml |
-      | Not Terminating | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-notterminating.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-notterminating.yaml | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-terminating.yaml |
+      | Not Best Effort | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-notbesteffort.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-notbesteffort.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-besteffort.yaml |
+      | Terminating | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-terminating.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-notterminating.yaml |
+      | Not Terminating | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-notterminating.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-notterminating.yaml | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-terminating.yaml |
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-9887
@@ -111,7 +111,7 @@ Feature: functions about resourcequotas
   Scenario: Check BestEffort scope of resourcequota on web console
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-besteffort.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-besteffort.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -127,7 +127,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-besteffort.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-besteffort.yaml |
     Then the step should succeed
 
     #Check used quota when "besteffort" pod exists
@@ -145,7 +145,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
     When I wait for the resource "pod" named "pod-besteffort" to disappear
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-notbesteffort.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-notbesteffort.yaml |
     Then the step should succeed
 
     #Check used quota when only "notbesteffort" pod exists
@@ -212,7 +212,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -318,12 +318,12 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I perform the :create_app_from_template_without_label web console action with:
@@ -415,7 +415,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -426,7 +426,7 @@ Feature: functions about resourcequotas
       | generator | run-pod/v1             |
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -461,10 +461,10 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/services/multi-portsvc.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/services/multi-portsvc.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -519,7 +519,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -531,7 +531,7 @@ Feature: functions about resourcequotas
     When I run the :check_quota_warning_on_overview_page web console action
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/secrets/secret.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -579,14 +579,14 @@ Feature: functions about resourcequotas
   Scenario Outline: Show warning/error info if quotas with scopes exceeded on web console
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc536555/quota-<type>.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc536555/quota-<type>.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml" replacing paths:
       | ["metadata"]["name"]   | pod1 |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml" replacing paths:
       | ["metadata"]["name"]   | pod2 |
     Then the step should succeed
 
@@ -597,7 +597,7 @@ Feature: functions about resourcequotas
     When I run the :check_quota_warning_on_overview_page web console action
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -725,7 +725,7 @@ Feature: functions about resourcequotas
       | generator | run-pod/v1             |
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-13487/test-template.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-13487/test-template.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -757,7 +757,7 @@ Feature: functions about resourcequotas
       | object_name_or_id | mypod |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                             |
@@ -789,7 +789,7 @@ Feature: functions about resourcequotas
     Given I have a project
 
     #check warning info when create pv
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/nfs-default.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-default.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -806,7 +806,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #check warning info when create quota
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -825,7 +825,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #check warning info when create role
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rbac/OCP-12989/role.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/rbac/OCP-12989/role.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -845,7 +845,7 @@ Feature: functions about resourcequotas
       | deleteservices |
 
     #check warning info when create rolebinding
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rbac/OCP-12989/rolebinding.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/rbac/OCP-12989/rolebinding.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:

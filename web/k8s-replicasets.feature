@@ -5,10 +5,10 @@ Feature: Features about k8s replicasets
     Given the master version >= "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/claim-rwo-ui.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo-ui.json |
     Then the step should succeed
     When I perform the :click_to_goto_one_replicaset_page web console action with:
       | project_name         | <%= project.name %> |
@@ -45,7 +45,7 @@ Feature: Features about k8s replicasets
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11653/replicas-set.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11653/replicas-set.yaml |
     Then the step should succeed
     When I perform the :add_autoscaler_set_max_pod_from_k8s_rs_page web console action with:
       | project_name         | <%= project.name %> |
@@ -89,7 +89,7 @@ Feature: Features about k8s replicasets
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-11653/replicas-set.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11653/replicas-set.yaml |
     Then the step should succeed
     When I perform the :click_to_goto_one_replicaset_page web console action with:
       | project_name         | <%= project.name %> |
