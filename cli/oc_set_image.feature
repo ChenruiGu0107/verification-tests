@@ -3,9 +3,8 @@ Feature: oc set image related tests
   # @author cryan@redhat.com
   Scenario Outline: oc set image to update pod with certain label
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | dc-with-two-containers.yaml |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     When I run the :scale client command with:
       | _tool    | <tool> |
