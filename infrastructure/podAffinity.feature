@@ -128,9 +128,11 @@ Feature: podAffinity
       | FailedScheduling      |
       | [Mm]atch\s?(Inter)?[Pp]od\s?[Aa]ffinity |
     """
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml
+    Given I use the "<%= cb.proj_name%>" project
+    When I run the :create client command with:
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml |
     Then the step should succeed
-    Given the pod named "pod-affinity-proj-case14697" status becomes :running within 60 seconds
+    And the pod named "pod-affinity-proj-case14697" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
 
 

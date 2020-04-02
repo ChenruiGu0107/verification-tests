@@ -12,8 +12,6 @@ spec:
             operator: In
             values:
             - s1
-        namespaces:
-        - <%= cb.proj_name %>
         topologyKey: kubernetes.io/hostname
   containers:
   - name: hello-pod
