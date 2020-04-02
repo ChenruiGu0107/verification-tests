@@ -93,7 +93,7 @@ Feature: functions about resource limits on pod
   Scenario: Specify resource constraints when creating new app in web console with project limits already set
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/limits/518638/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/518638/limits.yaml |
       | n | <%= project.name %>                                                                          |
     Then the step should succeed
     When I perform the :create_app_from_image_check_default_resource_limit web console action with:
@@ -156,7 +156,7 @@ Feature: functions about resource limits on pod
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
     Then the step should succeed
     When I perform the :check_latest_k8s_deployment_version web console action with:
       | project_name                  | <%= project.name %> |
@@ -287,7 +287,7 @@ Feature: functions about resource limits on pod
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc536589/replica-set.yaml |
     Then the step should succeed
     When I perform the :goto_set_resource_limits_for_k8s_replicaset web console action with:
       | project_name        | <%= project.name %>   |

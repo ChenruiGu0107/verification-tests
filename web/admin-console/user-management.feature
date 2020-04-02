@@ -162,7 +162,7 @@ Feature: User management related
       | deployment=ruby-ex-1 |
     Then evaluation of `pod.name` is stored in the :test_pod clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rbac/list_pod_role.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/list_pod_role.yaml |
     Then the step should succeed
     When I run the :create_rolebinding admin command with:
       | name  | list-pod                            |

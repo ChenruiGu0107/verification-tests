@@ -42,7 +42,7 @@ Feature: genericbuild.feature
     Scenario: Setting ports using parameter in template and set parameter value with string
     Given I have a project
     And I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
       | p | PROTOCOL=UDP                                                                                        |
       | p | CONTAINER_PORT=abc                                                                                  | 
       | p | EXT_PORT=efg                                                                                        |
@@ -55,7 +55,7 @@ Feature: genericbuild.feature
     Scenario: Setting ports using parameter in template and set parameter value with number
     Given I have a project
     And I process and create:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc15352_15353/service.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml | 
       | p | PROTOCOL=UDP                                                                                        |
       | p | CONTAINER_PORT=888                                                                                  |   
       | p | EXT_PORT=999                                                                                        |
@@ -91,7 +91,7 @@ Feature: genericbuild.feature
     """
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:                                                          
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
       | env  | http_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                              |
       | env  | https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                            |
     Then the step should succeed                                                                          
@@ -183,7 +183,7 @@ Feature: genericbuild.feature
     """
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build failed
     When I run the :patch client command with:
@@ -201,7 +201,7 @@ Feature: genericbuild.feature
   Scenario: Using Secrets for Environment Variables in Build Configs
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-20221/mysecret.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-20221/mysecret.yaml | 
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |

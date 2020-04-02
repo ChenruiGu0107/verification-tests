@@ -3,7 +3,7 @@ Feature: oc convert related scenarios
   # @author yapei@redhat.com
   Scenario Outline: Convert resource files using convert
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/job.yaml"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml"
     # didn't specify output version
     When I run the :convert client command with:
       | _tool    | <tool>   |
@@ -25,8 +25,8 @@ Feature: oc convert related scenarios
       | "apiVersion": "batch/v1" |
     #convert files in directory and create
     Given I create the "testdir" directory
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/job.yaml" into the "testdir" dir
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/busybox-pod.yaml" into the "testdir" dir
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml" into the "testdir" dir
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/busybox-pod.yaml" into the "testdir" dir
     When I run the :convert client command with:
       | _tool | <tool>   |
       | file  | testdir/ |
@@ -42,9 +42,9 @@ Feature: oc convert related scenarios
       | pod.*created      |
     # convert recursively
     Given I create the "mult/dir1" directory
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/job/job.yaml" into the "mult/dir1" dir
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml" into the "mult/dir1" dir
     Given I create the "mult/dir2" directory
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/busybox-pod.yaml" into the "mult/dir2" dir
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/busybox-pod.yaml" into the "mult/dir2" dir
     When I run the :convert client command with:
       | _tool          | <tool>         |
       | file           | mult/          |

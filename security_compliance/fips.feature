@@ -50,8 +50,8 @@ Feature: security and compliance related scenarios
     Given admin ensures "99-fips-master" machineconfig is deleted after scenario
     Given admin ensures "99-fips-worker" machineconfig is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-master-disable.yaml |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-worker-disable.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-master-disable.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-worker-disable.yaml |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | mc |
@@ -138,8 +138,8 @@ Feature: security and compliance related scenarios
     Given admin ensures "99-master-fips" machineconfig is deleted after scenario
     Given admin ensures "99-worker-fips" machineconfig is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-master-enable.yaml |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/fips/fips-worker-enable.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-master-enable.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-worker-enable.yaml |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | mc |

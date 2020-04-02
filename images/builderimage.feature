@@ -3,7 +3,7 @@ Feature: builderimage.feature
   # @author wzheng@redhat.com
   Scenario Outline: Make mysql image work with php image
     Given I have a project
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sample-php-rhel7.json"
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-rhel7.json"
     And I replace lines in "sample-php-rhel7.json":
       | php:5.5 | <php_image> |
       | registry.access.redhat.com/openshift3/mysql-55-rhel7 | <mysql_image> |

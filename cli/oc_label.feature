@@ -5,7 +5,7 @@ Feature: oc_label.feature
   Scenario: Add or update the openshift resource label
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     When I run the :label client command with:
       | resource | pods            |
@@ -39,7 +39,7 @@ Feature: oc_label.feature
     And the output should match:
       | Labels:\\s+name=hello-openshift[\s,]+status=unhealthy |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc482217/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc482217/hello-pod.json |
     Then the step should succeed
     When I run the :label client command with:
       | resource  | pods           |

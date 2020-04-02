@@ -4,7 +4,7 @@ Feature: senarios for checking transfer scheme
   Scenario: Check if client use protobuf data transfer scheme to communicate with master
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
     When I run the :get client command with:

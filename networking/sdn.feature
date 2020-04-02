@@ -37,7 +37,7 @@ Feature: SDN related networking scenarios
     Given the node service is restarted on the host
     # check mtu for tun0 and new create pod
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And the pod named "hello-pod" becomes ready
@@ -197,12 +197,12 @@ Feature: SDN related networking scenarios
   Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | svc |
@@ -261,7 +261,7 @@ Feature: SDN related networking scenarios
     And admin ensures "f5-<%= cb.hostsubnet_name %>" host_subnet is deleted after scenario
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/f5-hostsubnet.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/f5-hostsubnet.json" replacing paths:
        | ["metadata"]["name"] | f5-<%= cb.hostsubnet_name %> |
        | ["host"]             | f5-<%= cb.hostsubnet_name %> |
     Then the step should succeed
@@ -477,7 +477,7 @@ Feature: SDN related networking scenarios
     # Create one more pod on the node which is running out of IP
     Given I switch to the first user
     And I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= node.name %> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -507,7 +507,7 @@ Feature: SDN related networking scenarios
     Given the master version >= "3.6"
     Given I have a project
     # create target pod and services for ping or curl
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -582,7 +582,7 @@ Feature: SDN related networking scenarios
     # apply the EgressNetworkPolicy to drop all external traffic
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egressnetworkpolicy/internal-policy.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/internal-policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -773,7 +773,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     Then the expression should be true> cb.pod_ip == cb.ping_pod.ip(cached: false)
     #Create another pod and check the above pod if work well
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:

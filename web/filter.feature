@@ -167,7 +167,7 @@ Feature: filter on create page
       | image     | aosqe/hello-openshift |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536601/replicaset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc536601/replicaset.yaml |
     Then the step should succeed
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |

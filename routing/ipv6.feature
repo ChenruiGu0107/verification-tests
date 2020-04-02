@@ -15,7 +15,7 @@ Feature: Testing IPv6 related scenarios
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -25,7 +25,7 @@ Feature: Testing IPv6 related scenarios
     When I expose the "service-unsecure" service
     Then the step should succeed
     
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route              |
       | service    | service-secure          |
@@ -86,7 +86,7 @@ Feature: Testing IPv6 related scenarios
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:

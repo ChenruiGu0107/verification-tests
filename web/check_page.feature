@@ -51,7 +51,7 @@ Feature: check page info related
     Given the master version >= "3.2"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-dapi-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-dapi-volume.yaml |
     Then the step should succeed
     When I perform the :goto_one_pod_page web console action with:
       | project_name | <%= project.name %> |
@@ -70,10 +70,10 @@ Feature: check page info related
       | Type:\ssecret                                       |
       | [Secret\|Secret Name]:\s<%= cb.sname %>             |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-volume1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-volume1.yaml |
     Then the step should succeed
     When I perform the :goto_one_pod_page web console action with:
       | project_name | <%= project.name %> |
@@ -88,7 +88,7 @@ Feature: check page info related
       | Type:\ssecret                           |
       | [Secret\|Secret Name]:\s<%= cb.sname %> |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-volume2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-volume2.yaml |
     Then the step should succeed
     When I perform the :goto_one_pod_page web console action with:
       | project_name | <%= project.name %> |

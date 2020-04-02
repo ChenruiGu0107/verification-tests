@@ -41,7 +41,7 @@ Feature: jenkins.feature
     Given I have a project
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc531203/samplepipeline.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc531203/samplepipeline.json |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -112,7 +112,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -164,7 +164,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -522,7 +522,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -590,7 +590,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completes
@@ -635,7 +635,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template.json |
     Then the step should succeed
     And I get project routes
     Then the output should contain "jenkins"
@@ -644,7 +644,7 @@ Feature: jenkins.feature
     When I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completes
@@ -907,7 +907,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/application-template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given I have a jenkins browser
     Given I switch to the second user
@@ -915,7 +915,7 @@ Feature: jenkins.feature
     And evaluation of `project.name` is stored in the :proj2 clipboard
     And I use the "<%= cb.proj2 %>" project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     When I run the :policy_add_role_to_user client command with:
@@ -980,7 +980,7 @@ Feature: jenkins.feature
   # @case_id OCP-10746 OCP-10975
   Scenario Outline: Use Jenkins as S2I builder with plugins
     Given I have a project
-    Given I have a jenkins v<ver> application from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc515317_536388/jenkins-with-plugins.json"
+    Given I have a jenkins v<ver> application from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/tc515317_536388/jenkins-with-plugins.json"
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
     When I run the :build_logs client command with:
@@ -1009,7 +1009,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP_11968/pipeline_create_resource.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP_11968/pipeline_create_resource.groovy"
     And I replace lines in "pipeline_create_resource.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1057,7 +1057,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12325/pipeline_verify_build.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12325/pipeline_verify_build.groovy"
     And I replace lines in "pipeline_verify_build.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1106,7 +1106,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12347/pipeline_verify_deployment.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12347/pipeline_verify_deployment.groovy"
     And I replace lines in "pipeline_verify_deployment.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1159,7 +1159,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service.groovy"
     And I replace lines in "pipeline_verify_service.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1181,7 +1181,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service_failed.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service_failed.groovy"
     And I replace lines in "pipeline_verify_service_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1241,7 +1241,7 @@ Feature: jenkins.feature
     Given I have a project
     And I have a jenkins v<version> application
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-13259/samplepipeline.yaml |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-13259/samplepipeline.yaml |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -1329,7 +1329,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
     And I replace lines in "pipeline_scale_deployment.groovy":
       | <repl_env>   | <%= env.api_endpoint_url %> |
       | <repl_ns>    | <%= project.name %>         |
@@ -1356,7 +1356,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
     And I replace lines in "pipeline_scale_deployment.groovy":
       | <repl_env>   | <%= env.api_endpoint_url %> |
       | <repl_ns>    | <%= project.name %>         |
@@ -1404,7 +1404,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12219/tag_image.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12219/tag_image.groovy"
     And I replace lines in "tag_image.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1450,7 +1450,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12267/trigger_build.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build.groovy"
     And I replace lines in "trigger_build.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1473,7 +1473,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12267/trigger_build_verbose.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build_verbose.groovy"
     And I replace lines in "trigger_build_verbose.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1496,7 +1496,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest2 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12267/trigger_build_failed.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build_failed.groovy"
     And I replace lines in "trigger_build_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1543,7 +1543,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment.groovy"
     And I replace lines in "trigger_deployment.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1565,7 +1565,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_verbose.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_verbose.groovy"
     And I replace lines in "trigger_deployment_verbose.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1587,7 +1587,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest2 |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_failed.groovy"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_failed.groovy"
     And I replace lines in "trigger_deployment_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1682,7 +1682,7 @@ Feature: jenkins.feature
   Scenario: Using jenkins slave maven image to do pipeline build with limited resource
     And I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     Given I have a jenkins v2 application
@@ -1708,7 +1708,7 @@ Feature: jenkins.feature
   Scenario: Using jenkins slave nodejs image to do pipeline build with limited resource
     And I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     Given I have a jenkins v2 application

@@ -5,7 +5,7 @@ Feature: pipeline related
     Given the master version >= "3.5"
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pipeline/samplepipeline.yaml |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/samplepipeline.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=jenkins |

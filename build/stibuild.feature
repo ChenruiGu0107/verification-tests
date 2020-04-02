@@ -5,7 +5,7 @@ Feature: stibuild.feature
   Scenario: STI build with SourceURI and context dir
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-context-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-context-stibuild.json |
     Then the step should succeed
     And the "python-sample-build-1" build was created
     And the "python-sample-build-1" build completed
@@ -15,7 +15,7 @@ Feature: stibuild.feature
   Scenario: Add ENV to STIStrategy buildConfig when do sti build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-env-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-env-sti.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -52,7 +52,7 @@ Feature: stibuild.feature
   Scenario: Build invoked once buildconfig is created when there is no imagechangetrigger in buildconfig
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/stibuild-configchange.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/stibuild-configchange.json |
     Then the step should succeed
     And the "php-sample-build-1" build was created
     When I run the :describe client command with:
@@ -66,7 +66,7 @@ Feature: stibuild.feature
   Scenario: Error in buildlog if STI build with invalid context dir
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-errordir-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-errordir-stibuild.json |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | python-sample-build |
@@ -168,7 +168,7 @@ Feature: stibuild.feature
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completed
@@ -248,7 +248,7 @@ Feature: stibuild.feature
   Scenario: Create an application with no host value in template
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/application-template-stibuild.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
     Then the step should succeed
     And the output should match:
       | Access your application via route 'route-edge[-a-zA-Z0-9_.]+' |
@@ -272,7 +272,7 @@ Feature: stibuild.feature
     """
     Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build completed
     When I run the :start_build client command with:
@@ -287,7 +287,7 @@ Feature: stibuild.feature
       | all_no_dash |  |
       | all         |  |
     Then the step should succeed
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/application-template-stibuild_incremental_true.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/application-template-stibuild_incremental_true.json"
     And I replace lines in "application-template-stibuild_incremental_true.json":
       | "incremental": true, ||
     When I run the :new_app client command with:
@@ -482,35 +482,35 @@ Feature: stibuild.feature
   Scenario: Image source extraction w/ symlink should success when running a build	
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23174/symlink-rel-both.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-both.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-both |
     Then the step should succeed
     And the "symlink-rel-both-1" build completed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23174/symlink-rel-link.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-link.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-link |
     Then the step should succeed
     And the "symlink-rel-link-1" build failed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23174/symlink-abs-both.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-abs-both.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-abs-both |
     Then the step should succeed
     And the "symlink-abs-both-1" build failed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23174/symlink-abs-link.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-abs-link.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-abs-link |
     Then the step should succeed
     And the "symlink-abs-link-1" build failed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23174/symlink-rel-single.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-single.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-single |
@@ -660,7 +660,7 @@ Feature: stibuild.feature
   Scenario: Setting Paused boolean in buildconfig when images are changed	
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-18926/paused-build.json |
+      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-18926/paused-build.json |
       | name     | paused-build |                                       
     Then the step should succeed
     And the "paused-build-1" build completed

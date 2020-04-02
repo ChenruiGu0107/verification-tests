@@ -6,7 +6,7 @@
   Scenario: Check meet and exceed message alert for compute-resource and object-count
     Given the master version >= "3.7"
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/myquota.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | cpu: "30"                    | cpu: "1"                    |
@@ -41,7 +41,7 @@
 
     # Check at quota of object-count:
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
@@ -114,7 +114,7 @@
       | object_name_or_id | special-config |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
     Then the step should succeed
     When I perform the :open_notification_drawer_on_overview web console action with:
       | project_name | <%= project.name %> |
@@ -164,7 +164,7 @@
 
     # check deployment related notification in drawer
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/OCP-15235/test-dc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15235/test-dc.yaml |
     Then the step should succeed
     When I perform the :open_notification_drawer_for_one_project web console action with:
       | project_name | <%= project.name %> |
@@ -199,7 +199,7 @@
 
     # check pod related notification in drawer
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod-bad.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod-bad.json |
     Then the step should succeed
     When I perform the :open_notification_drawer_for_one_project web console action with:
       | project_name | <%= project.name %> |

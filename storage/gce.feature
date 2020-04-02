@@ -8,7 +8,7 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]   | Immediate |
       | ["parameters"]["zones"] | ''        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -31,7 +31,7 @@ Feature: GCE specific scenarios
     Then the step should succeed
     And I run the steps 10 times:
     """
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-#{cb.i}            |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -52,7 +52,7 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]  | Immediate                   |
       | ["parameters"]["zone"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -74,7 +74,7 @@ Feature: GCE specific scenarios
       | ["parameters"]["zone"]  | us-central1-a               |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -95,7 +95,7 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]          | Immediate |
       | ["parameters"]["invalidParam"] | test      |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -116,7 +116,7 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]  | Immediate |
       | ["parameters"]["zone"] | ''        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -134,24 +134,24 @@ Feature: GCE specific scenarios
   Scenario: Should be able to create pv with volume in different zone than master on GCE
     Given I have a project
     Given a GCE zone without any cluster masters is stored in the clipboard
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
       | ["metadata"]["name"]   | sc-<%= project.name %> |
       | ["parameters"]["zone"] | <%= cb.zone %>         |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | pvc1                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
     Given I save volume id from PV named "<%= pvc.volume_name %>" in the :volumeID clipboard
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pv-with-failure-domain.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-with-failure-domain.json" where:
       | ["metadata"]["name"]                                               | pv-<%= project.name %> |
       | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/region"] | us-central1            |
       | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/zone"]   | <%= cb.zone %>         |
       | ["spec"]["gcePersistentDisk"]["pdName"]                            | <%= cb.volumeID %>     |
     Then the step should succeed
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pv-retain-rwx.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-retain-rwx.json" where:
       | ["metadata"]["name"]                    | pvv-<%= project.name %> |
       | ["spec"]["gcePersistentDisk"]["pdName"] | <%= cb.volumeID %>      |
     Then the step should succeed
@@ -161,13 +161,13 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
 
     Given I run the steps 30 times:
     """
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
@@ -202,21 +202,21 @@ Feature: GCE specific scenarios
     And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     # Prepare test files in the volume
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pv-default-rwo.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-rw-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]           | 1                         |
       | ["spec"]["accessModes"][0]                | ReadWriteMany             |
       | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>           |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                    |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-rw                    |
       | ["spec"]["volumeName"]                       | pv-rw-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany             |
       | ["spec"]["resources"]["requests"]["storage"] | 1                         |
     Then the step should succeed
     And the "pvc-rw" PVC becomes bound to the "pv-rw-<%= project.name %>" PV
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | podname |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-rw  |
     Then the step should succeed
@@ -227,14 +227,14 @@ Feature: GCE specific scenarios
     Given I ensure "podname" pod is deleted
     And I ensure "pvc-rw" pvc is deleted
 
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pv-default-rwo.json" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]           | 1                      |
       | ["spec"]["accessModes"][0]                | ReadOnlyMany           |
       | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>        |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
     Then the step should succeed
-    When I create a manual pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadOnlyMany            |
@@ -242,12 +242,12 @@ Feature: GCE specific scenarios
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod1-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>  |
     Then the step should succeed
     Given the pod named "pod1-<%= project.name %>" becomes ready
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | pod2-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>  |
     Then the step should succeed
@@ -269,12 +269,12 @@ Feature: GCE specific scenarios
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
       | ["metadata"]["name"]                                     | pod1-<%= project.name %> |
       | ["spec"]["volumes"][0]["gcePersistentDisk"]["pdName"]    | <%= cb.volumeID %>       |
       | ["spec"]["volumes"][0]["gcePersistentDisk"]["partition"] | 0                        |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
       | ["metadata"]["name"]                                     | pod2-<%= project.name %> |
       | ["spec"]["volumes"][0]["gcePersistentDisk"]["pdName"]    | <%= cb.volumeID %>       |
       | ["spec"]["volumes"][0]["gcePersistentDisk"]["partition"] | 1                        |
@@ -294,11 +294,11 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with annotation storage-class bind PVC with annotation storage-class
     Given I have a project
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | mypvc               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %> |
     Then the step should succeed
@@ -309,11 +309,11 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with attribute storageClassName bind PVC with attribute storageClassName
     Given I have a project
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -324,11 +324,11 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with annotation storage-class bind PVC with attribute storageClassName
     Given I have a project
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -339,11 +339,11 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with attribute storageClassName bind PVC with annotation storage-class
     Given I have a project
-    When admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | mypvc                  |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed

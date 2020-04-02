@@ -37,7 +37,7 @@ Feature: scaling related scenarios
   Scenario: Only scale the dc can scale the active deployment
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/testhook.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     # Workaround: the below steps make a failed deployment instead of using cancel
@@ -64,7 +64,7 @@ Feature: scaling related scenarios
   Scenario: [openshift-sme]When rolling deployments the pod should shutdown gracefully
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
     Then the step should succeed
     Given I wait until the status of deployment "nettest" becomes :complete
     And a pod becomes ready with labels:
@@ -97,10 +97,10 @@ Feature: scaling related scenarios
       | hawkular-metrics   |
       | heapster           |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/php-dc.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/hpa/php-dc.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/hpa/hpa.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/hpa/hpa.yaml |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | dc         |

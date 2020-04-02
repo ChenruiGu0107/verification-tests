@@ -5,7 +5,7 @@ Feature: Dynamic provisioning
   @admin
   Scenario: dynamic provisioning with multiple access modes
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
       | ["spec"]["accessModes"][1]                   | ReadWriteMany                   |
@@ -25,7 +25,7 @@ Feature: Dynamic provisioning
       | ROX |
       | RWX |
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>       |
     Then the step should succeed
@@ -53,10 +53,10 @@ Feature: Dynamic provisioning
   @admin
   Scenario: azure disk dynamic provisioning with multiple access modes
     Given I have a project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["spec"]["accessModes"][0]   | ReadWriteOnce          |
       | ["spec"]["accessModes"][1]   | ReadWriteMany          |
@@ -74,7 +74,7 @@ Feature: Dynamic provisioning
       | ROX |
       | RWX |
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/azure/azpvcpod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -95,7 +95,7 @@ Feature: Dynamic provisioning
   @admin
   Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
@@ -123,13 +123,13 @@ Feature: Dynamic provisioning
   @admin
   Scenario: azure disk dynamic pvc shows lost after pv is deleted
     Given I have a project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 1 times:
     """
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                         | dpvc-#{cb.i}              |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
@@ -145,11 +145,11 @@ Feature: Dynamic provisioning
   @smoke
   Scenario: Dynamic provision smoke test
     Given I have a project
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas |
@@ -177,14 +177,14 @@ Feature: Dynamic provisioning
     And admin clones storage class "storageclass-<%= project.name %>" from ":default" with:
       | ["parameters"]["fstype"] | <fstype> |
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %>          |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
       | ["spec"]["storageClassName"]                 | storageclass-<%= project.name %> |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt                    |
@@ -208,16 +208,16 @@ Feature: Dynamic provisioning
   @admin
   Scenario: User can dynamic created encryted ebs volume
     Given I have a project
-    When admin creates a StorageClass from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/ebs/sc_encrypted.yaml" where:
+    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/sc_encrypted.yaml" where:
       | ["metadata"]["name"]  | sc-<%= project.name %> |
       | ["volumeBindingMode"] | WaitForFirstConsumer   |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>          |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/aws                        |
@@ -233,12 +233,12 @@ Feature: Dynamic provisioning
   Scenario Outline: dynamic provisioning for block volume
     Given I have a project
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                   |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block              |
@@ -262,17 +262,17 @@ Feature: Dynamic provisioning
   Scenario: Using multiple block volumes
     Given I have a project
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc1  |
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc2  |
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
 
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pod-with-two-block-volumes.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-two-block-volumes.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/block1             |
@@ -294,7 +294,7 @@ Feature: Dynamic provisioning
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["reclaimPolicy"]     | ""        |
       | ["volumeBindingMode"] | Immediate |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed

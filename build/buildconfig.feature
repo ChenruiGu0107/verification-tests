@@ -5,7 +5,7 @@ Feature: buildconfig.feature
   Scenario: Buildconfig spec part cannot be updated
     Given I have a project
     When I run the :process client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/php-56-rhel7-stibuild.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/php-56-rhel7-stibuild.json |
     Then the step should succeed
     Given I save the output to file> tcms495017_out.json
     When I run the :create client command with:
@@ -31,7 +31,7 @@ Feature: buildconfig.feature
   Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sourcebuildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | buildconfig  |
@@ -62,7 +62,7 @@ Feature: buildconfig.feature
   Scenario: Do incremental builds for sti-build in openshift
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc482207/bc.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc482207/bc.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -113,7 +113,7 @@ Feature: buildconfig.feature
   Scenario: Warning appears if completionDeadlineSeconds set to invalid value
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sourcebuildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
@@ -127,7 +127,7 @@ Feature: buildconfig.feature
       | p | {"spec": {"completionDeadlineSeconds": "abc"}} |
     Then the step should fail
     And the output should contain "unrecognized type"
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/sourcebuildconfig.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json"
     Then the step should succeed
     Given I replace lines in "sourcebuildconfig.json":
       | "completionDeadlineSeconds": 5, | "completionDeadlineSeconds": -5, |
@@ -154,7 +154,7 @@ Feature: buildconfig.feature
     When I get project is named "ruby" as YAML
     Then the output should match "name:\s+ruby"
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
-   # When I process and create "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
+   # When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
     When I run the :new_app client command with:
       | image_stream | ruby                                    |
       | app_repo     | https://github.com/openshift-qe/ruby-ex |
@@ -207,7 +207,7 @@ Feature: buildconfig.feature
   Scenario: Add ENV to DockerStrategy buildConfig and Dockerfile when do docker build
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/ruby-rhel7-multivars.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/ruby-rhel7-multivars.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -259,7 +259,7 @@ Feature: buildconfig.feature
   Scenario: S2I build failure reason display if use incorrect runtime image
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/invalid_runtime_image.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/invalid_runtime_image.json |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | extended-build-from-repo |
@@ -299,7 +299,7 @@ Feature: buildconfig.feature
   Scenario: S2I extended build failure reason display if use incorrect sourcePath
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/invalid_sourcePath.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/invalid_sourcePath.json |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | extended-build-from-repo |
@@ -343,14 +343,14 @@ Feature: buildconfig.feature
   Scenario: Do incremental builds for binary build
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
     Then the step should succeed
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/build_config.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/build_config.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig  | sti-bc                                                                            |
-      | from_archive | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
+      | from_archive | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
     Then the step should succeed
     And the "sti-bc-2" build was created
     Given the "sti-bc-2" build completed
@@ -359,7 +359,7 @@ Feature: buildconfig.feature
     And the output should contain "Downloading"
     When I run the :start_build client command with:
       | buildconfig  | sti-bc                                                                            |
-      | from_archive | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
+      | from_archive | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
     Then the step should succeed
     And the "sti-bc-3" build was created
     Given the "sti-bc-3" build completed
@@ -375,10 +375,10 @@ Feature: buildconfig.feature
   Scenario: Use shell variable in build config environment variable section
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
     Then the step should succeed
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/OCP-23781/build_config.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23781/build_config.yaml |
     Then the step should succeed
     And the "env-var-bc-1" build was created
     Given the "env-var-bc-1" build completed

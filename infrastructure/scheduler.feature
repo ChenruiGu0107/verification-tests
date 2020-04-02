@@ -16,9 +16,9 @@ Feature: Scheduler predicates and priority test suites
     Given I run the :oadm_policy_add_scc_to_user admin command with:
       | scc       | hostaccess          |
       | user_name | <%=user(0).name%>   |
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_ports.json
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json
     Then the step should succeed
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_ports.json
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -32,7 +32,7 @@ Feature: Scheduler predicates and priority test suites
   # @case_id OCP-12482
   Scenario: [origin_runtime_646] Fixed predicates rules testing - PodFitsResources
     Given I have a project
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_resources.json
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_resources.json
     And the step should succeed
     When I run the :describe client command with:
       | resource | pods |
@@ -45,11 +45,11 @@ Feature: Scheduler predicates and priority test suites
   Scenario: When custom scheduler name is supplied, the pod is scheduled using the custom scheduler
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/multiple-schedulers/custom-scheduler.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/multiple-schedulers/custom-scheduler.yaml |
     Then the step should succeed
     Given the pod named "custom-scheduler" becomes present
     Given I store the schedulable workers in the clipboard
-    When I run oc create as admin over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/multiple-schedulers/binding.json 
+    When I run oc create as admin over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/multiple-schedulers/binding.json 
     And the step should succeed
     Given the pod named "custom-scheduler" becomes ready
     Then the expression should be true> pod.node_name == node.name
@@ -62,7 +62,7 @@ Feature: Scheduler predicates and priority test suites
     Given the expression should be true> env.iaas[:type] == "<cloudprovider>"
     Given evaluation of `env.master_hosts` is stored in the :masters clipboard
     Given I run commands on all masters:
-      | curl -o /etc/origin/master/scheduler-maxvol.json <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/scheduler-maxvol.json |
+      | curl -o /etc/origin/master/scheduler-maxvol.json <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/scheduler-maxvol.json |
     Then the step should succeed
     Given master config is merged with the following hash:
     """
@@ -75,7 +75,7 @@ Feature: Scheduler predicates and priority test suites
     And the master service is restarted on all master nodes
     Given I have a project
     Given I wait for the "default" serviceaccount to appear
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_multivols.yaml
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_multivols.yaml
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -109,7 +109,7 @@ Feature: Scheduler predicates and priority test suites
     Then the step should succeed
     # calculate the memory leave to new pods
     Given evaluation of `node.remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_more_than_remanent_memory.json
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_more_than_remanent_memory.json
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -118,7 +118,7 @@ Feature: Scheduler predicates and priority test suites
     And the output should match:
       | FailedScheduling.*(PodFitsResources\|Insufficient memory) |
     """
-    When I run oc create over ERB URL: <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_remanent_memory.json
+    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_remanent_memory.json
     Then the step should succeed
     And the pod named "pod-with-remanent-memory" becomes ready
     Then the expression should be true> pod.node_name == node.name
@@ -139,7 +139,7 @@ Feature: Scheduler predicates and priority test suites
       | type          | merge                                         |
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_ocp24240.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp24240.yaml |
     Then the step should succeed
     And the pod named "empty-operator-pod" becomes ready
     Then the expression should be true> node(pod.node_name).is_master?

@@ -6,8 +6,8 @@ Feature: bc/dc hooks related
     Given the master version >= "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/Recreate-dc-with-prehook.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/simple-is.json             |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/Recreate-dc-with-prehook.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/simple-is.json             |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     When I perform the :goto_edit_dc_page web console action with:
@@ -123,7 +123,7 @@ Feature: bc/dc hooks related
     Given the master version > "3.4"
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I perform the :check_dc_loaded_completely web console action with:
@@ -184,7 +184,7 @@ Feature: bc/dc hooks related
       | from_literal  | WebHookSecretKey=1234qwer |
     Then the step should succeed
     When I run the :create client command with:
-      | f    |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/tc-OCP-17489/bc_webhook_triggers.yaml |
+      | f    |  <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc-OCP-17489/bc_webhook_triggers.yaml |
     Then the step should succeed
 
     # user of role view

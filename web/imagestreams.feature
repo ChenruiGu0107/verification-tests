@@ -5,7 +5,7 @@ Feature: check image streams page
   Scenario: Check ImageStreamTag picker on BC edit page
     Given I have a project
     And I run the :new_app client command with:
-      | app_repo | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
@@ -84,7 +84,7 @@ Feature: check image streams page
     Given the master version >= "3.7"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/simple-is.json             |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/simple-is.json             |
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
     Then the step should succeed
     And I wait for the "hello-openshift" is to appear

@@ -30,7 +30,7 @@ Feature: negative tests
   Scenario: Check output for resource idle command and negative commands
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/rc/idle-rc-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rc/idle-rc-1.yaml |
     Then the step should succeed
     When I run the :idle client command with:
       | svc_name | svc/hello-idle |

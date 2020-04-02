@@ -121,7 +121,7 @@ Feature: tests on catalog page
     Given the master version >= "4.1"
     Given I have a project
     And I open admin console in a browser
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild.json" replacing paths:
       | ["metadata"]["annotations"]["tags"] | instant-app,ruby,mysql,hidden |
       | ["metadata"]["namespace"]           | <%= project.name %>           |
     Then the step should succeed

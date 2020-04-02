@@ -4,7 +4,7 @@ Feature: ruby.feature
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/<template> |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
@@ -29,7 +29,7 @@ Feature: ruby.feature
   # @case_id OCP-12370
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
-    Given I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521462/template.json"
+    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/tc521462/template.json"
     And I replace lines in "template.json":
       |ruby:2.2|ruby:2.3|
     When I run the :create client command with:

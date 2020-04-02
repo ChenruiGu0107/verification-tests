@@ -18,7 +18,7 @@ Feature: quickstarts.feature
   Scenario Outline: Application with base images with oc command
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/<json> |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/<json> |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | python-sample-build |
@@ -152,7 +152,7 @@ Feature: quickstarts.feature
   Scenario: Use the template parameters for the entire config
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc479059/application-template-parameters.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc479059/application-template-parameters.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -191,7 +191,7 @@ Feature: quickstarts.feature
   Scenario Outline: Dancer-ex quickstart test with perl-516-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/<template> |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/<template> |
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed

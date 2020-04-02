@@ -5,7 +5,7 @@ Feature: oc plugin related tests
   Scenario: add plugin with subcommand and flags
     Given I have a project
     And I create the "plugins-dir/myplugin" directory
-    And I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/oc_plugin/myplugin/plugin.yaml" into the "plugins-dir/myplugin" dir
+    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/myplugin/plugin.yaml" into the "plugins-dir/myplugin" dir
     When I run the :plugin client command with:
       | h    |                                   |
       | _env | KUBECTL_PLUGINS_PATH=plugins-dir  |
@@ -90,8 +90,8 @@ Feature: oc plugin related tests
     When I run commands on the host:
       | mkdir -p kubectl_plugins_path/mytestplugin                 |
       | mkdir -p xdg_data_dirs/kubectl/plugins/mytestplugin        |
-      | curl -o xdg_data_dirs/kubectl/plugins/mytestplugin/plugin.yaml <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/oc_plugin/xdg_data_dirs.yaml |
-      | curl -o kubectl_plugins_path/mytestplugin/plugin.yaml <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/oc_plugin/kubectl_plugins_path.yaml   |
+      | curl -o xdg_data_dirs/kubectl/plugins/mytestplugin/plugin.yaml <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/xdg_data_dirs.yaml |
+      | curl -o kubectl_plugins_path/mytestplugin/plugin.yaml <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/kubectl_plugins_path.yaml   |
       | KUBECTL_PLUGINS_PATH=kubectl_plugins_path XDG_DATA_DIRS=xdg_data_dirs oc plugin -h |
     Then the step should succeed
     And the output should contain "myKUBECTL_PLUGINS_PATH"
@@ -114,8 +114,8 @@ Feature: oc plugin related tests
     When I run commands on the host:
       | mkdir -p ~/.kube/plugins/mytestplugin            |
       | mkdir -p /usr/share/kubectl/plugins/mytestplugin |
-      | curl -o ~/.kube/plugins/mytestplugin/plugin.yaml <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/oc_plugin/kube.yaml                 |
-      | curl -o /usr/share/kubectl/plugins/mytestplugin/plugin.yaml <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/cli/oc_plugin/usr-share.yaml |
+      | curl -o ~/.kube/plugins/mytestplugin/plugin.yaml <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/kube.yaml                 |
+      | curl -o /usr/share/kubectl/plugins/mytestplugin/plugin.yaml <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/usr-share.yaml |
       | unset KUBECTL_PLUGINS_PATH XDG_DATA_DIRS         |
       | oc plugin -h                                     |
     Then the step should succeed

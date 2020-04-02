@@ -5,13 +5,13 @@ Feature: Quota related scenarios
   @admin
   Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
       | ["spec"]["hard"]["memory"] | 20Mi                |
       | namespace                  | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
-      | f |  <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     And the output should match:
       | eployment.*onfig.*reated |
@@ -29,12 +29,12 @@ Feature: Quota related scenarios
   Scenario: DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
     Given I have a project
     When I run the :create admin command with:
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml  |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-resources.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-resources.json |
     Then the step should succeed
 
     # update dc to be exceeded and triggered deployment
@@ -71,23 +71,23 @@ Feature: Quota related scenarios
   @admin
   Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
     Given I have a project
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
       | ["spec"]["hard"]["memory"] | 110Mi               |
       | namespace                  | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | specify.*memory |
 
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n | <%= project.name %>                                                     |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should succeed
     When I get project pod as YAML
     Then the output should match:
@@ -101,7 +101,7 @@ Feature: Quota related scenarios
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | xceeded quota |
@@ -126,15 +126,15 @@ Feature: Quota related scenarios
   Scenario: There is log event for deployment when they fail due to quota limits
     Given I have a project
     When I run the :create admin command with:
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-resources.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
       | hooks.*reated |
@@ -172,15 +172,15 @@ Feature: Quota related scenarios
   Scenario: Buildconfig should support providing cpu and memory usage
     Given I have a project
     When I run the :create admin command with:
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota.yaml  |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml  |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create admin command with:
-      | f     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/limits.yaml |
+      | f     | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/application-template-with-resources.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/application-template-with-resources.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample-with-resources |
     Then the step should succeed
@@ -225,7 +225,7 @@ Feature: Quota related scenarios
   Scenario: Admin can restrict the ability to use services.nodeports
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -235,7 +235,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -244,7 +244,7 @@ Feature: Quota related scenarios
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc2.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/nodeport-svc2.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -253,7 +253,7 @@ Feature: Quota related scenarios
       | services\\s+2\\s+5           |
       | services.nodeports\\s+2\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
     Then the step should fail
     And the output should match:
       | xceeded quota: quota-service.*limited: services.nodeports=2 |
@@ -274,7 +274,7 @@ Feature: Quota related scenarios
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/nodeport-svc3.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -289,7 +289,7 @@ Feature: Quota related scenarios
   Scenario: Service with multi nodeports should be charged properly in the quota system
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -299,7 +299,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532980/multi-nodeports-svc.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532980/multi-nodeports-svc.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -324,7 +324,7 @@ Feature: Quota related scenarios
   Scenario: services.nodeports in quota system work well when change service type
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/quota-service.yaml |
       | n | <%= project.name %>  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -334,7 +334,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+5           |
       | services.nodeports\\s+0\\s+2 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc532979/nodeport-svc1.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -372,7 +372,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier BestEffort
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-besteffort.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-besteffort.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -389,7 +389,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier Burstable
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-burstable.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-burstable.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -406,7 +406,7 @@ Feature: Quota related scenarios
   Scenario: check QoS Tier Guaranteed
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pod-guaranteed.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pod-guaranteed.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod            |
@@ -425,7 +425,7 @@ Feature: Quota related scenarios
   Scenario: Resource quota value should not be fractional value
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509088/quota-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc509088/quota-1.yaml |
       | n | <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain 6 times:
@@ -436,7 +436,7 @@ Feature: Quota related scenarios
     Then the step should fail
     And the output should contain "not found"
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509088/quota-2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc509088/quota-2.yaml |
       | n | <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain "quantities must match the regular expression"
@@ -452,7 +452,7 @@ Feature: Quota related scenarios
   Scenario: Resource quota value should not be negative
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc509089/negquota.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc509089/negquota.yaml |
       | n | <%= project.name %>                                                                             |
     Then the step should fail
     And the output should match 8 times:
@@ -469,11 +469,11 @@ Feature: Quota related scenarios
   Scenario: Precious resources should be restrained if they are covered in quota and not configured on the master
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota                   |
@@ -482,7 +482,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | persistentvolumeclaims\\s+1\\s+10                               |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
       | ["metadata"]["name"] | pvc-storage-class-1 |
     Then the step should fail
     And the output should contain:
@@ -503,7 +503,7 @@ Feature: Quota related scenarios
     And evaluation of `%w{2Gi 20Gi 30Gi}` is stored in the :sizes clipboard
     And I run the steps 3 times:
     """
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc#{cb.i}        |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.sizes[cb.i-1]} |
     Then the step should succeed
@@ -532,11 +532,11 @@ Feature: Quota related scenarios
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json |
       | n | <%= project.name %>                                                                |
     Then the step should succeed
     When I run the :describe client command with:
@@ -546,7 +546,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                               |
       | requests.storage\\s+2Gi\\s+50Gi                                 |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
       | ["metadata"]["name"] | pvc-storage-class-2 |
     Then the step should fail
     And the output should contain:
@@ -569,7 +569,7 @@ Feature: Quota related scenarios
       | n    | <%= project.name %>                                                                                               |
       | hard | slow.storageclass.storage.k8s.io/requests.storage=20Gi,slow.storageclass.storage.k8s.io/persistentvolumeclaims=15 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi               |
       | ["spec"]["storageClassName"]                 | slow              |
@@ -581,7 +581,7 @@ Feature: Quota related scenarios
     And the output should match:
       | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
       | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class-iamnotslow |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                          |
       | ["spec"]["storageClassName"]                 | iamnotslow                   |
@@ -626,7 +626,7 @@ Feature: Quota related scenarios
       | n    | <%= project.name %> |
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class-slow |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
       | ["spec"]["storageClassName"]                 | slow                   |
@@ -643,7 +643,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+2Gi\\s+50Gi                                    |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi   |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class-bronze |
       | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
       | ["spec"]["storageClassName"]                 | bronze                   |
@@ -660,7 +660,7 @@ Feature: Quota related scenarios
       | requests.storage\\s+5Gi\\s+50Gi                                    |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class-gold |
       | ["spec"]["resources"]["requests"]["storage"] | 4Gi                    |
       | ["spec"]["storageClassName"]                 | gold                   |
@@ -692,7 +692,7 @@ Feature: Quota related scenarios
       | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/pvc-storage-class.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota         |
@@ -703,7 +703,7 @@ Feature: Quota related scenarios
       | persistentvolumeclaims\\s+1\\s+10                                |
       | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi |
       | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-storage-class-bronze |
       | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
       | ["spec"]["storageClassName"]                 | bronze                   |
@@ -744,7 +744,7 @@ Feature: Quota related scenarios
     Given I have a project
     And I have a skopeo pod in the project
     Given admin uses the "<%= project.name %>" project
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/image-limit-range.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/image-limit-range.yaml" replacing paths:
       | ["spec"]["limits"][0]["max"]["storage"] | "100Mi" |
     Then the step should succeed
     And default registry service ip is stored in the :integrated_reg_ip clipboard
@@ -775,7 +775,7 @@ Feature: Quota related scenarios
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run the :create client command with:
-       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/quota/tc15821/quota.yaml |
+       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc15821/quota.yaml |
        | n | <%= project.name %>                                                                         |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
@@ -788,7 +788,7 @@ Feature: Quota related scenarios
       | resourcequotas\\s+1\\s+1 |
     """
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
       | n | <%= project.name %>                                                                                        |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready

@@ -42,7 +42,7 @@ Feature: Features of seccomp
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-1.yaml |
     Then the step should succeed
     Given the pod named "pod-sec-two-cont" becomes ready
     When I run the :rsh client command with:
@@ -106,7 +106,7 @@ Feature: Features of seccomp
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-2.yaml |
     Then the step should succeed
     Given the pod named "pod-sec-two-cont" becomes ready
     When I run the :rsh client command with:
@@ -170,7 +170,7 @@ Feature: Features of seccomp
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-3.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-3.yaml |
     Then the step should succeed
     Given the pod named "pod-sec-two-cont" becomes ready
     When I run the :rsh client command with:
@@ -229,7 +229,7 @@ Feature: Features of seccomp
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-two-cont-1.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -253,7 +253,7 @@ Feature: Features of seccomp
     Then the step should succeed
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod             |
@@ -274,7 +274,7 @@ Feature: Features of seccomp
     Then the step should succeed
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-pod-prof2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-pod-prof2.yaml |
     Then the step should fail
     And the output should contain:
       | localhost/profile2.json is not a valid seccomp profile |
@@ -292,7 +292,7 @@ Feature: Features of seccomp
     Then the step should succeed
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/seccomp/pod-sec-pod-prof1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-pod-prof1.yaml |
     Then the step should succeed
     Given I wait for the steps to pass:
     """

@@ -4,7 +4,7 @@ Feature: general_db.feature
   # @case_id OCP-10581
   Scenario: Add env variables to mongodb24 image
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mongodb-24-rhel7-env-test.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb-24-rhel7-env-test.json" replacing paths:
       | ["spec"]["template"]["spec"]["containers"][0]["image"] | <%= product_docker_repo %>openshift3/mongodb-24-rhel7 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -28,7 +28,7 @@ Feature: general_db.feature
   # @case_id OCP-12044
   Scenario: Add env variables to mongodb26 image
     Given I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mongodb-26-rhel7-env-test.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb-26-rhel7-env-test.json" replacing paths:
       | ["spec"]["template"]["spec"]["containers"][0]["image"] | <%= product_docker_repo %>rhscl/mongodb-26-rhel7 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -171,7 +171,7 @@ Feature: general_db.feature
   Scenario: mongodb 24 with persistent volume
     Given I have a project
     Then I run the :new_app client command with:
-      | file     | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mongodb24-persistent-template.json |
+      | file     | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb24-persistent-template.json |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
     Then the step should succeed
     And the "mongodb" PVC becomes :bound within 300 seconds

@@ -5,7 +5,7 @@ Feature: Check deployments function
   Scenario: Scale the application by changing replicas in deployment config
     Given I have a project
     And I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
     Then the step should succeed
     Given I wait for the pod named "hooks-1-deploy" to die
     When I perform the :edit_replicas_on_dc_page web console action with:
@@ -61,7 +61,7 @@ Feature: Check deployments function
   Scenario: Idled RC handling on web console
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/k8s/rc-and-svc-list.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/k8s/rc-and-svc-list.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=hello-pod |
@@ -179,7 +179,7 @@ Feature: Check deployments function
     Given the master version >= "3.4"
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     # create imagestream for below use, ensuring the DC can be complete after edit
     When I run the :tag client command with:
@@ -254,7 +254,7 @@ Feature: Check deployments function
   Scenario: Environment handling on DC edit page
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     Given I wait until the status of deployment "dctest" becomes :complete
     # Add env var for each container
@@ -338,7 +338,7 @@ Feature: Check deployments function
   Scenario: Change Deployment Stategy from Rolling to Custom on web console
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/rolling.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/rolling.json |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     When I perform the :goto_edit_dc_page web console action with:

@@ -5,7 +5,7 @@ Feature: petset related feature
     Given the master version >= "3.4"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/petset/hello-petset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/petset/hello-petset.yaml |
     Then the step should succeed
     And I run the :get client command with:
       | resource | svc |
@@ -62,7 +62,7 @@ Feature: petset related feature
       | p             | {"spec":{"replicas":2}} |
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/petset/hello-petset.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/petset/hello-petset.yaml"
     Then I replace lines in "hello-petset.yaml":
       | foo          | foo2          |
       | hello-petset | hello-petset2 |

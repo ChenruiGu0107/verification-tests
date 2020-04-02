@@ -5,7 +5,7 @@ Feature: configMap
   Scenario: Consume ConfigMap via volume plugin with multiple volumes
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -18,7 +18,7 @@ Feature: configMap
     Then the output should contain:
       | data-1 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-multi-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-multi-volume.yaml |
     Then the step should succeed
     And the pod named "pod-configmapd" status becomes :running
     When I execute on the pod:
@@ -37,7 +37,7 @@ Feature: configMap
   Scenario: Consume same name configMap via volum plugin on different namespaces
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -50,7 +50,7 @@ Feature: configMap
     Then the output should contain:
       | data-1 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
     Then the step should succeed
     And the pod named "pod-same-configmap" status becomes :running
     When I execute on the pod:
@@ -61,7 +61,7 @@ Feature: configMap
     When I create a new project
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-multi-volume.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -74,7 +74,7 @@ Feature: configMap
     Then the output should contain:
       | data-1 |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-same.yaml |
     Then the step should succeed
     And the pod named "pod-same-configmap" status becomes :running
     When I execute on the pod:
@@ -88,7 +88,7 @@ Feature: configMap
   Scenario: Consume ConfigMap with multiple volumes through path
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/configmap-path.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-path.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -103,7 +103,7 @@ Feature: configMap
       | network |
       | start-script |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/pod-configmap-path.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-path.yaml |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mariadb |
@@ -118,7 +118,7 @@ Feature: configMap
   Scenario: Negative test for Inject env var for all ConfigMap values
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/envfrom-cmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/envfrom-cmap.yaml |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -129,11 +129,11 @@ Feature: configMap
       | "env-config" not found |
     """
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/cmap-for-env.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/cmap-for-env.yaml |
     Then the step should succeed
     Given the pod named "config-env-example" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/invalid-envfrom-cmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/invalid-envfrom-cmap.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -149,7 +149,7 @@ Feature: configMap
   Scenario: Inject env var for all ConfigMap values
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/cmap-for-env.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/cmap-for-env.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | configmap  |
@@ -166,7 +166,7 @@ Feature: configMap
       | test:              |
       | jfjjf/*j!          |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/configmap/envfrom-cmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/envfrom-cmap.yaml |
     Then the step should succeed
     And the pod named "config-env-example" becomes ready
     When I execute on the "config-env-example" pod:

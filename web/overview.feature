@@ -6,7 +6,7 @@ Feature: Check overview page
     Given the master version >= "3.6"
     Given I have a project
     # create ReplicaSet
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/replicaSet/tc536601/replicaset.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc536601/replicaset.yaml" replacing paths:
        | ["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -31,7 +31,7 @@ Feature: Check overview page
 
     # create StatefulSet
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -47,7 +47,7 @@ Feature: Check overview page
     Then the step should succeed
 
     # create k8s deployment
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
        | ["spec"]["replicas"] | 1 |
     Then the step should succeed
 
@@ -121,7 +121,7 @@ Feature: Check overview page
       | limits    | cpu=300m,memory=250Mi          |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I perform the :check_page_not_contain_text web console action with:
       | text | service-unsecure |
@@ -131,7 +131,7 @@ Feature: Check overview page
       | service_name  | service-unsecure   |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
       | n | <%= project.name %>                                                                            |
     Then the step should succeed
     When I perform the :check_page_not_contain_text web console action with:
@@ -148,7 +148,7 @@ Feature: Check overview page
     Given the master version >= "3.6"
     Given I have a project
     When I run the :new_app client command with:
-      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pipeline/ui-pipeline-stage.yaml |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/ui-pipeline-stage.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |

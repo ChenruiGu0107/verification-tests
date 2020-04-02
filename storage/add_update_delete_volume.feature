@@ -16,7 +16,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -296,7 +296,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a NFS service in the project
 
     # Creating PV
-    Given admin creates a PV from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
+    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"]    | <%= service("nfs-service").ip %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>           |

@@ -7,7 +7,7 @@ Feature: Hugepages related feature
     Given nodes have 10 2Mi hugepages configured
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hugepage/pod_15728.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hugepage/pod_15728.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -28,7 +28,7 @@ Feature: Hugepages related feature
     Given nodes have 10 2Mi hugepages configured
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hugepage/pod_15732.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hugepage/pod_15732.yaml |
       | n | <%= project.name%> |
     Then the step should succeed
     Given the pod named "pod-15732" becomes ready
@@ -78,7 +78,7 @@ Feature: Hugepages related feature
     Given nodes have 10 2Mi hugepages configured
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hugepage/pod_15740.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hugepage/pod_15740.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -99,7 +99,7 @@ Feature: Hugepages related feature
     Given nodes have 10 2Mi hugepages configured
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/infrastructure/hugepage/pod_15748.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hugepage/pod_15748.yaml |
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain:

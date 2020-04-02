@@ -89,10 +89,10 @@ Feature: overview cases
     Given I have a project
 
     # check deployment error on overview
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -202,7 +202,7 @@ Feature: overview cases
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=hello |
@@ -407,8 +407,8 @@ Feature: overview cases
 
     # add non-app resources
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/simpledc.json |
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/simple-deployment.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml |
     Then the step should succeed
 
     # Group by: Application
@@ -513,7 +513,7 @@ Feature: overview cases
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
     Then the step should succeed
     And "hello-daemonset" daemonset becomes ready in the "<%= project.name %>" project
     And evaluation of `daemon_set("hello-daemonset").desired_replicas(cached: false)` is stored in the :ds_disired_replicas clipboard
@@ -564,7 +564,7 @@ Feature: overview cases
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/simple-deployment.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml |
     Then the step should succeed
     When a pod becomes ready with labels:
       | app=hello-openshift |

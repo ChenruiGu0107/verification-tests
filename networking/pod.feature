@@ -5,14 +5,14 @@ Feature: Pod related networking scenarios
   Scenario: The Completed/Failed pod should not run into TeardownNetworkError
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/completed-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/completed-pod.json |
     Then the step should succeed
     And a pod is present with labels:
       | name=completed-pod |
     And evaluation of `pod.name` is stored in the :completed_pod clipboard
     Given the pod named "<%= cb.completed_pod %>" status becomes :succeeded
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/failed-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/failed-pod.json |
     Then the step should succeed
     Given the pod named "fail-pod" status becomes :failed
     When I run the :describe client command with:
@@ -27,7 +27,7 @@ Feature: Pod related networking scenarios
   Scenario: containers can use vxlan as they want
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/udp4789-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/udp4789-pod.json |
     Then the step should succeed
     And the pod named "udp4789-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :udp_pod clipboard
@@ -86,7 +86,7 @@ Feature: Pod related networking scenarios
     # Create a pod and make sure it will not use the broadcast ip
     Given I switch to the first user
     And I have a project
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.node_name%> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -105,7 +105,7 @@ Feature: Pod related networking scenarios
     And I run the steps 25 times:
     """
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/completed-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/completed-pod.json |
     Then the step should succeed
     """
     Given I wait up to 60 seconds for the steps to pass:
@@ -133,13 +133,13 @@ Feature: Pod related networking scenarios
     Given I have a project
     # setup iperf server to receive the traffic
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-server.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-server.json |
     Then the step should succeed
     And the pod named "iperf-server" becomes ready
     And evaluation of `pod.ip` is stored in the :iperf_server clipboard
 
     # setup iperf client to send traffic to server with qos configured
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-rc.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-rc.json" replacing paths:
       | ["spec"]["replicas"] | 2 |
       | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/ingress-bandwidth"] | 100M |
       | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/egress-bandwidth"] | 100M |
@@ -195,7 +195,7 @@ Feature: Pod related networking scenarios
     Then the output should contain "Connection refused"
     Given SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/networking/hostnetwork-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/hostnetwork-pod.json |
     Then the step should succeed
     And the pod named "hostnetwork-pod" becomes ready
     When I execute on the pod:

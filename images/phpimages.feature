@@ -30,7 +30,7 @@ Feature: phpimages.feature
   Scenario Outline: Update php image to autoconfigure based on available memory
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template1> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/<template1> |
     Then the step should succeed
     And the "php-app-1" build was created
     And the "php-app-1" build completed
@@ -44,7 +44,7 @@ Feature: phpimages.feature
     When I delete all resources by labels:
       | app=php-app |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template2> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/<template2> |
     Then the step should succeed
     And the "php-app-1" build was created
     And the "php-app-1" build completed

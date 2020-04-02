@@ -5,7 +5,7 @@ Feature: oc debug related scenarios
   Scenario: Debug pod with oc debug
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=dctest-1 |
@@ -46,7 +46,7 @@ Feature: oc debug related scenarios
       | openshift.io/deployment.name:\\s+hello-1          |
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-with-probe.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-with-probe.yaml |
     Then the step should succeed
     When the pod named "hello-openshift" status becomes :running
     And I run the :debug client command with:
@@ -63,7 +63,7 @@ Feature: oc debug related scenarios
   Scenario: Use oc debug with misc flags
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=dctest-1 |
@@ -113,7 +113,7 @@ Feature: oc debug related scenarios
     And the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/initContainers/initContainer.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/initContainer.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-pod |

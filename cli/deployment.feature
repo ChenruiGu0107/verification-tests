@@ -5,7 +5,7 @@ Feature: deployment related steps
   Scenario: Cleanup policy - Cleanup all previous RSs older than the latest N replica sets in pause
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -119,7 +119,7 @@ Feature: deployment related steps
   Scenario: Proportionally scale - Rollout deployment succeed in unpause and pause
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -242,7 +242,7 @@ Feature: deployment related steps
     Given I have a project
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-2.yaml |
     Then the step should succeed
 
     Given 60 pods become ready with labels:
@@ -393,7 +393,7 @@ Feature: deployment related steps
   Scenario: Proportionally scale - Mixture of surging, scaling and rollout
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -508,7 +508,7 @@ Feature: deployment related steps
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -580,7 +580,7 @@ Feature: deployment related steps
   Scenario: Proportionally scale - Special value test for proportional scaling
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -646,7 +646,7 @@ Feature: deployment related steps
   Scenario: Proportionally scale - [OSO]deployment of scaling and rollout
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-openshift |
@@ -702,7 +702,7 @@ Feature: deployment related steps
   Scenario: Terminating pod should removed from endpoints list for service
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfigs |

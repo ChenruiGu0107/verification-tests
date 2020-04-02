@@ -5,13 +5,13 @@ Feature: All in one volume
   Scenario: Collisions when one path is explicit and the other is automatically projected
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-1.yaml |
     Then the step should succeed
     Given the pod named "allinone-collisions-1" becomes ready
     When I execute on the pod:
@@ -28,7 +28,7 @@ Feature: All in one volume
       | charm   |
       | ^644$   |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-2.yaml |
     Then the step should succeed
     Given the pod named "allinone-collisions-2" becomes ready
     When I execute on the pod:
@@ -50,13 +50,13 @@ Feature: All in one volume
   Scenario: using a non-absolute path in volumeMounts
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-opposite-path-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-opposite-path-pod.yaml |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -72,13 +72,13 @@ Feature: All in one volume
   Scenario: Project secrets, configmap not explicitly defining keys for pathing within a volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-no-keypath" becomes ready
     When I execute on the pod:
@@ -101,10 +101,10 @@ Feature: All in one volume
     Then the step should succeed
     Given I ensure "allinone-no-keypath" pod is deleted
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap-with-samekey.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap-with-samekey.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-no-keypath" becomes ready
     When I execute on the pod:
@@ -125,13 +125,13 @@ Feature: All in one volume
   Scenario: Project secrets, configmap with a same path of keys within a volume
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-same-path-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-same-path-pod.yaml |
     Then the step should fail
     And the output should match:
       | projected: Invalid value: "special-config": conflicting duplicate paths |
@@ -142,19 +142,19 @@ Feature: All in one volume
   Scenario: using invalid volume name
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-1.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-1.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value: "all-in-one abc" |
       | Not found: "all-in-one abc"     |
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-2.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-2.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value.*<%= Regexp.escape("all-in-one!@$#$%^&") %> |
@@ -166,14 +166,14 @@ Feature: All in one volume
   Scenario: Permission mode work well in whole volume and individual resources
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/allinone-volume/allinone-permission-mode-pod.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-permission-mode-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-permission-mode" becomes ready
     When I execute on the pod:

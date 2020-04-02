@@ -50,7 +50,7 @@ Feature: create app on web console related
     Given I have a project
     Given I use the "<%= project.name %>" project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
       | Service | Test |
@@ -85,7 +85,7 @@ Feature: create app on web console related
     Given I use the "<%= project.name %>" project
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I perform the :create_app_from_template_without_label web console action with:
@@ -171,7 +171,7 @@ Feature: create app on web console related
   Scenario: v1bata3 API version is not supported
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc515804/application-template-stibuild.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc515804/application-template-stibuild.json |
     Then the step should succeed
     When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
@@ -186,7 +186,7 @@ Feature: create app on web console related
   # @case_id OCP-11233
   Scenario: Create resource from template contains fake api group
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     And I run oc create with "application-template-stibuild-without-customize-route.json" replacing paths:
       | ["objects"][0]["apiVersion"] | fake/v1          |
     Then the step should succeed
@@ -204,7 +204,7 @@ Feature: create app on web console related
   Scenario: Multiple ports can be shown and chosen on web console
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image-streams/tc516702.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/tc516702.json |
     Then the step should succeed
 
     Given the "nodejs" image stream becomes ready
@@ -258,7 +258,7 @@ Feature: create app on web console related
   Scenario: Create resource from template contains different api groups
     Given I create a new project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/test-api.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/test-api.yaml |
     Then the step should succeed
     When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
@@ -309,7 +309,7 @@ Feature: create app on web console related
   Scenario: Check template message on next step page
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/application-template-stibuild.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
     Then the step should succeed
     When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
@@ -427,7 +427,7 @@ Feature: create app on web console related
   # @case_id OCP-11621
   Scenario: Labels management in create app from template process on web console
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                                       |
@@ -491,7 +491,7 @@ Feature: create app on web console related
   # @case_id OCP-11288
   Scenario: Add resources missing some required fields to project
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     Given I backup the file "application-template-stibuild-without-customize-route.json"
     And I replace lines in "application-template-stibuild-without-customize-route.json":
@@ -534,7 +534,7 @@ Feature: create app on web console related
       | message | spec.source.git.uri: Required value |
     Then the step should succeed
 
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/deployment1.json"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json"
     Then the step should succeed
     Given I backup the file "deployment1.json"
     And I replace lines in "deployment1.json":
@@ -561,7 +561,7 @@ Feature: create app on web console related
   Scenario: web console:parameter requirement check works correctly
     Given I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I perform the :create_app_from_template_with_required_field_empty web console action with:
       | project_name  | <%= project.name %>    |
@@ -652,7 +652,7 @@ Feature: create app on web console related
   Scenario: Add resources with unsupported format to project
     Given the master version >= "3.3"
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/pods/pod-with-probe.yaml"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-with-probe.yaml"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                        |
@@ -667,7 +667,7 @@ Feature: create app on web console related
     When I perform the :check_error_message_on_create_fromfile web console action with:
       | error_message | The API version v1 for kind PodTest is not supported by this server |
     Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/registry/htpasswd"
+    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/registry/htpasswd"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                        |

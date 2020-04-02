@@ -6,11 +6,11 @@ Feature: Testing haproxy rate limit related features
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -47,12 +47,12 @@ Feature: Testing haproxy rate limit related features
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/passthough/service_secure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/passthough/service_secure.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
@@ -88,16 +88,16 @@ Feature: Testing haproxy rate limit related features
     And I have a project
     # create two httpbin pods which have same labels
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json" replacing paths:
       | ["metadata"]["name"] | "httpbin-pod2" |
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
