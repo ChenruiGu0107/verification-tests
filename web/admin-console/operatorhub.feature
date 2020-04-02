@@ -125,7 +125,7 @@ Feature: operatorhub feature related
   @admin
   @destructive
   Scenario: Check container security on console
-    Given the master version >= "4.3"
+    Given the master version >= "4.4"
     Given I have a project
     When I run the :create client command with:
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/deployment/vul_deployment.yaml |
@@ -193,7 +193,7 @@ Feature: operatorhub feature related
 
     #uninstall the operator on web console
     When I perform the :goto_installed_operators_page web action with:
-      | project_name | openshift-operators |
+      | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :uninstall_operator_on_console web action with:
       | resource_name | Container Security |

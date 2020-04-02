@@ -300,11 +300,9 @@ Feature: customize console related
       | p        | {"spec":{"customization": null}} |
     Then the step should succeed
     """
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/mypic.jpg"
-    Then the step should succeed
     When I run the :create_configmap admin command with:
       | name      | myconfig         |
-      | from_file | mypic.jpg        |
+      | from_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/customresource/mypic.jpg |
       | namespace | openshift-config |
     Then the step should succeed
 
