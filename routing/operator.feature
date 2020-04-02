@@ -201,7 +201,7 @@ Feature: Testing Ingress Operator related scenarios
     Given I switch to cluster admin pseudo user
     And admin ensures "<name>" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom ingresscontroller
-    When I run oc create over "<ingressctl>" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/<ingressctl>" replacing paths:
       | ["metadata"]["name"] | <name>                                    |
       | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","<name>") %> |
     Then the step should succeed
@@ -219,11 +219,11 @@ Feature: Testing Ingress Operator related scenarios
     Then the output should contain "<ciphers>"
     """
   Examples:
-    | name | ingressctl | tls-version | ciphers |
-    | test-25665 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-old.yaml | TLSv1.1 | AES128-GCM-SHA256:AES256-GCM-SHA384 | # @case_id OCP-25665
-    | test-25666 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-intmd.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
-    | test-25667 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-modern.yaml | TLSv1.2 | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
-    | test-25668 | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/routing/operator/ingressctl-tls-custom.yaml | TLSv1.1 | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
+    | name       | ingressctl                 | tls-version | ciphers                                                   |
+    | test-25665 | ingressctl-tls-old.yaml    | TLSv1.1     | AES128-GCM-SHA256:AES256-GCM-SHA384                       | # @case_id OCP-25665
+    | test-25666 | ingressctl-tls-intmd.yaml  | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
+    | test-25667 | ingressctl-tls-modern.yaml | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
+    | test-25668 | ingressctl-tls-custom.yaml | TLSv1.1     | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
 
   # @author hongli@redhat.com
   # @case_id OCP-26150

@@ -79,7 +79,7 @@ Feature: buildlogic.feature
       | n             | openshift   |
     Then the step should succeed
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
-    When I run oc create over "<template>" replacing paths:
+    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/forcePull/<template>" replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
@@ -92,9 +92,9 @@ Feature: buildlogic.feature
       | Force Pull:\s+(true\|yes)|
 
     Examples:
-      | strategy       | template                                                                                                                    |
-      | dockerStrategy | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/forcePull/buildconfig-docker-ImageStreamImage.json | # @case_id OCP-11500
-      | sourceStrategy | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/build/forcePull/buildconfig-s2i-ImageStreamImage.json    | # @case_id OCP-11735
+      | strategy       | template                                 |
+      | dockerStrategy | buildconfig-docker-ImageStreamImage.json | # @case_id OCP-11500
+      | sourceStrategy | buildconfig-s2i-ImageStreamImage.json    | # @case_id OCP-11735
 
   # @author dyan@redhat.com
   # @case_id OCP-10596

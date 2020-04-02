@@ -4,7 +4,7 @@ Feature: ruby.feature
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | <template> |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/<template> |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
@@ -20,10 +20,10 @@ Feature: ruby.feature
     """
     Examples:
       | template                                                                                                                  |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521461/template.json  | # @case_id OCP-10810
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/tc521462/template.json  | # @case_id OCP-11257
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/OCP-13135/template.json | # @case_id OCP-13135
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/OCP-13136/template.json | # @case_id OCP-13136
+      | tc521461/template.json  | # @case_id OCP-10810
+      | tc521462/template.json  | # @case_id OCP-11257
+      | OCP-13135/template.json | # @case_id OCP-13135
+      | OCP-13136/template.json | # @case_id OCP-13136
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12370

@@ -18,7 +18,7 @@ Feature: quickstarts.feature
   Scenario Outline: Application with base images with oc command
     Given I have a project
     When I run the :new_app client command with:
-      | file | <json> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/<json> |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | python-sample-build |
@@ -45,9 +45,9 @@ Feature: quickstarts.feature
     """
     Then the output should contain "OpenShift"
     Examples:
-      | json |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-stibuild.json | # @case_id OCP-9605
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc499622/python-27-centos7-stibuild.json | # @case_id OCP-12650
+      | json                                                         |
+      | image/language-image-templates/python-27-rhel7-stibuild.json | # @case_id OCP-9605
+      | templates/tc499622/python-27-centos7-stibuild.json           | # @case_id OCP-12650
 
   # @author wzheng@redhat.com
   # @case_id OCP-11178
@@ -191,7 +191,7 @@ Feature: quickstarts.feature
   Scenario Outline: Dancer-ex quickstart test with perl-516-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | file | <template> |
+      | file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/<template> |
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
@@ -202,9 +202,9 @@ Feature: quickstarts.feature
     Then the output should contain "<output>"
 
     Examples: OS Type
-      | template                                                                                                | buildcfg             | output  | podno |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     | # @case_id OCP-12602
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | # @case_id OCP-12603
+      | template                   | buildcfg             | output  | podno |
+      | tc492612/dancer.json       | dancer-example       | Dancer  | 1     | # @case_id OCP-12602
+      | tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     | # @case_id OCP-12603
 
   # @author xiuwang@redhat.com
   # @case_id OCP-13750

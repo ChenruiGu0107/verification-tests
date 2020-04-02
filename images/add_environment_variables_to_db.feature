@@ -3,7 +3,7 @@ Feature: Add env variables to image feature
   Scenario Outline: Add env variables to mysql image
     Given I have a project
     When I run the :create client command with:
-      | f | <template> |
+      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/<template> |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -73,9 +73,9 @@ Feature: Add env variables to image feature
 
     Examples:
       | template |
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-55-env-var-test.json | # @case_id OCP-11085
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-56-env-var-test.json | # @case_id OCP-12385
-      | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/image/db-templates/mysql-57-env-var-test.json | # @case_id OCP-12393
+      | mysql-55-env-var-test.json | # @case_id OCP-11085
+      | mysql-56-env-var-test.json | # @case_id OCP-12385
+      | mysql-57-env-var-test.json | # @case_id OCP-12393
 
   # @author wewang@redhat.com
   Scenario Outline: Add env variables to postgresql image
