@@ -107,7 +107,7 @@ Feature: query browser
   # @author hongyli@redhat.com
   # @case_id OCP-27830
   @admin
-  Scenario: Developer query browser feature - common user
+  Scenario: Developer query browser feature - cluster admin
     Given the master version >= "4.4"
     Given I open admin console in a browser
     And the first user is cluster-admin
