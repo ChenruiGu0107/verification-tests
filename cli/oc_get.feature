@@ -173,8 +173,7 @@ Feature: oc get related command
     Then the step should succeed
     And label "tc28012=vip1" is added to the "<%= cb.nodes[0].name %>" node
     When I terminate last background process
-    Then the output should contain 6 times:
-      | <%= cb.nodes[0].name %> |
+    And the expression should be true> @result[:response].scan('<%= cb.nodes[0].name %>').count >= 4
 
     When I run the :get background admin command with:
       | resource | node |
