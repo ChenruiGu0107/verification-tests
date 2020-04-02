@@ -403,3 +403,24 @@ Feature: dockerbuild.feature
       | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And the istag named "nodejs:latest" does not exist in the project
+
+  # @author wewang@redhat.com
+  # @case_id OCP-25285
+  Scenario: Builds should be configured to use mirrors in disconnected environments
+    Given I have a project
+    When I run the :new_build client command with:
+      | D    | FROM quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
+      | name | disconnect-build |
+    Then the step should succeed
+    And the "disconnect-build-1" build was created
+    And the "disconnect-build-1" build failed
+    When I run the :set_build_secret client command with:
+      | bc_name     | disconnect-build |
+      | secret_name | mirrorsecret     |
+      | pull        | true             |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | disconnect-build |
+    Then the step should succeed
+    And the "disconnect-build-2" build was created
+    And the "disconnect-build-2" build completed
