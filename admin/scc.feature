@@ -520,24 +520,14 @@ Feature: SCC policy related scenarios
   # @case_id OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
-    Then the step should succeed
-    And I replace lines in "PodSecurityPolicySubjectReview_privileged_false.json":
-      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
-    Then the step should succeed
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
-      | project_name | <%= project.name %>                                  |
-      | payload_file | PodSecurityPolicySubjectReview_privileged_false.json |
+      | project_name | <%= project.name %>                                                                                                                   |
+      | payload_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json"
-    Then the step should succeed
-    And I replace lines in "PodSecurityPolicySubjectReview_privileged_true.json":
-      | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
-    Then the step should succeed
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
-      | project_name | <%= project.name %>                                 |
-      | payload_file | PodSecurityPolicySubjectReview_privileged_true.json |
+      | project_name | <%= project.name %>                                                                                                                  |
+      | payload_file | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["reason"] == "CantAssignSecurityContextConstraintProvider"
 
