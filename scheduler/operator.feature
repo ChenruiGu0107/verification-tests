@@ -9,9 +9,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                                |
-      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_hostname.json |
-      | namespace | openshift-config                                                                                |
+      | name      | scheduler-policy                                                                          |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_hostname.json |
+      | namespace | openshift-config                                                                          |
       Then the step should succeed
 
     When I run the :patch admin command with:
@@ -43,13 +43,11 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_servicespreadingpriority.json"
-    Then the step should succeed
 
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                       |
-      | from_file | policy.cfg=<%= File.join(localhost.workdir, "policy_servicespreadingpriority.json") %> |
-      | namespace | openshift-config                                                                       |
+      | name      | scheduler-policy                                                                                          |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_servicespreadingpriority.json |
+      | namespace | openshift-config                                                                                          |
     Then the step should succeed
 
     When I run the :patch admin command with:
@@ -71,8 +69,8 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     And all pods in the project are ready
     When I run the :get client command with:
-      | resource      | pods |
-      | o             | wide |
+      | resource | pods |
+      | o        | wide |
     Then the step should succeed
     And the output should contain:
       | <%= cb.nodes[0].name %>  |
@@ -110,9 +108,9 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                             |
-      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/policy_empty.json |
-      | namespace | openshift-config                                                                             |
+      | name      | scheduler-policy                                                                       |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_empty.json |
+      | namespace | openshift-config                                                                       |
     Then the step should succeed
 
     When I run the :patch admin command with:
@@ -145,13 +143,11 @@ Feature: Testing Scheduler Operator related scenarios
     Given I store the schedulable workers in the :nodes clipboard
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_leastrequestedpriority.json"
-    Then the step should succeed
 
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                    |
-      | from_file | policy.cfg=<%=File.join(localhost.workdir, "policy_leastrequestedpriority.json") %> |
-      | namespace | openshift-config                                                                    |
+      | name      | scheduler-policy                                                                                        |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_leastrequestedpriority.json |
+      | namespace | openshift-config                                                                                        |
     Then the step should succeed
 
     When I run the :patch admin command with:
@@ -191,11 +187,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
     Given node schedulable status should be restored after scenario
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename>"
     When I run the :create_configmap admin command with:
-      | name      | my-scheduler-policy                                                                   |
-      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<filename> |
-      | namespace | openshift-config                                                                      |
+      | name      | my-scheduler-policy                                                             |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
+      | namespace | openshift-config                                                                |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scheduler                                          |
@@ -236,9 +231,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given the "cluster" scheduler CR is restored after scenario
     Given node schedulable status should be restored after scenario
     When I run the :create_configmap admin command with:
-      | name      | scheduler-policy                                                                      |
-      | from_file | policy.cfg=<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/<filename> |
-      | namespace | openshift-config                                                                      |
+      | name      | scheduler-policy                                                                |
+      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
+      | namespace | openshift-config                                                                |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scheduler                                       |
