@@ -521,12 +521,12 @@ Feature: SCC policy related scenarios
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
-      | project_name | <%= project.name %>                                                                                                                   |
+      | project_name | <%= project.name %>                                                                                                             |
       | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
-      | project_name | <%= project.name %>                                                                                                                  |
+      | project_name | <%= project.name %>                                                                                                            |
       | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["reason"] == "CantAssignSecurityContextConstraintProvider"
@@ -552,11 +552,9 @@ Feature: SCC policy related scenarios
   Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs
     Given I have a project
     Given SCC "restricted" is added to the "default" service account
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538264/PodSecurityPolicyReview.json"
-    Then the step should succeed
     When I perform the :post_pod_security_policy_reviews rest request with:
-      | project_name | <%= project.name %>          |
-      | payload_file | PodSecurityPolicyReview.json |
+      | project_name | <%= project.name %>                                                                                     |
+      | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538264/PodSecurityPolicyReview.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
 
@@ -627,7 +625,7 @@ Feature: SCC policy related scenarios
       | [*] |
     And I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_cap_fsetid.json |
-      | n | <%= project.name %>                                                                                               |
+      | n | <%= project.name %>                                                                            |
     Then the step should succeed
     When I get project pod named "pod-add-fsetid" as JSON
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['securityContext']['capabilities']['add'][0] == "FSETID"
@@ -669,12 +667,12 @@ Feature: SCC policy related scenarios
     Given I switch to the first user
     When I run the :create client command with:
       | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
-      | n |  <%= project.name %>                                                                                                |
+      | n |  <%= project.name %>                                                                            |
     Then the step should succeed
     Given I create 1 new projects
     When I run the :create client command with:
       | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
-      | n |  <%= project.name %>                                                                                               |
+      | n |  <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
 
