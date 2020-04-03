@@ -25,7 +25,7 @@ Feature: dockerbuild.feature
   Scenario: Add empty ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
     When I run the :new_app client command with:
-      | file |  <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template-dockerbuild-blankvar.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template-dockerbuild-blankvar.json |
     Then the step should fail
     And the output should contain "invalid"
 
@@ -237,15 +237,13 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I get project buildconfigs as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12856/push-generic-build-args.json"
-    Then the step should succeed
     When I perform the HTTP request:
     """
     :url: <%= env.api_endpoint_url %>/apis/build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
     :method: post
     :headers:
       :content-type: application/json
-    :payload: <%= File.read("push-generic-build-args.json").to_json %>
+    :payload: <%= File.read("<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12856/push-generic-build-args.json").to_json %>
     """
     Then the step should succeed
     Given the "ruby-hello-world-2" build was created
