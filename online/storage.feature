@@ -104,7 +104,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
   Scenario: check the storage size description on web console on paid tier
     Given I have a project
     When I perform the :check_storage_limit_min_size_on_paid web console action with:
-      | project_name     | <%= project.name %> |
+      | project_name | <%= project.name %> |
     Then the step should succeed
 
   # @author yasun@redhat.com
@@ -112,33 +112,33 @@ Feature: ONLY ONLINE Storage related scripts in this file
   Scenario: check the storage size description on web console on free tier
     Given I have a project
     When I perform the :check_storage_limit_min_size_on_free web console action with:
-      | project_name     | <%= project.name %> |
+      | project_name | <%= project.name %> |
     Then the step should succeed
 
   # @author yuwei@redhat.com
   # @case_id OCP-19803
   Scenario: User is ONLY allowed to select the valid access mode for the default storageclass in web console
     When I run the :get client command with:
-      | resource      | storageclass |
+      | resource | storageclass |
     Then the step should succeed
     And the output should contain "gp2-encrypted (default)"
     When I run the :get client command with:
-      | resource      | storageclass                                                                         |
-      | resource_name | gp2-encrypted                                                                        |
-      | template      | '{{ index .metadata.annotations "storage.alpha.openshift.io/access-mode" }}'         |
+      | resource      | storageclass                                                                 |
+      | resource_name | gp2-encrypted                                                                |
+      | template      | '{{ index .metadata.annotations "storage.alpha.openshift.io/access-mode" }}' |
     Then the step should succeed
     And the output should contain "ReadWriteOnce"
     Given I have a project
     When I perform the :check_default_pvc_access_mode web console action with:
-      | project_name    | <%= project.name %>    |
-      | storage_class   | gp2-encrypted          |
-      | storage_type    | gp2                    |
+      | project_name  | <%= project.name %> |
+      | storage_class | gp2-encrypted       |
+      | storage_type  | gp2                 |
     Then the step should succeed
     When I perform the :create_default_pvc_from_storage_page web console action with:
-      | project_name    | <%= project.name %>    |
-      | pvc_name        | yuwei-test             |
-      | storage_size    | 0.001                  |
-      | storage_unit    | TiB                    |
+      | project_name | <%= project.name %> |
+      | pvc_name     | yuwei-test          |
+      | storage_size | 0.001               |
+      | storage_unit | TiB                 |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -146,7 +146,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
   Scenario Outline: create pvc with annotation in aws using dedicated env
     Given I have a project
     When I run the :create client command with:
-      | f | https://github.com/openshift-qe/v3-testfiles/raw/master/online/dynamic_persistent_volumes/<pvc-name>.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/<pvc-name>.json |
     Then the step should succeed
     And the "<pvc-name>" PVC becomes :<status>
     When I run the :describe client command with:
@@ -167,4 +167,4 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | pvc-annotation-blank    | pending | no persistent volumes available for this claim and no storage class is set |
       | pvc-annotation-alpha    | bound   | StorageClass:\s+gp2-encrypted                                              |
       | pvc-annotation-gp2      | bound   | StorageClass:\s+gp2                                                        |
-      
+
