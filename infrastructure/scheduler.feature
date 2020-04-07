@@ -155,10 +155,10 @@ Feature: Scheduler predicates and priority test suites
     Given I store the schedulable workers in the :nodes clipboard
     # Creation of priority classes
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
       | ["metadata"]["name"] | prioritym |
       | ["value"]            | 99        |
     Then the step should succeed
@@ -176,14 +176,14 @@ Feature: Scheduler predicates and priority test suites
     Given I use the "<%= cb.nodes[2].name %>" node
     And evaluation of `cb.nodes[2].remaining_resources[:memory]` is stored in the :node_memory clipboard
     And evaluation of `cb.nodes[2].remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | env=test |
     And evaluation of `pod.name` is stored in the :podone clipboard
     Then the expression should be true> pod.node_name == cb.nodes[2].name
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
       | ["metadata"]["labels"]                                       | env: test1                     |
     Then the step should succeed
@@ -191,7 +191,7 @@ Feature: Scheduler predicates and priority test suites
       | env=test1 |
     And evaluation of `pod.name` is stored in the :podtwo clipboard
     Then the expression should be true> pod.node_name == cb.nodes[2].name
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | prioritym             |
       | ["metadata"]["labels"]                                       | env: testm            |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
