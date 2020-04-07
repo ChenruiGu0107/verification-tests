@@ -251,3 +251,15 @@ Feature: Testing image registry operator
       | S3 Bucket Exists |
     And the output should not contain:
       | bucket: <%= cb.custom_nm %> |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-27577
+  Scenario:Explain and check the custom resource definition for the prune
+    When I run the :explain client command with:
+      | resource    | imagepruners                           |
+      | api_version | imageregistry.operator.openshift.io/v1 |
+    Then the step should succeed
+    And the output should contain:
+      | ImagePruner is the configuration object for an image registry pruner |
+      | ImagePrunerSpec defines the specs for the running image pruner       | 
+      | ImagePrunerStatus reports image pruner operational status            | 
