@@ -16,9 +16,11 @@ Feature: Scheduler predicates and priority test suites
     Given I run the :oadm_policy_add_scc_to_user admin command with:
       | scc       | hostaccess          |
       | user_name | <%=user(0).name%>   |
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json |
     Then the step should succeed
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_ports.json |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -32,7 +34,8 @@ Feature: Scheduler predicates and priority test suites
   # @case_id OCP-12482
   Scenario: [origin_runtime_646] Fixed predicates rules testing - PodFitsResources
     Given I have a project
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_resources.json
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_resources.json |
     And the step should succeed
     When I run the :describe client command with:
       | resource | pods |
@@ -109,7 +112,8 @@ Feature: Scheduler predicates and priority test suites
     Then the step should succeed
     # calculate the memory leave to new pods
     Given evaluation of `node.remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_more_than_remanent_memory.json
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_more_than_remanent_memory.json" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.pod_request_memory + 1%> |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -118,7 +122,8 @@ Feature: Scheduler predicates and priority test suites
     And the output should match:
       | FailedScheduling.*(PodFitsResources\|Insufficient memory) |
     """
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_remanent_memory.json
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_remanent_memory.json" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.pod_request_memory %> |
     Then the step should succeed
     And the pod named "pod-with-remanent-memory" becomes ready
     Then the expression should be true> pod.node_name == node.name
