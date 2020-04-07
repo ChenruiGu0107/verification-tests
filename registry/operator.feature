@@ -253,6 +253,36 @@ Feature: Testing image registry operator
       | bucket: <%= cb.custom_nm %> |
 
   # @author wzheng@redhat.com
+  # @case_id OCP-27588
+  @admin
+  @destructive
+  Scenario: ManagementState setting in Image registry operator config can influence image prune
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
+    When I run the :describe admin command with:
+      | resource  | cronjob.batch            |
+      | name      | image-pruner             |
+      | namespace | openshift-image-registry |
+    Then the step should succeed
+    Then the output should contain:
+      | -certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt  |
+      | --keep-tag-revisions=3                                                               |
+      | --keep-younger-than=60m                                                              |
+      | --prune-registry=true                                                                |
+      | --confirm=true                                                                       |
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Unmanaged
+    And I register clean-up steps:
+    """
+    Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
+    """
+    When I run the :describe admin command with:
+      | resource  | cronjob.batch            |
+      | name      | image-pruner             |
+      | namespace | openshift-image-registry |
+    Then the step should succeed
+    Then the output should contain:
+      | --prune-registry=false |
+  
+  # @author wzheng@redhat.com
   # @case_id OCP-27577
   Scenario:Explain and check the custom resource definition for the prune
     When I run the :explain client command with:
