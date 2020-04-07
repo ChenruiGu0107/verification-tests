@@ -222,3 +222,54 @@ Feature: Scheduler predicates and priority test suites
     Then the step should succeed
     And the pod named "<%= cb.podm %>" status becomes :running
     Then the expression should be true> pod.node_name == cb.nodes[2].name
+
+  # author knarra@redhat.com
+  # @case_id OCP-26842
+  @admin
+  @destructive
+  Scenario: Deploy a custom scheduler
+    Given the master version >= "4.1"
+    Given the "system:kube-scheduler" clusterole is recreated after scenario
+    Given admin ensures "my-scheduler" deployment is deleted from the "kube-system" project after scenario
+    Given admin ensures "my-schedule" service_account is deleted from the "kube-system" project after scenario
+    Given admin ensures "my-scheduler-as-kube-scheduler" clusterrolebinding is deleted after scenario
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/my-scheduler.yaml |
+    Then the step should succeed
+    And the output should contain "deployment.apps/my-scheduler created"
+    When I run the :get admin command with:
+      | resource       | pod                 |
+      | all_namespaces | true                |
+      | l              | component=scheduler |
+    Then the step should succeed
+    And the output should contain "kube-system"
+    When I run the :patch admin command with:
+      | resource      | clusterrole                                                               |
+      | resource_name | system:kube-scheduler                                                     |
+      | p             | [{"op":"add", "path":"/rules/2/resourceNames/1", "value":"my-scheduler"}] |
+      | type          | json                                                                      |
+    Then the step should succeed
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/pod-noscheduler.yaml |
+    And the pod named "no-annotation" becomes ready
+    When I run the :describe client command with:
+      | resource | pod           |
+      | name     | no-annotation |
+    Then the output should contain "default-scheduler"
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/pod-noscheduler.yaml" replacing paths:
+      | ["metadata"]["name"]      | annotation-default-scheduler |
+      | ["spec"]["schedulerName"] | default-scheduler            |
+    And the pod named "annotation-default-scheduler" becomes ready
+    When I run the :describe client command with:
+      | resource | pod                          |
+      | name     | annotation-default-scheduler |
+    Then the output should contain "default-scheduler"
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/pod-noscheduler.yaml" replacing paths:
+      | ["metadata"]["name"]      | annotation-second-scheduler |
+      | ["spec"]["schedulerName"] | my-scheduler                |
+    And the pod named "annotation-second-scheduler" becomes ready
+    When I run the :describe client command with:
+      | resource | pod                         |
+      | name     | annotation-second-scheduler |
+    Then the output should contain "my-scheduler"
