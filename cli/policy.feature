@@ -460,19 +460,7 @@ Feature: change the policy of user/service account
     Given I run the :get client command with:
       | resource | nodes |
     Then the step should fail
-    Given I run the :oadm_policy_add_cluster_role_to_user admin command with:
-      | role_name | system:node-reader  |
-      | z         | default             |
-      | n         | <%= project.name %> |
-    Then the step should succeed
-    And I register clean-up steps:
-      """
-      Given I run the :oadm_policy_remove_cluster_role_from_user admin command with:
-        | role_name | system:node-reader  |
-        | z         | default             |
-        | n         | <%= project.name %> |
-      Then the step should succeed
-      """
+    Given cluster role "system:node-reader" is added to the "system:serviceaccount:<%= project.name %>:default" service account
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :get client command with:
