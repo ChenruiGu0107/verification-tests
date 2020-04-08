@@ -1,50 +1,6 @@
 Feature: create app on web console related
 
   # @author xxing@redhat.com
-  # @case_id OCP-9568
-  @admin
-  Scenario: create app from template with custom build on web console
-    Given I have a project
-    When I run the :policy_add_role_to_user admin command with:
-      | role            | system:build-strategy-custom |
-      | user name       |   <%= user.name %>           |
-      | n               |   <%= project.name %>        |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
-    Then the step should succeed
-    When I perform the :create_app_from_template_with_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
-      | label_key     | label1 |
-      | label_value   | test   |
-    Then the step should succeed
-    Given the "ruby-sample-build-1" build was created
-    When I perform the :check_one_build_inside_bc_page web console action with:
-      | project_name      | <%= project.name %>                   |
-      | bc_and_build_name | ruby-sample-build/ruby-sample-build-1 |
-    Then the step should succeed
-    Given the "ruby-sample-build-1" build completed
-    When I run the :get client command with:
-      | resource | all         |
-      | l        | label1=test |
-    Then the output should contain:
-      | NAME              |
-      | ruby-sample-build |
-      | frontend          |
-      | database          |
-    When I run the :delete client command with:
-      | object_type | all  |
-      | l           | label1=test |
-    Then the output should match:
-      | build.+deleted            |
-      | imagestream.+deleted      |
-      | deploymentconfig.+deleted |
-      | route.+deleted            |
-      | service.+deleted          |
-
-  # @author xxing@redhat.com
   # @case_id OCP-9561
   Scenario: Create app from template containing invalid type on web console
     Given I have a project
