@@ -241,6 +241,10 @@ Feature: Testing Scheduler Operator related scenarios
       | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
       | type          | merge                                           |
     Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -257,19 +261,13 @@ Feature: Testing Scheduler Operator related scenarios
     When I run the :oadm_cordon_node admin command with:
       | node_name | <%= cb.nodes[2].name %> |
     Given I have a project
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<podfilename>"
+    When I run the :new_app client command with:
+      | docker_image   | openshift/hello-openshift |
     Then the step should succeed
-    Given status becomes :running of 3 pods labeled:
-      | deploymentconfig=database |
-    Given evaluation of `@pods[0].node_name` is stored in the :nodename clipboard
-    When I run the :get client command with:
-      | resource | pod                       |
-      | l        | deploymentconfig=database |
-      | o        | wide                      |
-     Then the step should succeed
-     And the output should contain 3 times:
-       | <%= cb.nodename %> |
-     Examples:
-       | filename                          | podfilename       |
-       | policy_aff_aff_antiaffi.json      | pod_ocp11889.json | # @case_id OCP-11889
-       | policy_aff_antiaffi_antiaffi.json | pod_ocp12191.json | # @case_id OCP-12191
+    Given status becomes :running of 1 pods labeled:
+      | deploymentconfig=hello-openshift |
+    Then the expression should be true> pod.node_name == <nodename>
+    Examples:
+      | filename                          | nodename         |
+      | policy_aff_aff_antiaffi.json      | cb.nodes[0].name | # @case_id OCP-11889
+      | policy_aff_antiaffi_antiaffi.json | cb.nodes[1].name | # @case_id OCP-12191
