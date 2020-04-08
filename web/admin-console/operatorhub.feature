@@ -291,7 +291,6 @@ Feature: operatorhub feature related
       | link_url | https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated |
     Then the step should succeed
 
-
   # @author hasha@redhat.com
   # @case_id OCP-28954
   @admin
@@ -327,3 +326,46 @@ Feature: operatorhub feature related
     When I run the :switch_to_yaml_view web action
     Then the step should succeed
 
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-27835
+  @admin
+  Scenario: Check operator's capability level in operator hub
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_capability_level web action with:
+      | text | Full Lifecycle |
+    Then the step should succeed
+    When I perform the :filter_by_keyword web action with:
+      | keyword | local storage |
+    Then the step should succeed
+    When I run the :open_first_card_in_overlay web action
+    Then the step should succeed
+    When I run the :check_basic_install_capability web action
+    Then the step should succeed
+    When I run the :check_seamless_upgrade_capability web action
+    Then the step should succeed
+    When I run the :check_full_lifecycle_capability web action
+    Then the step should succeed
+    When I run the :check_deep_insights_capability web action
+    Then the step should fail
+
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_capability_level web action with:
+      | text | Seamless Upgrades |
+    Then the step should succeed
+    When I perform the :filter_by_keyword web action with:
+      | keyword | elastic |
+    Then the step should succeed
+    When I run the :open_first_card_in_overlay web action
+    Then the step should succeed
+    When I run the :check_basic_install_capability web action
+    Then the step should succeed
+    When I run the :check_seamless_upgrade_capability web action
+    Then the step should succeed
+    When I run the :check_full_lifecycle_capability web action
+    Then the step should fail
