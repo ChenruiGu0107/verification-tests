@@ -565,10 +565,7 @@ Feature: Testing registry
     Then the output should contain:
       | UNAUTHORIZED |
     """
-    When I run the :oadm_policy_add_cluster_role_to_user admin command with:
-      | role_name | prometheus-scraper |
-      | user_name | <%= user.name %> |
-    Then the step should succeed
+    Given cluster role "prometheus-scraper" is added to the "first" user
     And I wait for the steps to pass:
     """
     When I execute on the pod:
