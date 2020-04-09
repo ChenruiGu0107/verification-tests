@@ -266,8 +266,8 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | deploymentconfig=hello-openshift |
-    Then the expression should be true> pod.node_name == <nodename>
+    Then the expression should be true> pod.node_name == cb.nodes[0].name || cb.nodes[1].name
     Examples:
-      | filename                          | nodename         |
-      | policy_aff_aff_antiaffi.json      | cb.nodes[0].name | # @case_id OCP-11889
-      | policy_aff_antiaffi_antiaffi.json | cb.nodes[1].name | # @case_id OCP-12191
+      | filename                          |
+      | policy_aff_aff_antiaffi.json      | # @case_id OCP-11889
+      | policy_aff_antiaffi_antiaffi.json | # @case_id OCP-12191
