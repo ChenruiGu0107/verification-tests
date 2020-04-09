@@ -23,7 +23,7 @@ Feature: Testing image registry operator
     Given admin updated the operator crd "configs.imageregistry" managementstate operand to Managed
     Then the step should succeed
     Given I use the "openshift-image-registry" project
-    And a pod is present with labels:
+    And a pod becomes ready with labels:
       | docker-registry=default |
     When I run the :patch client command with:
       | resource      | configs.imageregistry.operator.openshift.io |
