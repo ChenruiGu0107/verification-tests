@@ -186,7 +186,6 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
-    Given node schedulable status should be restored after scenario
     When I run the :create_configmap admin command with:
       | name      | my-scheduler-policy                                                             |
       | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
@@ -198,6 +197,10 @@ Feature: Testing Scheduler Operator related scenarios
       | p             | {"spec":{"policy":{"name":"my-scheduler-policy"}}} |
       | type          | merge                                              |
     Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -205,12 +208,21 @@ Feature: Testing Scheduler Operator related scenarios
     And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
     Given I store the schedulable workers in the :nodes clipboard
+    And the expression should be true> cb.nodes.delete(node)
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | additional-             |
+    Then the step should succeed
+    Given I store the schedulable workers in the :nodes clipboard
     And label "usertestregion=r1" is added to the "<%= cb.nodes[0].name %>" node
     And label "usertestregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "usertestzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
-    When I run the :oadm_cordon_node admin command with:
-      | node_name | <%= cb.nodes[2].name %> |
     When I run the :new_app client command with:
       | docker_image   | openshift/hello-openshift |
     Then the step should succeed
