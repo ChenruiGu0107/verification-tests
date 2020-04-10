@@ -309,6 +309,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | env          | POSTGRESQL_PASSWORD=xxx    |
       | env          | POSTGRESQL_DATABASE=testdb |
       | name         | mydb                       |
+      | labels       | app=mydb                   |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
