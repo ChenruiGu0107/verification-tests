@@ -12,8 +12,8 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
 
     # create another project and pods
@@ -24,8 +24,8 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
-    And evaluation of `pod(3).ip` is stored in the :p2pod2ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(3).ip_url` is stored in the :p2pod2ip clipboard
     And evaluation of `pod(2).name` is stored in the :p2pod2 clipboard
 
     # make sure the network is flat
@@ -143,7 +143,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
@@ -165,7 +165,7 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(4).name` is stored in the :p3pod1 clipboard
-    And evaluation of `pod(5).ip` is stored in the :p3pod2ip clipboard
+    And evaluation of `pod(5).ip_url` is stored in the :p3pod2ip clipboard
 
     # scale up the pod in project1
     Given I use the "<%= cb.proj1 %>" project
@@ -176,11 +176,11 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 3 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(-3).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(-3).ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(-3).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(-2).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(-2).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(-2).name` is stored in the :p1pod2 clipboard
-    And evaluation of `pod(-1).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(-1).ip_url` is stored in the :p1pod3ip clipboard
 
     # access the pods cross project
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -266,7 +266,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
 
     # add annotation to both projects and apply network policy to the project1
@@ -299,7 +299,7 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(4).name` is stored in the :p3pod1 clipboard
-    And evaluation of `pod(5).ip` is stored in the :p3pod2ip clipboard
+    And evaluation of `pod(5).ip_url` is stored in the :p3pod2ip clipboard
     When I run the :label admin command with:
       | resource | namespace |
       | name     | <%= cb.proj3 %> |
@@ -315,11 +315,11 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 3 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(-3).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(-3).ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(-3).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(-2).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(-2).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(-2).name` is stored in the :p1pod2 clipboard
-    And evaluation of `pod(-1).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(-1).ip_url` is stored in the :p1pod3ip clipboard
 
     # access pod across the projects
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -405,7 +405,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
@@ -427,7 +427,7 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(4).name` is stored in the :p3pod1 clipboard
-    And evaluation of `pod(5).ip` is stored in the :p3pod2ip clipboard
+    And evaluation of `pod(5).ip_url` is stored in the :p3pod2ip clipboard
 
     # scale up the pod in project1
     Given I use the "<%= cb.proj1 %>" project
@@ -438,11 +438,11 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 3 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(-3).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(-3).ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(-3).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(-2).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(-2).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(-2).name` is stored in the :p1pod2 clipboard
-    And evaluation of `pod(-1).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(-1).ip_url` is stored in the :p1pod3ip clipboard
 
     # access pods across projects
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -518,8 +518,8 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 3 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
     When I run the :label client command with:
@@ -650,9 +650,9 @@ Feature: Network policy plugin scenarios
     Given 3 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
-    And evaluation of `pod(2).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p1pod3ip clipboard
     And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
     When I run the :label client command with:
       | resource | pod |
@@ -768,9 +768,9 @@ Feature: Network policy plugin scenarios
     Given 3 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
-    And evaluation of `pod(2).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p1pod3ip clipboard
     When I run the :label client command with:
       | resource | pod |
       | name     | <%= cb.p1pod1 %> |
@@ -839,7 +839,7 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
 
     # create another project and pods
     Given I create a new project
@@ -910,10 +910,10 @@ Feature: Network policy plugin scenarios
     Given 4 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
-    And evaluation of `pod(3).ip` is stored in the :p1pod4ip clipboard
+    And evaluation of `pod(3).ip_url` is stored in the :p1pod4ip clipboard
     When I run the :label client command with:
       | resource | pod |
       | name     | <%= cb.p1pod1 %> |
@@ -994,7 +994,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/udp8888-pod.json |
@@ -1547,7 +1547,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
 
     # create another project and pods
@@ -1558,7 +1558,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
 
     # create network policy with both ingress and egress field in project 1
@@ -1615,7 +1615,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
 
     # create another project and pods
@@ -1626,7 +1626,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
 
     # create network policy with only egress policy in project 1
@@ -1668,8 +1668,8 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     When I run the :label client command with:
@@ -1686,7 +1686,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(2).ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :p2pod1ip clipboard
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
     When I run the :label client command with:
@@ -1839,8 +1839,8 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
-    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
     And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
     And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
@@ -1900,8 +1900,8 @@ Feature: Network policy plugin scenarios
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
     And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
-    And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
-    And evaluation of `pod(2).ip` is stored in the :pod2_ip clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :pod0_ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
 
     #Apply networpolicy with ipBlock as pod0 ip
     When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/nw_ipblock.yaml"
@@ -1948,7 +1948,7 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(3).name` is stored in the :pod3_name clipboard
-    And evaluation of `pod(3).ip` is stored in the :pod3_ip clipboard
+    And evaluation of `pod(3).ip_url` is stored in the :pod3_ip clipboard
     And evaluation of `pod(4).name` is stored in the :pod4_name clipboard
 
     #Apply networkpoicy to project 1 with ipBlock is pod3 ip
