@@ -293,3 +293,23 @@ Feature: Testing image registry operator
       | ImagePruner is the configuration object for an image registry pruner |
       | ImagePrunerSpec defines the specs for the running image pruner       | 
       | ImagePrunerStatus reports image pruner operational status            | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-23817
+  @admin
+  Scenario: Registry operator storage setup
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I get project secret named "image-registry-private-configuration" as YAML
+    Then the output should contain:
+      | REGISTRY_STORAGE_GCS_KEYFILE | 
+    When I run the :set_env client command with:
+      | resource | deployment/image-registry |
+      | list     | true                      |
+    Then the step should succeed
+    Then the output should contain:
+      | REGISTRY_STORAGE=gcs                      |
+      | REGISTRY_STORAGE_GCS_BUCKET               |
+      | REGISTRY_STORAGE_GCS_KEYFILE=/gcs/keyfile | 
+    And a pod is present with labels:
+      | docker-registry=default |
