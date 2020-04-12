@@ -11,14 +11,19 @@ Feature: machineconfig/machineconfig pool related
     Given the first user is cluster-admin
     When I run the :goto_machineconfig_pools_page web action
     Then the step should succeed
+    Given admin ensures "example" machineconfigpool is deleted after scenario
     When I run the :create_resource_by_default_yaml web action
     Then the step should succeed
-    Given admin ensures "example" machineconfigpool is deleted after scenario
+    
+    # Page needs some time to load below detail info after created by yaml
+    Given I wait up to 30 seconds for the steps to pass:
+    """    
     When I perform the :check_resource_details web action with:
       | name                    | example          |
       | current_configuration   | rendered-example |
       | machine_config_selector | machineconfiguration.openshift.io/role=master |
     Then the step should succeed
+    """
 
     When I perform the :click_tab web action with:
       | tab_name | Machine Configs |
