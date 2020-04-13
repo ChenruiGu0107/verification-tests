@@ -264,16 +264,21 @@ Feature: overview cases
     When I perform the :click_button web action with:
       | button_text  | Subscribe |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=etcd-operator-alm-owned |
-
-    When I perform the :click_first_item_from_gridcell_list_and_check_breadcrumb web action with:
+    Given I wait for the "etcd" subscriptions to appear
+    And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | <%= project.name %>       |
+      | csv_name     | <%= cb.etcd_csv %> |
+    Then the step should succeed
+    When I perform the :check_link_in_breadcrumb web action with:
       | layer_number | 1                              |
       | link         | operators.coreos.com~v1alpha1~ClusterServiceVersion |
       | text         | InstalledOperators             |
     Then the step should succeed
-    
+
     When I run the :browse_to_install_plan web action
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
     Then the step should succeed
     When I perform the :check_link_in_breadcrumb web action with:
       | layer_number | 1                         |
