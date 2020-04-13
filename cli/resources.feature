@@ -3,19 +3,19 @@ Feature: resouces related scenarios
   Scenario Outline: oc replace with miscellaneous options
     Given I have a project
     And I run the :run client command with:
-      | name         | mydc                      |
-      | image        | openshift/hello-openshift |
-      | -l           | label=mydc                |
+      | name  | mydc                      |
+      | image | openshift/hello-openshift |
+      | -l    | label=mydc                |
     Then the step should succeed
 
     Given I wait until the status of deployment "mydc" becomes :running
     And a pod becomes ready with labels:
       | label=mydc |
     And I run the :get client command with:
-      | _tool         | <tool>             |
-      | resource      | dc                 |
-      | resource_name | mydc               |
-      | output        | yaml               |
+      | _tool         | <tool> |
+      | resource      | dc     |
+      | resource_name | mydc   |
+      | output        | yaml   |
     Then the step should succeed
     When I save the output to file> dc.yaml
     And I run the :replace client command with:
@@ -45,19 +45,19 @@ Feature: resouces related scenarios
     And the output should not contain "<%= cb.pod_name %>"
 
     When I run the :run client command with:
-      | _tool        | <tool>                    |
-      | name         | mypod                     |
-      | image        | openshift/hello-openshift |
-      | generator    | run-pod/v1                |
+      | _tool     | <tool>                    |
+      | name      | mypod                     |
+      | image     | openshift/hello-openshift |
+      | generator | run-pod/v1                |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
     When I run the :run client command with:
-      | _tool        | <tool>                    |
-      | name         | mypod                     |
-      | image        | openshift/hello-openshift |
-      | generator    | run-pod/v1                |
-      | dry_run      |                           |
-      | -o           | yaml                      |
+      | _tool     | <tool>                    |
+      | name      | mypod                     |
+      | image     | openshift/hello-openshift |
+      | generator | run-pod/v1                |
+      | dry_run   |                           |
+      | -o        | yaml                      |
     Then the step should succeed
     When I save the output to file> pod.yaml
     And I run the :replace client command with:
@@ -133,210 +133,6 @@ Feature: resouces related scenarios
       | oc       | # @case_id OCP-10719
       | kubectl  | # @case_id OCP-21033
 
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-9615
-  @admin
-  Scenario: Cluster admin can get resources in all namespaces
-
-    Given I switch to the first user
-    Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
-    When I run the :new_project client command with:
-      | project_name | <%= cb.proj1 %> |
-    Then the step should succeed
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
-    Then the step should succeed
-
-    Given I switch to the second user
-    Given a 5 characters random string of type :dns is stored into the :proj2 clipboard
-    When I run the :new_project client command with:
-      | project_name | <%= cb.proj2 %> |
-    Then the step should succeed
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
-    Then the step should succeed
-
-    When I run the :get admin command with:
-      | resource         | build |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | pod |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | service |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | bc |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | rc |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | template |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | openshift       |
-
-    When I run the :get admin command with:
-      | resource         | is |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | route |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | dc |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-    When I run the :get admin command with:
-      | resource         | all |
-      | all_namespaces    | true |
-    Then the output should contain:
-      | <%= cb.proj1 %> |
-      | <%= cb.proj2 %> |
-
-
-  # @author cryan@redhat.com
-  # @case_id OCP-12336
-  # @bug_id 1294063
-  Scenario: Update resources from file
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
-    Given the pod named "hello-openshift" becomes ready
-    When I replace resource "pod" named "hello-openshift":
-      | labels:\n    name: hello-openshift | labels:\n    name: tc474047-mod1 |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod |
-      | name | hello-openshift |
-    Then the step should succeed
-    And the output should contain "tc474047-mod1"
-    When I replace resource "pod" named "hello-openshift":
-      | labels:\n    name: tc474047-mod1 | labels:\n    name: tc474047-mod2 |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod |
-      | name | hello-openshift |
-    Then the step should succeed
-    And the output should contain "tc474047-mod2"
-    When I run the :get client command with:
-      | resource | pods |
-      | resource_name | hello-openshift |
-      | o | json |
-    Then the step should succeed
-    Given I save the output to file> a.json
-    When I run the :replace client command with:
-      | force ||
-      | f | a.json |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod |
-      | name | hello-openshift |
-    Then the step should succeed
-    And the output should contain "tc474047-mod2"
-
-  # @author xxia@redhat.com
-  # @case_id OCP-10741
-  @smoke
-  Scenario: Get/watch resources with oc get
-    Given I have a project
-    And I run the :run client command with:
-      | name      | hello             |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
-      | -l        | app=tryit         |
-    Then the step should succeed
-    And I wait until the status of deployment "hello" becomes :running
-    When I run the :get client command with:
-      | resource        | dc         |
-      | no_headers      | true       |
-    Then the step should succeed
-    And the output should contain:
-      | hello |
-    And the output should not contain "NAME"
-
-    Given a pod becomes ready with labels:
-      | deployment=hello-1        |
-    And I wait for the resource "pod" named "hello-1-deploy" to disappear
-    When I run the :get client command with:
-      | resource        | pod                        |
-      | L               | app,deployment,no-this,APP |
-    Then the step should succeed
-    And the output should match "hello-1.*tryit.*hello-1"
-
-    # Create a "Completed" pod using command which returns 0 and "Never" restartPolicy
-    When I run the :run client command with:
-      | name      | mypod1        |
-      | image     | <%= project_docker_repo %>openshift/origin-base |
-      | generator | run-pod/v1    |
-      | command   | true          |
-      | cmd       | /bin/true     |
-      | restart   | Never         |
-    Then the step should succeed
-    # Create a "Error" pod using command which returns non-0 and "Never" restartPolicy
-    When I run the :run client command with:
-      | name      | mypod2        |
-      | image     | <%= project_docker_repo %>openshift/origin-base |
-      | generator | run-pod/v1    |
-      | command   | true          |
-      | cmd       | /bin/false    |
-      | restart   | Never         |
-    Then the step should succeed
-    Given the pod named "mypod1" status becomes :succeeded
-    And the pod named "mypod2" status becomes :failed
-    When I run the :get client command with:
-      | resource        | pod     |
-      | a               | false   |
-    Then the step should succeed
-    And the output should not contain "mypod"
-    When I run the :get client command with:
-      | resource        | pod     |
-      | a               | true    |
-    Then the step should succeed
-    And the output should contain "mypod"
-
-    When I run the :get background client command with:
-      | resource      | dc                 |
-      | resource_name | hello              |
-      | w             | true               |
-    Then the step should succeed
-
-    When I run the :label client command with:
-      | resource      | dc                 |
-      | name          | hello              |
-      | key_val       | newlab=helloworld  |
-    Then the step should succeed
-    When I terminate last background process
-    Then the output should contain 2 times:
-      | hello     |
 
   # @author xxia@redhat.com
   # @case_id OCP-11535
