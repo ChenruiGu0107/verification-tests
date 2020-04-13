@@ -294,6 +294,45 @@ Feature: Testing image registry operator
       | ImagePrunerSpec defines the specs for the running image pruner       | 
       | ImagePrunerStatus reports image pruner operational status            | 
 
+  # @author wzheng@redhat.com
+  # @case_id OCP-24100
+  @admin
+  @destructive
+  Scenario: Registry OpenStack Storage - UPI	
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    When I get project secret named "image-registry-private-configuration" as YAML
+    Then the output should contain:
+      | REGISTRY_STORAGE_SWIFT_PASSWORD |
+      | REGISTRY_STORAGE_SWIFT_USERNAME |
+    When I get project secret named "installer-cloud-credentials" as YAML
+    Then the output should contain:
+      | clouds.yaml |
+    When I run the :describe client command with:
+      | resource | config.imageregistry.operator.openshift.io |
+      | name     | cluster                                    |
+    Then the output should contain:
+      | Swift container Exists |
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    And evaluation of `@result[:parsed]['spec']['storage']['swift']['container']` is stored in the :old_name clipboard
+    When I run the :patch client command with:
+      | resource      | configs.imageregistry                             |
+      | resource_name | cluster                                           |
+      | p             | {"spec":{"storage":{"swift":{"container":null}}}} |
+      | type          | merge                                             |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    """
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    And evaluation of `@result[:parsed]['spec']['storage']['swift']['container']` is stored in the :new_name clipboard
+    And the expression should be true> cb.old_name != cb.new_name
+
   # @author xiuwang@redhat.com
   # @case_id OCP-23817
   @admin
