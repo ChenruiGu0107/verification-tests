@@ -139,8 +139,6 @@ Feature: operatorhub feature related
       | catalog_name     | community-operators         |
       | target_namespace | <%= project.name %>         |
     Then the step should succeed
-    When I run the :wait_box_loaded web action
-    Then the step should succeed
     When I perform the :select_target_namespace web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -230,5 +228,66 @@ Feature: operatorhub feature related
       | text | Community |
     Then the step should succeed
     When I run the :check_community_operator_description_on_overlay web action
+    Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-27666
+  @admin
+  Scenario: Add Special support link for template and operator
+    Given the master version >= "4.4"
+    Given I have a project
+    #check support link for template
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/testdata/image/language-image-templates/php-55-rhel7-stibuild.json |
+    Then the step should succeed
+    Given I successfully merge patch resource "template/php-helloworld-sample" with:
+      | {"metadata":{"annotations":{"openshift.io/support-url":"https://access.redhat.test.com"}}} |
+    Given I open admin console in a browser
+    When I perform the :goto_catalog_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :filter_by_template_type web action
+    Then the step should succeed
+    When I perform the :click_catalog_item web action with:
+      | catalog_item | php-helloworld-sample |
+    Then the step should succeed
+    When I perform the :check_the_support_link web action with:
+      | link_url | https://access.redhat.test.com |
+    Then the step should succeed
+
+    #check support link for operators
+    Given the first user is cluster-admin
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | cockroachdb-certified-rhmp |
+      | catalog_name     | redhat-marketplace         |
+      | target_namespace | <%= project.name %>        |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Subscribe |
+    Then the step should succeed
+    Given I wait for the "cockroachdb-certified-rhmp" subscriptions to appear
+    And evaluation of `subscription("cockroachdb-certified-rhmp").current_csv` is stored in the :cockroachdb_csv clipboard
+    Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
+      | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | <%= project.name %>       |
+      | csv_name     | <%= cb.cockroachdb_csv %> |
+    Then the step should succeed
+    When I perform the :check_the_support_link web action with:
+      | link_url | https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated |
+    Then the step should succeed
+
+    #check support link for Operator Backed service
+    When I perform the :goto_catalog_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :click_catalog_item web action with:
+      | catalog_item | CockroachDB |
+    Then the step should succeed
+    When I perform the :check_the_support_link web action with:
+      | link_url | https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated |
     Then the step should succeed
 
