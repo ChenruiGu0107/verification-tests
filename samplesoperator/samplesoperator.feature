@@ -14,7 +14,10 @@ Feature: samplesoperator
     And I use the "openshift" project
     And I wait for the resource "imagestream" named "ruby" to disappear
     And I wait for the resource "template" named "cakephp-mysql-persistent" to disappear
-    When admin ensures "cluster" config_samples_operator_openshift_io is deleted
+    When I run the :delete admin command with:
+      | object_type       | config.samples |
+      | object_name_or_id | cluster        |
+    Then the step should succeed
     Then admin waits for the "cluster" config_samples_operator_openshift_io to appear up to 120 seconds
     When I run the :describe admin command with:
       | resource | config.samples.operator.openshift.io |
