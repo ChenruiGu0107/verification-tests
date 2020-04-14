@@ -229,12 +229,13 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: Deploy a custom scheduler
     Given the master version >= "4.1"
+    Given I store master major version in the clipboard
     Given the "system:kube-scheduler" clusterole is recreated after scenario
     Given admin ensures "my-scheduler" deployment is deleted from the "kube-system" project after scenario
-    Given admin ensures "my-schedule" service_account is deleted from the "kube-system" project after scenario
+    Given admin ensures "my-scheduler" service_account is deleted from the "kube-system" project after scenario
     Given admin ensures "my-scheduler-as-kube-scheduler" clusterrolebinding is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/my-scheduler.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customscheduler/my-scheduler-<%= cb.master_version %>.yaml |
     Then the step should succeed
     And the output should contain "deployment.apps/my-scheduler created"
     When I run the :get admin command with:
