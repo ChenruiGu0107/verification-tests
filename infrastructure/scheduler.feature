@@ -83,10 +83,10 @@ Feature: Scheduler predicates and priority test suites
     Given I wait for the steps to pass:
     """
     And I run the :describe client command with:
-      | resource  | pods                      |
-      | name      | pod-multivolsexceedlimit  |
+      | resource | pods                     |
+      | name     | pod-multivolsexceedlimit |
     And the output should match:
-      | FailedScheduling.*(MaxVolumeCound\|exceed max volume count)|
+      | FailedScheduling.*(MaxVolumeCound\|exceed max volume count) |
     """
     Examples:
       | cloudprovider |
@@ -107,8 +107,8 @@ Feature: Scheduler predicates and priority test suites
     # make sure only one node can be scheduled for testing pod,
     # since this scenario need calculate the requests for specific node
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %>  |
-      | key_val   | additional=true:NoSchedule                              |
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | additional=true:NoSchedule                      |
     Then the step should succeed
     # calculate the memory leave to new pods
     Given evaluation of `node.remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
@@ -138,10 +138,10 @@ Feature: Scheduler predicates and priority test suites
     Given node schedulable status should be restored after scenario
     Given the "cluster" scheduler CR is restored after scenario
     When I run the :patch admin command with:
-      | resource      | Scheduler                                     |
-      | resource_name | cluster                                       |
-      | p             | {"spec":{"mastersSchedulable":true}}          |
-      | type          | merge                                         |
+      | resource      | Scheduler                            |
+      | resource_name | cluster                              |
+      | p             | {"spec":{"mastersSchedulable":true}} |
+      | type          | merge                                |
     Given I have a project
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp24240.yaml |
@@ -223,7 +223,7 @@ Feature: Scheduler predicates and priority test suites
     And the pod named "<%= cb.podm %>" status becomes :running
     Then the expression should be true> pod.node_name == cb.nodes[2].name
 
-  # author knarra@redhat.com
+  # @author knarra@redhat.com
   # @case_id OCP-26842
   @admin
   @destructive
