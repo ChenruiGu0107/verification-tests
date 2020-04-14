@@ -260,3 +260,19 @@ Feature: StatefulSet related tests
       | PING hello-statefulset-1.foo \((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\) |
     And the output should not contain:
       | ping: bad address 'hello-statefulset-1.foo' |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-28018
+  Scenario: Pods in a StatefulSet is using stable network identities
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml |
+    Then the step should succeed
+    Given the pod named "hello-statefulset-0" becomes ready
+    When I run the :get client command with:
+      | resource      | pvc                     |
+      | resource_name | www-hello-statefulset-0 |
+      | template      | {{.metadata.labels}}    |
+    Then the output should contain:
+      | app:hello-pod |
