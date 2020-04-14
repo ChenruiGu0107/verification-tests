@@ -1855,6 +1855,7 @@ Feature: Network policy plugin scenarios
 
     Given I use the "<%= cb.node_name %>" node
     And I restart the network components on the node
+    Given I wait for the networking components of the node to become ready
     #Add one policy to make sure the pod can ping each other
 
     Given I use the "<%= cb.proj1 %>" project
