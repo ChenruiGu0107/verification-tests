@@ -278,3 +278,17 @@ Feature: genericbuild.feature
     And the output should contain:
       | "name":"PODNAME"    |
       | "value":"ruby-ex-2" |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-22575
+  Scenario: Using oc new-build with multistage dockerfile
+    Given I have a project
+    When I run the :new_build client command with:
+      | binary | true            | 
+      | name   | multistage-test |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | multistage-test                                                              |
+      | from_dir    | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-22575/olm-testing/ |
+    Then the step should succeed
+    And the "multistage-test-1" build completed
