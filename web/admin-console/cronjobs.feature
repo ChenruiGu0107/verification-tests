@@ -6,7 +6,7 @@ Feature: cronjob related
     Given I have a project
     When I run the :run client command with:
       | name         | mycron-job            |
-      | image        | aosqe/hello-openshift |
+      | image        | docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a |
       | generator    | cronjob/v1beta1       |
       | restart      | OnFailure             |
       | schedule     | */1 * * * *           |

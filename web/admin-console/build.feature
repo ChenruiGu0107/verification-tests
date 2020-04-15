@@ -99,7 +99,7 @@ Feature: build related
   Scenario: Check deprecation note of pipeline build strategy
     Given I have a project
     When I run the :new_app client command with:
-      | source_spec | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+      | source_spec | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_one_buildconfig_page web action with:

@@ -78,7 +78,7 @@ Feature: quota related feature
 
     When I run the :run client command with:
       | name      | mypod                 |
-      | image     | aosqe/hello-openshift |
+      | image     | docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a |
       | requests  | cpu=50m,memory=100Mi  |
       | limits    | cpu=50m,memory=100Mi  |
       | generator | run-pod/v1            |
@@ -95,7 +95,7 @@ Feature: quota related feature
 
     When I run the :run client command with:
       | name      | mypod2                |
-      | image     | aosqe/hello-openshift |
+      | image     | docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a |
       | requests  | cpu=950m,memory=100Mi |
       | limits    | cpu=1,memory=1Gi      |
       | generator | run-pod/v1            |
