@@ -89,18 +89,14 @@ Feature: Testing timeout route
       | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/reencrypt/service_secure.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | reen-route                                |
-      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service    | service-secure                            |
-      | cert       | route_reencrypt-reen.example.com.crt      |
-      | key        | route_reencrypt-reen.example.com.key      |
-      | cacert     | route_reencrypt.ca                        |
-      | destcacert | route_reencrypt_dest.ca                   |
+      | name       | reen-route                                                                                             |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                              |
+      | service    | service-secure                                                                                         |
+      | cert       | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
+      | key        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
+      | cacert     | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
+      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource         | route                                  |

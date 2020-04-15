@@ -493,18 +493,14 @@ Feature: Testing abrouting
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/reencrypt/service_secure-2.json |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.pem"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.key"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name | reen1 |
-      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
-      | service | service-secure |
-      | cert | example_wildcard.pem |
-      | key | example_wildcard.key |
-      | cacert | route_reencrypt.ca |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | reen1                                                                                      |
+      | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                  |
+      | service    | service-secure                                                                             |
+      | cert       | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.pem              |
+      | key        | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.key              |
+      | cacert     | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca      |
+      | destcacert | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
     #Check the default load blance policy
     Given I switch to cluster admin pseudo user
@@ -820,11 +816,10 @@ Feature: Testing abrouting
       | type=test1 |
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     # Create route and set route backends
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
-      | name       | route-reen              |
-      | service    | service-secure          |
-      | destcacert | route_reencrypt_dest.ca |
+      | name       | route-reen                                                                                 |
+      | service    | service-secure                                                                             |
+      | destcacert | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-reen          |
