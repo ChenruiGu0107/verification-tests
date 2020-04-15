@@ -33,11 +33,11 @@ Feature: HPA relate features
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
-      | pod              | hello-pod                                         |
-      | oc_opts_end      |                                                   |
-      | exec_command     | sh                                                |
-      | exec_command_arg | -c                                                |
-      | exec_command_arg | while true;do curl -sS http://<%= service.url %>;done |
+      | pod              | hello-pod                                                             |
+      | oc_opts_end      |                                                                       |
+      | exec_command     | sh                                                                    |
+      | exec_command_arg | -c                                                                    |
+      | exec_command_arg | while true ; do curl -sS http://<%= service.url %> > /dev/null ; done |
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """
@@ -84,11 +84,11 @@ Feature: HPA relate features
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
-      | pod              | hello-pod                                         |
-      | oc_opts_end      |                                                   |
-      | exec_command     | sh                                                |
-      | exec_command_arg | -c                                                |
-      | exec_command_arg | while true;do curl -sS http://<%= service.url %>;done |
+      | pod              | hello-pod                                                             |
+      | oc_opts_end      |                                                                       |
+      | exec_command     | sh                                                                    |
+      | exec_command_arg | -c                                                                    |
+      | exec_command_arg | while true ; do curl -sS http://<%= service.url %> > /dev/null ; done |
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """
