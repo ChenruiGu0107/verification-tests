@@ -209,14 +209,12 @@ Feature: Testing Scheduler Operator related scenarios
     """
     Given I store the schedulable workers in the :nodes clipboard
     And the expression should be true> cb.nodes.delete(node)
-    Given the taints of the nodes in the clipboard are restored after scenario
-    When I run the :oadm_taint_nodes admin command with:
+    Given node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | additional=true:NoSchedule                      |
     Then the step should succeed
-    When I run the :oadm_taint_nodes admin command with:
+    When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[0].name %> |
-      | key_val   | additional-             |
     Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "usertestregion=r1" is added to the "<%= cb.nodes[0].name %>" node
