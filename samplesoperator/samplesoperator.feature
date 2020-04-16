@@ -134,3 +134,20 @@ Feature: samplesoperator
       | ConfigSpec contains the desired configuration and state for the Samples |
       | Operator                                                                | 
       | ConfigStatus contains the actual configuration in effect                | 
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-27315
+  @admin
+  Scenario: Bootstrap Samples Operator as Managed when proxy is configured
+    When I run the :logs admin command with:
+      | resource_name | deployment/cluster-samples-operator |
+      | namespace     | openshift-cluster-samples-operator  |
+      | c             | cluster-samples-operator            |
+    And the output should contain:
+      | with global proxy configured assuming registry.redhat.io is accessible, bootstrap to Managed |
+    When I run the :describe admin command with:
+      | resource | config.samples.operator.openshift.io |
+      | name     | cluster                              |
+    Then the step should succeed
+    And the output should contain:
+      | Management State:  Managed |
