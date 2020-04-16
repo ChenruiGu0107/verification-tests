@@ -1985,3 +1985,78 @@ Feature: Network policy plugin scenarios
       | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
     Then the step should succeed
     And the output should contain "Hello"
+
+  # @author huirwang@redhat.com
+  # @case_id OCP-28723
+  # @bug_id 1813846
+  @admin
+  Scenario: Network policy should work for newly created pods
+    Given I have a project
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
+      | n | <%= project.name %>                                                                            |
+    Then the step should succeed
+
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
+    When I run the :label client command with:
+      | resource | pod              |
+      | name     | <%= cb.p1pod2 %> |
+      | key_val  | type=red         |
+    Then the step should succeed
+
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p1pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.p1pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+  # @author huirwang@redhat.com
+  # @case_id OCP-26325
+  @admin
+  Scenario: A network policy with an ipBlock and an except clause, ipBlock will be ignored
+    Given I have a project
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
+    And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
+    And evaluation of `pod(0).ip_url` is stored in the :pod0_ip clipboard
+    And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
+
+    #Apply network policy
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/nw_ipblock_except.yaml" replacing paths:
+      | ["spec"]["ingress"][0]["from"][0]["ipBlock"]["cidr"]      | 10.128.0.0/14         |
+      | ["spec"]["ingress"][0]["from"][0]["ipBlock"]["except"][0] | <%= cb.pod0_ip %>/32  |
+    Then the step should succeed
+
+    #From pod0 and pod1 access pod2 fail
+    When I execute on the "<%= cb.pod0_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.pod1_name %>" pod:
+      | curl | -s | --connect-timeout | 5 | <%= cb.pod2_ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    #Check sdn logs, should show IPBlock except not support
+    Given I select a random node's host
+    And I get the networking components logs of the node since "120s" ago
+    Then the output should contain "IPBlocks with except rules are not supported"
