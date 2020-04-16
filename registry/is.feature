@@ -206,10 +206,8 @@ Feature: Testing imagestream
       | app=openshift-controller-manager-operator |
     When I use the "openshift-controller-manager" project
     And evaluation of `daemon_set("controller-manager").generation_number(user: user, cached: false)` is stored in the :before_change clipboard
-    And evaluation of `daemon_set("controller-manager").desired_replicas` is stored in the :desired_num clipboard
-    And <%= cb.desired_num %> pods become ready with labels:
-      | pod-template-generation=<%= cb.before_change %> |
     When I obtain test data file "registry/registry.access.redhat.com.yaml"
+    And "controller-manager" daemonset becomes ready in the "openshift-controller-manager" project
     And I run the :create_configmap client command with:
       | name      | <%= cb.sign_name %>             | 
       | from_file | registry.access.redhat.com.yaml |
@@ -227,14 +225,16 @@ Feature: Testing imagestream
     And evaluation of `daemon_set("controller-manager").generation_number(user: user, cached: false)` is stored in the :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
-    And <%= cb.desired_num %> pods become ready with labels:
-      | pod-template-generation=<%= cb.after_change %> |
+    And "controller-manager" daemonset becomes ready in the "openshift-controller-manager" project
     Given I switch to the first user
     When I use the "<%= cb.saved_name %>" project
     When I run the :import_image client command with:
       | image_name | registry.access.redhat.com/openshift3/ose:latest |
       | confirm    | true                                             |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     When I get project imagestreamtag named "ose:latest" as YAML
     And evaluation of `@result[:parsed]['image']['signatures'].count` is stored in the :sign_count clipboard
     And the expression should be true> cb.sign_count > 3
+    """
