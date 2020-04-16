@@ -54,10 +54,10 @@ Feature: Testing ingress to route object
 
     # create secret and TLS ingress
     When I run the :create_secret client command with:
-      | secret_type | tls                                                                                       |
-      | name        | mysecret                                                                                  |
-      | cert        | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
-      | key         | "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |     
+      | secret_type | tls                                                                                      |
+      | name        | mysecret                                                                                 |
+      | cert        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
+      | key         | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
     Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/tls-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
