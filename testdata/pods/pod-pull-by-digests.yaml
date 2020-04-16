@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-pull-by-digests
+  labels:
+    app: pod-pull-by-digests
+spec:
+  containers:
+  - name: hello-pod
+    image: quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615
+    ports:
+    - containerPort: 80
