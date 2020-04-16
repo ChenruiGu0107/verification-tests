@@ -255,7 +255,8 @@ Feature: SCC policy related scenarios
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_outrange.json |
     Then the step should fail
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid_inrange clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_inrange.json
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_inrange.json" replacing paths:
+      | ["spec"]["securityContext"]["runAsUser"] | <%= cb.scc_uid_inrange %> |
     Then the step should succeed
 
   # @author mcurlej@redhat.com
@@ -361,7 +362,8 @@ Feature: SCC policy related scenarios
     Given I have a project
     And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
     And evaluation of `project.mcs(user: user)` is stored in the :proj_selinux_options clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_runasuser.json
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_runasuser.json" replacing paths:
+      | ["spec"]["securityContext"]["runAsUser"] | <%= cb.uid_range %> |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').sc_run_as_user(user: user)` is stored in the :sc_run_as_user clipboard
@@ -373,7 +375,8 @@ Feature: SCC policy related scenarios
     And the pod named "hello-openshift" status becomes :running
     Then the expression should be true> pod('hello-openshift').sc_run_as_nonroot(user: user)
     Given I ensure "hello-openshift" pod is deleted
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_selinux.json
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_selinux.json" replacing paths:
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | <%= cb.proj_selinux_options %> |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').sc_selinux_options(user: user)` is stored in the :pod_selinux_options clipboard
