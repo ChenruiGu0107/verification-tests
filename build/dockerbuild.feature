@@ -243,7 +243,7 @@ Feature: dockerbuild.feature
     :method: post
     :headers:
       :content-type: application/json
-    :payload: <%= File.read("<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12856/push-generic-build-args.json").to_json %>
+    :payload: <%= File.read("#{BushSlicer::HOME}/features/tierN/testdata/templates/OCP-12856/push-generic-build-args.json").to_json %>
     """
     Then the step should succeed
     Given the "ruby-hello-world-2" build was created
@@ -254,6 +254,7 @@ Feature: dockerbuild.feature
     And the output should match:
       | name:\\s+foo      |
       | value:\\s+default |
+    Given I obtain test data file "templates/OCP-12856/push-generic-build-args.json"
     When I replace lines in "push-generic-build-args.json":
       | foo      | ARG      |
       | default  | NEWVALUE |
