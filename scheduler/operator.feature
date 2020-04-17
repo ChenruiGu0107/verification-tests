@@ -49,12 +49,8 @@ Feature: Testing Scheduler Operator related scenarios
       | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_servicespreadingpriority.json |
       | namespace | openshift-config                                                                                          |
     Then the step should succeed
-
-    When I run the :patch admin command with:
-      | resource      | Scheduler                                       |
-      | resource_name | cluster                                         |
-      | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
-      | type          | merge                                           |
+    Given as admin I successfully merge patch resource "Scheduler/cluster" with:
+      | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
@@ -72,10 +68,10 @@ Feature: Testing Scheduler Operator related scenarios
       | resource | pods |
       | o        | wide |
     Then the step should succeed
-    And the output should contain:
-      | <%= cb.nodes[0].name %>  |
-      | <%= cb.nodes[1].name %>  |
-      | <%= cb.nodes[2].name %>  |
+    And I repeat the following steps for each :node in cb.nodes:
+    """
+    And the output should contain "#{cb.node.name}"
+    """
 
 
   # @author knarra@redhat.com
