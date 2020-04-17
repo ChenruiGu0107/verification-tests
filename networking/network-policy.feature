@@ -1905,7 +1905,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
 
     #Apply networpolicy with ipBlock as pod0 ip
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/nw_ipblock.yaml"
+    When I obtain test data file "networking/networkpolicy/nw_ipblock.yaml"
     And I replace lines in "nw_ipblock.yaml":
       | 10.131.0.25/32 | <%= cb.pod0_ip %>/32 |
     And I run the :create admin command with:

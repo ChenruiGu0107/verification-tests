@@ -164,7 +164,7 @@ Feature: Testing registry
     And all the image layers in the :layers clipboard do not exist in the registry
     And evaluation of `image_stream_tag("ruby-20-centos7:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/registry/config.yml"
+    When I obtain test data file "registry/config.yml"
     Then the step should succeed
     And I replace content in "config.yml":
       | mirrorpullthrough: true | mirrorpullthrough: false |
@@ -429,7 +429,7 @@ Feature: Testing registry
       | docker://docker.io/openshift/hello-openshift:latest |
       | docker://<%= cb.registry_ip %>/<%= project.name %>/hello-openshift:latest  |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/image-limit-range.yaml"
+    When I obtain test data file "quota/image-limit-range.yaml"
     Then the step should succeed
     And I replace lines in "image-limit-range.yaml":
       | storage: 1Gi | storage: 140Mi |

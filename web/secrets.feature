@@ -173,7 +173,7 @@ Feature: web secrets related
   # @case_id OCP-12103
   Scenario: Create secret via create secret page
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/credential/.gitconfig"
+    Given I obtain test data file "secrets/credential/.gitconfig"
     Given a "ssh_private_key" file is created with the following lines:
       | <%= CucuShift::SSH::Helper.gen_rsa_key.to_pem %> |
     # Create Source Secret of Basic Authentication type
@@ -659,7 +659,7 @@ Feature: web secrets related
       | my.value |
 
     #Create generic secret, uploading file
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem"
+    When I obtain test data file "routing/ca.pem"
     Then the step should succeed
     When I perform the :create_generic_secret_from_file web console action with:
       | project_name    | <%= project.name %> |
@@ -680,7 +680,7 @@ Feature: web secrets related
       | <%= File.read("ca.pem") %> |
 
     #Uploading file larger than 5MiB
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/testbigfile"
+    When I obtain test data file "secrets/testbigfile"
     Then the step should succeed
     When I perform the :create_generic_secret_from_file web console action with:
       | project_name    | <%= project.name %> |

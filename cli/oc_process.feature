@@ -3,7 +3,7 @@ Feature: oc_process.feature
   # @author haowang@redhat.com
   Scenario Outline: Should give a error message while generator is nonexistent or the value is invalid
     Given I have a project
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-rhel7.json"
+    And I obtain test data file "build/sample-php-rhel7.json"
     And I replace lines in "sample-php-rhel7.json":
       | <beforreplace> | <afterreplace> |
     Then I run the :process client command with:
@@ -24,7 +24,7 @@ Feature: oc_process.feature
     And the step should fail
     And the output should contain:
       | does not exist |
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-rhel7.json"
+    And I obtain test data file "build/sample-php-rhel7.json"
     And I replace lines in "sample-php-rhel7.json":
       | , |  |
     Then I run the :process client command with:

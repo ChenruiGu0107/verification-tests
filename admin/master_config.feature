@@ -128,7 +128,7 @@ Feature: test master config related steps
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml"
+    When I obtain test data file "quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "2" |
     And I run the :create admin command with:
@@ -172,7 +172,7 @@ Feature: test master config related steps
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml"
+    When I obtain test data file "quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "1" |
     And I run the :create admin command with:
@@ -1598,7 +1598,7 @@ Feature: test master config related steps
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml"
+    When I obtain test data file "quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "2" |
     And I run the :create admin command with:
@@ -1640,7 +1640,7 @@ Feature: test master config related steps
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml"
+    When I obtain test data file "quota/quota-terminating.yaml"
     And I replace lines in "quota-terminating.yaml":
       | pods: "4" | pods: "1" |
     And I run the :create admin command with:

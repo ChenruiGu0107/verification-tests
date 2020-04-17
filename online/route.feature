@@ -46,9 +46,9 @@ Feature: Route test in online environments
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     And I wait for the "service-unsecure" service to become ready
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    And I obtain test data file "routing/edge/route_edge-www.edge.com.key"
+    And I obtain test data file "routing/ca.pem"
     When I run the :create_route_edge client command with:
       | name | edge-route-custom |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |

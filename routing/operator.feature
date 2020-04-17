@@ -58,8 +58,8 @@ Feature: Testing Ingress Operator related scenarios
     And admin ensures "test-certs-21143" secret is deleted from the "openshift-ingress" project after scenario
     And admin ensures "test-21143" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom wildcard route certificate
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem"
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.key"
+    Given I obtain test data file "routing/ca.pem"
+    And I obtain test data file "routing/ca.key"
     When I run the :create_secret client command with:
       | secret_type    | tls              |
       | name           | test-certs-21143 |

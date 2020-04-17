@@ -6,7 +6,7 @@
   Scenario: Check meet and exceed message alert for compute-resource and object-count
     Given the master version >= "3.7"
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
+    When I obtain test data file "quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | cpu: "30"                    | cpu: "1"                    |

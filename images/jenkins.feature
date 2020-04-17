@@ -1009,7 +1009,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP_11968/pipeline_create_resource.groovy"
+    Given I obtain test data file "templates/OCP_11968/pipeline_create_resource.groovy"
     And I replace lines in "pipeline_create_resource.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1057,7 +1057,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12325/pipeline_verify_build.groovy"
+    Given I obtain test data file "templates/OCP-12325/pipeline_verify_build.groovy"
     And I replace lines in "pipeline_verify_build.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1106,7 +1106,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12347/pipeline_verify_deployment.groovy"
+    Given I obtain test data file "templates/OCP-12347/pipeline_verify_deployment.groovy"
     And I replace lines in "pipeline_verify_deployment.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1159,7 +1159,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service.groovy"
+    Given I obtain test data file "templates/OCP-12371/pipeline_verify_service.groovy"
     And I replace lines in "pipeline_verify_service.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1181,7 +1181,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12371/pipeline_verify_service_failed.groovy"
+    Given I obtain test data file "templates/OCP-12371/pipeline_verify_service_failed.groovy"
     And I replace lines in "pipeline_verify_service_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1329,7 +1329,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
+    Given I obtain test data file "templates/OCP-12163/pipeline_scale_deployment.groovy"
     And I replace lines in "pipeline_scale_deployment.groovy":
       | <repl_env>   | <%= env.api_endpoint_url %> |
       | <repl_ns>    | <%= project.name %>         |
@@ -1356,7 +1356,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12163/pipeline_scale_deployment.groovy"
+    Given I obtain test data file "templates/OCP-12163/pipeline_scale_deployment.groovy"
     And I replace lines in "pipeline_scale_deployment.groovy":
       | <repl_env>   | <%= env.api_endpoint_url %> |
       | <repl_ns>    | <%= project.name %>         |
@@ -1404,7 +1404,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12219/tag_image.groovy"
+    Given I obtain test data file "templates/OCP-12219/tag_image.groovy"
     And I replace lines in "tag_image.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1450,7 +1450,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build.groovy"
+    Given I obtain test data file "templates/OCP-12267/trigger_build.groovy"
     And I replace lines in "trigger_build.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1473,7 +1473,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build_verbose.groovy"
+    Given I obtain test data file "templates/OCP-12267/trigger_build_verbose.groovy"
     And I replace lines in "trigger_build_verbose.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1496,7 +1496,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest2 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12267/trigger_build_failed.groovy"
+    Given I obtain test data file "templates/OCP-12267/trigger_build_failed.groovy"
     And I replace lines in "trigger_build_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1543,7 +1543,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment.groovy"
+    Given I obtain test data file "templates/OCP-12297/trigger_deployment.groovy"
     And I replace lines in "trigger_deployment.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1565,7 +1565,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest1 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_verbose.groovy"
+    Given I obtain test data file "templates/OCP-12297/trigger_deployment_verbose.groovy"
     And I replace lines in "trigger_deployment_verbose.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |
@@ -1587,7 +1587,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_create_pipeline_job web action with:
       | job_name | openshifttest2 |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-12297/trigger_deployment_failed.groovy"
+    Given I obtain test data file "templates/OCP-12297/trigger_deployment_failed.groovy"
     And I replace lines in "trigger_deployment_failed.groovy":
       | <repl_env> | <%= env.api_endpoint_url %> |
       | <repl_ns>  | <%= project.name %>         |

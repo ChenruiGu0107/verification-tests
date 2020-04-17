@@ -64,7 +64,7 @@ Feature: Permission Data
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-permission-pod.yaml"
+    When I obtain test data file "pods/permission-data/secret-permission-pod.yaml"
     Then I run the :create client command with:
       | f | secret-permission-pod.yaml |
     And the step should succeed

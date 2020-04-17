@@ -8,7 +8,7 @@ Feature: Storage of GlusterFS plugin testing
     Given I have a project
 
     #Create a invalid endpoint
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/endpoints.json"
+    And I obtain test data file "storage/gluster/endpoints.json"
     And I replace content in "endpoints.json":
       | /\d{2}/ | 11 |
     And I run the :create client command with:

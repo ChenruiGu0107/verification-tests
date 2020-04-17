@@ -260,7 +260,7 @@ Feature: log forwarding related tests
 
     Given rsyslog receiver is deployed as insecure in the "openshift-logging" project
 
-    #Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
+    #Given I obtain test data file "logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
     When I run the :create_configmap client command with:
       | name      | syslog                                                                                                              |

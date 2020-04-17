@@ -30,7 +30,7 @@ Feature: template related scenarios:
     And the output should contain:
       | error                   |
       | I_do_no_exist |
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    And I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     # activate/install the template to the project
     And I run the :create client command with:
       | filename | application-template-stibuild-without-customize-route.json |
@@ -43,7 +43,7 @@ Feature: template related scenarios:
   # @case_id OCP-9562
   Scenario: Create app from template containing invalid type - cli
     Given I have a project
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc497538/application-template-stibuild.json"
+    And I obtain test data file "templates/tc497538/application-template-stibuild.json"
     And I run the :create client command with:
       | filename | application-template-stibuild.json |
     Then the step should succeed
@@ -203,7 +203,7 @@ Feature: template related scenarios:
   # @bug_id 1330323
   Scenario: Add arbitrary labels to all objects during template processing
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
+    Given I obtain test data file "build/ruby22rhel7-template-sti.json"
     Given an 8 characters random string of type :dns is stored into the :lbl1 clipboard
     Given I replace lines in "ruby22rhel7-template-sti.json":
       | "template": "application-template-stibuild" | "<%= cb.lbl1 %>": "application-template-stibuild" |

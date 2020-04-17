@@ -11,7 +11,7 @@ Feature: Storage of Ceph plugin testing
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/rbd-secret.yaml |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/pv-retain.json"
+    Given I obtain test data file "storage/rbd/pv-retain.json"
     And I replace content in "pv-retain.json":
       | /\d{3}/ | 000 |
     When admin creates a PV from "pv-retain.json" where:

@@ -145,7 +145,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with absolute number
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/tc538208/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: 5|
     Then I run the :create admin command with:
@@ -172,7 +172,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
       | "namespace": ""|"namespace": "<%= project.name %>"|
@@ -226,7 +226,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with percentage number
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc538208/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/tc538208/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -253,7 +253,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "name": "",    |"name": "<%= cb.pod %>",          |
       | "namespace": ""|"namespace": "<%= project.name %>"|
@@ -292,7 +292,7 @@ Feature: pod related features
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-hostname.yaml"
+    Given I obtain test data file "pods/pod-hostname.yaml"
     When I replace lines in "pod-hostname.yaml":
       | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod:latest |
       | HOSTNAME                                  | <%= cb.nodes[0].name %>                 |
@@ -332,7 +332,7 @@ Feature: pod related features
       | docker images --digests \| grep docker.io/ocpqe/hello-pod                                                        |
     Then the step should fail
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-hostname.yaml"
+    Given I obtain test data file "pods/pod-hostname.yaml"
     When I replace lines in "pod-hostname.yaml":
       | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
       | HOSTNAME                                  | <%= cb.nodes[0].name %>                                                                                  |
@@ -363,7 +363,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with absolute number with beta1
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: 5|
     Then I run the :create admin command with:
@@ -389,7 +389,7 @@ Feature: pod related features
     Given 6 pods become ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -462,7 +462,7 @@ Feature: pod related features
   @admin
   Scenario: PDB take effective with percentage number with beta1
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -490,7 +490,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
       | "name": "",                      |"name": "<%= cb.pod %>",           |
@@ -517,7 +517,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in StatefulSet
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -544,7 +544,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -571,7 +571,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in Deployment
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "90%"|
     Then I run the :create admin command with:
@@ -594,7 +594,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
       | "name": "",                      | "name": "<%= cb.pod %>",           |
@@ -621,7 +621,7 @@ Feature: pod related features
   @admin
   Scenario: PDBs represent percentage in ReplicaSet
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     And I replace lines in "pdb_positive_absolute_number.yaml":
       | minAvailable: 2|minAvailable: "80%"|
     Then I run the :create admin command with:
@@ -648,7 +648,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | foo8=bar |
     And evaluation of `pod.name` is stored in the :pod clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/admin/Eviction.json"
+    Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
       | "name": "",                      |"name": "<%= cb.pod %>",           |

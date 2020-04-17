@@ -46,7 +46,7 @@ Feature: Group sync related scenarios
     Given admin ensures "tc509128group3" group is deleted after scenario
     Given a "blacklist_ldap" file is created with the following lines:
       |cn=group1,ou=groups,ou=rfc2307,dc=example,dc=com|
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-user-defined.yaml"
+    When I obtain test data file "groups/rfc2307/sync-config-user-defined.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-user-defined.yaml":
       |LDAP_SERVICE_IP:389|127.0.0.1:<%= cb.ldap_port %>|
@@ -101,7 +101,7 @@ Feature: Group sync related scenarios
     Given a "whitelist_ldap" file is created with the following lines:
       |cn=group2,ou=groups,ou=rfc2307,dc=example,dc=com|
       |cn=group3,ou=groups,ou=rfc2307,dc=example,dc=com|
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-partially-user-defined.yaml"
+    When I obtain test data file "groups/rfc2307/sync-config-partially-user-defined.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-partially-user-defined.yaml":
       |LDAP_SERVICE_IP:389|127.0.0.1:<%= cb.ldap_port %>|
@@ -171,7 +171,7 @@ Feature: Group sync related scenarios
     Given admin ensures "tc515433group1" group is deleted after scenario
     Given admin ensures "tc515433group2" group is deleted after scenario
     Given admin ensures "tc515433group3" group is deleted after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config-tc515433.yaml"
+    When I obtain test data file "groups/rfc2307/sync-config-tc515433.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-tc515433.yaml":
       | LDAP_SERVICE_IP:389  | 127.0.0.1:<%= cb.ldap_port %>  |
@@ -257,7 +257,7 @@ Feature: Group sync related scenarios
     Given admin ensures "group1" group is deleted after scenario
     Given admin ensures "group2" group is deleted after scenario
     Given admin ensures "group3" group is deleted after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/sync-config-tolerating.yaml"
+    When I obtain test data file "groups/sync-config-tolerating.yaml"
     Then the step should succeed
     And I replace lines in "sync-config-tolerating.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -282,7 +282,7 @@ Feature: Group sync related scenarios
     Given admin ensures "extended-group1" group is deleted after scenario
     Given admin ensures "extended-group2" group is deleted after scenario
     Given admin ensures "extended-group3" group is deleted after scenario
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307_paging.yaml"
+    When I obtain test data file "groups/rfc2307_paging.yaml"
     Then the step should succeed
     And I replace lines in "rfc2307_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -303,7 +303,7 @@ Feature: Group sync related scenarios
       | object_name_or_id | group2 |
       | object_name_or_id | group3 |
     Then the step should succeed
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ad_paging.yaml"
+    When I obtain test data file "groups/ad_paging.yaml"
     Then the step should succeed
     And I replace lines in "ad_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
@@ -318,7 +318,7 @@ Feature: Group sync related scenarios
       | group1 |
       | group2 |
       | group3 |
-    When I download a file from "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ead_paging.yaml"
+    When I obtain test data file "groups/ead_paging.yaml"
     Then the step should succeed
     And I replace lines in "ead_paging.yaml":
       | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |

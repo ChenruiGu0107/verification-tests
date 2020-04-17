@@ -13,7 +13,7 @@ Feature: Secure Heapster APIs scenarios
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I obtain test data file "logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>   |
     When I run the :create client command with:
@@ -81,7 +81,7 @@ Feature: Secure Heapster APIs scenarios
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I obtain test data file "logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %> |
       | User      | Username              |
@@ -174,7 +174,7 @@ Feature: Secure Heapster APIs scenarios
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I obtain test data file "logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>   |
       | tls-ca      | client-ca             |
@@ -254,7 +254,7 @@ Feature: Secure Heapster APIs scenarios
     Given cluster role "system:auth-delegator" is added to the "heapster" service account
     Given cluster role "system:node-reader" is added to the "heapster" service account
     # Setup heapster
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
+    Given I obtain test data file "logging_metrics/secure_heapster/heapster_grafana_influxdb.yaml"
     And I replace lines in "heapster_grafana_influxdb.yaml":
       | kube-system | <%= project.name %>     |
     When I run the :create client command with:

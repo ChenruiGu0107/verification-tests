@@ -5,7 +5,7 @@ Feature: oc plugin related tests
   Scenario: add plugin with subcommand and flags
     Given I have a project
     And I create the "plugins-dir/myplugin" directory
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_plugin/myplugin/plugin.yaml" into the "plugins-dir/myplugin" dir
+    And I obtain test data file "cli/oc_plugin/myplugin/plugin.yaml" into the "plugins-dir/myplugin" dir
     When I run the :plugin client command with:
       | h    |                                   |
       | _env | KUBECTL_PLUGINS_PATH=plugins-dir  |

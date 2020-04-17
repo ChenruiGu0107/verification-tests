@@ -9,13 +9,13 @@ Feature: oc observe related tests
     When I run the :new_app client command with:
       | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/known_resources.sh"
+    Given I obtain test data file "cli/oc_observe_scripts/known_resources.sh"
     Then the step should succeed
     Given the "known_resources.sh" file is made executable
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/add_to_inventory.sh"
+    And I obtain test data file "cli/oc_observe_scripts/add_to_inventory.sh"
     Then the step should succeed
     Given the "add_to_inventory.sh" file is made executable
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/remove_from_inventory.sh"
+    And I obtain test data file "cli/oc_observe_scripts/remove_from_inventory.sh"
     Then the step should succeed
     Given the "remove_from_inventory.sh" file is made executable
     When I run the :observe client command with:

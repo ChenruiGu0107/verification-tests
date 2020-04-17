@@ -272,7 +272,7 @@ Feature: Egress-ingress related networking scenarios
 
     Given I have a pod-for-ping in the project
     And evaluation of `BushSlicer::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json"
+    When I obtain test data file "networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
       | 0.0.0.0/0 | <%= cb.github_ip %>/32 |
     And I run the :create admin command with:
@@ -285,7 +285,7 @@ Feature: Egress-ingress related networking scenarios
     And I have a pod-for-ping in the project
 
     Given I create the "policy2" directory
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json" into the "policy2" dir
+    When I obtain test data file "networking/egressnetworkpolicy/limit_policy.json" into the "policy2" dir
     And I replace lines in "policy2/limit_policy.json":
       | 0.0.0.0/0 | 8.8.8.8/32 |
     And I run the :create admin command with:
@@ -410,7 +410,7 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json"
+    When I obtain test data file "networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
       | 0.0.0.0/0 | 0.0.0.0/32 |
     And I run the :create admin command with:
@@ -439,7 +439,7 @@ Feature: Egress-ingress related networking scenarios
 
     # Create egress policy with allow and deny order
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
+    When I obtain test data file "networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -463,7 +463,7 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
  
     # Create new egress policy with deny and allow order
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy2.json"
+    When I obtain test data file "networking/egress-ingress/dns-egresspolicy2.json"
     And I replace lines in "dns-egresspolicy2.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -490,7 +490,7 @@ Feature: Egress-ingress related networking scenarios
  
     # Create egress policy in project-1
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
+    When I obtain test data file "networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -512,7 +512,7 @@ Feature: Egress-ingress related networking scenarios
  
     # Create same egress policy in project-2
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy1.json"
+    When I obtain test data file "networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
       | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
     And I run the :create admin command with:
@@ -579,7 +579,7 @@ Feature: Egress-ingress related networking scenarios
 
     # Create egress policy to deny www.test.com
     And evaluation of `BushSlicer::Common::Net.dns_lookup("test.com")` is stored in the :test_ip clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json"
+    When I obtain test data file "networking/egressnetworkpolicy/policy.json"
     And I replace lines in "policy.json":
       | 10.66.140.0/24 | <%= cb.test_ip %>/32 |
     And I run the :create admin command with:

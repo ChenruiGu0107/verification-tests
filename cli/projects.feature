@@ -102,7 +102,7 @@ Feature: projects related features via cli
     Given evaluation of `node.labels.keys.select{|key| key.include?("io/hostname")}.first` is stored in the :unique_key clipboard
     Given evaluation of `[cb.unique_key, node.labels[cb.unique_key]].join("=")` is stored in the :node_selector clipboard
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/projects/prj_with_invalid_node-selector.json"
+    When I obtain test data file "projects/prj_with_invalid_node-selector.json"
     And I replace lines in "prj_with_invalid_node-selector.json":
       | "openshift.io/node-selector": "env,qa" | "openshift.io/node-selector": "<%= cb.node_selector %>" |
       | "name": "jhou"                         | "name": "<%= cb.proj_name %>"                           |

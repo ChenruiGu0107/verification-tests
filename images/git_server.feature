@@ -98,7 +98,7 @@ Feature: git server related scenarios
     Then the step should succeed
     Then the output should contain:
       | master -> master |
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    And I obtain test data file "build/ruby20rhel7-template-sti.json"
     Then the step should succeed
     And I replace lines in "ruby20rhel7-template-sti.json":
       | https://github.com/openshift/ruby-hello-world.git | http://<%= cb.git_svc_ip %>:8080/ruby-hello-world.git |

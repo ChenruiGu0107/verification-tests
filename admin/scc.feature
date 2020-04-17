@@ -4,7 +4,7 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Cluster-admin can add & remove user or group to from scc
     Given a 5 characters random string of type :dns is stored into the :scc_name clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_privileged.yaml"
+    When I obtain test data file "authorization/scc/scc_privileged.yaml"
     And I replace lines in "scc_privileged.yaml":
       | scc-pri | <%= cb.scc_name %> |
     And I switch to cluster admin pseudo user
@@ -78,7 +78,7 @@ Feature: SCC policy related scenarios
     And the output should contain "capability may not be added"
 
     # Create SCC to allow KILL
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_capabilities.yaml"
+    Given I obtain test data file "authorization/scc/scc_capabilities.yaml"
     And I replace lines in "scc_capabilities.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-cap|<%= rand_str(6, :dns) %>|
@@ -102,7 +102,7 @@ Feature: SCC policy related scenarios
     Given I have a project
 
     # Create pod which requests Selinux SecurityContext which does not match SCC SELinuxContext policy MustRunAs
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_selinux_mustrunas.yaml"
+    Given I obtain test data file "authorization/scc/scc_selinux_mustrunas.yaml"
     And I replace lines in "scc_selinux_mustrunas.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-selinux-mustrunas|<%= rand_str(6, :dns) %>|
@@ -116,7 +116,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
     # Create pod which requests Selinux SecurityContext when the SCC SELinuxContext policy is RunAsAny
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_runasany.yaml"
+    Given I obtain test data file "authorization/scc/scc_runasany.yaml"
     And I replace lines in "scc_runasany.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-runasany|<%= rand_str(6, :dns) %>|
@@ -137,7 +137,7 @@ Feature: SCC policy related scenarios
     And the output should contain "Privileged containers are not allowed"
 
     # Create new scc to allow the privileged pod for specify project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_privileged.yaml"
+    Given I obtain test data file "authorization/scc/scc_privileged.yaml"
     And I replace lines in "scc_privileged.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-pri|<%= rand_str(6, :dns) %>|
@@ -162,7 +162,7 @@ Feature: SCC policy related scenarios
       |ost.*[Vv]olumes are not allowed |
 
     # Create new scc to allow the hostdir for pod in specify project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_hostdir.yaml"
+    Given I obtain test data file "authorization/scc/scc_hostdir.yaml"
     And I replace lines in "scc_hostdir.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-hostdir|<%= rand_str(6, :dns) %>|
@@ -315,10 +315,10 @@ Feature: SCC policy related scenarios
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :scc_name_1 clipboard
     Given a 5 characters random string of type :dns is stored into the :scc_name_2 clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495030/scc_1.json"
+    When I obtain test data file "authorization/scc/tc495030/scc_1.json"
     And I replace lines in "scc_1.json":
        | "name": "restricted", | "name": "<%= cb.scc_name_1 %>", |
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495030/scc_2.json"
+    When I obtain test data file "authorization/scc/tc495030/scc_2.json"
     And I replace lines in "scc_2.json":
       | "name": "restricted", | "name": "<%= cb.scc_name_2 %>", |
     And I switch to cluster admin pseudo user
@@ -538,7 +538,7 @@ Feature: SCC policy related scenarios
   # @case_id OCP-11398
   Scenario: User can know whether the PodSpec his describing will actually be allowed by the current SCC rules via subjectsccreview
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
+    When I obtain test data file "authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
     Then the step should succeed
     And I replace lines in "PodSecurityPolicySubjectReview.json":
       | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
@@ -566,7 +566,7 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Cluster admin can configure the default capabilities for scc
     Given the first user is cluster-admin
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_with_all_cap.yaml"
+    When I obtain test data file "authorization/scc/scc_with_all_cap.yaml"
     Given the following scc policy is created: scc_with_all_cap.yaml
     And I replace lines in "scc_with_all_cap.yaml":
       | - KILL | |
@@ -579,7 +579,7 @@ Feature: SCC policy related scenarios
       | o             | yaml             |
     And the output should not contain:
       | KILL |
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_drop_all_cap.yaml"
+    When I obtain test data file "authorization/scc/scc_drop_all_cap.yaml"
     Given the following scc policy is created: scc_drop_all_cap.yaml
     And I replace lines in "scc_drop_all_cap.yaml":
       | - SETPCAP | |
@@ -599,12 +599,12 @@ Feature: SCC policy related scenarios
   Scenario: Wildcard SCC for volumes is respected
     Given I have a project
     And evaluation of `project.uid_range(user:user).begin` is stored in the :scc_limit clipboard
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521575/scc_tc521575_c.yaml"
+    Given I obtain test data file "authorization/scc/tc521575/scc_tc521575_c.yaml"
     And I replace lines in "scc_tc521575_c.yaml":
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
     Given the following scc policy is created: scc_tc521575_c.yaml
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gitrepo/gitrepo-selinux-fsgroup-test.json"
+    When I obtain test data file "storage/gitrepo/gitrepo-selinux-fsgroup-test.json"
     And I replace lines in "gitrepo-selinux-fsgroup-test.json":
       | "runAsUser": 1000130000, | "runAsUser": <%= cb.scc_limit %>, |
       | "fsGroup": 123456        | "fsGroup":  <%= cb.scc_limit %>   |
@@ -795,7 +795,7 @@ Feature: SCC policy related scenarios
   Scenario: 4.x User can know which serviceaccount and SA groups can create the podspec against the current sccs
     Given I have a project
     Given SCC "restricted" is added to the "default" service account
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538264/PodSecurityPolicyReview.json"
+    When I obtain test data file "authorization/scc/tc538264/PodSecurityPolicyReview.json"
     And I replace lines in "PodSecurityPolicyReview.json":
       | "apiVersion": "v1" | "apiVersion": "security.openshift.io/v1" |
     Then the step should succeed

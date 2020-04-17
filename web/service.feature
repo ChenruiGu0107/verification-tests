@@ -28,7 +28,7 @@ Feature: services related feature on web console
   Scenario: Display details on service page for ExternalName type service
     Given the master version >= "3.5"
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/services/ExternalSvc-with-label-ports.yaml"
+    When I obtain test data file "services/ExternalSvc-with-label-ports.yaml"
     Then the step should succeed
     And I replace lines in "ExternalSvc-with-label-ports.yaml":
       | myproject | <%= project.name %> |
