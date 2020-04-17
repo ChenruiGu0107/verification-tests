@@ -5,7 +5,7 @@ Feature: remote registry related scenarios
   @admin
   @destructive
   Scenario: Pull image will failed when integrated registry with option:pullthrough=false
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/registry/tc518928/config.yaml"
+    Given I obtain test data file "registry/tc518928/config.yaml"
     When I run the :secrets admin command with:
       | action | new         |
       | name   | tc518928    |
@@ -219,7 +219,7 @@ Feature: remote registry related scenarios
   @admin
   Scenario: After Image Size Limit increment can push the image which previously over the limit
     Given I have a project
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/image-limit-range.yaml"
+    And I obtain test data file "quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | storage: 1Gi | storage: 65Mi |
     When I run the :create admin command with:
@@ -362,7 +362,7 @@ Feature: remote registry related scenarios
   @admin
   Scenario: Specify ResourceQuota on project
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/openshift-object-counts.yaml"
+    When I obtain test data file "quota/openshift-object-counts.yaml"
     And I replace lines in "openshift-object-counts.yaml":
       | openshift.io/imagestreams: "10" | openshift.io/imagestreams: "1" |
     Then the step should succeed

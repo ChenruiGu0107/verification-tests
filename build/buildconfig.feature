@@ -73,7 +73,7 @@ Feature: buildconfig.feature
       | p | {"spec": {"completionDeadlineSeconds": "abc"}} |
     Then the step should fail
     And the output should contain "unrecognized type"
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json"
+    When I obtain test data file "build/sourcebuildconfig.json"
     Then the step should succeed
     Given I replace lines in "sourcebuildconfig.json":
       | "completionDeadlineSeconds": 5, | "completionDeadlineSeconds": -5, |

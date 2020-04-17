@@ -33,7 +33,7 @@ Feature: secrets related scenarios
   @admin
   Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
+    When I obtain test data file "quota/myquota.yaml"
     And I replace lines in "myquota.yaml":
       | name: myquota                | <%= "name: "+project.name %> |
       | cpu: "30"                    | cpu: "20"                    |
@@ -80,7 +80,7 @@ Feature: secrets related scenarios
     And the output should contain:
       |password:|
       |username:|
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/508970/ca.crt"
+    When I obtain test data file "cases/508970/ca.crt"
     When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret2 |
       |username    |tester      |
@@ -96,7 +96,7 @@ Feature: secrets related scenarios
       |password:|
       |username:|
       |ca.crt:  |
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/508970/.gitconfig"
+    When I obtain test data file "cases/508970/.gitconfig"
     When I run the :secrets_new_basicauth client command with:
       |secret_name |testsecret3 |
       |username    |tester      |
@@ -416,7 +416,7 @@ Feature: secrets related scenarios
   # @case_id OCP-11523
   Scenario: Build from private repo with/without secret of gitconfig auth method
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/cases/508964/.gitconfig"
+    When I obtain test data file "cases/508964/.gitconfig"
     When I run the :new_secret client command with:
       |secret_name     |mysecret  |
       |credential_file |.gitconfig|

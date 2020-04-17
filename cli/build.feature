@@ -135,7 +135,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-11517
   Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json"
+    Given I obtain test data file "build/ruby22rhel7-template-docker.json"
     Given I replace lines in "ruby22rhel7-template-docker.json":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
@@ -282,7 +282,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-9950
   Scenario: Check bad proxy in .s2i/environment when performing s2i build
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-template-sti.json"
+    Given I obtain test data file "build/ruby20rhel7-template-sti.json"
     Given I replace lines in "ruby20rhel7-template-sti.json":
       | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-badproxy.git" |
     Given I process and create "ruby20rhel7-template-sti.json"

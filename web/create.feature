@@ -142,7 +142,7 @@ Feature: create app on web console related
   # @case_id OCP-11233
   Scenario: Create resource from template contains fake api group
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     And I run oc create with "application-template-stibuild-without-customize-route.json" replacing paths:
       | ["objects"][0]["apiVersion"] | fake/v1          |
     Then the step should succeed
@@ -383,7 +383,7 @@ Feature: create app on web console related
   # @case_id OCP-11621
   Scenario: Labels management in create app from template process on web console
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                                       |
@@ -447,7 +447,7 @@ Feature: create app on web console related
   # @case_id OCP-11288
   Scenario: Add resources missing some required fields to project
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json"
+    When I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     Given I backup the file "application-template-stibuild-without-customize-route.json"
     And I replace lines in "application-template-stibuild-without-customize-route.json":
@@ -490,7 +490,7 @@ Feature: create app on web console related
       | message | spec.source.git.uri: Required value |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json"
+    When I obtain test data file "deployment/deployment1.json"
     Then the step should succeed
     Given I backup the file "deployment1.json"
     And I replace lines in "deployment1.json":
@@ -608,7 +608,7 @@ Feature: create app on web console related
   Scenario: Add resources with unsupported format to project
     Given the master version >= "3.3"
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-with-probe.yaml"
+    When I obtain test data file "pods/pod-with-probe.yaml"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                        |
@@ -623,7 +623,7 @@ Feature: create app on web console related
     When I perform the :check_error_message_on_create_fromfile web console action with:
       | error_message | The API version v1 for kind PodTest is not supported by this server |
     Then the step should succeed
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/registry/htpasswd"
+    When I obtain test data file "registry/htpasswd"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                        |

@@ -62,7 +62,7 @@ Feature: change the policy of user/service account
       | not found |
 
     ## download json filed for role and update the project name
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/policy.json"
+    When I obtain test data file "authorization/policy/policy.json"
     And I replace lines in "policy.json":
       |"namespace": "wsuntest"|"namespace": "<%= project.name %>"|
     Then the step should succeed
@@ -93,7 +93,7 @@ Feature: change the policy of user/service account
   Scenario: [origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
     Given admin creates a project
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/getlistwatch_projNamespace.json"
+    When I obtain test data file "authorization/policy/getlistwatch_projNamespace.json"
     And I replace lines in "getlistwatch_projNamespace.json":
       |   vsp          |       <%= project.name %>            |
     Then the step should succeed
@@ -118,7 +118,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/policy.json"
+    When I obtain test data file "authorization/policy/policy.json"
     And I replace lines in "policy.json":
       | wsuntest | <%= project.name %> |
     Then the step should succeed
@@ -172,7 +172,7 @@ Feature: change the policy of user/service account
       | project_name | <%= cb.project_1 %> |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/policy.json"
+    When I obtain test data file "authorization/policy/policy.json"
     And I replace lines in "policy.json":
       | wsuntest | <%= cb.project_1 %> |
     Then the step should succeed
@@ -180,7 +180,7 @@ Feature: change the policy of user/service account
       | f        | policy.json         |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/deleteservices.json"
+    When I obtain test data file "authorization/policy/deleteservices.json"
     And I replace lines in "deleteservices.json":
       | deleteservices | <%= cb.project_1 %>     |
       | "delete"   | "watch","list","get"        |
@@ -575,7 +575,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users                              |
       | grouprestriction:                         | userrestriction:                               |
@@ -691,7 +691,7 @@ Feature: change the policy of user/service account
             kind: DefaultAdmissionConfig
     """
     And the master service is restarted on all master nodes
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users |
       | grouprestriction:                         | userrestriction:  |
@@ -728,7 +728,7 @@ Feature: change the policy of user/service account
        | group_name | groups-rolebindingrestriction       |
        | user_name  | <%= user(1, switch: false).name  %> |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | groups: ["groups-rolebindingrestriction"] | groups: [""] |
     Given I run the :create admin command with:
@@ -758,7 +758,7 @@ Feature: change the policy of user/service account
             kind: DefaultAdmissionConfig
     """
     And the master service is restarted on all master nodes
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount |
       | grouprestriction:                         | serviceaccountrestriction: |
@@ -809,7 +809,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount          |
       | grouprestriction:                         | serviceaccountrestriction:          |
@@ -898,7 +898,7 @@ Feature: change the policy of user/service account
     When I run the :new_app client command with:
       | template | postgresql-persistent |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users                              |
       | grouprestriction:                         | userrestriction:                               |
@@ -980,7 +980,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: 4.x Restrict making a role binding to a user not matched any rolebindingrestriction
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-users |
       | grouprestriction:                         | userrestriction:  |
@@ -1006,7 +1006,7 @@ Feature: change the policy of user/service account
        | group_name | groups-rolebindingrestriction       |
        | user_name  | <%= user(1, switch: false).name  %> |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | groups: ["groups-rolebindingrestriction"] | groups: [""] |
     Given I run the :create admin command with:
@@ -1025,7 +1025,7 @@ Feature: change the policy of user/service account
   @admin
   Scenario: 4.x Restrict making a role binding to a service account not matched any rolebindingrestriction
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     And I replace lines in "rolebindingrestriction.yaml":
       | name: match-groups                        | name: match-serviceaccount |
       | grouprestriction:                         | serviceaccountrestriction: |

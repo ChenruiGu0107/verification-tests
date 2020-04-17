@@ -28,7 +28,7 @@ Feature: Service related networking scenarios
   Scenario: Be able to access the service via the nodeport
     Given I have a project
     And evaluation of `rand(30000..32767)` is stored in the :port clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/nodeport_service.json"
+    When I obtain test data file "networking/nodeport_service.json"
     And I replace lines in "nodeport_service.json":
       |30000|<%= cb.port %>|
     When I run the :create client command with:

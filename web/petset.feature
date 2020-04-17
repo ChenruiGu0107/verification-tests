@@ -62,7 +62,7 @@ Feature: petset related feature
       | p             | {"spec":{"replicas":2}} |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/petset/hello-petset.yaml"
+    When I obtain test data file "petset/hello-petset.yaml"
     Then I replace lines in "hello-petset.yaml":
       | foo          | foo2          |
       | hello-petset | hello-petset2 |

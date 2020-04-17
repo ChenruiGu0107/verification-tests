@@ -29,7 +29,7 @@ Feature: MariaDB images test
   # @author haowang@redhat.com
   Scenario Outline: Add env vars to mariadb image
     Given I have a project
-    And I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/<file>"
+    And I obtain test data file "image/db-templates/<file>"
     And I replace lines in "<template>":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:

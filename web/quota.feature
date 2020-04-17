@@ -426,7 +426,7 @@ Feature: functions about resourcequotas
       | generator | run-pod/v1             |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json"
+    When I obtain test data file "deployment/deployment1.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -464,7 +464,7 @@ Feature: functions about resourcequotas
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/services/multi-portsvc.json"
+    When I obtain test data file "services/multi-portsvc.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -531,7 +531,7 @@ Feature: functions about resourcequotas
     When I run the :check_quota_warning_on_overview_page web console action
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml"
+    When I obtain test data file "secrets/secret.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -597,7 +597,7 @@ Feature: functions about resourcequotas
     When I run the :check_quota_warning_on_overview_page web console action
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/tc536555/pod-<type>.yaml"
+    When I obtain test data file "quota/tc536555/pod-<type>.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -725,7 +725,7 @@ Feature: functions about resourcequotas
       | generator | run-pod/v1             |
     Then the step should succeed
 
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-13487/test-template.json"
+    When I obtain test data file "templates/OCP-13487/test-template.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -789,7 +789,7 @@ Feature: functions about resourcequotas
     Given I have a project
 
     #check warning info when create pv
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-default.json"
+    When I obtain test data file "storage/nfs/nfs-default.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -806,7 +806,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #check warning info when create quota
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
+    When I obtain test data file "quota/myquota.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -825,7 +825,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #check warning info when create role
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/rbac/OCP-12989/role.json"
+    When I obtain test data file "rbac/OCP-12989/role.json"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:
@@ -845,7 +845,7 @@ Feature: functions about resourcequotas
       | deleteservices |
 
     #check warning info when create rolebinding
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/rbac/OCP-12989/rolebinding.yaml"
+    When I obtain test data file "rbac/OCP-12989/rolebinding.yaml"
     Then the step should succeed
 
     When I perform the :create_from_template_file web console action with:

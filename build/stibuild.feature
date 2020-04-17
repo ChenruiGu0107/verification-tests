@@ -287,7 +287,7 @@ Feature: stibuild.feature
       | all_no_dash |  |
       | all         |  |
     Then the step should succeed
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/application-template-stibuild_incremental_true.json"
+    Given I obtain test data file "build/application-template-stibuild_incremental_true.json"
     And I replace lines in "application-template-stibuild_incremental_true.json":
       | "incremental": true, ||
     When I run the :new_app client command with:

@@ -112,7 +112,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: When exceed openshift.io/image-tags will ban to create new image references in the project
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/image-limit-range.yaml"
+    When I obtain test data file "quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | openshift.io/image-tags: 20 | openshift.io/image-tags: 1 |
     Then the step should succeed
@@ -139,7 +139,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: When exceed openshift.io/images will ban to create image reference or push image to project
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/image-limit-range.yaml"
+    When I obtain test data file "quota/image-limit-range.yaml"
     And I replace lines in "image-limit-range.yaml":
       | openshift.io/images: 30 | openshift.io/images: 1 |
     Then the step should succeed

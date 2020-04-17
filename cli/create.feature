@@ -317,7 +317,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11932
   Scenario: Process with special supplemental groups can be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_special_supplementalGroups.json"
+    When I obtain test data file "pods/pod_with_special_supplementalGroups.json"
     And I replace lines in "pod_with_special_supplementalGroups.json":
       |4294967296|0|
     Then the step should succeed
@@ -363,7 +363,7 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11707
   Scenario: update multiple existing resources with file
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/tc470422/application-template-stibuild.json"
+    When I obtain test data file "build/tc470422/application-template-stibuild.json"
     Given I replace lines in "application-template-stibuild.json":
       | "name": "ruby-22-centos7:latest" | "name": "ruby:latest", "namespace": "openshift" |
     When I run the :new_app client command with:
@@ -470,7 +470,7 @@ Feature: creating 'apps' with CLI
       | resource_name | <%= project.name %> |
     # create and save the invalid supplemental_group_id
     And evaluation of `project.supplemental_groups(user:user).begin - 1000` is stored in the :invalid_sgid clipboard
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510543/special_fs_groupid.json"
+    When I obtain test data file "pods/tc510543/special_fs_groupid.json"
     And I replace lines in "special_fs_groupid.json":
       | 1000 | <%= cb.invalid_sgid %> |
       | 1001 | <%= cb.invalid_sgid %> |

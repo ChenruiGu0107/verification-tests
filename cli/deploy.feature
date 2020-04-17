@@ -525,7 +525,7 @@ Feature: deployment related features
   # @case_id OCP-11281
   Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
     Given I have a project
-    Given I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
+    Given I obtain test data file "deployment/build-deploy-without-configchange.json"
     And I replace lines in "build-deploy-without-configchange.json":
       | "automatic": true | "automatic": false |
     When I process and create "build-deploy-without-configchange.json"
@@ -804,7 +804,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "ProgressDeadlineExceeded"
     """
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
+    When I obtain test data file "quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | replicationcontrollers: "30" | replicationcontrollers: "1" |
@@ -925,7 +925,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "RolloutCancelled"
     """
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/myquota.yaml"
+    When I obtain test data file "quota/myquota.yaml"
     Then the step should succeed
     And I replace lines in "myquota.yaml":
       | replicationcontrollers: "30" | replicationcontrollers: "1" |

@@ -226,7 +226,7 @@ Feature: Webhook REST Related Tests
   @destructive
   Scenario: Verify guestbook example of Atomic Host works
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_privileged.yaml"
+    When I obtain test data file "authorization/scc/scc_privileged.yaml"
     Given the following scc policy is created: scc_privileged.yaml
     Then the step should succeed
     And I run the :patch admin command with:

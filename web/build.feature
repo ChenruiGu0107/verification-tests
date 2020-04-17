@@ -790,7 +790,7 @@ Feature: build related feature on web console
   # @case_id OCP-11269
   Scenario: Check settings for Source strategy build with no inputs
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc525738/application-template-stibuild.json"
+    When I obtain test data file "templates/tc525738/application-template-stibuild.json"
     Then the step should succeed
     And I replace lines in "application-template-stibuild.json":
       | "host": "www.tc525738example.com", |      |
@@ -1081,7 +1081,7 @@ Feature: build related feature on web console
   # @case_id OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
-    When I download a file from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/build-postcommit.json"
+    When I obtain test data file "build/build-postcommit.json"
     And I replace lines in "build-postcommit.json":
        | Parallel | <runpolicy> |
     Then the step should succeed
