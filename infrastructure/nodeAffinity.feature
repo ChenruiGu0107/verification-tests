@@ -223,7 +223,7 @@ Feature: nodeAffinity
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
     Then the step should succeed
-    Given the pod named "node-affinity-preferred-case14509" status becomes :running within 60 seconds
+    Given the pod named "node-affinity-preferred-case14509" status becomes :running
 
   # @author wmeng@redhat.com
   # @case_id OCP-14556
