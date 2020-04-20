@@ -213,12 +213,12 @@ Feature: Testing Ingress Operator related scenarios
       | grep | ssl-default-bind-ciphers | haproxy.config |
     Then the output should contain "<ciphers>"
     """
-  Examples:
-    | name       | ingressctl                 | tls-version | ciphers                                                   |
-    | test-25665 | ingressctl-tls-old.yaml    | TLSv1.1     | AES128-GCM-SHA256:AES256-GCM-SHA384                       | # @case_id OCP-25665
-    | test-25666 | ingressctl-tls-intmd.yaml  | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
-    | test-25667 | ingressctl-tls-modern.yaml | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
-    | test-25668 | ingressctl-tls-custom.yaml | TLSv1.1     | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
+    Examples:
+      | name       | ingressctl                 | tls-version | ciphers                                                   |
+      | test-25665 | ingressctl-tls-old.yaml    | TLSv1.1     | AES128-GCM-SHA256:AES256-GCM-SHA384                       | # @case_id OCP-25665
+      | test-25666 | ingressctl-tls-intmd.yaml  | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25666
+      | test-25667 | ingressctl-tls-modern.yaml | TLSv1.2     | ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305 | # @case_id OCP-25667
+      | test-25668 | ingressctl-tls-custom.yaml | TLSv1.1     | ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256 | # @case_id OCP-25668
 
   # @author hongli@redhat.com
   # @case_id OCP-26150
@@ -230,4 +230,42 @@ Feature: Testing Ingress Operator related scenarios
     Then the expression should be true> service_monitor('ingress-operator').exists?
     Then the expression should be true> role_binding('prometheus-k8s').exists?
     Then the expression should be true> namespace('openshift-ingress-operator').labels['openshift.io/cluster-monitoring'] == 'true'
+
+  # @author hongli@redhat.com
+  @admin
+  Scenario Outline: ingresscontroller can set proper endpointPublishingStrategy for all platforms
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ingress-operator" project
+    Then the expression should be true> ingress_controller('default').endpoint_publishing_strategy == "<type>"
+    Examples:
+      | type                |
+      | LoadBalancerService | # @case_id OCP-21599
+      | HostNetwork         | # @case_id OCP-29204
+
+  # @author hongli@redhat.com
+  # @case_id OCP-21883
+  @admin
+  Scenario: the PROXY protocol is enabled in AWS platform
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ingress" project
+    And all default router pods become ready
+    When I execute on the pod:
+      | grep | accept-proxy | haproxy.config |
+    Then the step should succeed
+    And the output should match 4 times:
+      | bind .* accept-proxy |
+
+  # @author hongli@redhat.com
+  # @case_id OCP-29207
+  @admin
+  Scenario: the PROXY protocol is disabled in non-AWS platform
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-ingress" project
+    And all default router pods become ready
+    When I execute on the pod:
+      | grep | accept-proxy | haproxy.config |
+    Then the step should fail
 
