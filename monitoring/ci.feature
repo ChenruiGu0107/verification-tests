@@ -160,3 +160,16 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | prometheus_operator_watch_operations_total |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-29314
+  @admin
+  Scenario: telemetry whitelist metrics could be configured via configmap
+    Given the master version >= "4.3"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    #Check metrics in telemetry-config configmap
+    When evaluation of `YAML.load(config_map("telemetry-config").value_of("metrics.yaml"))["matches"]` is stored in the :metrics_cm clipboard
+    #Check metrics in telemetry-client deploy
+    And evaluation of `deployment('telemeter-client').containers.first['command'].map {|n| n[/\{(.*)\}/]}.compact!` is stored in the :metrics_deploy clipboard
+    Then the expression should be true> cb.metrics_cm == cb.metrics_deploy
