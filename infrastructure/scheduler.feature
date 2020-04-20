@@ -158,6 +158,7 @@ Feature: Scheduler predicates and priority test suites
     Given admin ensures "priorityl" priority_class is deleted after scenario
     Given admin ensures "prioritym" priority_class is deleted after scenario
     Given I store the schedulable workers in the :nodes clipboard
+    And the expression should be true> cb.nodes.delete(node)
     # Creation of priority classes
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
@@ -171,23 +172,19 @@ Feature: Scheduler predicates and priority test suites
     # Mark two nodes as unschedulable
     Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
-      | node_name | <%= cb.nodes[0].name %> |
-    Then the step should succeed
-    When I run the :oadm_cordon_node admin command with:
-      | node_name | <%= cb.nodes[1].name %> |
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
     Then the step should succeed
     # Test runs
     Given I have a project
-    Given I use the "<%= cb.nodes[2].name %>" node
-    And evaluation of `cb.nodes[2].remaining_resources[:memory]` is stored in the :node_memory clipboard
-    And evaluation of `cb.nodes[2].remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
+    And evaluation of `node.remaining_resources[:memory]` is stored in the :node_memory clipboard
+    And evaluation of `node.remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | env=test |
     And evaluation of `pod.name` is stored in the :podone clipboard
-    Then the expression should be true> pod.node_name == cb.nodes[2].name
+    Then the expression should be true> pod.node_name == node.name
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
       | ["metadata"]["labels"]                                       | env: test1                     |
@@ -195,7 +192,7 @@ Feature: Scheduler predicates and priority test suites
     Given a pod becomes ready with labels:
       | env=test1 |
     And evaluation of `pod.name` is stored in the :podtwo clipboard
-    Then the expression should be true> pod.node_name == cb.nodes[2].name
+    Then the expression should be true> pod.node_name == node.name
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | prioritym             |
       | ["metadata"]["labels"]                                       | env: testm            |
@@ -205,7 +202,7 @@ Feature: Scheduler predicates and priority test suites
     Given status becomes :pending of 1 pods labeled:
       | env=testm |
     And evaluation of `pod.name` is stored in the :podm clipboard
-    Then the expression should be true> pod.nominated_node_name == cb.nodes[2].name
+    Then the expression should be true> pod.nominated_node_name == node.name
     And the pod named "<%= cb.podone %>" becomes terminating
     And the pod named "<%= cb.podtwo %>" becomes terminating
     When I run the :delete client command with:
@@ -221,7 +218,7 @@ Feature: Scheduler predicates and priority test suites
       | force             | true             |
     Then the step should succeed
     And the pod named "<%= cb.podm %>" status becomes :running
-    Then the expression should be true> pod.node_name == cb.nodes[2].name
+    Then the expression should be true> pod.node_name == node.name
 
   # @author knarra@redhat.com
   # @case_id OCP-26842

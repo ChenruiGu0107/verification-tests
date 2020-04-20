@@ -137,6 +137,7 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Fixed priority rules testing - LeastRequestedPriority
     Given the master version >= "4.1"
     Given I store the schedulable workers in the :nodes clipboard
+    And the expression should be true> cb.nodes.delete(node)
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
 
@@ -146,11 +147,8 @@ Feature: Testing Scheduler Operator related scenarios
       | namespace | openshift-config                                                                                        |
     Then the step should succeed
 
-    When I run the :patch admin command with:
-      | resource      | Scheduler                                       |
-      | resource_name | cluster                                         |
-      | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
-      | type          | merge                                           |
+    Given as admin I successfully merge patch resource "Scheduler/cluster" with:
+      | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
@@ -161,16 +159,21 @@ Feature: Testing Scheduler Operator related scenarios
     # Mark one node as unschedulable
     Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml |
+    And evaluation of `node.remaining_resources[:memory]` is stored in the :node_memory clipboard
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
     And evaluation of `pod.node_name` is stored in the :nodename clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
-      | ["metadata"]["name"] | pod-request1 |
+      | ["metadata"]["name"]                                         | pod-request1 |
+      | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
     Then the step should succeed
     And the pod named "pod-request1" becomes ready
     And the expression should be true> pod.node_name != cb.nodename
