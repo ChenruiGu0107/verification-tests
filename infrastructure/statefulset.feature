@@ -264,7 +264,7 @@ Feature: StatefulSet related tests
 
   # @author yinzhou@redhat.com
   # @case_id OCP-28018
-  Scenario: Pods in a StatefulSet is using stable network identities
+  Scenario: Custom label for pvc in statefulsets
     Given I have a project
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml |
