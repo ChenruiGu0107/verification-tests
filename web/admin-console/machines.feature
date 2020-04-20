@@ -21,6 +21,7 @@ Feature: machineconfig/machineconfig pool related
     When I perform the :check_resource_details web action with:
       | name                    | example          |
       | current_configuration   | rendered-example |
+      | node_selector           | node-role.kubernetes.io/master                |
       | machine_config_selector | machineconfiguration.openshift.io/role=master |
     Then the step should succeed
     """

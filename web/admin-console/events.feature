@@ -31,14 +31,14 @@ Feature: events related
     Then the step should succeed
     And the "ruby-ex-2" build finished  
 
-    When I perform the :set_filter_strings web action with:
+    When I perform the :filter_event_by_name_or_message web action with:
       | filter_text | ruby-ex-1 |
     Then the step should succeed
     When I perform the :check_results_contain_correct_strings web action with:
       | filter_text | ruby-ex-1 |
     Then the step should succeed
 
-    When I perform the :set_filter_strings web action with:
+    When I perform the :filter_event_by_name_or_message web action with:
       | filter_text | ruby-ex-3 |
     Then the step should succeed
     When I perform the :check_page_match web action with:
