@@ -353,7 +353,7 @@ Feature: SDN related networking scenarios
     Then evaluation of `pod.node_name` is stored in the :node_name clipboard
     When I execute on the pod:
       | bash | -c | ip link show eth0 \| awk -F@ '{ print $2 }' \| awk -F: '{ print $1 }' |
-    Then the output should contain "if"    
+    Then the output should contain "if"
     And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
     When I run command on the "<%= cb.node_name %>" node's sdn pod:
       | bash | -c | ip addr show <%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
@@ -604,7 +604,7 @@ Feature: SDN related networking scenarios
   Scenario: Deleting a node should not breaks node to node networking for the cluster
     Given environment has at least 3 nodes
     And environment has at least 2 schedulable nodes
-    And I store the schedulable nodes in the clipboard
+    And I store the schedulable workers in the clipboard
     Given I switch to cluster admin pseudo user
 
     # Delete the nodes[0]
@@ -615,8 +615,12 @@ Feature: SDN related networking scenarios
     """
     Given I wait for the networking components of the node to become ready
     """
+    # re-create the node, this won't work we have to save in a clipboard
+    And I store the node "<%= cb.nodes[0].name %>" YAML to the clipboard
     And the node labels are restored after scenario
     And the node service is restarted on the host after scenario
+    # do this first
+    And the node in the clipboard is restored from YAML after scenario
     When I run the :delete admin command with:
       | object_type       | node                    |
       | object_name_or_id | <%= cb.nodes[0].name %> |
@@ -671,7 +675,7 @@ Feature: SDN related networking scenarios
     When I try to restart the node service on node
     Then the step should succeed
     Given I wait up to 120 seconds for the steps to pass:
-    """ 
+    """
     When I run the ovs commands on the host:
       | ovs-ofctl -O openflow13 dump-flows br0 "table=253" |
     Then the output should contain "table=253"
