@@ -655,7 +655,7 @@ Feature: customize console related
     When I perform the :click_button_text web action with:
       | button_text | Create Job |
     Then the step should succeed
-    When I run the :wait_until_no_loading web action
+    When I run the :wait_sidebar_loaded web action
     Then the step should succeed
 
     # check Schema sidebar
