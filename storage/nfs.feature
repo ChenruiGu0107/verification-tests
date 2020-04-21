@@ -32,7 +32,7 @@ Feature: NFS Persistent Volume
     When I get project pod named "mypod-<%= project.name %>"
     Then the output should not contain:
       | Running |
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | pod                       |
