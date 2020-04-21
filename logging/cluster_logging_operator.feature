@@ -295,3 +295,30 @@ Feature: cluster-logging-operator related cases
       | FluentdErrorsHigh            |
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "warning"
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-24427
+  @admin
+  @destructive
+  Scenario: The tolerations for cluster logging
+    Given the master version >= "4.2"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | log_collector       | fluentd                                                                             |
+    Then the step should succeed
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> deployment('kibana').tolerations == nil
+    And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    And the expression should be true> cron_job('curator').tolerations == nil
+    And the expression should be true> (daemon_set('fluentd').tolerations - [{"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    When I run the :apply client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    And the expression should be true> (deployment('kibana').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations(cached: false) - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}, {"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (cron_job('curator').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
+    And the expression should be true> (daemon_set('fluentd').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}, {"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    """

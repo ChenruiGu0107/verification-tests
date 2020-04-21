@@ -128,7 +128,8 @@ Feature: logging permission related tests
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
     And I wait for the "project.<%= cb.proj_name %>.<%= cb.proj_uid_1 %>" index to appear in the ES pod with labels "es-node-master=true"
-    Given I ensure "<%= cb.proj_name %>" project is deleted
+    Given I delete the "<%= cb.proj_name %>" project
+    Given I wait for the resource "project" named "<%= cb.proj_name %>" to disappear within 3600 seconds
 
     Given I switch to the second user
     When I run the :new_project client command with:
