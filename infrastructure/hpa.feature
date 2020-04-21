@@ -149,3 +149,41 @@ Feature: HPA relate features
     Then expression should be true> hpa('resource-cpu').current_cpu_utilization_percentage(cached: false) == 0
     And expression should be true> hpa.current_replicas == 2
     """
+
+  # @author weinliu@redhat.com
+  # @case_id OCP-17594
+  Scenario: HPA v2beta1 support scaling with ResourceMetricSource - memory
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-hpa-memory-rc.yaml |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | run=hello-hpa-memory |
+    When I run the :expose client command with:
+      | resource      | rc               |
+      | resource name | hello-hpa-memory |
+      | port          | 8080             |
+    Given I wait for the "hello-hpa-memory" service to become ready
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/resource-metrics-memory.yaml |
+    Then the step should succeed
+    Given I wait up to 200 seconds for the steps to pass:
+    """
+    Then expression should be true> hpa('resource-memory').min_replicas(cached: false) == 1
+    And expression should be true> hpa.max_replicas == 10
+    And expression should be true> hpa.current_replicas == 2
+    """
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod" status becomes :running within 60 seconds
+    When I execute on the pod:
+      | curl                                 |
+      | --data                               |
+      | megabytes=1000&durationSec=600       |
+      | http://<%= service.url %>/ConsumeMem |
+    Then the step should succeed
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Then expression should be true> hpa('resource-memory').current_replicas(cached: false) > 2
+    """

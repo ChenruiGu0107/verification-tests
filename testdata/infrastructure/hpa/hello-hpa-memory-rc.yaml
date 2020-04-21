@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  labels:
+    run: hello-hpa-memory
+  name: hello-hpa-memory
+spec:
+  replicas: 2
+  selector:
+    run: hello-hpa-memory
+  template:
+    metadata:
+      labels:
+        run: hello-hpa-memory
+    spec:
+      containers:
+      - image: k8s.gcr.io/resource_consumer:beta 
+        imagePullPolicy: IfNotPresent
+        name: hello-hpa
+        resources:
+          requests:
+            memory: 5Mi
+      restartPolicy: Always

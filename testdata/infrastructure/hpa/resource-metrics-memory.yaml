@@ -1,0 +1,15 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: resource-memory
+spec:
+  scaleTargetRef:
+    kind: ReplicationController
+    name: hello-hpa-memory
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 30
