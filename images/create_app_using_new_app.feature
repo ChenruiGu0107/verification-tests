@@ -47,27 +47,6 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
-  @smoke
-  Scenario Outline: create nodejs resource from imagestream via oc new-app
-    Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | nodejs:<tag>                               |
-      | code         | https://github.com/sclorg/nodejs-ex.git |
-    Then the step should succeed
-    And the "nodejs-ex-1" build was created
-    And the "nodejs-ex-1" build completed
-    And a pod becomes ready with labels:
-      | app=nodejs-ex |
-    When I expose the "nodejs-ex" service
-    Then I wait for a web server to become available via the "nodejs-ex" route
-    And  the output should contain "Welcome to your Node.js application on OpenShift"
-    Examples:
-      | tag  |
-      | 0.10 | # @case_id OCP-9653
-      | 4    | # @case_id OCP-12215
-      | 6    | # @case_id OCP-13513
-
-  # @author haowang@redhat.com
   # @case_id OCP-11137
   Scenario: Create applications with multiple repos
     Given I have a project
@@ -96,45 +75,6 @@ Feature:Create apps using new_app cmd feature
       | resource | bc |
     Then the output should contain "ruby-hello-world"
     And the output should not contain "ruby-hello-world-1"
-
-  # @author cryan@redhat.com
-  Scenario Outline: Create jenkins resources with oc new-app from imagestream
-    Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | jenkins:<ver>            |
-      | env          | JENKINS_PASSWORD=test123 |
-      | p            | OAUTH_ENABLED=false      |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | app=jenkins |
-    When I run the :expose client command with:
-      | resource      | service |
-      | resource_name | jenkins | 
-      | port          | 8080    | 
-    Then the step should succeed
-    #Checking for 'ready to work' to disappear; this shows that
-    #jenkins is ready to accept user/pass
-    Given I wait up to 300 seconds for the steps to pass:
-    """
-    When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
-    Then the output should contain "Jenkins"
-    And the output should not contain "ready to work"
-    """
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_<ver>/                              |
-      | base_url | http://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_standard_login web action with:
-      | username | admin   |
-      | password | test123 |
-    Then the step should succeed
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
-    """
-    Examples:
-      | ver |
-      | 1   | # @case_id OCP-9666
-      | 2   | # @case_id OCP-10366
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12216 OCP-12265

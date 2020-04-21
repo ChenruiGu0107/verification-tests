@@ -40,52 +40,6 @@ Feature: relate with destructive features
       | Container\\s+cpu\\s+-\\s+-\\s+200m                               |
 
   # @author chezhang@redhat.com
-  # @case_id OCP-9964
-  @admin
-  @destructive
-  Scenario: Pods won't deploy when memory settings are too low and other calculated resources < minimum of limitrange
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginConfig:
-        ClusterResourceOverride:
-          configuration:
-            apiVersion: v1
-            kind: ClusterResourceOverrideConfig
-            limitCPUToMemoryPercent: 200
-            cpuRequestToLimitPercent: 6
-            memoryRequestToLimitPercent: 60
-    """
-    And the master service is restarted on all master nodes
-    Given I have a project
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/limitrange.yaml |
-      | n | <%= project.name %> |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | limitrange |
-    Then the output should match:
-      | Name:\\s+resource-limits                                   |
-      | Namespace:\\s+<%= project.name %>                          |
-      | Pod\\s+cpu\\s+30m\\s+2\\s+-\\s+-\\s+-                      |
-      | Pod\\s+memory\\s+150Mi\\s+1Gi\\s+-\\s+-\\s+-               |
-      | Container\\s+memory\\s+150Mi\\s+1Gi\\s+307Mi\\s+512Mi\\s+- |
-      | Container\\s+cpu\\s+30m\\s+2\\s+60m\\s+1\\s+-              |
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-resources.json |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | dc |
-    And the output should match:
-      | [Mm]inimum cpu usage per Pod is 30m.*but request is 17m             |
-      | [Mm]inimum memory usage per Pod is 150Mi.*but request is 94371840   |
-      | [Mm]inimum cpu usage per Container is 30m.*but request is 17m       |
-      | [Mm]inimum memory usage per Container is 150Mi.*but request is 90Mi |
-    """
-
-  # @author chezhang@redhat.com
   # @case_id OCP-10263
   @admin
   @destructive

@@ -1,24 +1,4 @@
 Feature: create app on web console related
-
-  # @author xxing@redhat.com
-  # @case_id OCP-9561
-  Scenario: Create app from template containing invalid type on web console
-    Given I have a project
-    Given I use the "<%= project.name %>" project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-    Then the step should succeed
-    Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
-      | Service | Test |
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
-    Then the step should fail
-    When I get the html of the web page
-    Then the output should match:
-      | not (be )?create |
-
   # @author xxing@redhat.com
   # @case_id OCP-10691
   Scenario: Show help info and suggestions after creating app from web console
@@ -33,31 +13,6 @@ Feature: create app on web console related
     Then the step should succeed
     When I run the :check_help_and_sug_on_next_step_page web console action
     Then the step should succeed
-
-  # @author yanpzhan@redhat.com
-  # @case_id OCP-9593
-  Scenario: Create app from template leaving empty parameters to be generated
-    Given I have a project
-    Given I use the "<%= project.name %>" project
-
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
-    Then the step should succeed
-
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
-    Then the step should succeed
-
-    When I run the :set_env client command with:
-      | resource | dc/frontend |
-      | list     | true        |
-    Then the step should succeed
-    And the output should contain:
-      | MYSQL_USER             |
-      | MYSQL_PASSWORD         |
-      | MYSQL_DATABASE         |
 
   # @author wsun@redhat.com
   # @case_id OCP-12597
@@ -154,60 +109,6 @@ Feature: create app on web console related
     When I get the html of the web page
     Then the output should match:
       | not.*create.*fake/v1 |
-
-  # @author yanpzhan@redhat.com
-  # @case_id OCP-9794
-  Scenario: Multiple ports can be shown and chosen on web console
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/tc516702.json |
-    Then the step should succeed
-
-    Given the "nodejs" image stream becomes ready
-
-    When I perform the :check_port_on_create_page web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | nodejs              |
-      | image_tag    | 0.10                |
-      | namespace    | <%= project.name %> |
-      | target_port  | 5858/TCP            |
-    Then the step should succeed
-
-    When I perform the :check_port_on_create_page web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | nodejs              |
-      | image_tag    | 0.10                |
-      | namespace    | <%= project.name %> |
-      | target_port  | 8080/TCP            |
-    Then the step should succeed
-
-    When I perform the :create_app_from_image_with_port web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | 0.10                                       |
-      | namespace    | <%= project.name %>                        |
-      | app_name     | nodejs-test                                |
-      | source_url   | https://github.com/sclorg/nodejs-ex.git |
-      | target_port  | 8080/TCP                                   |
-    Then the step should succeed
-
-    When I perform the :check_target_port_on_routes_page web console action with:
-      | project_name | <%= project.name %> |
-      | target_port  | 8080-tcp            |
-      | route_name   | nodejs-test         |
-    Then the step should succeed
-
-    When I perform the :check_target_port_on_services_page web console action with:
-      | project_name | <%= project.name %> |
-      | target_port  | 8080/TCP            |
-      | service_name | nodejs-test         |
-    Then the step should succeed
-
-    When I perform the :check_target_port_on_services_page web console action with:
-      | project_name | <%= project.name %> |
-      | target_port  | 5858/TCP            |
-      | service_name | nodejs-test         |
-    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-10775

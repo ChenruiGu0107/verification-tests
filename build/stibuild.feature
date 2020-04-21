@@ -48,20 +48,6 @@ Feature: stibuild.feature
       | {"name":"DISABLE_ASSET_COMPILATION","value":"1"} |
 
   # @author wzheng@redhat.com
-  # @case_id OCP-9575
-  Scenario: Build invoked once buildconfig is created when there is no imagechangetrigger in buildconfig
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/stibuild-configchange.json |
-    Then the step should succeed
-    And the "php-sample-build-1" build was created
-    When I run the :describe client command with:
-      | resource | build              |
-      | name     | php-sample-build-1 |
-    Then the output should contain:
-      | Build configuration change |
-
-  # @author wzheng@redhat.com
   # @case_id OCP-13448
   Scenario: Error in buildlog if STI build with invalid context dir
     Given I have a project
@@ -132,21 +118,6 @@ Feature: stibuild.feature
     Then the output should match:
       | ruby-hello-world-2.*Git@refs/pull/73/head:master.*FetchSourceFailed |
       | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
-
-  # @author wzheng@redhat.com
-  # @case_id OCP-9550
-  Scenario: Provide the built image reference as part of the build status
-    Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | https://github.com/sclorg/ruby-ex |
-      | image_stream | ruby |
-    Then the step should succeed
-    And evaluation of `image_stream_tag("ruby:latest",project("openshift")).digest` is stored in the :image_id clipboard
-    When I run the :describe client command with:
-      | resource | build     |
-      | name     | ruby-ex-1 |
-    Then the output should match:
-      | <%= cb.image_id %> |
 
   # @author wewang@redhat.com
   # @case_id OCP-14967

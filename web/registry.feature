@@ -1,47 +1,4 @@
 Feature: Testing registry
-
-  # @author etrott@redhat.com
-  # @case_id OCP-9901
-  @admin
-  Scenario: Create image stream from Overview page on atomic-registry web console
-    Given I have a project
-    Given I open registry console in a browser
-
-    When I perform the :check_project_on_overview_page_in_iframe web action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-
-    When I perform the :create_new_image_stream_in_iframe web action with:
-      | is_name      | testis              |
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | is/testis |
-    Then the step should succeed
-
-    When I perform the :create_new_image_stream_in_iframe web action with:
-      | is_name      | testisnew                                    |
-      | project_name | <%= project.name %>                          |
-      | populate     | Sync all tags from a remote image repository |
-      | pull_from    | docker.io/openshift/hello-openshift          |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | is/testisnew |
-    Then the step should succeed
-
-    When I perform the :click_to_goto_one_image_page_in_iframe web action with:
-      | project_name | <%= project.name %> |
-      | image_name   | testisnew           |
-    Then the step should succeed
-    When I perform the :check_image_info_in_iframe_on_one_image_page web action with:
-      | pull_repository | <%= project.name %>/testisnew |
-    Then the step should succeed
-    When I perform the :check_image_tag_in_iframe_on_one_image_page web action with:
-      | project_name | <%= project.name %> |
-      | image_name   | testisnew           |
-      | tag_label    | latest              |
-    Then the step should succeed
-
   # @author etrott@redhat.com
   # @case_id OCP-9899
   @admin

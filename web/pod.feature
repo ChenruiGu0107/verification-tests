@@ -73,34 +73,6 @@ Feature: Pod related features on web console
     Then the step should succeed
 
 
-  # @author yapei@redhat.com
-  # @case_id OCP-9592
-  Scenario: Generate same labels in the UI as CLI
-    Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>  |
-      | image_name   | python               |
-      | image_tag    | latest               |
-      | namespace    | openshift            |
-      | app_name     | python-sample        |
-      | source_url   | https://github.com/sclorg/django-ex.git |
-    Then the step should succeed
-    Given I use the "<%= project.name %>" project
-    Given a pod is present with labels:
-      | deployment=python-sample-1 |
-    Given evaluation of `pod.labels` is stored in the :label_from_ui clipboard
-    # check labels via cli
-    Given I create a new project
-    When I run the :new_app client command with:
-      | image_stream | python:latest                              |
-      | code         | https://github.com/sclorg/django-ex.git |
-      | name         | python-sample                              |
-    Then the step should succeed
-    Given a pod is present with labels:
-      | deployment=python-sample-1 |
-    Given evaluation of `pod.labels` is stored in the :label_from_cli clipboard
-    Then the expression should be true> cb.label_from_ui == cb.label_from_cli
-
   # @author cryan@redhat.com
   # @case_id OCP-10822
   Scenario: Debug crashing pods on web console

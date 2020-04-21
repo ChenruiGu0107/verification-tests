@@ -548,21 +548,6 @@ Feature: Testing route
     And I wait for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
-  # @author yadu@redhat.com
-  # @case_id OCP-9576
-  Scenario: Customize the default routing subdomain
-    Given I have a project
-    Given I store default router subdomain in the :subdomain clipboard
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
-    Then the step should succeed
-    When I expose the "service-unsecure" service
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | route |
-    Then the output should contain:
-      | <%= cb.subdomain %> |
-
   # @author zzhao@redhat.com
   # @case_id OCP-13254
   Scenario: The HTTP_X_FORWARDED_FOR should be the client IP for ELB env

@@ -207,47 +207,6 @@ Feature: storage security check
     Then the step should fail 
     And the outputs should contain "Read-only file system"
 
-  # @author chaoyang@redhat.com
-  # @author wehe@redhat.com
-  # @case_id OCP-9708
-  @admin
-  @destructive
-  Scenario: gitRepo volume security testing
-    Given I have a project
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
-    Then the step should succeed
-    Given the pod named "gitrepo" becomes ready
-
-    #Verify the security testing
-    When I execute on the pod:
-      | id |
-    Then the outputs should contain:
-      | uid=1000130000 |
-    When I execute on the pod:
-      | id | -G |
-    Then the step should succeed
-    And the output should contain "123456"
-    When I execute on the pod:
-      | ls | -lZd | /mnt/git |
-    Then the outputs should match:
-      | system_u:object_r                        |
-      | (svirt_sandbox_file_t\|container_file_t) |
-      | s0                                       |
-    When I execute on the pod:
-      | touch | /mnt/git/gitrepoVolume/file1 |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -lZ | /mnt/git/gitrepoVolume/file1 |
-    Then the outputs should match:
-      | 1000130000 123456                        |
-      | system_u:object_r                        |
-      | (svirt_sandbox_file_t\|container_file_t) |
-      | s0                                       |
-
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
   # @case_id OCP-9698

@@ -83,48 +83,6 @@ Feature: SDN related networking scenarios
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
 
-  # @author yadu@redhat.com
-  # @case_id OCP-9808
-  @admin
-  @destructive
-  Scenario: bridge-nf-call-iptables should be disable on node
-    Given I select a random node's host
-    And the node network is verified
-    And the node service is verified
-    And system verification steps are used:
-    """
-    When I run commands on the host:
-      | sysctl --all --pattern 'bridge.*iptables' |
-    Then the step should succeed
-    And the output should contain "net.bridge.bridge-nf-call-iptables = 0"
-    """
-    Given the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    When I run the ovs commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
-    Then the step should succeed
-    """
-    When I run commands on the host:
-      | systemctl stop atomic-openshift-node |
-    Then the step should succeed
-    When I run the ovs commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
-    Then the step should succeed
-    When I run commands on the host:
-      | sysctl -w net.bridge.bridge-nf-call-iptables=1 |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl start atomic-openshift-node |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl status atomic-openshift-node |
-    Then the output should contain "active (running)"
-    When I run commands on the host:
-      | sysctl --all --pattern 'bridge.*iptables' |
-    Then the step should succeed
-    And the output should contain "net.bridge.bridge-nf-call-iptables = 0"
-
   # @author bmeng@redhat.com
   # @case_id OCP-11264
   @admin
