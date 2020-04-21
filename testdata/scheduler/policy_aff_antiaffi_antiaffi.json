@@ -6,7 +6,7 @@
          "name":"RegionAffinity",
          "argument":{
             "serviceAffinity":{
-               "labels":["region"]
+               "labels":["ocpaffregion"]
             }
          }
       }
@@ -17,7 +17,7 @@
          "weight":1,
          "argument":{
             "serviceAntiAffinity":{
-               "label":"zone"
+               "label":"ocpaffzone"
             }
          }
       },
@@ -26,7 +26,7 @@
          "weight":1,
          "argument":{
             "serviceAntiAffinity":{
-               "label":"rack"
+               "label":"ocpaffrack"
             }
          }
       }

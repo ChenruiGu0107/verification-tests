@@ -238,17 +238,17 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
+    Given I store the schedulable workers in the :nodes clipboard
+    Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
     Given node schedulable status should be restored after scenario
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                |
       | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
       | namespace | openshift-config                                                                |
     Then the step should succeed
-    When I run the :patch admin command with:
-      | resource      | scheduler                                       |
-      | resource_name | cluster                                         |
-      | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
-      | type          | merge                                           |
+    Given as admin I successfully merge patch resource "Scheduler/cluster" with:
+      | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -260,6 +260,15 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
+    Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "ocpaffrack=a111" is added to the "<%= cb.nodes[0].name %>" node
     And label "ocpaffregion=r1" is added to the "<%= cb.nodes[0].name %>" node
@@ -267,20 +276,25 @@ Feature: Testing Scheduler Operator related scenarios
     And label "ocpaffrack=a211" is added to the "<%= cb.nodes[1].name %>" node
     And label "ocpaffregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "ocpaffzone=z21" is added to the "<%= cb.nodes[1].name %>" node
-    When I run the :oadm_cordon_node admin command with:
-      | node_name | <%= cb.nodes[2].name %> |
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | openshift/hello-openshift |
+    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<podfilename>"
     Then the step should succeed
-    Given status becomes :running of 1 pods labeled:
-      | deploymentconfig=hello-openshift |
-    Then the expression should be true> pod.node_name == cb.nodes[0].name || cb.nodes[1].name
+    Given status becomes :running of 3 pods labeled:
+      | deploymentconfig=database |
+    Given evaluation of `@pods[0].node_name` is stored in the :nodename clipboard
+    When I run the :get client command with:
+      | resource | pod                       |
+      | l        | deploymentconfig=database |
+      | o        | wide                      |
+    Then the step should succeed
+    And the output should contain 3 times:
+       | <%= cb.nodename %> |
     Examples:
-      | filename                          |
-      | policy_aff_aff_antiaffi.json      | # @case_id OCP-11889
-      | policy_aff_antiaffi_antiaffi.json | # @case_id OCP-12191
+      | filename                          | podfilename       |
+      | policy_aff_aff_antiaffi.json      | pod_ocp11889.json | # @case_id OCP-11889
+      | policy_aff_antiaffi_antiaffi.json | pod_ocp12191.json | # @case_id OCP-12191
 
+  # @author knarra@redhat.com
   # @case_id OCP-12523
   @admin
   @destructive
