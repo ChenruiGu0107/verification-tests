@@ -295,6 +295,24 @@ Feature: Testing image registry operator
       | ImagePrunerStatus reports image pruner operational status            | 
 
   # @author wzheng@redhat.com
+  # @case_id OCP-24133
+  @admin
+  @destructive
+  Scenario: TLS can be added to user-defined registry route
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-image-registry" project
+    When I run the :create_secret client command with:
+      | cert        | <%= BushSlicer::HOME %>/testdata/registry/myregistry.crt |
+      | key         | <%= BushSlicer::HOME %>/testdata/registry/myregistry.key |      
+      | secret_type | tls                                                      |
+      | name        | my-tls                                                   |
+    Then the step should succeed
+    Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"routes":[{"hostname":"myroute-image-registry.openshift.com","name": "myroute","secretName": "my-tls"}]}} |
+    And the expression should be true> route('myroute').spec.tls.certificate != ""
+    And the expression should be true> route('myroute').spec.tls.key != ""
+
+  # @author wzheng@redhat.com
   # @case_id OCP-24100
   @admin
   @destructive
