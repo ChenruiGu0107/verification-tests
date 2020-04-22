@@ -341,3 +341,48 @@ Feature: deployment/dc related features via web
       | text     | <%= cb.rs_name %> |
       | link_url | /k8s/ns/<%= project.name %>/replicasets/<%= cb.rs_name %> |
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-25777
+  Scenario: Check pod status when container is still running or state is Error
+    Given the master version >= "4.2"
+    Given I have a project
+    And I open admin console in a browser
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/two_container_sleep.yaml |
+    Then the step should succeed
+    Given the pod named "sleeppod" status becomes :running
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_pod_status web action with:
+      | pod_name   | sleeppod |
+      | pod_status | Running  |
+    Then the step should succeed
+    Given the pod named "sleeppod" status becomes :succeeded
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_pod_completed_status web action with:
+      | pod_name | sleeppod |
+    Then the step should succeed
+
+    When I run oc create with "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/two_container_sleep.yaml" replacing paths:
+      | ["metadata"]["name"]               | podtest               |
+      | ["spec"]["containers"][0]["image"] | docker.io/busybox_non |
+    Then the step should succeed
+    Given the pod named "podtest" status becomes :pending
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain:
+      | ImagePullBackOff |
+    """
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_pod_status web action with:
+      | pod_name   | podtest          |
+      | pod_status | ImagePullBackOff |
+    Then the step should succeed
+
