@@ -216,9 +216,9 @@ Feature: storage security check
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    #Create two pods for selinux testing
-    When I run oc create over "ihttps://raw.githubusercontent.com/chao007/v3-testfiles/master/storage/security/emptydir_selinux.json" replacing paths
-      | ["spec"]["containers"]["image"] | aosqe/storage |
+    #Create pods for selinux testing
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/security/emptydir_selinux.json |
     Then the step should succeed
     Given the pod named "emptydir" becomes ready
 
