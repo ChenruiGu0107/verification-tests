@@ -14,7 +14,7 @@ Feature: Testing kube-controller-manager-operator
       | object_name_or_id | serving-cert                            |
       | n                 | openshift-kube-controller-manager       |
     Then the step should succeed
-    And I wait for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I run the :get admin command with:
       | resource      | secrets                                 |
@@ -24,6 +24,10 @@ Feature: Testing kube-controller-manager-operator
       | resource_name | serving-cert                            |
       | n             | openshift-kube-controller-manager       |
     Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-controller-manager").condition(cached: false, type: 'Progressing')['status'] == "True"
     """
     And I wait up to 300 seconds for the steps to pass:
     """
