@@ -1,49 +1,4 @@
 Feature: Testing registry
-
-  # @author haowang@redhat.com
-  # @case_id OCP-10015
-  @admin
-  @destructive
-  Scenario: Docker-registry with whitelist
-    Given I have a project
-    Given I store the schedulable nodes in the :nodes clipboard
-    Given I use the "<%= cb.nodes[0].name %>" node
-    Given the node service is verified
-    And the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    """
-    And the "/etc/sysconfig/docker" file is restored on host after scenario
-    And I run commands on the host:
-      | sed -i '/^BLOCK_REGISTRY*/d' /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | sed -i '/^*ADD_REGISTRY/d' /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | echo "BLOCK_REGISTRY='--block-registry=all'" >> /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker pull docker.io/library/centos:latest |
-    Then the step failed
-    And the output should contain:
-      | blocked |
-    And I run commands on the host:
-      | echo "ADD_REGISTRY='--add-registry docker.io'" >> /etc/sysconfig/docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | systemctl restart docker |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker pull docker.io/library/centos:latest |
-    Then the step should succeed
-
   # @author haowang@redhat.com
   # @case_id OCP-10898
   @admin
@@ -61,51 +16,6 @@ Feature: Testing registry
       | name     | <%= cb.digest %> |
     And the output should match:
       | Image Size:.* |
-
-  # @author haowang@redhat.com
-  # @case_id OCP-10010
-  @admin
-  @destructive
-  Scenario: Re-using the Registry IP address
-    Given I have a project
-    And I run the :new_build client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex |
-    Then the step should succeed
-    And the "ruby-ex-1" build was created
-    Then the "ruby-ex-1" build completed
-    And evaluation of `project.name` is stored in the :prj1 clipboard
-    And default docker-registry replica count is restored after scenario
-    Given I switch to cluster admin pseudo user
-    When I run the :get admin command with:
-       | resource      | service         |
-       | resource_name | docker-registry |
-       | namespace     | default         |
-       | o             | yaml            |
-    And I save the output to file> svc.yaml
-    Then admin ensures "docker-registry" service is deleted from the "default" project
-    Given I run the :scale client command with:
-      | resource | dc              |
-      | name     | docker-registry |
-      | replicas | 0               |
-    Then the step should succeed
-    Then I run the :create admin command with:
-      | f         | ./svc.yaml |
-      | namespace | default    |
-    And the step should succeed
-    Given I run the :scale client command with:
-      | resource | dc              |
-      | name     | docker-registry |
-      | replicas | 1               |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | deploymentconfig=docker-registry |
-    Given I switch to the first user
-    And I use the "<%= cb.prj1 %>" project
-    When I run the :start_build client command with:
-      | buildconfig | ruby-ex |
-    Then the step should succeed
-    And the "ruby-ex-2" build was created
-    Given the "ruby-ex-2" build completes
 
   # @author haowang@redhat.com
   # @case_id OCP-11038

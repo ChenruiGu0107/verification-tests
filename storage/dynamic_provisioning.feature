@@ -92,33 +92,6 @@ Feature: Dynamic provisioning
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
   # @author wehe@redhat.com
-  @admin
-  Scenario Outline: dynamic pvc shows lost after pv is deleted
-    Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
-    Then the step should succeed
-    And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
-
-    When I run the :get admin command with:
-      | resource | pv |
-    Then the output should contain:
-      | dynamic-pvc1-<%= project.name %> |
-
-    When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
-    Then the step should succeed
-
-    Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name %>" pv is deleted
-
-    Then the "dynamic-pvc1-<%= project.name %>" PVC becomes :lost within 300 seconds
-
-    Examples:
-      | cloud_provider |
-      | cinder         | # @case_id OCP-10139
-      | ebs            | # @case_id OCP-10137
-      | gce            | # @case_id OCP-10138
-
-  # @author wehe@redhat.com
   # @case_id OCP-13902
   @admin
   Scenario: azure disk dynamic pvc shows lost after pv is deleted

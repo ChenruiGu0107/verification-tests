@@ -605,43 +605,6 @@ Feature: Node management
     When I try to restart the node service on node
     Then the step should succeed
 
-  # @author chezhang@redhat.com
-  # @case_id OCP-10264
-  @admin
-  @destructive
-  Scenario: ContainerGC will remain maximum-dead-containers-per-container
-    Given config of all nodes is merged with the following hash:
-    """
-    kubeletArguments:
-      maximum-dead-containers:
-      - '100'
-      maximum-dead-containers-per-container:
-      - '2'
-      minimum-container-ttl-duration:
-      - 10s
-    """
-    And the node service is restarted on all nodes
-    Given I have a project
-    Given I store the schedulable nodes in the :nodes clipboard
-    Given the taints of the nodes in the clipboard are restored after scenario
-    When I run the :oadm_taint_nodes admin command with:
-      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | size=large:NoSchedule                           |
-    Then the step should succeed
-    When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %> |
-      | key_val   | size-                   |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/maximum-dead-containers-per-container.yaml |
-    Then the step should succeed
-    Given 90 seconds have passed
-    Given I use the "<%= cb.nodes[0].name %>" node
-    Given I run commands on the host:
-      | docker ps -a \|grep max-dead-containers-per-container \|grep Exited \| wc -l |
-    Then the step should succeed
-    And the output should equal "2"
-
   # @author zzhao@redhat.com
   # @case_id OCP-15189
   @admin

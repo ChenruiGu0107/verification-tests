@@ -210,30 +210,6 @@ Feature: Storage of Ceph plugin testing
       | FailedScheduling |
       | NoDiskConflict   |
 
-  # @author jhou@redhat.com
-  # @case_id OCP-10269
-  @admin
-  Scenario: Reclaim a dynamically provisioned Ceph RBD volumes
-    Given I have a StorageClass named "cephrbdprovisioner"
-    # CephRBD provisioner needs secret, verify secret and StorageClass both exists
-    And admin checks that the "cephrbd-secret" secret exists in the "default" project
-    And I have a project
-
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"] | cephrbdprovisioner      |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-
-    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Delete"
-
-    # Test auto deleting PV
-    Given I run the :delete client command with:
-      | object_type       | pvc                     |
-      | object_name_or_id | pvc-<%= project.name %> |
-    And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 60 seconds
-
   # @author lizhou@redhat.com
   # @case_id OCP-13621
   @admin

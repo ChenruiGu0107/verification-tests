@@ -1,39 +1,5 @@
 Feature: Route test in online environments
   # @author zhaliu@redhat.com
-  # @case_id OCP-10047
-  Scenario: Custom route with passthrough termination is not permitted
-    Given I have a project
-    And I store default router IPs in the :router_ip clipboard
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
-    Then the step should succeed
-    And all pods in the project are ready
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
-    Then the step should succeed
-    And I wait for the "service-secure" service to become ready
-    When I run the :create_route_passthrough client command with:
-      | name | passthrough-route-custom |
-      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
-      | service | service-secure |
-    Then the step should succeed
-
-    Given I have a pod-for-ping in the project
-    When I run the :create_route_passthrough client command with:
-      | name | passthrough-route |
-      | service | service-secure |
-    Then the step should succeed
-    And I wait for a secure web server to become available via the "passthrough-route" route
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("passthrough-route-custom", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("passthrough-route-custom", service("service-secure")).dns(by: user) %> |
-      | -I |
-      | -k |
-    Then the output should match "HTTP/.* 503 Service Unavailable"
-
-  # @author zhaliu@redhat.com
   # @case_id OCP-10046
   Scenario: Custom route with edge termination is not permitted
     Given I have a project

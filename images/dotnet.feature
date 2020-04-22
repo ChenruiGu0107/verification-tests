@@ -15,21 +15,6 @@ Feature: dotnet.feature
       | deployment=s2i-aspnet-example-1 |
 
   # @author haowang@redhat.com
-  # @case_id OCP-10247
-  Scenario: dotnet10 build behind proxy
-    Given I have a project
-    And I have a proxy configured in the project
-    When I run the :new_build client command with:
-      | app_repo    | openshift/dotnet:1.1~https://github.com/redhat-developer/s2i-dotnetcore-ex#dotnetcore-1.1 |
-      | context_dir | app                                                                                       |
-      | e           | http_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                 |
-      | e           | https_proxy=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                |
-      | e           | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                 |
-      | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>                                |
-    Then the step should succeed
-    And the "s2i-dotnetcore-ex-1" build completes
-
-  # @author haowang@redhat.com
   # @case_id OCP-11353
   Scenario: Create .NET buildconfig with new-build
     Given I have a project

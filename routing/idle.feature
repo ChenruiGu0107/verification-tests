@@ -57,58 +57,6 @@ Feature: idle service related scenarios
       | KUBE-SVC-.+ .* -j KUBE-SEP-.+                                                          |
 
   # @author hongli@redhat.com
-  # @case_id OCP-10215
-  @admin
-  @destructive
-  Scenario: The idled rc/dc will not be unidled if set the enableUnidling to false
-    # modify node-config to disable unidling
-    Given I select a random node's host
-    And the node network is verified
-    Given I restart the network components on the node after scenario
-    Given node config is merged with the following hash:
-    """
-      enableUnidling: false
-    """
-    Given I restart the network components on the node
-
-    Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
-    Then the step should succeed
-    Given I wait until replicationController "test-rc" is ready
-    And I wait until number of replicas match "1" for replicationController "test-rc"
-    Given I use the "test-service" service
-    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
-    When I run the :idle client command with:
-      | svc_name | test-service |
-    Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
-    When I run the :get client command with:
-      | resource | endpoints |
-    Then the step should succeed
-    And the output should match:
-      | test-service.*none |
-
-    # create pod-for-ping on the node which node-config has been modified
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
-      | ["spec"]["nodeName"] | <%= node.name %> |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
-    And I run the steps 10 times:
-    """
-    When I execute on the pod:
-      | curl |
-      | <%= cb.service_ip %>:27017 |
-    Then the output should not contain "Hello OpenShift!"
-    And the output should contain "is unreachable"
-    """
-    When I run the :get client command with:
-      | resource | endpoints |
-    Then the step should succeed
-    And the output should match:
-      | test-service.*none |
-
-  # @author hongli@redhat.com
   # @case_id OCP-13218
   Scenario: should not return 503 errors during wakeup a pod which readiness is more than 30s
     Given I have a project

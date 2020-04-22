@@ -49,41 +49,6 @@ Feature: SDN related networking scenarios
     Then the output should contain "mtu 1234"
 
   # @author bmeng@redhat.com
-  # @case_id OCP-10005
-  @admin
-  @destructive
-  Scenario: It should not block the node gets started when /etc/hosts has 127.0.0.1 equal to hostname
-    Given I select a random node's host
-    And the node network is verified
-    And the node service is verified
-    And system verification steps are used:
-    """
-    When I run commands on the host:
-      | grep 127.0.0.1.*$(hostname) /etc/hosts |
-    Then the step should fail
-    """
-    Given the node service is restarted on the host after scenario
-    And I register clean-up steps:
-    """
-    When I run the ovs commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
-    Then the step should succeed
-    """
-    And the "/etc/hosts" file is restored on host after scenario
-    When I run commands on the host:
-      | echo "127.0.0.1  $(hostname)" >> /etc/hosts |
-    Then the step should succeed
-    When I run the ovs commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl status atomic-openshift-node |
-    Then the output should contain "active (running)"
-
-  # @author bmeng@redhat.com
   # @case_id OCP-11264
   @admin
   @destructive

@@ -45,58 +45,6 @@ Feature: Azure disk and Azure file specific scenarios
       | ReadWrite   | # @case_id OCP-10205
 
   # @author wehe@redhat.com
-  # @case_id OCP-10206
-  @admin
-  Scenario: azureDisk volume with readwrite cachingmode and readonly filesystem
-    Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azrwro-pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
-    Then the step should succeed
-    Given the pod named "azrwro" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/ad-<%= project.name %> |
-    Then the step should fail
-    When I execute on the pod:
-      | ls | /mnt/azure/ |
-    Then the output should not contain "ad-<%= project.name %>"
-
-  # @author wehe@redhat.com
-  # @case_id OCP-10198
-  @admin
-  @destructive
-  Scenario: Persistent Volume with azureDisk volume plugin
-    Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpv.yaml" where:
-      | ["metadata"]["name"]              | ad-<%= project.name %>        |
-      | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
-    Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc.yaml" replacing paths:
-      | ["metadata"]["name"] | azpvc |
-    Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | azpvcpo    |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
-    Then the step should succeed
-    Given the pod named "azpvcpo" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-
-  # @author wehe@redhat.com
   @admin
   Scenario Outline: azureDisk dynamic provisioning with storage class
     Given I have a project
@@ -129,14 +77,7 @@ Feature: Azure disk and Azure file specific scenarios
 
     Examples:
       | sctype   |
-      | LRS      | # @case_id OCP-10254
-      | GRS      | # @case_id OCP-10256 
-      | RAGRS    | # @case_id OCP-10257
-      | PLRS     | # @case_id OCP-10255
       | NOPAR    | # @case_id OCP-10413
-      | COMBSL   | # @case_id OCP-10258
-      | IGNOR    | # @case_id OCP-10262
-      | LCONLY   | # @case_id OCP-10259
       | ACONLY   | # @case_id OCP-13330
       | DEACCT   | # @case_id OCP-14681
       | DEDICATE | # @case_id OCP-13785
@@ -202,7 +143,6 @@ Feature: Azure disk and Azure file specific scenarios
 
     Examples:
       | sctype  |
-      | invalid | # @case_id OCP-10260 
       | noext   | # @case_id OCP-10407 
 
   # @author wehe@redhat.com

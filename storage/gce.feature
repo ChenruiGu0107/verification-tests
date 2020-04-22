@@ -129,34 +129,6 @@ Feature: GCE specific scenarios
       | (it's an empty string\|does not have a node in zone) |
 
   # @author lxia@redhat.com
-  # @case_id OCP-10219
-  @admin
-  Scenario: Should be able to create pv with volume in different zone than master on GCE
-    Given I have a project
-    Given a GCE zone without any cluster masters is stored in the clipboard
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc-<%= project.name %> |
-      | ["parameters"]["zone"] | <%= cb.zone %>         |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]         | pvc1                   |
-      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
-    Then the step should succeed
-    And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
-    Given I save volume id from PV named "<%= pvc.volume_name %>" in the :volumeID clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-with-failure-domain.json" where:
-      | ["metadata"]["name"]                                               | pv-<%= project.name %> |
-      | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/region"] | us-central1            |
-      | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/zone"]   | <%= cb.zone %>         |
-      | ["spec"]["gcePersistentDisk"]["pdName"]                            | <%= cb.volumeID %>     |
-    Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pv-retain-rwx.json" where:
-      | ["metadata"]["name"]                    | pvv-<%= project.name %> |
-      | ["spec"]["gcePersistentDisk"]["pdName"] | <%= cb.volumeID %>      |
-    Then the step should succeed
-
-  # @author lxia@redhat.com
   # @case_id OCP-11974
   @admin
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail

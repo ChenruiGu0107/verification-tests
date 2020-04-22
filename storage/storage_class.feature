@@ -106,33 +106,6 @@ Feature: storageClass related feature
       | manual                | # @case_id OCP-12326
       | kubernetes.io/unknown | # @case_id OCP-12348
 
-  # @author wehe@redhat.com
-  # @case_id OCP-10218
-  @admin
-  @destructive
-  Scenario: Check the storage class detail by oc describe
-    Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                       | sc1-<%= project.name %> |
-      | ["provisioner"]                                                            | kubernetes.io/gce-pd    |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
-    Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-    Then the step should succeed
-    When I run the :describe admin command with:
-      | resource | storageclass/sc1-<%= project.name %> |
-    Then the output should match:
-      | IsDefaultClass.*Yes |
-      | Annotations.*.kubernetes.io/is-default-class=true |
-      | Provisioner.*kubernetes.io/gce-pd |
-    When I run the :describe admin command with:
-      | resource | storageclass/sc-<%= project.name %> |
-    Then the output should match:
-      | IsDefaultClass.*No |
-      | Annotations.*.kubernetes.io/is-default-class=false |
-      | Parameters.*type=pd-ssd,zone=us-central1-b |
-
   # @author jhou@redhat.com
   # @case_id OCP-10325
   @admin

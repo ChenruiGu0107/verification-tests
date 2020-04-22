@@ -338,38 +338,6 @@ Feature: NFS Persistent Volume
     And the output should contain:
       | from-pod1 |
 
-  # @author lxia@redhat.com
-  # @case_id OCP-10032
-  # @bug_id 1332707
-  @admin
-  @destructive
-  Scenario: PVC shows LOST after pv deleted and can be bound again for new pv
-    Given I have a project
-    And I have a NFS service in the project
-
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
-      | ["spec"]["capacity"]["storage"] | 5Gi                              |
-    Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-nfs-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | pv-nfs-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                         |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany               |
-    Then the step should succeed
-    And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
-    Given admin ensures "pv-nfs-<%= project.name %>" pv is deleted
-    And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
-      | ["spec"]["capacity"]["storage"] | 5Gi                              |
-    Then the step should succeed
-    And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
-
   # @author wehe@redhat.com
   # @case_id OCP-10146
   @admin

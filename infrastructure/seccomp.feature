@@ -262,24 +262,6 @@ Feature: Features of seccomp
       | seccomp.security.alpha.kubernetes.io/pod.*localhost/profile2.json |
 
   # @author chezhang@redhat.com
-  # @case_id OCP-10183
-  @admin
-  @destructive
-  Scenario: OpenShift SCC check, specific seccomp allowed
-    Given scc policy "restricted" is restored after scenario
-    When I run the :patch admin command with:
-      | resource      | scc                                         |
-      | resource_name | restricted                                  |
-      | p             | seccompProfiles:\n- localhost/profile1.json |
-    Then the step should succeed
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/seccomp/pod-sec-pod-prof2.yaml |
-    Then the step should fail
-    And the output should contain:
-      | localhost/profile2.json is not a valid seccomp profile |
-
-  # @author chezhang@redhat.com
   # @case_id OCP-10493
   @admin
   @destructive

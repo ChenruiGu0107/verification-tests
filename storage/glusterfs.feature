@@ -114,47 +114,6 @@ Feature: Storage of GlusterFS plugin testing
     And the pod named "gluster" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id OCP-10265
-  @admin
-  Scenario: Dynamically provisioned GlusterFS volume should have correct capacity
-    Given I have a StorageClass named "glusterprovisioner"
-    And I have a project
-
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                         | pvc1               |
-      | ["spec"]["storageClassName"]                 | glusterprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"] | 15Gi               |
-    Then the step should succeed
-    And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
-
-    And the expression should be true> pvc.capacity == "15Gi"
-
-  # @author jhou@redhat.com
-  # @case_id OCP-10287
-  @admin
-  Scenario: Endpoint and service are created/deleted by dynamic provisioner
-    Given I have a StorageClass named "glusterprovisioner"
-    And I have a project
-
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | pvc1               |
-      | ["spec"]["storageClassName"] | glusterprovisioner |
-    Then the step should succeed
-    And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
-
-    When I run the :get client command with:
-      | resource      | endpoints              |
-      | resource_name | glusterfs-dynamic-pvc1 |
-    Then the step should succeed
-
-    When I run the :get client command with:
-      | resource      | services               |
-      | resource_name | glusterfs-dynamic-pvc1 |
-    Then the step should succeed
-
-  # @author jhou@redhat.com
   # @case_id OCP-10355
   @admin
   Scenario: Should throw meaningful message when deleting a PVC having StorageClass already deleted
