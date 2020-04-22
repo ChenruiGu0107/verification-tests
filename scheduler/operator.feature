@@ -150,6 +150,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
       | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -301,7 +305,6 @@ Feature: Testing Scheduler Operator related scenarios
   Scenario: Tune the node priority by the weight attribute
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
-    Given node schedulable status should be restored after scenario
     Given the "cluster" scheduler CR is restored after scenario
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                                 |
@@ -312,6 +315,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
       | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -319,8 +326,15 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
     Given I store the schedulable workers in the :nodes clipboard
+    Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
     # Test for ServiceSpreadingPriority weight attribute
     Given I have a project
@@ -372,8 +386,8 @@ Feature: Testing Scheduler Operator related scenarios
     """
     # Test for LeastRequestedPriority weight attribute
     Given I use the "<%= cb.proj_name%>" project
-    Given I use the "<%= cb.nodes[2].name %>" node
-    And evaluation of `cb.nodes[2].remaining_resources[:memory]` is stored in the :node_memory clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
