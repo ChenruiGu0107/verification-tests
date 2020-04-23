@@ -243,3 +243,131 @@ Feature: Cluster Autoscaler Tests
       | Skipping <%= cb.noderef_name %> from delete consideration - the node is marked as no scale down |
     """
 
+  # @author zhsun@redhat.com
+  # @case_id OCP-19898
+  @admin
+  @destructive
+  Scenario: Cluster-autoscaler should work with Pod Priority and Preemption
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+
+    Given I store the number of machines in the :num_to_restore clipboard
+    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+
+    Given I clone a machineset named "machineset-clone-19898"
+    
+    # Create clusterautoscaler,podPriorityThreshold is -10 by default
+    Given I use the "openshift-machine-api" project
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml |
+    Then the step should succeed
+    And admin ensures "default" clusterautoscaler is deleted after scenario
+    And 1 pods become ready with labels:
+      | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
+
+    # Create machineautoscaler
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+      | ["metadata"]["name"]               | maotest                |
+      | ["spec"]["minReplicas"]            | 1                      |
+      | ["spec"]["maxReplicas"]            | 3                      |
+      | ["spec"]["scaleTargetRef"]["name"] | machineset-clone-19898 |
+    Then the step should succeed
+    And admin ensures "maotest" machineautoscaler is deleted after scenario
+
+    # Create priorityclass
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/priority-class-low.yml |
+    Then the step should succeed
+    And admin ensures "low" priorityclass is deleted after scenario
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/priority-class-high.yml |
+    Then the step should succeed
+    And admin ensures "high" priorityclass is deleted after scenario
+
+    # Create workload,priority is 1
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml" replacing paths:
+      | ["spec"]["template"]["spec"]["priorityClassName"] | low |
+    Then the step should succeed
+    And admin ensures "workload" job is deleted after scenario
+
+    # Verify machineset has scaled, workload priority is 1,podPriorityThreshold is -10
+    Given I wait for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |  
+    Then the step should succeed
+    And the output should contain:
+      | Final scale-up plan |
+    """
+
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 3
+    """
+    Then the machineset should have expected number of running machines
+
+    # 1)Verify pods with priority lower than this cutoff don't prevent scale-downs
+    # workload priority is 1,podPriorityThreshold is 10
+    Given as admin I successfully merge patch resource "clusterautoscaler/default" with:
+      | {"spec":{"podPriorityThreshold":10}} |
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
+
+    # Check cluster auto scales down
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 1
+    """
+    Then the machineset should have expected number of running machines
+
+    # 2)Verify pods with priority lower than this cutoff don't trigger scale-ups
+    # workload priority is 1,podPriorityThreshold is 10
+    Given 120 seconds have passed
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |  
+    Then the step should succeed
+    And the output should not contain:
+      | Final scale-up plan |
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 1
+    """
+    Then the machineset should have expected number of running machines
+
+    # Delete workload
+    Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
+
+    # 3)Verifify nothing changes for pods with priority greater or equal to cutoff
+    # workload priority is 100,podPriorityThreshold is 10
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml" replacing paths:
+      | ["spec"]["template"]["spec"]["priorityClassName"] | high |
+    Then the step should succeed
+    And admin ensures "workload" job is deleted after scenario
+
+    # Verify machineset has scaled
+    Given I wait for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |  
+    Then the step should succeed
+    And the output should contain:
+      | Final scale-up plan |
+    """
+
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 3
+    """
+    Then the machineset should have expected number of running machines
+
+    # Delete workload
+    Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
+ 
+    # Check cluster auto scales down
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 1
+    """
+    Then the machineset should have expected number of running machines
+
