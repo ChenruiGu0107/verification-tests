@@ -114,48 +114,6 @@ Feature: Storage of GlusterFS plugin testing
     And the pod named "gluster" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id OCP-10355
-  @admin
-  Scenario: Should throw meaningful message when deleting a PVC having StorageClass already deleted
-    Given I have a StorageClass named "glusterprovisioner"
-    And I have a project
-    And I run the :get admin command with:
-      | resource      | storageclass       |
-      | resource_name | glusterprovisioner |
-      | o             | yaml               |
-    And evaluation of `@result[:parsed]["parameters"]["resturl"]` is stored in the :heketi_url clipboard
-
-    # Create a tmp storageclass using the url
-    Given admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
-      | ["metadata"]["name"]      | storageclass-<%= project.name %> |
-      | ["parameters"]["resturl"] | <%= cb.heketi_url %>             |
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | pvc-<%= project.name %>          |
-      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pvc.volume_name %>" pv is deleted after scenario
-
-    # Delete StorageClass then delete pvc
-    Given I run the :delete admin command with:
-      | object_type       | storageclass                     |
-      | object_name_or_id | storageclass-<%= project.name %> |
-    And I run the :delete client command with:
-      | object_type       | pvc                     |
-      | object_name_or_id | pvc-<%= project.name %> |
-    When I run the :get admin command with:
-      | resource      | pv                                  |
-      | resource_name | <%= pvc.volume_name %> |
-    Then the output should contain:
-      | Failed |
-    When I run the :describe admin command with:
-      | resource | pv                                  |
-      | name     | <%= pvc.volume_name %> |
-    Then the output should contain:
-      | VolumeFailedDelete                          |
-      | "storageclass-<%= project.name%>" not found |
-
-  # @author jhou@redhat.com
   # @case_id OCP-12109
   @admin
   Scenario: Using invalid gidMax/gidMin in the StorageClass

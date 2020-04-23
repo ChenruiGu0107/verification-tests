@@ -106,27 +106,6 @@ Feature: storageClass related feature
       | manual                | # @case_id OCP-12326
       | kubernetes.io/unknown | # @case_id OCP-12348
 
-  # @author jhou@redhat.com
-  # @case_id OCP-10325
-  @admin
-  Scenario: Error messaging for failed provision via StorageClass
-    Given I have a project
-    # Scenario when StorageClass's rest url can't be reached
-    Given admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
-      | ["metadata"]["name"]      | sc-<%= project.name %> |
-      | ["parameters"]["resturl"] | http://foo.com/        |
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | invalid                |
-      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
-    Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc/invalid |
-    Then the output should match:
-      | (failed\|error) (to)? (create\|creating) volume |
-    """
-
   # @author lxia@redhat.com
   # @case_id OCP-10459
   Scenario: Using both alpha and beta annotation in PVC

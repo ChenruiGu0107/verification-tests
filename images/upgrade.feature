@@ -37,8 +37,6 @@ Feature: Upgrade images feature
       | rhscl/nodejs-4-rhel7  | nodejs-4-rhel7  |https://github.com/sclorg/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:4   | # @case_id OCP-12072
       | rhscl/nodejs-6-rhel7  | nodejs-6-rhel7  |https://github.com/sclorg/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:6   | # @case_id OCP-17108
       | rhscl/nodejs-8-rhel7  | nodejs-8-rhel7  |https://github.com/sclorg/nodejs-ex.git         |            | nodejs-ex        | Welcome to your Node.js      | nodejs:8   | # @case_id OCP-17721
-      | rhscl/php-56-rhel7    | php-56-rhel7    |https://github.com/sclorg/s2i-php-container.git           |5.6/test/test-app| sti-php     | PHP is working               | php:5.6    | # @case_id OCP-9679
-      | rhscl/php-70-rhel7    | php-70-rhel7    |https://github.com/sclorg/s2i-php-container.git           |7.0/test/test-app| sti-php     | PHP is working               | php:7.0    | # @case_id OCP-10364
       | dotnet/dotnet-20-rhel7    | dotnet-20-rhel7     |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-2.0|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:2.0 | # @case_id OCP-17133
       | dotnet/dotnetcore-11-rhel7| dotnetcore-11-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.1|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:1.1 | # @case_id OCP-17134
       | dotnet/dotnetcore-10-rhel7| dotnetcore-10-rhel7 |https://github.com/redhat-developer/s2i-dotnetcore-ex.git#dotnetcore-1.0|app| s2i-dotnetcore-ex| .NET Core MVC | dotnet:1.0 | # @case_id OCP-17135
