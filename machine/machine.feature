@@ -56,3 +56,23 @@ Feature: Machine features testing
       | /instanceType:.*/ | instanceType: invalid | # @case_id OCP-28817
       | /vmSize:.*/       | vmSize: invalid       | # @case_id OCP-28818
       | /flavor:.*/       | flavor: invalid       | # @case_id OCP-28916
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-29351
+  Scenario Outline: Use oc explain to see detailed documentation of the resources
+    When I run the :explain client command with:
+      | resource | <resource> |
+    Then the step should succeed
+    And the output should contain:
+      | apiVersion |
+    And the output should not contain:
+      | <empty> |
+      | <none>  |
+
+    Examples:
+      | resource           |
+      | machine            |
+      | machineset         |
+      | machinehealthcheck |
+      | clusterautoscaler  |
+      | machineautoscaler  |
