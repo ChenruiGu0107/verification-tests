@@ -57,50 +57,6 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author lxia@redhat.com
-  # @case_id OCP-10782
-  @admin
-  @destructive
-  Scenario: [public_storage_70] Persistent volume attach should not be race when starting pods
-    Given I have a project
-    And I have a NFS service in the project
-
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-      | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
-    Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
-
-    Given I run the steps 100 times:
-    """
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
-    Then the step should succeed
-    Given the pod named "mypod-<%= project.name %>" becomes ready
-    When I run the :describe client command with:
-      | resource | pod                       |
-      | name     | mypod-<%= project.name %> |
-    Then the output should not contain:
-      | not all containers have started |
-      | 0 != 1                          |
-    When I execute on the pod:
-      | mountpoint | -d | /mnt |
-    Then the step should succeed
-    When I execute on the pod:
-      | bash                  |
-      | -c                    |
-      | date >> /mnt/testfile |
-    Then the step should succeed
-    Given I ensure "mypod-<%= project.name %>" pod is deleted
-    """
-
-  # @author lxia@redhat.com
   @admin
   Scenario Outline: PVC should bound the PV with most appropriate access mode and size
     Given I have a project

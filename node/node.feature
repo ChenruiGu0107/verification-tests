@@ -11,7 +11,7 @@ Feature: Node management
 
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-10712,OCP-11190,OCP-11755,OCP-11529
+  # @case_id OCP-11190,OCP-11755,OCP-11529
   @admin
   @destructive
   Scenario: Anonymous user can fetch metrics/stats after grant permission to it
@@ -173,42 +173,6 @@ Feature: Node management
     """
     And I try to restart the node service on all schedulable nodes
     Then the step should fail
-
-  # @author chezhang@redhat.com
-  # @case_id OCP-10769
-  @admin
-  @destructive
-  Scenario: ContainerGC will clean container after minimum-container-ttl-duration
-    Given config of all nodes is merged with the following hash:
-    """
-    kubeletArguments:
-      maximum-dead-containers:
-      - '20'
-      maximum-dead-containers-per-container:
-      - '1'
-      minimum-container-ttl-duration:
-      - 1m
-    """
-    And the node service is restarted on all nodes
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
-    Then the step should succeed
-    And the pod named "pod-pull-by-tag" becomes ready
-    Given evaluation of `pod("pod-pull-by-tag").node_name(user: user)` is stored in the :node clipboard
-    Given I ensure "pod-pull-by-tag" pod is deleted
-    Given 50 seconds have passed
-    Given I use the "<%= cb.node %>" node
-    Given I run commands on the host:
-      | docker ps -a \|grep pod-pull-by-tag |
-    Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-   """
-    Given I use the "<%= cb.node %>" node
-    Given I run commands on the host:
-      | docker ps -a \|grep pod-pull-by-tag |
-    Then the step should fail
-   """
 
   # @author chezhang@redhat.com
   # @case_id OCP-10472

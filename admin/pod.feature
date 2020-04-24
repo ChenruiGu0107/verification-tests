@@ -16,20 +16,6 @@ Feature: pod related features
     And the output should contain "Invalid value"
 
   # @author xiuli@redhat.com
-  # @case_id OCP-10475
-  Scenario: 'net.ipv4.tcp_max_syn_backlog' shouldn't in whitelist
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/sysctls/sysctl-tcp_max_syn_backlog.yaml |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource | po   |
-    Then the output should contain "SysctlForbidden"
-    When I run the :describe client command with:
-      | resource | po   |
-    Then the output should contain "forbidden sysctl: "net.ipv4.tcp_max_syn_backlog" not whitelisted"
-
-  # @author xiuli@redhat.com
   # @case_id OCP-12971
   Scenario: Pods creation is ordered in StatefulSet
     Given I have a project
@@ -46,42 +32,6 @@ Feature: pod related features
     Then the pod named "hello-statefulset-0" is ready
 
     Given the pod named "hello-statefulset-1" becomes ready
-
-  # @author pruan@redhat.com
-  # @case_id OCP-10639
-  @admin
-  Scenario: Expose shared memory of the pod via POSIX IPC sharing
-    Given I have a project
-    And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/container/sharememory.json |
-    And the pod named "hello-openshift" becomes ready
-    Given I use the "<%= pod.node_name %>" node
-    Given the system container id for the pod is stored in the clipboard
-    And evaluation of `pod.container(user: user, name: 'hello-container1').id` is stored in the :container1_id clipboard
-    And evaluation of `pod.container(user: user, name: 'hello-container2').id` is stored in the :container2_id clipboard
-    When I run commands on the host:
-      | docker inspect <%= cb.container1_id %> \|grep dshm|
-    Then the step should succeed
-    And evaluation of `/"Source":\s+"(.*)\/dshm/.match(@result[:response])[1]` is stored in the :inspect_1_out clipboard
-    When I run commands on the host:
-      | docker inspect <%= cb.container2_id %> \|grep dshm|
-    Then the step should succeed
-    And evaluation of `/"Source":\s+"(.*)\/dshm/.match(@result[:response])[1]` is stored in the :inspect_2_out clipboard
-    Then the expression should be true> cb.inspect_1_out == cb.inspect_2_out
-    When I run commands on the host:
-      | ls -al <%= cb.inspect_1_out %> |
-    Then the step should succeed
-    And the output should contain "dshm"
-    And I run the :delete client command with:
-      | object_type       | pod             |
-      | object_name_or_id | hello-openshift |
-    Then the step should succeed
-    And I wait up to 10 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | ls -al <%= cb.inspect_1_out %> |
-    And the output should contain "No such file or directory"
-    """
 
   # @author pruan@redhat.com
   # @case_id OCP-11262
@@ -108,34 +58,6 @@ Feature: pod related features
     And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id_2 clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container_id_2 %> \|grep only |
-    Then the step should succeed
-    Then the output should match:
-      | "ReadonlyRootfs":\s+true |
-
-  # @author pruan@redhat.com
-  # @case_id OCP-10816
-  @admin
-  @destructive
-  Scenario: Create pod with podspec.containers[].securityContext.ReadOnlyRootFileSystem = nil|false should fail with scc.ReadOnlyRootFilesystem=true
-    Given I have a project
-    Given scc policy "restricted" is restored after scenario
-    Given as admin I replace resource "scc" named "restricted":
-      | readOnlyRootFilesystem: false | readOnlyRootFilesystem: true |
-    And I select a random node's host
-    And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_false.json |
-    Then the step should fail
-    And the output should contain:
-      | unable to validate against any security context constraint |
-      | ReadOnlyRootFilesystem must be set to true                 |
-    And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521573/readonly_true.json |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=disk-pod-true |
-    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id clipboard
-    When I run commands on the host:
-      | docker inspect <%= cb.container_id %> \|grep only |
     Then the step should succeed
     Then the output should match:
       | "ReadonlyRootfs":\s+true |
@@ -318,45 +240,6 @@ Feature: pod related features
       | - containerID: docker://                                                                          |
       | image: docker.io/ocpqe/hello-pod:latest                                                           |
       | imageID: docker-pullable.*sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7 |
-
-  # @author chezhang@redhat.com
-  # @case_id OCP-10974
-  @admin
-  @destructive
-  Scenario: NodeStatus and PodStatus show correct imageID while pulling by digests
-    Given I store the schedulable nodes in the :nodes clipboard
-    Given I use the "<%= cb.nodes[0].name %>" node
-    Given I run commands on the host:
-      | docker rmi -f  docker.io/ocpqe/hello-pod:latest                                                                  |
-      | docker rmi -f  docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
-      | docker images --digests \| grep docker.io/ocpqe/hello-pod                                                        |
-    Then the step should fail
-    Given I have a project
-    Given I obtain test data file "pods/pod-hostname.yaml"
-    When I replace lines in "pod-hostname.yaml":
-      | image: docker.io/deshuai/hello-pod:latest | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
-      | HOSTNAME                                  | <%= cb.nodes[0].name %>                                                                                  |
-    Then I run the :create client command with:
-      | f | pod-hostname.yaml |
-    And the step should succeed
-    When the pod named "pod-hostname" status becomes :running
-    Then I wait up to 30 seconds for the steps to pass:
-    """
-    When I run the :get admin command with:
-      | resource      | no                      |
-      | resource_name | <%= cb.nodes[0].name %> |
-      | o             | yaml                    |
-    Then the output should contain:
-      | - docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
-    """
-    When I run the :get client command with:
-      | resource      | po           |
-      | resource_name | pod-hostname |
-      | o             | yaml         |
-    Then the output should match:
-      | - containerID: (cri-o\|docker)://                                                                        |
-      | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
-      | imageID: docker.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f                 |
 
   # @author chuyu@redhat.com
   # @case_id OCP-12898

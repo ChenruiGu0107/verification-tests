@@ -105,78 +105,6 @@ Feature: remote registry related scenarios
       | docker://<%= cb.my_tag %>            |
     Then the step should succeed
 
-  # @author yinzhou@redhat.com
-  # @case_id OCP-10591
-  @admin
-  Scenario: provisioned if it does not exist during 'docker push'
-    Given I have a project
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | mystream    |
-      | o             | json        |
-    Then the step should fail
-    And I select a random node's host
-
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And the "~/.docker/config.json" file is restored on host after scenario
-    When I run commands on the host:
-      | docker login -u dnm -p <%= user.cached_tokens.first %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker pull docker.io/busybox:latest |
-    Then the step should succeed
-    And I run commands on the host:
-      | docker tag  docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | mystream    |
-      | o             | json        |
-    Then the step should succeed
-
-  # @author yinzhou@redhat.com
-  # @case_id OCP-10587
-  @admin
-  Scenario: ImageStream annotations can be set
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/annotations.json |
-    Then the step should succeed
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    When I execute on the pod:
-      | skopeo                                 |
-      | --debug                                |
-      | --insecure-policy                      |
-      | copy                                   |
-      | --dest-cert-dir                        |
-      | /opt/qe/ca                             |
-      | --dcreds                               |
-      | dnm:<%= user.cached_tokens.first %>    |
-      | docker://docker.io/busybox             |
-      | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | imagestreamtag            |
-      | resource_name | testa:prod                |
-      | template      | {{.metadata.annotations}} |
-      | n             | <%= project.name %>       |
-    Then the output should match "color:blue"
-    When I run the :get client command with:
-      | resource      | imagestream         |
-      | resource_name | testa               |
-      | o             | yaml                |
-      | n             | <%= project.name %> |
-    And the output should match:
-      |  tags           |
-      |  - annotations: |
-      | color: blue     |
-      | name: prod      |
-
   # @author pruan@redhat.com
   # @case_id OCP-11727 OCP-11902
   @admin
@@ -288,35 +216,6 @@ Feature: remote registry related scenarios
     Then the step should fail
     And the output should not match:
       | mystream |
-
-  # @author yinzhou@redhat.com
-  # @case_id OCP-10950
-  @admin
-  Scenario: Do not push blobs during cross-repo mount
-    Given I have a project
-    When I run the :policy_add_role_to_user client command with:
-      | role            | registry-admin   |
-      | user name       | system:anonymous |
-    Then the step should succeed
-    And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    When I run commands on the host:
-      | docker pull busybox                 |
-      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
-    Then the step should succeed
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :u1p2 clipboard
-    When I run the :policy_add_role_to_user client command with:
-      | role            | registry-admin   |
-      | user name       | system:anonymous |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
-      | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
-    Then the step should succeed
-    And the output should contain:
-      | Mounted from |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11314

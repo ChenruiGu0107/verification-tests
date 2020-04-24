@@ -106,25 +106,6 @@ Feature: storageClass related feature
       | manual                | # @case_id OCP-12326
       | kubernetes.io/unknown | # @case_id OCP-12348
 
-  # @author lxia@redhat.com
-  # @case_id OCP-10459
-  Scenario: Using both alpha and beta annotation in PVC
-    Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"]  | sc2-<%= project.name %> |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :pending
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc/pvc-<%= project.name %> |
-    Then the output should contain:
-      | <%= env.version_lt("3.7", user: user) ? "ProvisioningIgnoreAlpha" : "ProvisioningFailed" %>                     |
-      | <%= env.version_lt("3.7", user: user) ? "" : "storageclass.storage.k8s.io \"sc2-#{project.name}\" not found" %> |
-    """
-
   # @author chaoyang@redhat.com
   # @case_id OCP-10163
   @admin

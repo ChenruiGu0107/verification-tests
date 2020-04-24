@@ -58,22 +58,6 @@ Feature: metrics permission related tests
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
   # @author pruan@redhat.com
-  # @case_id OCP-10928
-  @admin
-  @destructive
-  Scenario: User cannot create metrics in _system tenant even if USER_WRITE_ACCESS parameter is 'true'
-    Given I have a project
-    Given metrics service is installed in the system using:
-      | inventory       | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-11821/inventory              |
-      | deployer_config | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
-    And I switch to the first user
-    And I perform the POST metrics rest request with:
-      | project_name | _system                                                                                           |
-      | path         | /metrics/gauges                                                                                   |
-      | payload      | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/test_data.json |
-    Then the expression should be true> @result[:exitstatus] == 403
-
-  # @author pruan@redhat.com
   # @case_id OCP-12168
   @admin
   @destructive

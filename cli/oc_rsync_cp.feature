@@ -42,7 +42,6 @@ Feature: oc_rsync.feature
     Examples:
       | strategy     |
       | tar          | # @case_id OCP-11538
-      | rsync        | # @case_id OCP-10727
       | rsync-daemon | # @case_id OCP-11204
 
   # @author cryan@redhat.com

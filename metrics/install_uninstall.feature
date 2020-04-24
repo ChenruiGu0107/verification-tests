@@ -153,22 +153,6 @@ Feature: metrics logging and uninstall tests
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
-  # @author pruan@redhat.com
-  # @case_id OCP-10512
-  @admin
-  @destructive
-  Scenario: Check hawkular alerts endpoint is accessible
-    Given metrics service is installed in the system
-    And I switch to the first user
-    And evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
-    Given I store default router subdomain in the :metrics clipboard
-    Given cluster role "cluster-admin" is added to the "first" user
-    And I perform the GET metrics rest request with:
-      | project_name | _system              |
-      | token        | <%= cb.user_token %> |
-      | path         | /alerts/status       |
-    Then the expression should be true> @result[:parsed]['status'] == 'STARTED'
-
   # @author xiazhao@redhat.com
   # @author lizhou@redhat.com
   # @author pruan@redhat.com

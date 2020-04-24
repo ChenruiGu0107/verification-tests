@@ -111,39 +111,6 @@ Feature: Egress router related features
     """
 
   # @author bmeng@redhat.com
-  # @case_id OCP-10824
-  @admin
-  Scenario: Cannot connect to the opening ports on the node where the egress router is running via the EGRESS_SOURCE
-    Given the cluster is running on OpenStack
-    And the node's default gateway is stored in the clipboard
-    And default router image is stored into the :router_image clipboard
-
-    # Create egress router
-    # IP 10.4.205.4 points to the redhat internal service bugzilla.redhat.com
-    Given I have a project
-    And SCC "privileged" is added to the "default" service account
-    And I store a random unused IP address from the reserved range to the :valid_ip clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/egress-router/legacy-egress-router-list.json" replacing paths:
-      | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["image"] | <%= cb.router_image.gsub("haproxy","egress") %> |
-      | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][0]["value"] | <%= cb.valid_ip %> |
-      | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] | <%= cb.gateway %> |
-      | ["items"][0]["spec"]["template"]["spec"]["containers"][0]["env"][2]["value"] | 10.4.205.4 |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=egress-router |
-    Then evaluation of `pod.ip` is stored in the :egress_router_ip clipboard
-    And evaluation of `pod.node_name` is stored in the :egress_router_node clipboard
-    And evaluation of `pod.node_ip` is stored in the :egress_router_nodeip clipboard
-
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | ncat | -z | <%= cb.egress_router_nodeip %> | 22 |
-    Then the step should succeed
-    When I execute on the pod:
-      | ncat | -z | <%= cb.valid_ip %> | 22 |
-    Then the step should fail
-
-  # @author bmeng@redhat.com
   # @case_id OCP-14107
   @admin
   Scenario: InitConatainer egress router works with single IP destination

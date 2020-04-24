@@ -66,5 +66,4 @@ Feature: oc convert related scenarios
 
     Examples:
       | tool     |
-      | oc       | # @case_id OCP-10892
       | kubectl  | # @case_id OCP-20924

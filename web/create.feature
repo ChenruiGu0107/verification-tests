@@ -1,19 +1,4 @@
 Feature: create app on web console related
-  # @author xxing@redhat.com
-  # @case_id OCP-10691
-  Scenario: Show help info and suggestions after creating app from web console
-    Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>   |
-      | image_name   | nodejs                |
-      | image_tag    | 0.10                  |
-      | namespace    | openshift             |
-      | app_name     | nodejs-sample         |
-      | source_url   | https://github.com/sclorg/nodejs-ex |
-    Then the step should succeed
-    When I run the :check_help_and_sug_on_next_step_page web console action
-    Then the step should succeed
-
   # @author wsun@redhat.com
   # @case_id OCP-12597
   Scenario: Could edit Routing on create from source page
@@ -29,69 +14,6 @@ Feature: create app on web console related
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-
-  # @author yapei@redhat.com
-  # @case_id OCP-10737
-  Scenario: Setting env vars for buildconfig on web can be available in assemble phase of STI build
-    Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | namespace    | openshift                          |
-      | project_name | <%= project.name %>                |
-      | image_name   | nodejs                             |
-      | image_tag    | 0.10                               |
-      | app_name     | nd                                 |
-      | source_url   | https://github.com/yapei/nodejs-ex |
-      | bc_env_key   | BCvalue                            |
-      | bc_env_value | bcone                              |
-      | dc_env_key   | DCvalue                            |
-      | dc_env_value | dcone                              |
-    Then the step should succeed
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %> |
-      | bc_and_build_name | nd/nd-1  |
-      | build_status_name | Running  |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | Displaying ENV vars |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | BCvalue=bcone |
-    Then the step should succeed
-    Given I use the "<%= project.name %>" project
-    And I run the :get client command with:
-      | resource      | bc   |
-      | resource_name | nd   |
-      | o             | yaml |
-    Then the step succeeded
-    And the output by order should contain:
-      | env |
-      | name: BCvalue |
-      | value: bcone  |
-    When I run the :get client command with:
-      | resource      | dc   |
-      | resource_name | nd   |
-      | o             | yaml |
-    Then the step succeeded
-    And the output by order should contain:
-      | env |
-      | name: DCvalue |
-      | value: dcone  |
-
-  # @author yapei@redhat.com
-  # @case_id OCP-10756
-  Scenario: v1bata3 API version is not supported
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc515804/application-template-stibuild.json |
-    Then the step should succeed
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
-    Then the step should fail
-    When I get the html of the web page
-    Then the output should match:
-      | API version v1beta3.* |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11233
@@ -109,28 +31,6 @@ Feature: create app on web console related
     When I get the html of the web page
     Then the output should match:
       | not.*create.*fake/v1 |
-
-  # @author yapei@redhat.com
-  # @case_id OCP-10775
-  Scenario: Create resource from template contains different api groups
-    Given I create a new project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/test-api.yaml |
-    Then the step should succeed
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | test-api               |
-      | namespace     | <%= project.name %>    |
-    Then the step should succeed
-    # check resources are created
-    When I run the :get client command with:
-      | resource | dc,hpa,deployment,job |
-    Then the step should succeed
-    And the output should contain:
-      | php-apache      |
-      | test-autoscaler |
-      | hello-openshift |
-      | simplev1        |
 
   # @author yapei@redhat.com
   # @case_id OCP-11468
@@ -160,71 +60,6 @@ Feature: create app on web console related
     Then the step should fail
     When I perform the :check_error_notification_on_page web console action with:
       | error_message | You may not request a new project via this API |
-
-  # @author yapei@redhat.com
-  # @case_id OCP-10895
-  Scenario: Check template message on next step page
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
-    Then the step should succeed
-    When I perform the :create_app_from_template_without_label web console action with:
-      | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
-      | param_one     | adminuser  |
-      | param_four    | mysqlpass  |
-    Then the step should succeed
-    When I run the :check_template_message_on_next_page web console action
-    Then the step should succeed
-    When I run the :check_generated_parameter_on_next_page web console action
-    Then the step should succeed
-    When I run the :check_parameter_value web console action
-    Then the step should succeed
-
-  # @author yapei@redhat.com
-  # @case_id OCP-10879
-  @smoke
-  Scenario: Deploy from ImageName on web console
-    Given I have a project
-    When I perform the :deploy_from_image_stream_name_with_nonexist_image web console action with:
-      | project_name      | <%= project.name %> |
-      | image_deploy_from | yapei/non-exist     |
-    Then the step should succeed
-    When I perform the :deploy_from_image_stream_name_with_env_label web console action with:
-      | project_name          | <%= project.name %> |
-      | image_deploy_from     | openshift/hello-openshift |
-      | env_var_key           | myenv               |
-      | env_var_value         | my-env-value        |
-      | label_key             | mylabel             |
-      | label_value           | my-hello-openshift  |
-    Then the step should succeed
-    And I wait until the status of deployment "hello-openshift" becomes :complete
-    And I wait for the "hello-openshift" is to appear
-    And I wait for the "hello-openshift" dc to appear
-    And I wait for the "hello-openshift" svc to appear
-    And a pod is present with labels:
-      | mylabel=my-hello-openshift |
-    When I run the :set_env client command with:
-      | resource | dc/hello-openshift |
-      | list     | true               |
-    Then the step should succeed
-    And the output should contain:
-      | myenv=my-env-value |
-    When I run the :get client command with:
-      | resource   | is/hello-openshift |
-      | show_label | true               |
-    Then the step should succeed
-    And the output should contain:
-      | app=hello-openshift |
-      | mylabel=my-hello-openshift |
-    When I run the :get client command with:
-      | resource   | svc/hello-openshift |
-      | show_label | true                |
-    Then the step should succeed
-    And the output should contain:
-      | app=hello-openshift |
-      | mylabel=my-hello-openshift |
 
   # @author yapei@redhat.com
   # @case_id OCP-11301

@@ -378,7 +378,5 @@ Feature: Add pvc to pod from web related
 
     Examples:
       | provisioner |
-      | aws-ebs     | # @case_id OCP-10444
       | gce-pd      | # @case_id OCP-10557
-      | cinder      | # @case_id OCP-10556
       | azure-disk  | # @case_id OCP-10458

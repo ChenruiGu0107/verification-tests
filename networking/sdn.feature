@@ -176,49 +176,6 @@ Feature: SDN related networking scenarios
     And the output should contain "network plugin mismatch"
     """
 
-  # @author hongli@redhat.com
-  # @case_id OCP-10997
-  @admin
-  Scenario: Can get a hostsubnet for F5 from the cluster CIDR
-    Given an 8 characters random string of type :dns952 is stored into the :hostsubnet_name clipboard
-    And admin ensures "f5-<%= cb.hostsubnet_name %>" host_subnet is deleted after scenario
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/f5-hostsubnet.json" replacing paths:
-       | ["metadata"]["name"] | f5-<%= cb.hostsubnet_name %> |
-       | ["host"]             | f5-<%= cb.hostsubnet_name %> |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | hostsubnet                   |
-      | resource_name | f5-<%= cb.hostsubnet_name %> |
-      | o             | yaml                         |
-    Then the step should succeed
-    And the output should contain:
-      | pod.network.openshift.io/fixed-vnid-host: "0" |
-    And the output should not contain:
-      | pod.network.openshift.io/assign-subnet |
-    And evaluation of `@result[:parsed]['hostIP']` is stored in the :hostip clipboard
-    And evaluation of `@result[:parsed]['subnet']` is stored in the :subnet clipboard
-
-    Given I select a random node's host
-    When I run ovs dump flows commands on the host
-    Then the step should succeed
-    And the output should contain:
-      | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
-      | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
-
-    # delete the hostsubnet
-    When I run the :delete client command with:
-      | object_type       | hostsubnet |
-      | object_name_or_id | f5-<%= cb.hostsubnet_name %> |
-    Then the step should succeed
-
-    When I run ovs dump flows commands on the host
-    Then the step should succeed
-    And the output should not contain:
-      | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
-      | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
-
   # @author bmeng@redhat.com
   # @case_id OCP-12549
   @admin
@@ -366,61 +323,6 @@ Feature: SDN related networking scenarios
     """
     And the master service is restarted on all master nodes
 
-
-  # @author bmeng@redhat.com
-  # @case_id OCP-10538
-  @admin
-  @destructive
-  Scenario: IPAM garbage collection to release the un-used IPs on node
-    Given I select a random node's host
-    And the node service is verified
-    And the node network is verified
-    # Get the node hostsubnet
-    When I run commands on the host:
-      | ip -4 addr show tun0 \| grep -Eo '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}\/[0-9]{1,2}' |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :hostnetwork clipboard
-    # Get the broadcast ip of the subnet
-    When I run commands on the host:
-      | ipcalc -b <%= cb.hostnetwork.chomp %> \| grep -Eo "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}" |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :broadcastip clipboard
-    Given an 64 character random string of type :num is stored into the :cni_id clipboard
-    # Fill up the IPAM to trigger the garbage collection later
-    When I run commands on the host:
-      | docker pull uzyexe/nmap |
-    Then the step should succeed
-    When I run commands on the host:
-      | for i in `docker run --rm uzyexe/nmap -sL <%= cb.hostnetwork.chomp %> \| grep "Nmap scan" \| grep -Eo '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}'` ; do printf <%= cb.cni_id %> > /tmp/$i ; mv -n /tmp/$i /var/lib/cni/networks/openshift-sdn/ ; done |
-    Then the step should succeed
-    # Leave the broadcast IP available to test OCP-10549
-    When I run commands on the host:
-      | rm -f /var/lib/cni/networks/openshift-sdn/<%= cb.broadcastip %> |
-    Then the step should succeed
-    # Create one more pod on the node which is running out of IP
-    Given I switch to the first user
-    And I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
-      | ["spec"]["nodeName"] | <%= node.name %> |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=nodename-pod |
-    # Check the pod will not get broadcast ip assigned
-    When I run the :get client command with:
-      | resource      | pods |
-      | o             | wide |
-    Then the step should succeed
-    And the output should not contain "<%= cb.broadcastip %>"
-    # Check the GC was triggered
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node \| grep pod_linux.go |
-    Then the step should succeed
-    And the output should contain "Starting IP garbage collection"
-    And the output should match "Releasing IP.*allocated to"
-    When I run commands on the host:
-      | ls /var/lib/cni/networks/openshift-sdn \| wc -l |
-    Then the step should succeed
-    And the expression should be true> @result[:response].to_i < 41
 
   # @author hongli@redhat.com
   # @case_id OCP-14271

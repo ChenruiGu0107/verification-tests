@@ -1,36 +1,5 @@
 Feature: metrics scaling tests
   # @author penli@redhat.com
-  # @case_id OCP-10515
-  # bz #1401383 #1421953
-  # run this case in m1.large on OpenStack, m4.large on AWS, or n1-standard-2 on GCE
-  @admin
-  @destructive
-  Scenario: Scale up and down hawkular-metrics replicas
-    Given I create a project with non-leading digit name
-    Given metrics service is installed in the system
-    Given cluster role "cluster-admin" is added to the "first" user
-    And I use the "openshift-infra" project
-    And I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | hawkular-metrics       |
-      | replicas | 2                      |
-    Then I wait until number of replicas match "2" for replicationController "hawkular-metrics"
-    Given a pod becomes ready with labels:
-      | metrics-infra=hawkular-metrics |
-    And I wait for the steps to pass:
-    """
-    When I run the :logs client command with:
-      | resource_name    | pods/<%= pod.name %>|
-    And the output should match:
-      | Metrics service started   |
-    """
-    And I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | hawkular-metrics       |
-      | replicas | 1                      |
-    Then I wait until number of replicas match "1" for replicationController "hawkular-metrics"
-
-  # @author penli@redhat.com
   # @author lizhou@redhat.com
   # @case_id OCP-13983
   # combined using unified step for deploying metrics

@@ -1,29 +1,4 @@
 Feature: change the policy of user/service account
-
-  # @author anli@redhat.com
-  # @case_id OCP-10609
-  @smoke
-  @admin
-  Scenario: Add/Remove a global role
-    Given the first user is cluster-admin
-    Given I have a project
-    When I run the :get client command with:
-      | resource   | pod     |
-      | namespace  | default |
-    And the output should contain:
-      | READY  |
-    And the output should not contain:
-      | cannot |
-    When I run the :oadm_policy_remove_cluster_role_from_user admin command with:
-      | role_name  | cluster-admin    |
-      | user_name  | <%= user.name %> |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource   | pod              |
-      | namespace  | default          |
-    And the output should contain:
-      | cannot list pods in project "default" |
-
   # @author wyue@redhat.com
   # @case_id OCP-12238
   @admin
@@ -287,37 +262,6 @@ Feature: change the policy of user/service account
       | role  | admin     |
       | user_name |  <%= user(1, switch: false).name %> |
     Then the step should succeed
-
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-10802
-  Scenario: Check registry-viewer permission
-    Given I have a project
-    When I run the :policy_add_role_to_user client command with:
-      | role        | registry-viewer      |
-      | user_name   |  <%= user(1, switch: false).name %> |
-    Then the step should succeed
-    When I run the :policy_who_can client command with:
-      | verb         | get                 |
-      | resource     | imagestreamimages   |
-    Then the output should contain:
-      | <%= user(1).name %> |
-    When I run the :policy_who_can client command with:
-      | verb         | list                |
-      | resource     | imagestreamimports  |
-    Then the output should contain:
-      | <%= user(1).name %> |
-    When I run the :policy_who_can client command with:
-      | verb         | get                 |
-      | resource     | imagestreamtags     |
-    Then the output should contain:
-      | <%= user(1).name %> |
-    When I run the :create client command with:
-      | f |https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json|
-    Then the step should fail
-    When I run the :policy_add_role_to_user client command with:
-      | role        | registry-viewer      |
-      | user_name   |  <%= user(2, switch: false).name %> |
-    Then the step should fail
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11569

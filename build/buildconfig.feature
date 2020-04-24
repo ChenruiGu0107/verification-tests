@@ -1,23 +1,4 @@
 Feature: buildconfig.feature
-
-  # @author wzheng@redhat.com
-  # @case_id OCP-10701
-  Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sourcebuildconfig.json |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | buildconfig  |
-      | name     | source-build |
-    Then the step should succeed
-    And the output should match "Fail Build After:\s+5s"
-    When I run the :start_build client command with:
-      | buildconfig | source-build |
-    Then the step should succeed
-    And the "source-build-1" build was created
-    And the "source-build-1" build failed
-
   # @author wzheng@redhat.com
   # @case_id OCP-11699
   Scenario: Start build from invalid/blank buildConfig/build

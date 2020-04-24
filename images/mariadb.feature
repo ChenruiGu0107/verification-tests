@@ -52,7 +52,6 @@ Feature: MariaDB images test
       | myisam_sort_buffer_size = 2M         |
     Examples:
       | file                          |
-      | mariadb-100-env-var-test.json | # @case_id OCP-10868
       | mariadb-101-env-var-test.json | # @case_id OCP-11293
 
   # @author dyan@redhat.com

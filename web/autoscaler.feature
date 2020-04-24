@@ -181,33 +181,3 @@ Feature: AutoScaler relative cases
       | min_pods      | 1                      |
       | max_pods      | 4                      |
     Then the step should succeed
-
-  # @author yanpzhan@redhat.com
-  # @case_id OCP-10861
-  Scenario: Create an application with autoscaling
-    Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>   |
-      | image_name   | nodejs                |
-      | image_tag    | latest                |
-      | app_name     | nodejs-sample         |
-      | min_pods     | 1                     |
-      | max_pods     | 10                    |
-      | cpu_req_per  | 50                    |
-      | source_url   | https://github.com/sclorg/nodejs-ex |
-    Then the step should succeed
-    Given 1 pods become ready with labels:
-      | app=nodejs-sample |
-
-    Given I wait for the :check_autoscaler_min_pod_on_overview_page web console action to succeed with:
-      | project_name  | <%= project.name %>  |
-      | min_pods      | 1                    |
-      | resource_name | nodejs-sample        |
-      | resource_type | deployment           |
-    Then the step should succeed
-    Given I wait for the :check_autoscaler_max_pod_on_overview_page web console action to succeed with:
-      | project_name  | <%= project.name %>  |
-      | max_pods      | 10                   |
-      | resource_name | nodejs-sample        |
-      | resource_type | deployment           |
-    Then the step should succeed

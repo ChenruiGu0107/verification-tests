@@ -1,29 +1,4 @@
 Feature: oc_env.feature
-
-  # @author cryan@redhat.com
-  # @case_id OCP-10614
-  Scenario: Display environment variables for resources
-    Given I have a project
-    And I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
-    And the step succeeded
-    When I run the :set_env client command with:
-      | resource | rc/database-1 |
-      | list | true |
-    Then the step should succeed
-    And the output should contain:
-      |MYSQL_USER    |
-      |MYSQL_PASSWORD|
-      |MYSQL_DATABASE|
-    When I run the :set_env client command with:
-      | resource | rc |
-      | list | true |
-      | all  | true |
-    Then the step should succeed
-    And the output should contain:
-      |MYSQL_USER    |
-      |MYSQL_PASSWORD|
-      |MYSQL_DATABASE|
-
   # @author yapei@redhat.com
   # @case_id OCP-11473
   Scenario: Set environment variables for resources

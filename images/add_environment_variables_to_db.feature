@@ -123,35 +123,6 @@ Feature: Add env variables to image feature
       | image |
       | <%= product_docker_repo %>openshift3/postgresql-92-rhel7 | # @case_id OCP-11452
       | <%= product_docker_repo %>rhscl/postgresql-94-rhel7      | # @case_id OCP-12201
-      | <%= product_docker_repo %>rhscl/postgresql-95-rhel7      | # @case_id OCP-10867
-
-  # @author cryan@redhat.com
-  # @case_id OCP-10653
-  Scenario: Add env variables to mongodb-24-centos7 image
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb-24-centos7-env-test.json |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=database |
-    When I execute on the pod:
-      | bash | -c| env \| grep MONGO |
-    Then the output should match:
-      | MONGODB_NOPREALLOC=false                  |
-      | MONGODB_QUIET=false                       |
-      | MONGODB_PREFIX=/opt/rh/mongodb24/root/usr |
-      | MONGODB_ADMIN_PASSWORD=r00t               |
-      | MONGODB_DATABASE=root                     |
-      | MONGODB_PASSWORD=fpBt72kI                 |
-      | MONGODB_VERSION=2.4                       |
-      | MONGODB_SMALLFILES=false                  |
-      | MONGODB_USER=user7BE                      |
-    When I execute on the pod:
-      | bash | -c| cat /etc/mongod.conf |
-    Then the output should match:
-      | noprealloc = false |
-      | smallfiles = false |
-      | quiet = false      |
 
   # @author cryan@redhat.com
   Scenario Outline: Add env var to mysql 55 and 56
@@ -196,7 +167,6 @@ Feature: Add env variables to image feature
     """
     Examples:
       | image                                                      | file                                         |
-      | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-10847
       | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      | /etc/my.cnf.d/50-my-tuning.cnf               | # @case_id OCP-11280
 
   # @author cryan@redhat.com

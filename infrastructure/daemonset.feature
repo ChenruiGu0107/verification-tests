@@ -1,26 +1,4 @@
 Feature: Features of daemonset
-
-  # @author dma@redhat.com
-  # @case_id OCP-10704
-  @admin
-  Scenario: Create pod on every node with DaemonSet
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
-    Then the step should fail
-    And the output should match:
-      | cannot create daemonsets.extensions |
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
-      | n | <%= project.name %>                                                                      |
-    Then the step should succeed
-    And all existing pods are ready with labels:
-      | name=hello-daemonset |
-    Given I store in the clipboard the pods labeled:
-      | name=hello-daemonset |
-    Then the expression should be true> env.nodes.count == cb.pods.count
-    And the expression should be true> (env.nodes.map(&:name) - cb.pods.map(&:node_name)).empty?
-
   # @author dma@redhat.com
   # @case_id OCP-11525
   @admin

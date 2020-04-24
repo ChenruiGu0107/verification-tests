@@ -46,7 +46,6 @@ Feature: Postgresql images test
     Then the output should contain "effective_cache_size = 128MB"
     Examples:
       | image                          |
-      | openshift3/postgresql-92-rhel7 | # @case_id OCP-10858
       | rhscl/postgresql-94-rhel7      | # @case_id OCP-11284
       | rhscl/postgresql-95-rhel7      | # @case_id OCP-11292
 

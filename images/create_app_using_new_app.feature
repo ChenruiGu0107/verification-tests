@@ -24,28 +24,6 @@ Feature:Create apps using new_app cmd feature
       | openshift/jboss-webserver30-tomcat7-openshift:1.3 | # @case_id OCP-9657
       | openshift/jboss-webserver30-tomcat8-openshift:1.3 | # @case_id OCP-9658
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-10595
-  Scenario: Application with ruby-20-rhel7 base images lifecycle
-    Given I have a project
-
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc476349/ruby20rhel7-template-sti.json |
-    Then the step should succeed
-
-    When I run the :describe client command with:
-      | resource | bc                |
-      | name     | ruby-sample-build |
-    Then the output should match:
-      | URL:\\s+https://github.com/openshift/ruby-hello-world.git |
-      | From Image:\\s+ImageStreamTag openshift/ruby:2.0          |
-    And the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready up to 300 seconds up to 300 seconds
-    When I expose the "frontend" service
-    Then I wait for a web server to become available via the "frontend" route
-    And the output should contain "Hello from OpenShift v3"
-
   # @author haowang@redhat.com
   # @case_id OCP-11137
   Scenario: Create applications with multiple repos

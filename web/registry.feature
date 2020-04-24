@@ -271,34 +271,3 @@ Feature: Testing registry
       | project_name | <%= project.name %> |
       | image_name   | mystream            |
     Then the step should succeed
-
-  # @author yanpzhan@redhat.com
-  # @case_id OCP-10498
-  Scenario: Create shared project on registry console
-    Given I open registry console in a browser
-    When I perform the :create_new_project_in_iframe web action with:
-      | project_name  | user1-test-prj                                      |
-      | description   | test                                                |
-      | display_name  | test                                                |
-      | access_policy | Shared: Allow any authenticated user to pull images |
-    Then the step should succeed
-
-    # Allow time for the project to fully create and register the security policy before logout
-    Given I use the "user1-test-prj" project
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    Given the expression should be true> role_binding("registry-viewer").group_names(cached: false).include? "system:authenticated"
-    """
-
-    When I perform the :check_project_on_overview_page_in_iframe web action with:
-      | project_name | user1-test-prj |
-    Then the step should succeed
-    When I run the :logout web action
-    Then the step should succeed
-    Given I switch to the second user
-    When I run the :click_login_again web action
-    Then the step should succeed
-    And I perform login to registry console in the browser
-    When I perform the :check_project_on_overview_page_in_iframe web action with:
-      | project_name | user1-test-prj |
-    Then the step should succeed

@@ -147,16 +147,6 @@ Feature: quickstarts.feature
     """
     Then the output should contain "Welcome to your Node.js application on OpenShift"
 
-  # @author dyan@redhat.com
-  # @case_id OCP-10611
-  Scenario: Use the template parameters for the entire config
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc479059/application-template-parameters.json |
-    Then the step should succeed
-    And the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-
   # @author cryan@redhat.com
   # @bug_id 1343184
   Scenario Outline: quickstart version test

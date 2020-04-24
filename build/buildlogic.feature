@@ -96,29 +96,6 @@ Feature: buildlogic.feature
       | dockerStrategy | buildconfig-docker-ImageStreamImage.json | # @case_id OCP-11500
       | sourceStrategy | buildconfig-s2i-ImageStreamImage.json    | # @case_id OCP-11735
 
-  # @author dyan@redhat.com
-  # @case_id OCP-10596
-  Scenario: Failed to push image with invalid Docker secret
-    Given I have a project
-    When I run the :secrets_new_dockercfg client command with:
-      | secret_name     | pushme |
-      | docker_username | dyan |
-      | docker_password | xxxxxx |
-      | docker_email    | dyan@redhat.com |
-    Then the step should succeed
-    When I run the :secret_add client command with:
-      | sa_name | builder |
-      | secret_name | pushme |
-    Then the step should succeed
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/tc476354/pushimage.json"
-    Then the step should succeed
-    And the "ruby22-sample-build-1" build failed
-    When I run the :logs client command with:
-      | resource_name | build/ruby22-sample-build-1 |
-    Then the output should contain:
-      | build error |
-      | Failed to push image |
-
   # @author haowang@redhat.com
   # @case_id OCP-11160
   @admin
@@ -327,41 +304,6 @@ Feature: buildlogic.feature
     And the output should contain:
       | Permission denied                         |
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-10669
-  @admin
-  Scenario: Check labels info in built images when do docker build in openshift
-    Given I have a project
-    When I run the :new_build client command with:
-      | app_repo     | https://github.com/openshift-qe/ruby-hello-world-context |
-      | context_dir  | test                                                     |
-      | name         | ruby-hello-world                                         |
-    Then the step should succeed
-    Then the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
-    And evaluation of `pod("ruby-hello-world-1-build").node_name(user: user)` is stored in the :build_pod_node clipboard
-    Then I use the "<%= cb.build_pod_node %>" node
-    And evaluation of `image_stream("ruby-hello-world").docker_image_repository(user: user)` is stored in the :built_image clipboard
-    And I run commands on the host:
-      | docker inspect <%= cb.built_image %> |
-    Then the step should succeed
-    And the output should match:
-      | .*io.openshift.build.commit.author.*                 |
-      | .*io.openshift.build.commit.date.*                   |
-      | .*io.openshift.build.commit.id.*                     |
-      | .*io.openshift.build.commit.message.*                |
-      | .*io.openshift.build.commit.ref.*master.*            |
-      | .*io.openshift.build.source-context-dir.*test.*      |
-      | .*io.openshift.build.source-location.*openshift-qe.* |
-      | .*io.openshift.expose-services.*                     |
-      | .*io.openshift.s2i.scripts-url.*                     |
-      | .*io.openshift.tags.*                                |
-      | .*io.s2i.scripts-url.*                               |
-      | .*OPENSHIFT_BUILD_NAME.*                             |
-      | .*OPENSHIFT_BUILD_NAMESPACE.*                        |
-      | .*OPENSHIFT_BUILD_SOURCE.*                           |
-      | .*OPENSHIFT_BUILD_COMMIT.*                           |
-
   # @author shiywang@redhat.com
   Scenario Outline: Tune perl image to autoconfigure based on available memory
     Given I have a project
@@ -419,7 +361,6 @@ Feature: buildlogic.feature
     #100Mi for OCP env, 204Mi is for online env
     Examples:
       | image     | memory | num |
-      | perl:5.16 | 100Mi  | 10  | # @case_id OCP-10855
       | perl:5.20 | 100Mi  | 10  | # @case_id OCP-11283
       | perl:5.24 | 100Mi  | 10  | # @case_id OCP-11378
       | perl:5.16 | 480Mi  | 64  | # @case_id OCP-13144
@@ -507,15 +448,6 @@ Feature: buildlogic.feature
       | [Dd]uration            |
       | [Ss]trategy            |
 
-
-  # @author wzheng@redhat.com
-  # @case_id OCP-10577
-  Scenario: Buildconfig cannot be created with long name label(more than64)
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc527410/longname-build-withlabel.json |
-    Then the step should fail
-    And the output should contain "must be no more than 63 characters"
 
   # @author wzheng@redhat.com
   # @case_id OCP-13906

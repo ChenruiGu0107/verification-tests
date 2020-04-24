@@ -64,41 +64,6 @@ Feature: Pod related networking scenarios
       | inet <%= cb.pod_ip %> |
 
   # @author bmeng@redhat.com
-  # @case_id OCP-10549
-  @admin
-  @destructive
-  Scenario: The broadcast IP address should not be assigned to a pod
-    Given I have a project
-    And I have a pod-for-ping in the project
-    Then evaluation of `pod.node_name` is stored in the :node_name clipboard
-
-    # Get the node hostsubnet
-    And evaluation of `host_subnet(cb.node_name).subnet` is stored in the :hostnetwork clipboard
-    # Get the max available IP
-    And evaluation of `IPAddr.new(cb.hostnetwork.chomp).to_range().max` is stored in the :broadcastip clipboard
-    And evaluation of `IPAddr.new(cb.broadcastip).to_i - 1` is stored in the :maxipint clipboard
-    And evaluation of `IPAddr.new(cb.maxipint, Socket::AF_INET).to_s` is stored in the :maxip clipboard
-    # Write the max IP to the cni last reserved ip file
-    When I run command on the "<%= cb.node_name %>" node's sdn pod:
-      | bash | -c | printf "<%= cb.maxip %>" > $(find /var/lib/cni/networks/openshift-sdn/ -name "last_reserve*") |
-    Then the step should succeed
-
-    # Create a pod and make sure it will not use the broadcast ip
-    Given I switch to the first user
-    And I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
-      | ["spec"]["nodeName"] | <%= cb.node_name%> |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=nodename-pod |
-    When I run the :get client command with:
-      | resource      | pods |
-      | o             | wide |
-    Then the step should succeed
-    And the output should not contain "<%= cb.broadcastip %>"
-
-
-  # @author bmeng@redhat.com
   # @case_id OCP-19994
   Scenario: The completed pod should also have IP address
     Given I have a project

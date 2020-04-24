@@ -19,8 +19,7 @@ Feature: ruby.feature
       | Min threads: 0, max threads: 16 |
     """
     Examples:
-      | template                                                                                                                  |
-      | tc521461/template.json  | # @case_id OCP-10810
+      | template                |
       | tc521462/template.json  | # @case_id OCP-11257
       | OCP-13135/template.json | # @case_id OCP-13135
       | OCP-13136/template.json | # @case_id OCP-13136

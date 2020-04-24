@@ -77,7 +77,6 @@ Feature: Azure disk and Azure file specific scenarios
 
     Examples:
       | sctype   |
-      | NOPAR    | # @case_id OCP-10413
       | ACONLY   | # @case_id OCP-13330
       | DEACCT   | # @case_id OCP-14681
       | DEDICATE | # @case_id OCP-13785
@@ -118,32 +117,6 @@ Feature: Azure disk and Azure file specific scenarios
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
-
-  # @author wehe@redhat.com
-  @admin
-  Scenario Outline: Negative test of azureDisk with storage class
-    Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-<sctype>.yaml" where:
-      | ["metadata"]["name"]   | sc-<%= project.name %> |
-      | ["parameters"]["kind"] | Dedicated              |
-    Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
-    Then the step should succeed
-    And the "azpvc" PVC becomes :pending
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc/azpvc |
-    Then the output should contain:
-      | ProvisioningFailed |
-      | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
-      | could not get storage key for storage account |
-    """
-
-    Examples:
-      | sctype  |
-      | noext   | # @case_id OCP-10407 
 
   # @author wehe@redhat.com
   # @case_id OCP-13486

@@ -60,46 +60,6 @@ Feature: oc import-image related feature
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
 
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-10856
-  Scenario: Negative test for Import app from docker-compose
-    Given I have a project
-    When I run the :import client command with:
-      | command | app.json |
-      | h ||
-    Then the output should match:
-      | [Ii]mport app.json file  |
-      | oc import app.json -f    |
-      | [Ee]xamples              |
-      | [Oo]ptions               |
-    Then the step should succeed
-
-    ## Negative test with app.json
-    When I run the :import client command with:
-      | command | app.json       |
-    Then the step should fail
-    And the output should contain:
-      | app.json                 |
-      | file or directory        |
-
-    # unexisted file
-    When I run the :import client command with:
-      | command | app.json       |
-      | f       | unexist        |
-    Then the step should fail
-    And the output should match:
-      | [Nn]o such file or directory |
-
-    # file is not in correct format
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/app/app.js"
-    When I run the :import client command with:
-      | command | app.json   |
-      | f       |     app.js |
-    Then the step should fail
-    And the output should match:
-      | [Ee]rror             |
-      | [Ii]nvalid character |
-
   # @author geliu@redhat.com
   # @case_id OCP-14269
   Scenario: Set owner refs in new RCs owned by DCs

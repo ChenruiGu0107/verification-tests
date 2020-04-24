@@ -71,7 +71,6 @@ Feature: Openshift build and configuration of enviroment variables check
 
     Examples:
       | app_repo | image_stream |
-      | https://github.com/sclorg/django-ex  | openshift/python:2.7 | # @case_id OCP-10878
       | https://github.com/sclorg/django-ex  | openshift/python:3.4 | # @case_id OCP-11603
       | https://github.com/sclorg/django-ex  | openshift/python:3.5 | # @case_id OCP-11806
       | https://github.com/sclorg/django-ex  | openshift/python:3.3 | # @case_id OCP-11300

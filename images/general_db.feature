@@ -1,29 +1,4 @@
 Feature: general_db.feature
-
-  # @author haowang@redhat.com
-  # @case_id OCP-10581
-  Scenario: Add env variables to mongodb24 image
-    Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/mongodb-24-rhel7-env-test.json" replacing paths:
-      | ["spec"]["template"]["spec"]["containers"][0]["image"] | <%= product_docker_repo %>openshift3/mongodb-24-rhel7 |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | name=database      |
-    When I execute on the pod:
-      | bash               |
-      | -c                 |
-      | env \| grep MONGO  |
-    Then the output should contain:
-      | MONGODB_NOPREALLOC=false |
-      | MONGODB_QUIET=false      |
-      | MONGODB_SMALLFILES=false |
-    When I execute on the pod:
-      | cat | /etc/mongod.conf   |
-    Then the output should contain:
-      | noprealloc = false       |
-      | smallfiles = false       |
-      | quiet = false            |
-
   # @author haowang@redhat.com
   # @case_id OCP-12044
   Scenario: Add env variables to mongodb26 image

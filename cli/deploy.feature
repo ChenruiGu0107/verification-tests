@@ -155,59 +155,6 @@ Feature: deployment related features
       | failed progressing |
 
 
-  # @author pruan@redhat.com
-  # @case_id OCP-10635
-  Scenario: Deployment will be failed if deployer pod no longer exists
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
-    # deployment 1
-    And I wait until the status of deployment "hooks" becomes :complete
-    # deployment 2
-    When I run the :rollout_latest client command with:
-      | resource | hooks |
-    And I wait until the status of deployment "hooks" becomes :complete
-    # deployment 3
-    When I run the :rollout_latest client command with:
-      | resource | hooks |
-    Then the step should succeed
-    And I wait until the status of deployment "hooks" becomes :complete
-    Then I run the :describe client command with:
-      | resource | dc    |
-      | name     | hooks |
-    And the output by order should contain:
-      | Deployment #3 (latest):   |
-      |  Status:		Complete      |
-      | Deployment #2:            |
-      |  Status:		Complete      |
-      | Deployment #1:            |
-      | Status:		Complete        |
-    And I replace resource "rc" named "hooks-2":
-      | Complete | Running |
-    Then the step should succeed
-    And I replace resource "rc" named "hooks-3":
-      | Complete | Pending |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I run the :rollout_latest client command with:
-      | resource | hooks |
-    Then the step should succeed
-    """
-    And I wait until the status of deployment "hooks" becomes :complete
-    Then I run the :describe client command with:
-      | resource | dc    |
-      | name     | hooks |
-    And the output by order should contain:
-      | Deployment #4 (latest): |
-      | Status:		Complete      |
-      | Deployment #3:          |
-      | Status:		Failed        |
-      | Deployment #2:          |
-      | Status:		Failed        |
-
-    # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
-
   # @author cryan@redhat.com
   # @case_id OCP-11131
   @admin
@@ -407,34 +354,6 @@ Feature: deployment related features
     And I wait until number of replicas match "0" for replicationController "hooks-1"
 
   # @author yinzhou@redhat.com
-  # @case_id OCP-10850
-  Scenario: Automatic set to false with ConfigChangeController on the DeploymentConfig
-    Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
-      |"automatic": true|"automatic": false|
-    When I process and create "application-template-stibuild.json"
-    Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    And I wait until the status of deployment "frontend" becomes :complete
-    When I get project dc named "frontend" as JSON
-    Then the output should contain:
-      | lastTriggeredImage |
-    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    Given the "ruby-sample-build-2" build finishes
-    When I get project imagestream named "origin-ruby-sample" as JSON
-    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
-    And the expression should be true> cb.imagestreamitems.length == 2
-    When I get project dc named "frontend" as JSON
-    Then the output should contain:
-      | "latestVersion": 1 |
-    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
-    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
-
-  # @author yinzhou@redhat.com
   # @case_id OCP-11586
   Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
     Given I have a project
@@ -622,45 +541,6 @@ Feature: deployment related features
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation >= 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
 
-  # @author yinzhou@redhat.com
-  # @case_id OCP-10916
-  Scenario: Support endpoints of Deployment in OpenShift
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/extensions/deployment.yaml |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource | deployment |
-    Then the step should succeed
-    And the output should contain:
-      | hello-openshift |
-    When I run the :patch client command with:
-      | resource      | deployment      |
-      | resource_name | hello-openshift |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","ports":[{"containerPort":80}]}]}}}} |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deployment                |
-      | resource_name | hello-openshift           |
-      | template      | {{.metadata.annotations}} |
-    Then the step should succeed
-    And the output should contain:
-      | deployment.kubernetes.io/revision:2 |
-    When I run the :delete client command with:
-      | object_type       | deployment      |
-      | object_name_or_id | hello-openshift |
-    Then the step should succeed
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project pods
-    Then the step should succeed
-    And the output should not contain "Terminating"
-    And the output should not contain "Running"
-    """
-    When I get project rs
-    Then the step should succeed
-    And the output should not contain "hello-openshift.*"
-
   # @author mcurlej@redhat.com
   # @case_id OCP-12079
   Scenario: View the history of rollouts for a specific deployment config
@@ -763,65 +643,6 @@ Feature: deployment related features
       | custom-rolling.yaml  |
       | custom-recreate.yaml |
 
-
-  # @author yinzhou@redhat.com
-  # @case_id OCP-10973
-  @admin
-  Scenario: Should show deployment conditions correctly
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc                                       |
-      | resource_name | database                                 |
-      | template      | {{(index .status.conditions 1).reason }} |
-    Then the step should succeed
-    And the output should match "NewReplicationControllerCreated"
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
-    Then the step should succeed
-    And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :get client command with:
-      | resource      | dc                                       |
-      | resource_name | hooks                                    |
-      | template      | {{(index .status.conditions 1).reason }} |
-    Then the step should succeed
-    And the output should match "NewReplicationControllerAvailable"
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
-    Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When  I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel            |       |
-    And I run the :get client command with:
-      | resource      | dc                                       |
-      | resource_name | hooks                                    |
-      | template      | {{(index .status.conditions 1).reason }} |
-    Then the step should succeed
-    And the output should match "ProgressDeadlineExceeded"
-    """
-    When I obtain test data file "quota/myquota.yaml"
-    Then the step should succeed
-    And I replace lines in "myquota.yaml":
-      | replicationcontrollers: "30" | replicationcontrollers: "1" |
-    When I run the :create admin command with:
-      | f | myquota.yaml        |
-      | n | <%= project.name %> |
-    Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            |       |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc                                       |
-      | resource_name | hooks                                    |
-      | template      | {{(index .status.conditions 1).reason }} |
-    Then the step should succeed
-    And the output should match "ReplicationControllerCreateError"
 
   # @author yinzhou@redhat.com
   # @case_id OCP-10967
