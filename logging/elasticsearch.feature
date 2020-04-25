@@ -34,11 +34,23 @@ Feature: elasticsearch related tests
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | app_repo | httpd-example |
+      | file | <%= BushSlicer::HOME %>/testdata/logging/loggen/container_json_unicode_log_template.json |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
     And I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "es-node-master=true"
+    #A workaround to https://bugzilla.redhat.com/show_bug.cgi?id=1776594
+    And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
+    Given I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | .operations.* |
+      | op           | DELETE        |
+    Then the step should succeed
+    Given I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.* |
+      | op           | DELETE    |
+    Then the step should succeed
+    #Workaround end
+
     And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | */_alias?pretty |
