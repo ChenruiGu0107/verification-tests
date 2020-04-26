@@ -182,3 +182,24 @@ Feature: The apb tool related scenarios
       | _tool | apb |
     Then the step should succeed
     And the output should contain "localregistry-hello-world-apb"
+
+  # @author jfan@redhat.com
+  # @case_id OCP-29835
+  @admin
+  Scenario: [stage] apb-tools image check
+    Given I switch to cluster admin pseudo user
+    Given I store master major version in the :master_version clipboard
+    Given I have a project
+    Given I create the serviceaccount "apbtoolsstage"
+    Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
+    And evaluation of `project.name` is stored in the :cur_project clipboard
+    When I process and create:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
+      | p    | IMAGE=registry.stage.redhat.io/openshift4/ose-apb-tools:<%= cb[master_version] %> |
+      | p    | NAMESPACE=<%= cb[cur_project] %> |
+    Then the step should succeed
+    When I run the :logs client command with:
+      | resource_name | deployment/apbtools |
+    Then the step should succeed
+    And the output should contain:
+      | Tool for working with Ansible Playbook Bundles |
