@@ -195,7 +195,7 @@ Feature: The apb tool related scenarios
     And evaluation of `project.name` is stored in the :cur_project clipboard
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
-      | p    | IMAGE=registry.stage.redhat.io/openshift4/ose-apb-tools:<%= cb[master_version] %> |
+      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:<%= cb[master_version] %> |
       | p    | NAMESPACE=<%= cb[cur_project] %> |
     Then the step should succeed
     When I run the :logs client command with:
