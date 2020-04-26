@@ -250,11 +250,21 @@ Feature: storage (storageclass, pv, pvc) related
       | pvc_name         | pvc1                |
       | pvc_request_size | 1                   |
     Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I get project persistentvolumeclaims
+    Then the output should contain "pvc1"
+    """
     When I perform the :create_persistent_volume_claims web action with:
       | project_name     | <%= project.name %> |
       | pvc_name         | pvc2                |
       | pvc_request_size | 1                   |
     Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I get project persistentvolumeclaims
+    Then the output should contain "pvc2"
+    """
 
     When I perform the :attach_storage_to_container web action with:
       | project_name       | <%= project.name %> |
