@@ -7,9 +7,8 @@ Feature: Cluster Autoscaler Tests
   Scenario: Cluster-autoscaler should balance similiar node groups between zones
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
-
-    Given I store the number of machines in the :num_to_restore clipboard
-    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
     Given I clone a machineset and name it "machineset-clone-20108"
     Given I clone a machineset and name it "machineset-clone-20108-2"
@@ -88,9 +87,8 @@ Feature: Cluster Autoscaler Tests
   Scenario: Cluster-autoscaler should never delete nodes with pods with local storage
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
-
-    Given I store the number of machines in the :num_to_restore clipboard
-    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
     Given I clone a machineset and name it "machineset-clone-24715"
 
@@ -165,9 +163,8 @@ Feature: Cluster Autoscaler Tests
   Scenario: Use annotation to prevent cluster autoscaler from scaling down a node
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
-
-    Given I store the number of machines in the :num_to_restore clipboard
-    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
     Given I clone a machineset and name it "machineset-clone-20787"
 
@@ -250,9 +247,8 @@ Feature: Cluster Autoscaler Tests
   Scenario: Cluster-autoscaler should work with Pod Priority and Preemption
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
-
-    Given I store the number of machines in the :num_to_restore clipboard
-    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
     Given I clone a machineset and name it "machineset-clone-19898"
 
@@ -377,8 +373,8 @@ Feature: Cluster Autoscaler Tests
   Scenario Outline: Machineset should have relevant annotations to support scale from/to zero
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
-    Given I store the number of machines in the :num_to_restore clipboard
-    And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
     And I use the "openshift-machine-api" project
     And I pick a random machineset to scale

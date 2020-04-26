@@ -7,9 +7,10 @@ Feature: MachineHealthCheck Test Scenarios
   Scenario: Using external remediation
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
 
-    Given I use the "openshift-machine-api" project
-    And I clone a machineset and name it "machineset-clone-25741"
+    Given I clone a machineset and name it "machineset-clone-25741"
 
     # Create MHC
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/mhc/mhc1.yaml" replacing paths:
