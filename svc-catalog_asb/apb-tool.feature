@@ -168,6 +168,7 @@ Feature: The apb tool related scenarios
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
       | p    | NAMESPACE=<%= cb.cur_project %> |
     Then the step should succeed
+    And I wait until the status of deployment "apbtools" becomes :complete
     When I run the :logs client command with:
       | resource_name | deployment/apbtools |
       | since         | 60s                 |
