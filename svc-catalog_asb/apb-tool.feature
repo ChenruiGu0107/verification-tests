@@ -168,7 +168,7 @@ Feature: The apb tool related scenarios
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
       | p    | NAMESPACE=<%= cb.cur_project %> |
     Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | deployment |
