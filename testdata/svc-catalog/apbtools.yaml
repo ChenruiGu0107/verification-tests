@@ -33,8 +33,6 @@ objects:
                 procMount: Default
 parameters:
   - name: IMAGE
-    displayname: Image
-    value: ""quay.io/jfan/apb-tools:v2.0.0""
+    value: "quay.io/jfan/apb-tools:v2.0.0"
   - name: NAMESPACE
-    displayname: Namespace
     value: "default"
