@@ -171,12 +171,10 @@ Feature: The apb tool related scenarios
     And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get client command with:
-      | resource      | deployment |
-      | resource_name | apbtools |
-      | o             | yaml    |
+      | resource      | pods |
     Then the step should succeed
     And the output should contain:
-      | timed out progressing |
+      | CrashLoopBackOff |
     """
     When I run the :logs client command with:
       | resource_name | deployment/apbtools |
