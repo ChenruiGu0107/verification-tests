@@ -162,6 +162,7 @@ Feature: The apb tool related scenarios
     And evaluation of `project.name` is stored in the :cur_project clipboard
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
+    And I use the "<%= project.name %>" project
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
@@ -169,6 +170,7 @@ Feature: The apb tool related scenarios
     Then the step should succeed
     When I run the :logs client command with:
       | resource_name | deployment/apbtools |
+      | since         | 60s                 |
     Then the step should succeed
     And the output should contain:
       | Tool for working with Ansible Playbook Bundles |
