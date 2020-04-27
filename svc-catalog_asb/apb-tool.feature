@@ -164,11 +164,20 @@ Feature: The apb tool related scenarios
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
     And I use the "<%= project.name %>" project
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
+      | f    | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
       | p    | NAMESPACE=<%= cb.cur_project %> |
     Then the step should succeed
-    And I wait until the status of deployment "apbtools" becomes :complete
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deployment |
+      | resource_name | apbtools |
+      | o             | yaml    |
+    Then the step should succeed
+    And the output should contain:
+      | timed out progressing |
+    """
     When I run the :logs client command with:
       | resource_name | deployment/apbtools |
       | since         | 60s                 |
