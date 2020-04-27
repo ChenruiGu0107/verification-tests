@@ -22,8 +22,8 @@ objects:
           labels:
             app: apbtools
         spec:
-          serviceAccount: apbtools
-          serviceAccountName: apbtools
+          serviceAccount: apbtoolsstage
+          serviceAccountName: apbtoolsstage
           containers:
             - name: apbtools
               image: ${IMAGE}
