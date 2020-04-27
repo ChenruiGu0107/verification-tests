@@ -156,12 +156,12 @@ Feature: The apb tool related scenarios
   # @case_id OCP-18560
   @admin
   Scenario: [APB] Check the apb tool subcommand - list
+    Given I have a project
+    And evaluation of `project.name` is stored in the :cur_project clipboard
     Given I switch to cluster admin pseudo user
     Given I store master major version in the :master_version clipboard
-    Given I have a project
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
-    And evaluation of `project.name` is stored in the :cur_project clipboard
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:<%= cb[master_version] %> |
