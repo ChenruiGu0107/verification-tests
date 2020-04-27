@@ -164,7 +164,7 @@ Feature: The apb tool related scenarios
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
-      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:<%= cb[master_version] %> |
+      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb[master_version] %> |
       | p    | NAMESPACE=<%= cb[cur_project] %> |
     Then the step should succeed
     When I run the :logs client command with:
