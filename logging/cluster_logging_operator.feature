@@ -170,6 +170,7 @@ Feature: cluster-logging-operator related cases
       And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector(user: user, cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       And the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').node_selector(user: user, cached: false, quiet: false)['es'] == nil
       """
+    And I wait for 600 seconds until the ES cluster is healthy
 
   # @author qitang@redhat.com
   # @case_id OCP-21831

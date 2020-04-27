@@ -38,9 +38,7 @@ Feature: elasticsearch related tests
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
-    And I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "es-node-master=true"
     #A workaround to https://bugzilla.redhat.com/show_bug.cgi?id=1776594
-    And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
     Given I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | .operations.* |
       | op           | DELETE        |
@@ -51,6 +49,7 @@ Feature: elasticsearch related tests
     Then the step should succeed
     #Workaround end
 
+    Given I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "es-node-master=true"
     And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | */_alias?pretty |

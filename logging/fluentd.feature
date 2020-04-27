@@ -114,7 +114,7 @@ Feature: fluentd related tests
     Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
     And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
     """
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
@@ -156,7 +156,7 @@ Feature: fluentd related tests
     And the output should contain:
       | "acknowledged":true |
     Given I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "es-node-master=true"
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
@@ -186,7 +186,7 @@ Feature: fluentd related tests
     And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
     """
 
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
@@ -216,7 +216,7 @@ Feature: fluentd related tests
     And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
     """
 
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
