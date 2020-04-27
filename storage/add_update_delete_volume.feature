@@ -13,13 +13,13 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | env          | MONGODB_DATABASE=testdb    |
       | env          | MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                       |
+      | labels       | app=mydb                   |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
     When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
     # add pvc to dc
     When I run the :set_volume client command with:
       | resource   | dc/mydb                 |
