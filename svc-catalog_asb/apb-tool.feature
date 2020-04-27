@@ -157,15 +157,15 @@ Feature: The apb tool related scenarios
   @admin
   Scenario: [APB] Check the apb tool subcommand - list
     Given I have a project
-    And evaluation of `project.name` is stored in the :cur_project clipboard
     Given I switch to cluster admin pseudo user
     Given I store master major version in the :master_version clipboard
+    And evaluation of `project.name` is stored in the :cur_project clipboard
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
-      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb[master_version] %> |
-      | p    | NAMESPACE=<%= cb[cur_project] %> |
+      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
+      | p    | NAMESPACE=<%= cb.cur_project %> |
     Then the step should succeed
     When I run the :logs client command with:
       | resource_name | deployment/apbtools |
