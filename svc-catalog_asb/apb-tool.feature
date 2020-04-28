@@ -1,4 +1,35 @@
 Feature: The apb tool related scenarios
+
+  # @author jiazha@redhat.com
+  # @case_id OCP-18560
+  @admin
+  Scenario: [APB] Check the apb tool subcommand - list
+    Given the first user is cluster-admin
+    And I use the "openshift-ansible-service-broker" project
+    And evaluation of `route('asb-1338').dns` is stored in the :asb_route clipboard
+
+    Then the step should succeed
+    When I run the :list client command with:
+      | _tool | apb |
+    Then the step should succeed
+    And the output should not contain "Exception"
+    And the output should not contain "Error"
+    When I run the :list client command with:
+      | _tool  | apb                 |
+      | broker | <%= cb.asb_route %> |
+    Then the step should succeed
+    And the output should not contain "Exception"
+    And the output should not contain "Error"
+    When I run the :list client command with:
+      | _tool   | apb                 |
+      | verbose |                     |
+    Then the step should succeed
+    And the output should not contain "Exception"
+    And the output should not contain "Error"
+    And the output should contain:
+      | description |
+      | metadata    |
+      | parameters  |
     
   # @author jiazha@redhat.com
   # @case_id OCP-18562
@@ -153,9 +184,9 @@ Feature: The apb tool related scenarios
     And the output should contain "localregistry-hello-world-apb"
 
   # @author jfan@redhat.com
-  # @case_id OCP-18560
+  # @case_id OCP-29835
   @admin
-  Scenario: [APB] Check the apb tool subcommand - list
+  Scenario: [stage] apb-tools image check 
     Given I have a project
     Given I switch to cluster admin pseudo user
     Given I store master major version in the :master_version clipboard
