@@ -125,3 +125,39 @@
     Then the step should succeed
     When I run the :check_list_view_style web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-26877
+  @admin
+  Scenario: Operator Hub and Developer Catalog pages are migrated to pf4 catalog view
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed
+
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I run the :check_catalog_tile_style web action
+    Then the step should succeed
+    When I run the :check_vertical_tabs_style web action
+    Then the step should succeed
+    When I run the :check_filter_panel_style web action
+    Then the step should succeed
+    When I run the :open_first_card_in_overlay web action
+    Then the step should succeed
+    When I run the :check_filter_side_panel_style web action
+    Then the step should succeed
+
+    When I perform the :goto_catalog_page web action with:
+      | project_name | default |
+    Then the step should succeed
+    When I run the :check_catalog_tile_style web action
+    Then the step should succeed
+    When I run the :check_vertical_tabs_style web action
+    Then the step should succeed
+    When I run the :check_filter_panel_style web action
+    Then the step should succeed
+    When I run the :open_first_card_in_overlay web action
+    Then the step should succeed
+    When I run the :check_filter_side_panel_style web action
+    Then the step should succeed
