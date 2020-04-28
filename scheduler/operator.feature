@@ -20,6 +20,10 @@ Feature: Testing Scheduler Operator related scenarios
       | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
       | type          | merge                                           |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -52,6 +56,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
       | {"spec":{"policy":{"name":"scheduler-policy"}}} |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -97,6 +105,10 @@ Feature: Testing Scheduler Operator related scenarios
       | p             | {"spec":{"policy":{"name":"scheduler-policy"}}} |
       | type          | merge                                           |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> cluster_operator("kube-scheduler").condition(cached: false, type: 'Progressing')['status'] == "True"
