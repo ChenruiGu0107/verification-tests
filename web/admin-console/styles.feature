@@ -78,3 +78,50 @@
     Then the step should succeed
     When I run the :check_quota_detail_page_charts_style web action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-24305
+  @admin
+  Scenario: Check tables are in PF4 styles
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed  
+
+    When I perform the :goto_deployment_page web action with:
+      | project_name  | openshift-console |
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed
+
+    When I perform the :goto_routes_page web action with:
+      | project_name  | openshift-console |
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed  
+
+    When I run the :goto_storageclass_page web action
+    Then the step should succeed  
+    When I run the :check_list_view_style web action
+    Then the step should succeed  
+
+    When I perform the :goto_imagestreams_page web action with:
+      | project_name  | openshift |
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed
+
+    When I run the :goto_node_page web action
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed
+
+    When I run the :goto_cluster_operators web action
+    Then the step should succeed
+    When I run the :check_list_view_style web action
+    Then the step should succeed
