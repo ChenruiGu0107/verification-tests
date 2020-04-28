@@ -705,7 +705,7 @@ Feature: build 'apps' with CLI
     Given I have a project
     When I run the :new_build client command with:
       | app_repo | openshift/ruby   |
-      | binary   |                  |
+      | binary   | true             |
       | name     | ruby-hello-world |
     Then the step should succeed
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
