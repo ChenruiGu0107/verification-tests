@@ -291,3 +291,39 @@ Feature: operatorhub feature related
       | link_url | https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated |
     Then the step should succeed
 
+
+  # @author hasha@redhat.com
+  # @case_id OCP-28954
+  @admin
+  Scenario: Form & YAML Toggle Interactions for Create Operand
+    Given the master version >= "4.5"
+    Given I have a project
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | radanalytics-spark  |
+      | catalog_name     | community-operators |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Subscribe |
+    Then the step should succeed
+    Given I wait for the "radanalytics-spark" subscriptions to appear
+    And evaluation of `subscription("radanalytics-spark").current_csv` is stored in the :spark_csv clipboard
+    When I perform the :goto_operand_list_page web action with:
+      | project_name | <%= project.name %>              |
+      | csv_name     | <%= cb.spark_csv %>              |
+      | operand_name | radanalytics.io~v1~SparkCluster  |
+    Then the step should succeed
+    When I perform the :click_button web action with:
+      | button_text | Create SparkCluster |
+    Then the step should succeed
+    When I run the :check_default_view_is_form_view web action
+    Then the step should succeed
+    When I run the :switch_to_yaml_view web action
+    Then the step should succeed
+
