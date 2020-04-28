@@ -315,3 +315,103 @@ Feature: environment related
     And the output should not match:
       | del1=deltest1 |
 
+  # @author yapei@redhat.com
+  # @case_id OCP-21245
+  Scenario: Check read-only messages and link on Environment tab
+    Given the master version >= "4.2"
+    Given I have a project
+
+    # Create DC, Deployment, StatefulSet, DaemonSet, BuildConfig, Job
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml      |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml     |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml                  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json            |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml                           |
+    Then the step should succeed
+
+    # dc pod
+    Given a pod is present with labels:
+      | deploymentconfig=dctest |
+    And evaluation of `pod.name` is stored in the :dc_pod clipboard
+
+    # deployment pod
+    Given a pod is present with labels:
+      | app=hello-openshift |
+    And evaluation of `pod.name` is stored in the :deployment_pod clipboard
+    And current replica set name of "example" deployment stored into :deployment_replicaset_name clipboard
+
+    # stateful set pod
+    Given a pod is present with labels:
+      | app=hello |
+    And evaluation of `pod.name` is stored in the :statefulset_pod clipboard
+
+    # daemonset pod
+    Given a pod is present with labels:
+      | name=hello-daemonset |
+    And evaluation of `pod.name` is stored in the :daemonset_pod clipboard
+
+    # build is created
+    Given the "ruby-sample-build-1" build was created
+
+    # job pods
+    Given a pod is present with labels:
+      | app=pi |
+    And evaluation of `pod.name` is stored in the :job_pod clipboard
+
+    Given I open admin console in a browser
+    When I perform the :goto_one_pod_environment_page web action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= cb.dc_pod %>    |
+    Then the step should succeed
+    When I run the :check_env_editor_disabled web action
+    Then the step should succeed
+    When I perform the :check_info_and_link_to_parent_resource web action with:
+      | parent_resource_type | ReplicationController |
+      | parent_resource_name | dctest-1              |
+    Then the step should succeed
+
+    When I perform the :goto_one_pod_environment_page web action with:
+      | project_name | <%= project.name %>      |
+      | pod_name     | <%= cb.deployment_pod %> |
+    Then the step should succeed
+    When I run the :check_env_editor_disabled web action
+    Then the step should succeed
+    When I perform the :check_info_and_link_to_parent_resource web action with:
+      | parent_resource_type | ReplicaSet                           |
+      | parent_resource_name | <%= cb.deployment_replicaset_name %> |
+    Then the step should succeed
+
+    When I perform the :goto_one_pod_environment_page web action with:
+      | project_name | <%= project.name %>       |
+      | pod_name     | <%= cb.statefulset_pod %> |
+    Then the step should succeed
+    When I run the :check_env_editor_disabled web action
+    Then the step should succeed
+    When I perform the :check_info_and_link_to_parent_resource web action with:
+      | parent_resource_type | StatefulSet |
+      | parent_resource_name | hello       |
+    Then the step should succeed
+
+    When I perform the :goto_one_pod_environment_page web action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= cb.job_pod %>   |
+    Then the step should succeed
+    When I run the :check_env_editor_disabled web action
+    Then the step should succeed
+    When I perform the :check_info_and_link_to_parent_resource web action with:
+      | parent_resource_type | Job |
+      | parent_resource_name | pi  |
+    Then the step should succeed
+    
+    When I perform the :goto_one_build_environment_page web action with:
+      | project_name   | <%= project.name %> |
+      | build_name     | ruby-sample-build-1 |
+    Then the step should succeed
+    When I run the :check_env_editor_disabled web action
+    Then the step should succeed
+    When I perform the :check_info_and_link_to_parent_resource web action with:
+      | parent_resource_type | BuildConfig       |
+      | parent_resource_name | ruby-sample-build |
+    Then the step should succeed
