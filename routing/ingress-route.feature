@@ -17,7 +17,6 @@ Feature: Testing ingress to route object
     Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
-      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | ingress      |
@@ -60,7 +59,6 @@ Feature: Testing ingress to route object
       | key         | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
     Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/tls-ingress.json" replacing paths:
-      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
       | ["spec"]["rules"][0]["host"]  | zhao-ingress.example.com |
       | ["spec"]["tls"][0]["hosts"][0] | zhao-ingress.example.com |
     Then the step should succeed
@@ -99,7 +97,6 @@ Feature: Testing ingress to route object
     Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
-      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["servicePort"] | 27017 |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | ingress      |
