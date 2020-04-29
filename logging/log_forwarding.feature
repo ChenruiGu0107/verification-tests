@@ -7,20 +7,19 @@ Feature: log forwarding related tests
   @destructive
   Scenario: Forward logs to fluentd as unsecure
     Given the master version >= "4.3"
-    Given I delete the clusterlogging instance
-    Given fluentd receiver is deployed as insecure in the "openshift-logging" project
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    And fluentd receiver is deployed as insecure in the "openshift-logging" project
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/insecure/logforwarding-insecure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
-    Given I register clean-up steps:
-    """
-    Given I delete the clusterlogging instance
-    """
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                      |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -52,21 +51,18 @@ Feature: log forwarding related tests
   @destructive
   Scenario: Forward logs to non-clusterlogging-managed elasticsearch as unsecure
     Given the master version >= "4.3"
-    Given I delete the clusterlogging instance
-
-    Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
-
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as insecure
+    Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/insecure/logforwarding-elasticsearch-insecure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
-    Given I register clean-up steps:
-    """
-    Given I delete the clusterlogging instance
-    """
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                      |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -98,20 +94,18 @@ Feature: log forwarding related tests
   @destructive
   Scenario: Forward logs to fluentd as secure
     Given the master version >= "4.3"
-    Given I delete the clusterlogging instance
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
-
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/secure/logforwarding-secure.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
-    Given I register clean-up steps:
-    """
-    Given I delete the clusterlogging instance
-    """
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                      |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -143,7 +137,8 @@ Feature: log forwarding related tests
   @destructive
   Scenario: Forward logs to non-clusterlogging-managed elasticsearch as secure
     Given the master version >= "4.3"
-    Given I delete the clusterlogging instance
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as secure
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -166,12 +161,10 @@ Feature: log forwarding related tests
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/secure/logforwarding-elasticsearch.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
-    Given I register clean-up steps:
-    """
-    Given I delete the clusterlogging instance
-    """
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                      |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -221,9 +214,8 @@ Feature: log forwarding related tests
     And I wait for the "secure-forward" config_map to appear
 
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                                                                                |
       | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                   |
     Then the step should succeed
 
     # create project to generate logs
@@ -263,15 +255,14 @@ Feature: log forwarding related tests
     #Given I obtain test data file "logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
     When I run the :create_configmap client command with:
-      | name      | syslog                                                                                                              |
+      | name      | syslog                                                                                                        |
       | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf |
     Then the step should succeed
     And I wait for the "syslog" config_map to appear
 
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                                                                                |
       | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                   |
     Then the step should succeed
 
     # create project to generate logs

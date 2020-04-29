@@ -5,13 +5,10 @@ Feature: elasticsearch operator related tests
   @admin
   @destructive
   Scenario Outline: Redundancy policy testing
-    Given I delete the clusterlogging instance
-    Given I register clean-up steps:
-    """
-      Given I delete the clusterlogging instance
-    """
-    Given I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/<file> |
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                           |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/<file>  |
+      | check_status        | false                                                                          |
     Then the step should succeed
     Given I wait for the "elasticsearch" config_map to appear
     Then the expression should be true> elasticsearch('elasticsearch').redundancy_policy == <redundancy_policy>
@@ -80,9 +77,8 @@ Feature: elasticsearch operator related tests
   @destructive
   Scenario: The prometheus-rules can be created by elasticsearch operator
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                   |
+      | remove_logging_pods | true                                                                                |
       | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
-      | log_collector       | fluentd                                                                                                |
     Then the step should succeed
     Given I wait for the "elasticsearch-prometheus-rules" prometheus_rule to appear
     And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rules` is stored in the :es_alert_rules_1 clipboard
