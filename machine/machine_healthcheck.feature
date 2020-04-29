@@ -9,7 +9,7 @@ Feature: MachineHealthCheck Test Scenarios
     And I switch to cluster admin pseudo user
 
     Given I use the "openshift-machine-api" project
-    And I clone a machineset named "machineset-clone-25741"
+    And I clone a machineset and name it "machineset-clone-25741"
 
     # Create MHC
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/mhc/mhc1.yaml" replacing paths:

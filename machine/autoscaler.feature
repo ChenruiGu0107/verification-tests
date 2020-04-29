@@ -11,8 +11,8 @@ Feature: Cluster Autoscaler Tests
     Given I store the number of machines in the :num_to_restore clipboard
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
-    Given I clone a machineset named "machineset-clone-20108"
-    Given I clone a machineset named "machineset-clone-20108-2"
+    Given I clone a machineset and name it "machineset-clone-20108"
+    Given I clone a machineset and name it "machineset-clone-20108-2"
     
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
@@ -92,7 +92,7 @@ Feature: Cluster Autoscaler Tests
     Given I store the number of machines in the :num_to_restore clipboard
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
-    Given I clone a machineset named "machineset-clone-24715"
+    Given I clone a machineset and name it "machineset-clone-24715"
     
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
@@ -169,7 +169,7 @@ Feature: Cluster Autoscaler Tests
     Given I store the number of machines in the :num_to_restore clipboard
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
-    Given I clone a machineset named "machineset-clone-20787"
+    Given I clone a machineset and name it "machineset-clone-20787"
     
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
@@ -254,7 +254,7 @@ Feature: Cluster Autoscaler Tests
     Given I store the number of machines in the :num_to_restore clipboard
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
-    Given I clone a machineset named "machineset-clone-19898"
+    Given I clone a machineset and name it "machineset-clone-19898"
     
     # Create clusterautoscaler,podPriorityThreshold is -10 by default
     Given I use the "openshift-machine-api" project
