@@ -432,7 +432,7 @@ Feature: SCC policy related scenarios
     Given I have a project
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid clipboard
     And evaluation of `project.uid_range(user:user).begin` is stored in the :proj_scc_uid clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511602/pod1.json
+    When I run oc create over ERB test file: authorization/scc/tc511602/pod1.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     Then I run the :create client command with:
@@ -441,7 +441,7 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).spec.scc['runAsUser']` is stored in the :container_run_as_user clipboard
     Then the expression should be true> cb.container_run_as_user == cb.scc_uid
     Given I ensure "hello-openshift" pod is deleted
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511602/pod2.json
+    When I run oc create over ERB test file: authorization/scc/tc511602/pod2.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').spec.scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard

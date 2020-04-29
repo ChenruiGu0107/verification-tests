@@ -494,8 +494,8 @@ Feature: Service-catalog related scenarios
       | resource | serviceinstance/<%= cb.prefix %>-postgresql-apb     |
       | p        | {"spec":{"clusterServicePlanExternalName": "prod"}} |
     Then the step should succeed
-    
-    # Check instance yaml when provision updating fail 
+
+    # Check instance yaml when provision updating fail
     When I wait up to 60 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -523,7 +523,7 @@ Feature: Service-catalog related scenarios
       | resource | clusterservicebroker/ansible-service-broker                                                      |
       | p        | {"spec":{"url": "https://asb.ansible-service-broker.svc:1338/ansible-service-broker"}} |
     Then the step should succeed
-    
+
     # Check instance yaml when provision updating
     When I wait up to 120 seconds for the steps to pass:
     """
@@ -548,7 +548,7 @@ Feature: Service-catalog related scenarios
       | userInfo                                              |
       | reconciledGeneration: 1                               |
     """
-   
+
     # Check instance yaml when provision updated succeed
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 360 seconds
     Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
@@ -798,13 +798,13 @@ Then the step should succeed
   # @case_id OCP-18847
   @admin
   @destructive
-  Scenario: [svc-catalog] controller doesn't send multiple provision/deprovison/etc requests to ups-broker  
+  Scenario: [svc-catalog] controller doesn't send multiple provision/deprovison/etc requests to ups-broker
     Given I have a project
     And evaluation of `project.name` is stored in the :ups_broker_project clipboard
     And I create a new project
     And evaluation of `project.name` is stored in the :user_project clipboard
-   
-    Given admin ensures "user-provided" cluster_service_class is deleted after scenario 
+
+    Given admin ensures "user-provided" cluster_service_class is deleted after scenario
     Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
 
     When I switch to cluster admin pseudo user
@@ -839,8 +839,8 @@ Then the step should succeed
     Given I ensure "ups-binding" service_binding is deleted
     And I ensure "ups-instance" service_instance is deleted
     Then I wait for the resource "secret" named "my-secret" to disappear within 60 seconds
-    
-    #check the ups-broker  pod log 
+
+    #check the ups-broker  pod log
     When I switch to cluster admin pseudo user
     And I run the :logs client command with:
       | resource_name | deployment/ups-broker        |
@@ -851,7 +851,7 @@ Then the step should succeed
       | \s+CreateServiceInstance <%= cb.instance_id %> |
       | \s+Bind.*<%= cb.binding_id %>            |
       | \s+UnBind.*<%= cb.binding_id %>                |
-      | \s+RemoveServiceInstance <%= cb.instance_id %>  | 
+      | \s+RemoveServiceInstance <%= cb.instance_id %>  |
 
 
   # @author qwang@redhat.com
@@ -865,7 +865,7 @@ Then the step should succeed
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker-role.yaml
+    When I run oc create over ERB test file: svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
     Given cluster role "clusterservicebroker-admin" is added to the "first" user
@@ -902,12 +902,12 @@ Then the step should succeed
     Then the step should fail
     And the output should contain:
       | clusterservicebrokers.servicecatalog.k8s.io "bbroker" is forbidden: broker forbidden access to auth secret (<%= cb.secret2.first.name %>) |
- 
+
 
   # @author qwang@redhat.com
   # @case_id OCP-16460
   @admin
-  @destructive 
+  @destructive
   Scenario: A user who has access to get the auth secret can upate a broker resource successfully
     # 1. Login as an ordinary user1
     Given I have a project
@@ -915,7 +915,7 @@ Then the step should succeed
     # 2. Login as system admin, create broker role
     Given I switch to cluster admin pseudo user
     And admin ensures "clusterservicebroker-admin" cluster_role is deleted after scenario
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/broker-role.yaml
+    When I run oc create over ERB test file: svc-catalog/broker-role.yaml
     Then the step should succeed
     # 3. Add role to the ordinary user1
     Given cluster role "clusterservicebroker-admin" is added to the "first" user
@@ -954,7 +954,7 @@ Then the step should succeed
       | project_name | atestproject2 |
     Then the step should succeed
     Given secret in the "atestproject2" project with name matching /default-token-.*/ are stored in the :secret2 clipboard
-    # 6. User1 update the broker with user2's secret 
+    # 6. User1 update the broker with user2's secret
     Given I switch to the first user
     When I run the :patch client command with:
       | resource | clusterservicebrokers/abroker                                                                              |
@@ -972,7 +972,7 @@ Then the step should succeed
     Given I have a project
     And evaluation of `project.name` is stored in the :ups_broker_project clipboard
     And I create a new project
-    And evaluation of `project.name` is stored in the :user_project clipboard 
+    And evaluation of `project.name` is stored in the :user_project clipboard
     Given I switch to cluster admin pseudo user
     Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
     Given admin ensures "user-provided" cluster_service_class is deleted after scenario
@@ -1035,7 +1035,7 @@ Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=ups-broker |
-      
+
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
@@ -1076,7 +1076,7 @@ Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=ups-broker |
-      
+
     # Provision a serviceinstance
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
@@ -1115,7 +1115,7 @@ Then the step should succeed
     Given I have a project
     And evaluation of `project.name` is stored in the :ups_broker_project clipboard
     And I create a new project
-    And evaluation of `project.name` is stored in the :user_project clipboard 
+    And evaluation of `project.name` is stored in the :user_project clipboard
     Given I switch to cluster admin pseudo user
     Given admin ensures "ups-broker" cluster_service_broker is deleted after scenario
     Given admin ensures "user-provided" cluster_service_class is deleted after scenario
@@ -1169,7 +1169,7 @@ Then the step should succeed
     # Delete servicebinding
     Given I use the "<%= cb.user_project %>" project
     And I ensure "ups-binding" service_binding is deleted
-    
+
     # Changed the bind return code to 408
     Given I use the "<%= cb.ups_broker_project %>" project
     Given pod with name matching /ups-broker/ are stored in the :pod clipboard
@@ -1180,7 +1180,7 @@ Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=ups-broker |
-    
+
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
     # Create a servicebinding
@@ -1238,7 +1238,7 @@ Then the step should succeed
     Given I use the "<%= cb.user_project %>" project
     And I ensure "ups-binding" service_binding is deleted
     And I ensure "ups-instance" service_instance is deleted
-    
+
   # @author jiazha@redhat.com
   # @case_id OCP-18822
   @admin
@@ -1247,7 +1247,7 @@ Then the step should succeed
     # Get the registry name from the configmap
     Given I save the first service broker registry prefix to :prefix clipboard
     # need to swtich back to normal user mode
-    
+
     # Provision DB apb
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
@@ -1317,7 +1317,7 @@ Then the step should succeed
     Then the step should succeed
     And I wait for the "bind2" secret to appear up to 180 seconds
     Then the expression should be true> secret.value_of("test2") == "jian"
-    
+
     # quote an exist secret
     Given a "bind3.yaml" file is created with the following lines:
     """
@@ -1332,7 +1332,7 @@ Then the step should succeed
         name: <%= cb.prefix %>-postgresql-apb
       secretTransforms:
       - addKeysFrom:
-          secretRef: 
+          secretRef:
             namespace: openshift-console
             name: console-oauth-config
     """
@@ -1347,7 +1347,7 @@ Then the step should succeed
     Then the step should succeed
     And the output should contain "DB_HOST"
     And the output should contain "DB_NAME"
-    
+
     # quote a non-exist secret
     Given a "bind4.yaml" file is created with the following lines:
     """
@@ -1362,7 +1362,7 @@ Then the step should succeed
         name: <%= cb.prefix %>-postgresql-apb
       secretTransforms:
       - addKeysFrom:
-          secretRef: 
+          secretRef:
             namespace: default
             name: fake
     """
@@ -1378,7 +1378,7 @@ Then the step should succeed
     Then the step should succeed
     And the output should contain "Error injecting bind result"
     """
-    
+
     #  Merge the existing keys to the credential secret
     Given a "bind5.yaml" file is created with the following lines:
     """
@@ -1401,7 +1401,7 @@ Then the step should succeed
     Then the step should succeed
     And I wait for the "bind5" secret to appear up to 180 seconds
     Then the expression should be true> secret.value_of("my-new-key") == "key one is admin, key two is admin"
-    
+
     #  Remove a key from the credential secret
     Given a "bind6.yaml" file is created with the following lines:
     """
@@ -1539,7 +1539,7 @@ Then the step should succeed
       | p | NEW_KEY_2=""                                                                                 |
     Then the step should succeed
     And I wait for the "ups-binding-1" service_binding to become ready up to 60 seconds
-    
+
     # Check the generated secret
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1563,7 +1563,7 @@ Then the step should succeed
       | p | NEW_KEY_2=                                                                                   |
     Then the step should succeed
     And I wait for the "ups-binding-2" service_binding to become ready up to 60 seconds
-    
+
     # Check the generated secret
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1585,7 +1585,7 @@ Then the step should succeed
       | p | SECRET_NAME=ups-secret-3                                                                     |
     Then the step should succeed
     And I wait for the "ups-binding-3" service_binding to become ready up to 60 seconds
-    
+
     # Check the generated secret
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1627,7 +1627,7 @@ Then the step should succeed
     And I save the first service broker registry prefix to :prefix clipboard
     Given cluster service classes are indexed by external name in the :csc clipboard
     And evaluation of `cb.csc['<%= cb.prefix %>-mysql-apb'].name` is stored in the :class_id clipboard
-    
+
     # filter: class spec.externalName ==
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                                 |
@@ -1689,7 +1689,7 @@ Then the step should succeed
       | prod                            |
     """
 
-    # filter: class spec.externalName in 
+    # filter: class spec.externalName in
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                                                                      |
       | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-mediawiki-apb, <%= cb.prefix %>-postgresql-apb)"], "servicePlan":[]}}} |
@@ -1708,7 +1708,7 @@ Then the step should succeed
       | <%= cb.prefix %>-mariadb-apb    |
     """
 
-    # filter: class spec.externalName notin 
+    # filter: class spec.externalName notin
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                                  |
       | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName notin (<%= cb.prefix %>-mediawiki-apb, <%= cb.prefix %>-postgresql-apb)"]}}} |
@@ -1727,7 +1727,7 @@ Then the step should succeed
       | ansible-service-broker          |
     """
 
-    # filter: plan spec.externalName notin/ spec.free true 
+    # filter: plan spec.externalName notin/ spec.free true
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                     |
       | p        | {"spec": {"catalogRestrictions": {"serviceClass": [], "servicePlan": ["spec.externalName notin (default, dev)", "spec.free==true"]}}} |
@@ -1746,7 +1746,7 @@ Then the step should succeed
       | <%= cb.prefix %>-mediawiki-apb  |
     """
 
-    # filter: plan spec.externalName notin/ spec.free true 
+    # filter: plan spec.externalName notin/ spec.free true
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                     |
       | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.externalName in (<%= cb.prefix %>-postgresql-apb)"], "servicePlan": ["spec.free==true"]}}} |
@@ -1811,7 +1811,7 @@ Then the step should succeed
       | resource | clusterservicebroker/ansible-service-broker                                  |
       | p        | {"spec": {"catalogRestrictions": {"serviceClass": ["spec.bindable==true"], "servicePlan": []}}} |
     Then the step should fail
-    
+
     # filter spec.serviceClass.name
     When I run the :patch client command with:
       | resource | clusterservicebroker/ansible-service-broker                                                        |

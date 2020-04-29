@@ -577,7 +577,7 @@ Feature: deployment related features
   Scenario: Support MinReadySeconds in DC
     Given I have a project
     And evaluation of `60` is stored in the :min_ready_seconds clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc532415/min_ready.yaml
+    When I run oc create over ERB test file: deployment/tc532415/min_ready.yaml
     Then the step should succeed
     And 20 seconds have passed
     And the expression should be true> dc('minreadytest').unavailable_replicas == 2

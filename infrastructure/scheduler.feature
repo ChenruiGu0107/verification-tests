@@ -52,7 +52,7 @@ Feature: Scheduler predicates and priority test suites
     Then the step should succeed
     Given the pod named "custom-scheduler" becomes present
     Given I store the schedulable workers in the clipboard
-    When I run oc create as admin over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/multiple-schedulers/binding.json 
+    When I run oc create as admin over ERB test file: scheduler/multiple-schedulers/binding.json
     And the step should succeed
     Given the pod named "custom-scheduler" becomes ready
     Then the expression should be true> pod.node_name == node.name
@@ -78,7 +78,7 @@ Feature: Scheduler predicates and priority test suites
     And the master service is restarted on all master nodes
     Given I have a project
     Given I wait for the "default" serviceaccount to appear
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_multivols.yaml
+    When I run oc create over ERB test file: scheduler/pod_with_multivols.yaml
     Then the step should succeed
     Given I wait for the steps to pass:
     """

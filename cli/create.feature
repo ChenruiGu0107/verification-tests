@@ -370,7 +370,7 @@ Feature: creating 'apps' with CLI
       | resource      | project             |
       | resource_name | <%= project.name %> |
     And evaluation of `project.uid_range(user:user).begin` is stored in the :scc_limit clipboard
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/pods/510541/scc_rules.json
+    When I run oc create over ERB test file: pods/510541/scc_rules.json
     Then the step should succeed
     When the pod named "hello-pod" status becomes :running
 
@@ -456,7 +456,7 @@ Feature: creating 'apps' with CLI
   @smoke
   Scenario: Create and update the docker images tag from remote repositories via api
     Given I have a project
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/cli/tc519471/image-stream-tag.json
+    When I run oc create over ERB test file: cli/tc519471/image-stream-tag.json
     Then the step should succeed
     # Add wait step to avoid the async delay
     And I wait for the steps to pass:
@@ -466,7 +466,7 @@ Feature: creating 'apps' with CLI
     the output should contain:
       |<%= product_docker_repo %>rhel7.2|
     """
-    When I run oc create over ERB URL: <%= BushSlicer::HOME %>/features/tierN/testdata/cli/tc519471/image-stream-tag-update.json
+    When I run oc create over ERB test file: cli/tc519471/image-stream-tag-update.json
     Then the step should succeed
     And I wait for the steps to pass:
     """
