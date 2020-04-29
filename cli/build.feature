@@ -146,9 +146,9 @@ Feature: build 'apps' with CLI
     Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
     When I run the :logs client command with:
       | resource_name | build/ruby-sample-build-1 |
-    Then the output should contain:
-      | ENV RACK_ENV=production  |
-      | ENV RAILS_ENV=production |
+    Then the output should match:
+      | ENV RACK_ENV.production  |
+      | ENV RAILS_ENV.production |
     When I execute on the "<%= cb.frontendpod %>" pod:
       | env |
     Then the step should succeed
