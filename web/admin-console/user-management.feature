@@ -194,6 +194,8 @@ Feature: User management related
     When I perform the :goto_rolebinding_list_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    When I run the :open_filter_dropdown_list web action
+    Then the step should succeed
     When I perform the :check_page_not_match web action with:
       | content | Cluster-wide Role Bindings |
     Then the step should succeed
@@ -216,6 +218,11 @@ Feature: User management related
     Given the second user is cluster-admin
     When I perform the :goto_rolebinding_list_page web action with:
       | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :open_filter_dropdown_list web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Cluster-wide Role Bindings |
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
