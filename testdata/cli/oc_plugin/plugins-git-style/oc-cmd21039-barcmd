@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# optional argument handling
+if [[ ! -n "$1" ]]
+then
+    echo "Plugin oc-cmd21039-barcmd is executed"
+else
+    echo "Plugin oc-cmd21039-barcmd is executed, with $1 as its first argument"    
+fi
