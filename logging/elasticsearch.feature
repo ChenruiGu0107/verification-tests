@@ -34,8 +34,10 @@ Feature: elasticsearch related tests
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/testdata/logging/loggen/container_json_unicode_log_template.json |
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
     Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
     #A workaround to https://bugzilla.redhat.com/show_bug.cgi?id=1776594

@@ -114,3 +114,69 @@ Feature: elasticsearch operator related tests
       | ElasticsearchProcessCPUHigh |
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}['for'] == "5m"
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-24134
+  @admin
+  @destructive
+  Scenario: The shard number should be same with the node number
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+    Then the step should succeed
+    Given evaluation of `cluster_logging('instance').logstore_node_count` is stored in the :es_node_count_1 clipboard
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    #A workaround to https://bugzilla.redhat.com/show_bug.cgi?id=1776594
+    And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
+    Given evaluation of `%w(project .operations)` is stored in the :index_names clipboard
+    Given I repeat the following steps for each :index_name in cb.index_names:
+    """
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | #{cb.index_name}.* |
+      | op           | DELETE             |
+    Then the step should succeed
+    """
+    #Workaround end
+    And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == cb.es_node_count_1
+    When I get the ".kibana" logging index information from a pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == cb.es_node_count_1
+    When I run the :patch client command with:
+      | resource      | clusterlogging                                          |
+      | resource_name | instance                                                |
+      | p             | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
+      | type          | merge                                                   |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').logstore_node_count == 2
+    Given I wait for the steps to pass:
+    """
+    And the expression should be true> elasticsearch('elasticsearch').nodes[0]['nodeCount'] == 2
+    """
+    And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid%>-2" deployment to appear
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('index_settings'))` is stored in the :data clipboard
+    And the expression should be true> cb.data == "PRIMARY_SHARDS=2 REPLICA_SHARDS=0"
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+      Given the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid%>-2').replica_counters(cached:false)[:desired] == deployment('elasticsearch-cdm-<%= cb.es_genuuid%>-2').replica_counters[:ready]
+    """
+
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    And I wait for the "project.<%= cb.org_project.name %>" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == cluster_logging('instance').logstore_node_count
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cat/indices?format=JSON |
+      | op           | GET                      |
+    Then the step should succeed
+    And evaluation of ` @result[:parsed].find {|e| e['index'].start_with? '.kibana'}` is stored in the :res_kibana clipboard
+    And evaluation of ` @result[:parsed].find {|e| e['index'].start_with? '.operations'}` is stored in the :res_op clipboard
+    Then the expression should be true> cb.res_kibana['pri'].to_i == cb.es_node_count_1 && cb.res_op['pri'].to_i == cb.es_node_count_1

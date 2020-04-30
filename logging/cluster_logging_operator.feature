@@ -304,3 +304,65 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> (cron_job('curator').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}]).empty?
     And the expression should be true> (daemon_set('fluentd').tolerations(cached: false) - [{"effect"=>"NoExecute", "key"=>"logging", "operator"=>"Exists", "tolerationSeconds"=>6000}, {"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-22993
+  @admin
+  @destructive
+  Scenario: The logging are redeployed when resource changed
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                               |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml |
+      | check_status        | false                                                                                              |
+    Then the step should succeed
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_request_raw == "1Gi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').cpu_request_raw == "100m"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').memory_request_raw == "100Mi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd').memory_request_raw == "1Gi"
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator').cpu_request_raw == "100m"
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator').memory_request_raw == "100Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').memory_request_raw == "1Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').cpu_request_raw == "100m"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').memory_request_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').cpu_request_raw == "100m"
+    When I run the :apply client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd_change.yaml |
+    Then the step should succeed
+
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana', cached: false).memory_limit_raw == "2Gi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').cpu_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_request_raw == "2Gi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').cpu_request_raw == "100m"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').cpu_limit_raw == nil
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').memory_limit_raw == "200Mi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').memory_request_raw == "200Mi"
+    And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd', cached: false).cpu_limit_raw == nil
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd').memory_limit_raw == "2Gi"
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd').cpu_request_raw == "100m"
+    And the expression should be true> daemon_set('fluentd').container_spec(user: user, name: 'fluentd').memory_request_raw == "2Gi"
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator', cached: false).cpu_limit_raw == nil
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator').memory_limit_raw == "200Mi"
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator').cpu_request_raw == "100m"
+    And the expression should be true> cron_job('curator').container_spec(user: user, name: 'curator').memory_request_raw == "200Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch', cached: false).memory_limit_raw == "8Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').cpu_limit_raw == nil
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').memory_request_raw == "2Gi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').cpu_request_raw == "100m"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').memory_limit_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').cpu_limit_raw == nil
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').memory_request_raw == "64Mi"
+    And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').cpu_request_raw == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_limit_cpu(cached: false) == nil
+    And the expression should be true> elasticsearch('elasticsearch').resource_limit_memory(cached: false) == "8Gi"
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_cpu(cached: false) == "100m"
+    And the expression should be true> elasticsearch('elasticsearch').resource_request_memory(cached: false) == "2Gi"
+    """
