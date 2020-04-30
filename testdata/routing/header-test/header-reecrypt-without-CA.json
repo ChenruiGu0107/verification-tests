@@ -53,7 +53,7 @@
         "containers": [
           {
             "name": "header-test-pod",
-            "image": "aosqe/header-test-for-reencrypt",
+            "image": "quay.io/openshifttest/header-test-for-reencrypt@sha256:fce41aacb75a0f8a39e0b29d8e765ca2064a4cf27a93680eeebd564321a9c7de",
             "ports": [
               {
                 "containerPort": 8080

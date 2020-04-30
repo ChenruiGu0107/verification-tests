@@ -23,7 +23,7 @@
                     "spec": {
                         "containers": [
                             {
-                                "image": "aosqe/caddy-docker-3",
+                                "image": "quay.io/openshifttest/caddy-docker-3@sha256:78539422a23e02ec1dbe9670024be32045d1b90dc562375e796a7e62421bfa7d",
                                 "name": "test-pods-3"
                             }
                         ]

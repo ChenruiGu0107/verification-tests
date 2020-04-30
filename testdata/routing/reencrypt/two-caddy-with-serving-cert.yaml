@@ -24,7 +24,7 @@ items:
   spec:
     containers:
     - name: caddy-docker-pod
-      image: aosqe/caddy-docker
+      image: quay.io/openshifttest/caddy-docker@sha256:a88247b9b2a35e0c0a9bc67506971a39fc5a0196b9a1d9ead49ae5fa4b48dfa5
       command:
         - /usr/bin/caddy
       args:
@@ -54,7 +54,7 @@ items:
   spec:
     containers:
     - name: caddy-docker-pod
-      image: aosqe/caddy-docker-2
+      image: quay.io/openshifttest/caddy-docker-2@sha256:1e6184a09a0bd2f6e075dc302daa64769e664bfe0e180357cc77f95ce5c46243
       command:
         - /usr/bin/caddy
       args:
