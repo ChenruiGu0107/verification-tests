@@ -25,7 +25,7 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod                         |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>            |
       | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
@@ -160,7 +160,7 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod                                                  |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip_2 %>:3260                              |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"] |
@@ -203,7 +203,7 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod1                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -212,7 +212,7 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the pod named "mypod1" becomes ready
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod2                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -251,7 +251,7 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod1                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -260,7 +260,7 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the pod named "mypod1" becomes ready
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod2                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
