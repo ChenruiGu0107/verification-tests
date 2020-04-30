@@ -5,8 +5,8 @@ Feature: oc_volume.feature
   Scenario: option '--all' and '--selector' can not be used together
     Given I have a project
     And I create a new application with:
-      | docker image | docker.io/aosqe/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
-      | name         | myapp                                                                                           |
+      | docker image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | myapp                                                                                                 |
     Then the step should succeed
     When I run the :set_volume client command with:
       | resource | pod      |
@@ -127,13 +127,13 @@ Feature: oc_volume.feature
   Scenario: Select resources with '--selector' option
     Given I have a project
     When I run the :new_app client command with:
-      | name         | ruby-hello-world                                                                                |
-      | docker image | docker.io/aosqe/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | ruby-hello-world                                                                                      |
+      | docker image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
     Then the step should succeed
     And I run the :run client command with:
-      | name         | testpod                                                                                         |
-      | image        | docker.io/aosqe/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
-      | generator    | run-pod/v1                                                                                      |
+      | name         | testpod                                                                                               |
+      | image        | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | generator    | run-pod/v1                                                                                            |
     Given the pod named "testpod" becomes ready
 
     Given I run the :label client command with:
