@@ -165,7 +165,7 @@ Feature: Install and configuration related scenarios
   # @case_id OCP-29314
   @admin
   Scenario: telemetry whitelist metrics could be configured via configmap
-    Given the master version >= "4.3"
+    Given the master version >= "4.4"
     And I switch to cluster admin pseudo user
     And I use the "openshift-monitoring" project
     #Check metrics in telemetry-config configmap
