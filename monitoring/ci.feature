@@ -173,3 +173,29 @@ Feature: Install and configuration related scenarios
     #Check metrics in telemetry-client deploy
     And evaluation of `deployment('telemeter-client').containers.first['command'].map {|n| n[/\{(.*)\}/]}.compact!` is stored in the :metrics_deploy clipboard
     Then the expression should be true> cb.metrics_cm == cb.metrics_deploy
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-26541
+  @admin
+  Scenario: Do not preserve unknown fields inside all Prometheus Operator related CRDs
+    Given the master version >= "4.4"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    #oc get crd | grep monitoring | awk '{print $1}'
+    When I run the :get client command with:
+      | resource | crd |
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)monitoring(.*)/]}.compact!` is stored in the :crds_monitoring clipboard
+    #check "oc get crd $i -oyaml | grep preserveUnknownFields" for all resources
+    When I repeat the following steps for each :crd in cb.crds_monitoring:
+    """
+    When I get project crd named "#{cb.crd}" as YAML
+    Then the output should not contain "preserveUnknownFields: true"
+    """
+    # explain all monitoring's crb
+    When evaluation of `cb.crds_monitoring.map{|n| n.split(/\./)[0]}` is stored in the :crds_short clipboard
+    And I repeat the following steps for each :crd_s in cb.crds_short:
+    """
+    When I run the :explain client command with:
+      | resource | #{cb.crd_s} |
+    Then the output should not contain "<empty>"
+    """
