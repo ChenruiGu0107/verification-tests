@@ -1,0 +1,25 @@
+{
+   "kind":"Policy",
+   "apiVersion":"v1",
+   "predicates":[
+      {
+         "name":"CheckServiceAffinity",
+         "argument":{
+            "serviceAffinity":{
+               "labels":["ocpaffregion", "ocpaffzone"]
+            }
+         }
+      }
+   ],
+   "priorities":[
+      {
+         "name":"RackSpread",
+         "weight":1,
+         "argument":{
+            "serviceAntiAffinity":{
+               "label":"ocpaffrack"
+            }
+         }
+      }
+   ]
+}
