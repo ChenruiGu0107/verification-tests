@@ -369,3 +369,74 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_full_lifecycle_capability web action
     Then the step should fail
+    
+  # @author yapei@redhat.com
+  # @case_id OCP-29198
+  @admin
+  Scenario: Infrastructure Features and Valid Subscriptions annotation support for Operators
+    Given the master version >= "4.5"
+    Given the first user is cluster-admin
+    Given admin ensures "custom-console-catalogsource-infrasubs" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    When I process and create:
+      | f | <%= BushSlicer::HOME %>/testdata/olm/catalogsource-template.yaml |
+      | p | NAME=custom-console-catalogsource-infrasubs                      |
+      | p | IMAGE=quay.io/openshifttest/uitestoperators:infrasubs            |
+      | p | DISPLAYNAME=Custom Console AUTO Testing                          |
+    Then the step should succeed
+    Given I use the "openshift-marketplace" project
+    And a pod becomes ready with labels:
+      | olm.catalogSource=custom-console-catalogsource-infrasubs |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I get project packagemanifests
+    Then the output should match 5 times:
+      | Custom Console AUTO Testing |
+    """
+
+    Given I open admin console in a browser
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+
+    # Check infrastructure feature(Disconnected/Proxy/FIPS Mode) value is shown in modal when corresponding type is checked
+    When I run the :check_disconnected_infra_value_in_operator_modal web action
+    Then the step should succeed
+    When I run the :check_proxy_infra_value_in_operator_modal web action
+    Then the step should succeed
+    When I run the :check_fips_mode_infras_value_in_operator_modal web action
+    Then the step should succeed
+
+    # check operator KEDA has infrastructure feature && valid subscription badge in operator modal
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I run the :click_checkbox_proxy_from_infrastructure_features web action
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | KEDA |
+    Then the step should succeed
+    When I run the :check_disconnected_infra_value web action
+    Then the step should succeed
+    When I run the :check_proxy_infra_value web action
+    Then the step should succeed
+    When I run the :check_fips_infra_value web action
+    Then the step should fail
+    When I run the :check_3scale_subs_value web action
+    Then the step should succeed
+    When I run the :check_integration_subs_value web action
+    Then the step should succeed
+
+    # check operator Kubestone only has infrastructure feature badge in operator modal
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I run the :click_checkbox_fips_from_infrastructure_features web action
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | Kubestone |
+    Then the step should succeed
+    When I run the :check_disconnected_infra_value web action
+    Then the step should succeed
+    When I run the :check_proxy_infra_value web action
+    Then the step should succeed
+    When I run the :check_fips_infra_value web action
+    Then the step should succeed
+    When I run the :check_3scale_subs_value web action
+    Then the step should fail
