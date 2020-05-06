@@ -85,7 +85,7 @@ Feature: oc set triggers tests
       | resource      | bc               |
       | resource_name | ruby-hello-world |
       | o             | yaml             |
-    Then the expression should be true> @result[:parsed]['spec']['triggers'].count == 0
+    Then the expression should be true> ! @result[:parsed]['spec'].include?("triggers")
     # 4. add triggers one at a time for now the triggers array will be in the order of FIFO
     When I run the :set_triggers client command with:
       | resource    | bc               |
