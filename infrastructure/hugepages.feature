@@ -89,7 +89,7 @@ Feature: Hugepages related feature
     Then the step should succeed
     And the output should match:
       | FailedScheduling.*Insufficient\s+hugepages-2Mi|
-    """ 
+    """
 
   # @case_id OCP-15748
   # @author wjiang@redhat.com

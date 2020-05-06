@@ -162,7 +162,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
   # @author zitang@redhat.com
   # @case_id OCP-20960
   @admin
-  Scenario: [ASB] check extracted credential secret when provision/bind/unbind/update/deprovision 
+  Scenario: [ASB] check extracted credential secret when provision/bind/unbind/update/deprovision
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
@@ -198,8 +198,8 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | resource           | secret     |
       | name               | <%= cb.instance_id %>   |
     And the output should contain:
-      |   bundleAction=provision | 
-      |   bundleName=<%= cb.prefix %>-postgresql-apb | 
+      |   bundleAction=provision |
+      |   bundleName=<%= cb.prefix %>-postgresql-apb |
 
     # create binding
     Given I switch to the first user
@@ -222,9 +222,9 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
       | resource           | secret     |
       | name               | <%= cb.binding_id %>   |
     And the output should contain:
-      |   bundleAction=bind | 
-      |   bundleName=<%= cb.prefix %>-postgresql-apb | 
-    
+      |   bundleAction=bind |
+      |   bundleName=<%= cb.prefix %>-postgresql-apb |
+
     # delete binding
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
@@ -234,7 +234,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And I wait for the resource "secret" named "<%= cb.binding_id %>" to disappear within 60 seconds
-     
+
 #    # update serviceinstance
 #    Given I switch to the first user
 #    And I use the "<%= cb.user_project %>" project
@@ -242,7 +242,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 #      | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
 #      | p         |{                                                     |
 #      |           | "spec": {                                            |
-#      |           |    "clusterServicePlanExternalName": "prod"   | 
+#      |           |    "clusterServicePlanExternalName": "prod"   |
 #      |           |  }                                                   |
 #      |           |}                                                     |
 #    Then the step should succeed
@@ -256,7 +256,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
 #      | resource           | secret     |
 #      | name               | <%= cb.instance_id %>   |
 #    And the output should contain:
-#      |   bundleAction=update | 
+#      |   bundleAction=update |
 #    """
 #
     # delete serviceinstance and check secret
@@ -309,7 +309,7 @@ And I check that the "<%= cb.class_id %>" clusterserviceclasses exists
     And I wait for the "<%= cb.prefix %>-mariadb-apb" service_binding to become ready up to 60 seconds
     And evaluation of `service_binding("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :binding_id clipboard
 
-    # check secret 
+    # check secret
     Given I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     And I check that the "<%= cb.instance_id %>" secret exists

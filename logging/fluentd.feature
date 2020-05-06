@@ -86,7 +86,7 @@ Feature: fluentd related tests
       | op           | GET                                                                                                                                          |
     Then the step should succeed
     And the output should contain:
-      | "message" : "{\"message\": \"MERGE_JSON_LOG=true\", \"level\": \"debug\",\"Layer1\": \"layer1 0\",      | 
+      | "message" : "{\"message\": \"MERGE_JSON_LOG=true\", \"level\": \"debug\",\"Layer1\": \"layer1 0\",      |
       | \"layer2\": {\"name\":\"Layer2 1\", \"tips\":\"Decide by PRESERVE_JSON_LOG\"}, \"StringNumber\":\"10\", |
       | \"Number\": 10,\"foo.bar\":\"Dot Item\",\"{foobar}\":\"Brace Item\",                                    |
       | \"[foobar]\":\"Bracket Item\", \"foo:bar\":\"Colon Item\",\"foo bar\":\"Space Item\" }",                |
@@ -227,7 +227,7 @@ Feature: fluentd related tests
     And the output should contain:
       | "message" : "MERGE_JSON_LOG=true",                                                                                   |
       | "undefined" : "{\"Layer1\":\"layer1 0\",\"layer2\":{\"name\":\"Layer2 1\",\"tips\":\"Decide by PRESERVE_JSON_LOG\"}, |
-      | \"StringNumber\":\"10\",\"Number\":10,\"foo.bar\":\"Dot Item\",\"{foobar}\":\"Brace Item\",                          | 
+      | \"StringNumber\":\"10\",\"Number\":10,\"foo.bar\":\"Dot Item\",\"{foobar}\":\"Brace Item\",                          |
       | \"[foobar]\":\"Bracket Item\",\"foo:bar\":\"Colon Item\",\"foo bar\":\"Space Item\"}",                               |
     """
 

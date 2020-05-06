@@ -76,12 +76,12 @@ Feature: Storage of Hostpath plugin testing
   # @author wehe@redhat.com
   # @case_id OCP-14665
   @admin
-  Scenario: Mount propagation test of HostToContainer and Bidirectional 
+  Scenario: Mount propagation test of HostToContainer and Bidirectional
     Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
     And the "/mnt/disk" path is recursively removed on the host after scenario
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propashare.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propashare.yaml |
       | n | <%= project.name %>                                                                                            |
     Then the step should succeed
     Given the pod named "propashare" becomes ready
@@ -138,7 +138,7 @@ Feature: Storage of Hostpath plugin testing
   # @author wehe@redhat.com
   # @case_id OCP-14673
   @admin
-  Scenario: Bidirectional and HostoContainer mount propagation with unpriviledged pod 
+  Scenario: Bidirectional and HostoContainer mount propagation with unpriviledged pod
     Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
     And the "/mnt/<%= project.name %>" path is recursively removed on the host after scenario
@@ -148,7 +148,7 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propashare.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false |
-    Then the step should fail 
+    Then the step should fail
     And the output should contain:
       | Bidirectional mount propagation is available only to privileged containers |
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propaslave.yaml" replacing paths:

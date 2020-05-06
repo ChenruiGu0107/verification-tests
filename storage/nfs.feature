@@ -654,7 +654,7 @@ Feature: NFS Persistent Volume
   # @case_id OCP-17279
   @admin
   @destructive
-  Scenario: Configure 'Retain' reclaim policy for nfs 
+  Scenario: Configure 'Retain' reclaim policy for nfs
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:
@@ -736,7 +736,7 @@ Feature: NFS Persistent Volume
   # @author wehe@redhat.com
   # @case_id OCP-17750
   @admin
-  Scenario: Using mountOptions for NFS StorageClass 
+  Scenario: Using mountOptions for NFS StorageClass
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:

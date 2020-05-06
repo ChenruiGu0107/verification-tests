@@ -11,7 +11,7 @@ Feature: overview cases
       | name         | python-sample                           |
     Then the step should succeed
     When I run the :expose client command with:
-      | resource      | svc           | 
+      | resource      | svc           |
       | resource_name | python-sample |
     Then the step should succeed
 
@@ -68,7 +68,7 @@ Feature: overview cases
     Then the step should succeed
     When I perform the :check_resource_link web action with:
       | resource_link | /k8s/ns/<%= project.name %>/services/python-sample |
-    Then the step should succeed  
+    Then the step should succeed
     When I perform the :check_resource_link web action with:
       | resource_link | /k8s/ns/<%= project.name %>/routes/python-sample |
     Then the step should succeed
@@ -288,7 +288,7 @@ Feature: overview cases
     When I perform the :check_text_in_breadcrumb web action with:
       | layer_number | 2                         |
       | text         | InstallPlanDetails        |
-    Then the step should succeed 
+    Then the step should succeed
 
     # check project page
     When I run the :goto_projects_list_page web action
@@ -315,7 +315,7 @@ Feature: overview cases
     When I perform the :check_text_in_breadcrumb web action with:
       | layer_number | 2                         |
       | text         | ReplicaSetDetails         |
-    Then the step should succeed   
+    Then the step should succeed
 
     # check machine page
     When I run the :goto_all_machines_page web action
@@ -328,7 +328,7 @@ Feature: overview cases
     When I perform the :check_text_in_breadcrumb web action with:
       | layer_number | 2                         |
       | text         | MachineDetails            |
-    Then the step should succeed    
+    Then the step should succeed
     # check machine set page
     When I run the :goto_all_machine_sets_page web action
     Then the step should succeed
@@ -340,11 +340,11 @@ Feature: overview cases
     When I perform the :check_text_in_breadcrumb web action with:
       | layer_number | 2                         |
       | text         | MachineSetDetails         |
-    Then the step should succeed   
+    Then the step should succeed
 
     # check pod and container page
     When I perform the :goto_project_pods_list_page web action with:
-      | project_name | openshift-console | 
+      | project_name | openshift-console |
     Then the step should succeed
     When I perform the :click_first_item_from_resource_list_and_check_breadcrumb web action with:
       | layer_number | 1                              |
@@ -574,7 +574,7 @@ Feature: overview cases
     When a pod becomes ready with labels:
       | app=hello-openshift |
     Then current replica set name of "example" deployment stored into :rs_name clipboard
-    
+
     Given I open admin console in a browser
     When I perform the :goto_project_resources_page web action with:
       | project_name | <%= project.name %> |

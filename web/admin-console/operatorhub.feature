@@ -80,7 +80,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     """
     Given I wait for the "keycloak-operator" subscription to appear in the "<%= cb.proj_name %>" project up to 30 seconds
-    
+
     # console will show 'Catalog Source Removed' on Subscription page when CatalogSource is removed
     When I run the :goto_catalog_source_page web action
     Then the step should succeed
@@ -369,7 +369,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_full_lifecycle_capability web action
     Then the step should fail
-    
+
   # @author yapei@redhat.com
   # @case_id OCP-29198
   @admin

@@ -33,7 +33,7 @@ Feature: build related
     When I perform the :check_link_and_text web action with:
       | text      | python:latest                                   |
       | link_url  | /k8s/ns/openshift/imagestreamtags/python:latest |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text      | python-sample:latest                                             |
       | link_url  | /k8s/ns/<%= project.name %>/imagestreamtags/python-sample:latest |
@@ -44,7 +44,7 @@ Feature: build related
     #  | build.openshift.io/v1/namespaces/<%= project.name %>/buildconfigs/python-sample/webhooks/.*secret.*/generic |
     # When I perform the :check_link web action with:
     #  | link_url | https://172.30.0.1:443/apis/build.openshift.io/v1/namespaces/yapei/buildconfigs/python-sample/webhooks/<secret>/generic |
-    # Then the step should succeed    
+    # Then the step should succeed
 
     # check Builds details
     When I perform the :goto_one_build_page web action with:

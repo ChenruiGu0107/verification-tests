@@ -53,7 +53,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
 
   # @author zhaliu@redhat.com
   # @case_id OCP-9788
-    Scenario: Restrict user using nodeName in Pod in online env
+  Scenario: Restrict user using nodeName in Pod in online env
     Given I have a project
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/clusterinfra/pod-with-nodename.yaml |
@@ -63,7 +63,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
 
   # @author zhaliu@redhat.com
   # @case_id OCP-9903
-    Scenario: Restrict user using nodeName in DeploymentConfig in online env
+  Scenario: Restrict user using nodeName in DeploymentConfig in online env
     Given I have a project
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/clusterinfra/deploymentconfig-with-nodename.yaml |

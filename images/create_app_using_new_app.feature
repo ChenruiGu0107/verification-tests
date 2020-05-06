@@ -110,7 +110,7 @@ Feature:Create apps using new_app cmd feature
     And the "dotnet-runtime-example-runtime-2" build completed
     Then I wait for a web server to become available via the "dotnet-runtime-example" route
     And the output should contain "Sample pages using ASP.NET Core MVC"
-   
+
     # Manually start chain build
     When I run the :start_build client command with:
       | buildconfig | dotnet-runtime-example-build |

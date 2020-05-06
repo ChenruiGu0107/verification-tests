@@ -11,8 +11,8 @@ Feature: job.feature
       | schedule| * * * * * |
       | sleep   | 30        |
     Then the step should succeed
-    Then status becomes :running of 1 pods labeled:  
-      | run=sj1 | 
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
     When I run the :patch client command with:
       | resource      | scheduledjob              |
       | resource_name | sj1                       |
@@ -26,7 +26,7 @@ Feature: job.feature
     Given 60 seconds have passed
     When I get project pods as JSON
     And evaluation of `@result[:parsed]['items']` is stored in the :podlist clipboard
-    And the expression should be true> cb.podlist.empty? 
+    And the expression should be true> cb.podlist.empty?
     When I run the :patch client command with:
       | resource      | scheduledjob               |
       | resource_name | sj1                        |
@@ -34,7 +34,7 @@ Feature: job.feature
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | run=sj1 |
-    
+
   # @author geliu@redhat.com
   # @case_id OCP-17514
   Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
@@ -46,8 +46,8 @@ Feature: job.feature
       | schedule | * * * * * |
       | sleep    | 30        |
     Then the step should succeed
-    Then status becomes :running of 1 pods labeled:  
-      | run=sj1 | 
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
     When I run the :patch client command with:
       | resource      | cronjob                   |
       | resource_name | sj1                       |
@@ -129,7 +129,7 @@ Feature: job.feature
     Then the step should succeed
     Given 90 seconds have passed
     When I get project pods as JSON
-    Given I store in the clipboard the pods labeled: 
+    Given I store in the clipboard the pods labeled:
       | run=sj1 |
     Then the expression should be true> cb.pods.length == 1
     When I run the :patch client command with:
@@ -193,8 +193,8 @@ Feature: job.feature
     Then the step should succeed
     Given 90 seconds have passed
     Then status becomes :running of 2 pods labeled:
-      | run=sj1 |     
-  
+      | run=sj1 |
+
   # @author yinzhou@redhat.com
   # @case_id OCP-28003
   Scenario: `oc status` run well when job's spec pointer is nil

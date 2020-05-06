@@ -98,7 +98,7 @@ Feature: environment related
     Then the step should succeed
     Given 1 pods become ready with labels:
       | run=dctest |
-    
+
     # add env var key/value
     And I open admin console in a browser
     When I perform the :goto_resource_environment_page web action with:
@@ -163,7 +163,7 @@ Feature: environment related
 
   # @author hasha@redhat.com
   # @case_id OCP-20954
-  Scenario: Check environment editor for init container	 
+  Scenario: Check environment editor for init container	
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
@@ -235,7 +235,7 @@ Feature: environment related
 
   # @author hasha@redhat.com
   # @case_id OCP-21085
-    Scenario: Check environment variables editor on Deploy from Image flow page
+  Scenario: Check environment variables editor on Deploy from Image flow page
     Given the master version >= "4.2"
     Given I have a project
     When I run the :create client command with:
@@ -281,7 +281,7 @@ Feature: environment related
 
   # @author hasha@redhat.com
   # @case_id OCP-25203
-    Scenario:  Check environment variables editor on DC creation page
+  Scenario:  Check environment variables editor on DC creation page
     Given the master version == "4.1"
     Given I have a project
     And I open admin console in a browser

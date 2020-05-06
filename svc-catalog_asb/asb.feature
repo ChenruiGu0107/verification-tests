@@ -260,7 +260,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
       | since         | 3m              |
     Then the step should succeed
     And the output should contain:
@@ -357,15 +357,15 @@ Feature: Ansible-service-broker related scenarios
     # This is example output we parse with the following two steps:
     #      NAME                                          ROLE                    USERS        GROUPS                         SERVICE ACCOUNTS                                                            SUBJECTS
     #  ...
-    #  bundle-0badb04b-9b80-4fa7-8690-689391f4aa39   /edit                                                               dev-postgresql-apb-prov-fqpjc/bundle-0badb04b-9b80-4fa7-8690-689391f4aa39   
-    #  bundle-735eb982-be14-4975-85c3-40aab48d7acd   /edit                                                               dev-mediawiki-apb-prov-sgtqr/bundle-735eb982-be14-4975-85c3-40aab48d7acd    
+    #  bundle-0badb04b-9b80-4fa7-8690-689391f4aa39   /edit                                                               dev-postgresql-apb-prov-fqpjc/bundle-0badb04b-9b80-4fa7-8690-689391f4aa39
+    #  bundle-735eb982-be14-4975-85c3-40aab48d7acd   /edit                                                               dev-mediawiki-apb-prov-sgtqr/bundle-735eb982-be14-4975-85c3-40aab48d7acd
     #  ...
-    #  system:image-pullers                          /system:image-puller                 system:serviceaccounts:b56xp    
+    #  system:image-pullers                          /system:image-puller                 system:serviceaccounts:b56xp
     Then evaluation of `@result[:stdout].scan(/<%= cb.prefix %>-mediawiki-apb.*\n/)[0].split("/")[0]` is stored in the :wiki_prov_prj clipboard
     And evaluation of `@result[:stdout].scan(/<%= cb.prefix %>-postgresql-apb.*\n/)[0].split("/")[0]` is stored in the :db_prov_prj clipboard
     Given admin ensure "<%= cb.db_prov_prj %>" project is deleted after scenario
     And admin ensure "<%= cb.wiki_prov_prj %>" project is deleted after scenario
-    
+
     Given I use the "<%= cb.project_1 %>" project
     And I wait for all service_instance in the project to become ready up to 360 seconds
     Given dc with name matching /mediawiki/ are stored in the :app clipboard
@@ -554,7 +554,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: [ASB] check apb bundle resource in crd when asb refresh
     Given cluster service classes are indexed by external name in the :csc clipboard
     Then the expression should be true> cb.csc.values.find {|c| c.cluster_svc_broker_name == "ansible-service-broker"}
-    
+
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
 
@@ -759,7 +759,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb |
-      | c             | asb     |      
+      | c             | asb     |
     Then the step should succeed
     And the output should match:
       | Failed to retrieve spec data for image.*illegal base64 data at input |

@@ -51,7 +51,7 @@ Feature: ONLY Fuse Plan related scripts in this file
     Given I open accountant console in a browser
     When I run the :go_to_register_fuse_profile_page web action
     Then the step should succeed
-   
+
     ## check select elements on the page - each has at least two options
     When I perform the :check_select_item_have_at_least_two_options web action with:
       | select_id | contact_greeting |
@@ -131,7 +131,7 @@ Feature: ONLY Fuse Plan related scripts in this file
     Then the step should succeed
     When I run the :click_starting_at_sixhundredandfifty_dollars_per_month web action
     Then the step should succeed
-    When I run the :check_size_page_title_and_description web action 
+    When I run the :check_size_page_title_and_description web action
     Then the step should succeed
     When I perform the :check_fuse_small_plan_info_on_size_page web action with:
       | integration_number | 5    |
@@ -141,5 +141,5 @@ Feature: ONLY Fuse Plan related scripts in this file
     Then the step should succeed
     When I run the :check_small_size_submit_button web action
     Then the step should succeed
-    When I run the :click_wizard_item_back_to_plan_page web action 
+    When I run the :click_wizard_item_back_to_plan_page web action
     Then the step should succeed

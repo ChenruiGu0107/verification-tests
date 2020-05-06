@@ -164,7 +164,7 @@ Feature: Testing registry
   Scenario: Can import private image from docker hub and another openshift embed docker registry
     Given I have a project
     And I run the :create_secret client command with:
-      | secret_type | generic                                                                         | 
+      | secret_type | generic                                                                         |
       | name        | docker-secret                                                                   |
       | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
       | type        | kubernetes.io/dockercfg                                                         |
@@ -374,7 +374,7 @@ Feature: Testing registry
     And all existing pods are ready with labels:
       | docker-registry=default |
     And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"replicas": 1,"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]}} | 
+      | {"spec":{"replicas": 1,"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]}} |
     And I register clean-up steps:
     """
     When I run the :delete client command with:
@@ -393,7 +393,7 @@ Feature: Testing registry
       | docker-registry=default |
     Then the expression should be true> node(pod.node_name).is_master?
     Given I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal","value": "myvalue"}]}} | 
+      | {"spec":{"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal","value": "myvalue"}]}} |
     And I wait for the steps to pass:
     """
     Given current generation number of "image-registry" deployment is stored into :change_twice clipboard
@@ -432,7 +432,7 @@ Feature: Testing registry
   # @case_id OCP-21510
   @admin
   @destructive
-  Scenario: Set the white list of image registry via allowedRegistriesForImport 
+  Scenario: Set the white list of image registry via allowedRegistriesForImport
     Given I have a project
     Given evaluation of `project.name` is stored in the :saved_name clipboard
     Given I switch to cluster admin pseudo user
@@ -442,11 +442,11 @@ Feature: Testing registry
     And <%= cb.desired_num %> pods become ready with labels:
       | pod-template-generation=<%= cb.before_change %> |
     And I successfully merge patch resource "image.config.openshift.io/cluster" with:
-      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":false}]}} | 
+      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":false}]}} |
     And I register clean-up steps:
     """
     And I successfully merge patch resource "image.config.openshift.io/cluster" with:
-      | {"spec":{"allowedRegistriesForImport":[]}} | 
+      | {"spec":{"allowedRegistriesForImport":[]}} |
     """
     And I wait for the steps to pass:
     """
@@ -475,7 +475,7 @@ Feature: Testing registry
       | n      | <%= cb.saved_name %>                                  |
     Then the step should succeed
     And I successfully merge patch resource "image.config.openshift.io/cluster" with:
-      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":true}]}} | 
+      | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":true}]}} |
     And I wait for the steps to pass:
     """
     And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :third_change clipboard

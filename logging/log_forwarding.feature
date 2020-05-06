@@ -67,7 +67,7 @@ Feature: log forwarding related tests
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
-    
+
     # create project to generate logs
     Given I switch to the first user
     And I create a project with non-leading digit name
@@ -110,7 +110,7 @@ Feature: log forwarding related tests
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
       | logging-infra=fluentd |
-    
+
     # create project to generate logs
     Given I switch to the first user
     And I create a project with non-leading digit name

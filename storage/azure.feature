@@ -223,7 +223,7 @@ Feature: Azure disk and Azure file specific scenarios
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azfpvcpod.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azfpvcpod.yaml |
       | n | <%= project.name %>                                                                                  |
     Then the step should succeed
     Given the pod named "azfpod" becomes ready

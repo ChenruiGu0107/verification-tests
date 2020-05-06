@@ -209,7 +209,7 @@ Feature: Testing imagestream
     When I obtain test data file "registry/registry.access.redhat.com.yaml"
     And "controller-manager" daemonset becomes ready in the "openshift-controller-manager" project
     And I run the :create_configmap client command with:
-      | name      | <%= cb.sign_name %>             | 
+      | name      | <%= cb.sign_name %>             |
       | from_file | registry.access.redhat.com.yaml |
     Then the step should succeed
     When I run the :set_volume client command with:

@@ -320,7 +320,7 @@ Feature: template related scenarios:
   Scenario: Show user getting start info after new-app a template with message defined
     Given I have a project
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | template                  |
@@ -413,7 +413,7 @@ Feature: template related scenarios:
     Given I have a project
     And I run the :new_app client command with:
       | source_spec | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23251/template-with-crd.yaml |
-    And the output should contain: 
+    And the output should contain:
       | oc process -f <template> \| oc create |
     Then the step should fail
     And I run the :new_app client command with:

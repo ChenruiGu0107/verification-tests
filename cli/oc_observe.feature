@@ -137,7 +137,7 @@ Feature: oc observe related tests
       | Updated.*add_to_inventory.*<%= project.name %> database <%= cb.database_ip %> |
       | Deleted.*remove_from_inventory.*<%= project.name %> database                  |
 
-    # Resource change occurs when oc observe is stopped 
+    # Resource change occurs when oc observe is stopped
     When I run the :delete client command with:
       | object_type       | service  |
       | object_name_or_id | frontend |

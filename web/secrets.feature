@@ -480,7 +480,7 @@ Feature: web secrets related
   Scenario: Create generic secret by uploading file on web console
     Given the master version >= "3.10"	
     Given I have a project
-    
+
     #Create generic secret, input value directly
     When I perform the :create_generic_secret_from_user_input web console action with:
       | project_name    | <%= project.name %> |

@@ -196,7 +196,7 @@ Feature: oc_process.feature
       | resource      | build                 |
       | resource_name | ruby22-sample-build-5 |
     Then the output should contain "PostCommitHookFailed"
-    
+
     Examples:
       | error                  |
       | PullBuilderImageFailed |  # @case_id OCP-11064

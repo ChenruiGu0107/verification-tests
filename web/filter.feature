@@ -62,7 +62,7 @@ Feature: filter on create page
     Then the output should contain:
       | myrun |
     When I run the :clear_all_filters web console action
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :filter_resources_with_exists_option web console action with:
       | label_key     | app    |
       | filter_action | exists |

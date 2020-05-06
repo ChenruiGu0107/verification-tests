@@ -35,7 +35,7 @@ Feature: query browser
   Scenario: Developer query browser feature - common user
     Given the master version >= "4.4"
     Given I open admin console in a browser
-   
+
     #create project and deploy pod
     Given I create a project with non-leading digit name
     Given evaluation of `project.name` is stored in the :proj_name clipboard
@@ -43,7 +43,7 @@ Feature: query browser
     When I run the :new_app client command with:
       | app_repo | openshift/deployment-example |
     Then the step should succeed
-    
+
     #Go to developer mode, select the project
     When I run the :navigate_to_dev_console web action
     Then the step should succeed
@@ -96,7 +96,7 @@ Feature: query browser
     And I perform the :check_zoom_value web action with:
       | zoom_value | 30m |
     Then the step should succeed
-    #check show/hide promql    
+    #check show/hide promql
     When I run the :show_promql_if_exists web action
     And I run the :check_query_input_text_area web action
     Then the step should succeed
@@ -111,7 +111,7 @@ Feature: query browser
     Given the master version >= "4.4"
     Given I open admin console in a browser
     And the first user is cluster-admin
-      
+
     #Go to developer mode, select the project
     When I run the :navigate_to_dev_console web action
     Then the step should succeed
@@ -164,7 +164,7 @@ Feature: query browser
     And I perform the :check_zoom_value web action with:
       | zoom_value | 30m |
     Then the step should succeed
-    #check show/hide promql    
+    #check show/hide promql
     When I run the :show_promql_if_exists web action
     And I run the :check_query_input_text_area web action
     Then the step should succeed

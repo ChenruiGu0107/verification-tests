@@ -11,7 +11,7 @@ Feature: sessions related scenarios
       | <%= env.api_endpoint_url.gsub(%r{https?://},'').gsub('.', '-') %> |
       | <%= user.name %>                                                  |
     When I run the :whoami client command with:
-      | t || 
+      | t ||
     Then the output should contain:
       | <%= user.cached_tokens.first %> |
     When I run the :whoami client command with:

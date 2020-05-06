@@ -165,4 +165,4 @@ Feature: Pod related networking scenarios
     And the pod named "hostnetwork-pod" becomes ready
     When I execute on the pod:
       | curl | -I | 169.254.169.254 |
-    Then the output should contain "200 OK"    
+    Then the output should contain "200 OK"

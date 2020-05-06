@@ -36,7 +36,7 @@ Feature: Testing ingress to route object
       | http://<%= cb.proj_name %>.<%= cb.subdomain %>/test/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-Path-Test"
-    
+
   # @author zzhao@redhat.com
   # @case_id OCP-18791
   Scenario: haproxy support ingress object with TLS
@@ -103,8 +103,8 @@ Feature: Testing ingress to route object
       | resource_name | path-ingress |
     Then the step should succeed
     And the output should contain "<%= cb.proj_name %>.<%= cb.subdomain %>"
-    
-    # create another pod and service for updating service later 
+
+    # create another pod and service for updating service later
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
     Then the step should succeed
@@ -112,7 +112,7 @@ Feature: Testing ingress to route object
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
     Then the step should succeed
-    
+
     # updating the path
     When I run the :patch client command with:
       | resource      | ingress      |

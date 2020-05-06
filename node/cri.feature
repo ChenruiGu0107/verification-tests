@@ -23,7 +23,7 @@ Feature:CRI related features
     And evaluation of `rand(5001..7999)` is stored in the :port1 clipboard
     When I run the :port_forward background client command with:
       | pod       | hello-pod |
-      | port_spec | <%= cb[:port1] %>:5000|   
+      | port_spec | <%= cb[:port1] %>:5000|
     Then the step should succeed
         When I run the :exec client command with:
       | pod          | hello-pod |
@@ -39,12 +39,12 @@ Feature:CRI related features
     Given the master version == "3.6"
     And I use the first master host
     And config of all nodes is merged with the following hash:
-    """ 
+    """
     kubeletArguments:
      enable-cri:
      - 'false'
     """
-    And the node service is restarted on all nodes 
+    And the node service is restarted on all nodes
     Given I have a project
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/podpreset/hello-pod.yaml |
@@ -64,7 +64,7 @@ Feature:CRI related features
     And evaluation of `rand(5001..7999)` is stored in the :port1 clipboard
     When I run the :port_forward background client command with:
       | pod       | hello-pod |
-      | port_spec | <%= cb[:port1] %>:5000|   
+      | port_spec | <%= cb[:port1] %>:5000|
     Then the step should succeed
         When I run the :exec client command with:
       | pod          | hello-pod |

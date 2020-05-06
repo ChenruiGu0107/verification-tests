@@ -24,7 +24,7 @@ Feature: negative tests
       | unknown command "teg" for "oc" |
       | Did you mean this              |
       | tag                            |
-  
+
   # @author xiaocwan@redhat.com
   # @case_id OCP-10190
   Scenario: Check output for resource idle command and negative commands
@@ -42,7 +42,7 @@ Feature: negative tests
       | svc_name | rc/hello-idle  |
       | dry-run  | true           |
     Then the step should fail
-    And the output should match:     
+    And the output should match:
       | no valid.*resources.*specify endpoints |
     ## idle again
     Given I wait until number of replicas match "2" for replicationController "hello-idle"
@@ -78,9 +78,9 @@ Feature: negative tests
     Then the step should succeed
     And the output should match:
       | [Yy]ou have no  |
-      | oc new-app      |  
+      | oc new-app      |
     # follow output instruction to test `oc new-app`
-    
+
     # oc new-app negative/positive oc status positive
     When I run the :new_app client command
     Then the step should fail
@@ -89,7 +89,7 @@ Feature: negative tests
       | oc new-app -L                    |
       | oc new-app -S                    |
       | oc new-app -h                    |
-    
+
     # oc describe negative
     When I run the :describe client command with:
       | resource | :false |
@@ -116,7 +116,7 @@ Feature: negative tests
     # oc start-build negative
     When I run the :start_build client command
     Then the step should fail
-    And the output should match:  
+    And the output should match:
       | [Ee]rror.*build config           |
       | specify build name.*--from-build |
       | oc get bc                        |
@@ -128,11 +128,11 @@ Feature: negative tests
       | resource         | :false        |
       | resource_name    | :false        |
     Then the step should fail
-    And the output should match: 
+    And the output should match:
       | [Ee]rror.*must provide.*resource |
       | [Ee]xample resource.*include     |
 
     # oc logs
     When I run the :logs client command with:
       | resource_name | :false |
-    Then the step should fail 
+    Then the step should fail

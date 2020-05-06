@@ -49,11 +49,11 @@ Feature: negative testing
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/scaleio/secret.yaml |
     Then the step should succeed
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/scaleio/pod.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/scaleio/pod.yaml |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | po/pod |
     Then the output should contain:
-      | ScaleIO storage pool not provided | 
+      | ScaleIO storage pool not provided |
 

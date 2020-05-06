@@ -46,7 +46,7 @@ Feature: dockerbuild.feature
       | template      | {{.spec.output.to.kind}} |
     Then the step should succeed
     And the output should contain "DockerImage"
-    Given evaluation of `"image-registry.openshift-image-registry.svc:5000"` is stored in the :integrated_reg_ip clipboard 
+    Given evaluation of `"image-registry.openshift-image-registry.svc:5000"` is stored in the :integrated_reg_ip clipboard
     When I run the :patch client command with:
       | resource      | bc                |
       | resource_name | ruby-sample-build |

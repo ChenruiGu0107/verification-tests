@@ -45,7 +45,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :go_to_register_plan web action
     Then the step should succeed
     When I run the :check_free_plan_info web action
-    Then the step should succeed   
+    Then the step should succeed
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-19002
@@ -55,7 +55,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :go_to_register_plan web action
     Then the step should succeed
     When I run the :check_pro_plan_info web action
-    Then the step should succeed   
+    Then the step should succeed
 
   # @author etrott@redhat.com
   # @case_id OCP-12751
@@ -80,108 +80,108 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10535
-  Scenario: apply account user profile with greeting  
+  Scenario: apply account user profile with greeting
     Given I open accountant console in a browser
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting |         |  
-      | new_greeting     | Mr.     |  
+      | current_greeting |         |
+      | new_greeting     | Mr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Mr.     |  
-      | new_greeting     | Mrs.    |  
+      | current_greeting | Mr.     |
+      | new_greeting     | Mrs.    |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Mrs.    |  
-      | new_greeting     | Ms.     |  
+      | current_greeting | Mrs.    |
+      | new_greeting     | Ms.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Ms.     |  
-      | new_greeting     | Miss    |  
+      | current_greeting | Ms.     |
+      | new_greeting     | Miss    |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Miss    |  
-      | new_greeting     | Dr.     |  
+      | current_greeting | Miss    |
+      | new_greeting     | Dr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Dr.     |  
-      | new_greeting     | Hr.     |  
+      | current_greeting | Dr.     |
+      | new_greeting     | Hr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Hr.     |  
-      | new_greeting     | Sr.     |  
+      | current_greeting | Hr.     |
+      | new_greeting     | Sr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Primary |
       | contact          | primary |
-      | current_greeting | Sr.     |  
-      | new_greeting     |         |  
+      | current_greeting | Sr.     |
+      | new_greeting     |         |
     Then the step should succeed
 
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting |         |  
-      | new_greeting     | Mr.     |  
+      | current_greeting |         |
+      | new_greeting     | Mr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Mr.     |  
-      | new_greeting     | Mrs.    |  
+      | current_greeting | Mr.     |
+      | new_greeting     | Mrs.    |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Mrs.    |  
-      | new_greeting     | Ms.     |  
+      | current_greeting | Mrs.    |
+      | new_greeting     | Ms.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Ms.     |  
-      | new_greeting     | Miss    |  
+      | current_greeting | Ms.     |
+      | new_greeting     | Miss    |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Miss    |  
-      | new_greeting     | Dr.     |  
+      | current_greeting | Miss    |
+      | new_greeting     | Dr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Dr.     |  
-      | new_greeting     | Hr.     |  
+      | current_greeting | Dr.     |
+      | new_greeting     | Hr.     |
     Then the step should succeed
     When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Hr.     |  
-      | new_greeting     | Sr.     |  
+      | current_greeting | Hr.     |
+      | new_greeting     | Sr.     |
     Then the step should succeed
    When I perform the :update_contact_greeting_on_index_page web action with:
       | contact_cap      | Billing |
       | contact          | billing |
-      | current_greeting | Sr.     |  
-      | new_greeting     |         |  
+      | current_greeting | Sr.     |
+      | new_greeting     |         |
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id OCP-14283 
+  # @case_id OCP-14283
   Scenario: Update user infomation after plan cancellation
     Given I open accountant console in a browser
     When I run the :click_to_change_plan web action
@@ -195,7 +195,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     """
     Given I access the "./" url in the web browser
     When I perform the :click_resume_your_subscription_confirm web action with:
-      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
     Then the step should succeed
     When I perform the :update_contact_item_input_on_index_page web action with:
       | contact_cap | Primary        |
@@ -251,7 +251,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | profile      | Primary         |
       | nation_code  | CZ              |
       | autocomplete | Czechia         |
-    Then the step should succeed  
+    Then the step should succeed
     When I perform the :check_autocomplete_from_country_input web action with:
       | profile      | Primary         |
       | spelling     | Česká           |
@@ -261,7 +261,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | profile      | Primary         |
       | spelling     | Беларусь        |
       | autocomplete | Belarus         |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_autocomplete_from_country_input web action with:
       | profile      | Primary         |
       | spelling     | 한국             |
@@ -279,7 +279,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     When I perform the :check_unsupported_country_not_exist web action with:
       | country      | Cuba |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :check_unsupported_country_not_exist web action with:
       | country      | Iran |
     Then the step should succeed
@@ -302,71 +302,71 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     Given I saved following keys to list in :countries clipboard:
       | Angola  | |
-      | Antigua and Barbuda | | 
-      | Aruba | | 
-      | Bahamas | | 
-      | Belize  | | 
-      | Benin | | 
-      | Bolivia | | 
-      | Botswana  | | 
-      | Burkina Faso  | | 
-      | Burundi | | 
-      | Cameroon  | | 
-      | Central African Republic  | | 
-      | Comoros | | 
-      | Congo | | 
-      | Congo (Democratic Republic of the)  | | 
-      | Cook Islands  | | 
-      # #| Cote D | | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739 
-      | Djibouti  | | 
-      | Dominica  | | 
-      | Equatorial Guinea | | 
-      | Eritrea | | 
-      | Fiji  | | 
-      | Ghana | | 
-      | Grenada | | 
-      | Guinea  | | 
-      | Guyana  | | 
-      | Ireland | | 
-      | Jamaica | | 
-      | Kenya | | 
-      | Kiribati  | | 
-      | Malawi  | | 
-      | Mali  | | 
-      | Mauritania  | | 
-      | Mauritius | | 
-      | Montserrat  | | 
-      | Nauru | | 
-      | Niue  | | 
-      | Panama  | | 
-      | Qatar | | 
-      | Rwanda  | | 
-      | Saint Kitts and Nevis | | 
-      | Saint Lucia | | 
-      | Sao Tome and Principe | | 
-      | Saudi Arabia  | | 
-      | Seychelles  | | 
-      | Sierra Leone  | | 
-      | Solomon Islands | | 
-      | Somalia | | 
-      | South Africa  | | 
-      | Suriname  | | 
-      | Tanzania, United Republic of  | | 
-      | Timor-Leste | | 
-      | Tokelau | | 
-      | Tonga | | 
-      | Trinidad and Tobago | | 
-      | Tuvalu  | | 
-      | Uganda  | | 
-      | United Arab Emirates  | | 
-      | Vanuatu | | 
-      | Yemen | | 
-      | Zimbabwe | |   
+      | Antigua and Barbuda | |
+      | Aruba | |
+      | Bahamas | |
+      | Belize  | |
+      | Benin | |
+      | Bolivia | |
+      | Botswana  | |
+      | Burkina Faso  | |
+      | Burundi | |
+      | Cameroon  | |
+      | Central African Republic  | |
+      | Comoros | |
+      | Congo | |
+      | Congo (Democratic Republic of the)  | |
+      | Cook Islands  | |
+      # #| Cote D | | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739
+      | Djibouti  | |
+      | Dominica  | |
+      | Equatorial Guinea | |
+      | Eritrea | |
+      | Fiji  | |
+      | Ghana | |
+      | Grenada | |
+      | Guinea  | |
+      | Guyana  | |
+      | Ireland | |
+      | Jamaica | |
+      | Kenya | |
+      | Kiribati  | |
+      | Malawi  | |
+      | Mali  | |
+      | Mauritania  | |
+      | Mauritius | |
+      | Montserrat  | |
+      | Nauru | |
+      | Niue  | |
+      | Panama  | |
+      | Qatar | |
+      | Rwanda  | |
+      | Saint Kitts and Nevis | |
+      | Saint Lucia | |
+      | Sao Tome and Principe | |
+      | Saudi Arabia  | |
+      | Seychelles  | |
+      | Sierra Leone  | |
+      | Solomon Islands | |
+      | Somalia | |
+      | South Africa  | |
+      | Suriname  | |
+      | Tanzania, United Republic of  | |
+      | Timor-Leste | |
+      | Tokelau | |
+      | Tonga | |
+      | Trinidad and Tobago | |
+      | Tuvalu  | |
+      | Uganda  | |
+      | United Arab Emirates  | |
+      | Vanuatu | |
+      | Yemen | |
+      | Zimbabwe | |
     When I repeat the following steps for each :country in cb.countries:
     """
     When I perform the :check_country_related_item_hide web action with:
       | country    | #{cb.country}  |
-      | item       | data-postcode  | 
+      | item       | data-postcode  |
     Then the step should succeed
     """
 
@@ -379,52 +379,52 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     Given I saved following keys to list in :countries clipboard:
       | American Samoa  | |
-      | Anguilla  |  | 
-      | Antarctica  |  | 
-      | Aruba  |  | 
-      | Bermuda  |  | 
-      | Bouvet Island  |  | 
-      | British Indian Ocean Territory  |  | 
-      | Cayman Islands  |  | 
-      | Christmas Island  |  | 
-      | Cocos (Keeling) Islands  |  | 
-      | Cook Islands  |  | 
-      | Falkland Islands (Malvinas)  |  | 
-      | Faroe Islands  |  | 
-      | Gibraltar  |  | 
-      | Greenland  |  | 
-      | Guadeloupe  |  | 
-      | Guam  |  | 
-      | Heard Island and McDonald Islands  |  | 
-      | Holy See  |  | 
-      | Martinique  |  | 
-      | Mayotte  |  | 
-      | Monaco  |  | 
-      | Montserrat  |  | 
-      | New Caledonia  |  | 
-      | Niue  |  | 
-      | Norfolk Island  |  | 
-      | Northern Mariana Islands  |  | 
-      | Pitcairn  |  | 
-      | Puerto Rico  |  | 
-    #  | Reunion  |  | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739 
-      | Saint Lucia  |  | 
-      | Saint Pierre and Miquelon  |  | 
-      | Saint Vincent and the Grenadines  |  | 
-      | South Georgia and the South Sandwich Islands  |  | 
-      | Svalbard and Jan Mayen  |  | 
-      | Tajikistan  |  | 
-      | Tokelau  |  | 
-      | Turks and Caicos Islands  |  | 
-      | Virgin Islands (British)  |  | 
-      | Virgin Islands (U.S.)  |  | 
-      | Wallis and Futuna  |  | 
+      | Anguilla  |  |
+      | Antarctica  |  |
+      | Aruba  |  |
+      | Bermuda  |  |
+      | Bouvet Island  |  |
+      | British Indian Ocean Territory  |  |
+      | Cayman Islands  |  |
+      | Christmas Island  |  |
+      | Cocos (Keeling) Islands  |  |
+      | Cook Islands  |  |
+      | Falkland Islands (Malvinas)  |  |
+      | Faroe Islands  |  |
+      | Gibraltar  |  |
+      | Greenland  |  |
+      | Guadeloupe  |  |
+      | Guam  |  |
+      | Heard Island and McDonald Islands  |  |
+      | Holy See  |  |
+      | Martinique  |  |
+      | Mayotte  |  |
+      | Monaco  |  |
+      | Montserrat  |  |
+      | New Caledonia  |  |
+      | Niue  |  |
+      | Norfolk Island  |  |
+      | Northern Mariana Islands  |  |
+      | Pitcairn  |  |
+      | Puerto Rico  |  |
+    #  | Reunion  |  | Bug https://bugzilla.redhat.com/show_bug.cgi?id=1590739
+      | Saint Lucia  |  |
+      | Saint Pierre and Miquelon  |  |
+      | Saint Vincent and the Grenadines  |  |
+      | South Georgia and the South Sandwich Islands  |  |
+      | Svalbard and Jan Mayen  |  |
+      | Tajikistan  |  |
+      | Tokelau  |  |
+      | Turks and Caicos Islands  |  |
+      | Virgin Islands (British)  |  |
+      | Virgin Islands (U.S.)  |  |
+      | Wallis and Futuna  |  |
       | Åland Islands  |  |
     When I repeat the following steps for each :country in cb.countries:
     """
     When I perform the :check_country_related_item_hide web action with:
       | country    | #{cb.country} |
-      | item       | data-region   | 
+      | item       | data-region   |
     Then the step should succeed
     """
 
@@ -436,7 +436,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     Given I saved following keys to list in :profiles clipboard:
       | Billing  | |
-      | Primary  | | 
+      | Primary  | |
     When I repeat the following steps for each :profile in cb.profiles:
     """
     When I perform the :check_maxlength_or_required web action with:
@@ -471,7 +471,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | profile             | #{cb.profile}   |
       | name                | country         |
       | required_invisible  | yes             |
-    Then the step should succeed   
+    Then the step should succeed
     When I perform the :check_maxlength_or_required web action with:
       | profile   | #{cb.profile}   |
       | name      | city            |
@@ -502,7 +502,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Given I open accountant console in a browser
     When I run the :go_to_register_pro_cluster_page web action
     Then the step should succeed
-    
+
     ## check select elements on the page - each has at least two options
     When I perform the :check_select_item_have_at_least_two_options web action with:
       | select_id | contact_greeting |
@@ -547,7 +547,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author yuwei@redhat.com
   # @case_id OCP-17678
-  Scenario: Check the coupon block - UI 
+  Scenario: Check the coupon block - UI
     Given I open accountant console in a browser
     When I run the :goto_coupons_webpage web action
     Then the step should succeed
@@ -587,10 +587,10 @@ Feature: ONLY Accountant console related feature's scripts in this file
     Then the step should succeed
     When I run the :click_deselect_all_button web action
     Then the step should succeed
-    
+
   # @author yuwei@redhat.com
   # @case_id OCP-19728
-  Scenario: Check nav links to RHD account info 
+  Scenario: Check nav links to RHD account info
     Given I open accountant console in a browser
     When I run the :check_nav_link web action
     Then the step should succeed
@@ -603,7 +603,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
     When I run the :go_to_register_pro_cluster_page web action
     Then the step should succeed
     When I run the :check_county_info web action
-  
+
   # @author yuwan@redhat.com
   # @case_id OCP-13183
   # @note this scenario requires a user who have pro cluster(1) left to resigster
@@ -637,7 +637,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
   # @author yuwei@redhat.com
   # @case_id OCP-15503
   # this case required an account with a Pro plan
-  Scenario: Check the account overview page after provisioned on a Pro cluster  
+  Scenario: Check the account overview page after provisioned on a Pro cluster
     Given I open accountant console in a browser
     When I run the :check_current_plan_content web action
     Then the step should succeed
@@ -664,7 +664,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author yuwei@redhat.com
   # @case_id OCP-15530
-  # This case requires account without any addon 
+  # This case requires account without any addon
   Scenario Outline: Upgrade/downgrade the resource add-on will refresh the resouce values on the account overview page
     Given I open accountant console in a browser
     # upgrade addon and check
@@ -734,7 +734,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | city           | |
       | county         | |
       | postcode       | |
-      | phone_number   | | 
+      | phone_number   | |
     When I repeat the following steps for each :id in cb.input_ids:
     """
     When I perform the :check_input_could_be_edited_on_current_page web action with:
@@ -781,7 +781,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
       | city           | |
       | county         | |
       | postcode       | |
-      | phone_number   | | 
+      | phone_number   | |
     When I repeat the following steps for each :id in cb.input_ids:
     """
     When I perform the :check_input_could_be_edited_on_current_page web action with:

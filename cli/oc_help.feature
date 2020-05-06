@@ -98,4 +98,4 @@ Feature: oc related features
     And the output should match:
       | oc set route-backends ROUTENAME      |
       | oc set route-backends web            |
-      | Use.*oc options.*for                 |    
+      | Use.*oc options.*for                 |

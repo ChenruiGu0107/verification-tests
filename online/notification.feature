@@ -99,7 +99,7 @@ Feature: Online "Notification" related scripts in this file
     | total    | <total_memory> |
     | resource | memory (limit) |
   Then the step should succeed
-  When I run the :check_mark_all_read_button_on_notification_drawer web action 
+  When I run the :check_mark_all_read_button_on_notification_drawer web action
   Then the step should succeed
   When I run the :check_clear_all_button_on_notification_drawer web action
   Then the step should succeed

@@ -173,7 +173,7 @@ Feature: AutoScaler relative cases
       | cpu_request_target | 50            |
     Then the step should succeed
     """
-    
+
     When I perform the :check_autoscaler_info_missing_on_overview_page web console action with:
       | project_name  | <%= project.name %>    |
       | resource_type | replication controller |

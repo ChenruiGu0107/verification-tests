@@ -6,7 +6,7 @@ Feature: secrets related
     Given I have a project
     Given an 16 character random string of type :dns is stored into the :webhook_skey clipboard
     And I open admin console in a browser
-    
+
     # create secret with manual input
     When I perform the :create_secret web action with:
       | project_name        | <%= project.name %>    |
@@ -21,7 +21,7 @@ Feature: secrets related
     And the output should match:
       | [Tt]ype.*Opaque    |
       | WebHookSecretKey.* |
-    
+
     # create secret with generated data
     When I perform the :create_secret web action with:
       | project_name        | <%= project.name %>    |
@@ -35,7 +35,7 @@ Feature: secrets related
     And the output should match:
       | [Tt]ype.*Opaque    |
       | WebHookSecretKey.* |
-    
+
     # Reveal/Hide could show/hide secret data
     When I perform the :goto_one_secret_page web action with:
       | project_name        | <%= project.name %>    |
@@ -72,7 +72,7 @@ Feature: secrets related
       | resource | secret/sourcesecret1 |
     Then the step should succeed
     And the output should match:
-      | [Tt]ype.*kubernetes.io/basic-auth    |    
+      | [Tt]ype.*kubernetes.io/basic-auth    |
     When I perform the :goto_one_secret_page web action with:
       | project_name    | <%= project.name %>  |
       | secret_name     | sourcesecret1        |
@@ -153,9 +153,9 @@ Feature: secrets related
       | key            | key_2   |
       | textarea_value | value_2 |
       | save           | |
-    Then the step should succeed 
+    Then the step should succeed
 
-    # Check updated secret 
+    # Check updated secret
     When I run the :click_reveal_values web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:

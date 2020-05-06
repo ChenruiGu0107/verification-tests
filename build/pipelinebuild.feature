@@ -114,7 +114,7 @@ Feature: pipelinebuild.feature
 
   # @author xiuwang@redhat.com
   # @case_id OCP-17299
-  Scenario: Sync openshift secret to credential in jenkins with basic-auth type 
+  Scenario: Sync openshift secret to credential in jenkins with basic-auth type
     Given I have a project
     Given I have a jenkins v2 application
     When I have an http-git service in the project
@@ -199,7 +199,7 @@ Feature: pipelinebuild.feature
 
   # @author xiuwang@redhat.com
   # @case_id OCP-17315
-  Scenario: Sync openshift secret to credential in jenkins with ssh-auth type 
+  Scenario: Sync openshift secret to credential in jenkins with ssh-auth type
     Given I have a project
     Given I have a jenkins v2 application
     When I have an ssh-git service in the project
@@ -332,7 +332,7 @@ Feature: pipelinebuild.feature
     And I have a project
     And I have a jenkins v2 application
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -350,7 +350,7 @@ Feature: pipelinebuild.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     """
-    Given I get project builds 
+    Given I get project builds
     Then the output should contain 3 times:
       | sample-pipeline |
     When the "sample-pipeline-3" build becomes :running
@@ -360,7 +360,7 @@ Feature: pipelinebuild.feature
       | checktext  | <%= project.name %>/sample-pipeline-3  |
       | job_num    | 3                                      |
       | time_out   | 300                                    |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :scale client command with:
       | resource | rc        |
       | name     | jenkins-1 |

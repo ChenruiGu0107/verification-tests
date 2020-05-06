@@ -635,7 +635,7 @@ Feature: jenkins.feature
     Given I have a project
     And I have a jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml | 
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given I get project buildconfigs
     Then the output should contain 2 times:

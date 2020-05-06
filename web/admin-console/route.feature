@@ -162,7 +162,7 @@ Feature: route related
       | prometheus_ui_route      | <%= route('prometheus-k8s').spec.host %>    |
       | dashboards_grafana_route | <%= route('grafana').spec.host %>           |
     Then the step should succeed
- 
+
   # @author yanpzhan@redhat.com
   # @case_id OCP-23580
   Scenario: Check canonical router hostname and popover help
@@ -288,12 +288,12 @@ Feature: route related
     When I run the :goto_cli_tools_page web action
     Then the step should succeed
     When I perform the :check_default_oc_download_links web action with:
-      | downloads_route | <%= cb.downloads_route %> | 
+      | downloads_route | <%= cb.downloads_route %> |
     Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-19608
-  Scenario: Check route list and detail page  
+  Scenario: Check route list and detail page
     Given the master version >= "4.1"
     Given I have a project
     When I run the :create client command with:
@@ -301,7 +301,7 @@ Feature: route related
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json          |
     Then the step should succeed
 
-    # create two routes, one is created from default YAML, the other is created by form 
+    # create two routes, one is created from default YAML, the other is created by form
     Given I open admin console in a browser
     When I perform the :goto_routes_page web action with:
       | project_name | <%= project.name %> |

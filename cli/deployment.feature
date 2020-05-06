@@ -387,7 +387,7 @@ Feature: deployment related steps
 
     Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
       | current | 5 |
- 
+
   # @author geliu@redhat.com
   # @case_id OCP-11802
   Scenario: Proportionally scale - Mixture of surging, scaling and rollout
@@ -501,9 +501,9 @@ Feature: deployment related steps
       | revision      | 3               |
     Then the step should succeed
     And the output should match:
-      | .*[iI]mage.*openshift/nonexist1.* |  
+      | .*[iI]mage.*openshift/nonexist1.* |
 
-  # @author geliu@redhat.com 
+  # @author geliu@redhat.com
   # @case_id OCP-11966
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
     Given I have a project
@@ -516,7 +516,7 @@ Feature: deployment related steps
     Given number of replicas of "hello-openshift" deployment becomes:
       | current | 10 |
     Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
-      | current | 10 |    
+      | current | 10 |
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
       | resource_name | hello-openshift                                                                                         |
@@ -591,7 +591,7 @@ Feature: deployment related steps
       | current | 10 |
     When I run the :patch client command with:
       | resource      | deployment                                                                                              |
-      | resource_name | hello-openshift                                                                                         | 
+      | resource_name | hello-openshift                                                                                         |
       | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
     Then the step should succeed
     Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment

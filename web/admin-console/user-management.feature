@@ -123,7 +123,7 @@ Feature: User management related
   @admin
   Scenario: Users management on console
     Given the master version >= "4.3"
-    # create fake user by oc instead of by oauth login, 
+    # create fake user by oc instead of by oauth login,
     Given an 8 character random string of type :dns952 is stored into the :my_random clipboard
     And admin ensures "fake-user-<%= cb.my_random %>" user is deleted after scenario
     When I run the :create_user admin command with:

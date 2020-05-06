@@ -17,6 +17,6 @@ Feature: redis.feature
       | -c                                                                           |
       | redis-cli -h redis -p 6379 -c 'auth redhat; append mykey "hello"; get mykey' |
     Then the step should succeed
-    And the output should contain: 
+    And the output should contain:
       | hello |
     """

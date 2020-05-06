@@ -132,8 +132,8 @@ Feature: samplesoperator
       | Config contains the configuration and detailed condition status for the |
       | Samples Operator                                                        |
       | ConfigSpec contains the desired configuration and state for the Samples |
-      | Operator                                                                | 
-      | ConfigStatus contains the actual configuration in effect                | 
+      | Operator                                                                |
+      | ConfigStatus contains the actual configuration in effect                |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-27315
@@ -155,11 +155,11 @@ Feature: samplesoperator
   # @author xiuwang@redhat.com
   # @case_id OCP-27102
   @admin
-  Scenario: Bootstrap Samples Operator as Removed when TBR inaccessible 
+  Scenario: Bootstrap Samples Operator as Removed when TBR inaccessible
     When I run the :logs admin command with:
       | resource_name | deployment/cluster-samples-operator |
       | namespace     | openshift-cluster-samples-operator  |
       | c             | cluster-samples-operator            |
     And the output should contain:
       | test connection to registry.redhat.io failed                                                     |
-      | unable to establish HTTPS connection to registry.redhat.io after 3 minutes, bootstrap to Removed | 
+      | unable to establish HTTPS connection to registry.redhat.io after 3 minutes, bootstrap to Removed |

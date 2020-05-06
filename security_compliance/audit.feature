@@ -15,13 +15,13 @@ Feature: Audit logs related scenarios
     # Repeat the same step and it should fail
     When I run the :new_app client command with:
       | docker_image | aosqe/hello-openshift:latest |
-    Then the step should fail 
-    
-    # Scale deploymentconfig 
+    Then the step should fail
+
+    # Scale deploymentconfig
     When I run the :scale client command with:
       | resource | dc                  |
       | name     | hello-openshift     |
-      | replicas | 2                   | 
+      | replicas | 2                   |
     Then the step should succeed
     And the output should contain "hello-openshift scaled"
     And I wait until the status of deployment "hello-openshift" becomes :complete
@@ -58,7 +58,7 @@ Feature: Audit logs related scenarios
     Then the step should succeed
     And the output should contain:
       | "user":{"name":"<%= user.name %>","uid":"<%= cb.users_uid %>"} |
-      
+
     # Verify whatever action takes by normal user, the log entry captures in kube-apiserver audit logs
     When admin executes on the pod:
       | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep hello-openshift.*<%= cb.users_uid %> \| tail -5 |

@@ -74,7 +74,7 @@ Feature: tests on catalog page
 
     When I get project templateinstance as YAML
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :templateinstance clipboard
-  
+
     When I perform the :check_templateinstance_name_and_icon web action with:
       | resource_name | <%= cb.templateinstance %> |
     Then the step should succeed

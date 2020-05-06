@@ -216,7 +216,7 @@ Feature: customize console related
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
-    When I access the "/k8s/cluser/projects" path in the web console    
+    When I access the "/k8s/cluser/projects" path in the web console
     When I perform the :login_with_specified_idp web action with:
       | idp_name | ui-auto-htpasswd  |
       | username | uiauto1           |
@@ -591,48 +591,48 @@ Feature: customize console related
       | pod_name      | doublecontainers    |
     Then the step should succeed
 
-    # check the first container  
+    # check the first container
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                  |
       | link_url | resourceName=doublecontainers |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                  |
       | link_url | containerName=hello-openshift |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                  |
       | link_url | resourceNamespace=<%= project.name %> |
-    Then the step should succeed  
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                            |
       | link_url | resourceNamespaceUID=<%= project.uid %> |
-    Then the step should succeed 
+    Then the step should succeed
 
     # check the second container
     When I perform the :switch_to_other_container web action with:
       | dropdown_item     | hello-openshift-fedora |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_text_not_a_link web action with:
       | text | hello-openshift-fedora |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                          |
       | link_url | resourceName=doublecontainers         |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                          |
       | link_url | containerName=hello-openshift-fedora  |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                          |
       | link_url | resourceNamespace=<%= project.name %> |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | Example Logs                            |
       | link_url | resourceNamespaceUID=<%= project.uid %> |
-    Then the step should succeed 
-    
+    Then the step should succeed
+
   # @author yapei@redhat.com
   # @case_id OCP-25817
   @admin
@@ -647,7 +647,7 @@ Feature: customize console related
 
     Given the first user is cluster-admin
     And I open admin console in a browser
-    
+
     # check YAML sample when create Jobs
     When I perform the :goto_jobs_page web action with:
       | project_name | default |

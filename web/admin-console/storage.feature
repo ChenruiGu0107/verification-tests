@@ -43,7 +43,7 @@ Feature: storage (storageclass, pv, pvc) related
       | project_name       | <%= project.name %>     |
       | storage_class_name | sc-<%= project.name %>  |
       | pvc_name           | pvc-<%= project.name %> |
-      | pvc_request_size   | 300                     |      
+      | pvc_request_size   | 300                     |
       | access_mode        | ReadWriteOnce           |
       | pvc_size_unit      | Mi                      |
     Then the step should succeed
@@ -84,7 +84,7 @@ Feature: storage (storageclass, pv, pvc) related
     Then the step should succeed
     When I perform the :check_page_match web action with:
       | content | error |
-    Then the step should succeed  
+    Then the step should succeed
 
     # to string
     When I perform the :expand_pvc_size web action with:
@@ -115,7 +115,7 @@ Feature: storage (storageclass, pv, pvc) related
   @destructive
   Scenario: Expand PVC when there is limitrange and quota set
     Given the master version >= "4.2"
-    
+
     # admin could create ResourceQuata and LimitRange
     Given I have a project
     When I run the :create client command with:
@@ -142,11 +142,11 @@ Feature: storage (storageclass, pv, pvc) related
 
     # Add PVC to workloads so it can be Bound
     When I run the :set_volume client command with:
-      | resource      | dc                      |   
-      | resource_name | hooks                   |   
-      | add           | true                    |   
-      | type          | pvc                     |   
-      | claim-name    | pvc-<%= project.name %> |      
+      | resource      | dc                      |
+      | resource_name | hooks                   |
+      | add           | true                    |
+      | type          | pvc                     |
+      | claim-name    | pvc-<%= project.name %> |
       | mount-path    | /tmp/data               |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds

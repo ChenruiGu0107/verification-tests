@@ -85,4 +85,4 @@ Feature: configmap related
     Then the step should succeed
     When I perform the :check_binary_data_contains web action with:
       | binary_key | keystore.jks |
-    Then the step should succeed 
+    Then the step should succeed

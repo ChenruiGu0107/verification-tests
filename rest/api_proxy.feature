@@ -1,5 +1,5 @@
 Feature: Api proxy related cases
-  
+
   # @author wjiang@redhat.com
   # @case_id OCP-11531
   # @bug_id 1346167

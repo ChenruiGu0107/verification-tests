@@ -1,4 +1,4 @@
-Feature: Testing openshift-controller-manager-operator 
+Feature: Testing openshift-controller-manager-operator
   # @author wewang@redhat.com
   # @case_id OCP-21935
   @admin
@@ -46,7 +46,7 @@ Feature: Testing openshift-controller-manager-operator
       | type          | merge                          |
     Then the step should succeed
     """
-    When I wait for the steps to pass: 
+    When I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("openshift-controller-manager").conditions(cached:false).any? {|c| c["reason"] =~ /DesiredStateNotYetAchieved/ && c["status"] == "True" && c["type"] == "Progressing"}
     """
@@ -68,7 +68,7 @@ Feature: Testing openshift-controller-manager-operator
       | manage openshift-controller-manager.                                        |
       | APIVersion defines the versioned schema of this representation of an        |
       | object                                                                      |
-      | Kind is a string value representing the REST resource this object           | 
+      | Kind is a string value representing the REST resource this object           |
       | represents.                                                                 |
       | Standard object's metadata                                                  |
 
@@ -76,7 +76,7 @@ Feature: Testing openshift-controller-manager-operator
   # @case_id OCP-26828
   @admin
   @destructive
-    Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 	
+  Scenario: Controller Manager Status reported by cluster-openshift-controller-manager-operator 	
     Given the master version == "4.1"
     When I switch to cluster admin pseudo user
     And I register clean-up steps:

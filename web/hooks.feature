@@ -62,7 +62,7 @@ Feature: bc/dc hooks related
     Then the step should succeed
     When I perform the :set_lifecycle_images_hook_action web console action with:
       | hook_type | post |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :set_dc_hook_tag_as web console action with:
       | hook_type           | post                |
       | image_stream        | hello-openshift     |

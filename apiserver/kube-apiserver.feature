@@ -23,7 +23,7 @@ Feature: KUBE API server related features
   # @author kewang@redhat.com
   # @case_id OCP-27665
   @admin
-  Scenario: Check if the kube-storage-version-migrator operator related manifests has been loaded 
+  Scenario: Check if the kube-storage-version-migrator operator related manifests has been loaded
   Given the master version >= "4.4"
   When I run the :get admin command with:
     | resource       | customresourcedefinition                          |

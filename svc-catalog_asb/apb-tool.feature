@@ -30,7 +30,7 @@ Feature: The apb tool related scenarios
       | description |
       | metadata    |
       | parameters  |
-    
+
   # @author jiazha@redhat.com
   # @case_id OCP-18562
   @admin
@@ -63,7 +63,7 @@ Feature: The apb tool related scenarios
     Then the step should succeed
     And the output should contain "Successfully bootstrapped Ansible Service Broker"
     And the output should not contain "Successfully relisted the Service Catalog"
-    
+
   # @author jiazha@redhat.com
   # @case_id OCP-15042
   @admin
@@ -96,7 +96,7 @@ Feature: The apb tool related scenarios
     Then the step should succeed
     And the output should contain "Successfully relisted the Service Catalog"
     And the output should contain "Successfully deleted APB"
-    
+
     When I run the :list client command with:
       | _tool | apb |
     Then the step should succeed
@@ -104,11 +104,11 @@ Feature: The apb tool related scenarios
     And the output should not contain "Error"
     And the output should not contain "No APBs found"
     And the output should not contain "<%= cb.class_id %>"
-    
+
     When I run the :bootstrap client command with:
       | _tool | apb |
     Then the step should succeed
-    
+
     When I run the :list client command with:
       | _tool | apb |
     Then the step should succeed
@@ -128,7 +128,7 @@ Feature: The apb tool related scenarios
       | _tool | apb |
     Then the step should succeed
     And the output should contain "No APBs found"
-    
+
   # @author jiazha@redhat.com
   # @case_id OCP-18557
   @admin
@@ -177,7 +177,7 @@ Feature: The apb tool related scenarios
       | _tool          | apb                       |
       | registry-route | <%= cb.docker_registry %> |
     Then the step should succeed
-    
+
     When I run the :list client command with:
       | _tool | apb |
     Then the step should succeed

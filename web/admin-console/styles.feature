@@ -34,7 +34,7 @@
     Then the step should succeed
     When I run the :check_overlay_edit_modal_title web action
     Then the step should succeed
-    
+
   # @author xiaocwan@redhat.com
   # @case_id OCP-24307
   @admin
@@ -86,7 +86,7 @@
     Given the master version >= "4.4"
     Given the first user is cluster-admin
     When I open admin console in a browser
-    Then the step should succeed  
+    Then the step should succeed
 
     When I perform the :goto_deployment_page web action with:
       | project_name  | openshift-console |
@@ -98,12 +98,12 @@
       | project_name  | openshift-console |
     Then the step should succeed
     When I run the :check_list_view_style web action
-    Then the step should succeed  
+    Then the step should succeed
 
     When I run the :goto_storageclass_page web action
-    Then the step should succeed  
+    Then the step should succeed
     When I run the :check_list_view_style web action
-    Then the step should succeed  
+    Then the step should succeed
 
     When I perform the :goto_imagestreams_page web action with:
       | project_name  | openshift |

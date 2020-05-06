@@ -13,7 +13,7 @@ Feature: proxybuild.feature
     Then evaluation of `cb.proxies_name.http_proxy(user: admin)` is stored in the :http_proxy clipboard
     And evaluation of `cb.proxies_name.https_proxy(user: admin)` is stored in the :https_proxy clipboard
     When I run the :patch client command with:
-      | resource      | bc                  | 
+      | resource      | bc                  |
       | resource_name | ruby-hello-world    |
       | p             | {"spec":{"source":{"git":{"httpProxy":"<%= cb.http_proxy %>","httpsProxy":"<%= cb.https_proxy %>","noProxy":"test.local"}}}} |
       | n             | <%= project.name %> |
@@ -24,7 +24,7 @@ Feature: proxybuild.feature
     Then the step should succeed
     And the "ruby-hello-world-2" build completed
     When I run the :patch client command with:
-      | resource      | bc                  |                                     
+      | resource      | bc                  |
       | resource_name | ruby-hello-world    |
       | p             | {"spec":{"source":{"git":{"httpProxy":"invalid.rdu.redhat.com:3128","httpsProxy":"invalid.rdu.redhat.com:3128","noProxy":".local"}}}} |
       | n             | <%= project.name %> |
@@ -45,7 +45,7 @@ Feature: proxybuild.feature
   # @case_id OCP-24339
   @admin
   @destructive
-  Scenario: Build controller can consume global proxy setting 
+  Scenario: Build controller can consume global proxy setting
     Given I have a project
     When I run the :new_build client command with:
       | image_stream | openshift/ruby                                |

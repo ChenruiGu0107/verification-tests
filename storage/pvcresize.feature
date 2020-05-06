@@ -241,7 +241,7 @@ Feature: PVC resizing Test
 
   # @author chaoyang@redhat.com
   @admin
-  Scenario Outline: Check volumes could resize 
+  Scenario Outline: Check volumes could resize
     Given I have a StorageClass named "<sc_name>"
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
@@ -277,7 +277,7 @@ Feature: PVC resizing Test
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
-    And the pod named "mypod-<%= project.name %>" status becomes :running 
+    And the pod named "mypod-<%= project.name %>" status becomes :running
 
     And the expression should be true> pvc.capacity(cached: false) == "2Gi"
 
@@ -292,7 +292,7 @@ Feature: PVC resizing Test
     And the output should not contain:
       | No space left on device |
 
-    Examples:  
+    Examples:
       | sc_name  |
       | gp2      |  # @case_id OCP-17487
       | standard |  # @case_id OCP-18395
@@ -317,7 +317,7 @@ Feature: PVC resizing Test
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
-    
+
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                   |

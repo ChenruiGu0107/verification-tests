@@ -541,7 +541,7 @@ Feature: svcat related command
     And the output should match:
       | Name:\\s+ups-instance6                      |
       | Class:\\s+user-provided-service             |
-      | Plan:\\s+default                            |  
+      | Plan:\\s+default                            |
       | Parameters:                                 |
       | \\s+location:\\s+eastus                     |
       | \\s+status:\\s+disabled                     |
@@ -638,7 +638,7 @@ Feature: svcat related command
       | resource         | instances                |
     Then the step should succeed
     And the output should match:
-      |  ups-instance1.*Ready                       |                
+      |  ups-instance1.*Ready                       |
       |  ups-instance10.*Ready                      |
       |  ups-instance11.*ErrorWithParameters        |
       |  ups-instance12.*Ready                      |
@@ -647,8 +647,8 @@ Feature: svcat related command
       |  ups-instance4.*Ready                       |
       |  ups-instance5.*Ready                       |
       |  ups-instance6.*Ready                       |
-      |  ups-instance7.*Ready                       |   
-      |  ups-instance8.*Ready                       | 
+      |  ups-instance7.*Ready                       |
+      |  ups-instance8.*Ready                       |
     """
 
   # @author zhsun@redhat.com
@@ -660,7 +660,7 @@ Feature: svcat related command
     And evaluation of `project.name` is stored in the :ups_broker_project clipboard
     And I create a new project
     And evaluation of `project.name` is stored in the :user_project clipboard
-    
+
     #get help info
     When I run the :bind client command with:
       | _tool            | svcat                  |
@@ -692,7 +692,7 @@ Feature: svcat related command
       | plan             | default                  |
     Then the step should succeed
     And the output should match:
-      | Name:\\s+ups-instance1                      |    
+      | Name:\\s+ups-instance1                      |
       | Class:\\s+user-provided-service             |
       | Plan:\\s+default                            |
     #Binding a serviceinstance without options
@@ -709,9 +709,9 @@ Feature: svcat related command
       | _tool            | svcat                    |
       | instance_name    | ups-instance1            |
       | name             | ups-instance1-bind       |
-    Then the step should succeed  
+    Then the step should succeed
     And the output should match:
-      | Name:\\s+ups-instance1-bind                 |   
+      | Name:\\s+ups-instance1-bind                 |
       | Secret:\\s+ups-instance1-bind               |
       | Instance:\\s+ups-instance1                  |
     #Binding a serviceinstance with option "-n --namespace"
@@ -844,7 +844,7 @@ Feature: svcat related command
       | Parameters:                                 |
       | \\s+status:\\s+disabled                     |
       | Parameters From:                            |
-      | \\s+Secret:\\s+my-secret.parameter          | 
+      | \\s+Secret:\\s+my-secret.parameter          |
     #Binding a serviceinstance with option "--external-id"
     When I run the :bind client command with:
       | _tool            | svcat                    |
@@ -864,17 +864,17 @@ Feature: svcat related command
       | resource         | bindings                 |
     Then the step should succeed
     And the output should match:
-      | ups-instance1.*Ready                        |   
-      | ups-instance1-bind.*Ready                   |   
-      | ups-instance1-bind1.*Ready                  |   
-      | ups-instance1-bind10.*ErrorWithParameters   |   
-      | ups-instance1-bind11.*Ready                 |   
-      | ups-instance1-bind2.*Ready                  |   
-      | ups-instance1-bind3.*Ready                  |   
-      | ups-instance1-bind4.*Ready                  |   
-      | ups-instance1-bind5.*Ready                  |   
-      | ups-instance1-bind6.*Ready                  | 
-      | ups-instance1-bind7.*Ready                  | 
+      | ups-instance1.*Ready                        |
+      | ups-instance1-bind.*Ready                   |
+      | ups-instance1-bind1.*Ready                  |
+      | ups-instance1-bind10.*ErrorWithParameters   |
+      | ups-instance1-bind11.*Ready                 |
+      | ups-instance1-bind2.*Ready                  |
+      | ups-instance1-bind3.*Ready                  |
+      | ups-instance1-bind4.*Ready                  |
+      | ups-instance1-bind5.*Ready                  |
+      | ups-instance1-bind6.*Ready                  |
+      | ups-instance1-bind7.*Ready                  |
       | ups-instance1-bind8.*Ready                  |
       | ups-instance1-bind9.*Ready                  |
     """

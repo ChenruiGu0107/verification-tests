@@ -177,7 +177,7 @@ Feature: taint toleration related scenarios
     When I run the :delete admin command with:
       | object_type       | node             |
       | object_name_or_id | <%= node.name %> |
-    Then the step should succeed 
+    Then the step should succeed
     Given I register clean-up steps:
     """
     When I run the :delete admin command with:
@@ -564,7 +564,7 @@ Feature: taint toleration related scenarios
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     Given I wait for the steps to pass:
-    """   
+    """
     When I run the :get client command with:
       | resource | pod  |
       | o        | yaml |

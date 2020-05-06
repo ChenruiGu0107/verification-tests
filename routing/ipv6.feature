@@ -24,7 +24,7 @@ Feature: Testing IPv6 related scenarios
     # create unsecure and reencrypt route
     When I expose the "service-unsecure" service
     Then the step should succeed
-    
+
     Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route              |
@@ -60,7 +60,7 @@ Feature: Testing IPv6 related scenarios
     # can also access the route via IPv4 address
     When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
-    
+
     Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |

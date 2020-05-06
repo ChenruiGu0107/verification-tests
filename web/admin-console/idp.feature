@@ -86,7 +86,7 @@ Feature: add idp from console
       | client_id     | testid         |
       | client_secret | testsecret     |
       | org_name      | orgtest        |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_github_test |
       | idp_type | GitHub         |
@@ -340,9 +340,9 @@ Feature: add idp from console
     And the expression should be true> <%= cb.idp %>["type"] == "RequestHeader"
     And the expression should be true> <%= cb.idp %>["requestHeader"]["loginURL"] == "https://www.example.com/login-proxy/oauth/authorize?${query}"
     And the expression should be true> <%= cb.idp %>["requestHeader"]["headers"] == ["X-Remote-User","SSO-User"]
-    And the expression should be true> <%= cb.idp %>["requestHeader"]["preferredUsernameHeaders"] == ["X-Remote-User-Login"] 
-    And the expression should be true> <%= cb.idp %>["requestHeader"]["nameHeaders"] == ["X-Remote-User-Display-Name"] 
-    And the expression should be true> <%= cb.idp %>["requestHeader"]["emailHeaders"] == ["X-Remote-User-Email"] 
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["preferredUsernameHeaders"] == ["X-Remote-User-Login"]
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["nameHeaders"] == ["X-Remote-User-Display-Name"]
+    And the expression should be true> <%= cb.idp %>["requestHeader"]["emailHeaders"] == ["X-Remote-User-Email"]
 
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:

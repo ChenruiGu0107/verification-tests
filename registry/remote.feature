@@ -253,9 +253,9 @@ Feature: remote registry related scenarios
       | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should fail
     And the output should contain:
-      | 401                           | 
-      | Error initiating layer upload | 
-              
+      | 401                           |
+      | Error initiating layer upload |
+
   # @author yinzhou@redhat.com
   # @case_id OCP-12158
   @admin

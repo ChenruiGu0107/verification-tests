@@ -209,7 +209,7 @@ Feature: templates.feature
     When I execute on the pod:
       | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword append mykey "myvalue" |
     Then the step should succeed
-    """ 
+    """
     When I execute on the pod:
       | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword get mykey |
     Then the step should succeed

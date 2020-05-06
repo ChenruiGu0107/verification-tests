@@ -4,10 +4,10 @@ Feature: cluster-capacity related features
   @admin
   @destructive
   Scenario: Cluster capacity image support: Cluster capacity can work well with taint and unschedulable
-    Given environment has at least 3 schedulable nodes 
+    Given environment has at least 3 schedulable nodes
     Given I have a project
     Given I have a cluster-capacity pod in my project
-    Given I store the schedulable nodes in the :nodes clipboard 
+    Given I store the schedulable nodes in the :nodes clipboard
     Given evaluation of `cb.nodes.map {|n| n.max_pod_count_schedulable(cpu: convert_cpu("150m"), memory: convert_to_bytes("100Mi"))}` is stored in the :expected_number_per_node clipboard
     # following is for taint scenario
     Given the taints of the nodes in the clipboard are restored after scenario
@@ -34,7 +34,7 @@ Feature: cluster-capacity related features
       | exec_command_arg  | --podspec                     |
       | exec_command_arg  | /test-pod/pod_with_taint.yaml |
     Then the step should succeed
-    Then the expression should be true> @result[:response].to_i == cb.expected_number_per_node.reduce(&:+)   
+    Then the expression should be true> @result[:response].to_i == cb.expected_number_per_node.reduce(&:+)
     # following is for unschedulable scenario
     Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
@@ -191,7 +191,7 @@ Feature: cluster-capacity related features
     Then the expression should be true> env.nodes(refresh: true)
     Given I store the schedulable nodes in the :nodes clipboard
     Given evaluation of `cb.nodes.map {|n| n.max_pod_count_schedulable(cached: false, cpu: convert_cpu("150m"), memory: convert_to_bytes("100Mi"))}.reduce(&:+)` is stored in the :expected_number_total clipboard
- 
+
     When I run the :exec client command with:
       | pod               | cluster-capacity              |
       | oc_opts_end       |                               |

@@ -14,7 +14,7 @@ Feature: imagestream related
     """
     When I get project istag
     Then the output should contain "testdotnet:1.1"
-    """    
+    """
     When I perform the :goto_one_imagestream_page web action with:
       | project_name     | <%= project.name %> |
       | imagestream_name | testdotnet          |

@@ -353,7 +353,7 @@ Feature: oc patch/apply related scenarios
       | grace-period  | 30        |
     Then the step should fail
     And the output should match "invalid.*does not match"
-    
+
     # Above --force would delete and re-create the resource, so need below steps
     Given I wait until the status of deployment "hello" becomes :complete
     And I get project dc named "hello" as YAML
@@ -373,7 +373,7 @@ Feature: oc patch/apply related scenarios
     # in case illegal fields and/or values occur, e.g. "(MISSING)" in the bug
     And the output is parsed as YAML
     And the output should contain "21601"
-    
+
     Given I replace lines in "mydc.yaml":
       | "3.1" | "3.3" |
     When I run the :apply_set_last_applied client command with:

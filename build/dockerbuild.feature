@@ -271,15 +271,15 @@ Feature: dockerbuild.feature
     Then the step should succeed
     And the output should not contain "/bin/sh -c 'exit 1'"
 
-  # @author wewang@redhat.com 
-  # @case_id OCP-19541 
-  Scenario: Reuse existing imagestreams with new-build 
-    Given I have a project 
-    When I run the :new_build client command with: 
-      | D    | FROM node:8\nRUN echo "Test" | 
-      | name | node8                        | 
-    Then the step should succeed 
-    And the "node8-1" build was created 
+  # @author wewang@redhat.com
+  # @case_id OCP-19541
+  Scenario: Reuse existing imagestreams with new-build
+    Given I have a project
+    When I run the :new_build client command with:
+      | D    | FROM node:8\nRUN echo "Test" |
+      | name | node8                        |
+    Then the step should succeed
+    And the "node8-1" build was created
     And the "node8-1" build completed
     And I check that the "node8:latest" istag exists in the project
     When I run the :new_build client command with:

@@ -40,7 +40,7 @@ Feature: REST related features
     Given I enable image-registry default route
     Given default image registry route is stored in the :registry_route clipboard
     When I perform the HTTP request:
-    """ 
+    """
     :url: https://<%= cb.registry_route %>/v2/_catalog?n=5
     :method: :get
     :headers:
@@ -50,7 +50,7 @@ Feature: REST related features
     #Then the output should contain "401 Unauthorized"
     Given cluster role "registry-viewer" is added to the "first" user
     When I perform the HTTP request:
-    """ 
+    """
     :url: https://<%= cb.registry_route %>/v2/_catalog?n=5
     :method: :get
     :headers:

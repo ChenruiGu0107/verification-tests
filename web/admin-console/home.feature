@@ -92,7 +92,7 @@ Feature: Home related pages via admin console
       | kind        | ConfigMap |
       | api_version | v1        |
       | namespaced  | true      |
-      | short_names | cm        | 
+      | short_names | cm        |
     Then the step should succeed
     When I perform the :click_tab web action with:
       | tab_name | Instances |

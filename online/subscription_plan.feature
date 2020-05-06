@@ -103,14 +103,14 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Then the expression should be true> cb.acrq.hard_quota(cached: false).<type>_raw  == "<upg_total>"
 
     Examples:
-    | resource           | acrq_name  | addon | adn_total | downgrade | dng_total | upgrade | upg_total | page               | type             |  
+    | resource           | acrq_name  | addon | adn_total | downgrade | dng_total | upgrade | upg_total | page               | type             |
     | memory             | compute    | 4     | 6Gi       | 2         | 4Gi       | 8       | 10Gi      | memory             | memory_limit     | # @case_id OCP-10431
     | storage            | noncompute | 5     | 7Gi       | 2         | 4Gi       | 10      | 12Gi      | storage            | storage_requests | # @case_id OCP-10432
     | terminating_memory | timebound  | 4     | 6Gi       | 2         | 4Gi       | 8       | 10Gi      | terminating_memory | memory_limit     | # @case_id OCP-14146
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10434
-  Scenario: Storage add-on cannot be downgraded to the value lower than the occupied storage quota  
+  Scenario: Storage add-on cannot be downgraded to the value lower than the occupied storage quota
     Given I open accountant console in a browser
     When accountant console cluster resource quota is set to:
       | resource | storage |
@@ -212,7 +212,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Then the step should succeed
 
     Examples:
-    | resource            |  
+    | resource            |
     | storage             | # @case_id OCP-15842
     | memory              | # @case_id OCP-15843
     | terminating_memory  | # @case_id OCP-15844
@@ -381,7 +381,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Given the expression should be true> cb.subscribed
     """
     When I perform the :click_resume_your_subscription_confirm web action with:
-      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
     Then the step should succeed
     And evaluation of `true` is stored in the :subscribed clipboard
     When I perform the :goto_crq_and_set_resource_amount web action with:
@@ -416,7 +416,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     """
     Given I access the "./" url in the web browser
     When I perform the :click_resume_your_subscription_confirm web action with:
-      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |  
+      | last_date | <%= last_second_of_month.strftime("%A, %B %d, %Y") %> |
     Then the step should succeed
     """
     When I perform the :click_resume_your_subscription web action with:
@@ -518,7 +518,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | p        | MEMORY_LIMIT=1Gi  |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=httpd-example-1 | 
+      | deployment=httpd-example-1 |
     Then I run the :scale client command with:
       | resource | dc                 |
       | name     | httpd-example      |
@@ -527,7 +527,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Given I wait until number of replicas match "3" for replicationController "httpd-example-1"
     When the "compute" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
-    
+
     When I perform the :goto_resource_settings_page web action with:
       | resource | terminating_memory |
     Then the step should succeed
@@ -633,11 +633,11 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | cmd     | 60m              |
       | restart | Never            |
       | limits  | cpu=2,memory=1Gi |
-    Then the step should succeed 
+    Then the step should succeed
 
     When the "timebound" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
-    
+
     When I perform the :goto_resource_settings_page web action with:
       | resource | storage |
     Then the step should succeed
@@ -735,7 +735,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Then the step should succeed
     When the "noncompute" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.total_used(cached: false).storage_requests_raw == "3Gi"
-    
+
     When I perform the :goto_resource_settings_page web action with:
       | resource | terminating_memory |
     Then the step should succeed
@@ -767,7 +767,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | resource | memory |
       | amount   | 2      |
     Then the step should succeed
-    
+
   # @author yuwei@redhat.com
   # @case_id OCP-10433
   Scenario: Memory add-ons can't be downgraded to the value lower than the occupied memory quota
@@ -798,7 +798,7 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
       | p        | MEMORY_LIMIT=1Gi  |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=httpd-example-1 | 
+      | deployment=httpd-example-1 |
     Then I run the :scale client command with:
       | resource | dc                 |
       | name     | httpd-example      |
@@ -831,4 +831,3 @@ Feature: ONLY ONLINE subscription plan related scripts in this file
     Then the step should succeed
     When the "compute" applied_cluster_resource_quota is stored in the clipboard
     Then the expression should be true> cb.acrq.total_used(cached: false).memory_limit_raw == "3Gi"
-    

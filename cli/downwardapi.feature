@@ -20,7 +20,7 @@ Feature: Downward API
     # Test file without requests, use limits as requests by default
     Given I ensure "dapi-resources-env-containername-pod" pod is deleted
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-requests.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-requests.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-requests" status becomes :succeeded
     When I run the :logs client command with:
@@ -34,7 +34,7 @@ Feature: Downward API
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-containername-pod-without-requests" pod is deleted
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-limits" status becomes :succeeded
     Given evaluation of `pod("dapi-resources-env-containername-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
@@ -52,7 +52,7 @@ Feature: Downward API
       | MY_MEM_REQUEST=32                                |
       | MY_CPU_REQUEST=1                                 |
       | MY_MEM_LIMIT=<%= cb.nodememorylimit.to_i*1024 %> |
-      | MY_CPU_LIMIT=<%= cb.nodecpulimit %>              |   
+      | MY_CPU_LIMIT=<%= cb.nodecpulimit %>              |
     When I run the :describe client command with:
       | resource | pod                                                 |
       | name     | dapi-resources-env-containername-pod-without-limits |
@@ -62,7 +62,7 @@ Feature: Downward API
       | MY_CPU_LIMIT:\\s+node allocatable \(limits.cpu\)    |
       | MY_MEM_REQUEST:\\s+32 \(requests.memory\)           |
       | MY_MEM_LIMIT:\\s+node allocatable \(limits.memory\) |
- 
+
 
   # @author qwang@redhat.com
   # @case_id OCP-11324

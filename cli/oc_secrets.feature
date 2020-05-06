@@ -33,13 +33,13 @@ Feature: oc_secrets.feature
       | name        | testsecret2     |
       | from_file   | test1/testfile1 |
     Then the step should succeed
- 
+
     When I run the :secrets client command with:
       |action        | link        |
       |serviceaccount| default     |
       |secrets_name  | testsecret1 |
     Then the step should succeed
-    
+
     When I run the :get client command with:
       | resource      | serviceaccount/default |
       | o             | json                   |
@@ -52,26 +52,26 @@ Feature: oc_secrets.feature
       |secrets_name  | testsecret2 |
       |for           | pull        |
     Then the step should succeed
-    
+
     When I run the :get client command with:
       | resource      | serviceaccount/default |
       | o             | json                   |
     Then the step should succeed
     And the expression should be true> @result[:parsed]['imagePullSecrets'].any? {|p| p['name'].include? 'testsecret2'}
- 
+
     When I run the :secrets client command with:
     | action         | unlink      |
     | serviceaccount | default     |
     | secrets_name   | testsecret1 |
     Then the step should succeed
- 
+
     When I run the :get client command with:
       | resource      | serviceaccount/default |
       | o             | json                   |
     Then the step should succeed
     And the expression should be true> not @result[:parsed]['secrets'].any? {|p| p['name'].include? 'testsecret1'}
     And the expression should be true> @result[:parsed]['imagePullSecrets'].any? {|p| p['name'].include? 'testsecret2'}
-    
+
     When I run the :secrets client command with:
       | action        | link        |
       | serviceaccount| default     |
@@ -102,16 +102,16 @@ Feature: oc_secrets.feature
     | secrets_name   | test-test |
     Then the step should fail
     And the output should match:
-    | .*"test-test" not found| 
+    | .*"test-test" not found|
     When I run the :describe client command with:
       | resource | serviceaccount/default |
     Then the step should succeed
-    And the output should not contain "testsecret1" 
+    And the output should not contain "testsecret1"
     When I run the :secrets client command with:
       | action         | link                   |
       | serviceaccount | serviceaccount/default |
       | secrets_name   | secret/testsecret1     |
-    Then the step should succeed  
+    Then the step should succeed
     When I run the :get client command with:
       | resource      | serviceaccount/default |
       | o             | json                   |

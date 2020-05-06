@@ -175,7 +175,7 @@ Feature: storage security check
       | system_u:object_r:(svirt_sandbox_file_t\|container_file_t):s0 |
     When I execute on the pod:
       | touch | /mnt/dapi/file |
-    Then the step should fail 
+    Then the step should fail
     And the outputs should contain "Read-only file system"
 
   # @author wehe@redhat.com
@@ -204,7 +204,7 @@ Feature: storage security check
       | system_u:object_r:(svirt_sandbox_file_t\|container_file_t):s0 |
     When I execute on the pod:
       | touch | /mnt/configmap/file |
-    Then the step should fail 
+    Then the step should fail
     And the outputs should contain "Read-only file system"
 
   # @author wehe@redhat.com
@@ -247,6 +247,6 @@ Feature: storage security check
       | cp | /hello | /tmp/hello |
     Then the step should succeed
     When I execute on the pod:
-      | /tmp/hello | 
+      | /tmp/hello |
     And the output should contain "Hello OpenShift Storage"
 

@@ -14,7 +14,7 @@ Feature: Node related
     When I perform the :add_taint_to_node web action with:
       | node_name      | <%= cb.nodes[0].name %> |
       | key            | Taints                  |
-      | affinity_key   | taint_test              | 
+      | affinity_key   | taint_test              |
       | affinity_value | taint                   |
       | effect         | NoSchedule              |
     Then the step should succeed
@@ -24,7 +24,7 @@ Feature: Node related
       | resource | node                    |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should match:
-      | Taints:\\s+taint_test=taint:NoSchedule | 
+      | Taints:\\s+taint_test=taint:NoSchedule |
     """
     When I perform the :remove_taint_from_node web action with:
       | node_name      | <%= cb.nodes[0].name %> |
@@ -38,9 +38,9 @@ Feature: Node related
       | resource | node                    |
       | name     | <%= cb.nodes[0].name %> |
     Then the output should not match:
-      | Taints:\\s+taint_test=taint:NoSchedule | 
+      | Taints:\\s+taint_test=taint:NoSchedule |
     """
-    
+
     When I run the :new_app client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
@@ -95,7 +95,7 @@ Feature: Node related
     Given the first user is cluster-admin
     Given I store the schedulable workers in the :schedule_workers clipboard
     Given I store all machines in the "openshift-machine-api" project to the :machines clipboard
-    
+
     When I run the :goto_node_page web action
     Then the step should succeed
     Given I wait up to 120 seconds for the steps to pass:

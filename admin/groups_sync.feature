@@ -6,7 +6,7 @@ Feature: Group sync related scenarios
   Scenario Outline: Sync ldap groups to openshift groups from ldap server
     Given I have a project
     Given I have LDAP service in my project
- 
+
     Given I switch to cluster admin pseudo user
     When I download a file from "<file>"
     Then the step should succeed
@@ -38,7 +38,7 @@ Feature: Group sync related scenarios
   @admin
   Scenario: Sync openShift groups from ldap server with blacklist
     Given I have a project
-    Given I have LDAP service in my project 
+    Given I have LDAP service in my project
 
     Given I switch to cluster admin pseudo user
     Given admin ensures "tc509128group1" group is deleted after scenario
@@ -64,7 +64,7 @@ Feature: Group sync related scenarios
       |_stdin |curl -Ss <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/add-user-to-group.ldif > /tmp/add-user-to-group.ldif && ldapmodify -f /tmp/add-user-to-group.ldif -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin |
       |n      |<%= project.name %>                                                                                                                                                                                                                                  |
     Then the step should succeed
-    
+
     Given a "blacklist_openshift" file is created with the following lines:
       |tc509128group2|
     When I run the :oadm_groups_sync admin command with:
@@ -90,7 +90,7 @@ Feature: Group sync related scenarios
   # @author wjiang@redhat.com
   # @case_id OCP-11929
   @admin
-  Scenario: Sync openshift groups with ldap server for some specific groups 
+  Scenario: Sync openshift groups with ldap server for some specific groups
     Given I have a project
     Given I have LDAP service in my project
 

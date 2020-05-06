@@ -646,7 +646,7 @@ Feature: Persistent Volume Claim binding policies
       | pv_key                          | pv_value      | pvc_key                                      | pvc_value     |
       | ["spec"]["capacity"]["storage"] | 1Gi           | ["spec"]["resources"]["requests"]["storage"] | 5Gi           | # @case_id OCP-17561
       | ["spec"]["accessModes"][0]      | ReadWriteOnce | ["spec"]["accessModes"][0]                   | ReadWriteMany | # @case_id OCP-17557
-  
+
 
   # @author piqin@redhat.com
   # @author wduan@redhat.com

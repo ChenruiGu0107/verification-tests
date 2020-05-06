@@ -13,7 +13,7 @@ Feature: Cluster Autoscaler Tests
 
     Given I clone a machineset and name it "machineset-clone-20108"
     Given I clone a machineset and name it "machineset-clone-20108-2"
-    
+
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml" replacing paths:
@@ -49,7 +49,7 @@ Feature: Cluster Autoscaler Tests
     Given I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Splitting scale-up between 2 similar node groups |
@@ -64,11 +64,11 @@ Feature: Cluster Autoscaler Tests
     """
     Then the expression should be true> machine_set("machineset-clone-20108-2").desired_replicas(cached: false) == 3
     """
-    Then the machineset should have expected number of running machines  
+    Then the machineset should have expected number of running machines
 
     # Delete workload
     Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
- 
+
     # Check cluster auto scales down
     And I wait up to 600 seconds for the steps to pass:
     """
@@ -93,7 +93,7 @@ Feature: Cluster Autoscaler Tests
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
     Given I clone a machineset and name it "machineset-clone-24715"
-    
+
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml" replacing paths:
@@ -122,7 +122,7 @@ Feature: Cluster Autoscaler Tests
     Given I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Final scale-up plan |
@@ -144,7 +144,7 @@ Feature: Cluster Autoscaler Tests
 
     # Delete workload
     Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
- 
+
     # Check cluster auto scales down
     And I wait up to 600 seconds for the steps to pass:
     """
@@ -162,7 +162,7 @@ Feature: Cluster Autoscaler Tests
   # @case_id OCP-20787
   @admin
   @destructive
-  Scenario: Use annotation to prevent cluster autoscaler from scaling down a node 
+  Scenario: Use annotation to prevent cluster autoscaler from scaling down a node
     Given I have an IPI deployment
     And I switch to cluster admin pseudo user
 
@@ -170,7 +170,7 @@ Feature: Cluster Autoscaler Tests
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
     Given I clone a machineset and name it "machineset-clone-20787"
-    
+
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
     When I run the :create admin command with:
@@ -199,7 +199,7 @@ Feature: Cluster Autoscaler Tests
     Given I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Final scale-up plan |
@@ -222,7 +222,7 @@ Feature: Cluster Autoscaler Tests
 
     # Delete workload
     Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
- 
+
     # Check cluster auto scales down
     And I wait up to 600 seconds for the steps to pass:
     """
@@ -237,7 +237,7 @@ Feature: Cluster Autoscaler Tests
     And I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Skipping <%= cb.noderef_name %> from delete consideration - the node is marked as no scale down |
@@ -255,7 +255,7 @@ Feature: Cluster Autoscaler Tests
     And admin ensures node number is restored to "<%= cb.num_to_restore %>" after scenario
 
     Given I clone a machineset and name it "machineset-clone-19898"
-    
+
     # Create clusterautoscaler,podPriorityThreshold is -10 by default
     Given I use the "openshift-machine-api" project
     When I run the :create admin command with:
@@ -294,7 +294,7 @@ Feature: Cluster Autoscaler Tests
     Given I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Final scale-up plan |
@@ -325,7 +325,7 @@ Feature: Cluster Autoscaler Tests
     # workload priority is 1,podPriorityThreshold is 10
     Given 120 seconds have passed
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should not contain:
       | Final scale-up plan |
@@ -349,7 +349,7 @@ Feature: Cluster Autoscaler Tests
     Given I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |  
+      | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
       | Final scale-up plan |
@@ -363,7 +363,7 @@ Feature: Cluster Autoscaler Tests
 
     # Delete workload
     Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
- 
+
     # Check cluster auto scales down
     And I wait up to 600 seconds for the steps to pass:
     """
@@ -429,7 +429,7 @@ Feature: Cluster Autoscaler Tests
     And I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %>    | 
+      | resource_name | <%= pod.name %>    |
       | c             | machine-controller |
     Then the step should succeed
     And the output should match:
@@ -449,8 +449,8 @@ Feature: Cluster Autoscaler Tests
     And I wait for the steps to pass:
     """
     When I run the :logs admin command with:
-      | resource_name | <%= pod.name %>    | 
-      | c             | machine-controller | 
+      | resource_name | <%= pod.name %>    |
+      | c             | machine-controller |
     Then the step should succeed
     And the output should match:
       | <machineset_name>-no.*ReconcileError |
@@ -460,5 +460,5 @@ Feature: Cluster Autoscaler Tests
       | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  |
       | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | # @case_id OCP-28778
       | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | # @case_id OCP-28876
-      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | # @case_id OCP-28875 
-  
+      | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | # @case_id OCP-28875
+

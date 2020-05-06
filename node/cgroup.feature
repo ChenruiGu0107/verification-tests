@@ -14,7 +14,7 @@ Feature: Cgroup related scenario
     And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :node_capacity_cpu clipboard
     And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :node_capacity_memory clipboard
     And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :node_allocate_cpu clipboard
-    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :node_allocate_memory clipboard 
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :node_allocate_memory clipboard
     # Set cgroups-per-qos to false and enforce-node-allocatable with values
     When node config is merged with the following hash:
     """
@@ -30,7 +30,7 @@ Feature: Cgroup related scenario
     Then the step should fail
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "10 sec ago" \| grep "Cgroup" |
-    Then the step should succeed 
+    Then the step should succeed
     And the output should match:
       | ([Ff]ailed to run Kubelet:\s+Node Allocatable enforcement\|EnforceNodeAllocatable \(--enforce-node-allocatable\)) is not supported unless Cgroups ?Per ?QOS\s?(\s?\(--cgroups-per-qos\))? feature is turned on |
     # Set cgroups-per-qos to false and enforce-node-allocatable without values
@@ -54,7 +54,7 @@ Feature: Cgroup related scenario
       | resource | node             |
       | name     | <%= node.name %> |
     Then the step should succeed
-    And the output by order should match:    
+    And the output by order should match:
       | cpu:\\s+<%= cb.node_capacity_cpu %>                     |
       | memory:\\s+<%= cb.node_capacity_memory %>               |
       | cpu:\\s+<%= cb.node_allocate_cpu.to_i*1000-300 %>       |
@@ -63,4 +63,4 @@ Feature: Cgroup related scenario
       | cat /sys/fs/cgroup/memory/kubepods.slice/memory.limit_in_bytes |
     Then the step should succeed
     And the output should contain:
-      | <%= cb.node_capacity_memory.to_i*1024 %> |  
+      | <%= cb.node_capacity_memory.to_i*1024 %> |

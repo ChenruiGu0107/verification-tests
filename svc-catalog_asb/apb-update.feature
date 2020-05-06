@@ -21,7 +21,7 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                                    |
       | n | <%= project.name %>                                                                                                                     |
     Then the step should succeed
-    Given I wait for the "<db_name>" service_instance to become ready up to 360 seconds  
+    Given I wait for the "<db_name>" service_instance to become ready up to 360 seconds
     And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_1.first.name %> |
@@ -30,7 +30,7 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                | 
+      | bash                                |
       | -c                                  |
       | psql -c 'CREATE DATABASE menagerie' |
     Then the step should succeed
@@ -38,14 +38,14 @@ Feature: Update sql apb related feature
     And the output should contain:
       | CREATE DATABASE                     |
     When I execute on the pod:
-      | bash                                                                                                                                      | 
+      | bash                                                                                                                                      |
       | -c                                                                                                                                        |
       | psql  -c 'CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);' -d menagerie |
     Then the step should succeed
     And the output should contain:
       | CREATE TABLE                       |
     When I execute on the pod:
-      | bash                                                                                                 | 
+      | bash                                                                                                 |
       |  -c                                                                                                  |
       |  psql -c "INSERT INTO pet VALUES ('Puffball','Diane','hamster','f','1999-03-30',NULL);" -d menagerie |
     Then the step should succeed
@@ -61,18 +61,18 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                                    |
       | n | <%= project.name %>                                                                                                                     |
     Then the step should succeed
-    # update instance 
+    # update instance
 
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  | 
-      |           |    "parametersFrom": [                               |  
-      |           |      {                                               | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  |
+      |           |    "parametersFrom": [                               |
+      |           |      {                                               |
       |           |        "secretKeyRef": {                             |
-      |           |          "key": "parameters",                        | 
-      |           |          "name": "<secret_name_2>"                   | 
+      |           |          "key": "parameters",                        |
+      |           |          "name": "<secret_name_2>"                   |
       |           |        }                                             |
       |           |      }                                               |
       |           |    ],                                                |
@@ -80,25 +80,25 @@ Feature: Update sql apb related feature
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
- 
+
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                       | 
+      | bash                                       |
       | -c                                         |
       | psql -c 'SELECT * FROM pet;'  -d menagerie |
     Then the step should succeed
     """
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
      Examples:
-      |db_name                         |db_plan_1 |db_plan_2 |secret_name_1                              |secret_name_2                                  |db_version_1 |db_version_2 |                                       
+      |db_name                         |db_plan_1 |db_plan_2 |secret_name_1                              |secret_name_2                                  |db_version_1 |db_version_2 |
       |<%= cb.prefix %>-postgresql-apb |dev       |prod      |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.6          | 9.5     | # @case_id OCP-17306
       |<%= cb.prefix %>-postgresql-apb |dev       |prod      |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.5          | 9.6     | # @case_id OCP-17762
       |<%= cb.prefix %>-postgresql-apb |prod      |dev      |<%= cb.prefix %>-postgresql-apb-parameters |<%= cb.prefix %>-postgresql-apb-parameters-new |9.4          | 9.6     | # @case_id OCP-18561
@@ -108,7 +108,7 @@ Feature: Update sql apb related feature
 
   # @author zitang@redhat.com
   @admin
-  Scenario Outline: [APB] Data will be preserved if version of MySQL or MariaDB APB update  
+  Scenario Outline: [APB] Data will be preserved if version of MySQL or MariaDB APB update
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision mysql
     And I have a project
@@ -129,7 +129,7 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                    |
       | n | <%= project.name %>                                                                                                     |
     Then the step should succeed
-    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 360 seconds 
+    Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 360 seconds
     And dc with name matching /<db_label>/ are stored in the :dc_1 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_1.first.name %> |
@@ -138,28 +138,28 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                         | 
+      | bash                                         |
       | -c                                           |
       | mysql -u root -e 'CREATE DATABASE menagerie' |
     Then the step should succeed
     """
     When I execute on the pod:
-      | bash                                                                                                                                               | 
+      | bash                                                                                                                                               |
       | -c                                                                                                                                                 |
       | mysql -u root -D  menagerie -e 'CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);' |
     Then the step should succeed
     When I execute on the pod:
-      | bash                                                                                                           | 
+      | bash                                                                                                           |
       |  -c                                                                                                            |
       |  mysql -u root -D  menagerie -e "INSERT INTO pet VALUES ('Puffball','Diane','hamster','f','1999-03-30',NULL);" |
     Then the step should succeed
     When I execute on the pod:
-      | bash                                                | 
+      | bash                                                |
       | -c                                                  |
       |  mysql -u root -D  menagerie -e'SELECT * FROM pet;' |
     Then the step should succeed
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
 
     # update apb
     # create an update secret
@@ -171,18 +171,18 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                    |
       | n | <%= project.name %>                                                                                                     |
     Then the step should succeed
-    # update instance 
+    # update instance
 
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-<db_label>-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  | 
-      |           |    "parametersFrom": [                               |  
-      |           |      {                                               | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  |
+      |           |    "parametersFrom": [                               |
+      |           |      {                                               |
       |           |        "secretKeyRef": {                             |
-      |           |          "key": "parameters",                        | 
-      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-new"                   | 
+      |           |          "key": "parameters",                        |
+      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-new"                   |
       |           |        }                                             |
       |           |      }                                               |
       |           |    ],                                                |
@@ -190,7 +190,7 @@ Feature: Update sql apb related feature
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /<db_label>/ are stored in the :dc_2 clipboard
@@ -200,16 +200,16 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                                  | 
+      | bash                                                  |
       | -c                                                    |
       |  mysql -u root   -D  menagerie -e'SELECT * FROM pet;' |
     Then the step should succeed
     """
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
 
     Examples:
-     |db_label |pod_label    |parameters_1                                                                                                                          |parameters_2                                                                                                                          |db_plan_1 |db_plan_2 |db_version_1 |db_version_2|                       
+     |db_label |pod_label    |parameters_1                                                                                                                          |parameters_2                                                                                                                          |db_plan_1 |db_plan_2 |db_version_1 |db_version_2|
      |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |dev       |prod      |5.7          |5.6         | # @case_id OCP-17664
      |mysql   |mysql         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                         |{"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                        |prod      |dev       |5.6          |5.7         | # @case_id OCP-17663
      |mariadb |rhscl-mariadb |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |{"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.1","mariadb_root_password":"test","mariadb_password":"test"} |prod       |dev      |10.2         |10.1        | # @case_id OCP-17671
@@ -219,7 +219,7 @@ Feature: Update sql apb related feature
 
   # @author zitang@redhat.com
   @admin
-  Scenario Outline: Plan of serviceinstance can recover from an invalid one 
+  Scenario Outline: Plan of serviceinstance can recover from an invalid one
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
@@ -250,7 +250,7 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   |
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
@@ -267,7 +267,7 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_1>"   | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_1>"   |
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
@@ -278,7 +278,7 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>"   |
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
@@ -295,11 +295,11 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<db_name>      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_3>"   | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_3>"   |
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<db_name>" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
@@ -307,7 +307,7 @@ Feature: Update sql apb related feature
       | deploymentconfig=<%= cb.dc_2.first.name %> |
 
      Examples:
-      |db_name                         |db_plan_1 |db_plan_2 |db_plan_3|secret_name                                |db_version |                                
+      |db_name                         |db_plan_1 |db_plan_2 |db_plan_3|secret_name                                |db_version |
       |<%= cb.prefix %>-postgresql-apb |dev      | dev-123       |prod     |<%= cb.prefix %>-postgresql-apb-parameters |9.5    | # @case_id OCP-17298
 
 
@@ -359,7 +359,7 @@ Feature: Update sql apb related feature
       |           |}                                                     |
     Then the step should succeed
 
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
@@ -399,18 +399,18 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                                                                                                                                                | 
+      | bash                                                                                                                                                                |
       | -c                                                                                                                                                                  |
       | mysql -u devel -ptest -h 127.0.0.1 -D devel  -e 'CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);' |
     Then the step should succeed
     """
     When I execute on the pod:
-      | bash                                                                                                                           | 
+      | bash                                                                                                                           |
       |  -c                                                                                                                            |
       |  mysql -u devel -ptest -h 127.0.0.1 -D devel -e "INSERT INTO pet VALUES ('Puffball','Diane','hamster','f','1999-03-30',NULL);"; mysql -u devel -ptest -h 127.0.0.1 -D devel -e 'SELECT * FROM pet;'  |
     Then the step should succeed
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
     # update apb
     # create an update secret
     When I process and create:
@@ -421,18 +421,18 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                    |
       | n | <%= project.name %>                                                                                                     |
     Then the step should succeed
-    # update instance 
+    # update instance
 
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-mysql-apb                   |
       | p         |{                                                             |
       |           | "spec": {                                                    |
-      |           |    "clusterServicePlanExternalName": "dev",                  | 
-      |           |    "parametersFrom": [                                       |  
-      |           |      {                                                       | 
+      |           |    "clusterServicePlanExternalName": "dev",                  |
+      |           |    "parametersFrom": [                                       |
+      |           |      {                                                       |
       |           |        "secretKeyRef": {                                     |
-      |           |          "key": "parameters",                                | 
-      |           |          "name": "<%= cb.prefix %>-mysql-apb-parameters-new" | 
+      |           |          "key": "parameters",                                |
+      |           |          "name": "<%= cb.prefix %>-mysql-apb-parameters-new" |
       |           |        }                                                     |
       |           |      }                                                       |
       |           |    ],                                                        |
@@ -440,7 +440,7 @@ Feature: Update sql apb related feature
       |           |  }                                                           |
       |           |}                                                             |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-mysql-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /mysql/ are stored in the :dc_2 clipboard
@@ -450,18 +450,18 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                                                 | 
+      | bash                                                                 |
       | -c                                                                   |
       |  mysql -u devel -ptest -h 127.0.0.1 -D devel -e 'SELECT * FROM pet;' |
     Then the step should succeed
     """
     And the output should contain:
-      |  Puffball             | 
+      |  Puffball             |
 
   # @author zitang@redhat.com
   # @case_id OCP-18566
   @admin
-  Scenario: [APB] Data created by normal user will be preserved if PostgresSQL APB update 
+  Scenario: [APB] Data created by normal user will be preserved if PostgresSQL APB update
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
     When I process and create:
@@ -481,7 +481,7 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                         |
       | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
-    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds  
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 360 seconds
     And dc with name matching /postgresql/ are stored in the :dc_1 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_1.first.name %> |
@@ -490,7 +490,7 @@ Feature: Update sql apb related feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                                                                                                                             | 
+      | bash                                                                                                                                             |
       | -c                                                                                                                                               |
       | psql -U admin  -c 'CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);'  -d  admin |
     Then the step should succeed
@@ -498,7 +498,7 @@ Feature: Update sql apb related feature
     And the output should contain:
       | CREATE TABLE                       |
     When I execute on the pod:
-      | bash                                                                                                       | 
+      | bash                                                                                                       |
       |  -c                                                                                                        |
       |  psql  -U admin -c "INSERT INTO pet VALUES ('Puffball','Diane','hamster','f','1999-03-30',NULL);" -d admin |
     Then the step should succeed
@@ -514,18 +514,18 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                         |
       | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
-    # update instance 
+    # update instance
 
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                    |
       | p         |{                                                                   |
       |           | "spec": {                                                          |
-      |           |    "clusterServicePlanExternalName": "prod",                       | 
-      |           |    "parametersFrom": [                                             |  
-      |           |      {                                                             | 
+      |           |    "clusterServicePlanExternalName": "prod",                       |
+      |           |    "parametersFrom": [                                             |
+      |           |      {                                                             |
       |           |        "secretKeyRef": {                                           |
-      |           |          "key": "parameters",                                      | 
-      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"  | 
+      |           |          "key": "parameters",                                      |
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"  |
       |           |        }                                                           |
       |           |      }                                                             |
       |           |    ],                                                              |
@@ -533,17 +533,17 @@ Feature: Update sql apb related feature
       |           |  }                                                                 |
       |           |}                                                                   |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.dc_1.first.name %>" to disappear within 240 seconds
-    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds  
+    Given I wait for the "<%= cb.prefix %>-postgresql-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /postgresql/ are stored in the :dc_2 clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.dc_2.first.name %> |
-    
+
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash                                            | 
+      | bash                                            |
       | -c                                              |
       | psql -U admin -c 'SELECT * FROM pet;'  -d admin |
     Then the step should succeed
@@ -554,7 +554,7 @@ Feature: Update sql apb related feature
   # @author chezhang@redhat.com
   # @case_id OCP-18590
   @admin
-  Scenario: Servicebinding can be deleted when serviceinstance update to a invalid plan 
+  Scenario: Servicebinding can be deleted when serviceinstance update to a invalid plan
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
@@ -600,7 +600,7 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "invalid-plan"  | 
+      |           |    "clusterServicePlanExternalName": "invalid-plan"  |
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
@@ -613,7 +613,7 @@ Feature: Update sql apb related feature
       | Message:.*ClusterServicePlan.*not exist |
     """
 
-    # Check related resources can be removed succeed.  
+    # Check related resources can be removed succeed.
     Given I ensure "<%= cb.prefix %>-postgresql-apb" servicebinding is deleted
     And I ensure "<%= cb.prefix %>-postgresql-apb" serviceinstance is deleted
     And I ensure "<%= project.name %>" project is deleted
@@ -623,7 +623,7 @@ Feature: Update sql apb related feature
   @admin
   Scenario: [ASB] Media wiki service instance can be updated
     Given I save the first service broker registry prefix to :prefix clipboard
-    And I have a project  
+    And I have a project
     # Provision mediawiki apb
     When I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
@@ -658,11 +658,11 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-mediawiki-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "parametersFrom": [                               |  
-      |           |      {                                               | 
+      |           |    "parametersFrom": [                               |
+      |           |      {                                               |
       |           |        "secretKeyRef": {                             |
-      |           |          "key": "parameters",                        | 
-      |           |          "name": "<%= cb.prefix %>-mediawiki-apb-parameters-new"                | 
+      |           |          "key": "parameters",                        |
+      |           |          "name": "<%= cb.prefix %>-mediawiki-apb-parameters-new"                |
       |           |        }                                             |
       |           |      }                                               |
       |           |    ],                                                |
@@ -710,7 +710,7 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-mysql-apb      |
       | p         |{                                                |
       |           | "spec": {                                       |
-      |           |    "clusterServicePlanExternalName": "dev123"   | 
+      |           |    "clusterServicePlanExternalName": "dev123"   |
       |           |  }                                              |
       |           |}                                                |
     Then the step should succeed
@@ -735,7 +735,7 @@ Feature: Update sql apb related feature
   # @author zitang@redhat.com
   # @case_id OCP-18514
   @admin
-  Scenario: Updating invalid version will cause serviceinstance into error status 
+  Scenario: Updating invalid version will cause serviceinstance into error status
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
@@ -771,16 +771,16 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                         |
       | n | <%= project.name %>                                                                                                          |
     Then the step should succeed
-    # update instance 
+    # update instance
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                    |
       | p         |{                                                                   |
       |           | "spec": {                                                          |
-      |           |    "parametersFrom": [                                             |  
-      |           |      {                                                             | 
+      |           |    "parametersFrom": [                                             |
+      |           |      {                                                             |
       |           |        "secretKeyRef": {                                           |
-      |           |          "key": "parameters",                                      | 
-      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"  | 
+      |           |          "key": "parameters",                                      |
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"  |
       |           |        }                                                           |
       |           |      }                                                             |
       |           |    ],                                                              |
@@ -804,11 +804,11 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb               |
       | p         |{                                                              |
       |           | "spec": {                                                     |
-      |           |    "parametersFrom": [                                        |  
-      |           |      {                                                        | 
+      |           |    "parametersFrom": [                                        |
+      |           |      {                                                        |
       |           |        "secretKeyRef": {                                      |
-      |           |          "key": "parameters",                                 | 
-      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters" | 
+      |           |          "key": "parameters",                                 |
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters" |
       |           |        }                                                      |
       |           |      }                                                        |
       |           |    ],                                                         |
@@ -830,7 +830,7 @@ Feature: Update sql apb related feature
       | Type:\\s+Ready                                        |
     """
     And the output by order should match:
-      | Events: | 
+      | Events: |
       | Normal\s+InstanceUpdatedSuccessfully |
 
 
@@ -873,17 +873,17 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                           |
       | n | <%= project.name %>                                                                                                            |
     Then the step should succeed
-    # update instance 
+    # update instance
 
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                     |
       | p         |{                                                                    |
       |           | "spec": {                                                           |
-      |           |    "parametersFrom": [                                              |  
-      |           |      {                                                              | 
+      |           |    "parametersFrom": [                                              |
+      |           |      {                                                              |
       |           |        "secretKeyRef": {                                            |
-      |           |          "key": "parameters",                                       | 
-      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"   | 
+      |           |          "key": "parameters",                                       |
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters-new"   |
       |           |        }                                                            |
       |           |      }                                                              |
       |           |    ],                                                               |
@@ -907,11 +907,11 @@ Feature: Update sql apb related feature
       | resource  | serviceinstance/<%= cb.prefix %>-postgresql-apb                |
       | p         |{                                                               |
       |           | "spec": {                                                      |
-      |           |    "parametersFrom": [                                         |  
-      |           |      {                                                         | 
+      |           |    "parametersFrom": [                                         |
+      |           |      {                                                         |
       |           |        "secretKeyRef": {                                       |
-      |           |          "key": "parameters",                                  | 
-      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters"  | 
+      |           |          "key": "parameters",                                  |
+      |           |          "name": "<%= cb.prefix %>-postgresql-apb-parameters"  |
       |           |        }                                                       |
       |           |      }                                                         |
       |           |    ],                                                          |
@@ -978,7 +978,7 @@ Feature: Update sql apb related feature
     Given dc with name matching /mediawiki/ are stored in the :app clipboard
     And a pod becomes ready with labels:
       | deployment=<%= cb.app.first.name %>-1 |
-    And evaluation of `pod` is stored in the :app_pod clipboard      
+    And evaluation of `pod` is stored in the :app_pod clipboard
     Given dc with name matching /<db_label>/ are stored in the :db clipboard
     And a pod becomes ready with labels:
       | deployment=<%= cb.db.first.name %>-1 |
@@ -1018,17 +1018,17 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                     |
       | n | <%= project.name %>                                                                                                      |
     Then the step should succeed
-    # update instance 
+    # update instance
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-<db_label>-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  | 
-      |           |    "parametersFrom": [                               |  
-      |           |      {                                               | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_2>",  |
+      |           |    "parametersFrom": [                               |
+      |           |      {                                               |
       |           |        "secretKeyRef": {                             |
-      |           |          "key": "parameters",                        | 
-      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-2" | 
+      |           |          "key": "parameters",                        |
+      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-2" |
       |           |        }                                             |
       |           |      }                                               |
       |           |    ],                                                |
@@ -1036,7 +1036,7 @@ Feature: Update sql apb related feature
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.db.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /<db_label>/ are stored in the :db_2 clipboard
@@ -1059,17 +1059,17 @@ Feature: Update sql apb related feature
       | p | UID=<%= cb.db_uid %>                                                                                                     |
       | n | <%= project.name %>                                                                                                      |
     Then the step should succeed
-    # update instance 
+    # update instance
      When I run the :patch client command with:
       | resource  | serviceinstance/<%= cb.prefix %>-<db_label>-apb      |
       | p         |{                                                     |
       |           | "spec": {                                            |
-      |           |    "clusterServicePlanExternalName": "<db_plan_3>",  | 
-      |           |    "parametersFrom": [                               |  
-      |           |      {                                               | 
+      |           |    "clusterServicePlanExternalName": "<db_plan_3>",  |
+      |           |    "parametersFrom": [                               |
+      |           |      {                                               |
       |           |        "secretKeyRef": {                             |
-      |           |          "key": "parameters",                        | 
-      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-3"  | 
+      |           |          "key": "parameters",                        |
+      |           |          "name": "<%= cb.prefix %>-<db_label>-apb-parameters-3"  |
       |           |        }                                             |
       |           |      }                                               |
       |           |    ],                                                |
@@ -1077,7 +1077,7 @@ Feature: Update sql apb related feature
       |           |  }                                                   |
       |           |}                                                     |
     Then the step should succeed
-    #checking the old dc is deleted, new dc is created   
+    #checking the old dc is deleted, new dc is created
     Given I wait for the resource "dc" named "<%= cb.db_2.first.name %>" to disappear within 240 seconds
     Given I wait for the "<%= cb.prefix %>-<db_label>-apb" service_instance to become ready up to 240 seconds
     And dc with name matching /<db_label>/ are stored in the :db_3 clipboard
@@ -1091,10 +1091,10 @@ Feature: Update sql apb related feature
     """
 
     Examples:
-      |db_label      |db_plan_1 |db_plan_2 | db_plan_3 | parameter_1  | parameter_2   |    parameter_3   |                     
+      |db_label      |db_plan_1 |db_plan_2 | db_plan_3 | parameter_1  | parameter_2   |    parameter_3   |
       |postgresql |dev              |prod              | dev          | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.4","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   | # @case_id OCP-17331
       |postgresql |dev              |prod              | dev          | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.6","postgresql_password":"test"}                           | {"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"}   | # @case_id OCP-20387
       |mysql            | prod            |dev              | dev          | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}                                                                      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                                                                      | {"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.7","mysql_password":"test"}      | # @case_id OCP-17665
       |mariadb      | dev          |prod         | prod       | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}      | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.1","mariadb_root_password":"test","mariadb_password":"test"}      | {"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}    | # @case_id OCP-17733
-  
- 
+
+

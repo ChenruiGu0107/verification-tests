@@ -68,7 +68,7 @@ Feature: stibuild.feature
   Scenario: Start build with PR ref for an app using dockerstrategy
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world#refs/pull/60/head | 
+      | app_repo | https://github.com/openshift/ruby-hello-world#refs/pull/60/head |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -83,7 +83,7 @@ Feature: stibuild.feature
   Scenario: Start build with PR ref for an app using sourcestrategy
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo     | https://github.com/openshift/ruby-hello-world#refs/pull/73/head | 
+      | app_repo     | https://github.com/openshift/ruby-hello-world#refs/pull/73/head |
       | image_stream | ruby:latest                                                     |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -96,7 +96,7 @@ Feature: stibuild.feature
     When I run the :patch client command with:
       | resource      | buildconfig                                        |
       | resource_name | ruby-hello-world                                   |
-      | p | {"spec":{"source":{"git":{"ref":"refs/pull/73/head:master"}}}} | 
+      | p | {"spec":{"source":{"git":{"ref":"refs/pull/73/head:master"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -106,7 +106,7 @@ Feature: stibuild.feature
     When I run the :patch client command with:
       | resource      | buildconfig                                     |
       | resource_name | ruby-hello-world                                |
-      | p | {"spec":{"source":{"git":{"ref":"refs/pull/100000/head"}}}} | 
+      | p | {"spec":{"source":{"git":{"ref":"refs/pull/100000/head"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -232,8 +232,8 @@ Feature: stibuild.feature
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
     And I run the :create_secret client command with:
-      | secret_type | generic               |   
-      | name        | mysecret              |   
+      | secret_type | generic               |
+      | name        | mysecret              |
       | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I execute on the pod:
@@ -266,7 +266,7 @@ Feature: stibuild.feature
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo     | openshift/ruby:2.5~<%= cb.git_repo %> |
-      | source_secret| mysecret                              | 
+      | source_secret| mysecret                              |
     Then the step should succeed
     And the "sample-1" build was created
     And the "sample-1" build completed
@@ -279,8 +279,8 @@ Feature: stibuild.feature
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %> |
     And I run the :create_secret client command with:
-      | secret_type | generic               |   
-      | name        | mysecret              |   
+      | secret_type | generic               |
+      | name        | mysecret              |
       | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I execute on the pod:
@@ -334,7 +334,7 @@ Feature: stibuild.feature
     Given the master version >= "3.10"
     When I have a project
     And I have a proxy configured in the project
-    Given master config is merged with the following hash:                                                
+    Given master config is merged with the following hash:
     """
     admissionConfig:
       pluginConfig:
@@ -352,7 +352,7 @@ Feature: stibuild.feature
             - name: CUSTOM_VAR
               value: custom_value
     """
-    Given the master service is restarted on all master nodes                    
+    Given the master service is restarted on all master nodes
     When I run the :new_app client command with:
       | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
       | env      | BUILD_LOGLEVEL=5                                                 |
@@ -365,7 +365,7 @@ Feature: stibuild.feature
       | -c                |
       | env  \| grep HTTP |
     Then the output should contain:
-      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>  | 
+      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>  |
       | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
 
   # @author wewang@redhat.com
@@ -441,7 +441,7 @@ Feature: stibuild.feature
   # @author wewang@redhat.com
   # @case_id OCP-20973
   @admin
-  Scenario: No panic in the build controller after delete build pod when build in complete phase 
+  Scenario: No panic in the build controller after delete build pod when build in complete phase
     Given I have a project
     When I run the :new_build client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
@@ -501,7 +501,7 @@ Feature: stibuild.feature
     """
     And I run the :logs client command with:
       | resource_name | #{cb.pod.name} |
-      | loglevel      | 5              | 
+      | loglevel      | 5              |
     Then the step should succeed
     """
     Then the output should not contain "invalid phase transition"
@@ -575,14 +575,14 @@ Feature: stibuild.feature
     Given I execute on the pod:
       | oc | new-app | --code=/tmp/ruby-hello-world-master | --name=test-no-git |
     Then the step should succeed
-    
+
   # @author wewang@redhat.com
   # @case_id OCP-18926
   Scenario: Setting Paused boolean in buildconfig when images are changed	
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-18926/paused-build.json |
-      | name     | paused-build |                                       
+      | name     | paused-build |
     Then the step should succeed
     And the "paused-build-1" build completed
     When I run the :tag client command with:

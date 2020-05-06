@@ -1854,7 +1854,7 @@ Feature: test master config related steps
       policyConfiguration: null
       policyFile: "/etc/origin/master/audit-policy.yaml"
       webHookKubeConfig: ""
-      webHookMode: ""       
+      webHookMode: ""
     """
     And the master service is restarted on all master nodes
     And I run commands on the host:
@@ -1862,7 +1862,7 @@ Feature: test master config related steps
     Then the step should succeed
     And the output should contain:
       | audit.k8s.io |
-  
+
   # @author xiuwang@redhat.com
   @destructive
   @admin
@@ -1969,7 +1969,7 @@ Feature: test master config related steps
       |  "level":"Request"         |
       |  "level":"RequestResponse" |
     Then I run commands on the host:
-      | sed -i "s/level: .*/level: Request/" /etc/origin/master/audit-policy.yaml |	    
+      | sed -i "s/level: .*/level: Request/" /etc/origin/master/audit-policy.yaml |	
     And the master service is restarted on all master nodes
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -1978,9 +1978,9 @@ Feature: test master config related steps
       |  "level":"Request" |
     And the output should not contain:
       |  "level":"Metadata"        |
-      |  "level":"RequestResponse" |  
+      |  "level":"RequestResponse" |
     Then I run commands on the host:
-      | sed -i "s/level: .*/level: RequestResponse/" /etc/origin/master/audit-policy.yaml |	    
+      | sed -i "s/level: .*/level: RequestResponse/" /etc/origin/master/audit-policy.yaml |	
     And the master service is restarted on all master nodes
     And I run commands on the host:
       | tail -20 /etc/origin/master/audit-ocp.log |
@@ -1990,14 +1990,14 @@ Feature: test master config related steps
     And the output should not contain:
       |  "level":"Request"  |
       |  "level":"Metadata" |
-     
+
   # @author geliu@redhat.com
   # @case_id OCP-16690
   @destructive
   @admin
   Scenario: Central Audit Capability with mixed filtering rules
     Given I have a project
-    And evaluation of `project.name` is stored in the :project1 clipboard 
+    And evaluation of `project.name` is stored in the :project1 clipboard
     And I use the first master host
     And the "/etc/origin/master/audit-policy.yaml" file is restored on host after scenario
     And the "/etc/origin/master/audit-ocp.log" file is restored on host after scenario
@@ -2013,7 +2013,7 @@ Feature: test master config related steps
       policyConfiguration: null
       policyFile: "/etc/origin/master/audit-policy.yaml"
       webHookKubeConfig: ""
-      webHookMode: ""       
+      webHookMode: ""
     """
     When I run commands on the host:
       | echo "apiVersion: audit.k8s.io/v1beta1"  >/etc/origin/master/audit-policy.yaml       |
@@ -2095,4 +2095,4 @@ Feature: test master config related steps
     Then the step should succeed
     And the output should not contain:
       | "verb":"delete" |
- 
+

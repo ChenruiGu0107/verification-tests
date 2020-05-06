@@ -35,7 +35,7 @@ Feature: Ansible-service-broker related scenarios
   Scenario: Configure multiple registries for an adapter in one broker
     Given cluster service classes are indexed by external name in the :csc clipboard
     Then the expression should be true> cb.csc.values.find {|c| c.cluster_svc_broker_name == "ansible-service-broker"}
-    
+
     When I switch to cluster admin pseudo user
     And I use the "openshift-ansible-service-broker" project
     Given the "ansible-service-broker" cluster service broker is recreated after scenario
@@ -61,7 +61,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -303,7 +303,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb    |
-      | c             | asb     |     
+      | c             | asb     |
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -403,7 +403,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb                             |
-      | c             | asb     |      
+      | c             | asb     |
     Then the step should succeed
     And the output should contain "Broker successfully bootstrapped on startup"
     """
@@ -466,7 +466,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -546,7 +546,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -591,7 +591,7 @@ Feature: Ansible-service-broker related scenarios
     And admin redeploys "asb" dc
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
       | since         | 3m              |
     Then the step should succeed
     And the output should match:
@@ -687,7 +687,7 @@ Feature: Ansible-service-broker related scenarios
     """
     When I run the :logs client command with:
       | resource_name | dc/asb          |
-      | c             | asb     |      
+      | c             | asb     |
     Then the step should succeed
     And the output should match:
       | Type: openshift                 |

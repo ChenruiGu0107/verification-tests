@@ -39,12 +39,12 @@ Feature: genericbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15353
-    Scenario: Setting ports using parameter in template and set parameter value with string
+  Scenario: Setting ports using parameter in template and set parameter value with string
     Given I have a project
     And I process and create:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
       | p | PROTOCOL=UDP                                                                                        |
-      | p | CONTAINER_PORT=abc                                                                                  | 
+      | p | CONTAINER_PORT=abc                                                                                  |
       | p | EXT_PORT=efg                                                                                        |
       | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
     And the step should fail
@@ -52,28 +52,28 @@ Feature: genericbuild.feature
 
   # @author wewang@redhat.com
   # @case_id OCP-15352
-    Scenario: Setting ports using parameter in template and set parameter value with number
+  Scenario: Setting ports using parameter in template and set parameter value with number
     Given I have a project
     And I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml | 
-      | p | PROTOCOL=UDP                                                                                        |
-      | p | CONTAINER_PORT=888                                                                                  |   
-      | p | EXT_PORT=999                                                                                        |
-      | p | NODE_TEMPLATE_NAME=bug-param                                                                        |
-    And the step should succeed 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
+      | p | PROTOCOL=UDP                                                                     |
+      | p | CONTAINER_PORT=888                                                               |
+      | p | EXT_PORT=999                                                                     |
+      | p | NODE_TEMPLATE_NAME=bug-param                                                     |
+    And the step should succeed
     When I run the :get client command with:
       | resource  | service |
     And the step should succeed
     Then the output should contain:
-      | NAME       |  
-      | bug-param  |  
-      
+      | NAME       |
+      | bug-param  |
+
   # @author wewang@redhat.com
   # @case_id OCP-20221
   Scenario: Using Secrets for Environment Variables in Build Configs
     Given I have a project
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-20221/mysecret.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-20221/mysecret.yaml |
     Then the step should succeed
     When I run the :new_build client command with:
       | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
@@ -84,7 +84,7 @@ Feature: genericbuild.feature
       | resource_name | ruby-ex     |
       | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "MYVALKEY","valueFrom": {"secretKeyRef": {"key": "username","name": "mysecret"}}},{"name": "MYVALVALUE","valueFrom": {"secretKeyRef": {"key": "password","name": "mysecret"}}}]}}}} |
     Then the step should succeed
-    When I run the :start_build client command with: 
+    When I run the :start_build client command with:
       | buildconfig | ruby-ex |
     Then the step should succeed
     And the "ruby-ex-2" build completed
@@ -156,7 +156,7 @@ Feature: genericbuild.feature
   Scenario: Using oc new-build with multistage dockerfile
     Given I have a project
     When I run the :new_build client command with:
-      | binary | true            | 
+      | binary | true            |
       | name   | multistage-test |
     Then the step should succeed
     When I run the :start_build client command with:

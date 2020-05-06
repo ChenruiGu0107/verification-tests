@@ -1,4 +1,4 @@
-Feature: Testing kube-controller-manager-operator 
+Feature: Testing kube-controller-manager-operator
 
   # @author yinzhou@redhat.com
   # @case_id OCP-28001

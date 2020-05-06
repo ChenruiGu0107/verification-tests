@@ -38,7 +38,7 @@ Feature: NodeSelector related tests
     Then the step should succeed
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
       | resource  | pod  |
@@ -89,7 +89,7 @@ Feature: NodeSelector related tests
     Then the step should succeed
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
       | resource  | pod  |
@@ -101,7 +101,7 @@ Feature: NodeSelector related tests
       | "region": "west" |
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should fail
     And the output should match:
       | forbidden: pod node label selector conflicts with its namespace node label selector |
@@ -142,7 +142,7 @@ Feature: NodeSelector related tests
     Then the step should succeed
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
       | resource  | pod  |
@@ -154,7 +154,7 @@ Feature: NodeSelector related tests
       | "os": "fedora"    |
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should fail
     And the output should match:
       | forbidden: pod node label selector conflicts with its namespace node label selector |
@@ -204,7 +204,7 @@ Feature: NodeSelector related tests
       | "scheduler.alpha.kubernetes.io/node-selector": "env=test,infra=fedora" |
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector3.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
       | resource  | pod  |
@@ -216,7 +216,7 @@ Feature: NodeSelector related tests
       | "role": "vm"      |
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector4.yaml |
-      | n | ns1 |   
+      | n | ns1 |
     Then the step should fail
     And the output should match:
       | forbidden: pod node label selector labels conflict with its namespace whitelist |

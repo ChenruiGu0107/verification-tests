@@ -1,6 +1,6 @@
 Feature: create nginx application from imagestream via oc new-app
   # @author wewang@redhat.com
-  # @case_id OCP-13617 
+  # @case_id OCP-13617
   Scenario: create nginx application from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:

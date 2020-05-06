@@ -40,7 +40,7 @@ Feature: Secure Heapster APIs scenarios
     And the output should contain:
       | User "system:anonymous" cannot list nodes.metrics at the cluster scope. |
     When I execute on the pod:
-      | curl                                                              | 
+      | curl                                                              |
       | -sk                                                               |
       | --cert                                                            |
       | /var/run/kubernetes/request-header-client.crt                     |
@@ -146,7 +146,7 @@ Feature: Secure Heapster APIs scenarios
       | User "<%= user.name %>" cannot list nodes.metrics at the cluster scope |
     When I execute on the pod:
       | curl                                                              |
-      | -sk                                                               | 
+      | -sk                                                               |
       | --cert                                                            |
       | /var/run/kubernetes/request-header-client.crt                     |
       | --key                                                             |

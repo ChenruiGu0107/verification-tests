@@ -14,10 +14,10 @@ Feature: machineconfig/machineconfig pool related
     Given admin ensures "example" machineconfigpool is deleted after scenario
     When I run the :create_resource_by_default_yaml web action
     Then the step should succeed
-    
+
     # Page needs some time to load below detail info after created by yaml
     Given I wait up to 30 seconds for the steps to pass:
-    """    
+    """
     When I perform the :check_resource_details web action with:
       | name                    | example          |
       | current_configuration   | rendered-example |

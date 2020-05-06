@@ -194,7 +194,7 @@ Feature: Egress-ingress related networking scenarios
       | <%= cb.proj3 %>                                        |
       | <%= cb.proj4 %>                                        |
       | dropping all traffic                                   |
-    """  
+    """
     When I use the "<%= cb.proj3 %>" project
     When I execute on the pod:
       | curl | --connect-timeout | 5 | --head | www.google.com |
@@ -257,7 +257,7 @@ Feature: Egress-ingress related networking scenarios
     When I execute on the pod:
       | curl           |
       | --head         |
-      | www.google.com | 
+      | www.google.com |
    Then the step should succeed
    And the output should contain "HTTP/1.1 200"
 
@@ -433,7 +433,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   Scenario: Change the order of allow and deny rules in egress network policy
     Given the env is using multitenant or networkpolicy network
-    Given I have a project  
+    Given I have a project
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
@@ -452,16 +452,16 @@ Feature: Egress-ingress related networking scenarios
       | ping | -c1 | -W2 | yahoo.com |
     Then the step should succeed
     When I execute on the pod:
-      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> |
     Then the step should succeed
-    
+
     # Check egress policy can be deleted
     When I run the :delete admin command with:
       | object_type       | egressnetworkpolicy |
       | object_name_or_id | policy-test             |
       | n                 |  <%= cb.proj1 %>    |
     Then the step should succeed
- 
+
     # Create new egress policy with deny and allow order
     When I obtain test data file "networking/egress-ingress/dns-egresspolicy2.json"
     And I replace lines in "dns-egresspolicy2.json":
@@ -470,24 +470,24 @@ Feature: Egress-ingress related networking scenarios
       | f | dns-egresspolicy2.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
- 
+
     # Check ping from pod
     When I execute on the pod:
       | ping | -c1 | -W2 | yahoo.com |
     Then the step should fail
     When I execute on the pod:
-      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> |
     Then the step should fail
-    
+
   # @author weliang@redhat.com
   # @case_id OCP-13501
   @admin
   Scenario: Apply same egress network policy in different projects
     Given the env is using multitenant or networkpolicy network
-    Given I have a project  
+    Given I have a project
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
- 
+
     # Create egress policy in project-1
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
     When I obtain test data file "networking/egress-ingress/dns-egresspolicy1.json"
@@ -497,19 +497,19 @@ Feature: Egress-ingress related networking scenarios
       | f | dns-egresspolicy1.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
- 
+
     # Check ping from pod
     When I execute on the pod:
       | ping | -c1 | -W2 | yahoo.com |
     Then the step should succeed
     When I execute on the pod:
-      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> |
     Then the step should succeed
-    
+
     Given I create a new project
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj2 clipboard
- 
+
     # Create same egress policy in project-2
     And evaluation of `BushSlicer::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
     When I obtain test data file "networking/egress-ingress/dns-egresspolicy1.json"
@@ -519,13 +519,13 @@ Feature: Egress-ingress related networking scenarios
       | f | dns-egresspolicy1.json |
       | n | <%= cb.proj2 %> |
     Then the step should succeed
- 
+
     # Check ping from pod
     When I execute on the pod:
       | ping | -c1 | -W2 | yahoo.com |
     Then the step should succeed
     When I execute on the pod:
-      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> |
     Then the step should succeed
 
     # Check egress policy can be deleted in project1
@@ -540,18 +540,18 @@ Feature: Egress-ingress related networking scenarios
       | ping | -c1 | -W2 | yahoo.com |
     Then the step should succeed
     When I execute on the pod:
-      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
-    Then the step should succeed   
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> |
+    Then the step should succeed
 
   # @author weliang@redhat.com
   # @case_id OCP-13508
   @admin
   Scenario: Validate cidrSelector and dnsName fields in egress network policy
     Given the env is using multitenant or networkpolicy network
-    Given I have a project  
+    Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
- 
-    # Create egress policy 
+
+    # Create egress policy
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy1.json |
       | n | <%= cb.proj1 %> |
@@ -586,13 +586,13 @@ Feature: Egress-ingress related networking scenarios
       | f | policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
-   
+
     # Create a service with a "externalname"
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/service-externalName.json |
       | n | <%= cb.proj1 %> |
-    Then the step should succeed 
-    
+    Then the step should succeed
+
     # Check curl from pod
     When I execute on the pod:
       | curl |-ILs | www.test.com |
@@ -607,16 +607,16 @@ Feature: Egress-ingress related networking scenarios
     And the output should contain:
       | egressnetworkpolicy |
       | deleted             |
-    
+
     # Create egress policy to allow www.test.com
     When I run the :create admin command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
-    
+
     # Check curl from pod
     When I execute on the pod:
-      | curl | -ILs | www.test.com |    
+      | curl | -ILs | www.test.com |
     And the output should contain "HTTP/1.1 200"
 
   # @author huirwang@redhat.com

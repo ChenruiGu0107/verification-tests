@@ -227,7 +227,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
       | status     | Expired |
     Then the step should fail
-    #Active enabled and Enable Expired 
+    #Active enabled and Enable Expired
     When I perform the :click_link_with_text_only web action with:
       | text | Expired |
     Then the step should succeed
@@ -239,7 +239,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
       | status     | Expired  |
     Then the step should succeed
-    #Disable Active and Enable Expired 
+    #Disable Active and Enable Expired
     When I perform the :click_link_with_text_only web action with:
       | text | Active |
     Then the step should succeed

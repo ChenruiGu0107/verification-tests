@@ -10,7 +10,7 @@ Feature: env.feature
       | e        | APPLE2=tesla       |
       | e        | APPLE3=linux       |
     Then the step should succeed
-    And a pod becomes ready with labels: 
+    And a pod becomes ready with labels:
       | deployment=jenkins-1 |
     When I run the :set_env client command with:
       | resource | pod/<%= pod.name %> |

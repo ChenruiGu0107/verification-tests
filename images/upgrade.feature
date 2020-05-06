@@ -4,7 +4,7 @@ Feature: Upgrade images feature
     Given I have a project
     When I run the :new_app client command with:
       | app_repo     | registry.access.redhat.com/<image>~<repo> |
-      | context_dir  | <context_dir>                             | 
+      | context_dir  | <context_dir>                             |
     Then the step should succeed
     And the "<app_name>-1" build was created
     And the "<app_name>-1" build completed
@@ -23,7 +23,7 @@ Feature: Upgrade images feature
     Then I wait for a web server to become available via the "<app_name>" route
     Then the output should contain "<display_info>"
 
-    Examples: 
+    Examples:
       | image                 | image_stream    |repo                                               |context_dir | app_name         | display_info                 | istag      |
       | rhscl/python-27-rhel7 | python-27-rhel7 |https://github.com/sclorg/django-ex.git         |            | django-ex        | Welcome to your Django       | python:2.7 | # @case_id OCP-9670
       | rhscl/python-34-rhel7 | python-34-rhel7 |https://github.com/sclorg/django-ex.git         |            | django-ex        | Welcome to your Django       | python:3.4 | # @case_id OCP-9671
@@ -103,7 +103,7 @@ Feature: Upgrade images feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-17128
-  Scenario: Image upgrade test for mariadb-101-rhel7  
+  Scenario: Image upgrade test for mariadb-101-rhel7
     Given I have a project
     And I run the :import_image client command with:
       | image_name | mariadb                                            |
@@ -160,7 +160,7 @@ Feature: Upgrade images feature
     """
     And the output should contain:
       | 10 |
-  
+
   # @author wzheng@redhat.com
   # @case_id OCP-17129
   Scenario: Image upgrade test for redis-32-rhel7
@@ -186,7 +186,7 @@ Feature: Upgrade images feature
       | -c                                                                        |
       | redis-cli -h redis -p 6379 -c 'auth redhat; set mykey "hello"; get mykey' |
     Then the step should succeed
-    And the output should contain: 
+    And the output should contain:
       | hello |
     """
     Then I run the :import_image client command with:
@@ -205,14 +205,14 @@ Feature: Upgrade images feature
       | -c                                                                        |
       | redis-cli -h redis -p 6379 -c 'auth redhat; set mykey "hello"; get mykey' |
     Then the step should succeed
-    And the output should contain: 
+    And the output should contain:
       | hello |
     """
 
 
   # @author wzheng@redhat.com
   # @case_id OCP-17125
-  Scenario: Image upgrade test for mysql-57-rhel7 in OCP  
+  Scenario: Image upgrade test for mysql-57-rhel7 in OCP
     Given I have a project
     And I run the :import_image client command with:
       | image_name | mysql                                           |

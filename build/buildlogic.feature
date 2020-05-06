@@ -284,8 +284,8 @@ Feature: buildlogic.feature
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_secret %>      |
     And I run the :create_secret client command with:
-      | secret_type | generic               |   
-      | name        | mysecret              |   
+      | secret_type | generic               |
+      | name        | mysecret              |
       | from_file   | ssh-privatekey=secret |
     Then the step should succeed
     When I run the :patch client command with:

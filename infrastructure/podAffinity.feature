@@ -24,7 +24,7 @@ Feature: podAffinity
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/podAffinity/pod-pod-affinity-exists-value.yaml |
     Then the step should fail
     And the output should match:
-      | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' | 
+      | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
@@ -145,7 +145,7 @@ Feature: podAffinity
     Then the step should succeed
     Given the pod named "security-s1" status becomes :running within 300 seconds
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-multi-matchexpressions.yaml | 
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod-affinity/pod-pod-affinity-multi-matchexpressions.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """

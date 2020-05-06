@@ -29,7 +29,7 @@ Feature: search page related
       | resource_kind  | Builds              |
       | resource_group | config.openshift.io |
     Then the step should succeed
-    
+
     When I perform the :clear_one_search_item web action with:
       | search_item | Build |
     Then the step should succeed
@@ -45,7 +45,7 @@ Feature: search page related
       | resource_kind  | Deployments |
       | resource_group | apps/v1     |
     Then the step should succeed
-    
+
     # filter by label
     When I perform the :set_filter_content_on_search_page web action with:
       | filter_content | alertmanager=main |
@@ -62,8 +62,8 @@ Feature: search page related
     When I perform the :clear_one_search_item web action with:
       | search_item | alertmanager=main |
     Then the step should succeed
-    
-    # filter by name 
+
+    # filter by name
     When I perform the :choose_filter_type_on_search_page web action with:
       | filter_type | Name |
     Then the step should succeed

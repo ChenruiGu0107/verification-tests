@@ -36,12 +36,12 @@ Feature: Testing image registry operator
     When I run the :set_env client command with:
       | resource  | pod                      |
       | all       | true                     |
-      | list      | true                     | 
+      | list      | true                     |
       | namespace | openshift-image-registry |
     And the output should contain:
       | REGISTRY_LOG_LEVEL=debug |
     """
-    
+
     # Check when managementState is Unmanaged, nothing change will take effect
 
     When I run the :patch client command with:
@@ -53,7 +53,7 @@ Feature: Testing image registry operator
     When I run the :set_env client command with:
       | resource  | pod                      |
       | all       | true                     |
-      | list      | true                     | 
+      | list      | true                     |
       | namespace | openshift-image-registry |
     And the output should contain:
       | REGISTRY_LOG_LEVEL=debug |
@@ -67,7 +67,7 @@ Feature: Testing image registry operator
     When I use the "openshift-image-registry" project
     Given current generation number of "image-registry" deployment is stored into :before_change clipboard
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"resources":{"limits":{"cpu":"100m","memory":"512Mi"}}}} | 
+      | {"spec":{"resources":{"limits":{"cpu":"100m","memory":"512Mi"}}}} |
     And I register clean-up steps:
     """
     When I run the :delete client command with:
@@ -90,11 +90,11 @@ Feature: Testing image registry operator
   Scenario: Config NodeSelector for internal regsistry
     Given I switch to cluster admin pseudo user
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"nodeSelector":{"node-role.kubernetes.io/master": "abc"}}} | 
+      | {"spec":{"nodeSelector":{"node-role.kubernetes.io/master": "abc"}}} |
     And I register clean-up steps:
     """
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"nodeSelector":null}} | 
+      | {"spec":{"nodeSelector":null}} |
     """
     When I use the "openshift-image-registry" project
     When I run the :describe client command with:
@@ -112,16 +112,16 @@ Feature: Testing image registry operator
       | api_version | imageregistry.operator.openshift.io/v1 |
     Then the step should succeed
     And the output should contain:
-      | Config is the configuration object for a registry instance managed by the | 
+      | Config is the configuration object for a registry instance managed by the |
       | registry operator                                                         |
-      | ImageRegistrySpec defines the specs for the running registry.             | 
+      | ImageRegistrySpec defines the specs for the running registry.             |
       | ImageRegistryStatus reports image registry operational status             |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-24353
   @admin
   @destructive
-  Scenario: Registry operator storage setup - Azure 
+  Scenario: Registry operator storage setup - Azure
     Given a 4 characters random string of type :dns is stored into the :short_nm clipboard
     Given a 25 characters random string of type :dns is stored into the :longer_nm clipboard
     Given I switch to cluster admin pseudo user
@@ -143,7 +143,7 @@ Feature: Testing image registry operator
     And a pod becomes ready with labels:
       | docker-registry=default |
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.short_nm %>"}}}} | 
+      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.short_nm %>"}}}} |
     And I register clean-up steps:
     """
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
@@ -152,7 +152,7 @@ Feature: Testing image registry operator
     Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | accountName: <%= cb.aname %> | accountName: |
-      | container: <%= cb.cont %>    | container:   | 
+      | container: <%= cb.cont %>    | container:   |
     When I run the :apply client command with:
       | f | imageregistry.yaml |
     Then the step should succeed
@@ -171,7 +171,7 @@ Feature: Testing image registry operator
     Then the output should contain:
       | Account Name:  <%= cb.short_nm %> |
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.longer_nm %>"}}}} | 
+      | {"spec":{"storage":{"azure":{"accountName":"<%= cb.longer_nm %>"}}}} |
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
       | AzureError |
@@ -179,7 +179,7 @@ Feature: Testing image registry operator
     Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | accountName: <%= cb.longer_nm %> | accountName: |
-      | container: <%= cb.container %>   | container:   | 
+      | container: <%= cb.container %>   | container:   |
     When I run the :apply client command with:
       | f | imageregistry.yaml |
     Then the step should succeed
@@ -201,14 +201,14 @@ Feature: Testing image registry operator
   # @case_id OCP-22945
   @admin
   @destructive
-  Scenario: Autoconfigure registry storage on AWS-UPI 
+  Scenario: Autoconfigure registry storage on AWS-UPI
     Given a 25 characters random string of type :dns is stored into the :custom_nm clipboard
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     When I get project secret named "image-registry-private-configuration" as YAML
     Then the output should contain:
       | REGISTRY_STORAGE_S3_ACCESSKEY |
-      | REGISTRY_STORAGE_S3_SECRETKEY | 
+      | REGISTRY_STORAGE_S3_SECRETKEY |
     When I get project secret named "installer-cloud-credentials" as YAML
     Then the output should contain:
       | aws_access_key_id     |
@@ -222,7 +222,7 @@ Feature: Testing image registry operator
     And a pod becomes ready with labels:
       | docker-registry=default |
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"storage":{"s3":{"bucket":"<%= cb.custom_nm %>"}}}} | 
+      | {"spec":{"storage":{"s3":{"bucket":"<%= cb.custom_nm %>"}}}} |
     And I wait for the steps to pass:
     """
     And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
@@ -233,7 +233,7 @@ Feature: Testing image registry operator
       | docker-registry=default |
     When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
-      | bucket: <%= cb.custom_nm %> | 
+      | bucket: <%= cb.custom_nm %> |
     Given I save the output to file> imageregistry.yaml
     And I replace lines in "imageregistry.yaml":
       | bucket: <%= cb.custom_nm %> | |
@@ -277,7 +277,7 @@ Feature: Testing image registry operator
     Then the step should succeed
     Then the output should contain:
       | --prune-registry=false |
-  
+
   # @author wzheng@redhat.com
   # @case_id OCP-27577
   Scenario:Explain and check the custom resource definition for the prune
@@ -287,8 +287,8 @@ Feature: Testing image registry operator
     Then the step should succeed
     And the output should contain:
       | ImagePruner is the configuration object for an image registry pruner |
-      | ImagePrunerSpec defines the specs for the running image pruner       | 
-      | ImagePrunerStatus reports image pruner operational status            | 
+      | ImagePrunerSpec defines the specs for the running image pruner       |
+      | ImagePrunerStatus reports image pruner operational status            |
 
   # @author wzheng@redhat.com
   # @case_id OCP-24133
@@ -299,7 +299,7 @@ Feature: Testing image registry operator
     Given I use the "openshift-image-registry" project
     When I run the :create_secret client command with:
       | cert        | <%= BushSlicer::HOME %>/feature/tierN/testdata/registry/myregistry.crt |
-      | key         | <%= BushSlicer::HOME %>/feature/tierN/testdata/registry/myregistry.key |      
+      | key         | <%= BushSlicer::HOME %>/feature/tierN/testdata/registry/myregistry.key |
       | secret_type | tls                                                                    |
       | name        | my-tls                                                                 |
     Then the step should succeed
@@ -355,7 +355,7 @@ Feature: Testing image registry operator
     When I use the "openshift-image-registry" project
     When I get project secret named "image-registry-private-configuration" as YAML
     Then the output should contain:
-      | REGISTRY_STORAGE_GCS_KEYFILE | 
+      | REGISTRY_STORAGE_GCS_KEYFILE |
     When I run the :set_env client command with:
       | resource | deployment/image-registry |
       | list     | true                      |
@@ -363,6 +363,6 @@ Feature: Testing image registry operator
     Then the output should contain:
       | REGISTRY_STORAGE=gcs                      |
       | REGISTRY_STORAGE_GCS_BUCKET               |
-      | REGISTRY_STORAGE_GCS_KEYFILE=/gcs/keyfile | 
+      | REGISTRY_STORAGE_GCS_KEYFILE=/gcs/keyfile |
     And a pod is present with labels:
       | docker-registry=default |

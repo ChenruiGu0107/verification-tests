@@ -172,7 +172,7 @@ Feature: ONLY payment update related feature's scripts in this file
     Then the step should succeed
     When I run the :check_legal_message_on_payment_page web action
     Then the step should succeed
-    When I run the :check_update_address_link web action 
+    When I run the :check_update_address_link web action
     Then the step should succeed
     When I run the :check_update_button_disable web action
     Then the step should succeed

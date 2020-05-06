@@ -23,4 +23,4 @@ Feature: Independent link related scenarios
     Then the step should succeed
     When I run the :check_wizard_information web console action
     Then the step should succeed
-  
+

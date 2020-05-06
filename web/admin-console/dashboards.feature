@@ -6,7 +6,7 @@ Feature: dashboards related cases
   Scenario: Add view all alerts to status card
     Given the master version >= "4.4"
     Given the first user is cluster-admin
-    
+
     Given I open admin console in a browser
     When I run the :goto_cluster_dashboards_page web action
     Then the step should succeed

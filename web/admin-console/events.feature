@@ -6,7 +6,7 @@ Feature: events related
     Given the master version >= "3.11"
     Given I have a project
     And I open admin console in a browser
-    
+
     # no events when project is empty
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
@@ -18,7 +18,7 @@ Feature: events related
     # create 1st build
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc526202/bc.json |
-    Then the step should succeed    
+    Then the step should succeed
 
     # 2nd build will fail
     When I run the :patch client command with:
@@ -29,7 +29,7 @@ Feature: events related
     When I run the :start_build client command with:
       | buildconfig | ruby-ex |
     Then the step should succeed
-    And the "ruby-ex-2" build finished  
+    And the "ruby-ex-2" build finished
 
     When I perform the :filter_event_by_name_or_message web action with:
       | filter_text | ruby-ex-1 |
@@ -47,7 +47,7 @@ Feature: events related
 
     When I perform the :goto_project_events web action with:
       | project_name | <%= project.name %> |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :search_by_resource web action with:
       | resource_kind | Pod |
     Then the step should succeed

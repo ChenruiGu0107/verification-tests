@@ -6,7 +6,7 @@ Feature: build 'apps' with CLI
     When I run the :create_secret client command with:
      | name        | sec-push                                                                        |
      | secret_type | generic                                                                         |
-     | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | 
+     | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
      | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
     When I run the :new_app client command with:
@@ -263,7 +263,7 @@ Feature: build 'apps' with CLI
     And the "ruby-sample-build-3" build fails
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
-      | from_dir    | dir_not_exist     | 
+      | from_dir    | dir_not_exist     |
     Then the step should fail
     And the output should contain:
       | no such file or directory |
@@ -971,7 +971,7 @@ Feature: build 'apps' with CLI
 
   # @author xiuwang@redhat.com
   # @case_id OCP-19634
-  Scenario: Insert configmap when create a buildconfig - Negative 
+  Scenario: Insert configmap when create a buildconfig - Negative
     Given I have a project
     Given a "configmap.test" file is created with the following lines:
     """
@@ -1012,7 +1012,7 @@ Feature: build 'apps' with CLI
       | build_config_map| cmtest:./newdir2                             |
     Then the step should fail
     And the output should contain:
-      | configMap can be used just once| 
+      | configMap can be used just once|
 
   # @author xiuwang@redhat.com
   # @case_id OCP-18963
@@ -1058,7 +1058,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-hello-world |
-      | p | {"spec":{"source":{"configMaps": [{"configMap": {"name": "cmtest1"}, "destinationDir": "./config.ru"}]}}} | 
+      | p | {"spec":{"source":{"configMaps": [{"configMap": {"name": "cmtest1"}, "destinationDir": "./config.ru"}]}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -1068,7 +1068,7 @@ Feature: build 'apps' with CLI
 
   # @author xiuwang@redhat.com
   # @case_id OCP-18960
-  Scenario: Allow configmaps as inputs to a s2i build 
+  Scenario: Allow configmaps as inputs to a s2i build
     Given I have a project
     Given a "configmap1.test" file is created with the following lines:
     """

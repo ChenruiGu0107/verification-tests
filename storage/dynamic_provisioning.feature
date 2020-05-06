@@ -196,7 +196,7 @@ Feature: Dynamic provisioning
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/aws                        |
     Then the step should succeed
     And the pod named "mypod" becomes ready
-    
+
     And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
     When I execute on the pod:
       | touch | /mnt/aws/testfile |
