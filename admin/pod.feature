@@ -264,9 +264,9 @@ Feature: pod related features
     Then the step should succeed
     Given I wait until number of replicas match "6" for replicationController "deployment-example-1"
     When I run the :label client command with:
-      | resource  | pods     |
-      | l         | app      |
-      | key_val   | foo8=bar |
+      | resource  | pods                                |
+      | l         | deploymentconfig=deployment-example |
+      | key_val   | foo8=bar                            |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
     Given 6 pods become ready with labels:
@@ -291,17 +291,17 @@ Feature: pod related features
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
-      | resource    | pod    |
-      | l           | app    |
+      | resource    | pod                                 |
+      | l           | deploymentconfig=deployment-example |
     Then the step should succeed
     And the output should contain 5 times:
       | deployment-example |
     """
     When I run the :label client command with:
-      | resource  | pods     |
-      | l         | app      |
-      | key_val   | foo8=bar |
-      | overwrite | true     |
+      | resource  | pods                                |
+      | l         | deploymentconfig=deployment-example |
+      | key_val   | foo8=bar                            |
+      | overwrite | true                                |
     Then the step should succeed
     And a pod becomes ready with labels:
       | foo8=bar |
@@ -322,8 +322,8 @@ Feature: pod related features
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
-      | resource    | pod    |
-      | l           | app    |
+      | resource    | pod                                 |
+      | l           | deploymentconfig=deployment-example |
     Then the step should succeed
     And the output should contain 3 times:
       | deployment-example |
@@ -362,12 +362,12 @@ Feature: pod related features
       | replicas | 5                  |
     Then the step should succeed
     Given 5 pods become ready with labels:
-      | app=deployment-example  |
+      | deploymentconfig=deployment-example |
     When I run the :label client command with:
-      | resource  | pods                   |
-      | l         | app=deployment-example |
-      | key_val   | foo8=bar               |
-      | overwrite | true                   |
+      | resource  | pods                                |
+      | l         | deploymentconfig=deployment-example |
+      | key_val   | foo8=bar                            |
+      | overwrite | true                                |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
     Given a pod becomes ready with labels:
