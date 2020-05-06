@@ -114,7 +114,7 @@ Feature: samplesoperator
     And I register clean-up steps:
     """
     Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
-     | {"spec":{"samplesRegistry":""}} |
+     | {"spec":{"samplesRegistry": null}} |
     """
     Then I wait up to 60 seconds for the steps to pass:
     """

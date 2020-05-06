@@ -232,7 +232,7 @@ Feature: Testing imagestream
       | image_name | registry.access.redhat.com/openshift3/ose:latest |
       | confirm    | true                                             |
     Then the step should succeed
-    And I wait for the steps to pass:
+    Then I wait up to 300 seconds for the steps to pass:
     """
     When I get project imagestreamtag named "ose:latest" as YAML
     And evaluation of `@result[:parsed]['image']['signatures'].count` is stored in the :sign_count clipboard
