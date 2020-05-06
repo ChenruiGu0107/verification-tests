@@ -7,7 +7,7 @@ Feature: Quota related scenarios
     Given I have a project
     When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota.yaml" replacing paths:
       | ["spec"]["hard"]["memory"] | 20Mi                |
-      | namespace                  | <%= project.name %> |
+      | ["metadata"]["namespace"]  | <%= project.name %> |
     Then the step should succeed
 
     When I run the :create client command with:
