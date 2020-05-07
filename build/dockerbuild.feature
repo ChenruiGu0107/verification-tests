@@ -17,7 +17,6 @@ Feature: dockerbuild.feature
 
     Examples:
       | warning                                      |
-      | Invalid git source url: 123                  |  # @case_id OCP-11444
       | '123' does not appear to be a git repository |  # @case_id OCP-17382
 
   # @author haowang@redhat.com
@@ -28,26 +27,6 @@ Feature: dockerbuild.feature
       | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template-dockerbuild-blankvar.json |
     Then the step should fail
     And the output should contain "invalid"
-
-  # @author cryan@redhat.com
-  # @case_id OCP-11937
-  Scenario: oc start-build with a file passed,sti build type
-    Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | https://github.com/sclorg/nodejs-ex |
-    Then the step should succeed
-    Given the "nodejs-ex-1" build completed
-    Given I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/package.json"
-    When I run the :start_build client command with:
-      | buildconfig | nodejs-ex |
-      | from_file | package.json |
-    Then the step should succeed
-    Given the "nodejs-ex-2" build completed
-    When I run the :start_build client command with:
-      | buildconfig | nodejs-ex |
-      | from_file | nonexist.json |
-    Then the step should fail
-    And the output should contain "no such file"
 
   # @author wewang@redhat.com
   # @case_id OCP-11228

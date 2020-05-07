@@ -13,7 +13,6 @@ Feature: perl.feature
     Then the output should contain "http://not/a/valid/index/"
     Examples:
       | image |
-      | 5.16  | # @case_id OCP-11856
       | 5.20  | # @case_id OCP-12005
       | 5.24  | # @case_id OCP-12107
 

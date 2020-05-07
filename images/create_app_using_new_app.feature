@@ -24,36 +24,6 @@ Feature:Create apps using new_app cmd feature
       | openshift/jboss-webserver30-tomcat7-openshift:1.3 | # @case_id OCP-9657
       | openshift/jboss-webserver30-tomcat8-openshift:1.3 | # @case_id OCP-9658
 
-  # @author haowang@redhat.com
-  # @case_id OCP-11137
-  Scenario: Create applications with multiple repos
-    Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | https://github.com/xiuwang/ruby-hello-world.git   |
-      | app_repo | https://github.com/openshift/ruby-hello-world.git |
-      | l        | app=test |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1-1" build was created
-    When I run the :describe client command with:
-      | resource | bc               |
-      | name     | ruby-hello-world |
-    Then the output should contain "https://github.com/xiuwang/ruby-hello-world.git"
-    When I run the :describe client command with:
-      | resource | bc    |
-      | name     | ruby-hello-world-1 |
-    Then the output should contain "https://github.com/openshift/ruby-hello-world.git"
-    When I create a new project
-    Then I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world.git |
-      | app_repo | https://github.com/openshift/ruby-hello-world.git |
-      | l        | app=test                                          |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource | bc |
-    Then the output should contain "ruby-hello-world"
-    And the output should not contain "ruby-hello-world-1"
-
   # @author xiuwang@redhat.com
   # @case_id OCP-12216 OCP-12265
   Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7

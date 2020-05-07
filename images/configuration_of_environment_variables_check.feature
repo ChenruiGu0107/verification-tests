@@ -191,7 +191,7 @@ Feature: Configuration of environment variables check
       | openshift/ruby:2.3 | # @case_id OCP-12424
 
   # @author haowang@redhat.com
-  # @case_id OCP-11575 OCP-13141
+  # @case_id OCP-13141
   Scenario Outline: Users can override the the env tuned by ruby base image -ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
@@ -220,5 +220,4 @@ Feature: Configuration of environment variables check
     """
     Examples:
       | template        |
-      | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/tc521461/template.json  |
       | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/OCP-13141/template.json |

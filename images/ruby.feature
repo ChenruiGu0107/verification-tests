@@ -20,7 +20,6 @@ Feature: ruby.feature
     """
     Examples:
       | template                |
-      | tc521462/template.json  | # @case_id OCP-11257
       | OCP-13135/template.json | # @case_id OCP-13135
       | OCP-13136/template.json | # @case_id OCP-13136
 

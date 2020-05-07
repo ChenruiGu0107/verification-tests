@@ -1,49 +1,4 @@
 Feature: oc_rsync.feature
-
-  # @author cryan@redhat.com
-  Scenario Outline: Copying files from container to host using oc rsync
-    Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | aosqe/scratch:tarrsync |
-    Given a pod becomes ready with labels:
-      | deployment=scratch-1 |
-    When I execute on the pod:
-      | touch | /tmp/test1 |
-    Then the step should succeed
-    Given I create the "rsync_folder" directory
-    When I run the :rsync client command with:
-      | source      | <%= pod.name %>:/tmp/test1                  |
-      | destination | <%= localhost.absolutize("rsync_folder") %> |
-      | loglevel    | 5                                           |
-      | strategy    | <strategy>                                  |
-    Given the "rsync_folder/test1" file is present
-    When I run the :rsync client command with:
-      | source      | <%= pod.name %>:/root/notexisted/ |
-      | destination | <%= localhost.workdir %>          |
-      | loglevel    | 5                                 |
-      | strategy    | <strategy>                        |
-    Then the step should fail
-    And the output should contain "No such file or directory"
-    When I run the :rsync client command with:
-      | source      | <%= pod.name %>:/tmp/test1 |
-      | destination | ./nonexisted               |
-      | loglevel    | 5                          |
-      | strategy    | <strategy>                 |
-    Then the step should fail
-    And the output should contain "invalid path"
-    Given I create the "rsync_folder/lvl2" directory
-    When I run the :rsync client command with:
-      | source      | <%= pod.name %>:/tmp/test1 |
-      | destination | ./rsync_folder/lvl2        |
-      | loglevel    | 5                          |
-      | strategy    | <strategy>                 |
-    Then the step should succeed
-    Given the "rsync_folder/lvl2/test1" file is present
-    Examples:
-      | strategy     |
-      | tar          | # @case_id OCP-11538
-      | rsync-daemon | # @case_id OCP-11204
-
   # @author cryan@redhat.com
   Scenario Outline: Copying files from host to container using oc rsync
     Given I have a project
@@ -83,7 +38,6 @@ Feature: oc_rsync.feature
       | strategy     |
       | tar          | # @case_id OCP-12054
       | rsync        | # @case_id OCP-11763
-      | rsync-daemon | # @case_id OCP-11934
 
   # @author cryan@redhat.com
   Scenario Outline: oc rsync with --delete option

@@ -60,7 +60,6 @@ Feature: pipelinebuild.feature
 
     Examples:
       | tag |
-      | 1   | # @case_id OCP-11860
       | 2   | # @case_id OCP-11857
 
   # @author dyan@redhat.com
@@ -109,7 +108,6 @@ Feature: pipelinebuild.feature
 
     Examples:
       | tag |
-      | 1   | # @case_id OCP-11861
       | 2   | # @case_id OCP-11858
 
   # @author xiuwang@redhat.com
@@ -242,25 +240,6 @@ Feature: pipelinebuild.feature
     When I perform the :check_jenkins_credentials web action with:
       | credential_name | <%= project.name %>-mysecret |
     Then the step should fail
-
-  # @author wewang@redhat.com
-  # @case_id OCP-11435
-  Scenario: Jenkins pipeline build with Orchestration Pipeline Example
-    Given I have a project
-    And I have a jenkins v2 application
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/mapsapp-pipeline.yaml |
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "maven" slave image for jenkins 2 server
-    And I run the :start_build client command with:
-      | buildconfig | mapsapp-pipeline |
-    Then the step should succeed
-    Then the "nationalparks-pipeline-1" build completed
-    And the "mlbparks-pipeline-1" build completed
-    Then the "parksmap-pipeline-1" build completed
-    Then the "mapsapp-pipeline-1" build completed
 
   # @author wewang@redhat.com
   # @case_id OCP-11065

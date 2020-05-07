@@ -1,15 +1,4 @@
 Feature: login related scenario
-
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-11091
-  Scenario: [origin_platformexp_397] The page should not redirect to login page when access /oauth/authorize?client_id=openshift-challenging-client
-
-    Given I login via web console
-    When I access the "/oauth/authorize?response_type=token&client_id=openshift-challenging-client" path in the web console
-    And I get the html of the web page
-    Then the output should contain:
-      | A non-empty X-CSRF-Token header is required to receive basic-auth challenges |
-
   # @author xxing@redhat.com
   # @case_id OCP-12118
   Scenario: The page should reflect to login page when access session protected pages after failed log in

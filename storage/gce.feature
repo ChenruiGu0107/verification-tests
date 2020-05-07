@@ -129,33 +129,6 @@ Feature: GCE specific scenarios
       | (it's an empty string\|does not have a node in zone) |
 
   # @author lxia@redhat.com
-  # @case_id OCP-11974
-  @admin
-  Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
-    Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"] | mypvc |
-    Then the step should succeed
-
-    Given I run the steps 30 times:
-    """
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
-      | ["metadata"]["name"]                                         | mypod |
-    Then the step should succeed
-    Given the pod named "mypod" becomes ready
-    When I execute on the pod:
-      | mountpoint | -d | /mnt/gce |
-    Then the step should succeed
-    When I execute on the pod:
-      | bash |
-      | -c   |
-      | date >> /mnt/gce/testfile |
-    Then the step should succeed
-    Given I ensure "mypod" pod is deleted
-    """
-
-  # @author lxia@redhat.com
   # @case_id OCP-12165
   @admin
   @destructive
@@ -229,36 +202,6 @@ Feature: GCE specific scenarios
     Then the step should succeed
     When I execute on the "<%= pod(-2).name %>" pod:
       | ls | /mnt/gce/meminfo |
-    Then the step should succeed
-
-  # @author lxia@redhat.com
-  # @case_id OCP-11813
-  @admin
-  Scenario: pods referencing different partitions of the same volume should not fail
-    Given I have a project
-    And I have a 1 GB volume and save volume id in the :volumeID clipboard
-
-    Given I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
-      | ["metadata"]["name"]                                     | pod1-<%= project.name %> |
-      | ["spec"]["volumes"][0]["gcePersistentDisk"]["pdName"]    | <%= cb.volumeID %>       |
-      | ["spec"]["volumes"][0]["gcePersistentDisk"]["partition"] | 0                        |
-    Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/pod-NoDiskConflict-1.json" replacing paths:
-      | ["metadata"]["name"]                                     | pod2-<%= project.name %> |
-      | ["spec"]["volumes"][0]["gcePersistentDisk"]["pdName"]    | <%= cb.volumeID %>       |
-      | ["spec"]["volumes"][0]["gcePersistentDisk"]["partition"] | 1                        |
-    Then the step should succeed
-    Given the pod named "pod1-<%= project.name %>" becomes ready
-    Given the pod named "pod2-<%= project.name %>" becomes ready
-
-    When I execute on the "<%= pod(-1).name %>" pod:
-      | ls | -al | /mnt/gce/ |
-    Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
-      | ls | -al | /mnt/gce/ |
     Then the step should succeed
 
   # @author lxia@redhat.com

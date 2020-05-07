@@ -1,40 +1,4 @@
 Feature: job.feature
-
-  # @author geliu@redhat.com
-  # @case_id OCP-11363
-  Scenario: The subsequent scheduled job should be suspend when set suppend flag to true
-    Given I have a project
-    When I run the :run client command with:
-      | name    | sj1       |
-      | image   | busybox   |
-      | restart | Never     |
-      | schedule| * * * * * |
-      | sleep   | 30        |
-    Then the step should succeed
-    Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
-    When I run the :patch client command with:
-      | resource      | scheduledjob              |
-      | resource_name | sj1                       |
-      | p             | {"spec":{"suspend":true}} |
-    Then the step should succeed
-    Given 60 seconds have passed
-    When I run the :delete client command with:
-      | object_type | pod             |
-      | l           | run=sj1         |
-    Then the step should succeed
-    Given 60 seconds have passed
-    When I get project pods as JSON
-    And evaluation of `@result[:parsed]['items']` is stored in the :podlist clipboard
-    And the expression should be true> cb.podlist.empty?
-    When I run the :patch client command with:
-      | resource      | scheduledjob               |
-      | resource_name | sj1                        |
-      | p             | {"spec":{"suspend":false}} |
-    Then the step should succeed
-    Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
-
   # @author geliu@redhat.com
   # @case_id OCP-17514
   Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
@@ -89,59 +53,6 @@ Feature: job.feature
     Then the step should succeed
     Given 70 seconds have passed
     And I check that there are no pods in the project
-
-  # @author geliu@redhat.com
-  # @case_id OCP-11835
-  Scenario: User can schedule a job execution with different concurrencypolicy
-    Given I have a project
-    When I run the :run client command with:
-      | name    | sj1       |
-      | image   | busybox   |
-      | restart | Never     |
-      | schedule| * * * * * |
-      | sleep   | 180       |
-    Then the step should succeed
-    Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
-    Given a pod becomes ready with labels:
-      | run=sj1 |
-    And evaluation of `pod.name` is stored in the :podname1 clipboard
-    When I run the :patch client command with:
-      | resource      | scheduledjob                             |
-      | resource_name | sj1                                      |
-      | p             | {"spec":{"concurrencyPolicy":"Replace"}} |
-    Then the step should succeed
-    Given 90 seconds have passed
-    Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
-    And evaluation of `pod.name` is stored in the :podname2 clipboard
-    And the expression should be true> cb.podname1 != cb.podname2
-    When I run the :delete client command with:
-      | object_type | pod     |
-      | l           | run=sj1 |
-    Then the step should succeed
-    When status becomes :running of 1 pods labeled:
-      | run=sj1 |
-    When I run the :patch client command with:
-      | resource      | scheduledjob                            |
-      | resource_name | sj1                                     |
-      | p             | {"spec":{"concurrencyPolicy":"Forbid"}} |
-    Then the step should succeed
-    Given 90 seconds have passed
-    When I get project pods as JSON
-    Given I store in the clipboard the pods labeled:
-      | run=sj1 |
-    Then the expression should be true> cb.pods.length == 1
-    When I run the :patch client command with:
-      | resource      | scheduledjob                           |
-      | resource_name | sj1                                    |
-      | p             | {"spec":{"concurrencyPolicy":"Allow"}} |
-    Then the step should succeed
-    Given 90 seconds have passed
-    When I get project pods as JSON
-    Given I store in the clipboard the pods labeled:
-      | run=sj1 |
-    Then the expression should be true> cb.pods.length > 1
 
   # @author geliu@redhat.com
   # @case_id OCP-17513

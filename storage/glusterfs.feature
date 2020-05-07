@@ -91,29 +91,6 @@ Feature: Storage of GlusterFS plugin testing
     And the PV becomes :released
 
   # @author jhou@redhat.com
-  # @case_id OCP-11488
-  @admin
-  @destructive
-  Scenario: Pod references GlusterFS volume directly from its template
-    Given I have a project
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-
-    And I have a Gluster service in the project
-
-    # Create endpoint
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/endpoints.json" replacing paths:
-      | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
-
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pod-direct.json |
-    Then the step should succeed
-    And the pod named "gluster" becomes ready
-
-  # @author jhou@redhat.com
   # @case_id OCP-12109
   @admin
   Scenario: Using invalid gidMax/gidMin in the StorageClass
@@ -189,49 +166,6 @@ Feature: Storage of GlusterFS plugin testing
     Then the output should contain:
       | pv.beta.kubernetes.io/gid: "2000" |
 
-
-  # @author jhou@redhat.com
-  # @case_id OCP-11676
-  @admin
-  Scenario: Dynamic provisioner should not provision PV/volume with duplicate gid
-    Given I have a StorageClass named "glusterprovisioner"
-    And I have a project
-
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
-      | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
-      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url %> |
-      | ["parameters"]["gidMin"]  | 5555                                                             |
-      | ["parameters"]["gidMax"]  | 5555                                                             |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | pvc1                             |
-      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
-    Then the step should succeed
-    And the "pvc1" PVC becomes :bound
-    And admin ensures "<%= pvc('pvc1').volume_name %>" pv is deleted after scenario
-
-    # The 2nd PVC can't provision any because GID range is full
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]         | pvc2                             |
-      | ["spec"]["storageClassName"] | storageclass-<%= project.name %> |
-    Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc  |
-      | name     | pvc2 |
-    Then the output should contain:
-      | Pending    |
-      | range full |
-    """
-
-    # Verify the queued pending PVC could provision when the GID is released
-    Given I ensure "pvc1" pvc is deleted
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    And the "pvc2" PVC becomes :bound
-    """
-    And admin ensures "<%= pvc('pvc2').volume_name %>" pv is deleted after scenario
 
   # @author jhou@redhat.com
   # @case_id OCP-12943

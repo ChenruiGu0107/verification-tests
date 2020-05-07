@@ -15,24 +15,6 @@ Feature: oc_process.feature
       | expression   | test         | test                    | # @case_id OCP-12334
       | A-Z          | A-Z0-z       | invalid range specified | # @case_id OCP-12353
 
-  # @author haowang@redhat.com
-  # @case_id OCP-11087
-  Scenario: "oc process" handles invalid json file
-    Given I have a project
-    Then I run the :process client command with:
-      | f | non.json |
-    And the step should fail
-    And the output should contain:
-      | does not exist |
-    And I obtain test data file "build/sample-php-rhel7.json"
-    And I replace lines in "sample-php-rhel7.json":
-      | , |  |
-    Then I run the :process client command with:
-      | f | sample-php-rhel7.json |
-    And the step should fail
-    And the output should contain:
-      | nvalid character |
-
   # @author cryan@redhat.com
   # @case_id OCP-10222
   # @bug_id 1253736
@@ -199,7 +181,6 @@ Feature: oc_process.feature
 
     Examples:
       | error                  |
-      | PullBuilderImageFailed |  # @case_id OCP-11064
       | DockerBuildFailed      |  # @case_id OCP-15856
 
   # @case_id OCP-11680

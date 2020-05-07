@@ -88,123 +88,6 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id OCP-11944
-  Scenario: Modify buildconfig for bc has ImageSource
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/image-source.yaml |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | bc               |
-      | resource_name | imagedockerbuild |
-      | o             | json             |
-    Then the step should succeed
-    Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
-    When I run the :get client command with:
-      | resource      | bc               |
-      | resource_name | imagesourcebuild |
-      | o             | json             |
-    Then the step should succeed
-    Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 2
-    # check bc on web console
-    When I perform the :count_buildconfig_image_paths web console action with:
-      | project_name     | <%= project.name %>  |
-      | bc_name          | imagedockerbuild     |
-      | image_path_count | 1                    |
-    Then the step should succeed
-    When I perform the :count_buildconfig_image_paths web console action with:
-      | project_name     | <%= project.name %>  |
-      | bc_name          | imagesourcebuild     |
-      | image_path_count | 2                    |
-    Then the step should succeed
-    # change bc
-    When I perform the :add_bc_source_and_destination_paths web console action with:
-      | project_name           | <%= project.name %> |
-      | bc_name                | imagedockerbuild    |
-      | image_source_from      | Image Stream Tag    |
-      | image_source_namespace | openshift           |
-      | image_source_is        | ruby                |
-      | image_source_tag       | 2.2                 |
-      | source_path            | /usr/bin/ruby       |
-      | dest_dir               | user/test           |
-    Then the step should succeed
-    # for bc has more than one imagestream source, couldn't add
-    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | imagesourcebuild    |
-    Then the step should succeed
-    When I perform the :add_image_source_path web console action with:
-      | source_path | /ust/test |
-    Then the step should fail
-    And the output should contain "element not found"
-    # check image source via CLI
-    When I run the :get client command with:
-      | resource      | bc               |
-      | resource_name | imagedockerbuild |
-      | o             | json             |
-    Then the step should succeed
-    Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
-
-  # @author yapei@redhat.com
-  # @case_id OCP-11232
-  Scenario: Modify buildconfig settings for Docker strategy
-    Given I create a new project
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json"
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource      | bc/ruby-sample-build |
-    Then the step should succeed
-    And the output should match:
-      | Strategy.*Docker  |
-      | From Image.*ImageStreamTag        |
-      | Triggered by.*ImageChange.*Config |
-      | Webhook GitHub  |
-      | Webhook Generic |
-    # check bc on web console
-    When I perform the :goto_buildconfig_configuration_tab web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I perform the :check_build_strategy web console action with:
-      | build_strategy | Docker               |
-    Then the step should succeed
-    # edit bc
-    When I perform the :toggle_bc_config_change web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I perform the :toggle_bc_image_change web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I perform the :toggle_bc_cache web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    # check bc after make changes
-    When I perform the :check_bc_image_change_trigger web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should fail
-    When I perform the :check_bc_config_change_trigger_exist web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should fail
-    When I run the :describe client command with:
-      | resource      | bc/ruby-sample-build |
-    Then the step should succeed
-    And the output should not match:
-      | Triggered by.*ImageChange.*Config |
-    And the output should match:
-      | No Cache.*true |
-
-  # @author yapei@redhat.com
   # @case_id OCP-12058
   Scenario: Modify buildconfig settings for source strategy
     Given I create a new project
@@ -295,55 +178,6 @@ Feature: build related feature on web console
       | From Image.*ImageStreamImage.*<%= cb.image_stream_image %> |
 
   # @author yapei@redhat.com
-  # @case_id OCP-11555
-  Scenario: Modify buildconfig settings for Binary source
-    Given the master version <= "3.3"
-    Given I create a new project
-    When I run the :new_build client command with:
-      | binary | ruby |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | bc/ruby |
-    Then the step should succeed
-    And the output should match:
-      | Strategy.*Source |
-      | Binary.*on build |
-    # change Binary Input
-    When I perform the :edit_bc_binary_input web console action with:
-      | project_name | <%= project.name %>  |
-      | bc_name      | ruby                 |
-      | bc_binary    | hello-world-ruby.zip |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | bc/ruby |
-    Then the step should succeed
-    And the output should match:
-      | Binary.*provided as.*hello-world-ruby.zip.*on build |
-    # add Env Vars
-    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name  | <%= project.name %> |
-      | bc_name       | ruby                |
-      | env_var_key   | binarykey           |
-      | env_var_value | binaryvalue         |
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I perform the :check_buildconfig_environment web console action with:
-      | project_name  | <%= project.name %> |
-      | bc_name       | ruby                |
-      | env_var_key   | binarykey           |
-      | env_var_value | binaryvalue         |
-    Then the step should succeed
-    # for Binary build, there should be no webhook triggers
-    When I perform the :enable_webhook_build_trigger web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | ruby                |
-    Then the step should fail
-    And the output should contain "element not found"
-
-  # @author yapei@redhat.com
   # @case_id OCP-12152
   Scenario: Modify buildconfig has DockerImage as build output
     Given I create a new project
@@ -404,94 +238,6 @@ Feature: build related feature on web console
     Then the step should fail
     And the output should contain "element not found"
 
-  # @author yanpzhan@redhat.com
-  # @case_id OCP-11258
-  Scenario: View build logs when build status are pending/running/complete/failed/cancelled from web console
-    Given I have a project
-    When I perform the :goto_overview_page web console action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
-    When I run the :new_build client command with:
-      | code           | https://github.com/openshift/ruby-hello-world |
-      | image_stream   | openshift/ruby                                |
-    Then the step should succeed
-
-    Given the "ruby-hello-world-1" build becomes :running
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>                 |
-      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-      | build_status_name | Running                             |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | unning |
-    Then the step should succeed
-
-    #The "follow" click sometimes failed to show the "stop following" on 3.5, so add wait steps here
-    And I wait for the steps to pass:
-    """
-    When I run the :follow_log web console action
-    Then the step should succeed
-    When I run the :stop_follow_log web console action
-    Then the step should succeed
-    """
-    And I wait for the steps to pass:
-    """
-    When I run the :follow_log web console action
-    Then the step should succeed
-    When I run the :go_to_top_log web console action
-    Then the step should succeed
-    """
-
-    Given the "ruby-hello-world-1" build becomes :complete
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>                 |
-      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-      | build_status_name | Complete                            |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | uccessful |
-    Then the step should succeed
-    When I run the :go_to_end_log web console action
-    Then the step should succeed
-    When I run the :go_to_top_log web console action
-    Then the step should succeed
-    When I perform the :open_full_view_log web console action with:
-      | log_context | uccessful |
-    Then the step should succeed
-
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-    Then the step should succeed
-    When I run the :cancel_build client command with:
-      | build_name | ruby-hello-world-2 |
-    Then the step should succeed
-    Given the "ruby-hello-world-2" build becomes :cancelled
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>                 |
-      | bc_and_build_name | ruby-hello-world/ruby-hello-world-2 |
-      | build_status_name | Cancelled                           |
-    Then the step should succeed
-    When I perform the :check_no_log_info web console action with:
-      | no_log_one | Logs are not available |
-      | no_log_two | The logs are no longer available or could not be loaded |
-    Then the step should succeed
-
-    When I replace resource "bc" named "ruby-hello-world":
-      | https://github.com/openshift/ruby-hello-world | https://github.com/openshift/nonexist |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-    Then the step should succeed
-    Given the "ruby-hello-world-3" build becomes :failed
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %>                 |
-      | bc_and_build_name | ruby-hello-world/ruby-hello-world-3 |
-      | build_status_name | Failed                              |
-    Then the step should succeed
-    When I perform the :check_build_log_content web console action with:
-      | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist |
-    Then the step should succeed
-
   # @author xxia@redhat.com
   # @case_id OCP-12436
   Scenario: Check build trigger info when the trigger is ConfigChange on web
@@ -526,38 +272,6 @@ Feature: build related feature on web console
       | bc_and_build_name | ruby-ex/ruby-ex-1   |
       | trigger_info      | Manual build        |
     Then the step should succeed
-
-  # @author yapei@redhat.com
-  # @case_id OCP-11269
-  Scenario: Check settings for Source strategy build with no inputs
-    Given I have a project
-    When I obtain test data file "templates/tc525738/application-template-stibuild.json"
-    Then the step should succeed
-    And I replace lines in "application-template-stibuild.json":
-      | "host": "www.tc525738example.com", |      |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | application-template-stibuild.json |
-    Then the step should succeed
-    When I perform the :goto_buildconfig_configuration_tab web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I perform the :check_build_strategy web console action with:
-      | build_strategy | Source               |
-    Then the step should succeed
-    When I perform the :check_none_buildconfig_source_repo web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I perform the :check_info_for_no_source_on_edit_page web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-    Then the step should succeed
-    When I get the visible text on web html page
-    Then the output should not contain:
-      | GitHub webhooks  |
-      | Generic webhooks |
 
   # @author xxia@redhat.com
   # @case_id OCP-12476, OCP-12486
@@ -630,41 +344,6 @@ Feature: build related feature on web console
       | type    | path              | file           | header1        | header2 | url_before | url_after | trigger_info |
       | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User |
 
-  # @author etrott@redhat.com
-  # @case_id OCP-11029
-  Scenario: Edit Pipeline bc on web console
-    Given the master version >= "3.5"
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | sample-pipeline |
-    Then the step should succeed
-    When I perform the :goto_pipeline_configuration_tab web console action with:
-      | project_name  | <%= project.name %> |
-      | pipeline_name | sample-pipeline     |
-    Then the step should succeed
-    When I run the :check_jenkinsfile_link web console action
-    Then the step should succeed
-    When I run the :close_jenkinsfile_modal_window web console action
-    Then the step should succeed
-    When I run the :click_to_goto_edit_page web console action
-    Then the step should succeed
-    When I run the :check_jenkinsfile_link web console action
-    Then the step should succeed
-    When I run the :copy_snippets_to_ace_editor web console action
-    Then the step should succeed
-    When I run the :hide_jenkinsfile_examples web console action
-    Then the step should succeed
-    When I run the :click_save_button web console action
-    Then the step should succeed
-    When I run the :click_on_configuration_tab web console action
-    Then the step should succeed
-    When I perform the :check_ace_editor_content_has web console action with:
-      | content | Promote to production |
-    Then the step should succeed
-
   # @author yapei@redhat.com
   # @case_id OCP-14629
   Scenario: Check Gitlab and Bitbucket webhooks in the BC editor
@@ -710,52 +389,6 @@ Feature: build related feature on web console
       | project_name    | <%= project.name %>                            |
       | bc_name         | ruby-hello-world                               |
       | webhook_trigger | <%= cb.gitlab_webhook[0].scan(/oapi.*/)[0] %>  |
-    Then the step should succeed
-
-  # @author yapei@redhat.com
-  # @case_id OCP-11417
-  Scenario: Show build failure reason in build status for s2i build
-    Given the master version >= "3.5"
-    Given I have a project
-    # Check failure reason for wrong source repo
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-sti-wrong-source.json |
-    Then the step should succeed
-    Given the "ruby22-sample-build-1" build finishes
-    When I perform the :check_build_failure_reason_on_bc_page web console action with:
-      | project_name         | <%= project.name %> |
-      | bc_name              | ruby22-sample-build |
-      | build_failure_reason | Fetch source failed |
-    Then the step should succeed
-    When I perform the :check_build_failure_reason_on_one_build_page web console action with:
-      | project_name         | <%= project.name %>                       |
-      | bc_and_build_name    | ruby22-sample-build/ruby22-sample-build-1 |
-      | build_failure_reason | Failed to fetch the input source          |
-    Then the step should succeed
-
-    # Check failure reason for wrong scripts
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/test-buildconfig-wrong-scripts.json |
-    Then the step should succeed
-    Given the "ruby-sample-build-1" build finishes
-    When I perform the :check_build_failure_reason_on_monitoring web console action with:
-      | project_name         | <%= project.name %>  |
-      | build_failure_reason | Fetch scripts failed |
-    Then the step should succeed
-
-  # @author yapei@redhat.com
-  # @case_id OCP-11041
-  Scenario: Show build failure reason in build status for docker build
-    Given the master version >= "3.5"
-    Given I have a project
-    # Check failure reason for wrong post commit hooks
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11417/ruby22rhel7-template-docker-wrong-post-commit.json |
-    Then the step should succeed
-    Given the "ruby22-sample-build-1" build finishes
-    When I perform the :check_build_failure_reason_on_monitoring web console action with:
-      | project_name         | <%= project.name %>     |
-      | build_failure_reason | Post commit hook failed |
     Then the step should succeed
 
   # @author yapei@redhat.com

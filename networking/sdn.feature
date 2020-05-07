@@ -49,71 +49,6 @@ Feature: SDN related networking scenarios
     Then the output should contain "mtu 1234"
 
   # @author bmeng@redhat.com
-  # @case_id OCP-11264
-  @admin
-  @destructive
-  Scenario: SDN will be re-initialized when the version in openflow does not match the one in controller
-    Given I select a random node's host
-    And the node network is verified
-    And the node service is verified
-    When I run the ovs commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep table=253 \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :plugin_type clipboard
-    When I run the ovs commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl restart atomic-openshift-node |
-    Then the step should succeed
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep controller.go |
-    Then the step should succeed
-    And the output should contain "[SDN setup] full SDN setup required"
-
-  # @author bmeng@redhat.com
-  # @case_id OCP-11592
-  @admin
-  @destructive
-  Scenario: iptablesSyncPeriod should be configurable
-    Given I select a random node's host
-    When I run commands on the host:
-      | grep iptablesSyncPeriod /etc/origin/node/node-config.yaml |
-    Then the output should match ".*30s"
-    Given the node iptables config is verified
-    Given I restart the network components on the node after scenario
-    Given node config is merged with the following hash:
-    """
-    iptablesSyncPeriod: "10s"
-    """
-    And I restart the network components on the node
-
-    When I run commands on the host:
-      | iptables -S \| grep "4789.*incoming" \| cut -d ' ' -f 2- |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :vxlan_rule clipboard
-    When I run commands on the host:
-      | iptables -D <%= cb.vxlan_rule %> |
-    Then the step should succeed
-    Given I wait for the steps to pass:
-    """
-    When I run commands on the host:
-      | iptables -S -t filter |
-    Then the output should contain:
-      | <%= cb.vxlan_rule.chomp %> |
-    """
-    When I run commands on the host:
-      | iptables -D <%= cb.vxlan_rule %> |
-    Then the step should succeed
-    And I wait up to 15 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | iptables -S -t filter |
-    Then the output should contain:
-      | <%= cb.vxlan_rule.chomp %> |
-    """
-
-  # @author bmeng@redhat.com
   # @case_id OCP-11795
   @admin
   @destructive
@@ -157,23 +92,6 @@ Feature: SDN related networking scenarios
     And the output should contain:
       | <%= cb.nat_rule1 %> |
       | <%= cb.nat_rule2 %> |
-    """
-
-  # @author bmeng@redhat.com
-  # @case_id OCP-11601
-  @admin
-  @destructive
-  Scenario: Node cannot start when there is network plugin mismatch with master service
-    Given I select a random node's host
-    And the node service is verified
-    And the node network is verified
-    Given I restart the network components on the node after scenario
-    Given the network plugin is switched on the node
-    And I restart the network components on the node
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    Given I get the networking components logs of the node since "120s" ago
-    And the output should contain "network plugin mismatch"
     """
 
   # @author bmeng@redhat.com

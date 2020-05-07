@@ -71,19 +71,6 @@ Feature: metrics logging and uninstall tests
     And the expression should be true>  pod.service_account_name == 'heapster'
 
   # @author pruan@redhat.com
-  # @case_id OCP-11430
-  @admin
-  @destructive
-  Scenario: Metrics Admin Command - Deploy set openshift_metrics_hawkular_replicas
-    Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And metrics service is installed with ansible using:
-      | inventory | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-11430/inventory |
-    Then status becomes :running of exactly 2 pods labeled:
-      | metrics-infra=hawkular-metrics |
-      | name=hawkular-metrics          |
-
-  # @author pruan@redhat.com
   # @case_id OCP-18163
   @admin
   @destructive
@@ -107,21 +94,6 @@ Feature: metrics logging and uninstall tests
     Then the expression should be true> rc('hawkular-cassandra-1').suplemental_groups.include? 65531
     Then the expression should be true> rc('heapster').annotation('kubectl.kubernetes.io/last-applied-configuration').include? '--metric_resolution=15s'
     Then the expression should be true> rc('hawkular-metrics').annotation('kubectl.kubernetes.io/last-applied-configuration').include? "-Dhawkular.metrics.default-ttl=14"
-
-  # @author pruan@redhat.com
-  # @case_id OCP-11686
-  @admin
-  @destructive
-  Scenario: Metrics Admin Command - Deploy set PV type 'dynamic'
-    Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And metrics service is installed with ansible using:
-      | inventory     | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-11686/inventory |
-    Then the expression should be true> pvc('metrics-cassandra-1').wait_to_appear(user, 60)
-    Then the expression should be true> pvc('metrics-cassandra-1').ready?[:success]
-    And a pod becomes ready with labels:
-      | metrics-infra=hawkular-cassandra |
-    And the expression should be true> pod.volumes.find { |v| v.name == 'cassandra-data' && v.kind_of?(CucuShift::PVCPodVolumeSpec) && v.claim.name == 'metrics-cassandra-1' }
 
   # @author pruan@redhat.com
   # @case_id OCP-12012
@@ -152,27 +124,6 @@ Feature: metrics logging and uninstall tests
     Then the step should succeed
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
-
-  # @author xiazhao@redhat.com
-  # @author lizhou@redhat.com
-  # @author pruan@redhat.com
-  # @case_id OCP-11868
-  @admin
-  @destructive
-  @smoke
-  Scenario: deploy metrics stack with persistent storage
-    Given I create a project with non-leading digit name
-    And I have a NFS service in the project
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/metrics_pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    Given metrics service is installed in the system using:
-      | inventory       | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-14055/inventory              |
-      | deployer_config | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/OCP-10776/deployer_ocp10776.yaml |
-    # need to change the project to where metrics is installed under which we hard-coded to 'openshift-infra'
-    And admin ensure "metrics-cassandra-1" pvc is deleted from the "openshift-infra" project after scenario
-    And I switch to cluster admin pseudo user
-    And I use the "openshift-infra" project
-    And the "metrics-cassandra-1" PVC becomes :bound
 
   # @author pruan@redhat.com
   # @case_id OCP-12276

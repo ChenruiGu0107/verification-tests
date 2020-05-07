@@ -440,38 +440,6 @@ Feature: deployment related features
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
-  # @author yinzhou@redhat.com
-  # @case_id OCP-11281
-  Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
-    Given I have a project
-    Given I obtain test data file "deployment/build-deploy-without-configchange.json"
-    And I replace lines in "build-deploy-without-configchange.json":
-      | "automatic": true | "automatic": false |
-    When I process and create "build-deploy-without-configchange.json"
-    Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    And I wait for the steps to pass:
-    """
-    When I get project dc named "frontend" as JSON
-    Then the output should contain:
-      | lastTriggeredImage |
-    And the output should not contain:
-      | "latestVersion": 1 |
-    """
-    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    Given the "ruby-sample-build-2" build finishes
-    When I get project imagestream named "origin-ruby-sample" as JSON
-    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
-    And the expression should be true> cb.imagestreamitems.length == 2
-    When I get project dc named "frontend" as JSON
-    Then the output should not contain:
-      | "latestVersion": 1 |
-    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
-    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
-
   # @author mcurlej@redhat.com
   # @case_id OCP-11611
   Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command

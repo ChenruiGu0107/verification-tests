@@ -448,77 +448,6 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').sc_run_as_nonroot(user:user)` is stored in the :proj_run_as_nonroot clipboard
     Then the expression should be true> cb.container_run_as_nonroot
 
-  # @author wjiang@redhat.com
-  # @case_id OCP-11557
-  @admin
-  @destructive
-  Scenario: Cluster-admin can reconcile the bootstrap scc
-    Given system verification steps are used:
-    """
-    When I run the :get admin command with:
-      | resource                | scc              |
-      | o                       | yaml             |
-    Then the step should succeed
-    And the output should not contain:
-      | <%= user.name %>        |
-    And the output should match:
-      | \sanyuid\s              |
-    """
-    And scc policy "anyuid" is restored after scenario
-    When I run the :delete admin command with:
-      | object_type             | scc              |
-      | object_name_or_id       | anyuid           |
-    Then the step should succeed
-    When I run the :get admin command with:
-      | resource                | scc              |
-    Then the step should succeed
-    And the output should not match:
-      | \sanyuid\s              |
-    When I run the :oadm_policy_add_scc_to_user admin command with:
-      | scc                     | privileged       |
-      | user_name               | <%= user.name %> |
-    Then the step should succeed
-    When I run the :oadm_policy_reconcile_sccs admin command with:
-      | additive_only           | true             |
-    Then the step should succeed
-    When I run the :get admin command with:
-      | resource                | scc              |
-    Then the step should succeed
-    And the output should not match:
-      | \sanyuid\s              |
-    When I run the :oadm_policy_reconcile_sccs admin command with:
-      | additive_only           | true             |
-      | confirm                 | true             |
-    Then the step should succeed
-    When I run the :get admin command with:
-      | resource                | scc              |
-      | o                       | yaml             |
-    Then the step should succeed
-    And the output should match:
-      | \sanyuid\s              |
-    And the output should contain:
-      | <%= user.name %>        |
-    When I run the :oadm_policy_reconcile_sccs admin command with:
-      | additive_only           | false            |
-    Then the step should succeed
-    And the output should not contain:
-      | <%= user.name %>        |
-    When I run the :get admin command with:
-      | resource                | scc              |
-      | o                       | yaml             |
-    And the output should contain:
-      | <%= user.name %>        |
-    When I run the :oadm_policy_reconcile_sccs admin command with:
-      | additive_only           | false            |
-      | confirm                 |                  |
-    And the step should succeed
-    When I run the :get admin command with:
-      | resource                | scc              |
-      | o                       | yaml             |
-    Then the step should succeed
-    And the output should not contain:
-      | <%= user.name %>        |
-
   # @author chuyu@redhat.com
   # @case_id OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
@@ -548,18 +477,6 @@ Feature: SCC policy related scenarios
       | payload_file | PodSecurityPolicySubjectReview.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
-
-  # @author chuyu@redhat.com
-  # @case_id OCP-11667
-  @admin
-  Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs
-    Given I have a project
-    Given SCC "restricted" is added to the "default" service account
-    When I perform the :post_pod_security_policy_reviews rest request with:
-      | project_name | <%= project.name %>                                                                                     |
-      | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538264/PodSecurityPolicyReview.json |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11237

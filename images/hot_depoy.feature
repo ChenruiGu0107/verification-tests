@@ -53,5 +53,3 @@ Feature: hotdeploy.feature
     Examples:
       |image|
       |ruby:2.2| # @case_id OCP-12470
-      |ruby:2.3| # @case_id OCP-11801
-

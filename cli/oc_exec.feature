@@ -57,49 +57,6 @@ Feature: containers related features
       | oc       | # @case_id OCP-12378
       | kubectl  | # @case_id OCP-21062
 
-  # @author xxing@redhat.com
-  # @case_id OCP-11501
-  Scenario: Add env variables to postgresql-92-centos7 image
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/db-templates/postgresql-92-centos7-env-test.json |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deployment=database-1 |
-    When I run the :get client command with:
-      | resource | pods |
-    Then the output should contain:
-      | NAME            |
-      | <%= pod.name %> |
-    When I run the :describe client command with:
-      | resource | pod             |
-      | name     | <%= pod.name %> |
-    Then the output should match:
-      | Status:\\s+Running                        |
-      | Image:\\s+openshift/postgresql-92-centos7 |
-      | Ready\\s+True                             |
-    When I execute on the pod:
-      | bash                |
-      | -c                  |
-      | env \| grep POSTGRE |
-    Then the output should contain:
-      | POSTGRESQL_SHARED_BUFFERS=64MB |
-      | POSTGRESQL_MAX_CONNECTIONS=42  |
-    When I execute on the pod:
-      | bash                           |
-      | -c                             |
-      | psql -c 'show shared_buffers;' |
-    Then the output should contain:
-      | shared_buffers |
-      | 64MB           |
-    And I execute on the pod:
-      | bash                            |
-      | -c                              |
-      | psql -c 'show max_connections;' |
-    Then the output should contain:
-      | max_connections |
-      | 42              |
-
   # @author pruan@redhat.com
   # @case_id OCP-11704
   Scenario: Executing commands in a container that isn't running
@@ -135,35 +92,6 @@ Feature: containers related features
     Then the step should fail
     Then the output should match:
       |[Ee]rror.*container hello-openshift-notexist.*not valid|
-
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-11083
-  @smoke
-  Scenario: [origin_infra_311] Executing a command in container
-    Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
-    And I replace lines in "hello-pod.json":
-      | "openshift/hello-openshift" | <%= project_docker_repo %>"aosqe/hello-openshift"|
-    Then the step should succeed
-    When I run the :create client command with:
-      | f       | hello-pod.json |
-    Then the step should succeed
-    Given the pod named "hello-openshift" becomes ready
-    When I run the :exec client command with:
-      | pod          | hello-openshift |
-      | c                | hello-openshift |
-      | i            |       |
-      | t            |       |
-      | oc_opts_end  |       |
-      | exec_command | sh    |
-      | exec_command_arg | -il    |
-    Then the step should succeed
-    When I execute on the pod:
-      | sh                     |
-      | -c                     |
-      | env \| grep KUBERNETES |
-    Then the output should contain:
-      | KUBERNETES_PORT |
 
   # @author xxia@redhat.com
   Scenario Outline: oc exec, rsh and port-forward should work behind authenticated proxy

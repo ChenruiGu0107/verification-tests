@@ -29,47 +29,6 @@ Feature: buildlogic.feature
     """
 
   # @author haowang@redhat.com
-  # @case_id OCP-11508
-  Scenario: Prevent STI builder images from running as root
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-user0.json |
-    Then the step should succeed
-    Given the "ruby-sample-build-user0-1" build was created
-    And the "ruby-sample-build-user0-1" build failed
-    When I run the :build_logs client command with:
-      | build_name  | ruby-sample-build-user0-1 |
-    Then the output should match:
-      | specify.*user |
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-userdefault.json |
-    Then the step should succeed
-    Given the "ruby-sample-build-userdefault-1" build was created
-    And the "ruby-sample-build-userdefault-1" build failed
-    When I run the :build_logs client command with:
-      | build_name  | ruby-sample-build-userdefault-1 |
-    Then the output should match:
-      | specify.*user |
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-userroot.json |
-    Then the step should succeed
-    Given the "ruby-sample-build-userroot-1" build was created
-    And the "ruby-sample-build-userroot-1" build failed
-    When I run the :build_logs client command with:
-      | build_name  | ruby-sample-build-userroot-1 |
-    Then the output should match:
-      | specify.*user |
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc499515/test-buildconfig-usernon.json |
-    Then the step should succeed
-    Given the "ruby-sample-build-usernon-1" build was created
-    And the "ruby-sample-build-usernon-1" build failed
-    When I run the :build_logs client command with:
-      | build_name  | ruby-sample-build-usernon-1 |
-    Then the output should match:
-      | specify.*user |
-
-  # @author haowang@redhat.com
   Scenario Outline: ForcePull image for build using ImageSteamImage
     Given I have a project
     When I run the :get client command with:
@@ -361,8 +320,6 @@ Feature: buildlogic.feature
     #100Mi for OCP env, 204Mi is for online env
     Examples:
       | image     | memory | num |
-      | perl:5.20 | 100Mi  | 10  | # @case_id OCP-11283
-      | perl:5.24 | 100Mi  | 10  | # @case_id OCP-11378
       | perl:5.16 | 480Mi  | 64  | # @case_id OCP-13144
       | perl:5.20 | 480Mi  | 64  | # @case_id OCP-13145
 
@@ -399,55 +356,6 @@ Feature: buildlogic.feature
       | state      | invalid            |
     And the output should match:
       | invalid.*value.*be one of 'new', 'pending', or 'running'|
-
-  # @author dyan@redhat.com
-  # @case_id OCP-11081
-  Scenario: Show the fields of build
-    Given I have a project
-    When I run the :new_build client command with:
-      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    Given the "ruby-hello-world-1" build becomes :running
-    When I run the :cancel_build client command with:
-      | build_name | ruby-hello-world-1 |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource   | build               |
-      | name       | ruby-hello-world-1 |
-    Then the step should succeed
-    And the output should match:
-      | [Nn]ame                |
-      | [Ll]abels              |
-      | [Ss]tatus              |
-      | [Cc]ancelled           |
-      | [Dd]uration            |
-      | [Ss]trategy            |
-    When I run the :patch client command with:
-      | resource      | bc  |
-      | resource_name | ruby-hello-world |
-      | p             | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-    Then the step should succeed
-    And the "ruby-hello-world-2" build was created
-    Given the "ruby-hello-world-2" build becomes :pending
-    When I run the :cancel_build client command with:
-      | build_name | ruby-hello-world-2 |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | build |
-      | name     | ruby-hello-world-2 |
-    Then the step should succeed
-    And the output should match:
-      | [Nn]ame                |
-      | [Ll]abels              |
-      | [Ss]tatus              |
-      | [Cc]ancelled           |
-      | [Dd]uration            |
-      | [Ss]trategy            |
-
 
   # @author wzheng@redhat.com
   # @case_id OCP-13906

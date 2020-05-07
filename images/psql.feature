@@ -54,9 +54,7 @@ Feature: Postgresql images test
 
     Examples:
       | version |
-      | 9.2     |  # @case_id OCP-11916
       | 9.4     |  # @case_id OCP-12520
-      | 9.5     |  # @case_id OCP-11799
 
   # @author wewang@redhat.com
   Scenario Outline: Verify clustered postgresql can be connect after redeployment
@@ -228,4 +226,3 @@ Feature: Postgresql images test
       | version |
       | 9.5     |   # @case_id OCP-12070
       | 9.4     |   # @case_id OCP-12509
-      | 9.2     |   # @case_id OCP-11514

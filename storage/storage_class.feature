@@ -157,53 +157,6 @@ Feature: storageClass related feature
 
   # @author lxia@redhat.com
   @admin
-  @destructive
-  Scenario Outline: dynamic provision with storage class in multi-zones
-    Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc1-<%= project.name %>     |
-      | ["provisioner"]        | kubernetes.io/<provisioner> |
-      | ["parameters"]["zone"] | <region1_zone1>             |
-    Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc2-<%= project.name %>     |
-      | ["provisioner"]        | kubernetes.io/<provisioner> |
-      | ["parameters"]["zone"] | <region1_zone2>             |
-    Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
-      | ["metadata"]["name"]   | sc3-<%= project.name %>     |
-      | ["provisioner"]        | kubernetes.io/<provisioner> |
-      | ["parameters"]["zone"] | <region2_zone1>             |
-    Then the step should succeed
-
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]         | pvc1-<%= project.name %> |
-      | ["spec"]["storageClassName"] | sc1-<%= project.name %>  |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]         | pvc2-<%= project.name %> |
-      | ["spec"]["storageClassName"] | sc2-<%= project.name %>  |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]         | pvc3-<%= project.name %> |
-      | ["spec"]["storageClassName"] | sc3-<%= project.name %>  |
-    Then the step should succeed
-    And the "pvc1-<%= project.name %>" PVC becomes :bound
-    And the "pvc2-<%= project.name %>" PVC becomes :bound
-    And the "pvc3-<%= project.name %>" PVC becomes :pending
-    When I run the :describe client command with:
-      | resource | pvc/pvc3-<%= project.name %> |
-    Then the step should succeed
-    And the output should match:
-      | ProvisioningFailed                                       |
-      | does not (manage\|have a node in) zone "<region2_zone1>" |
-
-    Examples:
-      | provisioner | region1_zone1 | region1_zone2 | region2_zone1  |
-      | gce-pd      | us-central1-a | us-central1-b | europe-west1-d | # @case_id OCP-11830
-
-  # @author lxia@redhat.com
-  @admin
   Scenario Outline: Create storageclass with specific api
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
     When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:

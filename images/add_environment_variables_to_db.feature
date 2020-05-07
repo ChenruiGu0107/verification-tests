@@ -73,7 +73,6 @@ Feature: Add env variables to image feature
 
     Examples:
       | template |
-      | mysql-55-env-var-test.json | # @case_id OCP-11085
       | mysql-56-env-var-test.json | # @case_id OCP-12385
       | mysql-57-env-var-test.json | # @case_id OCP-12393
 
@@ -121,53 +120,7 @@ Feature: Add env variables to image feature
       | 42              |
     Examples:
       | image |
-      | <%= product_docker_repo %>openshift3/postgresql-92-rhel7 | # @case_id OCP-11452
       | <%= product_docker_repo %>rhscl/postgresql-94-rhel7      | # @case_id OCP-12201
-
-  # @author cryan@redhat.com
-  Scenario Outline: Add env var to mysql 55 and 56
-    Given I have a project
-    When I run the :new_app client command with:
-      | name              | mysql                         |
-      | docker_image      | <image>                       |
-      | env               | MYSQL_ROOT_PASSWORD=test      |
-      | env               | MYSQL_MAX_ALLOWED_PACKET=400M |
-      | insecure_registry | true                          |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deployment=mysql-1 |
-    Given I wait up to 30 seconds for the steps to pass:
-    """
-    When I execute on the pod:
-      | cat | <file> |
-    Then the step should succeed
-    And the output should contain:
-      | max_allowed_packet = 400M |
-    """
-    When I run the :delete client command with:
-      | all_no_dash |  |
-      | all         |  |
-    Then the step should succeed
-    Given I wait for the pod to die regardless of current status
-    When I run the :new_app client command with:
-      | name              | mysql2                   |
-      | docker_image      | <image>                  |
-      | env               | MYSQL_ROOT_PASSWORD=test |
-      | insecure_registry | true                     |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deployment=mysql2-1 |
-    Given I wait up to 30 seconds for the steps to pass:
-    """
-    When I execute on the pod:
-      | cat | <file> |
-    Then the step should succeed
-    And the output should contain:
-      | max_allowed_packet = 200M |
-    """
-    Examples:
-      | image                                                      | file                                         |
-      | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      | /etc/my.cnf.d/50-my-tuning.cnf               | # @case_id OCP-11280
 
   # @author cryan@redhat.com
   Scenario Outline: mem based auto-tuning mariadb

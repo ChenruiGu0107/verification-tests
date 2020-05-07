@@ -144,43 +144,6 @@ Feature: NFS Persistent Volume
       | created_testfile |
     And the PV status is :released
 
-  # @author wehe@redhat.com
-  # @case_id OCP-11491
-  @admin
-  @destructive
-  Scenario: The default reclamation policy should be retain
-    Given I have a project
-    And I have a NFS service in the project
-
-    And admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto-nfs-default-rwx.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-rwx.json" replacing paths:
-      | ["spec"]["volumeName"] | <%= pv.name %> |
-    Then the step should succeed
-    And the "nfsc" PVC becomes :bound
-
-    # Create tester pod
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
-    Then the step should succeed
-
-    Given the pod named "nfs" becomes ready
-    And I execute on the "nfs" pod:
-      | touch | /mnt/created_testfile |
-    Then the step should succeed
-
-    # Delete pod and PVC to release the PV
-    Given I ensure "nfs" pod is deleted
-    And I ensure "nfsc" pvc is deleted
-
-    # After PV is released, verify the created file in nfs export is reserved.
-    When I execute on the "nfs-server" pod:
-      | ls | /mnt/data/ |
-    Then the output should contain:
-      | created_testfile |
-    And the PV status is :released
-
   # @author lxia@redhat.com
   # @case_id OCP-9846
   @admin

@@ -50,28 +50,6 @@ Feature: quickstarts.feature
       | templates/tc499622/python-27-centos7-stibuild.json           | # @case_id OCP-12650
 
   # @author wzheng@redhat.com
-  # @case_id OCP-11178
-  Scenario: Cakephp-ex quickstart hot deploy test - php-55-rhel7
-    Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp.json"
-    Given I replace lines in "cakephp.json":
-      | 5.6 | 5.5 |
-    When I run the :new_app client command with:
-      | file | cakephp.json |
-    Then the step should succeed
-    When I use the "cakephp-example" service
-    Then I wait for a web server to become available via the "cakephp-example" route
-    Then the output should contain "Welcome to OpenShift"
-    Given I wait for the "cakephp-example" service to become ready up to 300 seconds
-    And I get the service pods
-    When I execute on the pod:
-      | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
-    Then the step should succeed
-    When I use the "cakephp-example" service
-    Then I wait for a web server to become available via the "cakephp-example" route
-    Then the output should contain "hotdeploy_test"
-
-  # @author wzheng@redhat.com
   # @case_id OCP-9810
   Scenario: Build with golang-ex repo
     Given I have a project

@@ -102,48 +102,6 @@ Feature: Return description with cli
     Then the output should contain:
       | unknown command "des" for "oc" |
 
-  # @author yadu@redhat.com
-  # @case_id OCP-11197
-  Scenario: Disable v1beta3 in REST API
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
-    Then the step should succeed
-    And all existing pods are ready with labels:
-      | name=test-pods |
-    When I run the :describe client command with:
-      | resource | svc               |
-      | name     | test-service      |
-      | api_version | v1beta3        |
-    Then the step should fail
-    Then the output should contain:
-      |  does not support API version 'v1beta3' |
-    When I run the :describe client command with:
-      | resource | svc               |
-      | name     | test-service      |
-      | api_version | v1             |
-    Then the step should succeed
-    Then the output should contain:
-      | test-service |
-      | name=test-pods |
-    When I run the :get client command with:
-      | resource       | svc               |
-      | resource_name  | test-service      |
-      | api_version | v1beta3        |
-      | o           | json           |
-    Then the step should fail
-    Then the output should contain:
-      | does not support API version 'v1beta3' |
-    When I run the :get client command with:
-      | resource       | svc               |
-      | resource_name  | test-service      |
-      | api_version | v1             |
-      | o           | json           |
-    Then the step should succeed
-    Then the output should contain:
-      | "kind": "Service"  |
-      | "apiVersion": "v1" |
-
   # @author xiaocwan@redhat.com
   # @case_id OCP-10491
   Scenario: oc describe event should not duplicate same output for no description
