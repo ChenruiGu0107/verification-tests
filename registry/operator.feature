@@ -70,14 +70,12 @@ Feature: Testing image registry operator
       | {"spec":{"resources":{"limits":{"cpu":"100m","memory":"512Mi"}}}} |
     And I register clean-up steps:
     """
-    When I run the :delete client command with:
-      | object_type       | configs.imageregistry.operator.openshift.io |
-      | object_name_or_id | cluster                                     |
-      | wait              | false                                       |
-    Then the step should succeed
+    Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"resources":null}} | 
     """
     Given current generation number of "image-registry" deployment is stored into :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
     Given a pod is present with labels:
       | docker-registry=default |
     Then the expression should be true> pod.container_specs.first.cpu_limit_raw == "100m"
@@ -298,10 +296,10 @@ Feature: Testing image registry operator
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-image-registry" project
     When I run the :create_secret client command with:
-      | cert        | <%= BushSlicer::HOME %>/feature/tierN/testdata/registry/myregistry.crt |
-      | key         | <%= BushSlicer::HOME %>/feature/tierN/testdata/registry/myregistry.key |
-      | secret_type | tls                                                                    |
-      | name        | my-tls                                                                 |
+      | cert        | <%= BushSlicer::HOME %>/features/tierN/testdata/registry/myregistry.crt |
+      | key         | <%= BushSlicer::HOME %>/features/tierN/testdata/registry/myregistry.key |
+      | secret_type | tls                                                                     |
+      | name        | my-tls                                                                  |
     Then the step should succeed
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"routes":[{"hostname":"myroute-image-registry.openshift.com","name": "myroute","secretName": "my-tls"}]}} |
