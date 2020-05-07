@@ -207,6 +207,8 @@ Feature: alerts browser
     And I click the following "button" element:
       | text | Expire Silence |
     Then the step should succeed
+    When I run the :check_silence_detail web action
+    Then the step should succeed
     #Prepare a silenced alert again
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed

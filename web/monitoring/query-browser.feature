@@ -18,7 +18,6 @@ Feature: query browser
     #clear query
     When I click the following "button" element:
       | aria-label | Clear Query |
-      | class      | pf-c-button |
     And I click the following "button" element:
       | text  | Run Queries |
       | class | pf-c-button |
