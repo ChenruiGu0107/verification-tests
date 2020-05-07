@@ -130,7 +130,7 @@ Feature: Home related pages via admin console
     Given the first user is cluster-admin
     When I run the :goto_api_explore_page web action
     Then the step should succeed
-    When I perform the :set_filter_strings web action with:
+    When I perform the :set_filter_strings_on_explore_page web action with:
       | filter_text | build |
     Then the step should succeed
     When I perform the :click_item_in_resource_list web action with:
