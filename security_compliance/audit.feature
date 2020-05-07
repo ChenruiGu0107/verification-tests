@@ -8,13 +8,13 @@ Feature: Audit logs related scenarios
     And evaluation of `user(0).uid` is stored in the :users_uid clipboard
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image | aosqe/hello-openshift:latest |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
     Then the step should succeed
     And the pod named "hello-openshift-1-deploy" becomes present
 
     # Repeat the same step and it should fail
     When I run the :new_app client command with:
-      | docker_image | aosqe/hello-openshift:latest |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
     Then the step should fail
 
     # Scale deploymentconfig
@@ -39,11 +39,16 @@ Feature: Audit logs related scenarios
       | o        | yaml                         |
     Then the step should succeed
     And I save the output to file> debug_pod.yaml
+    When I run the :oadm_release_info admin command with:
+      | image_for  | cli                                     |
+      | image_name | <%= cluster_version('version').image %> |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :cli_image clipboard
     Given I have a project
     And I replace lines in "debug_pod.yaml":
-      | /name.*debug/                          | name: mypod                    |
-      | /namespace: .*/                        | namespace: <%= project.name %> |
-      | registry.redhat.io/rhel7/support-tools | openshift/origin-cli           |
+      | /name.*debug/   | name: mypod                    |
+      | /namespace: .*/ | namespace: <%= project.name %> |
+      | /image: .*/     | image: <%= cb.cli_image %>     |
     Then the step should succeed
     When I run the :create admin command with:
       | f | debug_pod.yaml |
