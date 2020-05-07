@@ -199,3 +199,17 @@ Feature: Install and configuration related scenarios
       | resource | #{cb.crd_s} |
     Then the output should not contain "<empty>"
     """
+  
+  # @author hongyli@redhat.com
+  # @case_id OCP-30088
+  Scenario: User can not deploy ThanosRuler CRs in user namespaces
+    Given the master version >= "4.5"
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f          | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/thanos-ruler-ocp-30088.yaml |
+      | overwrite  | true |
+    Then the step should fail
+    And the output should contain:
+      | Error from server (Forbidden): |
