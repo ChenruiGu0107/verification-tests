@@ -29,6 +29,9 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :check_silence_detail web action
     Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Silenced |
+    Then the step should succeed
     #Open alerts page, the expired alert should display
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -208,6 +211,9 @@ Feature: alerts browser
       | text | Expire Silence |
     Then the step should succeed
     When I run the :check_silence_detail web action
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Silenced |
     Then the step should succeed
     #Prepare a silenced alert again
     When I run the :goto_monitoring_alerts_page web action
