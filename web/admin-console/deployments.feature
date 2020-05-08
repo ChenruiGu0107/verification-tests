@@ -34,8 +34,7 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %>  |
       | deploy_name  | example              |
     Then the step should succeed
-    When I perform the :click_one_dropdown_action web action with:
-      | item   | Edit Count |
+    When I run the :edit_pod_count_action web action
     Then the step should succeed
     When I perform the :update_resource_count web action with:
       | resource_count | 2 |
