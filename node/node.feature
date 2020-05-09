@@ -509,3 +509,27 @@ Feature: Node management
     Then the step should succeed
     And the output should contain "quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615"
     And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615'
+  
+  # @author minmli@redhat.com
+  # @case_id OCP-29679
+  @admin
+  Scenario: NodeStatus and PodStatus show correct imageID while pulling by tag - 4.x
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
+    Then the step should succeed
+    And the pod named "pod-pull-by-tag" becomes ready
+    Given I use the "<%= pod.node_name %>" node
+    Given I run commands on the host:
+      | podman images --digests \| grep hello-pod |
+    Then the step should succeed
+    And the output should match:
+      | quay.io/openshifttest/hello-pod.*latest |
+    When I run the :get admin command with:
+      | resource      | node                 |
+      | resource_name | <%= pod.node_name %> |
+      | o             | yaml                 |
+    Then the step should succeed
+    And the output should contain "quay.io/openshifttest/hello-pod:latest"
+    And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod:latest'
+
