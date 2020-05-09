@@ -28,19 +28,20 @@ Feature: console-operator related
     Given the master version >= "4.2"
     Given the first user is cluster-admin
     Given I use the "openshift-console" project
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+
     When I run the :apply client command with:
       | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cases/console-operator-role.yaml |
       | overwrite  | true |
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | deployment |
-      | object_name_or_id | console    |
-    Then the step should succeed
+    Given I ensure "console" deployments is deleted
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
     Then the expression should be true> cluster_operator('console').condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator('console').condition(type: 'Degraded')['message'].include? "DeploymentSyncDegraded"
     Then I wait for the steps to pass:
     """
     Given 2 pods become ready with labels:
-      | app=console  |
       | component=ui |
     """
