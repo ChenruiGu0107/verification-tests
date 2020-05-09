@@ -33,6 +33,6 @@ objects:
                 procMount: Default
 parameters:
   - name: IMAGE
-    value: "quay.io/jfan/apb-tools:v2.0.0"
+    value: "registry.stage.redhat.io/openshift4/apb-tools:latest"
   - name: NAMESPACE
     value: "default"
