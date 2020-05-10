@@ -69,7 +69,7 @@ Feature: query browser
       | press_enter | :enter                               |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
-      | project_name | <%= cb.proj_name %> |
+      | table_text | <%= cb.proj_name %> |
     Then the step should succeed
 
     #check selected query from dropdown list
@@ -78,7 +78,7 @@ Feature: query browser
       | metrics_name | Memory Usage |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
-      | project_name | <%= cb.proj_name %> |
+      | table_text | deployment-example |
     Then the step should succeed
     #zoom in/out test
     When I perform the :choose_zoom_value web action with:
