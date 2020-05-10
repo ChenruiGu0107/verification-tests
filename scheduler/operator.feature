@@ -136,11 +136,11 @@ Feature: Testing Scheduler Operator related scenarios
 
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image | openshift/hello-openshift |
-      | name         | openshift1                |
+      | docker_image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+      | name         | openshift1                                                                                                    |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
-	    | deploymentconfig= openshift1 |
+      | deploymentconfig= openshift1 |
 
   # @author knarra@redhat.com
   # @case_id OCP-12489
@@ -237,7 +237,7 @@ Feature: Testing Scheduler Operator related scenarios
     And label "usertestzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | openshift/hello-openshift |
+      | docker_image   | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | deploymentconfig=hello-openshift |
@@ -352,8 +352,8 @@ Feature: Testing Scheduler Operator related scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run the :create_deployment client command with:
-      | name  | hello                            |
-      | image | openshift/hello-openshift:latest |
+      | name  | hello                                                                                                         |
+      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=hello |
@@ -365,8 +365,8 @@ Feature: Testing Scheduler Operator related scenarios
     And a pod becomes ready with labels:
       | app=hello |
     When I run the :create_deployment client command with:
-      | name  | hello1                           |
-      | image | openshift/hello-openshift:latest |
+      | name  | hello1                                                                                                        |
+      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
     Then the step should succeed
     Given I successfully patch resource "deployment/hello1" with:
       | {"spec":{"replicas":2}} |
