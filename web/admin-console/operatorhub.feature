@@ -32,8 +32,7 @@ Feature: operatorhub feature related
     When I perform the :create_custom_resource web action with:
       | api      | etcd Cluster |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text  | Edit Form |
+    When I run the :open_edit_form_view web action
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed

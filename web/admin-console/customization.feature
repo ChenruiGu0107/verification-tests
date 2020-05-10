@@ -679,7 +679,7 @@ Feature: customize console related
 
     # click try it will auto fill the yaml editor
     Given admin ensures "countdown" jobs is deleted from the "default" project after scenario
-    When I perform the :click_button_text web action with:
+    When I perform the :click_button web action with:
       | button_text | Try it |
     Then the step should succeed
     When I perform the :click_button_text web action with:
@@ -706,13 +706,13 @@ Feature: customize console related
     Then the step should succeed
 
     # Click 'Show YAML' will display YAML snippet
-    When I perform the :click_button_text web action with:
+    When I perform the :click_button web action with:
       | button_text | Show YAML |
     Then the step should succeed
     When I perform the :check_content_in_yaml_editor web action with:
       | yaml_content | countdown |
     Then the step should succeed
-    When I perform the :click_button_text web action with:
+    When I perform the :click_button web action with:
       | button_text | Hide YAML |
     Then the step should succeed
     When I perform the :check_content_in_yaml_editor web action with:
@@ -720,7 +720,7 @@ Feature: customize console related
     Then the step should fail
 
     # Click 'Insert snippet' will insert code snippet into YAML editor
-    When I perform the :click_button_text web action with:
+    When I perform the :click_button web action with:
       | button_text | Insert Snippet |
     Then the step should succeed
     When I perform the :check_content_in_yaml_editor web action with:
