@@ -77,55 +77,43 @@ Feature: resouces related scenarios
   # @author xxia@redhat.com
   Scenario Outline: Delete resources with cascade selectors
     Given I have a project
-    And I run the :run client command with:
-      | name      | test              |
+    And I run the :create_deploymentconfig client command with:
+      | name      | test                                                |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator | run-controller/v1 |
-      | -l        | run=test          |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | run=test |
+      | deploymentconfig=test |
     When I run the :delete client command with:
-      | _tool             | <tool>|
-      | object_type       | rc    |
-      | object_name_or_id | test  |
-      | cascade           | true  |
+      | _tool             | <tool> |
+      | object_type       | rc     |
+      | object_name_or_id | test-1 |
+      | cascade           | true   |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
 
-    When I run the :run client command with:
-      | name      | test              |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator | run-controller/v1 |
-      | -l        | run=test          |
-    Then the step should succeed
     When I run the :delete client command with:
-      | _tool             | <tool>|
-      | object_type       | rc    |
-      | object_name_or_id | test  |
-      | cascade           | false |
+      | _tool             | <tool> |
+      | object_type       | rc     |
+      | object_name_or_id | test-1 |
+      | cascade           | false  |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | run=test |
+      | deploymentconfig=test |
 
-    When I run the :run client command with:
-      | name      | test-a            |
+    When I run the :create_deploymentconfig client command with:
+      | name      | test-a                                              |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator | run-controller/v1 |
-      | -l        | label=same        |
     Then the step should succeed
-    When I run the :run client command with:
-      | name      | test-b            |
+    When I run the :create_deploymentconfig client command with:
+      | name      | test-b                                              |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator | run-controller/v1 |
-      | -l        | label=same,label2=test-b |
     Then the step should succeed
     When I run the :delete client command with:
-      | _tool             | <tool>  |
-      | object_type       | rc      |
-      | object_name_or_id | test-a  |
-      | object_name_or_id | test-b  |
-      | cascade           | false   |
+      | _tool             | <tool>   |
+      | object_type       | rc       |
+      | object_name_or_id | test-a-1 |
+      | object_name_or_id | test-b-1 |
+      | cascade           | false    |
     Then the step should succeed
 
     Examples:
