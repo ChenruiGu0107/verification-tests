@@ -83,8 +83,6 @@ Feature: operatorhub feature related
     # console will show 'Catalog Source Removed' on Subscription page when CatalogSource is removed
     When I run the :goto_catalog_source_page web action
     Then the step should succeed
-    When I run the :wait_box_loaded web action
-    Then the step should succeed
     When I perform the :click_one_operation_in_kebab web action with:
       | resource_name | custom-cs-keycloak   |
       | kebab_item    | Delete CatalogSource |
@@ -439,3 +437,83 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_3scale_subs_value web action
     Then the step should fail
+
+  # @author hasha@redhat.com
+  # @case_id OCP-29477
+  @admin
+  @destructive
+  Scenario: Populate displayName of CatalogSource into filter sidebar for custom catalogs
+    Given the master version >= "4.5"
+    Given I have a project
+    Given the first user is cluster-admin
+    Given admin ensures "custom-cs-keycloak" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin ensures "custom-cs-akka" catalog_source is deleted from the "openshift-marketplace" project after scenario
+
+    # create catalogsource with displayname
+    Given I open admin console in a browser
+    When I perform the :create_catalog_source web action with:
+      | catalog_source_name | custom-cs-keycloak        |
+      | display_name        | custom-cs-keycloak        |
+      | publisher_name      | OpenShift QE              |
+      | image               | quay.io/openshifttest/custom-keycloak@sha256:14af7be507288acca377896ea07b390901795598a539b5128841a77fc669d10d |
+    Then the step should succeed
+
+    When I perform the :create_catalog_source web action with:
+      | catalog_source_name | custom-cs-akka |
+      | display_name        | custom-cs-akka |
+      | publisher_name      | OpenShift QE   |
+      | image               | quay.io/openshifttest/akka-operator@sha256:122e47f4d7788465ca980f172494e14ed7e1f565f0d0c2e3eba7f666b70d465c |
+    Then the step should succeed
+    Given I use the "openshift-marketplace" project
+    And a pod becomes ready with labels:
+      | olm.catalogSource=custom-cs-keycloak |
+    And a pod becomes ready with labels:
+      | olm.catalogSource=custom-cs-akka |
+
+    # check the filter with displayname of catalogsource
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_providertype web action with:
+      | checkbox_text | custom-cs-keycloak |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Keycloak Operator |
+    Then the step should succeed
+    When I perform the :click_checkbox_from_providertype web action with:
+      | checkbox_text | custom-cs-akka |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Akka Cluster Operator |
+    Then the step should succeed
+
+    # check filter missing after deleting catalogsource
+    When I run the :goto_catalog_source_page web action
+    Then the step should succeed
+    When I perform the :click_one_operation_in_kebab web action with:
+      | resource_name | custom-cs-akka       |
+      | kebab_item    | Delete CatalogSource |
+    Then the step should succeed
+    When I perform the :confirm_deletion web action with:
+      | resource_name | custom-cs-akka |
+    Then the step should succeed
+    Given I use the "openshift-marketplace" project
+    Given I wait for the resource "catalogsource" named "custom-cs-akka" to disappear within 30 seconds
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_providertype web action with:
+      | checkbox_text | custom-cs-akka |
+    Then the step should fail
+
+    #check the filter changed as the displayname changed
+    Given I run the :patch admin command with:
+      | resource      | catalogsource                           |
+      | resource_name | custom-cs-keycloak                      |
+      | p             | {"spec": {"displayName": "cs-display"}} |
+      | type          | merge                                   |
+      | namespace     | openshift-marketplace                   |
+    Then the step should succeed
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | cs-display |
+    Then the step should succeed
