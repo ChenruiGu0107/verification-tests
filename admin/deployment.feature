@@ -6,9 +6,9 @@ Feature: admin deployment related features
   @destructive
   Scenario: Prune old deployments by admin command
     Given I have a project
-    When I run the :run client command with:
-      | name      | mydc              |
-      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+    When I run the :create_deploymentconfig client command with:
+      | name  | mydc                                                |
+      | image | <%= project_docker_repo %>openshift/hello-openshift |
     Then the step should succeed
     And I wait until the status of deployment "mydc" becomes :complete
     # In sum, 3 complete deployments (the last one is deployed and its status is running)
@@ -20,11 +20,11 @@ Feature: admin deployment related features
     And I wait until the status of deployment "mydc" becomes :complete
     """
 
-    When I run the :run client command with:
-      | name      | newdc      |
-      | image     | <%= project_docker_repo %>aosqe/hello-openshift |
-      | dry_run   |            |
-      | -o        | yaml       |
+    When I run the :create_deploymentconfig client command with:
+      | name    | newdc                                           |
+      | image   | <%= project_docker_repo %>aosqe/hello-openshift |
+      | dry_run | true                                            |
+      | output  | yaml                                            |
     Then the step should succeed
     And I save the output to file> dc.yaml
     # In order to make failed deployment
