@@ -571,3 +571,15 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should not contain:
       | paused-build-3 |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30253
+  Scenario: Builds should be configured to use mirrors in disconnected environments
+    Given the master version >= "4.5"
+    When I have a project
+    Then I run the :new_build client command with:
+      | D    | FROM quay.io/openshifttest/ruby-25-centos7@sha256:575194aa8be12ea066fc3f4aa9103dcb4291d43f9ee32e4afe34e0063051610b |
+      | name | disconnect-build |
+    And the step should succeed
+    And the "disconnect-build-1" build was created
+    And the "disconnect-build-1" build completed
