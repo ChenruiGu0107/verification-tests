@@ -183,6 +183,8 @@ Feature: operatorhub feature related
       | project_name |  <%= project.name %> |
       | manifest     | sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
     Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
     When I run the :check_affected_pods_tab web action
     Then the step should succeed
 
@@ -190,9 +192,12 @@ Feature: operatorhub feature related
     When I perform the :goto_installed_operators_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    Given I wait up to 40 seconds for the steps to pass:
+    """
     When I perform the :uninstall_operator_on_console web action with:
       | resource_name | Container Security |
     Then the step should succeed
+    """
     Given I use the "<%= project.name %>" project
     And I wait for the resource "subscription" named "container-security-operator" to disappear within 30 seconds
 
