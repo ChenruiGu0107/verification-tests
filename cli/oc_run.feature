@@ -2,11 +2,11 @@ Feature: oc run related scenarios
   # @author xxia@redhat.com
   Scenario Outline: Create container with oc run command
     Given I have a project
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | _tool        | <tool>                |
       | name         | mysql                 |
       | image        | mysql                 |
-      | dry_run      | true                  |
+      | dry_run      | client                |
     Then the step should succeed
     When I run the :get client command with:
       | _tool         | <tool>             |
@@ -23,30 +23,23 @@ Feature: oc run related scenarios
     Given 1 pods become ready with labels:
       | test=one |
 
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | _tool        | <tool>                |
       | name         | webapp2               |
       | image        | training/webapp       |
-      | replicas     | 2                     |
-      | -l           | label=webapp2         |
-      | limits       | memory=256Mi          |
     Then the step should succeed
+    When I run the :set_resources client command with:
+      | resource     | deploymentconfig |
+      | resourcename | webapp2          |
+      | limits       | memory=256Mi     |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource_name | webapp2                 |
+      | resource      | deploymentconfig        |
+      | p             | {"spec":{"replicas":2}} |
     Given 2 pods become ready with labels:
-      | label=webapp2 |
+      | deploymentconfig=webapp2 |
 
-    When I run the :run client command with:
-      | name         | webapp3               |
-      | image        | training/webapp       |
-      | overrides    | {"spec":{"replicas":2}} |
-      | limits       | memory=256Mi          |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc                 |
-      | resource_name | webapp3            |
-      | output        | yaml               |
-    Then the step should succeed
-    And the output should contain:
-      | replicas: 2   |
     When I run the :run client command with:
       | name      | webapp4             |
       | image     | training/webapp     |
