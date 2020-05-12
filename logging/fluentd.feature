@@ -48,14 +48,16 @@ Feature: fluentd related tests
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
-    Then I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "es-node-master=true"
-    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty |
-      | op           | GET                                           |
+    Then I wait up to 600 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_search?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.org_project %>"}}} |
+      | op           | GET                                                                                                |
     Then the expression should be true> @result[:parsed]['hits']['hits'].last["_source"]["message"].include? <message>
+    """
     Examples:
-      | file                                     | message                                                      |
-      | container_json_event_log_template.json   | "anlieventevent"                                             | # @case_id OCP-19431
+      | file                                     | message                                                  |
+      | container_json_event_log_template.json   | "anlieventevent"                                         | # @case_id OCP-19431
       | container_json_unicode_log_template.json | "ㄅㄉˇˋㄓˊ˙ㄚㄞㄢㄦㄆ 中国 883.317µs ā á ǎ à ō ó ▅ ▆ ▇ █ 々" | # @case_id OCP-24563
 
   # @author qitang@redhat.com
@@ -148,12 +150,9 @@ Feature: fluentd related tests
     Given the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:updated_scheduled]
     And the expression should be true> daemon_set('fluentd').replica_counters(cached: false)[:desired] == daemon_set('fluentd').replica_counters(cached: false)[:available]
     """
-    Given a pod becomes ready with labels:
-      | es-node-master=true |
-    When I execute on the pod:
-      | es_util                                |
-      | --query=project.<%= cb.org_project %>* |
-      | -XDELETE                               |
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | project.<%= cb.org_project %>* |
+      | op           | DELETE                         |
     Then the step should succeed
     And the output should contain:
       | "acknowledged":true |

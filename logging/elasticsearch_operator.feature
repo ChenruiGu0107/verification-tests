@@ -28,6 +28,7 @@ Feature: elasticsearch operator related tests
   @destructive
   @commonlogging
   Scenario: Should expose es cluster health status in Elasticsearch CR.
+    Given the master version < "4.5"
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
       | relative_url | _cluster/health?format=JSON |
       | op           | GET                         |
@@ -120,6 +121,7 @@ Feature: elasticsearch operator related tests
   @admin
   @destructive
   Scenario: The shard number should be same with the node number
+    Given the master version < "4.5"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
       | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |

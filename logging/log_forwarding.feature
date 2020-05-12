@@ -2,10 +2,9 @@
 Feature: log forwarding related tests
 
   # @author qitang@redhat.com
-  # @case_id OCP-25938
   @admin
   @destructive
-  Scenario: Forward logs to fluentd as unsecure
+  Scenario Outline: Forward logs to fluentd as unsecure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
@@ -13,7 +12,7 @@ Feature: log forwarding related tests
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/insecure/logforwarding-insecure.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/insecure/<status>/logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I create clusterlogging instance with:
@@ -44,19 +43,22 @@ Feature: log forwarding related tests
       | audit.log |
       | infra.log |
     """
+    Examples:
+      | status |
+      | tp     | # @case_id OCP-25938
+      | ga     | # @case_id OCP-29843
 
   # @author qitang@redhat.com
-  # @case_id OCP-26141
   @admin
   @destructive
-  Scenario: Forward logs to non-clusterlogging-managed elasticsearch as unsecure
+  Scenario Outline: Forward logs to non-clusterlogging-managed elasticsearch as unsecure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as insecure
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/insecure/logforwarding-elasticsearch-insecure.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/insecure/<status>/logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I create clusterlogging instance with:
@@ -80,26 +82,46 @@ Feature: log forwarding related tests
     And I use the "openshift-logging" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given I execute on the "<%= cb.log_receiver.name %>" pod:
-      | curl | -s | -XGET | http://localhost:9200/_cat/indices?format=JSON |
+    # check app logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -s | -XGET | http://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
     Then the step should succeed
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? '.operations'}['docs.count'].to_i > 0
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? '.audit'}['docs.count'].to_i > 0
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? "project.#{cb.proj.name}"}['docs.count'].to_i > 0
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check journal logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -s | -XGET | http://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"exists": {"field": "systemd"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check logs in openshift* namespace
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -s | -XGET | http://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check audit logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -s | -XGET | http://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"exists": {"field": "auditID"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
     """
+    Examples:
+      | status |
+      | tp     | # @case_id OCP-26141
+      | ga     | # @case_id OCP-29846
 
   # @author qitang@redhat.com
-  # @case_id OCP-25939
   @admin
   @destructive
-  Scenario: Forward logs to fluentd as secure
+  Scenario Outline: Forward logs to fluentd as secure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/secure/logforwarding-secure.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/secure/<status>/logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I create clusterlogging instance with:
@@ -130,12 +152,15 @@ Feature: log forwarding related tests
       | audit.log |
       | infra.log |
     """
+    Examples:
+      | status |
+      | tp     | # @case_id OCP-25939
+      | ga     | # @case_id OCP-29844
 
   # @author qitang@redhat.com
-  # @case_id OCP-25990
   @admin
   @destructive
-  Scenario: Forward logs to non-clusterlogging-managed elasticsearch as secure
+  Scenario Outline: Forward logs to non-clusterlogging-managed elasticsearch as secure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
@@ -158,7 +183,7 @@ Feature: log forwarding related tests
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/secure/logforwarding-elasticsearch.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/secure/<status>/logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I create clusterlogging instance with:
@@ -182,13 +207,34 @@ Feature: log forwarding related tests
     And I use the "openshift-logging" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    And I execute on the "<%= cb.log_receiver.name %>" pod:
-      | curl | -sk | -XGET | https://localhost:9200/_cat/indices?format=JSON |
+    # check app logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -sk | -XGET | https://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
     Then the step should succeed
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? '.operations'}['docs.count'].to_i > 0
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? '.audit'}['docs.count'].to_i > 0
-    And the expression should be true> JSON.parse(@result[:response]).find {|e| e['index'].start_with? "project.#{cb.proj.name}"}['docs.count'].to_i > 0
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check journal logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -sk | -XGET | https://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"exists": {"field": "systemd"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check logs in openshift* namespace
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -sk | -XGET | https://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
+
+    # check audit logs
+    When I execute on the "<%= cb.log_receiver.name %>" pod:
+      | curl | -sk | -XGET | https://localhost:9200/*/_count?format=JSON | -H | Content-Type: application/json | -d | {"query": {"exists": {"field": "auditID"}}} |
+    Then the step should succeed
+    And the expression should be true> JSON.parse(@result[:response])['count'] > 0
     """
+    Examples:
+      | status |
+      | tp     | # @case_id OCP-25990
+      | ga     | # @case_id OCP-29845
 
   # @author qitang@redhat.com
   # @case_id OCP-26622
@@ -228,10 +274,24 @@ Feature: log forwarding related tests
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given I wait for the "project.<%= cb.proj.name %>.<%= cb.proj.uid %>" index to appear in the ES pod with labels "es-node-master=true"
-    Then the expression should be true> cb.index_data['docs.count'] > "0"
-    Given I wait for the ".operation" index to appear in the ES pod with labels "es-node-master=true"
-    Then the expression should be true> cb.index_data['docs.count'] > "0"
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
+      | op           | GET                                                                                             |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty'  -d '{"query": {"exists": {"field": "systemd"}}} |
+      | op           | GET                                                               |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty'  -d '{"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
+      | op           | GET                                                                                      |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    """
 
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -275,10 +335,24 @@ Feature: log forwarding related tests
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given I wait for the "project.<%= cb.proj.name %>.<%= cb.proj.uid %>" index to appear in the ES pod with labels "es-node-master=true"
-    Then the expression should be true> cb.index_data['docs.count'] > "0"
-    Given I wait for the ".operation" index to appear in the ES pod with labels "es-node-master=true"
-    Then the expression should be true> cb.index_data['docs.count'] > "0"
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
+      | op           | GET                                                                                             |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty'  -d '{"query": {"exists": {"field": "systemd"}}} |
+      | op           | GET                                                               |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | */_count?pretty'  -d '{"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
+      | op           | GET                                                                                      |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] > 0
+    """
 
     Given I wait up to 300 seconds for the steps to pass:
     """
