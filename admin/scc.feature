@@ -256,7 +256,7 @@ Feature: SCC policy related scenarios
     Then the step should fail
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid_inrange clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_inrange.json" replacing paths:
-      | ["spec"]["securityContext"]["runAsUser"] | <%= cb.scc_uid_inrange %> |
+      | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | <%= cb.scc_uid_inrange %> |
     Then the step should succeed
 
   # @author mcurlej@redhat.com
