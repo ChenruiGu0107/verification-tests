@@ -188,16 +188,13 @@ Feature: The apb tool related scenarios
   @admin
   Scenario: [stage] apb-tools image check 
     Given I have a project
-    Given I switch to cluster admin pseudo user
     Given I store master major version in the :master_version clipboard
-    And evaluation of `project.name` is stored in the :cur_project clipboard
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
-    And I use the "<%= project.name %>" project
     When I process and create:
       | f    | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
       | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
-      | p    | NAMESPACE=<%= cb.cur_project %> |
+      | p    | NAMESPACE=<%= project.name %> |
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
