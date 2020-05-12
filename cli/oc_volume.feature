@@ -20,20 +20,28 @@ Feature: oc_volume.feature
   # @case_id OCP-12037
   Scenario: Add volume to all available resources in the namespace
     Given I have a project
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | name      | myrc1                 |
       | image     | aosqe/hello-openshift |
-      | generator | run/v1                |
-      | limits    | cpu=200m,memory=512Mi |
-      | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
-    When I run the :run client command with:
+    When I run the :set_resources client command with:
+      | resource      | rc                    |
+      | resourcename  | myrc1-1               |
+      | limits        | cpu=200m,memory=512Mi |
+      | requests      | cpu=100m,memory=256Mi |
+    Then the step should succeed
+    And the output should contain "replicationcontroller/myrc1-1 resource requirements updated"
+    When I run the :create_deploymentconfig client command with:
       | name      | myrc2                 |
       | image     | aosqe/hello-openshift |
-      | generator | run/v1                |
-      | limits    | cpu=200m,memory=512Mi |
-      | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
+    When I run the :set_resources client command with:
+      | resource      | rc                    |
+      | resourcename  | myrc2-1               |
+      | limits        | cpu=200m,memory=512Mi |
+      | requests      | cpu=100m,memory=256Mi |
+    Then the step should succeed
+    And the output should contain "replicationcontroller/myrc2-1 resource requirements updated"
     When I run the :create_secret client command with:
       | name          | my-secret    |
       | secret_type   | generic      |
@@ -41,10 +49,10 @@ Feature: oc_volume.feature
     Then the step should succeed
 
     Given a pod becomes ready with labels:
-      |  run=myrc2 |
+      | deploymentconfig=myrc2 |
     When I run the :get client command with:
       | resource      | rc                             |
-      | resource_name | myrc2                          |
+      | resource_name | myrc2-1                        |
       | template      | {{.status.observedGeneration}} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :version clipboard
@@ -59,18 +67,18 @@ Feature: oc_volume.feature
       | mount-path  | /etc      |
     Then the step should succeed
     And the output should contain:
-      | myrc1 |
-      | myrc2 |
+      | myrc1-1 |
+      | myrc2-1 |
 
     When I run the :set_volume client command with:
       | resource | rc     |
       | all      | true   |
-      | action   | --list |
+      | action   | --all  |
     Then the step should succeed
     And the output should match 2 times:
-      | replicationcontrollers/myrc[12]  |
-      |   secret/my-secret as secret     |
-      |     mounted at /etc              |
+      | myrc[12]-1                         |
+      |   secret/my-secret as secret       |
+      |     mounted at /etc                |
 
     # Need wait to ensure the resource is updated. Otherwise the next '--remove' step would fail
     # when tested in auto, with error like 'the object has been modified; please apply your changes to the latest version and try again'
@@ -79,7 +87,7 @@ Feature: oc_volume.feature
     """
     When I run the :get client command with:
       | resource      | rc                             |
-      | resource_name | myrc2                          |
+      | resource_name | myrc2-1                        |
       | template      | {{.status.observedGeneration}} |
     Then the step should succeed
     And the output should not contain "<%= cb.version %>"
@@ -93,11 +101,11 @@ Feature: oc_volume.feature
     When I run the :set_volume client command with:
       | resource | rc     |
       | all      | true   |
-      | action   | --list |
+      | action   | --all  |
     Then the step should succeed
     And the output should contain:
-      | myrc1 |
-      | myrc2 |
+      | myrc1-1 |
+      | myrc2-1 |
 
   # @author gpei@redhat.com
   # @case_id OCP-12247
