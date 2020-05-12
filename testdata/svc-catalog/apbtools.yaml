@@ -1,0 +1,38 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: apbtools-template
+  annotations:
+    description: "A pod launch apb-tools."
+objects:  
+  - kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      labels:
+        app: apbtools
+      name: apbtools
+      namespace: ${NAMESPACE}
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: apbtools
+      template:
+        metadata:
+          labels:
+            app: apbtools
+        spec:
+          serviceAccount: apbtoolsstage
+          serviceAccountName: apbtoolsstage
+          containers:
+            - name: apbtools
+              image: ${IMAGE}
+              imagePullPolicy: Always
+              securityContext:
+                privileged: true
+                procMount: Default
+parameters:
+  - name: IMAGE
+    value: "registry.stage.redhat.io/openshift4/apb-tools:latest"
+  - name: NAMESPACE
+    value: "default"
