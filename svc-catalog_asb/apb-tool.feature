@@ -192,14 +192,14 @@ Feature: The apb tool related scenarios
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
     When I process and create:
-      | f    | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
-      | p    | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
-      | p    | NAMESPACE=<%= project.name %> |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
+      | p | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
+      | p | NAMESPACE=<%= project.name %> |
     Then the step should succeed
     And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :get client command with:
-      | resource      | pods |
+      | resource | pods |
     Then the step should succeed
     And the output should contain:
       | CrashLoopBackOff |
