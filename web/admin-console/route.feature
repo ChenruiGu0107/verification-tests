@@ -343,11 +343,8 @@ Feature: route related
     Then the step should succeed
     When I run the :check_rejected_icon_and_text web action
     Then the step should succeed
-    When I perform the :check_conditions_table web action with:
-      | type    | Admitted                      |
-      | status  | False                         |
-      | reason  | ExtendedValidationFailed      |
-      | message | certificate signed by unknown |
+    When I perform the :check_extendedValidationFailed_in_conditions_table web action with:
+      | type | Admitted |
     Then the step should succeed
 
     # filtering with route status
