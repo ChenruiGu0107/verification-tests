@@ -100,12 +100,6 @@ Feature: Home related pages via admin console
     When I perform the :check_page_contains web action with:
       | content | Restricted Access |
     Then the step should succeed
-    When I perform the :click_tab web action with:
-      | tab_name | Access Review |
-    Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | Error Loading Access Review |
-    Then the step should succeed
     When I perform the :create_project_from_dropdown web action with:
       | project_name | project-ocp-24306 |
     Then the step should succeed
