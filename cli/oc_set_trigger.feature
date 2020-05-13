@@ -3,22 +3,19 @@ Feature: oc set triggers tests
   # @case_id OCP-11563
   Scenario: `oc set triggers` with misc flags
     Given I have a project
-    And I run the :run client command with:
+    And I run the :create_deploymentconfig client command with:
       | name  | hello                                               |
       | image | <%= project_docker_repo %>openshift/hello-openshift |
-      | -l    | title=tc519819                                      |
     Then the step should succeed
-    And I run the :run client command with:
+    And I run the :create_deploymentconfig client command with:
       | name  | world                                               |
       | image | <%= project_docker_repo %>openshift/hello-openshift |
-      | -l    | title=deadbeef_519819                               |
     Then the step should succeed
     And I run the :set_triggers client command with:
-      | resource | dc             |
-      | l        | title=tc519819 |
+      | resource | dc/hello |
     Then the step should succeed
     And the output should contain "hello"
-    And the output should not contain "deadbeef_519819"
+    And the output should not contain "world"
     And I run the :set_triggers client command with:
       | resource   | dc   |
       | all        | true |
