@@ -112,3 +112,15 @@ Feature: oc get related command
     When I terminate last background process
     Then the output should contain 2 times:
       | <%= cb.nodes[1].name %> |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-29479
+  @admin
+  Scenario: Get clusterroles with '-o wide' 
+    Given I switch to cluster admin pseudo user
+    When I run the :get admin command with:
+      | resource | clusterrolebinding.rbac |
+      | o        | wide                    |
+    Then the step should succeed
+    And the output should match:
+      | NAME\\s+ROLE\\s+AGE\\s+USERS\\s+GROUPS\\s+SERVICEACCOUNTS |
