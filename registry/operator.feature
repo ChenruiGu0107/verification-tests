@@ -62,7 +62,7 @@ Feature: Testing image registry operator
   # @case_id OCP-22031
   @admin
   @destructive
-  Scenario: Config CPU and memory for internal regsistry
+  Scenario: Config CPU and memory for internal registry
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     Given current generation number of "image-registry" deployment is stored into :before_change clipboard
@@ -73,13 +73,17 @@ Feature: Testing image registry operator
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"resources":null}} | 
     """
+    And I wait for the steps to pass:
+    """
     Given current generation number of "image-registry" deployment is stored into :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
-    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
-    Given a pod is present with labels:
+    Given a pod becomes ready with labels:
       | docker-registry=default |
-    Then the expression should be true> pod.container_specs.first.cpu_limit_raw == "100m"
-    And the expression should be true> pod.container_specs.first.memory_limit_raw == "512Mi"
+    """
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    Then the output should contain:
+      | cpu: 100m     |
+      | memory: 512Mi |
 
   # @author wzheng@redhat.com
   # @case_id OCP-22032
