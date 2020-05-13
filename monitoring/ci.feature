@@ -213,3 +213,56 @@ Feature: Install and configuration related scenarios
     Then the step should fail
     And the output should contain:
       | Error from server (Forbidden): |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21576
+  @admin
+  @destructive
+  Scenario: Disable Telemeter Client
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    #config monitoring to disable telemeter client
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map-disable-ocp-21576.yaml |
+      | overwrite | true |
+    Then the step should succeed
+    #oc get pod | grep telemeter-client
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pod |
+    And the output should not contain:
+      | telemeter-client |
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-22528
+  @admin
+  @destructive
+  Scenario: Modify the retention time for Prometheus metrics data
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map-retention-ocp-22528.yaml |
+      | overwrite | true |
+    Then the step should succeed
+    #check retention time
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | prometheus |
+      | resource_name | k8s        |
+      | o             | yaml       |
+    Then the expression should be true> YAML.load(@result[:stdout])["spec"]["retention"] == "3h"
+    """
+    When I run the :get client command with:
+      | resource      | statefulset    |
+      | resource_name | prometheus-k8s |
+      | o             | yaml           |
+    Then the output should contain:
+      | storage.tsdb.retention.time=3h |
+    
