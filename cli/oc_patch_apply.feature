@@ -447,3 +447,35 @@ Feature: oc patch/apply related scenarios
       | tool    |
       | oc      | # @case_id OCP-30394
       | kubectl | # @case_id OCP-30395
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-30279
+  @admin
+  Scenario: `oc apply` should apply as many resources as possible before exiting with an error
+    Given admin ensures "ns-ocp30279" project is deleted after scenario
+    Given I have a project
+    Given I obtain test data file "cli/OCP-30279/apply-with-error.yaml"
+    When I run the :apply client command with:
+      | f | apply-with-error.yaml |
+    Then the step should fail
+    And the output should match:
+      | cronjob.batch/hello created              |
+      | no matches for kind "PerformanceProfile" |
+      | namespaces "ns-ocp30279" is forbidden    |
+    Then I check that the "hello" cronjob exists in the project
+
+    Given a 5 characters random string of type :dns is stored into the :proj_name1 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name1 %> |
+    Then the step should succeed
+    When I switch to cluster admin pseudo user
+    When I use the "<%= cb.proj_name1 %>" project
+    When I run the :apply admin command with:
+      | f | apply-with-error.yaml |
+    Then the step should fail
+    And the output should contain:
+      | namespace/ns-ocp30279 created            |
+      | cronjob.batch/hello created              |
+      | no matches for kind "PerformanceProfile" |
+    Given admin checks that the "ns-ocp30279" namespace exists
+    And admin checks that the "hello" cronjob exists in the "<%= cb.proj_name1 %>" project
