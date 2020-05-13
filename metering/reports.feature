@@ -20,7 +20,7 @@ Feature: reports related scenarios
       | format              | tabular           |
     Then the step should succeed
     # save the last element of the timestamp which should appear in all three formats
-    And evaluation of `cb.res_json[-1]['period_start']` is stored in the :timestamp clipboard
+    And evaluation of `cb.res_json['results'].last['values'].first['value']` is stored in the :timestamp clipboard
     And the expression should be true> cb.res_tabular.include? cb.timestamp
     And the expression should be true> cb.res_csv.include? cb.timestamp
 
@@ -34,7 +34,7 @@ Feature: reports related scenarios
     Given I get the "persistentvolumeclaim-request" report and store it in the :res_json clipboard using:
       | query_type | persistentvolumeclaim-request |
     Then the step should succeed
-    And the expression should be true> (report_query('persistentvolumeclaim-request').column_names - cb.res_json.first.keys).empty?
+    And the expression should be true> (report_query('persistentvolumeclaim-request').column_names - cb.res_json['results'].first['values'].map {|e| e['name']}).empty?
 
 
   # @author pruan@redhat.com
