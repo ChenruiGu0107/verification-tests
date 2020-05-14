@@ -46,7 +46,7 @@ Feature: Testing route
 
     When I switch to cluster admin pseudo user
     And I use the router project
-    And I wait up to 10 seconds for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
@@ -57,6 +57,8 @@ Feature: Testing route
       | <%= cb.proj_name %>[_:]<%= cb.edge_route %>.pem |
       | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
     """
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | bash |
       | -lc |
@@ -64,6 +66,7 @@ Feature: Testing route
     Then the step should succeed
     And the output should match:
       | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
+    """
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -71,11 +74,12 @@ Feature: Testing route
       | object_type       | route                |
       | object_name_or_id | <%= cb.edge_route %> |
     Then the step should succeed
-
     When I wait for the resource "route" named "<%= cb.edge_route %>" to disappear
     And I switch to cluster admin pseudo user
     And I use the router project
-    And I execute on the pod:
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
       | bash |
       | -lc |
       | ls /var/lib/*/router/certs |
@@ -84,6 +88,7 @@ Feature: Testing route
       | <%= cb.proj_name %>[_:]<%= cb.edge_route %>.pem |
     And the output should match:
       | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
+    """
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -91,17 +96,19 @@ Feature: Testing route
       | object_type       | route                     |
       | object_name_or_id | <%= cb.reencrypt_route %> |
     Then the step should succeed
-
     When I wait for the resource "route" named "<%= cb.reencrypt_route %>" to disappear
     And I switch to cluster admin pseudo user
     And I use the router project
-    And I execute on the pod:
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
       | bash |
       | -lc |
       | ls /var/lib/*/router/certs /var/lib/*/router/cacerts |
     Then the step should succeed
     And the output should not match:
       | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-10762
