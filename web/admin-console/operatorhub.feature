@@ -60,7 +60,7 @@ Feature: operatorhub feature related
       | catalog_source_name | custom-cs-keycloak        |
       | display_name        | Custom Catalog Source     |
       | publisher_name      | OpenShift QE              |
-      | image               | docker.io/aosqe/custom-keycloak@sha256:14af7be507288acca377896ea07b390901795598a539b5128841a77fc669d10d |
+      | image               | quay.io/openshifttest/custom-keycloak@sha256:14af7be507288acca377896ea07b390901795598a539b5128841a77fc669d10d |
     Then the step should succeed
     Given I use the "openshift-marketplace" project
     And a pod becomes ready with labels:
@@ -106,7 +106,7 @@ Feature: operatorhub feature related
       | display_name        | Custom Catalog Source NS    |
       | publisher_name      | OpenShift QE                |
       | item                | default                     |
-      | image               | docker.io/aosqe/custom-keycloak@sha256:14af7be507288acca377896ea07b390901795598a539b5128841a77fc669d10d |
+      | image               | quay.io/openshifttest/custom-keycloak@sha256:14af7be507288acca377896ea07b390901795598a539b5128841a77fc669d10d |
     Then the step should succeed
 
     Given I use the "default" project
