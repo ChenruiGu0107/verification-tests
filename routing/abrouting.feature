@@ -574,7 +574,7 @@ Feature: Testing abrouting
     Then the output should contain "leastconn"
     """
 
-  # @author yadu@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-13521
   @admin
   Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
@@ -595,14 +595,17 @@ Feature: Testing abrouting
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
       | grep             |
       | pass1            |
       | -A               |
-      | 10               |
+      | 5                |
       | haproxy.config   |
     Then the output should contain "source"
-    #Add multiple services to route
+    """
+    #Add multiple services to route, then use roundrobin policy
     Given I switch to the first user
     When I run the :set_backends client command with:
       | routename | pass1              |
@@ -617,11 +620,11 @@ Feature: Testing abrouting
       | grep             |
       | pass1            |
       | -A               |
-      | 10               |
+      | 5                |
       | haproxy.config   |
     Then the output should contain "roundrobin"
     """
-    #Set one of the service weight to 0
+    #Set one of the service weight to 0, then use the default source policy
     Given I switch to the first user
     When I run the :set_backends client command with:
       | routename | pass1              |
@@ -635,26 +638,7 @@ Feature: Testing abrouting
       | grep             |
       | pass1            |
       | -A               |
-      | 10               |
-      | haproxy.config   |
-    Then the output should contain "source"
-    """
-    #Set all the service weight to 0
-    Given I switch to the first user
-    When I run the :set_backends client command with:
-      | routename | pass1              |
-      | service   | service-secure=0   |
-      | service   | service-secure-2=0 |
-    Then the step should succeed
-
-    Given I switch to cluster admin pseudo user
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | pass1            |
-      | -A               |
-      | 10               |
+      | 5                |
       | haproxy.config   |
     Then the output should contain "source"
     """
