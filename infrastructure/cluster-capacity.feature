@@ -202,3 +202,37 @@ Feature: cluster-capacity related features
       | exec_command_arg  | /test-pod/pod.yaml            |
     Then the step should succeed
     Then the expression should be true> @result[:response].to_i == cb.expected_number_total
+
+  # @author weinliu@redhat.com
+  # @case_id OCP-30193
+  @admin
+  Scenario: Cluster capacity image stage check
+    Given I have a project
+    Given I store master major version in the :master_version clipboard
+    Given I create the serviceaccount "cluster-capacity-sa"
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/cluster-capacity-cluster-role.yaml |
+    Then the step should succeed
+    When admin ensures "cluster-capacity-role" clusterrole is deleted after scenario
+    And cluster role "cluster-capacity-role" is added to the "system:serviceaccount:<%= project.name %>:cluster-capacity-sa" service account
+    Then the step should succeed
+    Given I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/testdata/infrastructure/cluster-capacity/cluster-capacity-configmap.yaml |
+    Then the step should succeed
+    When I process and create:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/cluster-capacity-rc.yaml |
+      | p | IMAGE=registry.stage.redhat.io/openshift4/ose-cluster-capacity:<%= cb.master_version %> |
+      | p | NAMESPACE=<%= project.name %>                                                           |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=cluster-capacity |
+    Then evaluation of `pod.name` is stored in the :capacity_pod clipboard
+    Given I wait until replicationController "cluster-capacity" is ready       
+    And I wait until number of replicas match "2" for replicationController "cluster-capacity"
+    When I run the :logs client command with:
+      | resource_name | pod/<%= cb.capacity_pod %> |
+      | since         | 60s                        |
+    Then the step should succeed
+    And the output should match:
+      | The\s+cluster\s+can\s+schedule\s+[1-9]*     |
+      | instance\(s\)\s+of\s+the\s+pod\s+small-pod. |
