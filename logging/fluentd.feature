@@ -84,8 +84,8 @@ Feature: fluentd related tests
     And I use the "openshift-logging" project
     Given I wait 600 seconds for the "project.<%= cb.org_project %>" index to appear in the ES pod with labels "es-node-master=true"
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
-      | op           | GET                                                                                                                                          |
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                      |
     Then the step should succeed
     And the output should contain:
       | "message" : "{\"message\": \"MERGE_JSON_LOG=true\", \"level\": \"debug\",\"Layer1\": \"layer1 0\",      |
@@ -121,8 +121,8 @@ Feature: fluentd related tests
     And I wait up to 180 seconds for the steps to pass:
     """
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
-      | op           | GET                                                                                                                                          |
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                      |
     Then the step should succeed
     And the output should contain:
       | "message" : "MERGE_JSON_LOG=true",         |
@@ -160,8 +160,8 @@ Feature: fluentd related tests
     And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
-      | op           | GET                                                                                                                                          |
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                      |
     Then the step should succeed
     And the output should contain:
       | "message" : "MERGE_JSON_LOG=true",                                                     |
@@ -190,8 +190,8 @@ Feature: fluentd related tests
     And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
-      | op           | GET                                                                                                                                          |
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                      |
     Then the step should succeed
     And the output should contain:
       | "message" : "MERGE_JSON_LOG=true",                                             |
@@ -220,8 +220,8 @@ Feature: fluentd related tests
     And I wait up to 180 seconds for the steps to pass:
     """
     And I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -H 'Content-Type: application/json' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
-      | op           | GET                                                                                                                                          |
+      | relative_url | project.<%= cb.org_project %>*/_search?pretty' -d'{"size": 2,"sort": [{"@timestamp": {"order":"desc"}}]} |
+      | op           | GET                                                                                                      |
     Then the step should succeed
     And the output should contain:
       | "message" : "MERGE_JSON_LOG=true",                                                                                   |
@@ -230,4 +230,24 @@ Feature: fluentd related tests
       | \"[foobar]\":\"Bracket Item\",\"foo:bar\":\"Colon Item\",\"foo bar\":\"Space Item\"}",                               |
     """
 
-
+  # @author qitang@redhat.com
+  # @case_id OCP-30196
+  @admin
+  @destructive
+  Scenario: The pod label and annotation in Elasticsearch
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :proj clipboard
+    When I run the :new_app client command with:
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    Given I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | app-*/_search?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
+      | op           | GET                                                                                                  |
+    Then the step should succeed
+    And the expression should be true> (@result[:parsed]['hits']['hits'].first['_source']['kubernetes']['flat_labels'] - ["run=centos-logtest", "test=centos-logtest"]).empty?
