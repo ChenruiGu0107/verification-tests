@@ -207,3 +207,27 @@ Feature: oc_set_resources.feature
       | requests:     |
       | cpu: 100m     |
       | memory: 256Mi |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-29661
+  Scenario: `oc set resources` should not return error without update
+    Given I have a project
+    When I run the :create_deployment client command with:
+      | name  | myapp                     |
+      | image | openshift/hello-openshift |
+    Then the step should succeed
+    When I run the :set_resources client command with:
+      | resource     | deployment            |
+      | resourcename | myapp                 |
+      | limits       | cpu=200m,memory=512Mi |
+      | requests     | cpu=100m,memory=256Mi |
+    Then the step should succeed
+    And the expression should be true> deployment('myapp').container_spec(name: 'hello-openshift').memory_limit_raw == "512Mi"
+    # set the resource again without any update should also succeed
+    When I run the :set_resources client command with:
+      | resource     | deployment            |
+      | resourcename | myapp                 |
+      | limits       | cpu=200m,memory=512Mi |
+      | requests     | cpu=100m,memory=256Mi |
+    Then the step should succeed
+    And the expression should be true> deployment('myapp').container_spec(name: 'hello-openshift').memory_limit_raw == "512Mi"
