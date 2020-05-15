@@ -84,7 +84,6 @@ Feature: Webhook REST Related Tests
       | 123456 |
     Examples:
       | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | # @case_id OCP-12764
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author dyan@redhat.com
@@ -146,7 +145,6 @@ Feature: Webhook REST Related Tests
       | "commit"      |
     Examples:
       | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
-      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | # @case_id OCP-12763
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         | # @case_id OCP-12760
 
   # @author shiywang@redhat.com
@@ -159,25 +157,3 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
-
-  # @author shiywang@redhat.com
-  # @case_id OCP-12514
-  Scenario: Do sti build using image without tar and onbuild instruction should build successfully
-    Given I have a project
-    When I run the :new_app client command with:
-      | docker image | docker.io/aosqe/ruby-20-centos7:notar~https://github.com/openshift/ruby-hello-world.git |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
-
-  # @author shiywang@redhat.com
-  # @case_id OCP-12515
-  Scenario: Do sti build using image with onbuild instructions and without sh should build failed
-    Given I have a project
-    When I run the :new_app client command with:
-      | docker image | docker.io/aosqe/rubyonbuild:nosh~https://github.com/openshift/ruby-hello-world.git |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build finished
-    When I run the :logs client command with:
-      | resource_name | pod/ruby-hello-world-1-build |
-    And the output should contain "/bin/sh: No such file or directory"

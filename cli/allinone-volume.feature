@@ -46,28 +46,6 @@ Feature: All in one volume
       | ^644$   |
 
   # @author chezhang@redhat.com
-  # @case_id OCP-12412
-  Scenario: using a non-absolute path in volumeMounts
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-opposite-path-pod.yaml |
-    Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pod                    |
-      | name     | allinone-opposite-path |
-    Then the output should match:
-      | mount path must be absolute |
-    """
-
-  # @author chezhang@redhat.com
   # @case_id OCP-12438
   Scenario: Project secrets, configmap not explicitly defining keys for pathing within a volume
     Given I have a project

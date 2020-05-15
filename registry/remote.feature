@@ -1,6 +1,6 @@
 Feature: remote registry related scenarios
   # @author yinzhou@redhat.com
-  # @case_id OCP-10865,OCP-12069
+  # @case_id OCP-10865
   @admin
   Scenario: After Image Size Limit increment can push the image which previously over the limit
     Given I have a project
@@ -155,45 +155,6 @@ Feature: remote registry related scenarios
     Then the step should fail
     And the output should match:
       | uploading.*denied |
-
-  # @author geliu@redhat.com
-  # @case_id OCP-12959
-  @admin
-  Scenario: Strip manifest stored in etcd
-    Given I have a project
-    When I run the :import_image client command with:
-      | image_name | ruby-22-centos7        |
-      | from       | centos/ruby-22-centos7 |
-      | confirm    | true                   |
-    Then the step should succeed
-    When I run the :new_build client command with:
-      | app_repo     | https://github.com/sclorg/ruby-ex.git |
-      | image_stream | ruby-22-centos7                          |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | openshift.io/build.name=ruby-ex-1 |
-    Given the "ruby-ex" image stream becomes ready
-    And evaluation of `image_stream("ruby-ex").latest_tag_status.imageref.name` is stored in the :image_id clipboard
-    When I run the :get admin command with:
-      | resource      | image              |
-      | o             | yaml               |
-      | resource_name | <%= cb.image_id %> |
-    Then the step should succeed
-    Then the output should not match:
-      | .*dockerImageManifest:.* |
-    Given I use the first master host
-    Given I store the default registry scheme to the :registry_scheme clipboard
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.cached_tokens.first %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/latest --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
-    Then the step should succeed
-    And the output should match:
-      |.*blobSum.*|
-    And I run commands on the host:
-      | curl -u <%=user.name %>:<%= user.cached_tokens.first %>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/ruby-ex/manifests/<%= cb.image_id %> --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
-    Then the step should succeed
-    And the output should match:
-      |.*blobSum.*|
 
   # @author geliu@redhat.com
   # @case_id OCP-15107

@@ -65,64 +65,6 @@ Feature: Network policy plugin scenarios
 
 
   # @author bmeng@redhat.com
-  # @case_id OCP-12803
-  @admin
-  @destructive
-  Scenario: Set networkpolicy to project which does not have the annoation will not take effect
-    # create project and pods
-    Given I have a project
-    And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
-    Then the step should succeed
-    Given 2 pods become ready with labels:
-      | name=test-pods |
-
-    # create another project and pods
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
-    Then the step should succeed
-    Given 2 pods become ready with labels:
-      | name=test-pods |
-
-    # check the openflow rules
-    Given I select a random node's host
-    When I run the ovs commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
-    Then the step should succeed
-    And the output should not contain "reg0=0x"
-
-    # apply network policy to project which does not have the annotation
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
-      | n | <%= cb.proj1 %> |
-    Then the step should succeed
-
-    # check the openflow rules
-    Given I select a random node's host
-    When I run the ovs commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
-    Then the step should succeed
-    And the output should not contain "reg0=0x"
-
-    # apply network policy to project which does not have the annotation
-    Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
-      | n | <%= cb.proj2 %> |
-    Then the step should succeed
-
-    # check the openflow rules
-    Given I select a random node's host
-    When I run the ovs commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
-    Then the step should succeed
-    And the output should contain "reg0=0x"
-
-  # @author bmeng@redhat.com
   # @case_id OCP-12804
   @admin
   Scenario: Use networkpolicy plugin with "allow local connections" policy

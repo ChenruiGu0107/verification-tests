@@ -12,29 +12,6 @@ Feature: buildconfig.feature
     Then the step should fail
     And the output should contain "not found"
 
-  # @author xiazhao@redhat.com
-  # @case_id OCP-12442
-  Scenario: Do incremental builds for sti-build in openshift
-    Given I have a project
-    And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc482207/bc.json |
-    Then the step should succeed
-    And the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    # Test clean build firstly
-    When I run the :build_logs client command with:
-      | build_name      | ruby-sample-build-1 |
-    Then the output should match "Clean build will be performed"
-    # Test incremental build secondly
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    And the "ruby-sample-build-2" build was created
-    And the "ruby-sample-build-2" build completed
-    When I run the :build_logs client command with:
-      | build_name      | ruby-sample-build-2 |
-    Then the output should match "Saving build artifacts from image"
-
   # @author cryan@redhat.com
   # @case_id OCP-10606
   Scenario: STI build with imageStreamImage in buildConfig
@@ -148,26 +125,6 @@ Feature: buildconfig.feature
     And the "ruby-ex-2" build was created
 
   # @author wzheng@redhat.com
-  # @case_id OCP-12016
-  Scenario: S2I build failure reason display if use incorrect runtime image
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/invalid_runtime_image.json |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | extended-build-from-repo |
-    Then the step should succeed
-    When the "extended-build-from-repo-1" build failed
-    And I run the :get client command with:
-      | resource | build |
-    Then the output should contain:
-      | GenericS2IBuildFailed |
-    When I run the :describe client command with:
-      | resource | build |
-    Then the output should contain:
-      | BuildFailed |
-
-  # @author wzheng@redhat.com
   # @case_id OCP-11690
   Scenario: S2I build failure reason display if use incorrect assemble script
     Given I have a project
@@ -186,28 +143,6 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the output should match:
       | [Ff]ail |
-
-  # @author wzheng@redhat.com
-  # @case_id OCP-12837
-  Scenario: S2I extended build failure reason display if use incorrect sourcePath
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/invalid_sourcePath.json |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | extended-build-from-repo |
-    Then the step should succeed
-    When the "extended-build-from-repo-1" build failed
-    And I run the :get client command with:
-      | resource | build |
-    Then the step should succeed
-    And the output should contain:
-      | FetchRuntimeArtifactsFailed |
-    When I run the :describe client command with:
-      | resource | build |
-    Then the step should succeed
-    And the output should contain:
-      | Failed to fetch specified runtime artifacts |
 
   # @author dyan@redhat.com
   # @case_id OCP-14476

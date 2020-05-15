@@ -1,52 +1,4 @@
 Feature: Configuration of environment variables check
-
-  # @author xiuwang@redhat.com
-  # @case_id OCP-12646 OCP-12647
-  Scenario Outline: Check environment variables of ruby-20 image
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-<os>.json |
-      | n | <%= project.name %> |
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-env-sti.json |
-    Then the step should succeed
-    Given I wait for the "frontend" service to become ready up to 300 seconds
-    When I run the :describe client command with:
-      | resource | build |
-      | name | ruby-sample-build-1 |
-    Then the step should succeed
-    And the output should contain "<image>"
-    When I execute on the pod:
-      | env |
-    Then the step should succeed
-    And the output should contain:
-      | RACK_ENV=production            |
-      | RAILS_ENV=production           |
-      | DISABLE_ASSET_COMPILATION=true |
-    Examples:
-      | os | image |
-      | rhel7   | <%= product_docker_repo %>openshift3/ruby-20-rhel7 |
-    #| centos7 | docker.io/openshift/ruby-20-centos7 |
-
-  # @author xiuwang@redhat.com
-  Scenario Outline: Check environment variables of perl image
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/<template> |
-    Then the step should succeed
-    Given I wait for the "frontend" service to become ready up to 300 seconds
-    And I get the service pods
-    When I execute on the pod:
-      | env |
-    Then the step should succeed
-    And the output should contain:
-      | ENABLE_CPAN_TEST=on |
-      | CPAN_MIRROR=        |
-    Examples:
-      | template                       |
-      | perl516rhel7-env-sti.json      | # @case_id OCP-12648
-      | perl-516-centos7-stibuild.json | # @case_id OCP-12649
-
   # @author wzheng@redhat.com
   Scenario Outline: Configuration of enviroment variables check
     Given I have a project
@@ -73,7 +25,6 @@ Feature: Configuration of environment variables check
       | PHP_INI_SCAN_DIR=/opt/rh/php55/root/etc/ |
     Examples:
       | template                     |
-      | php-55-rhel7-stibuild.json   | # @case_id OCP-12645
       | php-55-centos7-stibuild.json | # @case_id OCP-9599
 
   # @author wewang@redhat.com
@@ -188,7 +139,6 @@ Feature: Configuration of environment variables check
     Examples:
       | imagestream        |
       | openshift/ruby:2.2 | # @case_id OCP-11784
-      | openshift/ruby:2.3 | # @case_id OCP-12424
 
   # @author haowang@redhat.com
   # @case_id OCP-13141

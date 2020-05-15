@@ -13,6 +13,4 @@ Feature: nodejs.feature
     Then the output should contain "npm ERR"
     Examples:
       | image |
-      | 0.10  | # @case_id OCP-12183
-      | 4     | # @case_id OCP-12231
       | 6     | # @case_id OCP-13516

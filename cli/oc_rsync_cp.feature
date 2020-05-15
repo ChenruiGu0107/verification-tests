@@ -36,7 +36,6 @@ Feature: oc_rsync.feature
     And the output should contain "test1"
     Examples:
       | strategy     |
-      | tar          | # @case_id OCP-12054
       | rsync        | # @case_id OCP-11763
 
   # @author cryan@redhat.com
@@ -89,47 +88,7 @@ Feature: oc_rsync.feature
     Given the "test/testfile3" file is not present
     Examples:
       | strategy     |
-      | tar          | # @case_id OCP-12320
       | rsync        | # @case_id OCP-12257
-      | rsync-daemon | # @case_id OCP-12293
-
-  # @author cryan@redhat.com
-  # @case_id OCP-12208
-  Scenario: Copying files from host to one of multi-containers using oc rsync comand --container option
-    Given I have a project
-    Given I create the "test" directory
-    Given a "test/testfile1" file is created with the following lines:
-    """
-    Hello, World! 1
-    """
-    And a "test/testfile2" file is created with the following lines:
-    """
-    Hello, World! 2
-    """
-    When I run the :new_app client command with:
-      | docker_image | aosqe/scratch:tarrsync                      |
-      | docker_image | aosqe/scratch:latest                        |
-      | group        | aosqe/scratch:tarrsync+aosqe/scratch:latest |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deployment=scratch-1 |
-    When I run the :rsync client command with:
-      | source      | <%= localhost.workdir %>/test |
-      | destination | <%= pod.name %>:/tmp          |
-      | c           | scratch                       |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -ltr | /tmp/test |
-    Then the step should succeed
-    And the output should contain:
-      | testfile1 |
-      | testfile2 |
-    When I execute on the pod:
-      | cat | /tmp/test/testfile1 | /tmp/test/testfile2 |
-    Then the step should succeed
-    And the output should contain:
-      | Hello, World! 1 |
-      | Hello, World! 2 |
 
   # @author wewang@redhat.com
   # @case_id OCP-10833

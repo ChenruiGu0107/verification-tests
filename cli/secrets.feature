@@ -63,56 +63,6 @@ Feature: secrets related scenarios
     And the output should contain:
       |  limit |
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-12254
-  Scenario: Create new secrets for basic authentication
-    Given I have a project
-    When I run the :secrets_new_basicauth client command with:
-      |secret_name |testsecret |
-      |username    |tester     |
-      |password    |password   |
-    Then the step should succeed
-    When I run the :get client command with:
-      |resource      |secrets    |
-      |resource_name |testsecret |
-      |o             |yaml       |
-    Then the step should succeed
-    And the output should contain:
-      |password:|
-      |username:|
-    When I obtain test data file "cases/508970/ca.crt"
-    When I run the :secrets_new_basicauth client command with:
-      |secret_name |testsecret2 |
-      |username    |tester      |
-      |password    |password    |
-      |cafile      |ca.crt      |
-    Then the step should succeed
-    When I run the :get client command with:
-      |resource      |secrets     |
-      |resource_name |testsecret2 |
-      |o             |yaml        |
-    Then the step should succeed
-    And the output should contain:
-      |password:|
-      |username:|
-      |ca.crt:  |
-    When I obtain test data file "cases/508970/.gitconfig"
-    When I run the :secrets_new_basicauth client command with:
-      |secret_name |testsecret3 |
-      |username    |tester      |
-      |password    |password    |
-      |cafile      |ca.crt      |
-      |gitconfig   |.gitconfig  |
-    Then the step should succeed
-    When I run the :get client command with:
-      |resource      |secrets     |
-      |resource_name |testsecret3 |
-      |o             |yaml        |
-    Then the step should succeed
-    And the output should contain:
-      |.gitconfig:|
-      |ca.crt:    |
-
   # @author xxia@redhat.com
   # @case_id OCP-11731
   Scenario: There should be a dockcfg secret generated automatically based on the serviceaccount token

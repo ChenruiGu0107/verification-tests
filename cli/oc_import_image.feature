@@ -35,31 +35,6 @@ Feature: oc import-image related feature
       | The import completed successfully           |
       | latest.+aosqe/hello-openshift@sha256:       |
 
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-12062
-  Scenario: oc import-image should take the new api endpoint to run imports instead of clearing the annotation
-    Given I have a project
-    When I run the :tag client command with:
-      | source_type | docker                           |
-      | source      | openshift/hello-openshift:latest |
-      | dest        | <%= project.name %>/ho:latest    |
-    Then the output should match:
-      | [Tt]ag ho:latest |
-    Given I wait up to 15 seconds for the steps to pass:
-    """
-    When I get project is named "ho" as YAML
-    Then the output should match:
-      | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
-    """
-    When I run the :import_image client command with:
-      | image_name | ho |
-      | loglevel   | 6  |
-    Then the output should contain:
-      | /v1/namespaces/<%= project.name %>/imagestreams/ho |
-    When I get project is named "ho" as YAML
-    Then the output should match:
-      | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
-
   # @author geliu@redhat.com
   # @case_id OCP-14269
   Scenario: Set owner refs in new RCs owned by DCs

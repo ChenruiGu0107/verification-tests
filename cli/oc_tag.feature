@@ -1,58 +1,4 @@
 Feature: oc tag related scenarios
-
-  # @author xxia@redhat.com
-  Scenario Outline: Tag an image into image stream
-    Given I have a project
-    When I run the :tag client command with:
-      | source_type  | docker                     |
-      | source       | docker.io/library/busybox:latest   |
-      | dest         | mystream:latest            |
-    Then the step should succeed
-    # Cucumber runs steps fast. Need wait for the istag so that it really can be referenced by following steps
-    And I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource      | istag             |
-      | resource_name | mystream:latest   |
-    Then the step should succeed
-    """
-
-    When I run the :get client command with:
-      | resource      | istag             |
-      | resource_name | mystream:latest   |
-      | template      | {{.image.metadata.name}}   |
-    Then the step should succeed
-    And evaluation of `"mystream@" + @result[:response]` is stored in the :src clipboard
-
-    When I run the :tag client command with:
-      | source_type  | <source_type>              |
-      | source       | <source>                   |
-      | dest         | <deststream>:tag           |
-      | alias        | true                       |
-    Then the step should succeed
-
-    # Same reason as above. Need wait, instead of one-time check
-    And I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource      | istag             |
-      | resource_name | <deststream>:tag  |
-    Then the step should succeed
-    """
-    When I run the :get client command with:
-      | resource      | is                |
-      | resource_name | <deststream>      |
-      | o             | yaml              |
-    Then the step should succeed
-    And the output should contain:
-      | from:                             |
-      |   kind: <kind>                    |
-      |   name: <source>                  |
-
-    Examples: Tag into imagestream that exists
-      | case_id | source_type | source                            | deststream | kind             |
-      | 492279  | docker      | docker.io/library/busybox:latest  | mystream   | DockerImage      | # @case_id OCP-12038
-
   # @author cryan@redhat.com
   # @case_id OCP-9864
   # @bug_id 1304109
@@ -156,18 +102,3 @@ Feature: oc tag related scenarios
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=deadbeef533103 |
-
-  # @author yinzhou@redhat.com
-  # @case_id OCP-12212
-  @admin
-  Scenario: The image import controller should only import the necessary tag for specific docker image
-    Given I have a project
-    When I run the :tag client command with:
-      | source_type  | docker                            |
-      | source       | aosqe/ssh-git-server:git-20150525 |
-      | dest         | ssh-git-server:git-20150525       |
-      | insecure     | true                              |
-    Then the step should succeed
-    When I get project is named "ssh-git-server" as YAML
-    And the expression should be true> @result[:parsed]['spec']['tags'].size == 1
-

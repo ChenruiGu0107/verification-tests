@@ -134,27 +134,6 @@ Feature: config related scenarios
       | http://pig.org:8080 |
 
   # @author pruan@redhat.com
-  # @case_id OCP-12527
-  Scenario: set credentials in config file
-    Given I have a project
-    When I run the :config_set_creds client command with:
-      | name | tc470725           |
-      | token            | tc470725-token-old |
-    Then the step should succeed
-    When I run the :config_view client command
-    And the output is parsed as YAML
-    Then the expression should be true> @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-old'}
-    When I run the :config_set_creds client command with:
-      | name | tc470725           |
-      | token            | tc470725-token-new |
-    Then the step should succeed
-    When I run the :config_view client command
-    And the output is parsed as YAML
-    Then the expression should be true> @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-new'}
-    # make sure we have replaced the old one and not just add the new along with the old
-    And the expression should be true> not @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-old'}
-
-  # @author pruan@redhat.com
   # @case_id OCP-12531
   Scenario: Setup context and switch to use different context
     Given I have a project

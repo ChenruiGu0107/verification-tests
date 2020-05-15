@@ -24,24 +24,6 @@ Feature:Create apps using new_app cmd feature
       | openshift/jboss-webserver30-tomcat7-openshift:1.3 | # @case_id OCP-9657
       | openshift/jboss-webserver30-tomcat8-openshift:1.3 | # @case_id OCP-9658
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-12216 OCP-12265
-  Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7
-    Given I have a project
-    When I run the :new_app client command with:
-      | template  | <buildcfg> |
-    Then the step should succeed
-    And the "<buildcfg>-1" build was created
-    And the "<buildcfg>-1" build completed
-    When I use the "<buildcfg>" service
-    Then I wait for a web server to become available via the "<buildcfg>" route
-    Then the output should contain "Welcome to your Node.js application on OpenShift"
-
-    Examples:
-      |buildcfg              |
-      |nodejs-example        |
-      |nodejs-mongodb-example|
-
   # @author wzheng@redhat.com
   # @case_id OCP-14099
   Scenario: Create Passenger app from imagestream - passenger-40-rhel7

@@ -19,54 +19,6 @@ Feature: projects related features via cli
     """
 
   # @author pruan@redhat.com
-  # @case_id OCP-12616
-  Scenario: Could not create the project with invalid name via CLI
-    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
-      | arg | new-project  |
-    Then the step should fail
-    And the output should contain:
-      | Create a new project for yourself |
-      | oc new-project NAME [--display-name=DISPLAYNAME] [--description=DESCRIPTION] [options] |
-      | error: must have exactly one argument                                                  |
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I run the :new_project client command with:
-      | project_name | <%= cb.proj_name %> |
-    Then the step should succeed
-    Given I switch to the second user
-    When I run the :new_project client command with:
-      | project_name | <%= cb.proj_name %> |
-    Then the step should fail
-    And the output should match:
-      | project.* "<%= cb.proj_name %>" already exists |
-    When I run the :new_project client command with:
-      | project_name | <%= rand_str(1,:dns) %> |
-    Then the step should fail
-    When I run the :new_project client command with:
-      | project_name | <%= rand_str(64,:dns) %> |
-    Then the step should fail
-    When I run the :new_project client command with:
-      | project_name | ALLUPPERCASE |
-    Then the step should fail
-    Then the output should contain:
-      | The ProjectRequest "ALLUPPERCASE" is invalid |
-    When I run the :new_project client command with:
-      | project_name | -abc |
-    Then the step should fail
-    And the output should contain:
-      | unknown shorthand flag: 'a' in -abc |
-    When I run the :new_project client command with:
-      | project_name | xyz- |
-    Then the step should fail
-    And the output should contain:
-      | The ProjectRequest "xyz-" is invalid |
-    When I run the :new_project client command with:
-      | project_name | $pe#cial& |
-    Then the step should fail
-    And the output should contain:
-      | The ProjectRequest "$pe#cial&" is invalid |
-
-
-  # @author pruan@redhat.com
   # @case_id OCP-12548
   Scenario: User should be able to switch projects via CLI
     Given I create a new project
@@ -92,51 +44,6 @@ Feature: projects related features via cli
       | * <%= project(0).name %>                                |
       | * <%= project(1).name %>                                |
       | * <%= project(2).name %>                                |
-
-  # @author wyue@redhat.com
-  # @case_id OCP-12029
-  @admin
-  Scenario: Should be able to create a project with valid node selector
-    # Create a project with the node label
-    Given I store the schedulable nodes in the clipboard
-    Given evaluation of `node.labels.keys.select{|key| key.include?("io/hostname")}.first` is stored in the :unique_key clipboard
-    Given evaluation of `[cb.unique_key, node.labels[cb.unique_key]].join("=")` is stored in the :node_selector clipboard
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I obtain test data file "projects/prj_with_invalid_node-selector.json"
-    And I replace lines in "prj_with_invalid_node-selector.json":
-      | "openshift.io/node-selector": "env,qa" | "openshift.io/node-selector": "<%= cb.node_selector %>" |
-      | "name": "jhou"                         | "name": "<%= cb.proj_name %>"                           |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | prj_with_invalid_node-selector.json |
-    Then the step should succeed
-    Given I register clean-up steps:
-      | admin deletes the "<%= cb.proj_name %>" project |
-      | the step should succeed                         |
-
-    When I run the :describe admin command with:
-      | resource | project             |
-      | name     | <%= cb.proj_name %> |
-    Then the output should contain:
-      | <%= cb.node_selector %> |
-    # Grant admin to user
-    When I run the :policy_add_role_to_user admin command with:
-      | role            |   admin               |
-      | user name       |   <%= user.name %>    |
-      | n               |   <%= cb.proj_name %> |
-    Then the step should succeed
-    # Create a pod in the project
-    When I use the "<%= cb.proj_name %>" project
-    And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
-    Then  the step should succeed
-    Given the pod named "hello-openshift" status becomes :running
-    # Check pod is create on the correspond node
-    When I run the :describe client command with:
-      | resource | pods            |
-      | name     | hello-openshift |
-    Then the output should contain:
-      | <%= node.name %> |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-12026
@@ -295,44 +202,6 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       |You may not request a new project via this API|
-
-  # @author xxia@redhat.com
-  # @case_id OCP-12546
-  Scenario: Should use and show the existing projects after the user login
-    Given I create 3 new projects
-    When I run the :login client command with:
-      | server   | <%= env.api_endpoint_url %>         |
-      | token    | <%= user.cached_tokens.first %>  |
-      | skip_tls_verify | true           |
-      | config   | new_config_file       |
-    Then the step should succeed
-    And the output should contain:
-      | You have access to the following projects and can switch between them with 'oc project <projectname>': |
-      | <%= @projects[0].name %> |
-      | <%= @projects[1].name %> |
-      | <%= @projects[2].name %> |
-
-    # 'Using project "<project>" uses the alphabetically least project name when config is newly created
-    # So can not be hard coded as <%= project.name %>
-    And the output should match:
-      | Using project "(<%= @projects[0].name %>\|<%= @projects[1].name %>\|<%= @projects[2].name %>)" |
-
-    When I switch to the second user
-    # Due to FW, to cover bug 1263562, script must use --config=<the same file> for oc login here
-    And I run the :login client command with:
-      | token    | <%= user.cached_tokens.first %>  |
-      | config   | new_config_file       |
-    Then the step should succeed
-    And the output should contain:
-      | You don't have any projects. You can try to create a new project |
-
-    #  Similarly, use --config=<the same file> here
-    When I run the :config_view client command with:
-      | config   | new_config_file       |
-    Then the step should succeed
-    And the output should match:
-      |   name: .+/.+/<%= user(0, switch: false).name %> |
-      | current-context: /.+/<%= user.name %>            |
 
   # @author xxia@redhat.com
   # @case_id OCP-10350

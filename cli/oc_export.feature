@@ -81,61 +81,7 @@ Feature: oc exports related scenarios
 
     Examples:
       | tool     |
-      | oc       | # @case_id OCP-12576
       | kubectl  | # @case_id OCP-21063
-
-  # @author pruan@redhat.com
-  # @case_id OCP-12577
-  Scenario: Export resource as template format by oc export
-    Given I have a project
-    And I run the :create client command with:
-      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
-    Then the step should succeed
-    And I create a new application with:
-      | template | php-helloworld-sample |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource | service |
-    Then the step should succeed
-    And the output should contain:
-      | database |
-      | frontend |
-    And I run the :get client command with:
-      | resource | dc |
-    Then the step should succeed
-    And the output should match:
-      | database.*[Cc]onfig           |
-      | frontend.*[Cc]onfig.*[Ii]mage |
-    And I run the :export client command with:
-      | resource | svc |
-      | name     | frontend |
-    Then the step should succeed
-    And the output should contain:
-      | template: application-template-stibuild |
-    And I run the :export client command with:
-      | resource | svc |
-      | l | template=application-template-stibuild |
-    Then the step should succeed
-    And the output should contain:
-      | template: application-template-stibuild |
-    And evaluation of `@result[:response]` is stored in the :export_via_filter clipboard
-    And I run the :export client command with:
-      | resource | svc |
-    And evaluation of `@result[:response]` is stored in the :export_all clipboard
-    Given I save the response to file> export_all.yaml
-    Then the expression should be true> cb.export_via_filter == cb.export_all
-    When I delete the project
-    Then the step should succeed
-    And I create a new project
-    And I run the :create client command with:
-      | f | export_all.yaml |
-    Then the step should succeed
-    And I run the :get client command with:
-      | resource | service |
-    Then the step should succeed
-    And the output should contain:
-      | database |
-      | frontend |
 
   # @author pruan@redhat.com
   # @case_id OCP-12594
@@ -166,21 +112,3 @@ Feature: oc exports related scenarios
     Then the step should fail
     And the output should match:
       | error: .*output format "xyz".* |
-
-  # @author pruan@redhat.com
-  # @case_id OCP-12598
-  Scenario: Convert a file to specific version by oc export
-    Given I have a project
-    When I run the :export client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1v1beta3.json |
-      | output_version | v1 |
-      | output_format  | json |
-    Given I save the response to file> export_489300_a.json
-    And I run the :create client command with:
-      | f | export_489300_a.json |
-    Then the step should succeed
-    When I run the :export client command with:
-      | f | export_489300_a.json |
-      | output_version | v1beta3 |
-      | output_format | json |
-    Then the step should succeed

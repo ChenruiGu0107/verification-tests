@@ -381,20 +381,6 @@ Feature: storageClass related feature
     And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc1-<%= project.name %>"
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-12872
-  @admin
-  @destructive
-  Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation and no default storageclass
-    Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class == nil
-    And the expression should be true> pv(pvc.volume_name).storage_class_name == nil
-
-  # @author chaoyang@redhat.com
   # @case_id OCP-12873
   @admin
   Scenario: Check storageclass info pv and pvc requested when pvc is using beta annotation

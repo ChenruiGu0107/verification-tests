@@ -206,31 +206,3 @@ Feature: groups and users related features
       | n        | <%= cb.project2 %> |
     Then the step should fail
     And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
-
-  # @author scheng@redhat.com
-  # @case_id OCP-12132
-  @admin
-  Scenario: Cluster-admin can add and remove groups for user object
-    Given I restore user's context after scenario
-    And a 5 character random string is stored into the :group_name clipboard
-    And admin ensures "<%= cb.group_name %>" groups is deleted after scenario
-    Given I have a project
-    And evaluation of `user.name` is stored in the :user_name clipboard
-    Given I run the :oadm_groups_new admin command with:
-      | group_name | <%= cb.group_name %> |
-    Then the step should succeed
-    When I run the :patch admin command with:
-      | resource      | user                |
-      | resource_name | <%= cb.user_name %> |
-      | p             | {"groups": ["a:b"]} |
-    Then the step should fail
-    When I run the :patch admin command with:
-      | resource      | user                |
-      | resource_name | <%= cb.user_name %> |
-      | p             | {"groups": ["a%b"]} |
-    Then the step should fail
-    When I run the :patch admin command with:
-      | resource      | user                                 |
-      | resource_name | <%= cb.user_name %> |
-      | p             | {"groups": ["<%= cb.group_name %>"]} |
-    Then the step should succeed

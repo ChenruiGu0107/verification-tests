@@ -51,17 +51,3 @@ Feature: project permissions
     Then the step should fail
     And the output should match:
       | nvalid value.*env, |
-
-  # @author chaoyang@redhat.com
-  # @case_id OCP-12128
-  @admin
-  Scenario: Could not create a project with invalid node-selector
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %> |
-      | node_selector | env,qa              |
-      | admin         | <%= user.name %>    |
-    Then the step should fail
-    And the output should match:
-      | [Ii]nvalid value.*env,qa |
-

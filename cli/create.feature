@@ -64,21 +64,6 @@ Feature: creating 'apps' with CLI
       | supplementalGroups: |
       | - 0 |
 
-  # @author cryan@redhat.com
-  # @case_id OCP-12379
-  Scenario: User can expose the environment variables to pods
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc467937/pod467937.yaml |
-    Then the step should succeed
-    Given the pod named "kubernetes-metadata-volume-example" becomes ready
-    When I execute on the pod:
-      | ls | -laR | /etc |
-    Then the step should succeed
-    And the output should contain:
-      | annotations -> |
-      | labels -> |
-
   # @author pruan@redhat.com
   # @case_id OCP-10722
   @admin
@@ -172,32 +157,6 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     When I get project pods named "hello-pod"
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000
-
-  # @author mcurlej@redhat.com
-  # @case_id OCP-12260
-  @smoke
-  Scenario: Create and update the docker images tag from remote repositories via api
-    Given I have a project
-    When I run oc create over ERB test file: cli/tc519471/image-stream-tag.json
-    Then the step should succeed
-    # Add wait step to avoid the async delay
-    And I wait for the steps to pass:
-    """
-    I get project istag
-    the step should succeed
-    the output should contain:
-      |<%= product_docker_repo %>rhel7.2|
-    """
-    When I run oc create over ERB test file: cli/tc519471/image-stream-tag-update.json
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    I get project istag
-    the step should succeed
-    the output should contain:
-      | registry.access.redhat.com/rhel7.1 |
-      | registry.access.redhat.com/rhel7.2 |
-    """
 
   # @author cryan@redhat.com
   # @case_id OCP-12240
@@ -324,21 +283,6 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the output should contain:
       | resourcequota/myquota |
-
-  # @author wmeng@redhat.com
-  # @case_id OCP-12014
-  Scenario: Opaque integer resources requests invalid value
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_requests1.yaml |
-    Then the step should fail
-    And the output should contain:
-      | must be an integer |
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/opaque_integer_resources/pod_invailid_requests2.yaml |
-    Then the step should fail
-    And the output should contain:
-      | must be greater than or equal to 0 |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11577

@@ -1,21 +1,4 @@
 Feature: login related scenario
-  # @author xxing@redhat.com
-  # @case_id OCP-12118
-  Scenario: The page should reflect to login page when access session protected pages after failed log in
-    Given I log the message> this auto script is not suitable for allow_all/github/google auth env
-    Given I have a project
-    When I perform the :login web console action with:
-      | username | <%= rand_str(6, :dns) %> |
-      | password | <%= rand_str(6, :dns) %> |
-      | _nologin | true                     |
-    Then the step should fail
-    When I get the html of the web page
-    Then the output should contain:
-      | Invalid login or password. Please try again |
-    When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "Login"
-    And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
-
   # @author yapei@redhat.com
   # @case_id OCP-17141
   Scenario: Check oauth-proxy login ui

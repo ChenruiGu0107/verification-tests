@@ -13,7 +13,6 @@ Feature: oc logs related features
 
     Examples:
       | warning                                                        |
-      | resource name may not be empty                                 | # @case_id OCP-12017
       | You must provide one or more resources by argument or filename | # @case_id OCP-17383
 
   # @author xxia@redhat.com

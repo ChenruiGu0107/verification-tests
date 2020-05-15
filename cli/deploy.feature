@@ -509,37 +509,6 @@ Feature: deployment related features
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation >= 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
 
-  # @author mcurlej@redhat.com
-  # @case_id OCP-12079
-  Scenario: View the history of rollouts for a specific deployment config
-    Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
-    Then the step should succeed
-    And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :set_env client command with:
-      | resource | dc/deployment-example |
-      | e        | TEST=1                |
-    Then the step should succeed
-    And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :rollout_history client command with:
-      | resource      | dc                 |
-      | resource_name | deployment-example |
-    Then the step should succeed
-    And the output should contain:
-      | image change  |
-      | config change |
-    When I run the :rollout_history client command with:
-      | resource      | dc                 |
-      | resource_name | deployment-example |
-      | revision      | 2                  |
-    Then the step should succeed
-    And the output should match:
-      | revision     |
-      | Labels:      |
-      | Containers:  |
-      | Annotations: |
-
   # @author pruan@redhat.com
   # @case_id OCP-11973
   Scenario: Support MinReadySeconds in DC

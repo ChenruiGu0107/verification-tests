@@ -183,22 +183,6 @@ Feature: InitContainers
       | success         |
 
   # @author wmeng@redhat.com
-  # @case_id OCP-12882
-  Scenario: Init containers are supported in annotation field beta in OCP3.6
-  # Given the master version == "3.6"
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/pod-init-containers-beta.yaml |
-    Then the step should succeed
-    Given the pod named "init-beta" becomes ready
-    Then I run the :describe client command with:
-      | resource | pod       |
-      | name     | init-beta |
-    And the output should match:
-      | Init Containers |
-      | success         |
-
-  # @author wmeng@redhat.com
   # @case_id OCP-12918
   Scenario: QoS Tier for pod with init containers
   # Given the master version >= "3.6"

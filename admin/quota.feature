@@ -465,55 +465,6 @@ Feature: Quota related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id OCP-12821
-  @admin
-  @destructive
-  Scenario: Precious resources should be restrained if they are covered in quota and configured on the master
-    # Modify master-config to set default resource limits
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginConfig:
-        ResourceQuota:
-          configuration:
-            apiVersion: resourcequota.admission.k8s.io/v1alpha1
-            kind: Configuration
-            limitedResources:
-            - resource: persistentvolumeclaims
-              matchContains:
-              - .storageclass.storage.k8s.io/requests.storage
-    """
-    And the master service is restarted on all master nodes
-    Given I have a project
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-precious-resource.yaml |
-      | n | <%= project.name %>                                                                      |
-    Then the step should succeed
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json |
-      | n | <%= project.name %>                                                                |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | quota                   |
-      | name     | quota-precious-resource |
-    Then the output should match:
-      | persistentvolumeclaims\\s+1\\s+10                               |
-      | requests.storage\\s+2Gi\\s+50Gi                                 |
-      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/quota/pvc-storage-class.json" replacing paths:
-      | ["metadata"]["name"] | pvc-storage-class-2 |
-    Then the step should fail
-    And the output should contain:
-      | exceeded quota: quota-precious-resource, requested: gold.storageclass.storage.k8s.io/requests.storage=2Gi, used: gold.storageclass.storage.k8s.io/requests.storage=2Gi, limited: gold.storageclass.storage.k8s.io/requests.storage=3Gi |
-    When I run the :describe client command with:
-      | resource | quota                   |
-      | name     | quota-precious-resource |
-    Then the output should match:
-      | persistentvolumeclaims\\s+1\\s+10                               |
-      | requests.storage\\s+2Gi\\s+50Gi                                 |
-      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
-
-  # @author qwang@redhat.com
   # @case_id OCP-11427
   @admin
   Scenario: Only PVC matches a suffix name of storage class can consume its corresponding specified quota

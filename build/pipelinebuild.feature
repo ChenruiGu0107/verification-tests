@@ -281,30 +281,6 @@ Feature: pipelinebuild.feature
     And the "bluegreen-pipeline-2" build completed
 
   # @author wewang@redhat.com
-  # @case_id OCP-12842
-  @admin
-  @destructive
-  Scenario: Trigger new Jenkins pipeline build after restarting openshift master api service
-    Given I have a project
-    And I have a jenkins v2 application
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "nodejs" slave image for jenkins 2 server
-    And I run the :start_build client command with:
-      | buildconfig | sample-pipeline |
-    Then the step should succeed
-    Then the "sample-pipeline-1" build completed
-    And I try to restart the master service on all master nodes
-    Then the step should succeed
-    And I run the :start_build client command with:
-      | buildconfig | sample-pipeline |
-    Then the step should succeed
-    Then the "sample-pipeline-2" build completed
-
-  # @author wewang@redhat.com
   # @case_id OCP-18498
   Scenario: Start a few pipeline builds and removing one Build object in openshift
     Given the master version >= "3.10"

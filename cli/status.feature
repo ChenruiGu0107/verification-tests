@@ -38,43 +38,6 @@ Feature: Check status via oc status, wait etc
       |build.*2.*fail|
 
 
-  # @author cryan@redhat.com
-  # @case_id OCP-12478
-  Scenario: Show Project.Status when listing the project
-    Given I have a project
-    When I create a new application with:
-      | image_stream | ruby         |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
-    # TODO: cryan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
-    Then I wait for the "myapp" service to be created
-    When I run the :get client command with:
-      | resource | projects |
-    Then the step should succeed
-    And the output should match "<%= project.name %>\s+Active"
-    When I run the :status client command
-    Then the step should succeed
-    And the output should contain "In project <%= project.name %> on server"
-
-    When I run the :delete background client command with:
-      | object_type | projects |
-      | object_name_or_id | <%= project.name %> |
-    Then the step should succeed
-
-    And I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | projects |
-    Then the step should succeed
-    And the output should match "<%= project.name %>\s+Terminating"
-    """
-    When I create a new application with:
-      | image_stream | ruby         |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
-    Then the step should fail
-
-
   # @author yapei@redhat.com
   # @case_id OCP-10650
   Scenario: Indicate when build failed to push in 'oc status'

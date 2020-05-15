@@ -1,17 +1,4 @@
 Feature: oc related features
-  # @author pruan@redhat.com
-  # @case_id OCP-12362
-  Scenario: Check the help page of oc edit
-    When I run the :edit client command with:
-      | help | true |
-    Then the output should contain:
-      | Edit a resource from the default editor |
-      | The edit command allows you to directly edit any API resource you can retrieve via the |
-      | command line tools. It will open the editor defined by your OC_EDITOR, GIT_EDITOR,     |
-      | or EDITOR environment variables, or fall back to 'vi' for Linux or 'notepad' for Windows. |
-      | Usage:                                                                                    |
-      | oc edit (RESOURCE/NAME \| -f FILENAME) [options] |
-
   # @author cryan@redhat.com
   # @case_id OCP-9577
   Scenario: Check --list/-L option for new-app

@@ -79,51 +79,6 @@ Feature: Testing registry
       | docker://<%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
 
-  # @author yinzhou@redhat.com
-  # @case_id OCP-12008
-  @admin
-  @destructive
-  Scenario: When mirror fails should not affect the pullthrough operation
-    Given default docker-registry deployment config is restored after scenario
-    Given I switch to cluster admin pseudo user
-    Given SCC "privileged" is added to the "registry" service account
-    And I run the :set_volume admin command with:
-      | resource    | dc/docker-registry |
-      | add         | true               |
-      | name        | registry-storage   |
-      | mount-path  | /registry          |
-      | type        | hostPath           |
-      | path        | /home/test         |
-      | overwrite   |                    |
-      | namespace   | default            |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | deploymentconfig=docker-registry |
-    Given I switch to the first user
-    And I have a project
-    When I run the :tag client command with:
-      | source_type | docker                  |
-      | source      | openshift/origin:latest |
-      | dest        | mystream:latest         |
-    Then the step should succeed
-    Given I find a bearer token of the builder service account
-    And default registry service ip is stored in the :registry_ip clipboard
-    And I have a skopeo pod in the project
-    And master CA is added to the "skopeo" dc
-    When I execute on the pod:
-      | skopeo                     |
-      | --debug                    |
-      | --insecure-policy          |
-      | inspect                    |
-      | --cert-dir                 |
-      | /opt/qe/ca                 |
-      | --creds                    |
-      | dnm:<%= service_account.cached_tokens.first %>  |
-      | docker://<%= cb.registry_ip %>/<%= project.name%>/mystream:latest |
-    Then the step should succeed
-    And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
-    And all the image layers in the :layers clipboard do not exist in the registry
-
   # @author wzheng@redhat.com
   # @case_id OCP-17167
   @admin

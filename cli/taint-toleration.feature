@@ -168,52 +168,6 @@ Feature: taint toleration related scenarios
     Given the pod named "toleration-1" becomes ready
 
   # @author chezhang@redhat.com
-  # @case_id OCP-12811
-  @admin
-  @destructive
-  Scenario: Start kubelet with taint
-    Given I have a project
-    Given I select a random node's host
-    When I run the :delete admin command with:
-      | object_type       | node             |
-      | object_name_or_id | <%= node.name %> |
-    Then the step should succeed
-    Given I register clean-up steps:
-    """
-    When I run the :delete admin command with:
-      | object_type       | node             |
-      | object_name_or_id | <%= node.name %> |
-    Then the step should succeed
-    When I try to restart the node service on node
-    Then the step should succeed
-    """
-    Given node config is merged with the following hash:
-    """
-    kubeletArguments:
-      register-with-taints:
-      - "node.alpha.kubernetes.io/ismaster=:NoSchedule"
-    """
-    When I try to restart the node service on node
-    When I run the :describe admin command with:
-      | resource | node             |
-      | name     | <%= node.name %> |
-    Then the step should succeed
-    And the output should match:
-      | Taints:\\s+node.alpha.kubernetes.io/ismaster:NoSchedule |
-    Given node config is merged with the following hash:
-    """
-    kubeletArguments:
-      register-with-taints:
-      - "node.alpha.kubernetes.io/ismaster=no:invalid"
-    """
-    And I try to restart the node service on node
-    Then the step should fail
-    Given I use the "<%= node.name %>" node
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep -i "Invalid.*node.alpha.kubernetes.io/ismaster=no:invalid.*" |
-    Then the step should succeed
-
-  # @author chezhang@redhat.com
   # @case_id OCP-13647
   @admin
   @destructive
