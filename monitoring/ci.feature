@@ -265,4 +265,40 @@ Feature: Install and configuration related scenarios
       | o             | yaml           |
     Then the output should contain:
       | storage.tsdb.retention.time=3h |
-    
+
+  # @author juzhao@redhat.com
+  # @case_id OCP-28866
+  @admin
+  @destructive
+  Scenario: Adding additional metadata to your time-series
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    #create cluster-monitoring-config configmap
+    When I run the :apply client command with:
+      | f          | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/externalLabels.yaml |
+      | overwrite  | true |
+    Then the step should succeed
+
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    # query Watchdog alerts
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://alertmanager-main.openshift-monitoring.svc:9094/api/v2/alerts?filter={alertname="Watchdog"} |
+
+    Then the step should succeed
+    And the output should contain:
+      | "region":"unknown"      |
+      | "environment":"testing" |
+    """
