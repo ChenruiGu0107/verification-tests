@@ -6,7 +6,7 @@ Feature: alerts browser
   Scenario: Expire silence from alert details page
     Given the master version >= "4.2"
     Given I open admin console in a browser
-    And the first user is cluster-admin
+    And I switch to cluster admin pseudo user
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -184,7 +184,7 @@ Feature: alerts browser
     Then the step should succeed
 
   # @author hongyli@redhat.com
-  # @case_id OCP-21131
+  # @case_id OCP-21131,OCP-21148
   @admin
   Scenario: List all silences and could filter silences by state
     Given the master version >= "4.0"
@@ -274,3 +274,50 @@ Feature: alerts browser
     And I click the following "button" element:
       | text | Expire Silence |
     Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-29061
+  @admin
+  Scenario: Check alerting rules list page
+    Given the master version >= "4.5"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    When I perform the :open_alertrules_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I perform the :click_alertrule_expression web action with:
+      | expression | vector(1) |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-29300
+  @admin
+  Scenario: fields of silence alert
+    Given the master version >= "4.5"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #Prepare a silenced alert
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :silence_alert_from_detail_check_fields web action
+    Then the step should succeed
+    When I run the :edit_silence_alert web action
+    Then the step should succeed
+    When I run the :check_silence_fields web action
+    Then the step should succeed
+    And I click the following "button" element:
+      | text | Cancel |
+    Then the step should succeed
+    #Expire silence to restore environment
+    When I run the :expire_alert_from_actions web action
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+    
