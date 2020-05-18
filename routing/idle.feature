@@ -57,46 +57,6 @@ Feature: idle service related scenarios
       | KUBE-SVC-.+ .* -j KUBE-SEP-.+                                                          |
 
   # @author hongli@redhat.com
-  # @case_id OCP-13218
-  Scenario: should not return 503 errors during wakeup a pod which readiness is more than 30s
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/idle/long-readiness-pod.json |
-    Then the step should succeed
-    Given I wait until replicationController "test-rc" is ready
-    And I wait until number of replicas match "1" for replicationController "test-rc"
-    Given a pod becomes ready with labels:
-      | name=test-pods |
-    When I expose the "service-unsecure" service
-    Then the step should succeed
-    When I run the :annotate client command with:
-      | resource     | route                                   |
-      | resourcename | service-unsecure                        |
-      | keyval       | haproxy.router.openshift.io/timeout=90s |
-    Then the step should succeed
-
-    When I run the :idle client command with:
-      | svc_name | service-unsecure |
-    Then the step should succeed
-    Given I wait until number of replicas match "0" for replicationController "test-rc"
-    When I run the :get client command with:
-      | resource | endpoints |
-    Then the step should succeed
-    And the output should match:
-      | service-secure.*none |
-      | service-unsecure.*none |
-
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | time |
-      | curl |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
-    Then the output should contain "Hello-OpenShift"
-    And the output should not contain "503 Service Unavailable"
-    # check if the total spent time in range (40..89) seconds
-    And the output should match "real\s+(0m [4-5][0-9].\d+s|1m [0-2][0-9].\d+s)"
-
-  # @author hongli@redhat.com
   # @case_id OCP-20989
   Scenario: haproxy should load other routes even if headless service is idled
     Given I have a project

@@ -1,48 +1,4 @@
 Feature: scenarios related to catalog page
-  # @author xiaocwan@redhat.com
-  # @case_id OCP-13722
-  Scenario: Project guide tour message and order
-    Given the master version >= "3.6"
-    ## Start tour by getting started section
-    When I run the :click_tour_button_on_home_page web console action
-    Then the step should succeed
-    ## From first message to last message check all text and buttons, click Next and Done buttons
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 1 |
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 2 |
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 3 |
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 4 |
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 5 |
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 6 |
-    Then the step should succeed
-
-    ## start tour by top-right drop-down button
-    When I run the :click_tour_from_helper web console action
-    Then the step should succeed
-    ## check clicking Back button, clicking close button
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 1 |
-    Then the step should succeed
-    When I run the :check_tour_2nd_step_message_and_go_back web console action
-    Then the step should succeed
-    When I perform the :go_tour_guide_steps_and_check_messages web console action with:
-      | step_number | 1 |
-    Then the step should succeed
-    When I run the :click_close_x web console action
-    Then the step should succeed
-    When I perform the :check_message_step_missing web console action with:
-      | step_number | 1 |
-
   # @author yanpzhan@redhat.com
   # @case_id OCP-15066
   Scenario: Catalog should include template from another project

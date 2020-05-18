@@ -21,17 +21,3 @@ Feature: metrics diagnostics tests
     # extract all of the result id and save the names portion into an array which should be one of the node_names
     And evaluation of `YAML.load(@result[:response]).select { |r| r['id'] if r['id'].start_with? 'machine' }.map { |e| e["id"].split('machine/')[1].split('/')[0] }` is stored in the :result_names clipboard
     Then the expression should be true> cb.result_names.select {|n| cb.node_names.include? n}.count == cb.result_names.count
-
-  # @author pruan@redhat.com
-  # @case_id OCP-13082
-  @admin
-  @destructive
-  Scenario: Make sure no password exposed in process command line
-    Given the master version >= "3.5"
-    Given I create a project with non-leading digit name
-    And metrics service is installed in the system
-    And I select a random node's host
-    And I run commands on the host:
-      | ps -aux \| grep hawkular |
-    Then the output should not contain:
-      | password= |

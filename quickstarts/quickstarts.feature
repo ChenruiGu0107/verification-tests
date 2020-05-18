@@ -82,21 +82,6 @@ Feature: quickstarts.feature
       | perl:5.24  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
       | perl:5.24  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-13750
-  Scenario: Dotnet-example quickstart test with dotnet-1.1
-    Given I have a project
-    When I run the :new_app client command with:
-      | template | dotnet-example                       |
-      | p        | DOTNET_IMAGE_STREAM_TAG=dotnet:1.1   |
-      | p        | SOURCE_REPOSITORY_REF=dotnetcore-1.1 |
-    Then the step should succeed
-    And the "dotnet-example-1" build was created
-    And the "dotnet-example-1" build completed
-    And I wait for the "dotnet-example" service to become ready up to 300 seconds
-    Then I wait for a web server to become available via the "dotnet-example" route
-    Then the output should contain "ASP.NET"
-
   # @author wewang@redhat.com
   # @case_id OCP-14712
   Scenario: Httpd-example with 2.4 quick start test

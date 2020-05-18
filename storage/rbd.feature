@@ -210,60 +210,6 @@ Feature: Storage of Ceph plugin testing
       | FailedScheduling |
       | NoDiskConflict   |
 
-  # @author lizhou@redhat.com
-  # @case_id OCP-13621
-  @admin
-  Scenario: rbd volumes should be accessible by multiple pods with readonly permission
-    Given I have a StorageClass named "cephrbdprovisioner"
-    And admin checks that the "cephrbd-secret" secret exists in the "default" project
-
-    Given admin creates a project with a random schedulable node selector
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc1               |
-      | ["spec"]["storageClassName"]                 | cephrbdprovisioner |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                |
-    Then the step should succeed
-    And the "pvc1" PVC becomes :bound within 120 seconds
-    And I save volume id from PV named "<%= pvc('pvc1').volume_name %>" in the :image clipboard
-
-    Given I run the :get admin command with:
-      | resource      | secret         |
-      | resource_name | cephrbd-secret |
-      | namespace     | default        |
-      | o             | yaml           |
-    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
-    And I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
-      | ["data"]["key"] | <%= cb.secret_key %> |
-    Then the step should succeed
-
-    # If a volume has no disk format, it can not be mounted readOnly. Ref: https://github.com/kubernetes/kubernetes/blob/master/pkg/util/mount/mount_linux.go#L503
-    # Create a Pod here to have the disk formatted.
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
-    Then the step should succeed
-    And the pod named "pod-<%= project.name %>" becomes ready
-    And I ensure "pod-<%= project.name %>" pod is deleted
-
-    Given I run the steps 2 times:
-    """
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/rbd/pod-inline.json" replacing paths:
-      | ["metadata"]["name"]                                 | rbd-pod#{cb.i}-<%= project.name %>                  |
-      | ["spec"]["volumes"][0]["rbd"]["monitors"][0]         | <%= storage_class("cephrbdprovisioner").monitors %> |
-      | ["spec"]["volumes"][0]["rbd"]["image"]               | <%= cb.image %>                                     |
-      | ["spec"]["volumes"][0]["rbd"]["readOnly"]            | true                                                |
-    Then the step should succeed
-    And the pod named "rbd-pod#{cb.i}-<%= project.name %>" becomes ready
-    """
-
-    # Check mount point and mount options on the node
-    Given I use the "<%= node.name %>" node
-    When I run commands on the host:
-      | mount |
-    Then the output should match:
-      | .*rbd.*ro.* |
-
   # @author jhou@redhat.com
   # @case_id OCP-15839
   @admin

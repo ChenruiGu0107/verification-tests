@@ -77,9 +77,7 @@ Feature: Azure disk and Azure file specific scenarios
 
     Examples:
       | sctype   |
-      | ACONLY   | # @case_id OCP-13330
       | DEACCT   | # @case_id OCP-14681
-      | DEDICATE | # @case_id OCP-13785
       | SKUACCT  | # @case_id OCP-14675
       | DESKU    | # @case_id OCP-18293
 
@@ -117,96 +115,6 @@ Feature: Azure disk and Azure file specific scenarios
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
-
-  # @author wehe@redhat.com
-  # @case_id OCP-13486
-  @admin
-  @destructive
-  Scenario: pre-bound still works with storage class on Azure
-    Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpv.yaml" where:
-      | ["metadata"]["name"]              | pv-<%= project.name %>        |
-      | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
-    Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %>   |
-      | ["provisioner"]                                                            | kubernetes.io/azure-disk |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                     |
-    Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc.yaml" replacing paths:
-      | ["spec"]["volumeName"] | pv-<%= project.name %>  |
-    Then the step should succeed
-    And the "azpvc" PVC becomes bound to the "pv-<%= project.name %>" PV
-
-  # @author wehe@redhat.com
-  # @case_id OCP-13981
-  @admin
-  @destructive
-  Scenario: Azure disk should be detached and attached again for scale down and up
-    Given I have a project
-    And environment has at least 2 schedulable nodes
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
-      | ["metadata"]["name"]      | sc-<%= project.name %> |
-    Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
-    Then the step should succeed
-    And the "azpvc" PVC becomes :bound within 120 seconds
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/dc.yaml |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | run=hello-openshift |
-    And evaluation of `pod.node_name` is stored in the :pod_node clipboard
-    When I run the :scale client command with:
-      | resource | deploymentconfig |
-      | name     | hello-openshift  |
-      | replicas | 0                |
-    Then the step should succeed
-    Given all existing pods die with labels:
-      | run=hello-openshift |
-    Given node schedulable status should be restored after scenario
-    When I run the :oadm_cordon_node admin command with:
-      | node_name | <%= pod.node_name %> |
-    Then the step should succeed
-    When I run the :scale client command with:
-      | resource | deploymentconfig |
-      | name     | hello-openshift  |
-      | replicas | 1                |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | run=hello-openshift |
-    And the expression should be true> pod.node_name != cb.pod_node
-
-  # @author wehe@redhat.com
-  # @case_id OCP-13942
-  @admin
-  Scenario: Azure disk should work after a bad disk is requested
-    Given I have a project
-    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    And I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azcaro-pod.yaml" replacing paths:
-      | ["metadata"]["name"]                            | baddiskpod                                             |
-      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | noneexist.vhd                                          |
-      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid.split("vhds").first+"vhds/noneexist.vhd" %> |
-    Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azcaro-pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
-      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
-    Then the step should succeed
-    Given the pod named "azcaro" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
 
   # @author wehe@redhat.com
   # @case_id OCP-16399

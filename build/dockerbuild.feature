@@ -96,19 +96,6 @@ Feature: dockerbuild.feature
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
 
-  # @author wzheng@redhat.com
-  # @case_id OCP-13450
-  Scenario: Error in buildlog when Docker build with invalid context dir
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby20rhel7-invalidcontext-docker.json |
-    Then the step should succeed
-    When the "ruby20-sample-build-1" build failed
-    And I run the :logs client command with:
-      | resource_name | bc/ruby20-sample-build |
-    And the output should contain:
-      | no such file or directory |
-
   # @author dyan@redhat.com
   # @case_id OCP-12856
   Scenario: Add ARGs in docker build via webhook trigger

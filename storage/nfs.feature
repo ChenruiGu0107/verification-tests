@@ -327,20 +327,6 @@ Feature: NFS Persistent Volume
     Given all existing pods die with labels:
       | app=mysql-persistent |
 
-  # @author wehe@redhat.com
-  # @case_id OCP-13708
-  @admin
-  Scenario: NFS provisioner's provision volume should have correct capacity
-    Given I have a project
-    And I have a nfs-provisioner pod in the project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["spec"]["storageClassName"] | nfs-provisioner-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
-    Then the step should succeed
-    Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pvc('nfsdynpvc').volume_name %>" pv is deleted after scenario
-    And the expression should be true> pvc.capacity == "6Gi"
-
   # @author jhou@redhat.com
   # @case_id OCP-13912
   @admin

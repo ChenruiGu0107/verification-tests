@@ -114,37 +114,6 @@ Feature: configMap
       | multiconfigmap-path-testing |
 
   # @author sijhu@redhat.com
-  # @case_id OCP-13211
-  Scenario: Negative test for Inject env var for all ConfigMap values
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/envfrom-cmap.yaml |
-    Then the step should succeed
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pod                |
-      | name     | config-env-example |
-    Then the output should match:
-      | "env-config" not found |
-    """
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/cmap-for-env.yaml |
-    Then the step should succeed
-    Given the pod named "config-env-example" becomes ready
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/invalid-envfrom-cmap.yaml |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pod                |
-      | name     | invalid-config-env |
-    Then the output should contain:
-      | [may not contain '%'] |
-    """
-
-  # @author sijhu@redhat.com
   # @case_id OCP-13201
   Scenario: Inject env var for all ConfigMap values
     Given I have a project

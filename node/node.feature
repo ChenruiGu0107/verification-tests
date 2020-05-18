@@ -236,62 +236,6 @@ Feature: Node management
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "memory.available must be positive" |
     Then the step should succeed
 
-  # @author chezhang@redhat.com
-  # @case_id OCP-13737
-  @admin
-  @destructive
-  Scenario: Misconfiguration for QoS level cgroup
-    Given I select a random node's host
-    And node config is merged with the following hash:
-    """
-    kubeletArguments:
-      cgroups-per-qos:
-      - 'true'
-      cgroup-driver:
-      - 'system'
-    """
-    When I try to restart the node service on node
-    Then the step should fail
-    And the output should contain "atomic-openshift-node.service failed"
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"system\" is different from docker cgroup driver: \"systemd\"" |
-    Then the step should succeed
-    Given node config is merged with the following hash:
-    """
-    kubeletArguments:
-      cgroups-per-qos:
-      - 'true'
-      cgroup-driver:
-      - 'cgroupfs'
-    """
-    When I try to restart the node service on node
-    Then the step should fail
-    And the output should contain "atomic-openshift-node.service failed"
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"cgroupfs\" is different from docker cgroup driver: \"systemd\"" |
-    Then the step should succeed
-    Given node config is merged with the following hash:
-    """
-    kubeletArguments:
-      cgroups-per-qos:
-      - 'true'
-      cgroup-driver:
-      - 'systemd'
-    """
-    When I try to restart the node service on node
-    Then the step should succeed
-
-    Given node config is merged with the following hash:
-    """
-    kubeletArguments:
-      cgroups-per-qos:
-      - 'true'
-      cgroup-driver:
-      - ''
-    """
-    When I try to restart the node service on node
-    Then the step should succeed
-
   # @author zzhao@redhat.com
   # @case_id OCP-15189
   @admin

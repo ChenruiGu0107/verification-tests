@@ -1,20 +1,4 @@
 Feature: stibuild.feature
-  # @author wzheng@redhat.com
-  # @case_id OCP-13448
-  Scenario: Error in buildlog if STI build with invalid context dir
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/python-27-rhel7-errordir-stibuild.json |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | python-sample-build |
-    And the "python-sample-build-1" build was created
-    And the "python-sample-build-1" build failed
-    When I run the :logs client command with:
-      | resource_name | bc/python-sample-build|
-    Then the output should contain:
-      | no such file or directory |
-
   # @author xiuwang@redhat.com
   # @case_id OCP-14128
   Scenario: Start build with PR ref for an app using dockerstrategy
