@@ -39,13 +39,7 @@ Feature: Audit logs related scenarios
       | o        | yaml                         |
     Then the step should succeed
     And I save the output to file> debug_pod.yaml
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | cli         |
-      | o             | json        |
-      | n             | openshift   |
-    Then the step should succeed
-    And evaluation of `@result[:parsed]["spec"]["tags"][0]["from"]["name"]` is stored in the :cli_image clipboard
+    And evaluation of `image_stream("cli", project("openshift")).tags.first.from.name` is stored in the :cli_image clipboard
     Given I have a project
     And I replace lines in "debug_pod.yaml":
       | /name.*debug/   | name: mypod                    |
