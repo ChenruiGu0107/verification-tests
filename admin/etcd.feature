@@ -10,7 +10,7 @@ Feature: etcd related features
       | k8s-app=etcd |
     Given evaluation of `@pods[0].name` is stored in the :etcdpod clipboard
     When I execute on the pod:
-      | bash| -c | ETCDCTL_API=3 etcdctl --cert=$(find /etc/ssl/ -name *peer*crt) --key=$(find /etc/ssl/ -name *peer*key) --cacert=/etc/ssl/etcd/ca.crt member list |
+      | bash| -c | etcdctl member list |
     Then the output should contain 3 times:
       | , started, |
-
+ 
