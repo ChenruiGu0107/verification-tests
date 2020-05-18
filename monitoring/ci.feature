@@ -302,3 +302,65 @@ Feature: Install and configuration related scenarios
       | "region":"unknown"      |
       | "environment":"testing" |
     """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-20448
+  @admin
+  Scenario: cluster monitoring Prometheus UI check
+    Given the master version >= "4.1"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    #check default page is graph and displays correctly
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Prometheus |
+      | Alerts     |
+      | Graph      |
+      | Help       |
+
+    #query an metric
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/api/v1/query?query=alertmanager_alerts
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | "__name__":"alertmanager_alerts" |
+   
+    #check alerts page
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/alerts
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Watchdog |
+
+    #check targets page
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/targets
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Endpoint |
+      | up)      |
