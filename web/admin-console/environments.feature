@@ -172,6 +172,7 @@ Feature: environment related
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-openshift |
+    Given evaluation of `pod.name` is stored in the :initpod clipboard
     And I open admin console in a browser
     When I perform the :goto_resource_environment_page web action with:
       | project_name  | <%= project.name %>  |
@@ -194,6 +195,7 @@ Feature: environment related
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.initpod %>" to disappear
     Given 1 pods become ready with labels:
       |  app=hello-openshift |
     When I run the :get client command with:
@@ -220,7 +222,8 @@ Feature: environment related
       | container_name | wait |
     Then the step should succeed
     """
-
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
     When I run the :check_sections_on_container_details web action
     Then the step should succeed
     When I get the html of the web page
