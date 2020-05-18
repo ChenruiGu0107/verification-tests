@@ -244,8 +244,8 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :run client command with:
-       | name    | example                 |
-       | image   | busybox                 |
+       | name    | example                   |
+       | image   | docker.io/library/busybox |
     Then the step should succeed
     When I perform the :goto_one_dc_page web action with:
       | project_name | <%= project.name %>  |
