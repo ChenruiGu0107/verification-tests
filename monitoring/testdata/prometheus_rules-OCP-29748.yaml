@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-ocp-29748
+  namespace: openshift-monitoring
+spec:
+  groups:
+  - name: Test rules
+    rules:
+    - alert: DrillAlert
+      expr: vector(1)
+      labels:
+        severity: warning

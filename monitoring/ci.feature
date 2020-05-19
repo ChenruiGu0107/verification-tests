@@ -208,12 +208,128 @@ Feature: Install and configuration related scenarios
     Given I create a project with non-leading digit name
     Then the step should succeed
     When I run the :apply client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/thanos-ruler-ocp-30088.yaml |
-      | overwrite  | true |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/thanos-ruler-ocp-30088.yaml |
+      | overwrite | true |
     Then the step should fail
     And the output should contain:
       | Error from server (Forbidden): |
 
+  # @author hongyli@redhat.com
+  # @case_id OCP-24297
+  @admin
+  @destructive
+  Scenario: Expose remote-write configuration via cluster-monitoring-operator ConfigMap
+    Given the master version >= "4.2"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    #create cluster-monitoring-config configmap
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_remote_write-ocp-24297.yaml |
+      | overwrite | true |
+    Then the step should succeed
+
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    # query prometheus_remote_storage_shards
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=prometheus_remote_storage_shards |
+    Then the step should succeed
+    And the output should contain:
+      | http://localhost:1234/receive |
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-29748
+  @admin
+  @destructive
+  Scenario: [BZ 1821268] Thanos Ruler should send alerts to all Alertmanager pods
+    Given the master version >= "4.5"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    Given admin ensures "test-ocp-29748" prometheusrule is deleted from the "openshift-monitoring" project after scenario
+    #enable techPreviewUserWorkload
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                                                                                      |
+    Then the step should succeed
+    #Deploy prometheus rules under user's namespace
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-29748.yaml |
+      | overwrite | true                                                                                       |
+    Then the step should succeed
+    #Check the newly created alert are sent to pod alertmanager-main-0 for we can't check all the pods in a loop and wait time at the same time
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -s http://localhost:9093/api/v2/alerts |
+    Then the step should succeed
+    And the output should contain:
+      | "alertname":"DrillAlert" |
+    """ 
+    # get alerts pods
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)alertmanager-main(.*)/]}.compact!` is stored in the :alert_pods clipboard
+    #Check the newly created alert are sent to all Alertmanager pods
+    When I repeat the following steps for each :pod_name in cb.alert_pods:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | #{cb.pod_name}       |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -s http://localhost:9093/api/v2/alerts |
+    Then the step should succeed
+    And the output should contain:
+      | "alertname":"DrillAlert" |
+    """ 
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-25860
+  @admin
+  @destructive
+  Scenario: Set ignoreNamespaceSelectors field in cluster-monitoring-operator Custom Resource
+    Given the master version >= "4.3"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-user-workload-monitoring" project
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    #enable techPreviewUserWorkload
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true |
+    Then the step should succeed
+    # check ignoreNamespaceSelectors is set
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | prometheus    |
+      | resource_name | user-workload |
+      | o             | yaml          |
+    Then the output should contain:
+      | ignoreNamespaceSelectors: true |
+    """
+  
   # @author hongyli@redhat.com
   # @case_id OCP-21576
   @admin
