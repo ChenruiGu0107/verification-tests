@@ -351,30 +351,16 @@ Feature: Testing Scheduler Operator related scenarios
     # Test for ServiceSpreadingPriority weight attribute
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run the :create_deployment client command with:
-      | name  | hello                                                                                                         |
-      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/list_for_servicespreading.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    And a pod becomes ready with labels:
-      | app=hello |
-    When I run the :set_resources client command with:
-      | resource      | deployment |
-      | resourcename  | hello      |
-      | requests      | cpu=50m    |
-    Then the step should succeed
-    And a pod becomes ready with labels:
-      | app=hello |
-    When I run the :create_deployment client command with:
-      | name  | hello1                                                                                                        |
-      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
-    Then the step should succeed
-    Given I successfully patch resource "deployment/hello1" with:
+    Given I successfully patch resource "replicationcontroller/service-spreading" with:
       | {"spec":{"replicas":2}} |
-    And I wait until number of replicas match "2" for deployment "hello1"
+    And I wait until number of replicas match "2" for replicationController "service-spreading"
     Given status becomes :running of 2 pods labeled:
-      | app=hello1 |
-    And evaluation of `@pods[1].node_name` is stored in the :nodename clipboard
-    And evaluation of `@pods[2].node_name` is stored in the :podnodename clipboard
+      | name=service-spreading |
+    And evaluation of `@pods[0].node_name` is stored in the :nodename clipboard
+    And evaluation of `@pods[1].node_name` is stored in the :podnodename clipboard
     Then the expression should be true> cb.podnodename != cb.nodename
     # Edit weight attribute for leastrequestpriority
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project
@@ -398,13 +384,18 @@ Feature: Testing Scheduler Operator related scenarios
     """
     # Test for LeastRequestedPriority weight attribute
     Given I use the "<%= cb.proj_name%>" project
-    Given I use the "<%= cb.nodes[0].name %>" node
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
+    Then the step should succeed
     And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
     And evaluation of `pod.node_name` is stored in the :nodename clipboard
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
+    Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-request5 |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
