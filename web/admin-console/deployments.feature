@@ -99,7 +99,7 @@ Feature: deployment/dc related features via web
     Given I have a project
     When I run the :run client command with:
       | name         | mydc                  |
-      | image        | docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a |
+      | image        | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
       | limits       | memory=256Mi          |
     Then the step should succeed
     And I open admin console in a browser
@@ -195,7 +195,7 @@ Feature: deployment/dc related features via web
       | project_name | <%= project.name %> |
     Then the step should succeed
     # for disconnect env, better to workaround by digest image marked as below:
-    # docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a
+    # quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e
     # Digest image blocked by bug for https://bugzilla.redhat.com/show_bug.cgi?id=1823616
     When I perform the :search_and_deploy_image web action with:
       | search_content | aosqe/hello-openshift |
@@ -281,7 +281,7 @@ Feature: deployment/dc related features via web
     Given I have a project
     When I run the :run client command with:
       | name  | exampletest           |
-      | image | docker.io/aosqe/hello-openshift@sha256:a2d509d3d5164f54a2406287405b2d114f952dca877cc465129f78afa858b31a |
+      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
     Then the step should succeed
     When I perform the :goto_rc_list_page web action with:
       | project_name | <%= project.name %>  |
