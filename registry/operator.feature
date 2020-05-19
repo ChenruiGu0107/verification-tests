@@ -89,7 +89,7 @@ Feature: Testing image registry operator
   # @case_id OCP-22032
   @admin
   @destructive
-  Scenario: Config NodeSelector for internal regsistry
+  Scenario: Config NodeSelector for internal registry
     Given I switch to cluster admin pseudo user
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"nodeSelector":{"node-role.kubernetes.io/master": "abc"}}} |
@@ -103,8 +103,8 @@ Feature: Testing image registry operator
       | resource | pod                     |
       | l        | docker-registry=default |
     Then the output should contain:
-      | Node-Selectors:  node-role.kubernetes.io/master=abc |
-      | didn't match node selector                          |
+      | node-role.kubernetes.io/master=abc |
+      | didn't match node selector         |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-23651
