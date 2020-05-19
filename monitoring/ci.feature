@@ -402,7 +402,7 @@ Feature: Install and configuration related scenarios
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
 
     # query Watchdog alerts
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
