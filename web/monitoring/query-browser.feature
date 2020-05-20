@@ -14,14 +14,14 @@ Feature: query browser
     When I click the following "button" element:
       | text | Insert Example Query |
     Then I get the "class" attribute of the "textarea" web element:
-      | text  | sum(sort_desc(sum_over_time(ALERTS{alertstate="firing"}[24h]))) by (alertname) |
+      | text | sum(sort_desc(sum_over_time(ALERTS{alertstate="firing"}[24h]))) by (alertname) |
     #clear query
     When I click the following "button" element:
       | aria-label | Clear Query |
     And I click the following "button" element:
       | text  | Run Queries |
       | class | pf-c-button |
-    Then I get the "class" attribute of the "button" web element:
+    Then I perform the :check_button_text web action with:
       | text | Insert Example Query |
     #check Prometheus UI link
     When I click the following "a" element:
@@ -137,7 +137,7 @@ Feature: query browser
       | press_enter | :enter                               |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
-      | project_name | openshift-apiserver |
+      | table_text | openshift-apiserver |
     Then the step should succeed
 
     #check selected query from dropdown list
@@ -146,7 +146,7 @@ Feature: query browser
       | metrics_name | Filesystem Usage |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
-      | project_name | openshift-apiserver |
+      | table_text | openshift-apiserver |
     Then the step should succeed
     #zoom in/out test
     When I perform the :choose_zoom_value web action with:

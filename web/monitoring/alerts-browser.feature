@@ -6,7 +6,7 @@ Feature: alerts browser
   Scenario: Expire silence from alert details page
     Given the master version >= "4.2"
     Given I open admin console in a browser
-    And I switch to cluster admin pseudo user
+    And the first user is cluster-admin
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
