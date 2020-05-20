@@ -95,3 +95,40 @@ Feature: Machine features testing
       | machinehealthcheck |
       | clusterautoscaler  |
       | machineautoscaler  |
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-30836
+  @admin
+  @destructive
+  Scenario: Specify a delete policy in the spec of the machineset
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+
+    Given I clone a machineset and name it "machineset-clone-30836"
+    Given I store the last provisioned machine in the :oldest_machine clipboard
+
+    # scale up machine with replicas=3
+    Given I scale the machineset to +2
+    Then the step should succeed
+    And the machineset should have expected number of running machines
+    Given I store the last provisioned machine in the :newest_machine clipboard
+
+    # deletePolicy - Newest
+    Given as admin I successfully merge patch resource "machineset/machineset-clone-30836" with:
+      | {"spec":{"deletePolicy": "Newest" }} |
+
+    When I scale the machineset to -1
+    Then the step should succeed
+    And the machineset should have expected number of running machines
+    And the machine named "<%= cb.newest_machine %>" does not exist
+
+    # deletePolicy - Oldest
+    Given as admin I successfully merge patch resource "machineset/machineset-clone-30836" with:
+      | {"spec":{"deletePolicy": "Oldest" }} |
+
+    When I scale the machineset to -1
+    Then the step should succeed
+    And the machineset should have expected number of running machines
+    And the machine named "<%= cb.oldest_machine %>" does not exist
