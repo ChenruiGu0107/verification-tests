@@ -3,15 +3,17 @@ Feature: job.feature
   # @case_id OCP-17514
   Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
     Given I have a project
-    When I run the :run client command with:
+    When I run the :create_cronjob client command with:
       | name     | sj1       |
       | image    | busybox   |
       | restart  | Never     |
       | schedule | * * * * * |
-      | sleep    | 30        |
+      | cmd      | --        |
+      | cmd      | sleep     |
+      | cmd      | 30        |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
     When I run the :patch client command with:
       | resource      | cronjob                   |
       | resource_name | sj1                       |
@@ -19,8 +21,8 @@ Feature: job.feature
     Then the step should succeed
     Given 60 seconds have passed
     When I run the :delete client command with:
-      | object_type | pod             |
-      | l           | run=sj1         |
+      | object_type | pod      |
+      | l           | job-name |
     Then the step should succeed
     Given 60 seconds have passed
     And I check that there are no pods in the project
@@ -30,7 +32,7 @@ Feature: job.feature
       | p             | {"spec":{"suspend":false}} |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
 
   # @author geliu@redhat.com
   # @case_id OCP-17511
@@ -58,17 +60,19 @@ Feature: job.feature
   # @case_id OCP-17513
   Scenario: User can schedule(Cronjob) a job execution with different concurrencypolicy
     Given I have a project
-    When I run the :run client command with:
+    When I run the :create_cronjob client command with:
       | name     | sj1       |
       | image    | busybox   |
       | restart  | Never     |
       | schedule | * * * * * |
-      | sleep    | 180       |
+      | cmd      | --        |
+      | cmd      | sleep     |
+      | cmd      | 180       |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
     Given a pod becomes ready with labels:
-      | run=sj1 |
+      | job-name |
     And evaluation of `pod.name` is stored in the :podname1 clipboard
     When I run the :patch client command with:
       | resource      | cronjob                                  |
@@ -77,15 +81,15 @@ Feature: job.feature
     Then the step should succeed
     Given 90 seconds have passed
     Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
     And evaluation of `pod.name` is stored in the :podname2 clipboard
     And the expression should be true> cb.podname1 != cb.podname2
     When I run the :delete client command with:
-      | object_type | pod     |
-      | l           | run=sj1 |
+      | object_type | pod      |
+      | l           | job-name |
     Then the step should succeed
     When status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
     And evaluation of `pod.name` is stored in the :podname3 clipboard
     When I run the :patch client command with:
       | resource      | cronjob                                 |
@@ -94,7 +98,7 @@ Feature: job.feature
     Then the step should succeed
     Given 90 seconds have passed
     Then status becomes :running of 1 pods labeled:
-      | run=sj1 |
+      | job-name |
     And evaluation of `pod.name` is stored in the :podname4 clipboard
     And the expression should be true> cb.podname3 == cb.podname4
     When I run the :patch client command with:
@@ -104,7 +108,7 @@ Feature: job.feature
     Then the step should succeed
     Given 90 seconds have passed
     Then status becomes :running of 2 pods labeled:
-      | run=sj1 |
+      | job-name |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-28003
