@@ -42,23 +42,35 @@ Feature: Testing haproxy router
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    And I wait up to 30 seconds for the steps to pass:
+    """"
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                    |
+      | -lc                                                                     |
       | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-edge.pem |
     Then the step should succeed
+    """
     And evaluation of `@result[:response]` is stored in the :edge_cert clipboard
+
+    And I wait up to 30 seconds for the steps to pass:
+    """"
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                    |
+      | -lc                                                                     |
       | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
+    """
     And evaluation of `@result[:response]` is stored in the :reen_cert clipboard
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                      |
+      | -lc                                                                       |
       | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
+    """
     And evaluation of `@result[:response]` is stored in the :reen_cacert clipboard
 
     # update one of the routes
@@ -73,27 +85,36 @@ Feature: Testing haproxy router
     # check only the cert files for the updated route are changed
     When I switch to cluster admin pseudo user
     And I use the router project
+
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                    |
+      | -lc                                                                     |
       | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cert != @result[:response]
     """
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                      |
+      | -lc                                                                       |
       | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cacert != @result[:response]
+    """
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | bash |
-      | -lc |
+      | bash                                                                    |
+      | -lc                                                                     |
       | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-edge.pem |
     Then the step should succeed
     And the expression should be true> cb.edge_cert == @result[:response]
+    """
 
   # @author hongli@redhat.com
   # @case_id OCP-10207
@@ -278,7 +299,7 @@ Feature: Testing haproxy router
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
-      | name | route-pass |
+      | name    | route-pass     |
       | service | service-secure |
     Then the step should succeed
 
@@ -364,9 +385,9 @@ Feature: Testing haproxy router
     And the output should not contain "Empty reply from server"
 
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
-      | keyval       | haproxy.router.openshift.io/rate-limit-connections=true |
+      | resource     | route                                                               |
+      | resourcename | service-unsecure                                                    |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections=true             |
       | keyval       | haproxy.router.openshift.io/rate-limit-connections.concurrent-tcp=2 |
     Then the step should succeed
 
@@ -374,7 +395,7 @@ Feature: Testing haproxy router
     When I execute on the pod:
       | bash | -c | for i in {1..15} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
     Then the output should contain:
-      | Hello-OpenShift |
+      | Hello-OpenShift         |
       | Empty reply from server |
 
   # @author hongli@redhat.com
