@@ -314,3 +314,55 @@ Feature: User management related
     When I perform the :check_cluster_rolebinding_name web action with:
       | rolebinding_name | uiautoocp19727-rb |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24281
+  Scenario: RBAC check to normal operations for users with view access
+    Given the master version >= "4.2"
+    Given I have a project
+    Then evaluation of `project.name` is stored in the :project1_name clipboard
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+    Then the step should succeed
+    Given I give project view role to the second user
+
+    Given I switch to the second user
+    Given I open admin console in a browser
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.project1_name %> |
+    Then the step should succeed
+    When I perform the :check_no_create_button_on_list_page web action with:
+      | project_name | <%= cb.project1_name %> |
+    Then the step should succeed
+    When I perform the :check_kebab_items_disabled_on_list_page web action with:
+      | project_name  | <%= cb.project1_name %> |
+      | resource_name | hooks                   |
+    Then the step should succeed
+
+    When I perform the :check_no_action_button_on_resource_page web action with:
+      | project_name | <%= cb.project1_name %> |
+      | dc_name      | hooks                   |
+    Then the step should succeed
+    When I perform the :check_no_save_button_on_resource_page web action with:
+      | project_name | <%= cb.project1_name %> |
+      | dc_name      | hooks                   |
+    Then the step should succeed
+
+    When I perform the :check_no_edit_links_on_detail_page web action with:
+      | project_name | <%= cb.project1_name %> |
+      | dc_name      | hooks                   |
+    Then the step should succeed
+
+    Given I have a project
+    Then evaluation of `project.name` is stored in the :project2_name clipboard
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= cb.project2_name %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Create |
+    Then the step should succeed
+    When I perform the :switch_to_project web action with:
+      | project_name | <%= cb.project1_name %> |
+    Then the step should succeed
+    When I run the :check_yaml_create_button_missing web action
+    Then the step should succeed
