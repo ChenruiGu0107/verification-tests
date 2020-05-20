@@ -428,42 +428,6 @@ Feature: SDN related networking scenarios
     """
 
   # @author zzhao@redhat.com
-  # @case_id OCP-19806
-  @admin
-  @destructive
-  Scenario: Node service will not be stopped when the dnsmasq service is stopped
-    Given the master version >= "3.9"
-    And I select a random node's host
-    And the node service is verified
-    And the node network is verified
-    When I run commands on the host:
-      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
-    Then the step should succeed
-    And the output by order should contain:
-      |   Active: active (running) |
-      |   Active: active (running) |
-    Given the node service is restarted on the host after scenario
-    When I run commands on the host:
-      | systemctl stop dnsmasq |
-    Then the step should succeed
-    When I run commands on the host:
-      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
-    Then the step should succeed
-    Then the output by order should contain:
-      |   Active: inactive (dead)  |
-      |   Active: active (running) |
-    Given the node service is restarted on the host
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | systemctl status dnsmasq atomic-openshift-node \| grep Active |
-    Then the step should succeed
-    Then the output by order should contain:
-      |   Active: active (running) |
-      |   Active: active (running) |
-    """
-
-  # @author zzhao@redhat.com
   # @case_id OCP-22655
   @admin
   @destructive

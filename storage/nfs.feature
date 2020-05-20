@@ -447,33 +447,6 @@ Feature: NFS Persistent Volume
       | hard      |
       | timeo=600 |
 
-  # @author wehe@redhat.com
-  # @case_id OCP-17279
-  @admin
-  @destructive
-  Scenario: Configure 'Retain' reclaim policy for nfs
-    Given I have a project
-    And I have a nfs-provisioner pod in the project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-      | ["reclaimPolicy"]    | Retain                 |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario
-    And the expression should be true> pv.reclaim_policy == "Retain"
-
-    When I ensure "<%= pvc.name %>" pvc is deleted
-    Given I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should contain:
-      | Released |
-
   # @author lxia@redhat.com
   # @case_id OCP-12221
   @admin
@@ -529,34 +502,3 @@ Feature: NFS Persistent Volume
       | grep | <%= service("nfs-service").ip %> | /proc/mounts |
     Then the step should succeed
     And the output should contain "rw"
-
-  # @author wehe@redhat.com
-  # @case_id OCP-17750
-  @admin
-  Scenario: Using mountOptions for NFS StorageClass
-    Given I have a project
-    And I have a nfs-provisioner pod in the project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-mountOptions.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-      | ["provisioner"]      | example.com/nfs        |
-      | ["mountOptions"][0]  | ro                     |
-    Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And admin ensures "<%= pv(pvc.volume_name).name %>" pv is deleted after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-    Then the step should succeed
-    Given the pod named "pod-<%= project.name %>" becomes ready
-    When I execute on the pod:
-      | grep | ocp_pv | /proc/self/mountinfo |
-    Then the step should succeed
-    And the output should contain:
-      | ro |
-    Given I ensure "pod-<%= project.name %>" pod is deleted
-    And I ensure "pvc-<%= project.name %>" pvc is deleted

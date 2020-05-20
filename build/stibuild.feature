@@ -56,75 +56,6 @@ Feature: stibuild.feature
       | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
 
   # @author wewang@redhat.com
-  # @case_id OCP-14967
-  @admin
-  @destructive
-  Scenario: Configure env LOGLEVEL in the BuildDefaults plug-in when build
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginConfig:
-        BuildDefaults:
-          configuration:
-            apiVersion: v1
-            kind: BuildDefaultsConfig
-            env:
-            - name: BUILD_LOGLEVEL
-              value: "8"
-    """
-    And the master service is restarted on all master nodes
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
-    Then the step should succeed
-    And the "ruby22-sample-build-1" build was created
-    And the "ruby22-sample-build-1" build completed
-    When I run the :logs client command with:
-      | resource_name    | bc/ruby22-sample-build |
-    Then the step should succeed
-    And the output should match:
-      | "name":"BUILD_LOGLEVEL" |
-      | "value":"8"             |
-    And a pod becomes ready with labels:
-      | name=frontend |
-    When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | env \| grep BUILD_LOGLEVEL |
-    Then the step should succeed
-    And the output should contain:
-      | BUILD_LOGLEVEL=8 |
-
-  # @author wewang@redhat.com
-  # @case_id OCP-15458
-  Scenario:Allow incremental to be specified on s2i build request
-    Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world.git |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
-    And I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-      | incremental | true             |
-    Then the step should succeed
-    And the "ruby-hello-world-2" build completed
-    When I run the :logs client command with:
-      | resource_name | bc/ruby-hello-world |
-    Then the step should succeed
-    And the output should contain:
-      | save-artifacts: No such file or directory|
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-      | incremental | false            |
-    Then the step should succeed
-    And the "ruby-hello-world-3" build completed
-    When I run the :logs client command with:
-      | resource_name | build/ruby-sample-build-3 |
-    Then the output should not contain:
-      | save-artifacts: No such file or directory |
-
-  # @author wewang@redhat.com
   # @case_id OCP-15481
   Scenario: Setting incremental with wrong info on s2i build request
     Given I have a project
@@ -261,48 +192,6 @@ Feature: stibuild.feature
     Then the step should succeed
     And the "sample-1" build was created
     And the "sample-1" build completed
-
-  # @author wewang@redhat.com
-  # @case_id OCP-19632
-  @admin
-  @destructive
-  Scenario: Container ENV proxy vars should be same with master config when BUILD_LOGLEVEL=5 used in build
-    Given the master version >= "3.10"
-    When I have a project
-    And I have a proxy configured in the project
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginConfig:
-        BuildDefaults:
-          configuration:
-            apiVersion: v1
-            kind: BuildDefaultsConfig
-            gitHTTPProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
-            gitHTTPSProxy: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
-            env:
-            - name: HTTP_PROXY
-              value: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
-            - name: HTTPS_PROXY
-              value: http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>
-            - name: CUSTOM_VAR
-              value: custom_value
-    """
-    Given the master service is restarted on all master nodes
-    When I run the :new_app client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-hello-world |
-      | env      | BUILD_LOGLEVEL=5                                                 |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build completed
-    Given 1 pods become ready with labels:
-      | app=ruby-hello-world |
-    When I execute on the pod:
-      | bash              |
-      | -c                |
-      | env  \| grep HTTP |
-    Then the output should contain:
-      | HTTP_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %>  |
-      | HTTPS_PROXY=http://<%= cb.proxy_ip %>:<%= cb.proxy_port %> |
 
   # @author wewang@redhat.com
   # @case_id OCP-20999

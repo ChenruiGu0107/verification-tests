@@ -44,44 +44,6 @@ Feature: Azure disk and Azure file specific scenarios
       | ReadOnly    | # @case_id OCP-10204
       | ReadWrite   | # @case_id OCP-10205
 
-  # @author wehe@redhat.com
-  @admin
-  Scenario Outline: azureDisk dynamic provisioning with storage class
-    Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-<sctype>.yaml" where:
-      | ["metadata"]["name"] | sc-<%= project.name %> |
-    Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc-sc.yaml" replacing paths:
-      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
-    Then the step should succeed
-    And the "azpvc" PVC becomes :bound within 120 seconds
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | azpvcpo    |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | azpvc      |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
-    Then the step should succeed
-    Given the pod named "azpvcpo" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/ad-<%= project.name %> |
-    Then the step should succeed
-    Given I ensure "azpvcpo" pod is deleted
-    And I ensure "azpvc" pvc is deleted
-    And I switch to cluster admin pseudo user
-    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 300 seconds
-
-    Examples:
-      | sctype   |
-      | DEACCT   | # @case_id OCP-14681
-      | SKUACCT  | # @case_id OCP-14675
-      | DESKU    | # @case_id OCP-18293
-
-
   # @author wduan@redhat.com
   # @case_id OCP-10200
   @admin
@@ -115,35 +77,6 @@ Feature: Azure disk and Azure file specific scenarios
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
-
-  # @author wehe@redhat.com
-  # @case_id OCP-16399
-  @admin
-  Scenario: Azure file persistent volume plugin test
-    Given I have a project
-    And azure file dynamic provisioning is enabled in the project
-    And the azure file secret name and key are stored to the clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azf-pv.yml" where:
-      | ["metadata"]["name"] | azpv-<%= project.name %> |
-    Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azpvc.yaml" replacing paths:
-      | ["spec"]["accessModes"][0] | ReadWriteMany |
-    Then the step should succeed
-    Given the "azpvc" PVC becomes bound to the "azpv-<%= project.name %>" PV
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azfpvcpod.yaml |
-      | n | <%= project.name %>                                                                                  |
-    Then the step should succeed
-    Given the pod named "azfpod" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
-    When I execute on the pod:
-      | rm | /mnt/azure/af-<%= project.name %> |
-    Then the step should succeed
 
   # @author wduan@redhat.com
   # @case_id OCP-16498

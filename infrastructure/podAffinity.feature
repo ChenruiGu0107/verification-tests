@@ -182,9 +182,6 @@ Feature: podAffinity
       | dst-pod-name  | pod-affinity-dst-pod  | src-pod-name              | pod-affinity-src-pod                | same_node |
       | security-s1   | pod-s1.yaml           | pod-affinity-notin-s2     | pod-pod-affinity-notin-s2.yaml      | =         | # @case_id OCP-14689
       | security-s1   | pod-s1.yaml           | pod-affinity-doesnotexist | pod-pod-affinity-doesnotexist.yaml  | !         | # @case_id OCP-14692
-      # below examples not implemented yet, maybe will be available in v3.8
-      | team4         | pod-pod-team4.yaml    | pod-affinity-lt-5         | pod-pod-affinity-lt-5.yaml          | =         | # @case_id OCP-14694
-      | team4         | pod-pod-team4.yaml    | pod-affinity-gt-3         | pod-pod-affinity-gt-3.yaml          | =         | # @case_id OCP-14693
 
   # @author yinzhou@redhat.com
   @admin

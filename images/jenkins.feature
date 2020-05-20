@@ -178,32 +178,6 @@ Feature: jenkins.feature
       | time_out   | 300                                 |
     Then the step should fail
 
-  # @author wewang@redhat.com
-  # @case_id OCP-15197
-    @admin
-  Scenario: Using jenkins slave maven image to do pipeline build with limited resource
-    And I have a project
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
-      | n | <%= project.name %>                                                                                    |
-    Then the step should succeed
-    Given I have a jenkins v2 application
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/maven-pipeline.yaml |
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "maven" slave image for jenkins 2 server
-    And I run the :start_build client command with:
-      | buildconfig | openshift-jee-sample |
-    Then the step should succeed
-    When the "openshift-jee-sample-1" build becomes :running
-    And the "openshift-jee-sample-docker-1" build becomes :running
-    Then the "openshift-jee-sample-docker-1" build completed
-    Then the "openshift-jee-sample-1" build completed
-    And a pod becomes ready with labels:
-      | app=openshift-jee-sample |
-
   # @author xiuwang@redhat.com
   # @case_id OCP-15196
   @admin

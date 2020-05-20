@@ -43,21 +43,6 @@ Feature: Scheduler predicates and priority test suites
       | (PodFitsResrouces\|Insufficient) |
 
   # @author wjiang@redhat.com
-  # @case_id OCP-14583
-  @admin
-  Scenario: When custom scheduler name is supplied, the pod is scheduled using the custom scheduler
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/multiple-schedulers/custom-scheduler.yaml |
-    Then the step should succeed
-    Given the pod named "custom-scheduler" becomes present
-    Given I store the schedulable workers in the clipboard
-    When I run oc create as admin over ERB test file: scheduler/multiple-schedulers/binding.json
-    And the step should succeed
-    Given the pod named "custom-scheduler" becomes ready
-    Then the expression should be true> pod.node_name == node.name
-
-  # @author wjiang@redhat.com
   @admin
   @destructive
   Scenario Outline: [infrastructure_public_295] Scheduler predicate should cap xxxVolumeCount for diff cloudprovider

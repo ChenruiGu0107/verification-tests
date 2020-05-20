@@ -439,26 +439,6 @@ Feature: storageClass related feature
     And the expression should be true> env.version_ge("3.7", user: user)? pvc.storage_class == "":pvc.storage_class == nil
     And the expression should be true> pv(pvc.volume_name).storage_class_name == nil
 
-  # @author chaoyang@redhat.com
-  # @case_id OCP-14160
-  @admin
-  @destructive
-  Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation
-    Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
-      | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
-    Then the step should succeed
-
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
-    And the expression should be true> pvc.storage_class == "sc-<%= project.name %>"
-    And the expression should be true> pv(pvc.volume_name).storage_class_name == "sc-<%= project.name %>"
-
   # @author jhou@redhat.com
   @admin
   Scenario Outline: Configure 'Retain' reclaim policy for StorageClass
@@ -522,45 +502,6 @@ Feature: storageClass related feature
       | ebs     | # @case_id OCP-17260
       | cinder  | # @case_id OCP-17258
       | azure   | # @case_id OCP-17490
-
-  # @author chaoyang@redhat.com
-  # @case_id OCP-17272
-  @admin
-  Scenario: Configure Retain reclaim policy for aws-efs
-    Given I have a project
-    And I have a efs-provisioner in the project
-
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-reclaim-policy.yaml" where:
-      | ["apiVersion"]                                                             | storage.k8s.io/v1      |
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %> |
-      | ["provisioner"]                                                            | openshift.org/aws-efs  |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                  |
-    Then the step should succeed
-
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
-    And the expression should be true> pv(pvc.volume_name).reclaim_policy == "Retain"
-
-    When I ensure "pvc-<%= project.name %>" pvc is deleted
-    Then the PV becomes :released
-    And admin ensures "<%= pvc.volume_name %>" pv is deleted
-
-  # @author lxia@redhat.com
-  # @case_id OCP-18650
-  Scenario: Make sure storage.k8s.io/v1beta1 API is enabled in 3.10
-    When I perform the HTTP request:
-    """
-    :url: <%= env.api_endpoint_url %>/apis/storage.k8s.io
-    :method: GET
-    """
-    Then the step should succeed
-    And the output should contain:
-      | storage.k8s.io/v1beta1 |
 
   # @author lxia@redhat.com
   # @case_id OCP-19886

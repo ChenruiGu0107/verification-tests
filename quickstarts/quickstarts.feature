@@ -81,17 +81,3 @@ Feature: quickstarts.feature
       | ruby:2.3   | ruby:2.2   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
       | perl:5.24  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
       | perl:5.24  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
-
-  # @author wewang@redhat.com
-  # @case_id OCP-14712
-  Scenario: Httpd-example with 2.4 quick start test
-    Given I have a project
-    When I run the :new_app client command with:
-      | template | httpd-example |
-    Then the step should succeed
-    And the "httpd-example-1" build was created
-    And the "httpd-example-1" build completed
-    And I wait for the "httpd-example" service to become ready up to 300 seconds
-    Then I wait for a web server to become available via the "httpd-example" route
-    Then the output should contain "httpd application"
-

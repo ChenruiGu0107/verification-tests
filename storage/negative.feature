@@ -39,21 +39,3 @@ Feature: negative testing
       | quantities must match the regular expression |
     And there is no pvc in the project
     And the project is deleted
-
-  # @author wehe@redhat.com
-  # @case_id OCP-15414
-  @admin
-  Scenario: Check EMC scaleio volume plugin with invalid gateway
-    Given I have a project
-    When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/scaleio/secret.yaml |
-    Then the step should succeed
-    When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/scaleio/pod.yaml |
-      | n | <%= project.name %>                                                                                    |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource | po/pod |
-    Then the output should contain:
-      | ScaleIO storage pool not provided |
-

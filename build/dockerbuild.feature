@@ -203,22 +203,6 @@ Feature: dockerbuild.feature
       | binary builds is not supported |
 
   # @author wewang@redhat.com
-  # @case_id OCP-15479
-  Scenario:  Setting nocache with wrong info when docker build request
-    Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
-    Then the step should succeed
-    And the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build completed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-      | no-cache    | abc               |
-    Then the step should fail
-    And the output should contain:
-      | Error: invalid argument "abc"   |
-
-  # @author wewang@redhat.com
   # @case_id OCP-16590
   @admin
   Scenario:  Should clean up temporary containers on node due to failed docker builds

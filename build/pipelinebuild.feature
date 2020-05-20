@@ -195,52 +195,6 @@ Feature: pipelinebuild.feature
       | credential_name  | <%= project.name %>-mysecret     |
     Then the step should fail
 
-  # @author xiuwang@redhat.com
-  # @case_id OCP-17315
-  Scenario: Sync openshift secret to credential in jenkins with ssh-auth type
-    Given I have a project
-    Given I have a jenkins v2 application
-    When I have an ssh-git service in the project
-    And the "secret" file is created with the following lines:
-      | <%= cb.ssh_private_key.to_pem %> |
-    And I run the :secrets_new_sshauth client command with:
-      | ssh_privatekey | secret   |
-      | secret_name    | mysecret |
-    Then the step should succeed
-    When I execute on the pod:
-      | bash                                                                                                                 |
-      | -c                                                                                                                   |
-      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/openshift-jee-sample.git sample.git |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/maven-pipeline-with-credential.yaml |
-      | p    | GIT_SOURCE_URL=<%= cb.git_repo %>                                                                                |
-      | p    | OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                               |
-    Then the step should succeed
-    When I run the :label client command with:
-      | resource | secret                                    |
-      | name     | mysecret                                  |
-      | key_val  | credential.sync.jenkins.openshift.io=true |
-    Then the step should succeed
-    Given I have a jenkins browser
-    And I log in to jenkins
-    Given I update "maven" slave image for jenkins 2 server
-    When I perform the :check_jenkins_credentials web action with:
-      | credential_name  | <%= project.name %>-mysecret |
-    Then the step should succeed
-
-    And I run the :start_build client command with:
-      | buildconfig | openshift-jee-sample |
-    Then the step should succeed
-    Then the "openshift-jee-sample-1" build completed
-    When I run the :delete client command with:
-      | object_type       | secret   |
-      | object_name_or_id | mysecret |
-    Then the step should succeed
-    When I perform the :check_jenkins_credentials web action with:
-      | credential_name | <%= project.name %>-mysecret |
-    Then the step should fail
-
   # @author wewang@redhat.com
   # @case_id OCP-11065
   Scenario: Jenkins pipeline build with Blue Green Deployment Example

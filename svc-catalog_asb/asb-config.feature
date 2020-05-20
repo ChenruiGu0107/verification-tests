@@ -91,29 +91,6 @@ Feature: Ansible-service-broker related scenarios
     Then status becomes :failed of 1 pods labeled:
       | deploymentconfig=asb            |
 
-  # @case_id OCP-16373
-  @destructive
-  @admin
-  Scenario: ASB connect to Multi-Cat with SSL
-    When I run the :get client command with:
-      | resource           | clusterserviceclass                                        |
-      | o                  | custom-columns=BROKER\ NAME:.spec.clusterServiceBrokerName |
-    Then the output should contain "ansible-service-broker"
-
-    When I switch to cluster admin pseudo user
-    # Revert to the original configuration
-    And the "ansible-service-broker" cluster service broker is recreated after scenario
-
-    When I run the :patch client command with:
-      | resource           | clusterservicebroker     |
-      | resource_name      | ansible-service-broker   |
-      | p                  | {"spec":{"caBundle":""}} |
-    Then the step should succeed
-    When I run the :describe client command with:
-      | resource           | clusterservicebroker     |
-      | name               | ansible-service-broker   |
-    And the output should contain "x509: certificate signed by unknown authority"
-
   # @author jiazha@redhat.com
   # @case_id OCP-15362
   @admin
