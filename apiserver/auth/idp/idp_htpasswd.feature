@@ -11,19 +11,18 @@ Feature: idp feature
     ocp23517_user:$2y$05$tm9rviPntbmDEL0S5pbF/eWYNP.rcws.dx.KNjfiqwFWH/hC9Dh1e
     """
     When I run the :create_secret admin command with:
-      | name        | htpass-secret-ocp23517   |
-      | secret_type | generic                  |
-      | from_file   | htpasswd                 |
-      | n           | openshift-config         |
+      | name        | htpass-secret-ocp23517 |
+      | secret_type | generic                |
+      | from_file   | htpasswd               |
+      | n           | openshift-config       |
     Then the step should succeed
     And admin ensure "htpass-secret-ocp23517" secret is deleted from the "openshift-config" project after scenario
-    When I run the :patch admin command with:
-      | resource      | oauth                  |
-      | resource_name | cluster                |
-      | p             | {"spec":{"identityProviders":[{"name":"htpassidp-23517","mappingMethod":"lookup","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23517"}}}]}} |
-      | type          | merge                  |
-    Then the step should succeed
-    Given 60 seconds have passed
+    Given as admin I successfully merge patch resource "oauth/cluster" with:
+      | {"spec":{"identityProviders":[{"name":"htpassidp-23517","mappingMethod":"lookup","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23517"}}}]}} |
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
     And I wait for the steps to pass:
     """
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
@@ -34,7 +33,7 @@ Feature: idp feature
       | server   | <%= env.api_endpoint_url %> |
       | username | ocp23517_user               |
       | password | ocp23517_user               |
-      | config   | ocp23517_user.cofig         |
+      | config   | ocp23517_user.config        |
       | skip_tls_verify  | true                |
     Then the step should fail
     Given I run the :create admin command with:
@@ -49,13 +48,13 @@ Feature: idp feature
       | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_useridentitymapping.json |
     Then the step should succeed
     When I run the :get admin command with:
-      | resource | user/ocp23517_user          |
+      | resource | user/ocp23517_user |
     Then the step should succeed
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %> |
       | username | ocp23517_user               |
       | password | ocp23517_user               |
-      | config   | ocp23517_user.cofig         |
+      | config   | ocp23517_user.config        |
       | skip_tls_verify  | true                |
     Then the step should succeed
     Given I run the :delete admin command with:
@@ -66,6 +65,75 @@ Feature: idp feature
       | server   | <%= env.api_endpoint_url %> |
       | username | ocp23517_user               |
       | password | ocp23517_user               |
-      | config   | ocp23517_user.cofig         |
+      | config   | ocp23517_user.config        |
       | skip_tls_verify  | true                |
     Then the step should fail
+
+  # @author pmali@redhat.com
+  # @case_id OCP-23514
+  @admin
+  @destructive
+  Scenario: Config provision strategy as "add"(4.x)	
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
+    """
+    ocp23514_user:$2y$05$qpxXM/d/GSXVsTp0wwJ.guOCEOSSZeX4JOkG631tQUTXprDDSfYGm
+    """
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-ocp23514 |
+      | secret_type | generic                |
+      | from_file   | htpasswd               |
+      | n           | openshift-config       |
+    Then the step should succeed
+    And admin ensure "htpass-secret-ocp23514" secret is deleted from the "openshift-config" project after scenario
+    Given as admin I successfully merge patch resource "oauth/cluster" with:
+      | {"spec":{"identityProviders":[{"name":"htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | ocp23514_user               |
+      | password | ocp23514_user               |
+      | config   | ocp23514_user.config        |
+      | skip_tls_verify  | true                |
+    Then the step should succeed
+    And admin ensures "ocp23514_user" user is deleted after scenario
+    And admin ensures "htpassidp-23514:ocp23514_user" identity is deleted after scenario
+    When I run the :get admin command with:
+      | resource | user/ocp23514_user |
+    Then the step should succeed
+   
+    Given as admin I successfully merge patch resource "oauth/cluster" with:
+      | {"spec":{"identityProviders":[{"name":"new-htpassidp-23514","mappingMethod":"add","type":"HTPasswd","htpasswd":{"fileData":{"name":"htpass-secret-ocp23514"}}}]}} |
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | ocp23514_user               |
+      | password | ocp23514_user               |
+      | config   | ocp23514_user.config        |
+      | skip_tls_verify  | true                |
+    Then the step should succeed
+    And admin ensures "new-htpassidp-23514:ocp23514_user" identity is deleted after scenario
+    When I run the :get admin command with:
+      | resource | user/ocp23514_user |
+    Then the step should succeed
+    And the output should contain:
+      | htpassidp-23514:ocp23514_user, new-htpassidp-23514:ocp23514_user |
+
