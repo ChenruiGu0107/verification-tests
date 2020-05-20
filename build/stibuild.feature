@@ -194,36 +194,6 @@ Feature: stibuild.feature
     And the "sample-1" build completed
 
   # @author wewang@redhat.com
-  # @case_id OCP-20999
-  @admin
-  Scenario: Build update that sets phase status failed should contain log snippet data
-    Given I have a project
-    When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world.git |
-    Then the step should succeed
-    And the "ruby-hello-world-1" build completed
-    When I run the :set_build_hook client command with:
-      | buildconfig | bc/ruby-hello-world    |
-      | post_commit | true                   |
-      | script      | bundle exec rake1 test |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-    Then the step should succeed
-    And the "ruby-hello-world-2" build failed
-    Given I switch to cluster admin pseudo user
-    When I use the "openshift-controller-manager" project
-    Then I store in the :pods clipboard the pods labeled:
-      | app=openshift-controller-manager |
-    And I repeat the following steps for each :pod in cb.pods:
-    """
-    And I run the :logs client command with:
-      | resource_name | #{cb.pod.name} |
-    Then the step should succeed
-    """
-    Then the output should contain "logSnippet"
-
-  # @author wewang@redhat.com
   # @case_id OCP-23174
   Scenario: Image source extraction w/ symlink should success when running a build	
     Given I have a project

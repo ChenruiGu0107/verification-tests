@@ -442,38 +442,6 @@ Feature: Ansible-service-broker related scenarios
     And the output should contain "Mediawiki Admin User and Password cannot be the same value"
     """
 
-  # @author chezhang@redhat.com
-  # @case_id OCP-20182
-  @admin
-  @destructive
-  Scenario: Sandbox APB Service Account using 'edit' scoped to the target namespace 3.11 or later
-    Given I save the first service broker registry prefix to :prefix clipboard
-    #provision postgresql
-    And I have a project
-    When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
-      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
-      | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
-      | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
-      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                       |
-      | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
-    Then the step should succeed
-    And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
-    When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
-      | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
-      | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
-      | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
-      | p | UID=<%= cb.db_uid %>                                                                                                         |
-      | n | <%= project.name %>                                                                                                          |
-    Then the step should succeed
-
-    # Check rolebindings in user project
-    Given I check that the "<%= cb.prefix %>-postgresql-apb" serviceinstance exists
-    And I check that the "<%= cb.prefix %>-postgresql-apb-parameters" secret exists
-    And rolebindings with name matching /bundle-/ are stored in the :rb1 clipboard
-    And the expression should be true> role_binding("<%= cb.rb1.first.name %>").role_names(cached: false).include? "edit"
-
   # @author zitang@redhat.com
   # @case_id OCP-20436
   @admin

@@ -245,33 +245,6 @@ Feature: change the policy of user/service account
     And the output should match:
       | (ClusterRole\/)?tc467927.*(<%= user(0, switch: false).name %>)? |
 
-  # @case_id OCP-20599
-  @admin
-  @destructive
-  Scenario: Add warnings when bootstrap rolebindings are modified
-    Given the "self-access-reviewers" clusterolebinding is recreated after scenario
-    When I run the :annotate admin command with:
-      | resource  | clusterrolebinding.rbac/self-access-reviewers    |
-      | overwrite | true                                             |
-      | keyval    | rbac.authorization.kubernetes.io/autoupdate=true |
-    Then the step should succeed
-    Given cluster role "self-access-reviewer" is removed from the "system:authenticated" group
-    And the output should match:
-      | Your changes may get lost whenever a master is restarted |
-      | rbac.authorization.kubernetes.io/autoupdate=false        |
-      | oc annotate clusterrolebinding.rbac                      |
-    And the master service is restarted on all master nodes
-    When I run the :annotate admin command with:
-      | resource  | clusterrolebinding.rbac/self-access-reviewers     |
-      | overwrite | true                                              |
-      | keyval    | rbac.authorization.kubernetes.io/autoupdate=false |
-    Then the step should succeed
-    Given cluster role "self-access-reviewer" is removed from the "system:authenticated" group
-    And the output should not match:
-      | Your changes may get lost whenever a master is restarted |
-      | rbac.authorization.kubernetes.io/autoupdate=false        |
-      | oc annotate clusterrolebinding.rbac                      |
-
   # @author chuyu@redhat.com
   # @case_id OCP-22725
   @admin
