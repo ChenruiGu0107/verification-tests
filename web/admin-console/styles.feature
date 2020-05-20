@@ -161,3 +161,37 @@
     Then the step should succeed
     When I run the :check_filter_side_panel_style web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24223
+  Scenario: Check Alerts styles	
+    Given the master version >= "4.2"
+    Given I have a project
+    When I run oc create with "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json" replacing paths:
+      | ["metadata"]["name"] | ruby |
+    Then the step should succeed
+
+    When I open admin console in a browser
+    Then the step should succeed
+    When I perform the :check_alert_style_on_deploy_image_page web action with:
+      | project_name   | <%= project.name %>   |
+      | search_content | aosqe/hello-openshift |
+    Then the step should succeed
+
+    When I perform the :check_alert_style_on_create_app_page web action with:
+      | project_name | <%= project.name %> |
+      | is_name      | ruby                |
+    Then the step should succeed
+
+    When I perform the :check_alert_style_on_dc_env_page web action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | ruby                |
+      | env_var_name  | test                |
+      | env_var_value | one                 |
+    Then the step should succeed
+
+    When I perform the :check_alert_style_for_dc_pause_rollouts web action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | ruby                |
+      | item          | Pause Rollouts      |
+    Then the step should succeed
