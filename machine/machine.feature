@@ -1,7 +1,6 @@
 Feature: Machine features testing
 
   # @author jhou@redhat.com
-  # @case_id OCP-25927
   @admin
   Scenario Outline: Machines phase should become 'Failed' when it has create error
     Given I have an IPI deployment
