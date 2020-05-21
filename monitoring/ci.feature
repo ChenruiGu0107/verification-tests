@@ -480,3 +480,111 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | Endpoint |
       | up)      |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-28957
+  @admin
+  @destructive
+  Scenario: Alerting rules with the same name and different namespaces should not offend each other
+    Given the master version >= "4.5"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    And admin ensures "ocp-28957-proj1" project is deleted after scenario
+    And admin ensures "ocp-28957-proj2" project is deleted after scenario
+    And admin ensures "ocp-28957.rules" prometheusrule is deleted from the "ocp-28957-proj1" project after scenario
+    And admin ensures "ocp-28957.rules" prometheusrule is deleted from the "ocp-28957-proj2" project after scenario
+    #enable techPreviewUserWorkload
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                                                                                      |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | ocp-28957-proj1 |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | ocp-28957-proj2 |
+    Then the step should succeed
+    #Deploy prometheus rules under proj1
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-28957-proj1.yaml |
+      | overwrite | true                                                                                             |
+    Then the step should succeed
+    #Deploy prometheus rules under proj2
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-28957-proj2.yaml |
+      | overwrite | true                                                                                             |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | thanosruler                        |
+      | resource_name | user-workload                      |
+      | n             | openshift-user-workload-monitoring |
+      | o             | yaml                               |
+    Then the step should succeed
+    And the output should contain:
+      | enforcedNamespaceLabel: namespace |
+    """
+    When I use the "openshift-user-workload-monitoring" project
+    And evaluation of `route('thanos-ruler').spec.host` is stored in the :thanos_ruler_route clipboard
+    When I use the "openshift-monitoring" project
+    And evaluation of `route('thanos-querier').spec.host` is stored in the :thanos_querier_route clipboard
+    And evaluation of `route('alertmanager-main').spec.host` is stored in the :alertmanager_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+     
+    #Check thanos querier from svc to wait for some time
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=ALERTS%7Balertname%3D%22Watchdog%22%7D |
+    Then the step should succeed
+    And the output should contain:
+      | ocp-28957-proj1 |
+      | ocp-28957-proj2 |
+    """ 
+    #check alertmanager
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.alertmanager_route %>/api/v2/alerts/groups?filter=alertname%3D%22Watchdog%22&
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | ocp-28957-proj1 |
+      | ocp-28957-proj2 |
+  
+    #check thanos rule
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.thanos_ruler_route %>/alerts
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | alertname="Watchdog" |
+      | ocp-28957-proj1      |
+      | ocp-28957-proj2      |
+    ##check thanos alerts
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.thanos_ruler_route %>/rules
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Watchdog        |
+      | ocp-28957-proj1 |
+      | ocp-28957-proj2 |
