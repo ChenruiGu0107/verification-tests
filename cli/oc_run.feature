@@ -442,3 +442,55 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | mycron-job |
+
+  # @author yinzhou@redhat.com
+  Scenario Outline: run with --restart parameter
+    Given the master version >= "4.5"
+    Given I have a project
+    When I run the :run client command with:
+      | _tool   | <tool>           |
+      | name    | podrestart       |
+      | image   | openshift/origin |
+      | restart | Always           |
+    Then the step should succeed
+    When I run the :run client command with:
+      | _tool   | <tool>           |
+      | name    | podonfailure     |
+      | image   | openshift/origin |
+      | restart | OnFailure        |
+    Then the step should succeed
+    When I run the :run client command with:
+      | _tool   | <tool>           |
+      | name    | podnever         |
+      | image   | openshift/origin |
+      | restart | Never            |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass: 
+    """
+    When I run the :get client command with:
+      | _tool         | <tool>                                               |
+      | resource      | pod                                                  |
+      | resource_name | podrestart                                           |
+      | template      | {{(index .status.containerStatuses 0).restartCount}} |
+    Then the step should succeed
+    And the expression should be true> @result[:response].to_i >= 1
+    When I run the :get client command with:
+      | _tool         | <tool>                                               |
+      | resource      | pod                                                  |
+      | resource_name | podonfailure                                         |
+      | template      | {{(index .status.containerStatuses 0).restartCount}} |
+    Then the step should succeed
+    And the expression should be true> @result[:response].to_i >= 1
+    When I run the :get client command with:
+      | _tool         | <tool>                                               |
+      | resource      | pod                                                  |
+      | resource_name | podnever                                             |
+      | template      | {{(index .status.containerStatuses 0).restartCount}} |
+    Then the step should succeed
+    And the expression should be true> @result[:response] == "0"
+    """
+
+    Examples:
+      | tool     |
+      | oc       | # @case_id OCP-30884
+      | kubectl  | # @case_id OCP-30898
