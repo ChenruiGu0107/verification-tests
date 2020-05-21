@@ -24,7 +24,7 @@ spec:
         run: dctest
     spec:
       containers:
-      - image: quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e
+      - image: quay.io/openshifttest/deployment-example@sha256:97adb15f1238c4c9216c1e6bf3986e2468d0709fc5c3625e96d463c81240f652
         imagePullPolicy: IfNotPresent
         name: dctest-1
         ports:
