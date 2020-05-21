@@ -269,3 +269,24 @@ Feature: Testing Ingress Operator related scenarios
       | grep | accept-proxy | haproxy.config |
     Then the step should fail
 
+  # @author hongli@redhat.com
+  # @case_id OCP-27560
+  @admin
+  Scenario: support NodePortService for custom Ingresscontroller
+    Given the master version >= "4.4"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-27560" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingressctl-nodeport.yaml" replacing paths:
+      | ["metadata"]["name"] | test-27560                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-27560") %> |
+    Then the step should succeed
+    Then the expression should be true> ingress_controller('test-27560').endpoint_publishing_strategy == "NodePortService"
+
+    # ensure the nodeport service is created
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27560 |
+    Then the expression should be true> service('router-nodeport-test-27560').exists?
+
