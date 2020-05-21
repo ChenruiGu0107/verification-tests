@@ -45,7 +45,7 @@ spec:
         - --address=0.0.0.0
         - --leader-elect=false
         - --scheduler-name=my-scheduler
-        image: quay.io/knarra/my-kube-scheduler:4.4
+        image: quay.io/openshifttest/custom-scheduler@sha256:0b5ce8d863fe1071b9743975cbd3b3d4957e3f85e340acb254feb50a33ca1285
         livenessProbe:
           httpGet:
             path: /healthz
