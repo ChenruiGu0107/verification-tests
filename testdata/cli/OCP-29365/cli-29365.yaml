@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cli
+  labels:
+    name: cli
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: cli
+    image: docker.io/aosqe/oc-cli:tagname
+    command: [ "oc" ]
+    args: 
+      - "adm"
+      - "prune"
+      - "images"
+      - "--force-insecure=true"
