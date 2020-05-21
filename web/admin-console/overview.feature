@@ -392,13 +392,7 @@ Feature: overview cases
     When I perform the :goto_project_resources_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I run the :click_groupby_dropdown_button web action
-    Then the step should succeed
-    When I perform the :check_dropdown_menu_item web action with:
-      | dropdown_menu_item | Application |
-    Then the step should succeed
-    When I perform the :check_dropdown_menu_item web action with:
-      | dropdown_menu_item | Resource |
+    When I run the :check_groupby_dropdown_when_no_resources web action
     Then the step should succeed
     When I run the :check_groupby_label_header_missing web action
     Then the step should succeed

@@ -4,14 +4,14 @@ Feature: cronjob related
   Scenario: Check cronjob on console
     Given the master version >= "3.11"
     Given I have a project
-    When I run the :run client command with:
-      | name         | mycron-job            |
-      | image        | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
-      | generator    | cronjob/v1beta1       |
-      | restart      | OnFailure             |
-      | schedule     | */1 * * * *           |
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/cronjob_3.9_with_startingDeadlineSeconds.yaml |
     Then the step should succeed
-
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I get project cronjobs
+    Then the output should contain "sj3"
+    """
     Given I open admin console in a browser
 
     # check cronjob page
@@ -20,17 +20,17 @@ Feature: cronjob related
     Then the step should succeed
 
     When I perform the :check_page_match web action with:
-      | content | mycron-job |
+      | content | sj3 |
     Then the step should succeed
     When I perform the :goto_one_cronjob_page web action with:
       | project_name | <%= project.name %> |
-      | cronjob_name | mycron-job          |
+      | cronjob_name | sj3                 |
     Then the step should succeed
     When I perform the :check_resource_name_and_icon web action with:
-      | cronjob_name | mycron-job |
+      | cronjob_name | sj3 |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
-      | name               | mycron-job  |
+      | name               | sj3         |
       | schedule           | */1 * * * * |
       | concurrency_policy | Allow       |
       | last_schedule_time |             |
@@ -42,11 +42,11 @@ Feature: cronjob related
       | tab_name | Events |
     Then the step should succeed
     Given a job appears with labels:
-      | run=mycron-job |
+      | run=sj3 |
     Given a pod is present with labels:
-      | run=mycron-job |
+      | run=sj3 |
     When I perform the :check_page_match web action with:
-      | content | Created job mycron-job- |
+      | content | Created job sj3- |
     Then the step should succeed
 
     # check job page
@@ -62,7 +62,7 @@ Feature: cronjob related
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | name                | <%= cb.job_name %>  |
-      | owner               | mycron-job          |
+      | owner               | sj3                 |
       | desired_completions | 1                   |
       | parallelism         | 1                   |
     Then the step should succeed
@@ -79,7 +79,7 @@ Feature: cronjob related
     # delete cronjob from console
     When I perform the :goto_one_cronjob_page web action with:
       | project_name | <%= project.name %> |
-      | cronjob_name | mycron-job          |
+      | cronjob_name | sj3                 |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item | Delete Cron Job |
@@ -87,9 +87,9 @@ Feature: cronjob related
     When I perform the :delete_resource_panel web action with:
       | cascade | true |
     Then the step should succeed
-    And I wait for the resource "cronjob" named "mycron-job" to disappear within 60 seconds
+    And I wait for the resource "cronjob" named "sj3" to disappear within 60 seconds
     When I perform the :check_page_match web action with:
-      | content | mycron-job |
+      | content | sj3 |
     Then the step should fail
 
     # check job and pod are deleted automatically

@@ -310,10 +310,14 @@ Feature: operatorhub feature related
     When I perform the :select_target_namespace web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "radanalytics-spark" subscriptions to appear
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project clusterserviceversions
+    Then the output should contain "sparkoperator.v"
+    """
     And evaluation of `subscription("radanalytics-spark").current_csv` is stored in the :spark_csv clipboard
     When I perform the :goto_operand_list_page web action with:
       | project_name | <%= project.name %>              |

@@ -97,15 +97,18 @@ Feature: deployment/dc related features via web
   # @case_id OCP-19653
   Scenario: Pause and resume Deployment support
     Given I have a project
-    When I run the :run client command with:
-      | name         | mydc                  |
-      | image        | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
-      | limits       | memory=256Mi          |
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
     Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I get project deploymentconfigs
+    Then the output should contain "hooks"
+    """
     And I open admin console in a browser
     When I perform the :goto_one_dc_page web action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | mydc                |
+      | project_name | <%= project.name %>  |
+      | dc_name      | hooks                |
     Then the step should succeed
     When I perform the :click_one_dropdown_action web action with:
       | item  | Pause Rollouts |
@@ -120,7 +123,7 @@ Feature: deployment/dc related features via web
       | item  | Start Rollout |
     Then the step should succeed
     When I perform the :check_page_match web action with:
-      | content | deployment config "mydc" is paused |
+      | content | deployment config "hooks" is paused |
     Then the step should succeed
     When I perform the :click_button web action with:
       | button_text | OK |
@@ -134,7 +137,7 @@ Feature: deployment/dc related features via web
       | item  | Start Rollout |
     Then the step should succeed
     When I perform the :check_page_not_match web action with:
-      | content | deployment config "mydc" is paused |
+      | content | deployment config "hooks" is paused |
     Then the step should succeed
 
   # @author yapei@redhat.com
@@ -240,23 +243,21 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.3"
     Given I open admin console in a browser
     Given I have a project
-    When I perform the :goto_dc_page web action with:
-      | project_name | <%= project.name %> |
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
     Then the step should succeed
-    When I run the :run client command with:
-       | name    | example                   |
-       | image   | docker.io/library/busybox |
-    Then the step should succeed
+    Given a pod is present with labels:
+      | deployment=hooks-1 |
     When I perform the :goto_one_dc_page web action with:
       | project_name | <%= project.name %>  |
-      | dc_name      | example              |
+      | dc_name      | hooks                |
     Then the step should succeed
     When I perform the :click_tab web action with:
       | tab_name | Replication Controllers |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
-      | text     | example-1                        |
-      | link_url | replicationcontrollers/example-1 |
+      | text     | hooks-1                          |
+      | link_url | replicationcontrollers/hooks-1   |
     Then the step should succeed
 
     Given the first user is cluster-admin
@@ -279,10 +280,11 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.3"
     Given I open admin console in a browser
     Given I have a project
-    When I run the :run client command with:
-      | name  | exampletest           |
-      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
     Then the step should succeed
+    Given a pod is present with labels:
+      | deployment=hooks-1 |
     When I perform the :goto_rc_list_page web action with:
       | project_name | <%= project.name %>  |
     Then the step should succeed
@@ -294,11 +296,11 @@ Feature: deployment/dc related features via web
     Then the step should succeed
     When I perform the :goto_one_rc_page web action with:
       | project_name | <%= project.name %>  |
-      | rc_name      | exampletest-1        |
+      | rc_name      | hooks-1              |
     Then the step should succeed
     When I perform the :check_resource_details web action with:
       | created_at | |
-      | owner      | exampletest |
+      | owner      | hooks |
     Then the step should succeed
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536590/k8s-deployment.yaml |
