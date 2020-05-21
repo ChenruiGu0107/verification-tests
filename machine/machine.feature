@@ -75,3 +75,23 @@ Feature: Machine features testing
       | machinehealthcheck |
       | clusterautoscaler  |
       | machineautoscaler  |
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-30257 
+  @admin
+  Scenario Outline: Cluster-reader should be able to view machine resources	
+    Given cluster role "cluster-reader" is added to the "first" user 
+    Given I switch to the first user
+    When I run the :get client command with:
+      | resource | <resource> |
+    Then the step should succeed
+    And the output should not contain:
+      | Error |
+
+    Examples:
+      | resource           |
+      | machine            |
+      | machineset         |
+      | machinehealthcheck |
+      | clusterautoscaler  |
+      | machineautoscaler  |
