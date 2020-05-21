@@ -89,63 +89,6 @@ Feature: test master config related steps
     Then the step should succeed
 
   # @author chuyu@redhat.com
-  # @case_id OCP-9796
-  @admin
-  @destructive
-  Scenario: Configure projectrequestlimit to invalid specific number
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                admin: "true"
-              maxProjects: -1
-    """
-    Given I try to restart the master service on all master nodes
-    Then the step should fail
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                admin: "true"
-              maxProjects: 1.23
-    """
-    Given I try to restart the master service on all master nodes
-    Then the step should fail
-    Given master config is merged with the following hash:
-    """
-    admissionConfig:
-      pluginOrderOverride:
-      - ProjectRequestLimit
-      pluginConfig:
-        ProjectRequestLimit:
-          configuration:
-            apiVersion: v1
-            kind: ProjectRequestLimitConfig
-            limits:
-            - selector:
-                admin: "true"
-              maxProjects: -2.3
-    """
-    Given I try to restart the master service on all master nodes
-    Then the step should fail
-
-  # @author chuyu@redhat.com
   # @case_id OCP-9800
   @admin
   @destructive
