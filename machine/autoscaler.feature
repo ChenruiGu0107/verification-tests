@@ -458,3 +458,69 @@ Feature: Cluster Autoscaler Tests
       | /vmSize:.*/       | vmSize: Standard_D2s_v3    | vmSize: invalid       | vmSize:       | machineset-28876 | # @case_id OCP-28876
       | /instanceType:.*/ | instanceType: m4.large     | instanceType: invalid | instanceType: | machineset-28875 | # @case_id OCP-28875
 
+  # @author zhsun@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: Autoscaler will scale down the nodegroup that has Failed machine when maxNodeProvisionTime is reached
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+
+    #Create an invalid machineset with replicas=0
+    Given I clone a machineset and name it "<machineset_name>"
+
+    When I scale the machineset to -1
+    Then the step should succeed
+    And the machineset should have expected number of running machines
+
+    Given as admin I successfully merge patch resource "machineset/<machineset_name>" with:
+      | {"spec":{"template":{"spec":{"providerSpec":{"value":{<invalid_value>}}}}}} |
+
+    # Create clusterautoscaler
+    Given I use the "openshift-machine-api" project
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml |
+    Then the step should succeed
+    And admin ensures "default" clusterautoscaler is deleted after scenario
+    And 1 pods become ready with labels:
+      | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
+
+    # Create machineautoscaler
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+      | ["metadata"]["name"]               | maotest           |
+      | ["spec"]["minReplicas"]            | 0                 |
+      | ["spec"]["maxReplicas"]            | 2                 |
+      | ["spec"]["scaleTargetRef"]["name"] | <machineset_name> |
+    Then the step should succeed
+    And admin ensures "maotest" machineautoscaler is deleted after scenario
+    
+    # Create workload
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml |
+    Then the step should succeed
+    And admin ensures "workload" job is deleted after scenario
+
+    # Check new created machine has 'Failed' phase
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I store the last provisioned machine in the :failed_machine clipboard
+    Then the expression should be true> machine(cb.failed_machine).phase(cached: false) == "Failed"
+    """
+    # Check cluster auto scales down
+    And I wait up to 1000 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set("<machineset_name>").desired_replicas(cached: false) == 0
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | Scale-up timed out for node group openshift-machine-api/<machineset_name> |
+      | Disabling scale-up for node group openshift-machine-api/<machineset_name> |
+      | Removing unregistered node failed-machine-openshift-machine-api_          |
+    """
+
+    Examples:
+      | invalid_value             | machineset_name        |
+      | "instanceType": "invalid" | machineset-clone-30377 |# @case_id OCP-30377
+
