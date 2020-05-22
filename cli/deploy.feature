@@ -31,8 +31,9 @@ Feature: deployment related features
   # @case_id OCP-12034
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    When I run the :create_deploymentconfig client command with:
+      | image | <%= project_docker_repo %>openshift/deployment-example |
+      | name  | deployment-example                                     |
     Then the step should succeed
     # Wait till the deploy complete
     And the pod named "deployment-example-1-deploy" becomes ready
@@ -95,9 +96,9 @@ Feature: deployment related features
   # @case_id OCP-12536
   Scenario: oc deploy negative test
     Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | aosqe/hello-openshift |
-      | name     | hooks                  |
+    When I run the :create_deploymentconfig client command with:
+      | image | aosqe/hello-openshift |
+      | name  | hooks                 |
     Then the step should succeed
     When I run the :rollout_latest client command with:
       | resource | notreal |
@@ -274,8 +275,9 @@ Feature: deployment related features
   # @case_id OCP-12622
   Scenario: Trigger info is retained for deployment caused by config changes
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    When I run the :create_deploymentconfig client command with:
+      | image | <%= project_docker_repo %>openshift/deployment-example |
+      | name  | deployment-example                                     |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     And I replace resource "dc" named "deployment-example":
@@ -1165,8 +1167,9 @@ Feature: deployment related features
   Scenario: View the history of rollouts for a specific deployment config for 3.7
     Given the master version >= "3.7"
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    When I run the :create_deploymentconfig client command with:
+      | image | <%= project_docker_repo %>openshift/deployment-example |
+      | name  | deployment-example                                     |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     When I run the :set_env client command with:
@@ -1195,8 +1198,9 @@ Feature: deployment related features
   # @case_id OCP-28016
   Scenario: dnsPolicy: none works well
     Given I have a project
-    When I run the :new_app client command with:
-      | app_repo | openshift/hello-openshift |
+    When I run the :create_deploymentconfig client command with:
+      | image | openshift/hello-openshift |
+      | name  | hello-openshift           |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | dc              |
