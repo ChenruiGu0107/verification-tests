@@ -144,8 +144,9 @@ Feature: pod related features
       | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>               |
     Then the step should succeed
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    When I run the :create_deploymentconfig client command with:
+      | image | <%= project_docker_repo %>openshift/deployment-example |
+      | name  | deployment-example                                     |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     Then I run the :scale client command with:

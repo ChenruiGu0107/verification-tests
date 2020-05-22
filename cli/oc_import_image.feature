@@ -46,10 +46,10 @@ Feature: oc import-image related feature
     Then the output should match:
       | [Tt]ag deployment-example:latest           |
     And I wait for the "deployment-example:latest" istag to appear
-    When I run the :new_app client command with:
-      | image_stream | deployment-example:latest   |
-    Then the output should match:
-      | .*[Ss]uccess.*|
+    When I run the :create_deploymentconfig client command with:
+      | image | deployment-example:latest |
+      | name  | deployment-example        |
+    Then the step should succeed
     When I run the :get client command with:
       | resource        | imagestreams |
     Then the output should match:
@@ -82,8 +82,9 @@ Feature: oc import-image related feature
       | [Tt]ag deployment-example:latest           |
     And I wait for the "deployment-example:latest" istag to appear
 
-    When I run the :new_app client command with:
-      | image_stream | deployment-example:latest   |
+    When I run the :create_deploymentconfig client command with:
+      | image | deployment-example:latest |
+      | name  | deployment-example        |
     Then the step should succeed
     Then the "deployment-example" image stream was created
 
