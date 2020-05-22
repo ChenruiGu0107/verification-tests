@@ -35,6 +35,8 @@ Feature: cluster-logging-operator related cases
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And I wait for the "kibana" deployment to appear
+    And I wait for the "fluentd" daemon_set to appear
     Then the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_limit_raw == "2Gi"
     And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').cpu_limit_raw == nil
     And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_request_raw == "1Gi"
@@ -78,7 +80,8 @@ Feature: cluster-logging-operator related cases
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
-    #Then the expression should be true> elasticsearch('elasticsearch').node_selector['es'] == 'deploy'
+    And I wait for the "kibana" deployment to appear
+    And I wait for the "fluentd" daemon_set to appear
     Then the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector['es'] == 'deploy'
     And the expression should be true> daemon_set('fluentd').node_selector['fluentd'] == 'deploy'
     And the expression should be true> deployment('kibana').node_selector['kibana'] == 'deploy'
@@ -113,6 +116,8 @@ Feature: cluster-logging-operator related cases
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And I wait for the "kibana" deployment to appear
+    And I wait for the "fluentd" daemon_set to appear
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> daemon_set('fluentd').node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> deployment('kibana').node_selector['kubernetes.io/os'] == 'linux'
@@ -319,6 +324,8 @@ Feature: cluster-logging-operator related cases
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
+    And I wait for the "kibana" deployment to appear
+    And I wait for the "fluentd" daemon_set to appear
     And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').memory_request_raw == "1Gi"
     And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana').cpu_request_raw == "100m"
     And the expression should be true> deployment('kibana').container_spec(user: user, name: 'kibana-proxy').memory_request_raw == "100Mi"
