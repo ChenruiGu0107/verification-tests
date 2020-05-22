@@ -77,7 +77,7 @@ Feature: Machine features testing
       | machineautoscaler  |
 
   # @author zhsun@redhat.com
-  # @case_id OCP-30257 
+  # @case_id OCP-30257
   @admin
   Scenario Outline: Cluster-reader should be able to view machine resources	
     Given cluster role "cluster-reader" is added to the "first" user 
