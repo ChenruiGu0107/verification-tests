@@ -15,8 +15,7 @@ Feature: operatorhub feature related
       | catalog_name     | community-operators    |
       | target_namespace | <%= project.name %>    |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text  | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
     """
 
@@ -74,8 +73,7 @@ Feature: operatorhub feature related
       | catalog_name     | custom-cs-keycloak  |
       | target_namespace | <%= cb.proj_name %> |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text  | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
     """
     Given I wait for the "keycloak-operator" subscription to appear in the "<%= cb.proj_name %>" project up to 30 seconds
@@ -139,8 +137,7 @@ Feature: operatorhub feature related
     When I perform the :select_target_namespace web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
 
     # wait until container security operator is successfully installed
@@ -267,8 +264,7 @@ Feature: operatorhub feature related
     When I perform the :select_target_namespace web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "cockroachdb-certified-rhmp" subscriptions to appear
     And evaluation of `subscription("cockroachdb-certified-rhmp").current_csv` is stored in the :cockroachdb_csv clipboard

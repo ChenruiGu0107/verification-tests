@@ -68,10 +68,14 @@ Feature: tests on catalog page
     Then the step should succeed
     And the expression should be true>  browser.url =~ /kind=.*Template/
     When I perform the :create_app_from_template web action with:
-      | project_name | <%= project.name %> |
-      | template_name | dotnet-example     |
+      | project_name  | <%= project.name %> |
+      | template_name | dotnet-example      |
     Then the step should succeed
-
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I get project templateinstance
+    Then the output should contain "dotnet-example-"
+    """
     When I get project templateinstance as YAML
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :templateinstance clipboard
 

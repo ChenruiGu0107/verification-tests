@@ -15,6 +15,7 @@ Feature: secrets related
       | webhook_secret_type | manually_set           |
       | webhook_secret_key  | <%= cb.webhook_skey %> |
     Then the step should succeed
+    Given I wait for the "webhooksecret1" secret to appear up to 20 seconds
     When I run the :describe client command with:
       | resource | secret/webhooksecret1 |
     Then the step should succeed
@@ -29,6 +30,7 @@ Feature: secrets related
       | secret_name         | webhooksecret2         |
       | webhook_secret_type | generate               |
     Then the step should succeed
+    Given I wait for the "webhooksecret2" secret to appear up to 20 seconds
     When I run the :describe client command with:
       | resource | secret/webhooksecret2 |
     Then the step should succeed
@@ -68,6 +70,7 @@ Feature: secrets related
       | username           | testuser               |
       | password_or_token  | testpass               |
     Then the step should succeed
+    Given I wait for the "sourcesecret1" secret to appear up to 20 seconds
     When I run the :describe client command with:
       | resource | secret/sourcesecret1 |
     Then the step should succeed
@@ -89,11 +92,7 @@ Feature: secrets related
       | auth_type           | Basic Authentication   |
       | password_or_token   | testpass               |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | secret |
-    Then the step should succeed
-    And the output should contain:
-      | sourcesecret2 |
+    Given I wait for the "sourcesecret2" secret to appear up to 20 seconds
 
     # create ssh key type secret
     When I perform the :create_secret web action with:
@@ -103,11 +102,7 @@ Feature: secrets related
       | auth_type           | SSH Key                |
       | textarea_value      | testinputvalue         |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | secret |
-    Then the step should succeed
-    And the output should contain:
-      | sourcesecret3 |
+    Given I wait for the "sourcesecret3" secret to appear up to 20 seconds
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-20800
@@ -126,7 +121,7 @@ Feature: secrets related
       | textarea_value | value_1          |
       | create         | |
     Then the step should succeed
-
+    Given I wait for the "genericsecret1" secret to appear up to 20 seconds
     # Check created secret
     When I perform the :goto_one_secret_page web action with:
       | project_name        | <%= project.name %>    |
