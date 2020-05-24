@@ -208,7 +208,7 @@ Feature: Install and configuration related scenarios
     Given I create a project with non-leading digit name
     Then the step should succeed
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/thanos-ruler-ocp-30088.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/thanos-ruler-ocp-30088.yaml |
       | overwrite | true |
     Then the step should fail
     And the output should contain:
@@ -226,7 +226,7 @@ Feature: Install and configuration related scenarios
 
     #create cluster-monitoring-config configmap
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_remote_write-ocp-24297.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map_remote_write-ocp-24297.yaml |
       | overwrite | true |
     Then the step should succeed
 
@@ -261,12 +261,12 @@ Feature: Install and configuration related scenarios
     Given admin ensures "test-ocp-29748" prometheusrule is deleted from the "openshift-monitoring" project after scenario
     #enable techPreviewUserWorkload
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                                                                                      |
     Then the step should succeed
     #Deploy prometheus rules under user's namespace
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-29748.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/prometheus_rules-OCP-29748.yaml |
       | overwrite | true                                                                                       |
     Then the step should succeed
     #Check the newly created alert are sent to pod alertmanager-main-0 for we can't check all the pods in a loop and wait time at the same time
@@ -316,7 +316,7 @@ Feature: Install and configuration related scenarios
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     #enable techPreviewUserWorkload
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true |
     Then the step should succeed
     # check ignoreNamespaceSelectors is set
@@ -341,7 +341,7 @@ Feature: Install and configuration related scenarios
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     #config monitoring to disable telemeter client
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map-disable-ocp-21576.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map-disable-ocp-21576.yaml |
       | overwrite | true |
     Then the step should succeed
     #oc get pod | grep telemeter-client
@@ -363,7 +363,7 @@ Feature: Install and configuration related scenarios
     And I use the "openshift-monitoring" project
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map-retention-ocp-22528.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map-retention-ocp-22528.yaml |
       | overwrite | true |
     Then the step should succeed
     #check retention time
@@ -394,7 +394,7 @@ Feature: Install and configuration related scenarios
 
     #create cluster-monitoring-config configmap
     When I run the :apply client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/externalLabels.yaml |
+      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/externalLabels.yaml |
       | overwrite  | true |
     Then the step should succeed
 
@@ -495,7 +495,7 @@ Feature: Install and configuration related scenarios
     And admin ensures "ocp-28957.rules" prometheusrule is deleted from the "ocp-28957-proj2" project after scenario
     #enable techPreviewUserWorkload
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/config_map_enable_techPreviewUserWorkload.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map_enable_techPreviewUserWorkload.yaml |
       | overwrite | true                                                                                                      |
     Then the step should succeed
     When I run the :new_project client command with:
@@ -506,12 +506,12 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     #Deploy prometheus rules under proj1
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-28957-proj1.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/prometheus_rules-OCP-28957-proj1.yaml |
       | overwrite | true                                                                                             |
     Then the step should succeed
     #Deploy prometheus rules under proj2
     When I run the :apply client command with:
-      | f         | <%= BushSlicer::HOME %>/features/tierN/monitoring/testdata/prometheus_rules-OCP-28957-proj2.yaml |
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/prometheus_rules-OCP-28957-proj2.yaml |
       | overwrite | true                                                                                             |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
