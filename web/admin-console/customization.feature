@@ -59,7 +59,7 @@ Feature: customize console related
 
     Given I switch to the first user
     And I open admin console in a browser
-    When I perform the :check_header_brand web action with:
+    When I perform the :check_brand web action with:
       | logo_source  | okd-logo |
       | product_name | OKD      |
     Then the step should succeed
@@ -269,7 +269,7 @@ Feature: customize console related
 
     Given I switch to the first user
     And I open admin console in a browser
-    When I perform the :check_header_brand web action with:
+    When I perform the :check_brand web action with:
       | logo_source  | custom-logo    |
       | product_name | my-custom-name |
     Then the step should succeed
@@ -668,4 +668,85 @@ Feature: customize console related
     Then the step should succeed
     When I perform the :check_content_in_yaml_editor web action with:
       | yaml_content | countdown |
+    Then the step should succeed
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-29200
+  @destructive
+  @admin
+  Scenario: Check new logos on console
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    Given I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster         |
+      | type     | merge                            |
+      | p        | {"spec":{"customization": null}} |
+    Then the step should succeed
+    """
+    And I open admin console in a browser
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I run the :check_logo_in_masthead web action
+    Then the step should succeed
+    When I run the :check_logo_in_app_launcher web action
+    Then the step should succeed
+    When I run the :check_logo_in_about_modal web action
+    Then the step should succeed
+
+    #dedicated logo
+    Given I use the "openshift-console" project
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"brand":"dedicated"}}} |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    And current replica set name of "console" deployment stored into :rs1 clipboard
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 2 |
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I run the :check_dedicated_logo web action
+    Then the step should succeed
+
+    #online logo
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name2 clipboard
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"brand":"online"}}} |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.pod_name2 %>" to disappear
+    And current replica set name of "console" deployment stored into :rs2 clipboard
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 2 |
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I run the :check_online_logo web action
+    Then the step should succeed
+
+    # azure logo
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name3 clipboard
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"brand":"azure"}}} |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.pod_name3 %>" to disappear
+    And current replica set name of "console" deployment stored into :rs3 clipboard
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 2 |
+    When I run the :goto_projects_list_page web action
+    Then the step should succeed
+    When I run the :check_azure_logo web action
     Then the step should succeed
