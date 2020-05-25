@@ -76,6 +76,8 @@ Feature: environment related
     Then the step should succeed
     When I run the :submit_changes web action
     Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | bc            |
       | resource_name | python-sample |
@@ -87,6 +89,7 @@ Feature: environment related
     And the output should not contain:
       | mysecret1 |
       | password  |
+    """
 
   # @author yapei@redhat.com
   # @case_id OCP-20183
