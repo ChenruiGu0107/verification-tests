@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: container1
-    image: kubernetes/pause
+    image: quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105
     resources:
       limits:
         cpu: "150m"
@@ -14,7 +14,7 @@ spec:
         cpu: "100m"
         memory: "100Mi"
   - name: container2
-    image: kubernetes/pause
+    image: quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105
     resources:
       limits:
         cpu: "150m"
@@ -24,7 +24,7 @@ spec:
         memory: "100Mi"
   initContainers:
   - name: init1
-    image: centos:centos7
+    image: quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f
     command:
     - /bin/true
     resources:
@@ -35,7 +35,7 @@ spec:
         cpu: "400m"
         memory: "300Mi"
   - name: init2
-    image: centos:centos7
+    image: quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f
     command:
     - /bin/true
     resources:
