@@ -135,12 +135,12 @@ Feature: Testing Scheduler Operator related scenarios
     """
 
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
-      | name         | openshift1                                                                                                    |
+    When I run the :create_deploymentconfig client command with:
+      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+      | name  | openshift1                                                                                                    |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
-      | deploymentconfig= openshift1 |
+      | deploymentconfig=openshift1 |
 
   # @author knarra@redhat.com
   # @case_id OCP-12489
@@ -236,8 +236,9 @@ Feature: Testing Scheduler Operator related scenarios
     And label "usertestregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "usertestzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+    When I run the :create_deploymentconfig client command with:
+      | image | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
+      | name  | hello-openshift                                                                                               |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | deploymentconfig=hello-openshift |
