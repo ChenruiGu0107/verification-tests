@@ -41,7 +41,7 @@ Feature: Node related
       | Taints:\\s+taint_test=taint:NoSchedule |
     """
 
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     When I perform the :add_tolerations_to_pod web action with:

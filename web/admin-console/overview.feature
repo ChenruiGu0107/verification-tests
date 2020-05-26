@@ -5,7 +5,7 @@ Feature: overview cases
   Scenario: Check app resources on overview page
     Given the master version >= "4.1"
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | image_stream | openshift/python:latest                 |
       | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                           |
@@ -112,7 +112,7 @@ Feature: overview cases
     Then the step should succeed
 
     # check build error on overview
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | image_stream | openshift/python:latest                 |
       | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                           |
@@ -148,7 +148,7 @@ Feature: overview cases
   Scenario: Check popover help on resource detail page
     Given the master version >= "4.3"
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | image_stream | openshift/python:latest                 |
       | code         | https://github.com/sclorg/django-ex.git |
       | name         | python-sample                           |
@@ -398,7 +398,7 @@ Feature: overview cases
     Then the step should succeed
 
     # add app resources
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | image_stream | openshift/ruby:latest                         |
       | app_repo     | https://github.com/openshift/ruby-hello-world |
       | name         | ruby |
