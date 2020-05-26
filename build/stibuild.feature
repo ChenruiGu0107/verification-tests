@@ -426,3 +426,39 @@ Feature: stibuild.feature
     And the step should succeed
     And the "disconnect-build-1" build was created
     And the "disconnect-build-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30239
+  Scenario: use an image from registry.redhat.io as source during a build	
+  When I have a project
+  Then I run the :create client command with:
+    | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30239/bc_imagesource.yaml |
+  And the step should succeed
+  When I run the :start_build client command with:
+    | buildconfig | imagesourcebuildconfig |
+  Then the step should succeed
+  And the "imagesourcebuildconfig-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30238
+  Scenario: Add invalid pull secret in buildconfig and start-build
+  When I have a project
+  Then I run the :new_build client command with:
+    | app_repo | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+  Then the step should succeed
+  And the "ruby-hello-world-1" build completed
+  When I run the :create_secret client command with:
+    | name        | invalid-secret |
+    | secret_type | generic        |
+    | from_file   | .dockercfgjson=<%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30238/invaildsecret.json |
+    | type        | kubernetes.io/dockercfgjson                                                                       |
+  Then the step should succeed 
+  When I run the :set_build_secret client command with:
+    | bc_name     | ruby-hello-world |
+    | secret_name | invalid-secret   |
+    | pull        | true             |
+  Then the step should succeed
+  And I run the :start_build client command with:
+    | buildconfig | ruby-hello-world |
+  And the step should succeed
+  And the "ruby-hello-world-2" build failed
