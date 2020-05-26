@@ -404,3 +404,46 @@ Feature: oc patch/apply related scenarios
       | oc       | # @case_id OCP-15009
       | kubectl  | # @case_id OCP-21120
 
+  # @author yinzhou@redhat.com
+  Scenario Outline: Apply a configuration to a resource
+    Given I have a project
+    When I run the :create_deployment client command with:
+      | _tool | <tool>                    |
+      | name  | myapp                     |
+      | image | openshift/hello-openshift |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | _tool         | <tool>                                                                            |
+      | resource      | deploy                                                                            |
+      | resource_name | myapp                                                                             |
+      | p             | [{"op": "add", "path": "/spec/template/metadata/labels/version", "value": "4.5"}] |
+      | type          | json                                                                              |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | _tool         | <tool>                                                                          |
+      | resource      | deploy                                                                          |
+      | resource_name | myapp                                                                           |
+      | p             | [{"op": "add", "path": "/spec/template/metadata/labels/run", "value": "hello"}] |
+      | type          | json                                                                            |
+    Then the step should succeed 
+    When I get project deployment named "myapp" as YAML
+    And I save the output to file> myapp.yaml
+    Then I replace lines in "myapp.yaml":
+      | version: "4.5" | version: "4.5.1" |
+    When I run the :apply client command with:
+      | f | myapp.yaml |      
+    Then the step should succeed 
+    When I run the :apply_view_last_applied client command with:
+      | _tool     | <tool>           |
+      | resource  | deployment/myapp |
+    Then the step should succeed
+    Then I replace lines in "myapp.yaml":
+      | version: "4.5.1" | version: "4.5.2" |
+    When I run the :apply_set_last_applied client command with:
+      | f | myapp.yaml |      
+    Then the step should succeed 
+
+    Examples:
+      | tool    |
+      | oc      | # @case_id OCP-30394
+      | kubectl | # @case_id OCP-30395
