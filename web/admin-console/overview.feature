@@ -261,8 +261,7 @@ Feature: overview cases
       | catalog_name     | community-operators    |
       | target_namespace | <%= project.name %>    |
     Then the step should succeed
-    When I perform the :click_button web action with:
-      | button_text  | Subscribe |
+    When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "etcd" subscriptions to appear
     And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard

@@ -478,14 +478,14 @@ Feature: operatorhub feature related
     # check the filter with displayname of catalogsource
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
-    When I perform the :click_checkbox_from_providertype web action with:
-      | checkbox_text | custom-cs-keycloak |
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | custom-cs-keycloak |
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | Keycloak Operator |
     Then the step should succeed
-    When I perform the :click_checkbox_from_providertype web action with:
-      | checkbox_text | custom-cs-akka |
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | custom-cs-akka |
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | Akka Cluster Operator |
@@ -505,8 +505,8 @@ Feature: operatorhub feature related
     Given I wait for the resource "catalogsource" named "custom-cs-akka" to disappear within 30 seconds
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
-    When I perform the :click_checkbox_from_providertype web action with:
-      | checkbox_text | custom-cs-akka |
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | custom-cs-akka |
     Then the step should fail
 
     #check the filter changed as the displayname changed
