@@ -2,68 +2,62 @@ Feature: oc run related scenarios
   # @author xxia@redhat.com
   Scenario Outline: Create container with oc run command
     Given I have a project
-    When I run the :create_deploymentconfig client command with:
-      | _tool        | <tool>                |
-      | name         | mysql                 |
-      | image        | mysql                 |
-      | dry_run      | client                |
+    When I run the :create_deployment client command with:
+      | _tool   | <tool> |
+      | name    | mysql  |
+      | image   | mysql  |
     Then the step should succeed
-    When I run the :get client command with:
-      | _tool         | <tool>             |
-      | resource      | dc                 |
-      | resource_name | mysql              |
-    Then the step should fail
     When I run the :run client command with:
-      | _tool        | <tool>                |
-      | name         | webapp                |
-      | image        | training/webapp       |
-      | -l           | test=one              |
-      | limits       | memory=256Mi          |
+      | _tool        | <tool>          |
+      | name         | webapp          |
+      | image        | training/webapp |
+      | -l           | test=one        |
+      | limits       | memory=256Mi    |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | test=one |
 
-    When I run the :create_deploymentconfig client command with:
-      | _tool        | <tool>                |
-      | name         | webapp2               |
-      | image        | training/webapp       |
+    When I run the :create_deployment client command with:
+      | _tool        | <tool>          |
+      | name         | webapp2         |
+      | image        | training/webapp |
     Then the step should succeed
     When I run the :set_resources client command with:
-      | resource     | deploymentconfig |
-      | resourcename | webapp2          |
-      | limits       | memory=256Mi     |
+      | resource     | deployment   |
+      | resourcename | webapp2      |
+      | limits       | memory=256Mi |
     Then the step should succeed
     When I run the :patch client command with:
       | resource_name | webapp2                 |
-      | resource      | deploymentconfig        |
+      | resource      | deployment              |
       | p             | {"spec":{"replicas":2}} |
     Given 2 pods become ready with labels:
-      | deploymentconfig=webapp2 |
+      | app=webapp2 |
 
     When I run the :run client command with:
-      | name      | webapp4             |
-      | image     | training/webapp     |
-      | attach    | true                |
-      | _timeout  | 60                  |
+      | name      | webapp4         |
+      | image     | training/webapp |
+      | attach    | true            |
+      | _timeout  | 60              |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:
       | run=webapp4 |
     When I run the :run client command with:
-      | name      | debug               |
-      | image     | centos:7            |
-      | -i        | true                |
-      | tty       | true                |
-      | _timeout  | 90                  |
+      | name      | debug    |
+      | image     | centos:7 |
+      | -i        | true     |
+      | tty       | true     |
+      | _timeout  | 90       |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:
       | run=debug |
     When I run the :run client command with:
-      | name      | debug1              |
-      | image     | centos:7            |
-      | -i        | true                |
-      | _timeout  | 60                  |
+      | name     | debug1   |
+      | image    | centos:7 |
+      | -i       | true     |
+      | _timeout | 60       |
     Then the output should match:
       | command prompt.*pressing enter |
     And a pod becomes ready with labels:
