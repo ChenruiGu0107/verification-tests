@@ -4,13 +4,13 @@ Feature: job.feature
   Scenario: The subsequent Cronjob should be suspend when set suppend flag to true
     Given I have a project
     When I run the :create_cronjob client command with:
-      | name     | sj1       |
-      | image    | busybox   |
-      | restart  | Never     |
-      | schedule | * * * * * |
-      | cmd      | --        |
-      | cmd      | sleep     |
-      | cmd      | 30        |
+      | name             | sj1       |
+      | image            | busybox   |
+      | restart          | Never     |
+      | schedule         | * * * * * |
+      | oc_opts_end      |           |
+      | exec_command     | sleep     |
+      | exec_command_arg | 30        |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | job-name |
@@ -61,13 +61,13 @@ Feature: job.feature
   Scenario: User can schedule(Cronjob) a job execution with different concurrencypolicy
     Given I have a project
     When I run the :create_cronjob client command with:
-      | name     | sj1       |
-      | image    | busybox   |
-      | restart  | Never     |
-      | schedule | * * * * * |
-      | cmd      | --        |
-      | cmd      | sleep     |
-      | cmd      | 180       |
+      | name             | sj1       |
+      | image            | busybox   |
+      | restart          | Never     |
+      | schedule         | * * * * * |
+      | oc_opts_end      |           |
+      | exec_command     | sleep     |
+      | exec_command_arg | 180       |
     Then the step should succeed
     Then status becomes :running of 1 pods labeled:
       | job-name |
