@@ -462,3 +462,59 @@ Feature: stibuild.feature
     | buildconfig | ruby-hello-world |
   And the step should succeed
   And the "ruby-hello-world-2" build failed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-31251
+  Scenario: Start build with PR ref for an app using dockerstrategy test
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world#refs/pull/60/head |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    And a pod becomes ready with labels:
+      | deployment=ruby-hello-world |
+    When I expose the "ruby-hello-world" service
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And  the output should contain "Welcome to an OpenShift v3 Demo App! - QE Test"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-31253
+  Scenario: Start build with PR ref for an app using sourcestrategy test
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world#refs/pull/73/head |
+      | image_stream | ruby:latest                                                     |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    And a pod becomes ready with labels:
+      | deployment=ruby-hello-world |
+    When I expose the "ruby-hello-world" service
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And  the output should contain "Hello from OpenShift v3!!! CUSTOM DEMORRRR"
+    When I run the :patch client command with:
+      | resource      | buildconfig                                        |
+      | resource_name | ruby-hello-world                                   |
+      | p | {"spec":{"source":{"git":{"ref":"refs/pull/73/head:master"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build failed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                     |
+      | resource_name | ruby-hello-world                                |
+      | p | {"spec":{"source":{"git":{"ref":"refs/pull/100000/head"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build failed
+    When I run the :get client command with:
+      | resource | build |
+    Then the output should match:
+      | ruby-hello-world-2.*Git@refs/pull/73/head:master.*FetchSourceFailed |
+      | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
