@@ -151,6 +151,9 @@
     When I perform the :goto_catalog_page web action with:
       | project_name | default |
     Then the step should succeed
+    When I run the :show_catalog_items web action
+    Then the step should succeed
+
     When I run the :check_catalog_tile_style web action
     Then the step should succeed
     When I run the :check_vertical_tabs_style web action
