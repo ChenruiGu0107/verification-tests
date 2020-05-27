@@ -148,8 +148,6 @@ Feature: Testing Scheduler Operator related scenarios
   @destructive
   Scenario: Fixed priority rules testing - LeastRequestedPriority
     Given the master version >= "4.1"
-    Given I store the schedulable workers in the :nodes clipboard
-    And the expression should be true> cb.nodes.delete(node)
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
 
@@ -173,6 +171,7 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
     # Mark one node as unschedulable
+    Given I store the schedulable workers in the :nodes clipboard
     Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
@@ -181,12 +180,15 @@ Feature: Testing Scheduler Operator related scenarios
       | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     Given I have a project
-    And evaluation of `node.remaining_resources[:memory]` is stored in the :node_memory clipboard
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
     And evaluation of `pod.node_name` is stored in the :nodename clipboard
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
+    Then the step should succeed
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-request1 |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
