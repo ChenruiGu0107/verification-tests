@@ -455,16 +455,16 @@ Feature: Testing route
   Scenario: The HTTP_X_FORWARDED_FOR should be the client IP for ELB env
     Given I have a project
     When I run the :create client command with:
-      | f  |   <%= BushSlicer::HOME %>/features/tierN/testdata/routing/header-test/dc.json  |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/header-test/dc.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f  |   <%= BushSlicer::HOME %>/features/tierN/testdata/routing/header-test/insecure-service.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/header-test/insecure-service.json |
     Then the step should succeed
     Given I have a pod-for-ping in the project
 
-    #Get the client ip by access the website http://ipecho.net/plain
+    #Get the client ip by access the url icanhazip.com
     When I execute on the pod:
-      | bash | -c | curl -s http://ipecho.net/plain |
+      | bash | -c | curl -sS icanhazip.com |
     Then the step should succeed
     And evaluation of `@result[:response].strip` is stored in the :client_ip clipboard
 
