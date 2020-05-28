@@ -423,11 +423,13 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | route |
     Then the step should succeed
     And the output should contain "InvalidHost"
-
+    """
     When I delete the project
     Then the step should succeed
 
