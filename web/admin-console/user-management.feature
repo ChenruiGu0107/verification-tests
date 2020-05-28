@@ -155,7 +155,7 @@ Feature: User management related
     Then evaluation of `project.name` is stored in the :project1_name clipboard
 
     #user can view pod list only of another project when granted list permisson but without view detail permisson
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given a pod becomes ready with labels:

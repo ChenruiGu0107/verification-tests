@@ -5,7 +5,7 @@ Feature: HPA related
   Scenario: check HPAs page
     Given I have a project
     Given the master version >= "4.1"
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given 1 pods become ready with labels:
