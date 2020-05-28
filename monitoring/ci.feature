@@ -54,8 +54,7 @@ Feature: Install and configuration related scenarios
     And I use the "openshift-monitoring" project
     Given a pod becomes ready with labels:
       | statefulset.kubernetes.io/pod-name=prometheus-k8s-0 |
-    Then evaluation of `pod.ip` is stored in the :prometheusk8s_pod_id clipboard
-
+    
     # check container_fs_usage
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
@@ -64,7 +63,7 @@ Feature: Install and configuration related scenarios
       | oc_opts_end      |                      |
       | exec_command     | sh                   |
       | exec_command_arg | -c                   |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://<%= cb.prometheusk8s_pod_id %>:9091/api/v1/query?query=count%28container_fs_usage_bytes%29%20by%20%28node%29 |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=count%28container_fs_usage_bytes%29%20by%20%28node%29 |
     Then the step should succeed
     And the output should contain:
       | "node": |
