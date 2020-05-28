@@ -234,7 +234,7 @@ Feature: Install and configuration related scenarios
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
 
     # query prometheus_remote_storage_shards
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 180 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
@@ -588,3 +588,164 @@ Feature: Install and configuration related scenarios
       | Watchdog        |
       | ocp-28957-proj1 |
       | ocp-28957-proj2 |
+      
+  # @author hongyli@redhat.com
+  # @case_id OCP-28961
+  @admin
+  @destructive
+  Scenario: Deploy ThanosRuler in user-workload-monitoring
+    Given the master version >= "4.5"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    And admin ensures "ocp-28961-proj" project is deleted after scenario
+    And admin ensures "ocp-28961-story-rules" prometheusrule is deleted from the "ocp-28961-proj" project after scenario
+    And admin ensures "ocp-28961-example" deployment is deleted from the "ocp-28961-proj" project after scenario
+    #enable techPreviewUserWorkload
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                                                                                      |
+    Then the step should succeed
+    #ThanosRuler related resouces are created
+    When I use the "openshift-user-workload-monitoring" project
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | statefulset |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-user-workload   |
+      | thanos-ruler-user-workload |
+    """
+    When I run the :get client command with:
+      | resource | ThanosRuler |
+    Then the step should succeed
+    And the output should contain:
+      | user-workload |
+    When I run the :get client command with:
+      | resource | configmaps |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-user-workload-rulefiles   |
+      | serving-certs-ca-bundle              |
+      | thanos-ruler-trusted-ca-bundle       |
+      | thanos-ruler-user-workload-rulefiles |
+    When I run the :get client command with:
+      | resource | services |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-operated      |
+      | prometheus-operator      |
+      | prometheus-user-workload |
+      | thanos-ruler             |
+      | thanos-ruler-operated    |
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-operated      |
+      | prometheus-operator      |
+      | prometheus-user-workload |
+      | thanos-ruler             |
+      | thanos-ruler-operated    |
+    # check the prometheusrule/thanos-ruler is created, and these rules could be found on prometheus-k8s UI, not on thanos-ruler UI
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | prometheusrule |
+      | resource_name | thanos-ruler   |
+      | o             | yaml           |
+    Then the step should succeed
+    And the output should contain:
+      | thanos-rule.rules               |
+    """
+    When evaluation of `route('thanos-ruler').spec.host` is stored in the :thanos_ruler_route clipboard
+    When I use the "openshift-monitoring" project
+    Then evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    And evaluation of `route('thanos-querier').spec.host` is stored in the :thanos_querier_route clipboard
+    # get sa/prometheus-k8s token
+    And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    #check rules could be found on prometheus-k8s UI, not on thanos-ruler UI
+    When I perform the HTTP request:
+      """
+      :url: https://<%= cb.thanos_ruler_route %>/rules
+      :method: get
+      :headers:
+         :Authorization: Bearer <%= cb.sa_token %>
+      """
+    Then the step should succeed
+    And the output should not contain:
+      | thanos-rule.rules |
+
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/rules |
+    Then the step should succeed
+    And the output should contain:
+      | thanos-rule.rules |
+    """
+    
+    #Create one project and prometheus rules under it
+    When I run the :new_project client command with:
+      | project_name | ocp-28961-proj |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/prometheus_rules-ocp-28961.yaml |
+      | overwrite | true                                                                                       |
+    Then the step should succeed
+    When I run the :apply client command with:
+      | f         | <%= BushSlicer::HOME %>/features/tierN/testdata/monitoring/pod_wrong_image-ocp-28961.yaml |
+      | overwrite | true                                                                                      |
+    Then the step should succeed
+    #Check thanos querier from svc to wait for some time
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=ALERTS%7Balertname%3D%22KubePodNotReady%22%2Cnamespace%3D%22ocp-28961-proj%22%7D |
+    Then the step should succeed
+    And the output should contain:
+      | KubePodNotReady |
+    """ 
+    #alerts can be found in thanos-ruler page
+    When I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-ruler.openshift-user-workload-monitoring.svc:9091/alerts |
+    Then the step should succeed
+    And the output should contain:
+      | KubePodNotReady |
+      | Watchdog        |
+      | TargetDown      |
+    """ 
+    #check rules could be found on thanos-ruler UI with specific project
+    When I perform the HTTP request:
+      """
+      :url: https://<%= cb.thanos_ruler_route %>/rules
+      :method: get
+      :headers:
+         :Authorization: Bearer <%= cb.sa_token %> 
+      """
+    Then the step should succeed
+    And the output should contain:
+      | KubePodNotReady |
+      | requests_total  |
+      | ocp-28961-proj  |
