@@ -41,8 +41,6 @@ Feature: dashboards related cases
     Then the step should succeed
     When I run the :expand_critical_alerts_toggle web action
     Then the step should succeed
-    When I run the :check_messages_when_no_critical_alerts web action
-    Then the step should succeed
     When I perform the :view_alert_detail_info_in_drawer web action with:
       | alert_name | AlertmanagerReceiversNotConfigured |
     Then the step should succeed
