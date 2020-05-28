@@ -170,3 +170,47 @@ Feature: query browser
     When I run the :hide_promql_if_exists web action
     And I run the :check_query_input_text_area web action
     Then the step should fail
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24222
+  @admin
+  Scenario: a list of all available metrics in the drop-down list
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+
+    When I use the "openshift-monitoring" project
+    And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    #check metrics from prometheus
+    #https://<prom_route>/api/v1/label/__name__/values
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/api/v1/label/__name__/values
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | :kube_pod_info_node_count: |
+      | ALERTS                     |
+    #check metrics from ocp conosle
+    #check selected query from dropdown list
+    When I perform the :perform_metric_query_drop_down_admin web action with:
+      | metrics_name | :kube_pod_info_node_count: |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #check selected query from dropdown list
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics_name | ALERTS |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | Watchdog |
+    Then the step should succeed
+    
