@@ -522,5 +522,5 @@ Feature: Cluster Autoscaler Tests
 
     Examples:
       | invalid_value             | machineset_name        |
-      | "instanceType": "invalid" | machineset-clone-30377 |# @case_id OCP-30377
+      | "instanceType": "invalid" | machineset-clone-30377 | # @case_id OCP-30377
 
