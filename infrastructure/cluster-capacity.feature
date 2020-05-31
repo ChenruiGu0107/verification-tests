@@ -219,10 +219,11 @@ Feature: cluster-capacity related features
     Given I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/testdata/infrastructure/cluster-capacity/cluster-capacity-configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "infrastructure/cluster-capacity-rc.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/cluster-capacity-rc.yaml |
-      | p | IMAGE=registry.stage.redhat.io/openshift4/ose-cluster-capacity:<%= cb.master_version %> |
-      | p | NAMESPACE=<%= project.name %>                                                           |
+      | f | cluster-capacity-rc.yaml                                                                 |
+      | p | IMAGE=registry.stage.redhat.io/openshift4/ose-cluster-capacity:v<%= cb.master_version %> |
+      | p | NAMESPACE=<%= project.name %>                                                            |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=cluster-capacity |
