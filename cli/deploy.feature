@@ -588,7 +588,7 @@ Feature: deployment related features
   Scenario: Deployment config with automatic=false in ICT
     #Given the master version >= "3.4"
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given I replace resource "dc" named "ruby-ex" saving edit to "ruby-ex.yaml":
