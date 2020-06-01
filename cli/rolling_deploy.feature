@@ -12,6 +12,11 @@ Feature: rolling deployment related scenarios
       | name     | hooks |
       | replicas | 3     |
     #And I wait for the pod named "hooks-1-deploy" to die
+    Given number of replicas of "hooks" deployment config becomes:
+      | desired   | 3 |
+      | current   | 3 |
+      | updated   | 3 |
+      | available | 3 |
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
     Then the step should succeed
