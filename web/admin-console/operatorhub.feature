@@ -527,3 +527,42 @@ Feature: operatorhub feature related
     When I perform the :click_checkbox_from_provider_type web action with:
       | text | cs-display |
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-27646
+  @admin
+  Scenario: Check marketplace operator annotations
+    Given the master version >= "4.4"
+    Given I have a project
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | packagemanifests      |
+      | resource_name | tigera-operator       |
+      | n             | openshift-marketplace |
+      | output        | yaml                  |
+    Then the step should succeed
+    Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/action-text"]` is stored in the :actiontext clipboard
+    Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/remote-workflow"]` is stored in the :remoteworkflow clipboard
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | Tigera |
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | <%= cb.actiontext %>     |
+      | link_url | <%= cb.remoteworkflow %> |
+    Then the step should succeed
+
+    When I run the :goto_operator_hub_page web action
+    Then the step should succeed
+    When I perform the :click_checkbox_from_provider_type web action with:
+      | text | Marketplace |
+    Then the step should succeed
+    When I perform the :open_operator_modal web action with:
+      | operator_name | Hazelcast Jet |
+    Then the step should succeed
+    When I run the :check_Hazelcastjet_default_action_and_remote_workflow web action
+    Then the step should succeed
+
