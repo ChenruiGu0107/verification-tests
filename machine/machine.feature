@@ -132,3 +132,23 @@ Feature: Machine features testing
     Then the step should succeed
     And the machineset should have expected number of running machines
     And the machine named "<%= cb.oldest_machine %>" does not exist
+
+  # @author miyadav@redhat.com
+  # @case_id OCP-29344
+  @admin
+  Scenario: Validation of `oc adm inspect co/xx` command
+    Given I switch to cluster admin pseudo user
+    Then I saved following keys to list in :resourcesid clipboard:
+      | machine-api        | |
+      | cluster-autoscaler | |
+
+    And I use the "openshift-machine-api" project
+    Then I repeat the following steps for each :id in cb.resourcesid:
+    """
+    When I run the :oadm_inspect admin command with:
+      | resource_type | co       |
+      | resource_name | #{cb.id} |
+    And the step should succeed
+    Then the output should contain "Wrote inspect data to inspect.local"
+    """
+    
