@@ -68,3 +68,19 @@ Feature: genericbuild.feature
       | from_dir    | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-22575/olm-testing/ |
     Then the step should succeed
     And the "multistage-test-1" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30289
+  Scenario: Image triggers should work on v1 StatefulSets	
+    Given I have a project
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30289/statefulset-trigger.yaml |
+    Then the step should succeed
+    And the pod named "testtrigger-0" becomes ready
+    And the expression should be true> stateful_set('testtrigger').abserve_generation == 2
+    When I run the :tag client command with:
+      | source | centos/ruby-25-centos7 |
+      | dest   | rubytest:latest        |
+    Then the step should succeed
+    And the pod named "testtrigger-0" becomes ready 
+    And the expression should be true> stateful_set('testtrigger').abserve_generation == 3
