@@ -7,14 +7,16 @@ Feature: Audit logs related scenarios
     # Create a new project and deploy application using normal user
     And evaluation of `user(0).uid` is stored in the :users_uid clipboard
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+    When I run the :create_deploymentconfig client command with:
+      | image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | name  | hello-openshift                                                                                               |
     Then the step should succeed
     And the pod named "hello-openshift-1-deploy" becomes present
 
     # Repeat the same step and it should fail
-    When I run the :new_app client command with:
-      | docker_image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+    When I run the :create_deploymentconfig client command with:
+      | image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | name  | hello-openshift                                                                                               |
     Then the step should fail
 
     # Scale deploymentconfig
@@ -67,10 +69,10 @@ Feature: Audit logs related scenarios
     And the output should contain:
       | "namespace":"<%= project.name %>","name":"hello-openshift" |
     When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*AlreadyExists \| tail -5 |
+      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs \| tail |
     Then the step should succeed
     And the output should contain:
-      | "status":"Failure","reason":"AlreadyExists","code":409 |
+      | "responseStatus":{"metadata":{},"code":409} |
     When admin executes on the pod:
       | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep openshift/scale.*<%= cb.users_uid %> \| tail -5 |
     Then the step should succeed
