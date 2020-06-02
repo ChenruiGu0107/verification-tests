@@ -144,7 +144,7 @@ Feature: operatorhub feature related
     Given I use the "<%= project.name %>" project
     Given a pod becomes ready with labels:
       | name=container-security-operator-alm-owned |
-    Then I wait for the "sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa" image_manifest_vuln to appear in the "<%= project.name %>" project up to 30 seconds
+    Then I wait for the "sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d" image_manifest_vuln to appear in the "<%= project.name %>" project up to 30 seconds
 
 
     #check the display when have vulnerabilities in cluster
@@ -157,7 +157,7 @@ Feature: operatorhub feature related
     When I perform the :check_quay_image_security_popup web action with:
       | severity | 1 High       |
       | text     | 1 namespace  |
-      | link_url | k8s/all-namespaces/secscan.quay.redhat.com~v1alpha1~ImageManifestVuln?name=sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
+      | link_url | k8s/all-namespaces/secscan.quay.redhat.com~v1alpha1~ImageManifestVuln?name=sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d |
     Then the step should succeed
 
     #check Image Manifest Vulnerabilities page for 4.4 and above
@@ -178,7 +178,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I perform the :goto_one_ImageManifestVuln_page web action with:
       | project_name |  <%= project.name %> |
-      | manifest     | sha256.c51f9b027d358a07b7201e37163e0fabb12b1ac06a640ab1a84a78f541e6c3fa |
+      | manifest     | sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d |
     Then the step should succeed
     When I run the :wait_box_loaded web action
     Then the step should succeed
@@ -240,7 +240,7 @@ Feature: operatorhub feature related
       | f | <%= BushSlicer::HOME %>/testdata/image/language-image-templates/php-55-rhel7-stibuild.json |
     Then the step should succeed
     Given I successfully merge patch resource "template/php-helloworld-sample" with:
-      | {"metadata":{"annotations":{"openshift.io/support-url":"https://access.redhat.test.com"}}} |
+      | {"metadata":{"annotations":{"openshift.io/support-url":"https://www.redhat.com"}}} |
     Given I open admin console in a browser
     When I perform the :goto_catalog_page web action with:
       | project_name | <%= project.name %> |
@@ -251,7 +251,7 @@ Feature: operatorhub feature related
       | catalog_item | php-helloworld-sample |
     Then the step should succeed
     When I perform the :check_the_support_link web action with:
-      | link_url | https://access.redhat.test.com |
+      | link_url | https://www.redhat.com |
     Then the step should succeed
 
     #check support link for operators
@@ -267,6 +267,11 @@ Feature: operatorhub feature related
     When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "cockroachdb-certified-rhmp" subscriptions to appear
+    Given I wait up to 120 seconds for the steps to pass:
+    """
+    When I get project clusterserviceversions
+    Then the output should contain "cockroachdb.v"
+    """
     And evaluation of `subscription("cockroachdb-certified-rhmp").current_csv` is stored in the :cockroachdb_csv clipboard
     Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
       | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |

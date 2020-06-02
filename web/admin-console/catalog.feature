@@ -121,14 +121,23 @@ Feature: tests on catalog page
 
   # @author hasha@redhat.com
   # @case_id OCP-21111
+  @admin
   Scenario: Add support for `hidden` tag to the catalog
     Given the master version >= "4.1"
     Given I have a project
-    And I open admin console in a browser
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild.json" replacing paths:
       | ["metadata"]["annotations"]["tags"] | instant-app,ruby,mysql,hidden |
       | ["metadata"]["namespace"]           | <%= project.name %>           |
     Then the step should succeed
+
+    Given the first user is cluster-admin
+    Given I use the "openshift" project
+    Given admin ensures "testdotnet" imagestream is deleted from the "openshift" project after scenario
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/ui-netcore-is.json" replacing paths:
+      | ["spec"]["tags"][1]["annotations"]["tags"] | builder,dotnet,hidden |
+    Then the step should succeed
+
+    And I open admin console in a browser
     When I perform the :goto_catalog_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -141,22 +150,20 @@ Feature: tests on catalog page
       | content | No Results Match the Filter Criteria |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | is        |
-      | resource_name | python    |
-      | o             | json      |
-      | n             | openshift |
+      | resource      | is         |
+      | resource_name | testdotnet |
+      | o             | json       |
+      | n             | openshift  |
     Then the step should succeed
-    And evaluation of `@result[:parsed]['spec']['tags'].find_all { |n| n['annotations']['tags'] == "hidden,builder,python"}` is stored in the :hidden_tag clipboard
-    And evaluation of `cb.hidden_tag[0]['annotations']['version']` is stored in the :hidden_version clipboard
     When I perform the :goto_create_app_from_imagestream_page web action with:
       | project_name | <%= project.name %> |
-      | is_name      | python              |
+      | is_name      | testdotnet          |
     Then the step should succeed
     When I run the :click_image_tag_dropdown web action
     Then the step should succeed
     When I perform the :check_item_in_list web action with:
-      | item | 2.7 |
+      | item | 1.1 |
     Then the step should succeed
     When I perform the :check_item_in_list web action with:
-      | item | <%=cb.hidden_version %> |
+      | item | 2.0 |
     Then the step should fail
