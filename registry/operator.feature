@@ -262,11 +262,11 @@ Feature: Testing image registry operator
       | namespace | openshift-image-registry |
     Then the step should succeed
     Then the output should contain:
-      | -certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt  |
-      | --keep-tag-revisions=3                                                               |
-      | --keep-younger-than=60m                                                              |
-      | --prune-registry=true                                                                |
-      | --confirm=true                                                                       |
+      | -certificate-authority  |
+      | --keep-tag-revisions=3  |
+      | --keep-younger-than=60m |
+      | --prune-registry=true   |
+      | --confirm=true          |
     Given admin updated the operator crd "configs.imageregistry" managementstate operand to Unmanaged
     And I register clean-up steps:
     """
