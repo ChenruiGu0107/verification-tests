@@ -507,7 +507,7 @@ Feature: Cluster Autoscaler Tests
     Given I store the last provisioned machine in the :failed_machine clipboard
     Then the expression should be true> machine(cb.failed_machine).phase(cached: false) == "Failed"
     """
-    # Check cluster auto scales down
+    # Check cluster auto scales down and node group will be marked as backoff
     And I wait up to 1000 seconds for the steps to pass:
     """
     Then the expression should be true> machine_set("<machineset_name>").desired_replicas(cached: false) == 0
@@ -515,9 +515,19 @@ Feature: Cluster Autoscaler Tests
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should contain:
-      | Scale-up timed out for node group openshift-machine-api/<machineset_name> |
-      | Disabling scale-up for node group openshift-machine-api/<machineset_name> |
-      | Removing unregistered node failed-machine-openshift-machine-api_          |
+      | Scale-up timed out for node group openshift-machine-api/<machineset_name>             |
+      | Disabling scale-up for node group openshift-machine-api/<machineset_name>             |
+      | Removing unregistered node failed-machine-openshift-machine-api_                      |
+      | Node group openshift-machine-api/<machineset_name> is not ready for scaleup - backoff |
+    """
+    # Node group could be re-enabled scale up
+    And I wait up to 360 seconds for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | Final scale-up plan |
     """
 
     Examples:
