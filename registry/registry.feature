@@ -224,18 +224,15 @@ Feature: Testing registry
     And the "myimage" image stream becomes ready
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-21510
   @admin
   @destructive
-  Scenario: Set the white list of image registry via allowedRegistriesForImport
+  Scenario Outline: Set the white list of image registry via allowedRegistriesForImport
     Given I have a project
     Given evaluation of `project.name` is stored in the :saved_name clipboard
     Given I switch to cluster admin pseudo user
     When I use the "openshift-apiserver" project
-    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :before_change clipboard
-    And evaluation of `daemon_set("apiserver").desired_replicas` is stored in the :desired_num clipboard
-    And <%= cb.desired_num %> pods become ready with labels:
-      | pod-template-generation=<%= cb.before_change %> |
+    And evaluation of `<resource_set>("apiserver").generation_number(cached: false)` is stored in the :before_change clipboard
+    And "apiserver" <resource> becomes ready in the "openshift-apiserver" project
     And I successfully merge patch resource "image.config.openshift.io/cluster" with:
       | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":false}]}} |
     And I register clean-up steps:
@@ -245,16 +242,18 @@ Feature: Testing registry
     """
     And I wait for the steps to pass:
     """
-    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :after_change clipboard
+    And evaluation of `<resource_set>("apiserver").generation_number(cached: false)` is stored in the :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
-    And <%= cb.desired_num %> pods become ready with labels:
-      | pod-template-generation=<%= cb.after_change %> |
+    And "apiserver" <resource> becomes ready in the "openshift-apiserver" project
+    And I wait for the steps to pass:
+    """
     And I run the :tag client command with:
       | source | docker.io/centos/ruby-25-centos7:latest |
       | dest   | myimage:v1                              |
       | n      | <%= cb.saved_name %>                    |
     Then the step should fail
+    """
     And the output should contain:
       | Forbidden: registry "docker.io" not allowed by whitelist |
       | registry.redhat.io:443                                   |
@@ -273,15 +272,21 @@ Feature: Testing registry
       | {"spec":{"allowedRegistriesForImport":[{"domainName":"registry.redhat.io","insecure":false},{"domainName":"registry.access.redhat.com","insecure":true}]}} |
     And I wait for the steps to pass:
     """
-    And evaluation of `daemon_set("apiserver").generation_number(user: user, cached: false)` is stored in the :third_change clipboard
+    And evaluation of `<resource_set>("apiserver").generation_number(cached: false)` is stored in the :third_change clipboard
     And the expression should be true> cb.third_change - cb.after_change >=1
     """
-    And <%= cb.desired_num %> pods become ready with labels:
-      | pod-template-generation=<%= cb.third_change %> |
+    And "apiserver" <resource> becomes ready in the "openshift-apiserver" project
+    And I wait for the steps to pass:
+    """
     And I run the :tag client command with:
       | source | registry.access.redhat.com/rhscl/ruby-25-rhel7:latest |
       | dest   | myimage4:v1                                           |
       | n      | <%= cb.saved_name %>                                  |
     Then the step should fail
+    """
     And the output should contain:
       | registry.access.redhat.com:80 |
+    Examples:
+      | resource_set | resource   |
+      | daemon_set   | daemonset  | # @case_id OCP-21510
+      | deployment   | deployment | # @case_id OCP-29435
