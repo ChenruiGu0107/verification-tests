@@ -198,3 +198,66 @@
       | dc_name       | ruby                |
       | item          | Pause Rollouts      |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-29799
+  @admin
+  Scenario: Check PF4 Toolbar on search page
+    Given the master version >= "4.5"
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed
+    When I run the :check_search_tool_bar_style web action
+    Then the step should succeed
+
+    # check style for Filter
+    When I run the :filter_running_and_check_style web action
+    Then the step should succeed
+    When I run the :filter_pending_and_check_style web action
+    Then the step should succeed
+    When I run the :check_filtered_style web action
+    Then the step should succeed
+    When I run the :check_remove_style_and_remove web action
+    Then the step should succeed
+
+    # check style for search input
+    When I perform the :filter_name_and_check_style web action with:
+      | input_value | console |
+    Then the step should succeed
+    When I run the :check_filtered_style web action
+    Then the step should succeed  
+    When I perform the :filter_label_and_check_style web action with:
+      | input_value     | app         |
+      | suggestion_text | app=console |
+    Then the step should succeed
+    When I run the :check_filtered_style web action
+    Then the step should succeed 
+    When I run the :clear_all_filters web action
+    Then the step should succeed 
+
+    # check style on deployments page
+    When I perform the :goto_deployment_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed 
+    When I perform the :filter_name_and_check_style web action with:
+      | input_value | console |
+    Then the step should succeed
+    When I run the :check_filtered_style web action
+    Then the step should succeed 
+    When I perform the :filter_label_and_check_style web action with:
+      | input_value     | app         |
+      | suggestion_text | app=console |
+    Then the step should succeed
+    When I run the :check_filtered_style web action
+    Then the step should succeed 
+    When I run the :clear_all_filters web action
+    Then the step should succeed 
+
+    # check style on secrets page
+    When I perform the :goto_secrets_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed 
+    When I run the :check_search_tool_bar_style web action
+    Then the step should succeed
