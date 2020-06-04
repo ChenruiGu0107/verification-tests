@@ -261,7 +261,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I run the :set_volume client command with:
       | resource      | dc         |
       | resource_name | postgresql |
-      | action        | --list     |
+      | action        | --all      |
     Then the step should succeed
     Then the output should contain:
       | pvcsc              |
