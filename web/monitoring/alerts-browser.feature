@@ -184,10 +184,10 @@ Feature: alerts browser
     Then the step should succeed
 
   # @author hongyli@redhat.com
-  # @case_id OCP-21131,OCP-21148
+  # @case_id OCP-21131
   @admin
   Scenario: List all silences and could filter silences by state
-    Given the master version >= "4.0"
+    Given the master version >= "4.1"
     Given I open admin console in a browser
     And the first user is cluster-admin
 
@@ -320,4 +320,167 @@ Feature: alerts browser
     And I click the following "button" element:
       | text | Expire Silence |
     Then the step should succeed
-    
+  
+  # @author hongyli@redhat.com
+  # @case_id OCP-21166
+  @admin
+  Scenario: Create, edit, expire Alertmanager Silence
+    Given the master version >= "4.1"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    #Create new Alertmanager Silence
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    #click create silence button
+    When I run the :click_create_button web action
+    Then the step should succeed
+    #set value for alert labels
+    When I perform the :set_alert_label web action with:
+      | label_value | Watchdo.* |
+    Then the step should succeed
+    When I run the :silence_alert_from_create_button web action
+    Then the step should succeed
+    #Open Silence page, edit silence
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdo.* |
+    Then the step should succeed
+    When I run the :edit_silence_alert web action
+    Then the step should succeed
+    When I run the :check_use_regular web action
+    Then the step should succeed
+    When I run the :perform_silence web action
+    Then the step should succeed
+    #Expire silence from silences list page and silence details page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :expire_alert_from_cog_menu web action with:
+      | alert_name | Watchdo.* |
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21334
+  @admin
+  Scenario: alert should not be silenced if the silence does not satisfy specified label constraints
+    Given the master version >= "4.1"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    #Create new Alertmanager Silence
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    #set value for alert labels
+    When I perform the :set_alert_label web action with:
+      | label_value | Watchdo.* |
+    Then the step should succeed
+    When I run the :silence_alert_from_create_button web action
+    Then the step should succeed
+    #Go back to alert page and filter with status
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #alerts is still firing status
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Firing   |
+    Then the step should succeed
+    #Expire silence from silences list page and silence details page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :expire_alert_from_cog_menu web action with:
+      | alert_name | Watchdo.* |
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21363
+  @admin
+  Scenario: When Silence matcher is a regex, the Firing Alerts list should be populated correctly
+    Given the master version >= "4.1"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    #Create new Alertmanager Silence
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    #set value for alert labels
+    When I perform the :set_alert_label web action with:
+      | label_value | Watchdo.* |
+    Then the step should succeed
+    When I run the :check_use_regular web action
+    Then the step should succeed
+    When I run the :silence_alert_from_create_button web action
+    Then the step should succeed
+    #When Silence matcher is a regex, the Firing Alerts list should be populated correctly	
+    #Go back to alert page and filter with status
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #alerts is silenced
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should succeed
+    #Expire silence from silences list page and silence details page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :expire_alert_from_cog_menu web action with:
+      | alert_name | Watchdo.* |
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21192
+  @admin
+  Scenario: Show a detailed and complete view of Alertmanager Silence, "Firing Alerts" list is in Silence details page
+    Given the master version >= "4.1"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    #Create new Alertmanager Silence
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    #set value for alert labels
+    When I perform the :set_alert_label web action with:
+      | label_value | Watchdo.* |
+    Then the step should succeed
+    When I run the :check_use_regular web action
+    Then the step should succeed
+    When I run the :silence_alert_from_create_button web action
+    Then the step should succeed
+    #Show a detailed and complete view of Alertmanager Silence, "Firing Alerts" list is in Silence details page	
+    When I run the :check_info_of_silence_detail_reg web action
+    Then the step should succeed
+    #Expire silence from silences list page and silence details page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :expire_alert_from_cog_menu web action with:
+      | alert_name | Watchdo.* |
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21132
+  @admin
+  Scenario: Show a detailed and complete view of an alerting rule
+    Given the master version >= "4.1"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #Prepare a silenced alert
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :open_alert_rule_from_detail web action
+    Then the step should succeed
+    When I run the :check_alert_rule_details web action
+    Then the step should succeed
