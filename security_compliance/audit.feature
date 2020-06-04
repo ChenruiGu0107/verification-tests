@@ -69,7 +69,7 @@ Feature: Audit logs related scenarios
     And the output should contain:
       | "namespace":"<%= project.name %>","name":"hello-openshift" |
     When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs \| tail |
+      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs.*<%= project.name %>.*409 \| tail |
     Then the step should succeed
     And the output should contain:
       | "responseStatus":{"metadata":{},"code":409} |
