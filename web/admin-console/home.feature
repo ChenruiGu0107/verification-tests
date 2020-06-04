@@ -156,3 +156,52 @@ Feature: Home related pages via admin console
     Then the step should succeed
     When I run the :check_access_review_table web action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-29210
+  @admin
+  Scenario: check cluster detail card and doc url set by OCP console-operator
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    And I store master major version in the clipboard
+    And I use the "openshift-console" project
+    When I get project configmap as YAML
+    Then the output should match "documentationBaseURL.*docs.openshift.com/container-platform/<%= cb.master_version %>"
+
+    Given I open admin console in a browser
+    When I perform the :check_documentation_link_in_helpmenu web action with:
+      | version | <%= cb.master_version %> |
+    Then the step should succeed
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    # check Cluster API Address
+    Given I store default router subdomain in the :subdomain clipboard
+    When I perform the :check_cluster_api_in_details_card web action with:
+      | api | <%= cb.subdomain.gsub('apps','api') %> |
+    Then the step should succeed
+
+    # check Cluster ID
+    When I perform the :check_cluster_id_in_details_card web action with:
+      | cluster_id | <%= cluster_version("version").cluster_id %> |
+    Then the step should succeed  
+
+    # check Provider
+    When I perform the :check_cluster_provider_in_details_card web action with:
+      | provider | <%= infrastructure("cluster").platform %> |
+    Then the step should succeed  
+
+    # check OpenShift Version
+    When I perform the :check_cluster_version_in_details_card web action with:
+      | version | <%= cb.master_version %> |
+    Then the step should succeed
+
+    # check Update channel
+    When I perform the :check_update_channel_in_details_card web action with:
+      | update_channel | <%= cluster_version("version").channel %> |
+    Then the step should succeed 
+
+    # browse to view settings
+    When I run the :view_all_settings web action
+    Then the step should succeed
+    And the expression should be true> browser.url.include? "settings/cluster/"
