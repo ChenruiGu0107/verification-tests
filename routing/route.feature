@@ -889,17 +889,21 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
-    # here also added 'router.openshift.io/cookie_name' and check the result in the following curl.  if found the related info that's mean the router had been reload.
+    # here also added 'router.openshift.io/cookie_name' and check the result in the following curl,
+    # if found the related info that's mean the router had been reload.
     When I run the :annotate client command with:
       | resource     | route                                                    |
       | resourcename | service-unsecure                                         |
       | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000;includeSubDomains;preload |
       | keyval       | router.openshift.io/cookie_name=unsecure-cookie_1 |
     Then the step should succeed
-    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> @result[:cookies].any? {|c| c.name == "unsecure-cookie_1"}
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
+    """
 
     When I run the :create client command with:
       | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
@@ -914,9 +918,12 @@ Feature: Testing route
       | resourcename | myroute                                                  |
       | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000 |
     Then the step should succeed
-    When I wait up to 20 seconds for a secure web server to become available via the "myroute" route
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open secure web server via the "myroute" route
     Then the output should contain "Hello-OpenShift"
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-15977
