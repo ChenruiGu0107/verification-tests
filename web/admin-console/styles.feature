@@ -40,6 +40,13 @@
   @admin
   Scenario: Check charts are using PF4 victory
     Given the master version >= "4.4"
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota-<%= project.name %> |
+      | hard | cpu=1,requests.memory=1G,limits.cpu=2,limits.memory=2G,pods=2,services=3 |
+      | n    | <%= project.name %>         |
+    Then the step should succeed
+
     Given the first user is cluster-admin
     When I open admin console in a browser
     Then the step should succeed
@@ -66,12 +73,6 @@
     Then the step should succeed
 
     # check gauges for Quota detail page
-    Given I have a project
-    When I run the :create_quota admin command with:
-      | name | myquota-<%= project.name %> |
-      | hard | cpu=1,requests.memory=1G,limits.cpu=2,limits.memory=2G,pods=2,services=3 |
-      | n    | <%= project.name %>         |
-    Then the step should succeed
     When I perform the :goto_one_quota_page web action with:
       | project_name | <%= project.name %>         |
       | quota_name   | myquota-<%= project.name %> |

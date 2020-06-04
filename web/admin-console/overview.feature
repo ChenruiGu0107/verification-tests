@@ -264,6 +264,11 @@ Feature: overview cases
     When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "etcd" subscriptions to appear
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project clusterserviceversions
+    Then the output should contain "etcdoperator.v"
+    """
     And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard
     When I perform the :goto_csv_detail_page web action with:
       | project_name | <%= project.name %>       |
