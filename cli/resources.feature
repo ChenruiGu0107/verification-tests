@@ -108,6 +108,8 @@ Feature: resouces related scenarios
       | name      | test-b                                              |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
     Then the step should succeed
+    Given I wait until replicationController "test-a-1" is ready
+    Given I wait until replicationController "test-b-1" is ready
     When I run the :delete client command with:
       | _tool             | <tool>   |
       | object_type       | rc       |
