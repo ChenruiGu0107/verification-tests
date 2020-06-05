@@ -720,3 +720,32 @@ Feature: deployment related steps
       | name     | nettest                |
     Then the output should not match:
       | <%= pod.ip %>:8080                |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-30885
+  Scenario: --dry-run parameter test
+    Given the master version >= "4.5"
+    Given I have a project
+    When I run the :create_deployment client command with:
+      | name    | mytest                                                                                                        |
+      | image   | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | dry_run | client                                                                                                        |
+    Then the step should succeed
+    And the deployment named "mytest" does not exist in the project
+    When I run the :create_deployment client command with:
+      | name    | mytest                                                                                                        |
+      | image   | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | dry_run | server                                                                                                        |
+    Then the step should succeed
+    Then the output should match:
+      | server dry run |
+    And the deployment named "mytest" does not exist in the project
+    When I run the :create_deployment client command with:
+      | name    | mytest                                                                                                        |
+      | image   | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
+      | dry_run | none                                                                                                          |
+    Then the step should succeed
+    Then the output should match:
+      | mytest created |
+    And I check that the "mytest" deployment exists in the project
