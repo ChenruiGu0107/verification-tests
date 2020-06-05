@@ -191,7 +191,7 @@ Feature: oc set image related tests
   @admin
   Scenario: Admin can understand/manage image use and prune unreferenced image
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
