@@ -401,3 +401,36 @@ Feature: Testing image registry operator
       | REGISTRY_STORAGE_GCS_KEYFILE=/gcs/keyfile |
     And a pod is present with labels:
       | docker-registry=default |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-22230
+  @admin
+  @destructive
+  Scenario: Can set the Requests values in imageregistry config
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    Given current generation number of "image-registry" deployment is stored into :before_change clipboard
+    Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"requests": {"read": {"maxInQueue": 1,"maxRunning": 1,"maxWaitInQueue": "120s"},"write": {"maxInQueue": 1,"maxRunning": 1,"maxWaitInQueue": "120s"}}}} |
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"requests": {"read": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"},"write": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"}}} } | 
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    """
+    And I switch to the first user
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | openshift/ruby:latest~https://github.com/sclorg/ruby-ex.git |
+    And the step should succeed
+    And the "ruby-ex-1" build was created
+    And the "ruby-ex-1" build failed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-ex |
+    Then the output should contain "Too Many Requests"
