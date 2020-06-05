@@ -463,7 +463,7 @@ Feature: build 'apps' with CLI
   # @case_id OCP-12150
   Scenario: oc start-build with a local git repo and commit using sti build type
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | app_repo | https://github.com/sclorg/nodejs-ex |
     Then the step should succeed
     And the "nodejs-ex-1" build completed
@@ -1107,7 +1107,7 @@ Feature: build 'apps' with CLI
       | image | <%= cb.user_image %> |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=myapp-1 |
+      | run=myapp |
     When I execute on the pod:
       | ls | -l | newdir |
     Then the step should succeed
