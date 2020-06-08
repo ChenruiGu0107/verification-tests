@@ -182,3 +182,125 @@ Feature: elasticsearch operator related tests
     And evaluation of ` @result[:parsed].find {|e| e['index'].start_with? '.kibana'}` is stored in the :res_kibana clipboard
     And evaluation of ` @result[:parsed].find {|e| e['index'].start_with? '.operations'}` is stored in the :res_op clipboard
     Then the expression should be true> cb.res_kibana['pri'].to_i == cb.es_node_count_1 && cb.res_op['pri'].to_i == cb.es_node_count_1
+
+  # @author qitang@redhat.com
+  # @case_id OCP-30208
+  @admin
+  @destructive
+  Scenario: The shard number should be equal to the node number
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :org_project clipboard
+    When I run the :new_app client command with:
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example_indexmanagement.yaml |
+    Then the step should succeed
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 1
+    And I wait for the "infra" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 1
+    When I get the ".kibana" logging index information from a pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 1
+    When I run the :patch client command with:
+      | resource      | clusterlogging                                          |
+      | resource_name | instance                                                |
+      | p             | {"spec":{"logStore":{"elasticsearch":{"nodeCount":2}}}} |
+      | type          | merge                                                   |
+    Then the step should succeed
+    And the expression should be true> cluster_logging('instance').logstore_node_count == 2
+    Given I wait for the steps to pass:
+    """
+    And the expression should be true> elasticsearch('elasticsearch').nodes[0]['nodeCount'] == 2
+    """
+    And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid%>-2" deployment to appear
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('index_settings'))` is stored in the :data clipboard
+    And the expression should be true> cb.data == "PRIMARY_SHARDS=2 REPLICA_SHARDS=0"
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+      Given the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid%>-2').replica_counters(cached:false)[:desired] == deployment('elasticsearch-cdm-<%= cb.es_genuuid%>-2').replica_counters[:ready]
+    """
+    # the default rollover job runs in every 15 minutes, it's too long for the automation, so here delete the indices
+    Given evaluation of `%w(app infra)` is stored in the :index_names clipboard
+    Given I repeat the following steps for each :index_name in cb.index_names:
+    """
+    And I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | #{cb.index_name}-* |
+      | op           | DELETE             |
+    Then the step should succeed
+    """
+    Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 2
+    And I wait for the "infra" index to appear in the ES pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 2
+
+  # @author qitang@redhat.com
+  # @case_id OCP-30209
+  @admin
+  @destructive
+  Scenario: Should expose ES cluster health status in Elasticsearch CR
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :proj clipboard
+    When I run the :new_app client command with:
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=centos-logtest,test=centos-logtest |
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example_indexmanagement.yaml |
+    Then the step should succeed
+    And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cluster/health?format=JSON |
+      | op           | GET                         |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health
+    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health
+    # make the cluster unhealth
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cluster/settings' -d '{"transient" : {"cluster.routing.allocation.enable" : "none"}} |
+      | op           | PUT                                                                                   |
+    Then the step should succeed
+    And the output should contain:
+      | "acknowledged":true |
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | app-*  |
+      | op           | DELETE |
+    Then the step should succeed
+    And the output should contain:
+      | "acknowledged":true |
+    # wait for the new index app-0000x to appear, the index should be red
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cat/indices?format=JSON |
+      | op           | GET                      |
+    Then the step should succeed
+    And the output should contain:
+      | app-0000 |
+    Given evaluation of `@result[:parsed].find {|e| e['index'].start_with? 'app'}` is stored in the :res_app clipboard
+    And the expression should be true> cb.res_app['health'] == 'red'
+    """
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cluster/health?format=JSON |
+      | op           | GET                         |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['status'] == 'red'
+    And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health(cached: false)
+    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health(cached: false)
+    """
+ 
