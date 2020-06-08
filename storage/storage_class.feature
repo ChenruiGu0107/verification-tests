@@ -3,7 +3,7 @@ Feature: storageClass related feature
   @admin
   Scenario Outline: pre-bound still works with storage class
     Given I have a project
-    And I have a 1 GB volume and save volume id in the :vid clipboard
+    And I have a 1 GB volume from provisioner "<provisioner>" and save volume id in the :vid clipboard
     When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/<path_to_file>" where:
       | ["metadata"]["name"]                        | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]             | 1Gi                    |
