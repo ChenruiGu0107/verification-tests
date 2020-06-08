@@ -8,14 +8,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a project
     And SCC "privileged" is added to the "default" user
     And SCC "privileged" is added to the "system:serviceaccounts" group
-    When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:latest   |
-      | env          | MONGODB_USER=tester        |
-      | env          | MONGODB_PASSWORD=xxx       |
-      | env          | MONGODB_DATABASE=testdb    |
-      | env          | MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                       |
-      | labels       | app=mydb                   |
+    When I run the :new_app_as_dc client command with:
+      | docker_image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | mydb                                                                                                  |
+      | labels       | app=mydb                                                                                              |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -329,14 +325,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @case_id OCP-25833
   Scenario: Add/Remove dynamic-provisioning persistentVolumeClaim to dc
     Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:latest   |
-      | env          | MONGODB_USER=tester        |
-      | env          | MONGODB_PASSWORD=xxx       |
-      | env          | MONGODB_DATABASE=testdb    |
-      | env          | MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                       |
-      | labels       | app=mydb                   |
+    When I run the :new_app_as_dc client command with:
+      | docker_image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | mydb                                                                                                  |
+      | labels       | app=mydb                                                                                              |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -390,14 +382,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @case_id OCP-25837
   Scenario: Add/Remove dynamic-provisioning persistentVolumeClaim to rc
     Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:latest   |
-      | env          | MONGODB_USER=tester        |
-      | env          | MONGODB_PASSWORD=xxx       |
-      | env          | MONGODB_DATABASE=testdb    |
-      | env          | MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                       |
-      | labels       | app=mydb                   |
+    When I run the :new_app_as_dc client command with:
+      | docker_image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | mydb                                                                                                  |
+      | labels       | app=mydb                                                                                              |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -452,14 +440,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @case_id OCP-25839
   Scenario: Add/Remove dynamic-provisioning persistentVolumeClaim to dc with '--overwrite' option
     Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:latest   |
-      | env          | MONGODB_USER=tester        |
-      | env          | MONGODB_PASSWORD=xxx       |
-      | env          | MONGODB_DATABASE=testdb    |
-      | env          | MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                       |
-      | labels       | app=mydb                   |
+    When I run the :new_app_as_dc client command with:
+      | docker_image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | mydb                                                                                                  |
+      | labels       | app=mydb                                                                                              |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -468,8 +452,21 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | resource   | dc/mydb                    |
       | action     | --add                      |
       | type       | persistentVolumeClaim      |
-      | mount-path | /var/lib/mongodb/data      |
-      | claim-name | pvc-<%= project.name %>-01 |
+      | mount-path | /mnt/volume                |
+      | name       | mydb-volume-1              |
+      | claim-name | mypvc-1                    |
+      | claim-mode | ReadWriteOnce              |
+      | claim-size | 1Gi                        |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
+    And a pod becomes ready with labels:
+      | app=mydb |
+    When I run the :set_volume client command with:
+      | resource   | dc/mydb                    |
+      | action     | --add                      |
+      | type       | persistentVolumeClaim      |
+      | mount-path | /mnt/volume                |
+      | claim-name | mypvc-                     |
       | claim-mode | ReadWriteOnce              |
       | claim-size | 1Gi                        |
     Then the step should fail
@@ -479,9 +476,9 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | resource   | dc/mydb                    |
       | action     | --add                      |
       | type       | persistentVolumeClaim      |
-      | mount-path | /var/lib/mongodb/data      |
+      | mount-path | /mnt/volume                |
       | name       | mydb-volume-1              |
-      | claim-name | pvc-<%= project.name %>-02 |
+      | claim-name | mypvc-                     |
       | claim-mode | ReadWriteOnce              |
       | claim-size | 1Gi                        |
     Then the step should fail
@@ -489,22 +486,22 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | Use --overwrite to replace |
     # add pvc to dc with '--overwrite' option and check
     When I run the :set_volume client command with:
-      | resource   | dc/mydb                 |
-      | action     | --add                   |
-      | type       | persistentVolumeClaim   |
-      | mount-path | /var/lib/mongodb/data   |
-      | name       | mydb-volume-1           |
-      | claim-name | pvc-<%= project.name %> |
-      | claim-mode | ReadWriteOnce           |
-      | claim-size | 1Gi                     |
-      | overwrite  |                         |
+      | resource   | dc/mydb                    |
+      | action     | --add                      |
+      | type       | persistentVolumeClaim      |
+      | mount-path | /mnt/volume                |
+      | name       | mydb-volume-1              |
+      | claim-name | mypvc                      |
+      | claim-mode | ReadWriteOnce              |
+      | claim-size | 1Gi                        |
+      | overwrite  |                            |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
-    And the expression should be true> dc('mydb').containers_spec.first.volume_mounts.first['mountPath'] == "/var/lib/mongodb/data"
+    And the expression should be true> dc('mydb').containers_spec.first.volume_mounts.first['mountPath'] == "/mnt/volume"
     And the expression should be true> dc('mydb').containers_spec.first.volume_mounts.first['name'] == "mydb-volume-1"
-    And the expression should be true> dc('mydb').template['spec']['volumes'].last['persistentVolumeClaim']['claimName'] == "pvc-#{project.name}"
+    And the expression should be true> dc('mydb').template['spec']['volumes'].last['persistentVolumeClaim']['claimName'] == "mypvc"
     When I execute on the pod:
-      | grep | mongodb | /proc/mounts |
+      | ls | -l | /mnt/volume |
     Then the step should succeed
