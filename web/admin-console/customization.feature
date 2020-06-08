@@ -32,7 +32,6 @@ Feature: customize console related
       | type     | merge                    |
       | p        | {"spec":{"customization": {"brand":"okd","documentationBaseURL":"https://docs.okd.io/latest/"}}} |
     Then the step should succeed
-
     When I run the :patch admin command with:
       | resource | console.config/cluster |
       | type     | merge                  |
@@ -47,7 +46,7 @@ Feature: customize console related
       | o             | yaml              |
       | namespace     | openshift-console |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i > <%= cb.version_before_deploy %>+1
+    And the expression should be true> @result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i > <%= cb.version_before_deploy %>
     """
 
     Given I switch to cluster admin pseudo user
