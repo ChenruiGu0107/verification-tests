@@ -553,8 +553,8 @@ Feature: customize console related
     Then the step should succeed
 
     # check the second container
-    When I perform the :switch_to_other_container web action with:
-      | dropdown_item     | hello-openshift-fedora |
+    When I perform the :switch_to_container web action with:
+      | container_name  | hello-openshift-fedora |
     Then the step should succeed
     When I perform the :check_text_not_a_link web action with:
       | text | hello-openshift-fedora |
