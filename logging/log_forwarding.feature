@@ -368,3 +368,50 @@ Feature: log forwarding related tests
       | protocal |
       | tcp      | # @case_id OCP-28541
       | udp      | # @case_id OCP-27757
+
+  # @author qitang@redhat.com
+  # @case_id OCP-29664
+  @admin
+  @destructive
+  Scenario: Forward logs to mulitple external log aggregator
+    Given I switch to the first user
+    And I create a project with non-leading digit name
+    And evaluation of `project` is stored in the :proj clipboard
+    When I run the :new_app client command with:
+      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-logging" project
+    Given fluentd receiver is deployed as secure in the "openshift-logging" project
+    Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    When I run the :create client command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/multiple_receiver/logforwarding.yaml |
+    Then the step should succeed
+    Given I wait for the "instance" log_forwarding to appear
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                                                                                      |
+      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging_retentionpolicy.yaml |
+      | check_status        | true                                                                                                      |
+    Then the step should succeed
+    Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
+    And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | infra*/_count?pretty  |
+      | op           | GET                   |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] = 0
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | audit*/_count?pretty  |
+      | op           | GET                   |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['count'] = 0
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    And I execute on the "<%= cb.log_receiver.name %>" pod:
+      | ls | -l | /fluentd/log |
+    Then the output should contain:
+      | audit.log |
+      | infra.log |
+    And the output should not contain:
+      | app.log |
+    """
