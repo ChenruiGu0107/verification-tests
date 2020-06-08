@@ -290,3 +290,173 @@ Feature: Testing Ingress Operator related scenarios
       | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27560 |
     Then the expression should be true> service('router-nodeport-test-27560').exists?
 
+  # @author hongli@redhat.com
+  # @case_id OCP-27595
+  @admin
+  Scenario: set namespaceOwnership of routeAdmission to Strict
+    Given the master version >= "4.4"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-27595" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nsowner.yaml"
+    When I run oc create over "ingressctl-nsowner.yaml" replacing paths:
+      | ["metadata"]["name"]                             | test-27595                                    |
+      | ["spec"]["domain"]                               | <%= cb.subdomain.gsub("apps","test-27595") %> |
+      | ["spec"]["routeAdmission"]["namespaceOwnership"] | Strict                                        |
+    Then the step should succeed
+
+    # check the env in the router pod
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27595 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | env |
+    Then the output should contain:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=false |
+    """
+
+    # create route in the first namespace
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/caddy-docker.json"
+    When I run the :create client command with:
+      | f | caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    When I run the :create client command with:
+      | f | service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_reencrypt client command with:
+      | name    | route-reen     |
+      | service | service-secure |
+      | path    | /test          |
+    Then the step should succeed
+    Given evaluation of `route("route-reen", service("service-secure")).dns` is stored in the :secure clipboard
+
+    # switch to another user/namespace and create one same hostname with different path
+    Given I switch to the second user
+    And I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
+    When I run the :create client command with:
+      | f | caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/reencrypt/service_secure.json"
+    When I run the :create client command with:
+      | f | service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_reencrypt client command with:
+      | name     | route-reen       |
+      | service  | service-secure   |
+      | hostname | <%= cb.secure %> |
+      | path     | /path/second     |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain "HostAlreadyClaimed"
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-27596
+  @admin
+  Scenario: update the namespaceOwnership of routeAdmission
+    Given the master version >= "4.4"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-27596" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nsowner.yaml"
+    When I run oc create over "ingressctl-nsowner.yaml" replacing paths:
+      | ["metadata"]["name"]                             | test-27596                                    |
+      | ["spec"]["domain"]                               | <%= cb.subdomain.gsub("apps","test-27596") %> |
+      | ["spec"]["routeAdmission"]["namespaceOwnership"] | Strict                                        |
+    Then the step should succeed
+
+    # check the env in the router pod
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27596 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | env \| grep NAMESPACE_OWNERSHIP |
+    Then the output should contain:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=false |
+    """
+
+    # update to InterNamespaceAllowed
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller          |
+      | resource_name | test-27596                 |
+      | n             | openshift-ingress-operator |
+      | p             | {"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}} |
+      | type          | merge                      |
+    Then the step should succeed
+    Given I wait for the resource "pod" named "<%= cb.router_pod %>" to disappear
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27596 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | env \| grep NAMESPACE_OWNERSHIP |
+    Then the output should contain:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true |
+    """
+
+    # remove the spec from ingresscontroller, will use default value: Strict
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller          |
+      | resource_name | test-27596                 |
+      | n             | openshift-ingress-operator |
+      | p             | {"spec":{"routeAdmission":{"namespaceOwnership":null}}} |
+      | type          | merge                      |
+    Then the step should succeed
+    Given I wait for the resource "pod" named "<%= cb.router_pod %>" to disappear
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27596 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | env \| grep NAMESPACE_OWNERSHIP |
+    Then the output should contain:
+      | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=false |
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-27605
+  @admin
+  Scenario: set namespaceOwnership of routeAdmission to invalid string
+    Given the master version >= "4.4"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-27605" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nsowner.yaml"
+    When I run oc create over "ingressctl-nsowner.yaml" replacing paths:
+      | ["metadata"]["name"] | test-27605                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-27605") %> |
+    Then the step should succeed
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-27605 |
+
+    # try to set invalid value
+    When I run the :patch admin command with:
+      | resource      | ingresscontroller          |
+      | resource_name | test-27605                 |
+      | n             | openshift-ingress-operator |
+      | p             | {"spec":{"routeAdmission":{"namespaceOwnership":"test"}}} |
+      | type          | merge                      |
+    Then the step should fail
+    And the output should contain "invalid"
+
