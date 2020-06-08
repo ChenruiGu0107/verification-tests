@@ -164,8 +164,8 @@ Feature: oc_set_resources.feature
       | resourcename | <%= pod.name %>       |
       | limits       | cpu=100m,memory=256Mi |
     Then the step should fail
-    And the output should contain:
-      | failed to patch limit update to pod template |
+    And the output should match:
+      | failed to patch (limit\|resources) update to pod template |
 
   # @author yadu@redhat.com
   # @case_id OCP-11659
