@@ -269,10 +269,10 @@ Feature: Scheduler predicates and priority test suites
     Given admin ensures "priorityl" priority_class is deleted after scenario
     Given admin ensures "prioritym" priority_class is deleted after scenario
     When I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
       | ["metadata"]["name"] | prioritym |
       | ["value"]            | 99        |
     Then the step should succeed
@@ -284,10 +284,10 @@ Feature: Scheduler predicates and priority test suites
     # Test runs
     Given I have a project
     And evaluation of `node.remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
     Given status becomes :running of 2 pods labeled:
@@ -302,7 +302,7 @@ Feature: Scheduler predicates and priority test suites
       | key_val   | additional-             |
     Then the step should succeed
     And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :nodeone_memory clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.nodeone_memory %> |
       | ["spec"]["containers"][0]["resources"]["requests"]["cpu"]    | 1m                       |
       | ["metadata"]["labels"]                                       | env: test1               |
@@ -316,7 +316,7 @@ Feature: Scheduler predicates and priority test suites
       | min_available | 100%         |
       | selector      | env=test1    |
     Then the step should succeed
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | prioritym                |
       | ["metadata"]["labels"]                                       | env: testm               |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.nodeone_memory %> |
@@ -344,15 +344,15 @@ Feature: Scheduler predicates and priority test suites
     Given the taints of the nodes in the clipboard are restored after scenario
     # Creation of priority classes
     When I run the :create admin command with:
-      | f | /<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
+      | f | /<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
       | ["metadata"]["name"] | prioritym |
       | ["value"]            | 99        |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/prioritym created"
-    When I run oc create as admin over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
+    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
       | ["metadata"]["name"] | priorityh |
       | ["value"]            | 100       |
     Then the step should succeed
@@ -365,14 +365,14 @@ Feature: Scheduler predicates and priority test suites
     # Test runs
     Given I have a project
     And evaluation of `node.remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | env=test |
     And evaluation of `pod.name` is stored in the :podl clipboard
     Then the expression should be true> pod.node_name == node.name
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | prioritym                      |
       | ["metadata"]["labels"]                                       | env: testm                     |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
@@ -386,7 +386,7 @@ Feature: Scheduler predicates and priority test suites
     Given a pod becomes ready with labels:
       | env=testm |
     Then the expression should be true> pod.node_name == node.name
-    When I run oc create over "<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | priorityh                      |
       | ["metadata"]["labels"]                                       | env: testh                     |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |

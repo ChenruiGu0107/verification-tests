@@ -37,15 +37,15 @@ Feature: idp feature
       | skip_tls_verify  | true                |
     Then the step should fail
     Given I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_user.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_user.json |
     Then the step should succeed
     And admin ensure "ocp23517_user" user is deleted after scenario
     Given I run the :create admin command with:
-      | f |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_identity.json |
+      | f |<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_identity.json |
     Then the step should succeed
     And admin ensure "htpassidp-23517:ocp23517_user" identity is deleted after scenario
     Given I run the :create admin command with:
-      | f | <%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_useridentitymapping.json |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/idp/OCP-23517/ocp23517_useridentitymapping.json |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | user/ocp23517_user |
