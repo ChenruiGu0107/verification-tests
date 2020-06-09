@@ -134,7 +134,7 @@ Feature: oc_volume.feature
   # @case_id OCP-12340
   Scenario: Select resources with '--selector' option
     Given I have a project
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | name         | ruby-hello-world                                                                                      |
       | docker image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
     Then the step should succeed
@@ -149,19 +149,17 @@ Feature: oc_volume.feature
       | name         | testpod                   |
       | key_val      | volume=nfs                |
     Given I run the :label client command with:
-      | resource     | dc                        |
-      | name         | ruby-hello-world          |
-      | key_val      | volume=emptydir           |
+      | resource     | deploymentConfig |
+      | name         | ruby-hello-world |
+      | key_val      | volume=emptydir  |
 
     When I run the :set_volume client command with:
       | resource      | pods                     |
-      | action        | --list                   |
       | selector      | volume=nfs               |
-    Then the output should contain "pods/testpod"
+    Then the output should contain "testpod"
     When I run the :set_volume client command with:
-      | resource      | dc                       |
-      | action        | --list                   |
-      | selector      | volume=emptydir          |
+      | resource      | deploymentConfig |
+      | selector      | volume=emptydir  |
     Then the output should contain "ruby-hello-world"
 
   # @author jhou@redhat.com
