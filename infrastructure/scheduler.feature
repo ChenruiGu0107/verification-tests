@@ -263,9 +263,6 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: Preemptor will choose the node with lowest number pods which violated PDBs
     Given the master version >= "4.1"
-    Given I store the schedulable workers in the :nodes clipboard
-    And the expression should be true> cb.nodes.delete(node)
-    Given the taints of the nodes in the clipboard are restored after scenario
     Given admin ensures "priorityl" priority_class is deleted after scenario
     Given admin ensures "prioritym" priority_class is deleted after scenario
     When I run the :create admin command with:
@@ -277,13 +274,17 @@ Feature: Scheduler predicates and priority test suites
       | ["value"]            | 99        |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/prioritym created"
-    When I run the :oadm_taint_nodes admin command with:
+    Given I store the schedulable workers in the :nodes clipboard
+    And node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     # Test runs
     Given I have a project
-    And evaluation of `node.remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]/2` is stored in the :node_allocate_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
     Then the step should succeed
@@ -297,11 +298,10 @@ Feature: Scheduler predicates and priority test suites
       | min_available | 100%        |
       | selector      | env=test    |
     Then the step should succeed
-    When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %> |
-      | key_val   | additional-             |
+     When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
-    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :nodeone_memory clipboard
+    And evaluation of `cb.nodes[1].remaining_resources[:memory]` is stored in the :nodeone_memory clipboard
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.nodeone_memory %> |
       | ["spec"]["containers"][0]["resources"]["requests"]["cpu"]    | 1m                       |
