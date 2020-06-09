@@ -266,12 +266,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    Given I wait for the "cockroachdb-certified-rhmp" subscriptions to appear
-    Given I wait up to 120 seconds for the steps to pass:
-    """
-    When I get project clusterserviceversions
-    Then the output should contain "cockroachdb.v"
-    """
+    And I wait for the "cockroachdb-certified-rhmp" subscriptions to become ready
     And evaluation of `subscription("cockroachdb-certified-rhmp").current_csv` is stored in the :cockroachdb_csv clipboard
     Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
       | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |
@@ -313,12 +308,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    Given I wait for the "radanalytics-spark" subscriptions to appear
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project clusterserviceversions
-    Then the output should contain "sparkoperator.v"
-    """
+    And I wait for the "radanalytics-spark" subscriptions to become ready
     And evaluation of `subscription("radanalytics-spark").current_csv` is stored in the :spark_csv clipboard
     When I perform the :goto_operand_list_page web action with:
       | project_name | <%= project.name %>              |
