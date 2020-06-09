@@ -350,9 +350,9 @@ Feature: NFS Persistent Volume
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+      | ["spec"]["containers"][0]["image"]                           | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>                                                                              |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>                                                                             |
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
@@ -392,9 +392,9 @@ Feature: NFS Persistent Volume
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+      | ["spec"]["containers"][0]["image"]                           | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>                                                                              |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>                                                                             |
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
@@ -434,9 +434,9 @@ Feature: NFS Persistent Volume
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+      | ["spec"]["containers"][0]["image"]                           | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>                                                                              |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>                                                                             |
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
