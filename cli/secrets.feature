@@ -575,7 +575,7 @@ Feature: secrets related scenarios
     Then the output should contain:
       | kind: Secret |
     Then the output should not contain:
-        | { |
+      | [ |
     And I wait for the "secret7-2-output" secret to appear
     # --output=name
     When I run the :create_secret client command with:
