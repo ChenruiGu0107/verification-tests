@@ -988,7 +988,7 @@ Feature: Testing route
     And the expression should be true> !@result[:headers].include?("strict-transport-security")
     """
 
-  # @author yadu@redhat.com
+  # @author aiyengar@redhat.com
   # @case_id OCP-16732
   @admin
   Scenario: Check haproxy.config when overwriting 'timeout server' which was already specified
@@ -1010,10 +1010,13 @@ Feature: Testing route
     And I use the router project
     And all default router pods become ready
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I execute on the "<%=cb.router_pod %>" pod:
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
       | grep | -A | 12 | <%= cb.proj_name %>:test-service | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 1 times:
       | timeout server  5s |
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-19804
