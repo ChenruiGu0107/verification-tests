@@ -282,7 +282,7 @@ Feature: Testing image registry operator
 
   # @author wzheng@redhat.com
   # @case_id OCP-27577
-  Scenario:Explain and check the custom resource definition for the prune
+  Scenario: Explain and check the custom resource definition for the prune
     When I run the :explain client command with:
       | resource    | imagepruners                           |
       | api_version | imageregistry.operator.openshift.io/v1 |
@@ -291,6 +291,39 @@ Feature: Testing image registry operator
       | ImagePruner is the configuration object for an image registry pruner |
       | ImagePrunerSpec defines the specs for the running image pruner       |
       | ImagePrunerStatus reports image pruner operational status            |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-27576
+  @admin
+  Scenario: CronJob is added to automate image prune	
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project 
+    When I get project imagepruners_imageregistry_operator_openshift_io named “cluster” as YAML                                            |
+    Then the output should contain:
+      | failedJobsHistoryLimit: 3     |
+      | keepTagRevisions: 3           |
+      | schedule: ""                  |
+      | successfulJobsHistoryLimit: 3 |
+      | suspend: false                |
+    Given I save the output to file> imagepruners.yaml
+    And I replace lines in "imagepruners.yaml":
+      | keepTagRevisions: 3       | keepTagRevisions: 1       |
+      | failedJobsHistoryLimit: 3 | failedJobsHistoryLimit: 1 |
+      | schedule: ""              |  schedule: "* * * * *"    | 
+    When I run the :apply client command with:
+      | f | imagepruners.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | imagepruners.imageregistry.operator.openshift.io |
+      | name     | cluster                                          |
+    Then the output should contain:
+      | Failed Jobs History Limit:      1         |
+      | Keep Tag Revisions:             1         |
+      | Schedule:                       * * * * * |
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should contain:
+      | image-pruner |
 
   # @author wzheng@redhat.com
   # @case_id OCP-24133
