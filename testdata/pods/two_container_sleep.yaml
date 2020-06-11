@@ -6,10 +6,10 @@ spec:
   restartPolicy: Never
   containers:
   - name: container1
-    image: docker.io/library/busybox@sha256:b26cd013274a657b86e706210ddd5cc1f82f50155791199d29b9e86e935ce135
+    image: quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d
     imagePullPolicy: IfNotPresent
     command: ["sleep", "1"]
   - name: container2
-    image: docker.io/library/busybox@sha256:b26cd013274a657b86e706210ddd5cc1f82f50155791199d29b9e86e935ce135
+    image: quay.io/openshifttest/busybox@sha256:afe605d272837ce1732f390966166c2afff5391208ddd57de10942748694049d
     imagePullPolicy: IfNotPresent
     command: ["sleep", "80"]
