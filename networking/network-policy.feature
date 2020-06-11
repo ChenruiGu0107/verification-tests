@@ -666,7 +666,7 @@ Feature: Network policy plugin scenarios
     # Add label to an existing pod and a new pod in project1
     Given I use the "<%= cb.proj1 %>" project
     And I have a pod-for-ping in the project
-    And evaluation of `pod.ip` is stored in the :p1pod4ip clipboard
+    And evaluation of `pod.ip_url` is stored in the :p1pod4ip clipboard
     When I run the :label client command with:
       | resource  | pod |
       | name      | <%= cb.p1pod3 %> |
@@ -1143,7 +1143,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 1 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
     # create another project and pods
     Given I create a new project
@@ -1155,7 +1155,7 @@ Feature: Network policy plugin scenarios
     Given 1 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p2svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
@@ -1193,21 +1193,21 @@ Feature: Network policy plugin scenarios
 
     # access the svc cross project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
 
@@ -1219,21 +1219,21 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given I use the "<%= cb.proj1 %>" project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
 
@@ -1251,7 +1251,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 1 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
     # create another project and pods
     Given I create a new project
@@ -1263,7 +1263,7 @@ Feature: Network policy plugin scenarios
     Given 1 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p2svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
 
     # add annotation to both projects and apply network policy to the project1
     When I run the :label admin command with:
@@ -1297,7 +1297,7 @@ Feature: Network policy plugin scenarios
     Given 1 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p3pod1 clipboard
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p3svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p3svc1url clipboard
     When I run the :label admin command with:
       | resource | namespace |
       | name     | <%= cb.proj3 %> |
@@ -1318,29 +1318,29 @@ Feature: Network policy plugin scenarios
 
     # access the svc cross project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p3svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p3svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
 
@@ -1352,25 +1352,25 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given I use the "<%= cb.proj1 %>" project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p3svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p3svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
 
@@ -1387,7 +1387,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given 1 pods become ready with labels:
       | name=test-pods |
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p1svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
     # create another project and pods
     Given I create a new project
@@ -1399,7 +1399,7 @@ Feature: Network policy plugin scenarios
     Given 1 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p2svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
@@ -1422,7 +1422,7 @@ Feature: Network policy plugin scenarios
     Given 1 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p3pod1 clipboard
-    And evaluation of `service("test-service").ip(user: user)` is stored in the :p3svc1ip clipboard
+    And evaluation of `service("test-service").url` is stored in the :p3svc1url clipboard
 
     # scale up the pod in project1
     Given I use the "<%= cb.proj1 %>" project
@@ -1438,25 +1438,25 @@ Feature: Network policy plugin scenarios
 
     # access the svc cross project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p3svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p3svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should succeed
     And the output should contain "Hello"
 
@@ -1468,21 +1468,21 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given I use the "<%= cb.proj1 %>" project
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p2svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p2svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj2 %>" project
     When I execute on the "<%= cb.p2pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
     Given I use the "<%= cb.proj3 %>" project
     When I execute on the "<%= cb.p3pod1 %>" pod:
-      | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
+      | curl | --connect-timeout | 5 | <%= cb.p1svc1url %> |
     Then the step should fail
     And the output should not contain "Hello"
 
