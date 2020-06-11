@@ -3,8 +3,9 @@ Feature: Configuration of environment variables check
   # @case_id OCP-11143
   Scenario: Substitute environment variables into a container's command
     Given I have a project
+    Given I obtain test data file "container/commandtest.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/container/commandtest.json |
+      | f | commandtest.json |
     Then the step should succeed
     Given the pod named "expansion-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -16,8 +17,9 @@ Feature: Configuration of environment variables check
   # @case_id OCP-10646
   Scenario: Substitute environment variables into a container's args
     Given I have a project
+    Given I obtain test data file "container/argstest.json"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/container/argstest.json |
+      | f |  argstest.json |
     Then the step should succeed
     Given the pod named "expansion-pod" status becomes :running
     When I run the :logs client command with:
@@ -31,8 +33,9 @@ Feature: Configuration of environment variables check
   # @case_id OCP-11497
   Scenario: Substitute environment variables into a container's env
     Given I have a project
+    Given I obtain test data file "templates/tc493678/envtest.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc493678/envtest.json |
+      | f | envtest.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
     When I run the :set_env client command with:
@@ -81,10 +84,11 @@ Feature: Configuration of environment variables check
 
   # @author haowang@redhat.com
   # @case_id OCP-13141
-  Scenario Outline: Users can override the the env tuned by ruby base image -ruby-20-rhel7
+  Scenario: Users can override the the env tuned by ruby base image -ruby-20-rhel7
     Given I have a project
+    Given I obtain test data file "image/language-image-templates/OCP-13141/template.json"
     When I run the :create client command with:
-      | f | <template> |
+      | f | template.json |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
@@ -107,6 +111,3 @@ Feature: Configuration of environment variables check
       | max threads: 14    |
       | Process workers: 5 |
     """
-    Examples:
-      | template        |
-      | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/OCP-13141/template.json |

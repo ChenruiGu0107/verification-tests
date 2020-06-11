@@ -31,7 +31,8 @@ Feature: jenkins.feature
   # @case_id OCP-10975
   Scenario Outline: Use Jenkins as S2I builder with plugins
     Given I have a project
-    Given I have a jenkins v<ver> application from "<%= BushSlicer::HOME %>/features/tierN/testdata/build/tc515317_536388/jenkins-with-plugins.json"
+    Given I obtain test data file "build/tc515317_536388/jenkins-with-plugins.json"
+    Given I have a jenkins v<ver> application from "jenkins-with-plugins.json"
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
     When I run the :build_logs client command with:
@@ -50,8 +51,9 @@ Feature: jenkins.feature
   Scenario Outline: Add/override env vars to pipeline buildconfigs when start-build pipeline build with -e
     Given I have a project
     And I have a jenkins v<version> application
+    Given I obtain test data file "templates/OCP-13259/samplepipeline.yaml"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-13259/samplepipeline.yaml |
+      | file | samplepipeline.yaml |
     Then the step should succeed
     Given I have a jenkins browser
     And I log in to jenkins
@@ -183,8 +185,9 @@ Feature: jenkins.feature
   @admin
   Scenario: Using jenkins slave nodejs image to do pipeline build with limited resource
     And I have a project
+    Given I obtain test data file "templates/OCP-15196/limitrange.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-15196/limitrange.json |
+      | f | limitrange.json |
       | n | <%= project.name %>                                                                                    |
     Then the step should succeed
     Given I have a jenkins v2 application

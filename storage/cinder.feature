@@ -10,7 +10,8 @@ Feature: Cinder Persistent Volume
     #create test pod
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/cinder/cinder-pod.yaml" replacing paths:
+    Given I obtain test data file "storage/cinder/cinder-pod.yaml"
+    When I run oc create over "cinder-pod.yaml" replacing paths:
       | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinder" becomes ready
@@ -33,11 +34,13 @@ Feature: Cinder Persistent Volume
   @admin
   Scenario Outline: Cinder volume racing condition
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/cinder/pod.json" replacing paths:
+    Given I obtain test data file "storage/cinder/pod.json"
+    When I run oc create over "pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod1                                 |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc                                  |
       | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %> |
@@ -54,7 +57,8 @@ Feature: Cinder Persistent Volume
       | object_type       | pod    |
       | object_name_or_id | mypod1 |
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/cinder/pod.json" replacing paths:
+    Given I obtain test data file "storage/cinder/pod.json"
+    When I run oc create over "pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod2                                 |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc                                  |
       | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.supplemental_groups.min %> |

@@ -340,8 +340,9 @@ Feature: Node management
   @admin
   Scenario: NodeStatus and PodStatus show correct imageID while pulling by digests - 4.x
     Given I have a project
+    Given I obtain test data file "pods/pod-pull-by-digests.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-digests.yaml |
+      | f | pod-pull-by-digests.yaml |
     Then the step should succeed
     And the pod named "pod-pull-by-digests" becomes ready
     Given I use the "<%= pod.node_name %>" node
@@ -363,8 +364,9 @@ Feature: Node management
   @admin
   Scenario: NodeStatus and PodStatus show correct imageID while pulling by tag - 4.x
     Given I have a project
+    Given I obtain test data file "pods/pod-pull-by-tag.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
+      | f | pod-pull-by-tag.yaml |
     Then the step should succeed
     And the pod named "pod-pull-by-tag" becomes ready
     Given I use the "<%= pod.node_name %>" node

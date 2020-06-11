@@ -139,7 +139,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a NFS service in the project
 
     # Creating PV
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv.json"
+    Given admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"]    | <%= service("nfs-service").ip %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>           |

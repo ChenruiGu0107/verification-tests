@@ -5,12 +5,14 @@ Feature: Permission Data
   @admin
   Scenario: User can specify a default permission mode for the whole configmap volume
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/configmap-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/configmap-permission-pod.yaml |
+      | f | configmap-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "configmap-permission-pod" becomes ready
     When I execute on the pod:
@@ -30,8 +32,9 @@ Feature: Permission Data
   Scenario: User can specify a default permission mode for the whole downward API volume
     Given I have a project
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/dapi-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-permission-pod.yaml |
+      | f | dapi-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-permission-pod" becomes ready
     When I execute on the pod:
@@ -60,8 +63,9 @@ Feature: Permission Data
   @admin
   Scenario: User can specify a default permission mode for the whole secret volume
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
     When I obtain test data file "pods/permission-data/secret-permission-pod.yaml"
@@ -199,12 +203,14 @@ Feature: Permission Data
   @admin
   Scenario: User can specify different permission for different files in configmap volume
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/configmap-keys-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/configmap-keys-permission-pod.yaml |
+      | f | configmap-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "configmap-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -224,8 +230,9 @@ Feature: Permission Data
   Scenario: User can specify different permission for different files in downward API volume
     Given I have a project
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/dapi-keys-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
+      | f | dapi-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -254,12 +261,14 @@ Feature: Permission Data
   @admin
   Scenario: User can specify different permission for different files in secret volume
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/secret-keys-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-keys-permission-pod.yaml |
+      | f | secret-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "secret-keys-permission-pod" becomes ready
     When I execute on the pod:
@@ -278,12 +287,14 @@ Feature: Permission Data
   @admin
   Scenario: User can specify right files permission when a default mode is supplied and the mode for a particular file is explicitly set
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/permission-data/secret-mix-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/secret-mix-permission-pod.yaml |
+      | f | secret-mix-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "secret-mix-permission-pod" becomes ready
     When I execute on the pod:
@@ -301,8 +312,9 @@ Feature: Permission Data
   # @case_id OCP-11043
   Scenario: Permission mode work well in "privileged" policy with fsGroup
     Given I have a project
+    Given I obtain test data file "pods/permission-data/dapi-keys-permission-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/permission-data/dapi-keys-permission-pod.yaml |
+      | f | dapi-keys-permission-pod.yaml |
     Then the step should succeed
     Given the pod named "dapi-keys-permission-pod" becomes ready
     When I execute on the pod:

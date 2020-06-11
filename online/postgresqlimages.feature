@@ -44,8 +44,9 @@ Feature: ONLY ONLINE PostgreSQL images related feature's scripts in this file
   # @case_id OCP-11319
   Scenario: Check memory limits env vars when pod is set with memory limit - postgresql-95-rhel7
     Given I have a project
+    Given I obtain test data file "online/tc532757/psql.json"
     When I run the :create client command with:
-      | f   | <%= BushSlicer::HOME %>/features/tierN/testdata/online/tc532757/psql.json |
+      | f   | psql.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=psql-1 |

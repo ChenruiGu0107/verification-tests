@@ -332,9 +332,11 @@ Feature: Testing image registry operator
   Scenario: TLS can be added to user-defined registry route
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-image-registry" project
+    Given I obtain test data file "registry/myregistry.crt"
+    Given I obtain test data file "registry/myregistry.key"
     When I run the :create_secret client command with:
-      | cert        | <%= BushSlicer::HOME %>/features/tierN/testdata/registry/myregistry.crt |
-      | key         | <%= BushSlicer::HOME %>/features/tierN/testdata/registry/myregistry.key |
+      | cert        | myregistry.crt |
+      | key         | myregistry.key |
       | secret_type | tls                                                                     |
       | name        | my-tls                                                                  |
     Then the step should succeed

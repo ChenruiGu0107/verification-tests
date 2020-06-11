@@ -126,8 +126,9 @@ Feature: oc set triggers tests
   # @case_id OCP-11245
   Scenario: `oc set triggers` for dc
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     When I run the :set_triggers client command with:
       | resource   | dc/dctest              |

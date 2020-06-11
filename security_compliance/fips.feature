@@ -49,9 +49,11 @@ Feature: security and compliance related scenarios
     # Create a MachineConfig on master & worker node to disable fips
     Given admin ensures "99-fips-master" machineconfig is deleted after scenario
     Given admin ensures "99-fips-worker" machineconfig is deleted after scenario
+    Given I obtain test data file "fips/fips-master-disable.yaml"
+    Given I obtain test data file "fips/fips-worker-disable.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-master-disable.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-worker-disable.yaml |
+      | f | fips-master-disable.yaml |
+      | f | fips-worker-disable.yaml |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | mc |
@@ -137,9 +139,11 @@ Feature: security and compliance related scenarios
     # Create a MachineConfig on master & worker node to enable fips
     Given admin ensures "99-master-fips" machineconfig is deleted after scenario
     Given admin ensures "99-worker-fips" machineconfig is deleted after scenario
+    Given I obtain test data file "fips/fips-master-enable.yaml"
+    Given I obtain test data file "fips/fips-worker-enable.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-master-enable.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/fips/fips-worker-enable.yaml |
+      | f | fips-master-enable.yaml |
+      | f | fips-worker-enable.yaml |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | mc |

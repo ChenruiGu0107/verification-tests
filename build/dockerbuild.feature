@@ -3,8 +3,9 @@ Feature: dockerbuild.feature
   # @author wzheng@redhat.com
   Scenario Outline: Push build with invalid github repo
     Given I have a project
+    Given I obtain test data file "build/ruby22rhel7-template-sti-invalidrepo.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti-invalidrepo.json |
+      | f | ruby22rhel7-template-sti-invalidrepo.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
@@ -23,8 +24,9 @@ Feature: dockerbuild.feature
   # @case_id OCP-10693
   Scenario: Add empty ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
+    Given I obtain test data file "image/language-image-templates/application-template-dockerbuild-blankvar.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/application-template-dockerbuild-blankvar.json |
+      | file | application-template-dockerbuild-blankvar.json |
     Then the step should fail
     And the output should contain "invalid"
 
@@ -34,8 +36,9 @@ Feature: dockerbuild.feature
   @destructive
   Scenario: Edit bc with an allowed strategy to use a restricted strategy
     Given I have a project
+    Given I obtain test data file "build/ruby22rhel7-template-docker.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
@@ -54,8 +57,9 @@ Feature: dockerbuild.feature
 
     Given I switch to the second user
     Given I have a project
+    Given I obtain test data file "build/ruby22rhel7-template-sti.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json |
+      | file | ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I get project build_config named "ruby-sample-build" as JSON
     Then the step should succeed
@@ -75,8 +79,9 @@ Feature: dockerbuild.feature
   Scenario: Allowing only certain users in a specific project to create builds with a particular strategy
     Given I have a project
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    Given I obtain test data file "build/ruby22rhel7-template-docker.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
     Given I create a new project
@@ -86,13 +91,15 @@ Feature: dockerbuild.feature
       | user name       |   <%= user.name %>    |
       | n               |   <%= cb.proj_name %> |
     Then the step should succeed
+    Given I obtain test data file "build/ruby22rhel7-template-docker.json"
     And I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     Given I create a new project
+    Given I obtain test data file "build/ruby22rhel7-template-docker.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-docker.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
 

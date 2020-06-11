@@ -4,8 +4,9 @@ Feature: emptyDir specific scenarios
   @admin
   Scenario: EmptyDir won't lead to memory exhaustion
     Given I have a project
+    Given I obtain test data file "storage/emptydir/pod-emptydir.yaml"
     When I run the :create client command with:
-      | filename  | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/emptydir/pod-emptydir.yaml |
+      | filename  | pod-emptydir.yaml |
     Then the step should succeed
     Given I wait for the "pod-emptydir" pod to appear in the project
     And evaluation of `pod.node_name` is stored in the :pod_node clipboard
@@ -27,8 +28,9 @@ Feature: emptyDir specific scenarios
       | 200M  |
       | zero  |
     Given I ensure "pod-emptydir" pod is deleted
+    Given I obtain test data file "storage/emptydir/pod-emptydir-oom.yaml"
     When I run the :create client command with:
-      | filename  | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/emptydir/pod-emptydir-oom.yaml |
+      | filename  | pod-emptydir-oom.yaml |
     Then the step should succeed
 
     Given I wait for the "pod-emptydir-oom" pod to appear in the project

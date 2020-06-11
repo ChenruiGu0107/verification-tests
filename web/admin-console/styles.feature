@@ -171,7 +171,8 @@
   Scenario: Check Alerts styles	
     Given the master version >= "4.2"
     Given I have a project
-    When I run oc create with "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json" replacing paths:
+    Given I obtain test data file "deployment/simpledc.json"
+    When I run oc create with "simpledc.json" replacing paths:
       | ["metadata"]["name"] | ruby |
     Then the step should succeed
 

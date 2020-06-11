@@ -50,8 +50,9 @@ Feature: oc_process.feature
   # @bug_id 1375275
   Scenario: Deal with multiple equal signs or commas in parameter with oc process or oc new-app
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :process client command with:
-      | f        | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f        | application-template-stibuild-without-customize-route.json |
       | template | MYSQL_USER=username                                                                                                           |
       | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                                          |
     Then the step should succeed
@@ -59,8 +60,9 @@ Feature: oc_process.feature
     And the output should contain:
       | username              |
       | -Dfoo2=bar -Dbar2=foo |
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file    | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username                                                                                                           |
       | p       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo                                                                                           |
       | dry_run | true                                                                                                                          |
@@ -68,8 +70,9 @@ Feature: oc_process.feature
     And the output should contain:
       | MYSQL_USER=username                 |
       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo |
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file    | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username                                                                                                           |
       | p       | MYSQL_PASSWORD=4,5,6                                                                                                          |
       | dry_run | true                                                                                                                          |
@@ -78,8 +81,9 @@ Feature: oc_process.feature
     And the output should contain:
       | MYSQL_USER=username  |
       | MYSQL_PASSWORD=4,5,6 |
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file    | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file    | application-template-stibuild-without-customize-route.json |
       | p       | MYSQL_USER=username,MYSQL_PASSWORD=4,5                                                                                        |
       | dry_run | true                                                                                                                          |
     # Don't care if the step could be succeed or not
@@ -105,26 +109,30 @@ Feature: oc_process.feature
     """
     aaa=123
     """
+    Given I obtain test data file "cli/OCP-11680/guestbook.json"
     When I run the :process client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11680/guestbook.json |
+      | f          | guestbook.json |
       | param_file | test2                                                                              |
     Then the step should succeed
     And the output should contain:
       | root      |
       | adminpass |
       | redispass |
+    Given I obtain test data file "cli/OCP-11680/template_required_params.yaml"
     When I run the :process client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | f          | template_required_params.yaml |
       | param_file | test1                                                                                             |
     And the output should contain "name": "first\nsecond"
+    Given I obtain test data file "cli/OCP-11680/template_required_params.yaml"
     When I run the :process client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | f          | template_required_params.yaml |
       | param_file | test3                                                                                             |
     And the step should fail
     And the output should contain:
       | unknown parameter name "aaa" |
+    Given I obtain test data file "cli/OCP-11680/template_required_params.yaml"
     When I run the :process client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11680/template_required_params.yaml |
+      | f          | template_required_params.yaml |
       | param_file | test1                                                                                             |
       | p          | required_param=good                                                                               |
     And the step should succeed

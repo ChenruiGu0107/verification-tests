@@ -6,17 +6,20 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: Target pvc to a specific pv with label selector
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv1-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                 |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]         | pv2-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc                  |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
@@ -30,18 +33,21 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: PVC could not bind PV with label selector matches but binding requirements are not met
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc1                 |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"]  | mytype1                |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc2                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
@@ -57,29 +63,34 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: PVC with less label selectors could bound to PV
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv1-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                 |
       | ["metadata"]["labels"]["zone"] | myzone1                 |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]         | pv2-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc1                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc2                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype2                |
       | ["spec"]["selector"]["matchLabels"]["zone"] | myzone1                |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc3                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
@@ -98,20 +109,23 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: Target pvc to a best fit size pv with same label selector
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]            | pv1-<%= project.name %> |
       | ["metadata"]["labels"]["type"]  | mytype1                 |
       | ["spec"]["storageClassName"]    | sc-<%= project.name %>  |
       | ["spec"]["capacity"]["storage"] | 101Gi                   |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]            | pv2-<%= project.name %> |
       | ["metadata"]["labels"]["type"]  | mytype1                 |
       | ["spec"]["storageClassName"]    | sc-<%= project.name %>  |
       | ["spec"]["capacity"]["storage"] | 102Gi                   |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                  |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"]  | mytype1                |
@@ -126,13 +140,15 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: PVC could bind prebound PV with mismatched label
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv5.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv5.json"
+    When admin creates a PV from "pv5.json" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | mypvc                  |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc5.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc5.json"
+    When I create a dynamic pvc from "pvc5.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -144,16 +160,19 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: Prebound PVC could bind to pv and ignore the label selector
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv1-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                 |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %>  |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]         | pv2-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc                   |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %>  |
       | ["spec"]["volumeName"]                      | pv2-<%= project.name %> |
@@ -168,12 +187,14 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: PVC and PV still bound after remove the pv label
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc                   |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %>  |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                 |
@@ -192,7 +213,8 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: Target pvc to pv with same label selector and multi accessmode
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
@@ -201,7 +223,8 @@ Feature: Target pvc to a specific pv
       | ["spec"]["accessModes"][2]     | ReadOnlyMany           |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                        | mypvc                  |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
       | ["spec"]["selector"]["matchLabels"]["type"] | mytype1                |
@@ -214,12 +237,14 @@ Feature: Target pvc to a specific pv
   @admin
   Scenario: PVC without any VolumeSelector could bind a PV with any labels
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pv.json" where:
+    Given I obtain test data file "storage/nfs/labelmatch/pv.json"
+    When admin creates a PV from "pv.json" where:
       | ["metadata"]["name"]           | pv-<%= project.name %> |
       | ["metadata"]["labels"]["type"] | mytype1                |
       | ["spec"]["storageClassName"]   | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/labelmatch/pvc.json" replacing paths:
+    Given I obtain test data file "storage/nfs/labelmatch/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed

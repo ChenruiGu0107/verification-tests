@@ -10,8 +10,9 @@ Feature: StatefulSet related tests
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
+    Given I obtain test data file "statefulset/stable-storage.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml  |
+      | f | stable-storage.yaml  |
       | n | <%= project.name %> |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -69,8 +70,9 @@ Feature: StatefulSet related tests
   # @case_id OCP-12983
   Scenario: Scaling up/down StatefulSet
     Given I have a project
+    Given I obtain test data file "statefulset/hello-statefulset.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
+      | f | hello-statefulset.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -103,8 +105,9 @@ Feature: StatefulSet related tests
   @admin
   Scenario: Deleting StatefulSets
     Given I have a project
+    Given I obtain test data file "statefulset/stable-storage.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml |
+      | f | stable-storage.yaml |
       | n | <%= project.name %>|
     Then the step should succeed
     And I wait for the "hello-statefulset" statefulset to appear
@@ -122,8 +125,9 @@ Feature: StatefulSet related tests
     Then the step should succeed
 
     Given I have a project
+    Given I obtain test data file "statefulset/stable-storage.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml |
+      | f | stable-storage.yaml |
       | n | <%= project.name %>|
     Then the step should succeed
     And I wait for the "hello-statefulset" statefulset to appear
@@ -149,8 +153,9 @@ Feature: StatefulSet related tests
   # @case_id OCP-12984
   Scenario: Update container image in StatefulSet
     Given I have a project
+    Given I obtain test data file "statefulset/update-statefulset.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/update-statefulset.yaml |
+      | f | update-statefulset.yaml |
       | n | <%=project.name %>                                                                                     |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -182,8 +187,9 @@ Feature: StatefulSet related tests
   # @case_id OCP-12975
   Scenario: Pods in a StatefulSet is using stable network identities
     Given I have a project
+    Given I obtain test data file "statefulset/hello-statefulset.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
+      | f | hello-statefulset.yaml |
       | n | <%=project.name %>                                                                                    |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
@@ -198,8 +204,9 @@ Feature: StatefulSet related tests
       | exec_command     | hostname            |
     Then the output should contain:
       | hello-statefulset-1 |
+    Given I obtain test data file "pods/busybox-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/busybox-pod.yaml |
+      | f | busybox-pod.yaml |
     Then the step should succeed
     Given the pod named "my-pod" becomes ready
     When I run the :exec client command with:
@@ -266,8 +273,9 @@ Feature: StatefulSet related tests
   # @case_id OCP-28018
   Scenario: Custom label for pvc in statefulsets
     Given I have a project
+    Given I obtain test data file "statefulset/stable-storage.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/stable-storage.yaml |
+      | f | stable-storage.yaml |
     Then the step should succeed
     Given the pod named "hello-statefulset-0" becomes ready
     When I run the :get client command with:

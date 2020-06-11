@@ -3,12 +3,14 @@ Feature: storage security check
   @admin
   Scenario Outline: Run pod with specific user/group by using securityContext
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-security-context.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-with-security-context.yaml"
+    When I run oc create over "pod-with-security-context.yaml" replacing paths:
       | ["spec"]["securityContext"]["<key>"] | 135246 |
     Then the step should succeed
     And the pod named "mypod" becomes ready
@@ -39,12 +41,14 @@ Feature: storage security check
   @admin
   Scenario: Run pod with specific SELinux by using seLinuxOptions in securityContext
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-security-context.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-with-security-context.yaml"
+    When I run oc create over "pod-with-security-context.yaml" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"] | {"level":"s0:c13,c2"} |
     Then the step should succeed
     And the pod named "mypod" becomes ready
@@ -72,8 +76,9 @@ Feature: storage security check
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
+    Given I obtain test data file "downwardapi/pod-dapi-security.yaml"
     When I run the :create client command with:
-      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/pod-dapi-security.yaml |
+      | filename | pod-dapi-security.yaml |
     Then the step should succeed
     Given the pod named "dapisec" becomes ready
     When I execute on the pod:
@@ -96,13 +101,15 @@ Feature: storage security check
   @admin
   Scenario: Consume ConfigMap via volume plugin with security testing
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
+    Given I obtain test data file "configmap/pod-configmap-security.yaml"
     When I run the :create client command with:
-      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/pod-configmap-security.yaml |
+      | filename | pod-configmap-security.yaml |
     Then the step should succeed
     Given the pod named "configsec" becomes ready
     When I execute on the pod:
@@ -130,8 +137,9 @@ Feature: storage security check
     And I use the "<%= project.name %>" project
 
     #Create pods for selinux testing
+    Given I obtain test data file "storage/security/emptydir_selinux.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/security/emptydir_selinux.json |
+      | f | emptydir_selinux.json |
     Then the step should succeed
     Given the pod named "emptydir" becomes ready
 

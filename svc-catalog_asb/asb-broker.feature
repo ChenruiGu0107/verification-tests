@@ -50,8 +50,9 @@ Feature: ASB broker config related scenarios
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision postgresql apb
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -60,8 +61,9 @@ Feature: ASB broker config related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").external_id` is stored in the :instance_id clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"10","postgresql_password":"test"} |
@@ -87,8 +89,9 @@ Feature: ASB broker config related scenarios
     # create binding
     Given I switch to the first user
     And I use the "<%= cb.user_project %>" project
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
@@ -158,8 +161,9 @@ Feature: ASB broker config related scenarios
     And I have a project
     And evaluation of `project.name` is stored in the :user_project clipboard
     #provision mariadb apb
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -168,8 +172,9 @@ Feature: ASB broker config related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").external_id` is stored in the :instance_id clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                |
       | p | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"} |
@@ -182,8 +187,9 @@ Feature: ASB broker config related scenarios
       | deployment=<%= cb.db.first.name %>-1 |
 
     # create binding
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials                                                     |

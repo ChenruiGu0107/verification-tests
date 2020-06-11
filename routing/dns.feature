@@ -5,12 +5,14 @@ Feature: Testing DNS features
   Scenario: DNS can resolve the ClusterIP services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
@@ -68,21 +70,25 @@ Feature: Testing DNS features
   Scenario: DNS can resolve the ExternalName services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/dns/externalname-service-int.json" replacing paths:
+    Given I obtain test data file "routing/dns/externalname-service-int.json"
+    When I run oc create over "externalname-service-int.json" replacing paths:
       | ["spec"]["externalName"] | service-unsecure.<%= cb.proj_name %>.svc.cluster.local |
     Then the step should succeed
+    Given I obtain test data file "routing/dns/externalname-service-ext.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/dns/externalname-service-ext.json |
+      | f | externalname-service-ext.json |
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
@@ -100,8 +106,9 @@ Feature: Testing DNS features
   # @case_id OCP-21139
   Scenario: DNS can resolve headless service to the IP of selected pods
     Given I have a project
+    Given I obtain test data file "routing/dns/headless-services.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/dns/headless-services.json |
+      | f | headless-services.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=caddy-pods |

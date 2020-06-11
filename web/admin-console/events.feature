@@ -16,8 +16,9 @@ Feature: events and logs related
     Then the step should succeed
 
     # create 1st build
+    Given I obtain test data file "build/tc526202/bc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc526202/bc.json |
+      | f | bc.json |
     Then the step should succeed
 
     # 2nd build will fail
@@ -107,8 +108,9 @@ Feature: events and logs related
   Scenario: Check log streaming
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Given 1 pods become ready with labels:
       | deploymentconfig=dctest,deployment=dctest-1 |
     And I open admin console in a browser

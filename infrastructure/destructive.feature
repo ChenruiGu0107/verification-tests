@@ -6,8 +6,9 @@ Feature: relate with destructive features
   @destructive
   Scenario: Creating project with template with quota/limit range
     Given I have a project
+    Given I obtain test data file "templates/create-bootstrap-quota-limit-template.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/create-bootstrap-quota-limit-template.yaml |
+      | f | create-bootstrap-quota-limit-template.yaml |
     Then the step should succeed
     Given master config is merged with the following hash:
     """

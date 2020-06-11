@@ -3,8 +3,9 @@ Feature: scaling related scenarios
   # @case_id OCP-9908
   Scenario: Only scale the dc can scale the active deployment
     Given I have a project
+    Given I obtain test data file "deployment/testhook.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
+      | f | testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     # Workaround: the below steps make a failed deployment instead of using cancel
@@ -30,8 +31,9 @@ Feature: scaling related scenarios
   @admin
   Scenario: [openshift-sme]When rolling deployments the pod should shutdown gracefully
     Given I have a project
+    Given I obtain test data file "deployment/deployment-with-shutdown-gracefully.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
+      | f | deployment-with-shutdown-gracefully.json |
     Then the step should succeed
     Given I wait until the status of deployment "nettest" becomes :complete
     And a pod becomes ready with labels:

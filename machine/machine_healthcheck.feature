@@ -13,7 +13,8 @@ Feature: MachineHealthCheck Test Scenarios
     Given I clone a machineset and name it "machineset-clone-25741"
 
     # Create MHC
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/mhc/mhc1.yaml" replacing paths:
+    Given I obtain test data file "cloud/mhc/mhc1.yaml"
+    When I run oc create over "mhc1.yaml" replacing paths:
       | n                                                                                  | openshift-machine-api       |
       | ["metadata"]["name"]                                                               | mhc-<%= machine_set.name %> |
       | ["spec"]["selector"]["matchLabels"]["machine.openshift.io/cluster-api-cluster"]    | <%= machine_set.cluster %>  |

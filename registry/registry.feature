@@ -137,8 +137,9 @@ Feature: Testing registry
     Given I switch to cluster admin pseudo user
     Given I enable image-registry default route
     Given default image registry route is stored in the :integrated_reg_host clipboard
+    Given I obtain test data file "registry/ocp-18559/prometheus-role.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/registry/ocp-18559/prometheus-role.yaml |
+      | f | prometheus-role.yaml |
     Then the step should succeed
     And admin ensures "prometheus-scraper" clusterroles is deleted after scenario
     And I switch to the first user

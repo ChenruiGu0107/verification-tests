@@ -98,8 +98,9 @@ Feature: build related
   # @case_id OCP-25795
   Scenario: Check deprecation note of pipeline build strategy
     Given I have a project
+    Given I obtain test data file "pipeline/samplepipeline.yaml"
     When I run the :new_app client command with:
-      | source_spec | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/samplepipeline.yaml |
+      | source_spec | samplepipeline.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_one_buildconfig_page web action with:

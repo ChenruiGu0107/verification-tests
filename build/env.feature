@@ -25,23 +25,27 @@ Feature: env.feature
   # @case_id OCP-11007
   Scenario: Allow for non-string parameters in templates
     Given I have a project
+    Given I obtain test data file "templates/OCP-11007/cakephp1.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11007/cakephp1.json |
+      | file | cakephp1.json |
     Then the step should succeed
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
     Given I wait until number of replicas match "2" for replicationController "cakephp-example-1"
     And I delete all resources from the project
+    Given I obtain test data file "templates/OCP-11007/cakephp2.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11007/cakephp2.json |
+      | file | cakephp2.json |
     Then the step should succeed
     And the "cakephp-example-1" build was created
     And the "cakephp-example-1" build completed
+    Given I obtain test data file "templates/OCP-11007/cakephp3.json"
     When I run the :process client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11007/cakephp3.json |
+      | f | cakephp3.json |
     And the output should contain "a${{REPLICA_COUNT}}"
+    Given I obtain test data file "templates/OCP-11007/cakephp4.json"
     When I run the :process client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/OCP-11007/cakephp4.json |
+      | f | cakephp4.json |
     And the output should contain "{2"
 
   # @author shiywang@redhat.com

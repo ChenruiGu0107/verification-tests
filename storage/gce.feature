@@ -8,7 +8,8 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]   | Immediate |
       | ["parameters"]["zones"] | ''        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -31,7 +32,8 @@ Feature: GCE specific scenarios
     Then the step should succeed
     And I run the steps 10 times:
     """
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-#{cb.i}            |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -52,7 +54,8 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]  | Immediate                   |
       | ["parameters"]["zone"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -74,7 +77,8 @@ Feature: GCE specific scenarios
       | ["parameters"]["zone"]  | us-central1-a               |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -95,7 +99,8 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]          | Immediate |
       | ["parameters"]["invalidParam"] | test      |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -116,7 +121,8 @@ Feature: GCE specific scenarios
       | ["volumeBindingMode"]  | Immediate |
       | ["parameters"]["zone"] | ''        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -133,11 +139,13 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with annotation storage-class bind PVC with annotation storage-class
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    Given I obtain test data file "storage/hostpath/local-retain.yaml"
+    When admin creates a PV from "local-retain.yaml" where:
       | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I run oc create over "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | mypvc               |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %> |
     Then the step should succeed
@@ -148,11 +156,13 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with attribute storageClassName bind PVC with attribute storageClassName
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    Given I obtain test data file "storage/hostpath/local-retain.yaml"
+    When admin creates a PV from "local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I run oc create over "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -163,11 +173,13 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with annotation storage-class bind PVC with attribute storageClassName
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    Given I obtain test data file "storage/hostpath/local-retain.yaml"
+    When admin creates a PV from "local-retain.yaml" where:
       | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I run oc create over "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -178,11 +190,13 @@ Feature: GCE specific scenarios
   @admin
   Scenario: PV with attribute storageClassName bind PVC with annotation storage-class
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/local-retain.yaml" where:
+    Given I obtain test data file "storage/hostpath/local-retain.yaml"
+    When admin creates a PV from "local-retain.yaml" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I run oc create over "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | mypvc                  |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed

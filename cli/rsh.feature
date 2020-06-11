@@ -4,8 +4,9 @@ Feature: rsh.feature
   # @case_id OCP-11154
   Scenario: Check oc rsh with invalid options
     Given I have a project
+    Given I obtain test data file "pods/pod_with_two_containers.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_two_containers.json |
+      | f | pod_with_two_containers.json |
     Then the step should succeed
     When I run the :rsh client command with:
       | options | -l |

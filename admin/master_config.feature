@@ -431,8 +431,9 @@ Feature: test master config related steps
     Given the master service is restarted on all master nodes
 
     Given I have a project
+    Given I obtain test data file "limits/tc534581/limits.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
+      | f | limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I obtain test data file "quota/quota-terminating.yaml"
@@ -443,8 +444,9 @@ Feature: test master config related steps
       | n | <%= project.name %>    |
     Then the step should succeed
 
+    Given I obtain test data file "deployment/dc-with-pre-mid-post.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-pre-mid-post.yaml |
+      | f | dc-with-pre-mid-post.yaml |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollout_latest client command with:
@@ -473,8 +475,9 @@ Feature: test master config related steps
     """
     Given the master service is restarted on all master nodes
     Given I have a project
+    Given I obtain test data file "limits/tc534581/limits.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/tc534581/limits.yaml |
+      | f | limits.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     When I obtain test data file "quota/quota-terminating.yaml"

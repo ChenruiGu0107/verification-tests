@@ -4,16 +4,18 @@ Feature: nodeAffinity
   Scenario: node affinity preferred invalid weight values
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
+      | f | pod-node-affinity-preferred-weight-fraction.yaml |
     Then the step should fail
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
     And the output should not contain:
       | node-affinity-preferred-weight-faction |
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
+      | f | pod-node-affinity-preferred-weight-0.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*0.*must be in the range 1-100 |
@@ -22,8 +24,9 @@ Feature: nodeAffinity
     Then the step should succeed
     And the output should not contain:
       | node-affinity-preferred-weight-0 |
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
+      | f | pod-node-affinity-preferred-weight-101.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*101.*must be in the range 1-100 |
@@ -38,8 +41,9 @@ Feature: nodeAffinity
   Scenario: node affinity invalid value - value must be single value
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
+      | f | pod-node-affinity-invalid-value-lt.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified single value when `operator` is 'Lt' or 'Gt' |
@@ -54,8 +58,9 @@ Feature: nodeAffinity
   Scenario: node affinity invalid value - value required
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
+      | f | pod-node-affinity-invalid-value-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Rr]equired value.*must be specified when `operator` is 'In' or 'NotIn' |
@@ -70,8 +75,9 @@ Feature: nodeAffinity
   Scenario: node affinity invalid value - key name must be non-empty
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
+      | f | pod-node-affinity-invalid-key-empty.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*name part must be non-empty |
@@ -87,8 +93,9 @@ Feature: nodeAffinity
   Scenario: node affinity values forbidden when operator is DoesNotExist
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
+      | f | pod-node-affinity-invalid-doesnotexist.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -103,8 +110,9 @@ Feature: nodeAffinity
   Scenario: node affinity values forbidden when operator is Exists
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
+      | f | pod-node-affinity-invalid-exists.yaml |
     Then the step should fail
     And the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
@@ -119,8 +127,9 @@ Feature: nodeAffinity
   Scenario: node affinity invalid operator Equals
     # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
+      | f | pod-node-affinity-invalid-operator-equals.yaml |
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value.*"Equals": not a valid selector operator |
@@ -134,8 +143,9 @@ Feature: nodeAffinity
   # @case_id OCP-14478
   Scenario: pod will not be scheduled if node affinity not match
     Given I have a project
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-required-case14478.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14478.yaml |
+      | f | node-affinity-required-case14478.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                              |
@@ -150,8 +160,9 @@ Feature: nodeAffinity
   # @case_id OCP-14480
   Scenario: pod will not be scheduled if node anti-affinity not match
     Given I have a project
+    Given I obtain test data file "scheduler/node-affinity/node-anti-affinity-required-case14480.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-case14480.yaml |
+      | f | node-anti-affinity-required-case14480.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | pod                                   |
@@ -169,8 +180,9 @@ Feature: nodeAffinity
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14479=value14479" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-required-case14479.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14479.yaml |
+      | f | node-affinity-required-case14479.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-case14479" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -183,8 +195,9 @@ Feature: nodeAffinity
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14484=value14484" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-anti-affinity-required-case14484.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-case14484.yaml |
+      | f | node-anti-affinity-required-case14484.yaml |
     Then the step should succeed
     Given the pod named "node-anti-affinity-required-case14484" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name != cb.nodes[0].name
@@ -201,8 +214,9 @@ Feature: nodeAffinity
     Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14488=value14488" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-required-case14488.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-case14488.yaml |
+      | f | node-affinity-required-case14488.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-case14488" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -220,8 +234,9 @@ Feature: nodeAffinity
   # @case_id OCP-14509
   Scenario: if no preferred nodes are available non-preferred nodes will be chosen
     Given I have a project
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-preferred-case14509.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
+      | f | node-affinity-preferred-case14509.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-preferred-case14509" status becomes :running
 
@@ -232,8 +247,9 @@ Feature: nodeAffinity
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14556=case14556" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml |
+      | f | pod-node-affinity-selector-case14556.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -254,8 +270,9 @@ Feature: nodeAffinity
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "zone14557=case14557" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml |
+      | f | pod-node-affinity-selector-case14557.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -282,8 +299,9 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14576=value14576" is added to the "<%= cb.nodes[0].name %>" node
     And label "company14576=redhat" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-multiple-match-expressions-case14576.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-multiple-match-expressions-case14576.yaml |
+      | f | pod-multiple-match-expressions-case14576.yaml |
     Then the step should succeed
     Given the pod named "multiple-match-expressions-case14576" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -295,8 +313,9 @@ Feature: nodeAffinity
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14577=value14577" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml |
+      | f | pod-multiple-match-expressions-case14577.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -323,8 +342,9 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
     And label "zone14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-node-affinity-selector-case14566.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-case14566.yaml |
+      | f | pod-node-affinity-selector-case14566.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-selector-case14566" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -341,8 +361,9 @@ Feature: nodeAffinity
     Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14568c=case14568" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml |
+      | f | pod-node-affinity-selector-terms-case14568.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-selector-terms-case14568" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -359,8 +380,9 @@ Feature: nodeAffinity
     Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14520=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-required-exists-case14520.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-required-exists-case14520.yaml |
+      | f | node-affinity-required-exists-case14520.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-required-exists-case14520" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
@@ -373,8 +395,9 @@ Feature: nodeAffinity
     And I have a project
     Given I store the schedulable workers in the :nodes clipboard
     And label "case14521=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml |
+      | f | node-anti-affinity-required-exists-case14521.yaml |
     Then the step should succeed
     Given the pod named "node-anti-affinity-required-exists-case14521" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name != cb.nodes[0].name
@@ -388,8 +411,9 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14522=4" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14522=6" is added to the "<%= cb.nodes[1].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-gt4-required-case14522.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-gt4-required-case14522.yaml |
+      | f | node-affinity-gt4-required-case14522.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-gt4-required-case14522" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[1].name
@@ -408,8 +432,9 @@ Feature: nodeAffinity
     Given I store the schedulable workers in the :nodes clipboard
     And label "key14525=6" is added to the "<%= cb.nodes[0].name %>" node
     And label "key14525=4" is added to the "<%= cb.nodes[1].name %>" node
+    Given I obtain test data file "scheduler/node-affinity/node-affinity-lt6-required-case14525.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/node-affinity-lt6-required-case14525.yaml |
+      | f | node-affinity-lt6-required-case14525.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-lt6-required-case14525" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[1].name
@@ -423,8 +448,9 @@ Feature: nodeAffinity
     And label "<label>" is added to the "<%= cb.nodes[0].name %>" node
     Then the step should succeed
     Given I have a project
+    Given I obtain test data file "scheduler/node-affinity/<pod_file_name>.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/node-affinity/<pod_file_name>.yaml |
+      | f | <pod_file_name>.yaml |
     Then the step should succeed
     Given the pod named "<pod_file_name>" status becomes :running within 300 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name

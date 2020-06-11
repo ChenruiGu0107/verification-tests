@@ -9,7 +9,8 @@ Feature: Service related networking scenarios
       | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/external_service.json" replacing paths:
+    Given I obtain test data file "networking/external_service.json"
+    When I run oc create over "external_service.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.google_ip %> |
     Then the step should succeed
     Given I use the "external-http" service
@@ -37,7 +38,8 @@ Feature: Service related networking scenarios
     Given the pod named "hello-pod" becomes ready
     And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -62,22 +64,26 @@ Feature: Service related networking scenarios
   @admin
   Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_ip clipboard
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
+    Given I obtain test data file "networking/external_service_to_external_pod.json"
+    When I run oc create over "external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | clustercidr |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.pod_ip %> |
     Then the step should fail
     And the output should match "endpoint address .* is not allowed"
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/external_service_to_external_pod.json" replacing paths:
+    Given I obtain test data file "networking/external_service_to_external_pod.json"
+    When I run oc create over "external_service_to_external_pod.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | servicecidr |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.service_ip %> |
     Then the step should fail
@@ -89,8 +95,9 @@ Feature: Service related networking scenarios
   Scenario: Should remove the conntrack table immediately when the endpoint of UDP service gets deleted
     # Create pod and svc which is listening on the udp port
     Given I have a project
+    Given I obtain test data file "networking/udp8080-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/udp8080-pod.json |
+      | f | udp8080-pod.json |
     Then the step should succeed
     And the pod named "udp-pod" becomes ready
     And evaluation of `pod("udp-pod").node_name` is stored in the :node_name clipboard

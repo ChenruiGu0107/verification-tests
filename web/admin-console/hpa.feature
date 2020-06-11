@@ -20,8 +20,9 @@ Feature: HPA related
       | resourcename | ruby-ex               |
       | limits       | cpu=100m,memory=256Mi |
     Then the step should succeed
+    Given I obtain test data file "hpa/hpa_rubyex.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/testdata/hpa/hpa_rubyex.yaml |
+      | f | hpa_rubyex.yaml |
     Then the step should succeed
 
     # check hpa list page
@@ -60,8 +61,9 @@ Feature: HPA related
     Then the step should succeed
 
     #check replicas changes by hpa
+    Given I obtain test data file "infrastructure/hpa/hello-pod.yaml"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:

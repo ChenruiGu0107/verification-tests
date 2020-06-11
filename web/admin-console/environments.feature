@@ -5,11 +5,15 @@ Feature: environment related
   Scenario: Add Build envs from ConfigMaps and Secrets
     Given the master version >= "3.11"
     Given I have a project
+    Given I obtain test data file "configmap/configmap-example.yaml"
+    Given I obtain test data file "configmap/configmap.json"
+    Given I obtain test data file "secrets/OCP-11410/mysecret-1.yaml"
+    Given I obtain test data file "secrets/OCP-11410/mysecret-2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml   |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.json           |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/OCP-11410/mysecret-1.yaml  |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/OCP-11410/mysecret-2.yaml  |
+      | f | configmap-example.yaml   |
+      | f | configmap.json           |
+      | f | mysecret-1.yaml  |
+      | f | mysecret-2.yaml  |
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | openshift/python:latest                    |
@@ -96,8 +100,9 @@ Feature: environment related
   Scenario: Check environment variable editor for resource
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | run=dctest |
@@ -169,9 +174,11 @@ Feature: environment related
   Scenario: Check environment editor for init container	
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "deployment/initcontainer.yaml"
+    Given I obtain test data file "configmap/configmap-example.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/initcontainer.yaml    |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml |
+      | f | initcontainer.yaml    |
+      | f | configmap-example.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=hello-openshift |
@@ -244,8 +251,9 @@ Feature: environment related
   Scenario: Check environment variables editor on Deploy from Image flow page
     Given the master version >= "4.2"
     Given I have a project
+    Given I obtain test data file "configmap/configmap-example.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap-example.yaml   |
+      | f | configmap-example.yaml   |
     Then the step should succeed
     And I open admin console in a browser
     When I perform the :goto_deploy_image_page web action with:
@@ -328,13 +336,19 @@ Feature: environment related
     Given I have a project
 
     # Create DC, Deployment, StatefulSet, DaemonSet, BuildConfig, Job
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
+    Given I obtain test data file "deployment/simple-deployment.yaml"
+    Given I obtain test data file "statefulset/statefulset-hello.yaml"
+    Given I obtain test data file "daemon/daemonset.yaml"
+    Given I obtain test data file "build/test-buildconfig.json"
+    Given I obtain test data file "job/job.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml      |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml     |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml                  |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json            |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml                           |
+      | f | dc-with-two-containers.yaml |
+      | f | simple-deployment.yaml      |
+      | f | statefulset-hello.yaml     |
+      | f | daemonset.yaml                  |
+      | f | test-buildconfig.json            |
+      | f | job.yaml                           |
     Then the step should succeed
 
     # dc pod

@@ -4,10 +4,12 @@ Feature: Storage object in use protection
   # @case_id OCP-17288
   Scenario: Recreate pvc when pvc is in pvc-protection state should fail
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                   |
     Then the step should succeed
@@ -19,7 +21,8 @@ Feature: Storage object in use protection
       | wait              | false                   |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes terminating
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should fail
 
@@ -27,10 +30,12 @@ Feature: Storage object in use protection
   # @case_id OCP-17568
   Scenario: Scheduling of a pod that uses a PVC that is being deleted should fail
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | mypvc |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["metadata"]["name"]                                         | mypod |
     Then the step should succeed
@@ -42,7 +47,8 @@ Feature: Storage object in use protection
       | wait              | false |
     Then the step should succeed
     And the "mypvc" PVC becomes terminating
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc  |
       | ["metadata"]["name"]                                         | newpod |
     Then the step should succeed

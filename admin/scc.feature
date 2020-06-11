@@ -72,8 +72,9 @@ Feature: SCC policy related scenarios
     Given I have a project
 
     # Create pod without SCC allowed
+    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_cap_kill.json|
+      |f|pod_requests_cap_kill.json|
     Then the step should fail
     And the output should contain "capability may not be added"
 
@@ -85,11 +86,13 @@ Feature: SCC policy related scenarios
     Given the following scc policy is created: scc_capabilities.yaml
 
     # Create pod which match the allowed capability or not
+    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_cap_kill.json|
+      |f|pod_requests_cap_kill.json|
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_requests_cap_chown.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_cap_chown.json|
+      |f|pod_requests_cap_chown.json|
     Then the step should fail
     And the output should contain:
       |CHOWN|
@@ -108,11 +111,13 @@ Feature: SCC policy related scenarios
       |scc-selinux-mustrunas|<%= rand_str(6, :dns) %>|
     And the following scc policy is created: scc_selinux_mustrunas.yaml
 
+    Given I obtain test data file "authorization/scc/pod_requests_selinux.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_selinux.json|
+      |f|pod_requests_selinux.json|
     Then the step should fail
+    Given I obtain test data file "authorization/scc/pod_requests_nothing.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_nothing.json|
+      |f|pod_requests_nothing.json|
     Then the step should succeed
 
     # Create pod which requests Selinux SecurityContext when the SCC SELinuxContext policy is RunAsAny
@@ -121,8 +126,9 @@ Feature: SCC policy related scenarios
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-runasany|<%= rand_str(6, :dns) %>|
     And the following scc policy is created: scc_runasany.yaml
+    Given I obtain test data file "authorization/scc/pod_requests_selinux.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_selinux.json|
+      |f|pod_requests_selinux.json|
     Then the step should succeed
 
   # @author bmeng@redhat.com
@@ -131,8 +137,9 @@ Feature: SCC policy related scenarios
   Scenario: The container with requests privileged in SC can be created only when the SCC allowed
     # Create privileged pod with default SCC
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_requests_privileged.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_privileged.json|
+      |f|pod_requests_privileged.json|
     Then the step should fail
     And the output should contain "Privileged containers are not allowed"
 
@@ -144,8 +151,9 @@ Feature: SCC policy related scenarios
     And the following scc policy is created: scc_privileged.yaml
 
     # Create privileged pod again with new SCC
+    Given I obtain test data file "authorization/scc/pod_requests_privileged.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_privileged.json|
+      |f|pod_requests_privileged.json|
     Then the step should succeed
 
   # @author bmeng@redhat.com
@@ -154,8 +162,9 @@ Feature: SCC policy related scenarios
   Scenario: Limit the created container to access the hostdir via SCC
     # Create pod which request hostdir mount permission with default SCC
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_hostdir.json|
+      |f|pod_requests_hostdir.json|
     Then the step should fail
     And the output should match:
       |unable to validate against any security context constraint|
@@ -169,8 +178,9 @@ Feature: SCC policy related scenarios
     And the following scc policy is created: scc_hostdir.yaml
 
     # Create hostdir pod again with new SCC
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
     When I run the :create client command with:
-      |f|<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_hostdir.json|
+      |f|pod_requests_hostdir.json|
     Then the step should succeed
 
   # @author wjiang@redhat.com
@@ -214,8 +224,9 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: The SCC will take effect only when the user request the SC in the pod
     Given I have a project
+    Given I obtain test data file "authorization/scc/tc495039/pod_not_privileged.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_not_privileged.json |
+      | f | pod_not_privileged.json |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -227,8 +238,9 @@ Feature: SCC policy related scenarios
     Given I ensure "hello-nginx-docker" pod is deleted
     When SCC "privileged" is added to the "default" user
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/tc495039/pod_not_privileged.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_not_privileged.json |
+      | f | pod_not_privileged.json |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -241,8 +253,9 @@ Feature: SCC policy related scenarios
       | object_type | pod                     |
       | l           | name=hello-nginx-docker |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
+      | f | pod_privileged.json |
     Then the step should succeed
     And the pod named "hello-nginx-docker-1" becomes ready
 
@@ -251,11 +264,13 @@ Feature: SCC policy related scenarios
   # The test only works when 'MustRunAsRange' policy is configured in SCC
   Scenario: pod should only be created with SC UID in the available range with the SCC restricted.
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_requests_uid_outrange.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_outrange.json |
+      | f | pod_requests_uid_outrange.json |
     Then the step should fail
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid_inrange clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_inrange.json" replacing paths:
+    Given I obtain test data file "authorization/scc/pod_requests_uid_inrange.json"
+    When I run oc create over "pod_requests_uid_inrange.json" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | <%= cb.scc_uid_inrange %> |
     Then the step should succeed
 
@@ -264,16 +279,19 @@ Feature: SCC policy related scenarios
   @admin
   Scenario Outline: The process can be ran with the specified user when using MustRunAs or RunAsAny as the RunAsUserStrategy
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_requests_uid_outrange.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_outrange.json |
+      | f | pod_requests_uid_outrange.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
       | Invalid value: 1000                                        |
-    When the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/<scc_file_name>.yaml
+    Given I obtain test data file "authorization/scc/<scc_file_name>.yaml"
+    When the following scc policy is created: <scc_file_name>.yaml
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_requests_uid_outrange.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_outrange.json |
+      | f | pod_requests_uid_outrange.json |
     Then the step should succeed
 
     Examples:
@@ -286,21 +304,24 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Scc.allowhostdir should take precedence to allow or deny hostpath volume
     Given I have a project
-    When the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521575/scc_tc521575.yaml
+    Given I obtain test data file "authorization/scc/tc521575/scc_tc521575.yaml"
+    When the following scc policy is created: scc_tc521575.yaml
     Then the step should succeed
     When I run the :get admin command with:
       | resource      | scc          |
       | resource_name | scc-tc521575 |
       | o             | yaml         |
     Then the expression should be true> @result[:parsed]['volumes'].include? 'hostPath' and @result[:parsed]['allowHostDirVolumePlugin']
-    When the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521575/scc_tc521575_b.yaml
+    Given I obtain test data file "authorization/scc/tc521575/scc_tc521575_b.yaml"
+    When the following scc policy is created: scc_tc521575_b.yaml
     Then the step should succeed
     When I run the :get admin command with:
       | resource      | scc            |
       | resource_name | scc-tc521575-b |
       | o             | yaml           |
     Then the expression should be true> (!@result[:parsed]['volumes'].include? 'hostPath') and (!@result[:parsed]['allowHostDirVolumePlugin'])
-    When the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc521575/scc_tc521575_c.yaml
+    Given I obtain test data file "authorization/scc/tc521575/scc_tc521575_c.yaml"
+    When the following scc policy is created: scc_tc521575_c.yaml
     Then the step should succeed
     When I run the :get admin command with:
       | resource      | scc            |
@@ -335,8 +356,9 @@ Feature: SCC policy related scenarios
       | scc       | <%= cb.scc_name_2 %> |
       | user_name | <%= user.name %>     |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/tc495030/pod1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495030/pod1.json |
+      | f | pod1.json |
       | n | <%= project.name %>                                                                                     |
     Then the step should fail
 
@@ -344,14 +366,16 @@ Feature: SCC policy related scenarios
   # @case_id OCP-12060
   Scenario: Create pod with request capabilities conflict with the scc
     Given I have a project
+    Given I obtain test data file "authorization/scc/tc518947/add_and_drop.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc518947/add_and_drop.json |
+      | f | add_and_drop.json |
     Then the step should fail
     And the output should match:
       | unable to validate against any security context constraint: \[capabilities.add |
 
+    Given I obtain test data file "authorization/scc/tc518947/failure_to_add.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc518947/failure_to_add.json |
+      | f | failure_to_add.json |
     Then the step should fail
     And the output should match:
       | unable to validate against any security context constraint: \[capabilities.add |
@@ -362,20 +386,23 @@ Feature: SCC policy related scenarios
     Given I have a project
     And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
     And evaluation of `project.mcs(user: user)` is stored in the :proj_selinux_options clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_runasuser.json" replacing paths:
+    Given I obtain test data file "authorization/scc/tc511601/no_runasuser.json"
+    When I run oc create over "no_runasuser.json" replacing paths:
       | ["spec"]["securityContext"]["runAsUser"] | <%= cb.uid_range %> |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').sc_run_as_user(user: user)` is stored in the :sc_run_as_user clipboard
     Then the expression should be true> cb.sc_run_as_user == cb.uid_range
     Given I ensure "hello-openshift" pod is deleted
+    Given I obtain test data file "authorization/scc/tc511601/no_runasnonroot.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_runasnonroot.json |
+      | f | no_runasnonroot.json |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
     Then the expression should be true> pod('hello-openshift').sc_run_as_nonroot(user: user)
     Given I ensure "hello-openshift" pod is deleted
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc511601/no_selinux.json" replacing paths:
+    Given I obtain test data file "authorization/scc/tc511601/no_selinux.json"
+    When I run oc create over "no_selinux.json" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | <%= cb.proj_selinux_options %> |
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
@@ -386,12 +413,14 @@ Feature: SCC policy related scenarios
   # @case_id OCP-10181
   Scenario: OpenShift SCC check, empty seccomp
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_seccomp_1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_seccomp_1.yaml |
+      | f | pod_seccomp_1.yaml |
     Then the step should fail
     And the output should match "unable to validate against any security context constraint.*Forbidden: seccomp may not be set pod"
+    Given I obtain test data file "authorization/scc/pod_seccomp_2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_seccomp_2.yaml |
+      | f | pod_seccomp_2.yaml |
     Then the step should succeed
 
   # @author chezhang@redhat.com
@@ -400,8 +429,9 @@ Feature: SCC policy related scenarios
   Scenario: OpenShift SCC check, all seccomp allowed
     Given I have a project
     Given SCC "privileged" is added to the "default" user
+    Given I obtain test data file "authorization/scc/pod_seccomp_1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_seccomp_1.yaml |
+      | f | pod_seccomp_1.yaml |
     Then the step should succeed
 
   # @author pruan@redhat.com
@@ -412,8 +442,9 @@ Feature: SCC policy related scenarios
     Given I have a project
     # scc restricted should have 'allowHostNetwork: false' as default already
     Given scc policy "restricted" is restored after scenario
+    Given I obtain test data file "authorization/scc/tc498208/pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc498208/pod.json |
+      | f | pod.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
@@ -421,8 +452,9 @@ Feature: SCC policy related scenarios
     Given as admin I replace resource "scc" named "restricted":
       | allowHostNetwork: false | allowHostNetwork: true |
       | allowHostPorts: false   | allowHostPorts: true   |
+    Given I obtain test data file "authorization/scc/tc498208/pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc498208/pod.json |
+      | f | pod.json |
     Then the step should succeed
 
 
@@ -435,8 +467,9 @@ Feature: SCC policy related scenarios
     When I run oc create over ERB test file: authorization/scc/tc511602/pod1.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
     Then I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json |
+      | f | aosqe-pod-for-ping.json |
     Then the step should succeed
     And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).spec.scc['runAsUser']` is stored in the :container_run_as_user clipboard
     Then the expression should be true> cb.container_run_as_user == cb.scc_uid
@@ -452,14 +485,16 @@ Feature: SCC policy related scenarios
   # @case_id OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
+    Given I obtain test data file "authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                                                                                             |
-      | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json |
+      | payload_file | PodSecurityPolicySubjectReview_privileged_false.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
+    Given I obtain test data file "authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json"
     When I perform the :post_pod_security_policy_self_subject_reviews rest request with:
       | project_name | <%= project.name %>                                                                                                            |
-      | payload_file | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json |
+      | payload_file | PodSecurityPolicySubjectReview_privileged_true.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["reason"] == "CantAssignSecurityContextConstraintProvider"
 
@@ -543,8 +578,9 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And the output should match:
       | [*] |
+    Given I obtain test data file "authorization/scc/pod_requests_cap_fsetid.json"
     And I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_cap_fsetid.json |
+      | f | pod_requests_cap_fsetid.json |
       | n | <%= project.name %>                                                                            |
     Then the step should succeed
     When I get project pod named "pod-add-fsetid" as JSON
@@ -555,16 +591,19 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Cannot run process with root in the container when using MustRunAsNonRoot as the RunAsUserStrategy
     Given I have a project
-    When the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/scc_user_mustrunasnonroot.yaml
+    Given I obtain test data file "authorization/scc/scc_user_mustrunasnonroot.yaml"
+    When the following scc policy is created: scc_user_mustrunasnonroot.yaml
     Then the step should succeed
     When SCC "scc-user-mustrunasnonroot" is added to the "default" user
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_requests_uid_root.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_root.json |
+      | f | pod_requests_uid_root.json |
     Then the step should fail
     And the output should contain "forbidden"
+    Given I obtain test data file "authorization/scc/pod_requests_uid_outrange.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_uid_outrange.json |
+      | f | pod_requests_uid_outrange.json |
     Then the step should succeed
     And the pod named "pod-uid-outrange" status becomes :running
     And the expression should be true> pod.container(name: "pod-uid-outrange").spec.scc["runAsUser"] == 1000
@@ -574,8 +613,9 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Allow scc access via RBAC at project level
     Given I have a project
+    Given I obtain test data file "authorization/scc/OCP-18828/allow_scc_access_via_rbac_project.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/OCP-18828/allow_scc_access_via_rbac_project.yaml |
+      | f | allow_scc_access_via_rbac_project.yaml |
       | n | <%= project.name %>                                                     |
     Then the step should succeed
     When I run the :create_rolebinding admin command with:
@@ -585,13 +625,15 @@ Feature: SCC policy related scenarios
       | n     | <%= project.name %>                 |
     Then the step should succeed
     Given I switch to the first user
+    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
+      | f |  pod_privileged.json |
       | n |  <%= project.name %>                                                                            |
     Then the step should succeed
     Given I create 1 new projects
+    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
+      | f |  pod_privileged.json |
       | n |  <%= project.name %>                                                                            |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
@@ -605,7 +647,8 @@ Feature: SCC policy related scenarios
     And admin ensures "scc-crolebinding-<%= cb.random_name %>" cluster_role_binding is deleted after scenario
 
     Given I switch to cluster admin pseudo user
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml" replacing paths:
+    Given I obtain test data file "authorization/scc/OCP-18836/allow_scc_access_via_rbac_cluster.yaml"
+    When I run oc create over "allow_scc_access_via_rbac_cluster.yaml" replacing paths:
       | ["metadata"]["name"] | crole-18836-<%= cb.random_name %> |
     Then the step should succeed
     When I run the :create_clusterrolebinding client command with:
@@ -615,13 +658,15 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     Given I switch to the first user
     Given I have a project
+    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
+      | f |  pod_privileged.json |
     Then the step should succeed
     Given I switch to the second user
     Given I have a project
+    Given I obtain test data file "authorization/scc/tc495039/pod_privileged.json"
     When I run the :create client command with:
-      | f |  <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/tc495039/pod_privileged.json |
+      | f |  pod_privileged.json |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint"
 
@@ -632,14 +677,17 @@ Feature: SCC policy related scenarios
   Scenario: SCC for allowPrivilegeEscalation parameter support
     Given scc policy "restricted" is restored after scenario
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_request_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_allowprivilegeescalation.yaml |
+      | f | pod_request_allowprivilegeescalation.yaml |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_request_non_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_non_allowprivilegeescalation.yaml |
+      | f | pod_request_non_allowprivilegeescalation.yaml |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_request_nil_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_nil_allowprivilegeescalation.yaml |
+      | f | pod_request_nil_allowprivilegeescalation.yaml |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scc                                 |
@@ -647,15 +695,18 @@ Feature: SCC policy related scenarios
       | p             | {"allowPrivilegeEscalation": false} |
       | type          | merge                               |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_request_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_allowprivilegeescalation.yaml |
+      | f | pod_request_allowprivilegeescalation.yaml |
     Then the step should fail
     And the output should contain "unable to validate against any security context constraint:"
+    Given I obtain test data file "authorization/scc/pod_request_non_allowprivilegeescalation.yaml"
     When  I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_non_allowprivilegeescalation.yaml |
+      | f | pod_request_non_allowprivilegeescalation.yaml |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_request_nil_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_request_nil_allowprivilegeescalation.yaml |
+      | f | pod_request_nil_allowprivilegeescalation.yaml |
     Then the step should succeed
 
   # @author chuyu@redhat.com
@@ -671,8 +722,9 @@ Feature: SCC policy related scenarios
       | type          | merge                                     |
     Then the step should succeed
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_no_request_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+      | f | pod_no_request_allowprivilegeescalation.yaml |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scc                                 |
@@ -693,8 +745,9 @@ Feature: SCC policy related scenarios
       | p             | {"allowPrivilegeEscalation": false} |
       | type          | merge                               |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_no_request_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+      | f | pod_no_request_allowprivilegeescalation.yaml |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scc                                |
@@ -702,8 +755,9 @@ Feature: SCC policy related scenarios
       | p             | {"allowPrivilegeEscalation": null} |
       | type          | merge                              |
     Then the step should succeed
+    Given I obtain test data file "authorization/scc/pod_no_request_allowprivilegeescalation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_no_request_allowprivilegeescalation.yaml |
+      | f | pod_no_request_allowprivilegeescalation.yaml |
     Then the step should succeed
 
   # @author chuyu@redhat.com

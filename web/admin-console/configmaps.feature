@@ -61,10 +61,12 @@ Feature: configmap related
   Scenario: Show binary config map data
     Given the master version >= "4.2"
     Given I have a project
+    Given I obtain test data file "templates/ui/hello"
+    Given I obtain test data file "templates/ui/keystore.jks"
     When I run the :create_configmap client command with:
       | name      | twobigconfigmap                                                                 |
-      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/hello        |
-      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/keystore.jks |
+      | from_file | hello        |
+      | from_file | keystore.jks |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_configmaps_page web action with:

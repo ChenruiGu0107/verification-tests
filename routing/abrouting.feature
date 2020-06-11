@@ -4,18 +4,22 @@ Feature: Testing abrouting
   # @case_id OCP-10889
   Scenario: Sticky session could work normally after set weight for route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
@@ -85,18 +89,22 @@ Feature: Testing abrouting
   # @case_id OCP-11351
   Scenario: Set backends weight to zero for ab routing
     Given I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
@@ -157,21 +165,25 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
@@ -219,22 +231,26 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
     And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/passthough/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/passthough/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/passthough/service_secure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/passthough/service_secure-2.json |
+      | f | service_secure-2.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
     Given I wait for the "service-secure-2" service to become ready
@@ -275,11 +291,13 @@ Feature: Testing abrouting
   # @case_id OCP-11306
   Scenario: Set negative backends weight for ab routing
     Given I have a project
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
@@ -331,29 +349,35 @@ Feature: Testing abrouting
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip1 clipboard
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip2 clipboard
+    Given I obtain test data file "routing/abrouting/caddy-docker-3.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-3.json |
+      | f | caddy-docker-3.json |
     Then the step should succeed
     And the pod named "caddy-docker-3" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip3 clipboard
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-3.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-3.json |
+      | f | service_unsecure-3.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
@@ -399,11 +423,13 @@ Feature: Testing abrouting
   Scenario: The unsecure route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -487,20 +513,26 @@ Feature: Testing abrouting
   Scenario: The reencrypt route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/reencrypt/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/reencrypt/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/reencrypt/service_secure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/reencrypt/service_secure-2.json |
+      | f | service_secure-2.json |
     Then the step should succeed
+    Given I obtain test data file "routing/example_wildcard.pem"
+    Given I obtain test data file "routing/example_wildcard.key"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen1                                                                                     |
       | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                 |
       | service    | service-secure                                                                            |
-      | cert       | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.pem              |
-      | key        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/example_wildcard.key              |
-      | cacert     | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca      |
-      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
+      | cert       | example_wildcard.pem              |
+      | key        | example_wildcard.key              |
+      | cacert     | route_reencrypt.ca      |
+      | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     #Check the default load blance policy
     Given I switch to cluster admin pseudo user
@@ -580,11 +612,13 @@ Feature: Testing abrouting
   Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
     #Create pod/service/route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/passthough/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/passthough/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/passthough/service_secure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/passthough/service_secure-2.json |
+      | f | service_secure-2.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | pass1          |
@@ -647,8 +681,9 @@ Feature: Testing abrouting
   # @case_id OCP-15259
   Scenario: Could not set more than 3 additional backends for route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -667,18 +702,22 @@ Feature: Testing abrouting
   # @case_id OCP-15382
   Scenario: Set max backends weight for ab routing
     Given I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
@@ -715,11 +754,15 @@ Feature: Testing abrouting
     Given I switch to the first user
     And I have a project
     # Create pods and services
+    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod3.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod4.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod1.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod2.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod3.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod4.json |
+      | f | abwithrc_pod1.json |
+      | f | abwithrc_pod2.json |
+      | f | abwithrc_pod3.json |
+      | f | abwithrc_pod4.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | type=test1 |
@@ -790,20 +833,25 @@ Feature: Testing abrouting
     Given I switch to the first user
     And I have a project
     # Create pods and services
+    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod3.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod4.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod1.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod2.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod3.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod4.json |
+      | f | abwithrc_pod1.json |
+      | f | abwithrc_pod2.json |
+      | f | abwithrc_pod3.json |
+      | f | abwithrc_pod4.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | type=test1 |
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
     # Create route and set route backends
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | route-reen                                                                                |
       | service    | service-secure                                                                            |
-      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
+      | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-reen          |
@@ -861,9 +909,11 @@ Feature: Testing abrouting
     # Create pods and services
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "routing/abrouting/abwithrc_pod1.json"
+    Given I obtain test data file "routing/abrouting/abwithrc_pod2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod1.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/abwithrc_pod2.json |
+      | f | abwithrc_pod1.json |
+      | f | abwithrc_pod2.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
     Given I wait for the "service-secure-2" service to become ready

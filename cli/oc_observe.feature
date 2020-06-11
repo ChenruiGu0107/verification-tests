@@ -6,8 +6,9 @@ Feature: oc observe related tests
   @unix
   Scenario: Negative tests of oc observe
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I obtain test data file "cli/oc_observe_scripts/known_resources.sh"
     Then the step should succeed
@@ -60,8 +61,9 @@ Feature: oc observe related tests
   @unix
   Scenario: Use oc observe to watch resources with misc flags
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "frontend" dc to appear
     Given I wait for the "database" dc to appear
@@ -89,13 +91,16 @@ Feature: oc observe related tests
       | "echo print" <%= project.name %> database |
       | "echo print" <%= project.name %> frontend |
       | Sync ended                                |
+    Given I obtain test data file "cli/oc_observe_scripts/known_resources.sh"
+    Given I obtain test data file "cli/oc_observe_scripts/remove_from_inventory.sh"
+    Given I obtain test data file "cli/oc_observe_scripts/add_to_inventory.sh"
     When I run the :observe client command with:
       | resource      | dc                                                                                              |
       | resync_period | 10s                                                                                             |
-      | names         | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/known_resources.sh       |
-      | delete        | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/remove_from_inventory.sh |
+      | names         | known_resources.sh       |
+      | delete        | remove_from_inventory.sh |
       | oc_opts_end   |                                                                                                 |
-      | command       | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/add_to_inventory.sh      |
+      | command       | add_to_inventory.sh      |
       | _timeout      | 25                                                                                              |
     Then the output should match 3 times:
       | ync.*./add_to_inventory.sh <%= project.name %> database |
@@ -105,18 +110,22 @@ Feature: oc observe related tests
   # @case_id OCP-10288
   Scenario: Use oc observe to watch resource and execute corresponding action upon resource change
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | file | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     Given evaluation of `Gem.win_platform? ? "bat" : "sh"` is stored in the :ext clipboard
+    Given I obtain test data file "cli/oc_observe_scripts/known_resources.<%= cb.ext %>"
+    Given I obtain test data file "cli/oc_observe_scripts/remove_from_inventory.<%= cb.ext %>"
+    Given I obtain test data file "cli/oc_observe_scripts/add_to_inventory.<%= cb.ext %>"
     When I run the :observe background client command with:
       | resource    | service                                                                                                    |
       | a           | {.spec.clusterIP}                                                                                          |
-      | names       | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/known_resources.<%= cb.ext %>       |
-      | delete      | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/remove_from_inventory.<%= cb.ext %> |
+      | names       | known_resources.<%= cb.ext %>       |
+      | delete      | remove_from_inventory.<%= cb.ext %> |
       | oc_opts_end |                                                                                                            |
-      | command     | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/oc_observe_scripts/add_to_inventory.<%= cb.ext %>      |
+      | command     | add_to_inventory.<%= cb.ext %>      |
     Then the step should succeed
     When I run the :label client command with:
       | resource | service  |
@@ -151,8 +160,9 @@ Feature: oc observe related tests
       | oc_opts_end |                                       |
       | command     | ./add_to_inventory.<%= cb.ext %>      |
     Then the step should succeed
+    Given I obtain test data file "services/multi-portsvc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/multi-portsvc.json |
+      | f | multi-portsvc.json |
     Then the step should succeed
     And I wait for the "multi-portsvc" service to appear
     When I terminate last background process

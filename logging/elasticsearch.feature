@@ -34,8 +34,9 @@ Feature: elasticsearch related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
@@ -128,8 +129,9 @@ Feature: elasticsearch related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |

@@ -3,8 +3,9 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-11263
   Scenario: Invalid QoS parameter could not be set for the pod
     Given I have a project
+    Given I obtain test data file "networking/egress-ingress/invalid-iperf.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/invalid-iperf.json |
+      | f | invalid-iperf.json |
     Then the step should succeed
     Then I wait up to 20 seconds for the steps to pass:
     """
@@ -22,8 +23,9 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I switch to cluster admin pseudo user
+    Given I obtain test data file "networking/egressnetworkpolicy/invalid_policy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/invalid_policy.json |
+      | f | invalid_policy.json |
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "invalid CIDR address"
@@ -35,14 +37,16 @@ Feature: Egress-ingress related networking scenarios
   Scenario: Only the cluster-admins can create EgressNetworkPolicy
     Given the env is using multitenant or networkpolicy network
     Given I have a project
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "cannot create"
     Given I switch to cluster admin pseudo user
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
@@ -80,8 +84,9 @@ Feature: Egress-ingress related networking scenarios
   Scenario: EgressNetworkPolicy can be deleted after the project deleted
     Given the env is using multitenant or networkpolicy network
     Given I have a project
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -103,11 +108,13 @@ Feature: Egress-ingress related networking scenarios
   Scenario: Dropping all traffic when multiple egressnetworkpolicy in one project
     Given the env is using multitenant or networkpolicy network
     Given I have a project
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= project.name %> |
+    Given I obtain test data file "networking/egressnetworkpolicy/533253_policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
+      | f | 533253_policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -134,8 +141,9 @@ Feature: Egress-ingress related networking scenarios
     Given the env is using multitenant network
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     Given I create a new project
@@ -181,8 +189,9 @@ Feature: Egress-ingress related networking scenarios
       | project | <%= cb.proj3 %> |
       | to      | <%= cb.proj4 %> |
     Then the step should succeed
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= cb.proj3 %> |
     Then the step should succeed
     Given I select a random node's host
@@ -210,8 +219,9 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Given I have a pod-for-ping in the project
     And the pod named "hello-pod" becomes ready
+    Given I obtain test data file "networking/egressnetworkpolicy/limit_policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json |
+      | f | limit_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     When I execute on the pod:
@@ -241,8 +251,9 @@ Feature: Egress-ingress related networking scenarios
     When I run the :oadm_pod_network_make_projects_global admin command with:
       | project | <%= cb.proj2 %> |
     Then the step should succeed
+    Given I obtain test data file "networking/egressnetworkpolicy/limit_policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/limit_policy.json |
+      | f | limit_policy.json |
       | n | <%= cb.proj2 %> |
     Given I select a random node's host
     And I wait up to 20 seconds for the steps to pass:
@@ -294,7 +305,8 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
+    When I run oc create over "aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed
@@ -333,7 +345,8 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/aosqe-pod-for-ping.json" replacing paths:
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
+    When I run oc create over "aosqe-pod-for-ping.json" replacing paths:
       | ["metadata"]["name"] | new-hello-pod |
       | ["metadata"]["labels"]["name"] | new-hello-pod |
     Then the step should succeed
@@ -379,12 +392,14 @@ Feature: Egress-ingress related networking scenarios
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
 
+    Given I obtain test data file "networking/egressnetworkpolicy/533253_policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
+      | f | 533253_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
+    Given I obtain test data file "networking/egressnetworkpolicy/533253_policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json |
+      | f | 533253_policy.json |
       | n | <%= cb.proj2 %> |
     Then the step should succeed
 
@@ -552,18 +567,21 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     # Create egress policy
+    Given I obtain test data file "networking/egress-ingress/dns-invalid-policy1.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy1.json |
+      | f | dns-invalid-policy1.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
+    Given I obtain test data file "networking/egress-ingress/dns-invalid-policy2.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy2.json |
+      | f | dns-invalid-policy2.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
+    Given I obtain test data file "networking/egress-ingress/dns-invalid-policy3.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-invalid-policy3.json |
+      | f | dns-invalid-policy3.json |
       | n | <%= cb.proj1 %> |
     Then the step should fail
     Then the outputs should contain "Invalid value"
@@ -588,8 +606,9 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     # Create a service with a "externalname"
+    Given I obtain test data file "networking/service-externalName.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/service-externalName.json |
+      | f | service-externalName.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
 
@@ -609,8 +628,9 @@ Feature: Egress-ingress related networking scenarios
       | deleted             |
 
     # Create egress policy to allow www.test.com
+    Given I obtain test data file "networking/egressnetworkpolicy/policy.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/policy.json |
+      | f | policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
 
@@ -632,7 +652,8 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
 
     # Create service/endpoint, endpoint ip is google_ip
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/service_endpoint.json" replacing paths:
+    Given I obtain test data file "networking/egressnetworkpolicy/service_endpoint.json"
+    When I run oc create over "service_endpoint.json" replacing paths:
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] |  <%= cb.google_ip %> |
       | ["items"][1]["subsets"][0]["ports"][0]["port"]   |  80                  |
       | ["items"][0]["spec"]["ports"][0]["targetPort"]   |  80                  |
@@ -649,7 +670,8 @@ Feature: Egress-ingress related networking scenarios
     #Create EgressNetworkPolicy with denying to IP
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/533253_policy.json" replacing paths:
+    Given I obtain test data file "networking/egressnetworkpolicy/533253_policy.json"
+    When I run oc create over "533253_policy.json" replacing paths:
       | ["spec"]["egress"][0]["to"]["cidrSelector"] | <%= cb.google_ip %>/32 |
     Then the step should succeed
     And I switch to the first user

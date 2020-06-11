@@ -4,13 +4,15 @@ Feature: InitContainers
   # @case_id OCP-12911
   Scenario: App container status depends on init containers exit code
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-success.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-success.yaml |
+      | f | pod-init-containers-success.yaml |
     Then the step should succeed
     Given the pod named "init-success" becomes ready
     Given I ensure "init-success" pod is deleted
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/init-containers-fail.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/init-containers-fail.yaml |
+      | f | init-containers-fail.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -25,8 +27,9 @@ Feature: InitContainers
   # @case_id OCP-12914
   Scenario: Init containers with readiness probe
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/init-containers-readiness.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/init-containers-readiness.yaml |
+      | f | init-containers-readiness.yaml |
     Then the step should fail
     And the output should contain:
       | initContainers[0].readinessProbe: Invalid value |
@@ -35,8 +38,9 @@ Feature: InitContainers
   # @case_id OCP-12893
   Scenario: Init containers with restart policy "Always"
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-always-fail.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-always-fail.yaml |
+      | f | pod-init-containers-always-fail.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -46,8 +50,9 @@ Feature: InitContainers
     Then the output should match:
       | init-always-fail\\s+0/1\\s+Init:CrashLoopBackOff\\s+2 |
     """
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-always-succ.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-always-succ.yaml |
+      | f | pod-init-containers-always-succ.yaml |
     Then the step should succeed
     Given the pod named "init-always-succ" becomes ready
 
@@ -55,8 +60,9 @@ Feature: InitContainers
   # @case_id OCP-12896
   Scenario: Init containers with restart policy "Never"
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-never-fail.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-never-fail.yaml |
+      | f | pod-init-containers-never-fail.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -66,8 +72,9 @@ Feature: InitContainers
     Then the output should match:
       | init-never-fail\\s+0/1\\s+Init:Error\\s+0 |
     """
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-never-succ.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-never-succ.yaml |
+      | f | pod-init-containers-never-succ.yaml |
     Then the step should succeed
     Given the pod named "init-never-succ" becomes ready
 
@@ -75,8 +82,9 @@ Feature: InitContainers
   # @case_id OCP-12894
   Scenario: Init containers with restart policy "OnFailure"
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-fail.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-fail.yaml |
+      | f | pod-init-containers-onfailure-fail.yaml |
     Then the step should succeed
     And I wait up to 180 seconds for the steps to pass:
     """
@@ -86,8 +94,9 @@ Feature: InitContainers
     Then the output should match:
       | init-onfailure-fail\\s+0/1\\s+Init:CrashLoopBackOff\\s+2 |
     """
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-succ.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-succ.yaml |
+      | f | pod-init-containers-onfailure-succ.yaml |
     Then the step should succeed
     Given the pod named "init-onfailure-succ" becomes ready
 
@@ -95,8 +104,9 @@ Feature: InitContainers
   # @case_id OCP-12883
   Scenario: Init container should failed after exceed activeDeadlineSeconds
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-deadline.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-deadline.yaml |
+      | f | pod-init-containers-deadline.yaml |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -118,8 +128,9 @@ Feature: InitContainers
   # @case_id OCP-12913
   Scenario: Init containers with volume work fine
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-volume.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-volume.yaml |
+      | f | pod-init-containers-volume.yaml |
     Then the step should succeed
     And the pod named "init-volume" status becomes :running
     When I run the :exec client command with:
@@ -134,12 +145,14 @@ Feature: InitContainers
   @admin
   Scenario: quota apply to pod with init containers
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/quota.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/quota.yaml |
+      | f | quota.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-quota1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-quota1.yaml |
+      | f | pod-init-containers-quota1.yaml |
     Then the step should succeed
     Given the pod named "init-quota1" status becomes :running
     When I run the :describe client command with:
@@ -152,8 +165,9 @@ Feature: InitContainers
       | requests.cpu\\s+400m\\s+1       |
       | requests.memory\\s+300Mi\\s+1Gi |
     Given I ensure "init-quota1" pod is deleted
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-quota2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-quota2.yaml |
+      | f | pod-init-containers-quota2.yaml |
     Then the step should succeed
     Given the pod named "init-quota2" status becomes :running
     When I run the :describe client command with:
@@ -171,8 +185,9 @@ Feature: InitContainers
   Scenario: QoS Tier for pod with init containers
   # Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/initContainers/pod-init-containers-qos.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/pod-init-containers-qos.yaml |
+      | f | pod-init-containers-qos.yaml |
     Then the step should succeed
     Given the pod named "init-qos-burstable" becomes ready
     Then I run the :describe client command with:
@@ -188,8 +203,9 @@ Feature: InitContainers
   # @case_id OCP-12909
   Scenario: Init containers can be accessed by oc commands
     Given I have a project
+    Given I obtain test data file "pods/initContainers/Promote_InitContainers/pod-init-containers-loop.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/Promote_InitContainers/pod-init-containers-loop.yaml |
+      | f | pod-init-containers-loop.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """

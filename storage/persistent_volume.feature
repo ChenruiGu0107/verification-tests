@@ -3,13 +3,16 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-17734
   Scenario: Pod with overlapped mount points still works
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc1 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc2 |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-overlap-path.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-overlap-path.yaml"
+    When I run oc create over "pod-overlap-path.yaml" replacing paths:
       | ["metadata"]["name"] | mypod |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
@@ -32,12 +35,14 @@ Feature: Persistent Volume Claim binding policies
   @admin
   Scenario: describe pv should show messages and events
     Given I have a project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv-template.json"
+    When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                |
     Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    Given I obtain test data file "storage/nfs/auto/pvc-template.json"
+    When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]     | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce           |
@@ -65,7 +70,8 @@ Feature: Persistent Volume Claim binding policies
 
     Given I run the steps 6 times:
     """
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv-template.json"
+    When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"]            | pv-<%= project.name %>-#{cb.i} |
       | ["spec"]["accessModes"][0]      | <access_mode>                  |
       | ["spec"]["capacity"]["storage"] | #{cb.pv_sizes[cb.i-1]}         |
@@ -74,7 +80,8 @@ Feature: Persistent Volume Claim binding policies
     """
     Given I run the steps 4 times:
     """
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc-#{cb.i}             |
       | ["spec"]["accessModes"][0]                   | <access_mode>             |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.pvc_sizes[cb.i-1]}   |
@@ -104,12 +111,14 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Pre-bound PVC with invalid PV should have consistent status
     Given I have a project
 
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv-template.json"
+    When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                   |
       | ["spec"]["volumeName"]       | pv1-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -124,14 +133,16 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Pre-bound PV with invalid PVC should have consistent status
     Given I have a project
 
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/preboundpv-rwo.yaml" where:
+    Given I obtain test data file "storage/nfs/preboundpv-rwo.yaml"
+    When admin creates a PV from "preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | non-exist-pvc          |
       | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -144,10 +155,12 @@ Feature: Persistent Volume Claim binding policies
   Scenario: Check the pvc capacity
     Given I have a project
 
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-retain-rox.json" where:
+    Given I obtain test data file "storage/nfs/nfs-retain-rox.json"
+    When admin creates a PV from "nfs-retain-rox.json" where:
       | ["metadata"]["name"]              | pv-<%= project.name %>   |
     Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rox.json" replacing paths:
+    Given I obtain test data file "storage/nfs/claim-rox.json"
+    When I create a manual pvc from "claim-rox.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -158,8 +171,9 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-10187
   @admin
   Scenario: PV creation negative testing
+    Given I obtain test data file "storage/nfs/nfs-default.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs-default.json |
+      | f | nfs-default.json |
     Then the step should fail
     And the output should contain:
       | Unsupported value: "Default" |
@@ -254,13 +268,15 @@ Feature: Persistent Volume Claim binding policies
     Given admin creates a project with a random schedulable node selector
 
     # Create storageclass
-    When admin creates a StorageClass in the node's zone from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass.yaml"
+    When admin creates a StorageClass in the node's zone from "storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
     # Create dynamic pvc
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I create a dynamic pvc from "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                             |
@@ -273,7 +289,8 @@ Feature: Persistent Volume Claim binding policies
       | dynamic-pvc-<%= project.name %> |
 
     # Create pod using above pvc
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>       |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                 |
@@ -320,28 +337,33 @@ Feature: Persistent Volume Claim binding policies
   # @bug_id 1496256
   Scenario: Deleted in use PVCs will not break the scheduler
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
+    Given I obtain test data file "storage/nfs/auto/web-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
+      | f | web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
     And I ensure "nfsc" pvc is deleted
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]   | nfsc         |
       | ["spec"]["volumeName"] | noneexistone |
     Then the step should succeed
     And the "nfsc" PVC becomes :pending
     Given I switch to the second user
     And I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
+    Given I obtain test data file "storage/nfs/auto/web-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/web-pod.json |
+      | f | web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
 
@@ -355,7 +377,8 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem             |
     Then the step should succeed
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a manual pvc from "claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -370,7 +393,8 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]   | pv-<%= project.name %> |
       | ["spec"]["volumeMode"] | Block                  |
     Then the step should succeed
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a manual pvc from "claim.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     Given 30 seconds have passed
@@ -393,7 +417,8 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a manual pvc from "claim.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"] | Filesystem              |
     Then the step should succeed
@@ -409,7 +434,8 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a manual pvc from "claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -436,7 +462,8 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | <pv_key>                     | <pv_value>             |
     Then the step should succeed
-    And I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a dynamic pvc from "claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["volumeMode"]       | Block                   |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
@@ -463,7 +490,8 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]       | Block                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>-1 |
     Then the step should succeed
-    And I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/claim.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/claim.json"
+    And I create a dynamic pvc from "claim.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %>  |
       | ["spec"]["volumeMode"]       | Block                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>-2 |
@@ -484,7 +512,8 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeMode"]       | <pv_volumeMode>        |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    And I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    And I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeMode"]       | <pvc_volumeMode>       |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -513,7 +542,8 @@ Feature: Persistent Volume Claim binding policies
       | object_name_or_id | <%= pvc.volume_name %> |
       | wait              | false                  |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-retain.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv-retain.json"
+    When admin creates a PV from "pv-retain.json" where:
       | ["metadata"]["name"] | <%= pvc.volume_name %> |
     Then the step should fail
     And the output should contain:

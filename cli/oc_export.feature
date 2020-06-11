@@ -3,8 +3,9 @@ Feature: oc exports related scenarios
   # @author pruan@redhat.com
   Scenario Outline: Export resource as json or yaml format by cli
     Given I have a project
+    Given I obtain test data file "build/sample-php-centos7.json|"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
+      | file | sample-php-centos7.json|
     Then the step should succeed
     When I run the :get client command with:
       | _tool         | <tool>   |
@@ -38,10 +39,12 @@ Feature: oc exports related scenarios
 
     # Export other various APIs resources, like extensions/v1beta1, autoscaling/v1, batch/v1
     # Cover bug 1546443 1553696 1552325 densely reported same issue
+    Given I obtain test data file "deployment/tc536600/hello-deployment-1.yaml"
+    Given I obtain test data file "job/job.yaml"
     When I run the :create client command with:
       | _tool   | <tool>   |
-      | f       | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536600/hello-deployment-1.yaml |
-      | f       | <%= BushSlicer::HOME %>/features/tierN/testdata/job/job.yaml                                |
+      | f       | hello-deployment-1.yaml |
+      | f       | job.yaml                                |
     Then the step should succeed
     When I run the :autoscale client command with:
       | _tool   | <tool>                     |
@@ -87,8 +90,9 @@ Feature: oc exports related scenarios
   # @case_id OCP-12594
   Scenario: Negative test for oc export
     Given I have a project
+    Given I obtain test data file "build/sample-php-centos7.json|"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/sample-php-centos7.json|
+      | file | sample-php-centos7.json|
     Then the step should succeed
     When I run the :get client command with:
       | resource       | svc      |

@@ -55,8 +55,9 @@ Feature: ONLY ONLINE Infra related scripts in this file
   # @case_id OCP-9788
   Scenario: Restrict user using nodeName in Pod in online env
     Given I have a project
+    Given I obtain test data file "online/clusterinfra/pod-with-nodename.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/clusterinfra/pod-with-nodename.yaml |
+      | f | pod-with-nodename.yaml |
     Then the step should fail
     And the output should contain:
       | Pod nodeName specification is not permitted on this cluster |
@@ -65,8 +66,9 @@ Feature: ONLY ONLINE Infra related scripts in this file
   # @case_id OCP-9903
   Scenario: Restrict user using nodeName in DeploymentConfig in online env
     Given I have a project
+    Given I obtain test data file "online/clusterinfra/deploymentconfig-with-nodename.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/clusterinfra/deploymentconfig-with-nodename.yaml |
+      | f | deploymentconfig-with-nodename.yaml |
     Then the step should fail
     And the output should contain:
       | deploymentconfigs.apps.openshift.io "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |

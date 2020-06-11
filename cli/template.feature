@@ -4,8 +4,9 @@ Feature: template related scenarios:
   # @case_id OCP-12131
   Scenario: template with code explicitly attached should not be supported when creating app with template via cli
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     And I run the :create client command with:
-      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | filename | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -176,8 +177,9 @@ Feature: template related scenarios:
   # @case_id OCP-11627
   Scenario: Show user getting start info after new-app a template with message defined
     Given I have a project
+    Given I obtain test data file "templates/application-template-stibuild.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
+      | f | application-template-stibuild.json |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | template                  |
@@ -268,13 +270,15 @@ Feature: template related scenarios:
   # @case_id OCP-23251
   Scenario: Deal with crd resources with new-app
     Given I have a project
+    Given I obtain test data file "build/OCP-23251/template-with-crd.yaml"
     And I run the :new_app client command with:
-      | source_spec | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23251/template-with-crd.yaml |
+      | source_spec | template-with-crd.yaml |
     And the output should contain:
       | oc process -f <template> \| oc create |
     Then the step should fail
+    Given I obtain test data file "build/OCP-23251/template-with-crd.yaml"
     And I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23251/template-with-crd.yaml |
+      | file | template-with-crd.yaml |
     Then the step should fail
     And the output should contain:
       | oc process -f <template> \| oc create |

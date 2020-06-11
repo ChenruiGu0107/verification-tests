@@ -3,8 +3,9 @@ Feature: ruby.feature
   # @author haowang@redhat.com
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
+    Given I obtain test data file "image/language-image-templates/<template>"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/<template> |
+      | f | <template> |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed

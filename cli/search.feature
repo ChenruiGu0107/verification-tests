@@ -6,8 +6,9 @@ Feature: new-app with --search option
     And I run the :create client command with:
       |f| https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json|
     Then the step should succeed
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json|"
     And I run the :create client command with:
-      |f| <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json|
+      |f| application-template-stibuild-without-customize-route.json|
     Then the step should succeed
     And I run the :create client command with:
       |f| https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mysql-persistent-template.json|

@@ -4,8 +4,9 @@ Feature: HPA relate features
   # @case_id OCP-11205
   Scenario: Creates horizontal pod autoscaler for ReplicationController
     Given I have a project
+    Given I obtain test data file "infrastructure/hpa/rc-hello-hpa.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/rc-hello-hpa.yaml |
+      | f | rc-hello-hpa.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | run=hello-hpa |
@@ -28,8 +29,9 @@ Feature: HPA relate features
     And expression should be true> hpa.target_cpu_utilization_percentage == 50
     And expression should be true> hpa.current_replicas == 2
     """
+    Given I obtain test data file "infrastructure/hpa/hello-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
@@ -55,8 +57,9 @@ Feature: HPA relate features
   # @case_id OCP-10730
   Scenario: Creates horizontal pod autoscaler for deploymentConfig
     Given I have a project
+    Given I obtain test data file "infrastructure/hpa/dc-hello-hpa.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/dc-hello-hpa.yaml |
+      | f | dc-hello-hpa.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | run=hello-hpa |
@@ -79,8 +82,9 @@ Feature: HPA relate features
     And expression should be true> hpa.target_cpu_utilization_percentage == 50
     And expression should be true> hpa.current_replicas == 2
     """
+    Given I obtain test data file "infrastructure/hpa/hello-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
@@ -106,8 +110,9 @@ Feature: HPA relate features
   # @case_id OCP-17587
   Scenario: HPA v2beta1 support scaling with ResourceMetricSource - cpu
     Given I have a project
+    Given I obtain test data file "infrastructure/hpa/hpa-v2beta1-rc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hpa-v2beta1-rc.yaml |
+      | f | hpa-v2beta1-rc.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | run=hello-openshift |
@@ -116,8 +121,9 @@ Feature: HPA relate features
       | resource name | hello-openshift |
       | port          | 8080            |
     Given I wait for the "hello-openshift" service to become ready
+    Given I obtain test data file "infrastructure/hpa/resource-metrics-cpu.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/resource-metrics-cpu.yaml |
+      | f | resource-metrics-cpu.yaml |
     Then the step should succeed
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -127,8 +133,9 @@ Feature: HPA relate features
     And expression should be true> hpa.target_cpu_utilization_percentage == 20
     And expression should be true> hpa.current_replicas == 2
     """
+    Given I obtain test data file "infrastructure/hpa/hello-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
@@ -154,8 +161,9 @@ Feature: HPA relate features
   # @case_id OCP-17594
   Scenario: HPA v2beta1 support scaling with ResourceMetricSource - memory
     Given I have a project
+    Given I obtain test data file "infrastructure/hpa/hello-hpa-memory-rc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-hpa-memory-rc.yaml |
+      | f | hello-hpa-memory-rc.yaml |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | run=hello-hpa-memory |
@@ -164,8 +172,9 @@ Feature: HPA relate features
       | resource name | hello-hpa-memory |
       | port          | 8080             |
     Given I wait for the "hello-hpa-memory" service to become ready
+    Given I obtain test data file "infrastructure/hpa/resource-metrics-memory.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/resource-metrics-memory.yaml |
+      | f | resource-metrics-memory.yaml |
     Then the step should succeed
     Given I wait up to 200 seconds for the steps to pass:
     """
@@ -173,8 +182,9 @@ Feature: HPA relate features
     And expression should be true> hpa.max_replicas == 10
     And expression should be true> hpa.current_replicas == 2
     """
+    Given I obtain test data file "infrastructure/hpa/hello-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/hpa/hello-pod.yaml |
+      | f | hello-pod.yaml |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I execute on the pod:

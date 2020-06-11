@@ -25,8 +25,9 @@ Feature: pipelinebuild.feature
       | username    | openshift |
       | password    | redhat    |
     Then the step should succeed
+    Given I obtain test data file "templates/tc543797/samplepipeline.yaml"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc543797/samplepipeline.yaml |
+      | file | samplepipeline.yaml |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                               |
@@ -78,8 +79,9 @@ Feature: pipelinebuild.feature
       | -c                                                                                                                                 |
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/jenkins-pipeline-nodejsmongodb-test sample.git |
     Then the step should succeed
+    Given I obtain test data file "templates/tc543797/samplepipeline.yaml"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc543797/samplepipeline.yaml |
+      | file | samplepipeline.yaml |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | buildconfig                                              |
@@ -141,8 +143,9 @@ Feature: pipelinebuild.feature
       | name     | mysecret                                  |
       | key_val  | credential.sync.jenkins.openshift.io=true |
     Then the step should succeed
+    Given I obtain test data file "templates/maven-pipeline-with-credential.yaml"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/maven-pipeline-with-credential.yaml |
+      | file | maven-pipeline-with-credential.yaml |
       | p    | GIT_SOURCE_URL=http://git:8080/openshift-jee-sample.git                                                          |
       | p    |OPENSHIFT_SECRET_NAME=<%= project.name %>-mysecret                                                                |
     Then the step should succeed

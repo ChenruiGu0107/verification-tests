@@ -15,7 +15,8 @@ Feature: Cluster Autoscaler Tests
 
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
+    When I run oc create over "cluster-autoscaler.yml" replacing paths:
       | ["spec"]["balanceSimilarNodeGroups"] | true |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
@@ -23,14 +24,16 @@ Feature: Cluster Autoscaler Tests
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest                |
       | ["spec"]["minReplicas"]            | 1                      |
       | ["spec"]["maxReplicas"]            | 3                      |
       | ["spec"]["scaleTargetRef"]["name"] | machineset-clone-20108 |
     Then the step should succeed
     And admin ensures "maotest" machineautoscaler is deleted after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest1                 |
       | ["spec"]["minReplicas"]            | 1                        |
       | ["spec"]["maxReplicas"]            | 3                        |
@@ -39,8 +42,9 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "maotest1" machineautoscaler is deleted after scenario
 
     # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml |
+      | f | autoscaler-auto-tmpl.yml |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
 
@@ -94,7 +98,8 @@ Feature: Cluster Autoscaler Tests
 
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
+    When I run oc create over "cluster-autoscaler.yml" replacing paths:
       | ["spec"]["skipNodesWithLocalStorage"] | true |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
@@ -102,7 +107,8 @@ Feature: Cluster Autoscaler Tests
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest                |
       | ["spec"]["minReplicas"]            | 1                      |
       | ["spec"]["maxReplicas"]            | 3                      |
@@ -111,8 +117,9 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "maotest" machineautoscaler is deleted after scenario
 
     # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml |
+      | f | autoscaler-auto-tmpl.yml |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
 
@@ -135,7 +142,8 @@ Feature: Cluster Autoscaler Tests
     #Create a pod with local storage
     Given I store the last provisioned machine in the :machine clipboard
     And evaluation of `machine(cb.machine).node_name` is stored in the :noderef_name clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/local-storage-pod.yml" replacing paths:
+    Given I obtain test data file "cloud/local-storage-pod.yml"
+    When I run oc create over "local-storage-pod.yml" replacing paths:
       | ["spec"]["nodeName"]               | <%= cb.noderef_name %> |
     Then the step should succeed
     And admin ensures "localstorage" pod is deleted after scenario
@@ -170,15 +178,17 @@ Feature: Cluster Autoscaler Tests
 
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml |
+      | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
     And 1 pods become ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest                |
       | ["spec"]["minReplicas"]            | 1                      |
       | ["spec"]["maxReplicas"]            | 3                      |
@@ -187,8 +197,9 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "maotest" machineautoscaler is deleted after scenario
 
     # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml |
+      | f | autoscaler-auto-tmpl.yml |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
 
@@ -254,15 +265,17 @@ Feature: Cluster Autoscaler Tests
 
     # Create clusterautoscaler,podPriorityThreshold is -10 by default
     Given I use the "openshift-machine-api" project
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml |
+      | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
     And 1 pods become ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest                |
       | ["spec"]["minReplicas"]            | 1                      |
       | ["spec"]["maxReplicas"]            | 3                      |
@@ -271,17 +284,20 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "maotest" machineautoscaler is deleted after scenario
 
     # Create priorityclass
+    Given I obtain test data file "cloud/priority-class-low.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/priority-class-low.yml |
+      | f | priority-class-low.yml |
     Then the step should succeed
     And admin ensures "low" priorityclass is deleted after scenario
+    Given I obtain test data file "cloud/priority-class-high.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/priority-class-high.yml |
+      | f | priority-class-high.yml |
     Then the step should succeed
     And admin ensures "high" priorityclass is deleted after scenario
 
     # Create workload,priority is 1
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml" replacing paths:
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
+    When I run oc create over "autoscaler-auto-tmpl.yml" replacing paths:
       | ["spec"]["template"]["spec"]["priorityClassName"] | low |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
@@ -336,7 +352,8 @@ Feature: Cluster Autoscaler Tests
 
     # 3)Verifify nothing changes for pods with priority greater or equal to cutoff
     # workload priority is 100,podPriorityThreshold is 10
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml" replacing paths:
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
+    When I run oc create over "autoscaler-auto-tmpl.yml" replacing paths:
       | ["spec"]["template"]["spec"]["priorityClassName"] | high |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
@@ -479,15 +496,17 @@ Feature: Cluster Autoscaler Tests
 
     # Create clusterautoscaler
     Given I use the "openshift-machine-api" project
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/cluster-autoscaler.yml |
+      | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
     And 1 pods become ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cloud/machine-autoscaler.yml" replacing paths:
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
       | ["metadata"]["name"]               | maotest           |
       | ["spec"]["minReplicas"]            | 0                 |
       | ["spec"]["maxReplicas"]            | 2                 |
@@ -496,8 +515,9 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "maotest" machineautoscaler is deleted after scenario
     
     # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/cloud/autoscaler-auto-tmpl.yml |
+      | f | autoscaler-auto-tmpl.yml |
     Then the step should succeed
     And admin ensures "workload" job is deleted after scenario
 

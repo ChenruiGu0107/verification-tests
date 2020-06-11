@@ -47,11 +47,13 @@ Feature: oc extract related scenarios
   # @case_id OCP-11976
   Scenario: Extract configmap or secret to appointed directory
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :extract client command with:
       | resource | secret/test-secret       |
@@ -119,11 +121,13 @@ Feature: oc extract related scenarios
   # @case_id OCP-12081
   Scenario: Extract only the keys from configmap or secret to directory
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :extract client command with:
       | resource | secret/test-secret      |

@@ -9,8 +9,9 @@ Feature: Testing the isolation during build scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     # Create egress policy
+    Given I obtain test data file "networking/egress-ingress/dns-egresspolicy2.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/dns-egresspolicy2.json  |
+      | f | dns-egresspolicy2.json  |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     When I run the :new_app client command with:
@@ -38,7 +39,8 @@ Feature: Testing the isolation during build scenarios
   # @bug_id 1487652
   Scenario Outline: Build-container is able to access other projects pod for subnet plugin
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:

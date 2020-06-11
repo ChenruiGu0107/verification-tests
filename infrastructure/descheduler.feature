@@ -13,13 +13,15 @@ Feature: Descheduler extra image testing
     Given admin ensures "descheduler-cluster-role-binding-ocp29821" clusterrolebinding is deleted after scenario
     Given admin ensures "descheduler-cronjob-ocp29821" cronjob is deleted from the "kube-system" project after scenario
     Given I store master major version in the clipboard
+    Given I obtain test data file "descheduler/clusterrole.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/descheduler/clusterrole.yaml |
+      | f | clusterrole.yaml |
     Then the step should succeed
     And the output should contain "clusterrole.rbac.authorization.k8s.io/descheduler-cluster-role-ocp29821 created"
     # Create sa
+    Given I obtain test data file "descheduler/descheduler-sa.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/descheduler/descheduler-sa.yaml |
+      | f | descheduler-sa.yaml |
     Then the step should succeed
     And the output should contain "serviceaccount/descheduler-sa-ocp29821 created"
     # Bind the clusterrole to service account
@@ -30,13 +32,15 @@ Feature: Descheduler extra image testing
     Then the step should succeed
     And the output should contain "clusterrolebinding.rbac.authorization.k8s.io/descheduler-cluster-role-binding-ocp29821 created"
     # Create configmap
+    Given I obtain test data file "descheduler/policy.yaml"
     When I run the :create_configmap admin command with:
       | name      | descheduler-policy-configmap-ocp29821                                   |
-      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/descheduler/policy.yaml |
+      | from_file | policy.yaml |
       | namespace | kube-system                                                             |
     Then the step should succeed
     And the output should contain "configmap/descheduler-policy-configmap-ocp29821 created"
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/descheduler/cronjob.yaml" replacing paths:
+    Given I obtain test data file "descheduler/cronjob.yaml"
+    When I run oc create over "cronjob.yaml" replacing paths:
       | ["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0]["image"] | registry.stage.redhat.io/openshift4/ose-descheduler:<%= cb.master_version %> |
     Then the step should succeed
     And the output should contain "cronjob.batch/descheduler-cronjob-ocp29821 created"

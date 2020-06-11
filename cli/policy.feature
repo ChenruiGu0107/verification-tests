@@ -234,8 +234,9 @@ Feature: change the policy of user/service account
   Scenario: Delete role though rolebinding existed for the role
     Given I switch to cluster admin pseudo user
     Given admin ensures "tc467927" cluster_role is deleted after scenario
+    Given I obtain test data file "authorization/policy/tc467927/role.json"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/tc467927/role.json |
+      | f | role.json |
     Then the step should succeed
     Given admin waits for the "tc467927" clusterrole to appear
     And cluster role "tc467927" is added to the "first" user
@@ -314,8 +315,9 @@ Feature: change the policy of user/service account
       | group_name | groups-rolebindingrestriction |
       | user_name  | <%= user(1).name  %>          |
     Then the step should succeed
+    Given I obtain test data file "authorization/policy/OCP-13479/rolebindingrestriction.yaml"
     Given I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
+      | f | rolebindingrestriction.yaml |
       | n | <%= project.name %>                                                                                                           |
     Then the step should succeed
     Given I switch to the second user

@@ -4,8 +4,9 @@ Feature: oc debug related scenarios
   # @case_id OCP-9854
   Scenario: Debug pod with oc debug
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=dctest-1 |
@@ -45,8 +46,9 @@ Feature: oc debug related scenarios
       | openshift.io/deployment-config.name:\\s+hello     |
       | openshift.io/deployment.name:\\s+hello-1          |
 
+    Given I obtain test data file "pods/pod-with-probe.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-with-probe.yaml |
+      | f | pod-with-probe.yaml |
     Then the step should succeed
     When the pod named "hello-openshift" status becomes :running
     And I run the :debug client command with:
@@ -62,8 +64,9 @@ Feature: oc debug related scenarios
   # @case_id OCP-9857
   Scenario: Use oc debug with misc flags
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=dctest-1 |
@@ -112,8 +115,9 @@ Feature: oc debug related scenarios
     And I log the message> Because case is non-critical importance, no scripts for less than 3.6
     And the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "pods/initContainers/initContainer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/initContainers/initContainer.yaml |
+      | f | initContainer.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-pod |

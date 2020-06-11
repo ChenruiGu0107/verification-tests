@@ -14,8 +14,9 @@ Feature: Egress IP related features
     # create two projects with pod
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -24,8 +25,9 @@ Feature: Egress IP related features
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -86,8 +88,9 @@ Feature: Egress IP related features
     # create project with pod
     Given I have a project
     And evaluation of `project.name` is stored in the :project clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |

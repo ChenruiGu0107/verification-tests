@@ -22,7 +22,8 @@ Feature: Testing Ingress Operator related scenarios
     Given I switch to cluster admin pseudo user
     And admin ensures "test-21873" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom ingresscontroller named test-21873 (replicas=1)
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingresscontroller-test.yaml" replacing paths:
+    Given I obtain test data file "routing/operator/ingresscontroller-test.yaml"
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-21873                                    |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-21873") %> |
@@ -67,7 +68,8 @@ Feature: Testing Ingress Operator related scenarios
       | key            | ca.key           |
     Then the step should succeed
     # create custom ingresscontroller which use above secrect
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingresscontroller-test.yaml" replacing paths:
+    Given I obtain test data file "routing/operator/ingresscontroller-test.yaml"
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-21143                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-21143") %> |
       | ["spec"]["defaultCertificate"]["name"] | test-certs-21143                              |
@@ -92,12 +94,14 @@ Feature: Testing Ingress Operator related scenarios
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
     # create route in the project with label
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/edge/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -109,7 +113,8 @@ Feature: Testing Ingress Operator related scenarios
     # create custom router with namespaceSelector
     Given I switch to cluster admin pseudo user
     And admin ensures "test-22636" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingressctl-namespace-selector.yaml" replacing paths:
+    Given I obtain test data file "routing/operator/ingressctl-namespace-selector.yaml"
+    When I run oc create over "ingressctl-namespace-selector.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-22636                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22636") %> |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
@@ -138,12 +143,14 @@ Feature: Testing Ingress Operator related scenarios
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
     # create route with label
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/edge/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -155,7 +162,8 @@ Feature: Testing Ingress Operator related scenarios
     # create custom router with routeSelector
     Given I switch to cluster admin pseudo user
     And admin ensures "test-22637" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingressctl-route-selector.yaml" replacing paths:
+    Given I obtain test data file "routing/operator/ingressctl-route-selector.yaml"
+    When I run oc create over "ingressctl-route-selector.yaml" replacing paths:
       | ["metadata"]["name"]                   | test-22637                                    |
       | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-22637") %> |
       | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
@@ -196,7 +204,8 @@ Feature: Testing Ingress Operator related scenarios
     Given I switch to cluster admin pseudo user
     And admin ensures "<name>" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
     # create custom ingresscontroller
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/<ingressctl>" replacing paths:
+    Given I obtain test data file "routing/operator/<ingressctl>"
+    When I run oc create over "<ingressctl>" replacing paths:
       | ["metadata"]["name"] | <name>                                    |
       | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","<name>") %> |
     Then the step should succeed
@@ -278,7 +287,8 @@ Feature: Testing Ingress Operator related scenarios
     And I store default router subdomain in the :subdomain clipboard
     Given I switch to cluster admin pseudo user
     And admin ensures "test-27560" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/operator/ingressctl-nodeport.yaml" replacing paths:
+    Given I obtain test data file "routing/operator/ingressctl-nodeport.yaml"
+    When I run oc create over "ingressctl-nodeport.yaml" replacing paths:
       | ["metadata"]["name"] | test-27560                                    |
       | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-27560") %> |
     Then the step should succeed

@@ -4,15 +4,17 @@ Feature: Pod related networking scenarios
   # @case_id OCP-10016
   Scenario: The Completed/Failed pod should not run into TeardownNetworkError
     Given I have a project
+    Given I obtain test data file "networking/completed-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/completed-pod.json |
+      | f | completed-pod.json |
     Then the step should succeed
     And a pod is present with labels:
       | name=completed-pod |
     And evaluation of `pod.name` is stored in the :completed_pod clipboard
     Given the pod named "<%= cb.completed_pod %>" status becomes :succeeded
+    Given I obtain test data file "networking/failed-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/failed-pod.json |
+      | f | failed-pod.json |
     Then the step should succeed
     Given the pod named "fail-pod" status becomes :failed
     When I run the :describe client command with:
@@ -26,8 +28,9 @@ Feature: Pod related networking scenarios
   # @case_id OCP-12675
   Scenario: containers can use vxlan as they want
     Given I have a project
+    Given I obtain test data file "networking/udp4789-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/udp4789-pod.json |
+      | f | udp4789-pod.json |
     Then the step should succeed
     And the pod named "udp4789-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :udp_pod clipboard
@@ -67,10 +70,11 @@ Feature: Pod related networking scenarios
   # @case_id OCP-19994
   Scenario: The completed pod should also have IP address
     Given I have a project
+    Given I obtain test data file "networking/completed-pod.json"
     And I run the steps 25 times:
     """
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/completed-pod.json |
+      | f | completed-pod.json |
     Then the step should succeed
     """
     Given I wait up to 60 seconds for the steps to pass:
@@ -97,14 +101,16 @@ Feature: Pod related networking scenarios
   Scenario: Other pod could work normally when a pod in high network io
     Given I have a project
     # setup iperf server to receive the traffic
+    Given I obtain test data file "networking/egress-ingress/qos/iperf-server.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-server.json |
+      | f | iperf-server.json |
     Then the step should succeed
     And the pod named "iperf-server" becomes ready
     And evaluation of `pod.ip` is stored in the :iperf_server clipboard
 
     # setup iperf client to send traffic to server with qos configured
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/egress-ingress/qos/iperf-rc.json" replacing paths:
+    Given I obtain test data file "networking/egress-ingress/qos/iperf-rc.json"
+    When I run oc create over "iperf-rc.json" replacing paths:
       | ["spec"]["replicas"] | 2 |
       | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/ingress-bandwidth"] | 100M |
       | ["spec"]["template"]["metadata"]["annotations"]["kubernetes.io/egress-bandwidth"] | 100M |
@@ -159,8 +165,9 @@ Feature: Pod related networking scenarios
       | curl | 169.254.169.254 |
     Then the output should contain "Connection refused"
     Given SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    Given I obtain test data file "networking/hostnetwork-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/hostnetwork-pod.json |
+      | f | hostnetwork-pod.json |
     Then the step should succeed
     And the pod named "hostnetwork-pod" becomes ready
     When I execute on the pod:

@@ -4,12 +4,14 @@ Feature: Route test in online environments
   Scenario: Custom route with edge termination is not permitted
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     And I wait for the "service-unsecure" service to become ready
     Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"

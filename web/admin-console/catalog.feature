@@ -125,7 +125,8 @@ Feature: tests on catalog page
   Scenario: Add support for `hidden` tag to the catalog
     Given the master version >= "4.1"
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild.json" replacing paths:
+    Given I obtain test data file "templates/ui/application-template-stibuild.json"
+    When I run oc create over "application-template-stibuild.json" replacing paths:
       | ["metadata"]["annotations"]["tags"] | instant-app,ruby,mysql,hidden |
       | ["metadata"]["namespace"]           | <%= project.name %>           |
     Then the step should succeed
@@ -133,7 +134,8 @@ Feature: tests on catalog page
     Given the first user is cluster-admin
     Given I use the "openshift" project
     Given admin ensures "testdotnet" imagestream is deleted from the "openshift" project after scenario
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/ui-netcore-is.json" replacing paths:
+    Given I obtain test data file "image-streams/ui-netcore-is.json"
+    When I run oc create over "ui-netcore-is.json" replacing paths:
       | ["spec"]["tags"][1]["annotations"]["tags"] | builder,dotnet,hidden |
     Then the step should succeed
 

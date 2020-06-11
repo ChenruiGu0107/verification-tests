@@ -4,7 +4,8 @@ Feature: storageClass related feature
   Scenario Outline: pre-bound still works with storage class
     Given I have a project
     And I have a 1 GB volume from provisioner "<provisioner>" and save volume id in the :vid clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/<path_to_file>" where:
+    Given I obtain test data file "storage/<path_to_file>"
+    When admin creates a PV from "<path_to_file>" where:
       | ["metadata"]["name"]                        | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]             | 1Gi                    |
       | ["spec"]["accessModes"][0]                  | ReadWriteOnce          |
@@ -12,7 +13,8 @@ Feature: storageClass related feature
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
       | ["spec"]["storageClassName"]                | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
@@ -31,26 +33,30 @@ Feature: storageClass related feature
   Scenario: storage class creation negative testing
     Given I have a project
     Given admin ensures "slow-<%= project.name %>" storage_class is deleted after scenario
+    Given I obtain test data file "storage/misc/storageClass-invalidAPI.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-invalidAPI.yaml |
+      | f | storageClass-invalidAPI.yaml |
     Then the step should fail
     And the output should match:
       | no (matches for )?kind "StorageClass" (is registered for \|in )version "storage.k8s.io/invalid" |
 
+    Given I obtain test data file "storage/misc/storageClass-emptyName.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-emptyName.yaml |
+      | f | storageClass-emptyName.yaml |
     Then the step should fail
     And the output should contain:
       | name or generateName is required |
 
+    Given I obtain test data file "storage/misc/storageClass-invalidName.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-invalidName.yaml |
+      | f | storageClass-invalidName.yaml |
     Then the step should fail
     And the output should contain:
       | Invalid value: "@test@" |
 
+    Given I obtain test data file "storage/misc/storageClass-noProvisioner.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-noProvisioner.yaml |
+      | f | storageClass-noProvisioner.yaml |
     Then the step should fail
     And the output should contain:
       | provisioner: Required value |
@@ -64,7 +70,8 @@ Feature: storageClass related feature
       | ["parameters"]["zone"] | europe-west1-d |
       | ["volumeBindingMode"]  | Immediate      |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -86,7 +93,8 @@ Feature: storageClass related feature
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["provisioner"]       | <provisioner> |
       | ["volumeBindingMode"] | Immediate     |
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -111,12 +119,14 @@ Feature: storageClass related feature
   @admin
   Scenario: PVC with storage class will not provision io1 pv with wrong parameters for aws ebs volume
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+    Given I obtain test data file "storage/ebs/dynamic-provisioning/storageclass-io1.yaml"
+    When admin creates a StorageClass from "storageclass-io1.yaml" where:
       | ["metadata"]["name"]        | sc1-<%=project.name%> |
       | ["parameters"]["iopsPerGB"] | 400000                |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 4Gi                      |
@@ -133,12 +143,14 @@ Feature: storageClass related feature
       | maximum is 50         |
     """
 
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+    Given I obtain test data file "storage/ebs/dynamic-provisioning/storageclass-io1.yaml"
+    When admin creates a StorageClass from "storageclass-io1.yaml" where:
       | ["metadata"]["name"]        | sc2-<%=project.name%> |
       | ["parameters"]["iopsPerGB"] | 40                    |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 3Gi                      |
@@ -159,13 +171,15 @@ Feature: storageClass related feature
   @admin
   Scenario Outline: Create storageclass with specific api
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-beta-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                    |
       | ["provisioner"]                                                                 | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-stable-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                       | sc2-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                    |
@@ -196,12 +210,14 @@ Feature: storageClass related feature
   Scenario: Create storageclass without annotations
     Given the master version >= "3.6"
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["apiVersion"]       | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"] | sc1-<%= cb.sc_name %>  |
       | ["provisioner"]      | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["apiVersion"]       | storage.k8s.io/v1     |
       | ["metadata"]["name"] | sc2-<%= cb.sc_name %> |
       | ["provisioner"]      | kubernetes.io/manual  |
@@ -225,28 +241,32 @@ Feature: storageClass related feature
   Scenario: Create storageclass with both beta and stable annotations
     Given the master version >= "3.6"
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-beta-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | false                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-beta-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-beta-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual  |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-stable-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc3-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                   |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-with-stable-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-with-stable-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc4-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
@@ -308,11 +328,13 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning using non-default storageclass by annotations
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I run oc create over "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -326,11 +348,13 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning using non-default storageclass by attribute storageClassName
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I run oc create over "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -344,11 +368,13 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning with both annotations and atrribute storageClassName, reference the same storageclass
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I run oc create over "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
       | ["spec"]["storageClassName"]                                           | sc-<%= project.name %>  |
@@ -363,15 +389,18 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning with both annotations and atrribute storageClassName, reference different storageclass, annotation wins
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc1-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd    |
     Then the step should succeed
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-without-annotations.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-without-annotations.yaml"
+    When admin creates a StorageClass from "storageClass-without-annotations.yaml" where:
       | ["metadata"]["name"] | sc2-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd    |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I run oc create over "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
       | ["spec"]["storageClassName"]                                           | sc2-<%= project.name %> |
@@ -385,11 +414,13 @@ Feature: storageClass related feature
   @admin
   Scenario: Check storageclass info pv and pvc requested when pvc is using beta annotation
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass.yaml" where:
+    Given I obtain test data file "storage/ebs/dynamic-provisioning/storageclass.yaml"
+    When admin creates a StorageClass from "storageclass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/pvc.yaml" replacing paths:
+    Given I obtain test data file "storage/ebs/dynamic-provisioning/pvc.yaml"
+    When I run oc create over "pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -403,7 +434,8 @@ Feature: storageClass related feature
   @destructive
   Scenario: Check storageclass info when pvc using default storageclass
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gce/storageClass.yaml" where:
+    Given I obtain test data file "storage/gce/storageClass.yaml"
+    When admin creates a StorageClass from "storageClass.yaml" where:
       | ["metadata"]["name"]                                                       | sc-<%= project.name %>  |
       | ["provisioner"]                                                            | kubernetes.io/aws-ebs   |
       | ["parameters"]["type"]                                                     | gp2                     |
@@ -411,7 +443,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-without-annotations.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-without-annotations.json"
+    When I run oc create over "pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -426,11 +459,13 @@ Feature: storageClass related feature
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
 
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pv-rwo.yaml" where:
+    Given I obtain test data file "storage/ebs/pv-rwo.yaml"
+    When admin creates a PV from "pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-<%= project.name %> |
       | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
     Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/pvc-retain.json" replacing paths:
+    Given I obtain test data file "storage/ebs/pvc-retain.json"
+    When I create a manual pvc from "pvc-retain.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
@@ -444,13 +479,15 @@ Feature: storageClass related feature
   Scenario Outline: Configure 'Retain' reclaim policy for StorageClass
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass-reclaim-policy.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass-reclaim-policy.yaml"
+    When admin creates a StorageClass from "storageClass-reclaim-policy.yaml" where:
       | ["metadata"]["name"]                                                       | sc-<%= project.name %>      |
       | ["provisioner"]                                                            | kubernetes.io/<provisioner> |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                       |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
@@ -478,11 +515,13 @@ Feature: storageClass related feature
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with:
       | ["mountOptions"] | ["discard"] |
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod       |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc       |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypath |

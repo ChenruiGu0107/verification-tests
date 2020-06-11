@@ -13,8 +13,9 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11897
   Scenario: create app from existing template via CLI with parameter passed
     Given I have a project
+    Given I obtain test data file "templates/ui/application-template-stibuild-without-customize-route.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/ui/application-template-stibuild-without-customize-route.json |
+      | f | application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     And I run the :get client command with:
       | resource | template |
@@ -38,8 +39,9 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-12148
   Scenario: Progress with invalid supplemental groups should not be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
+    Given I obtain test data file "pods/pod_with_special_supplementalGroups.json"
     When I run the :create client command with:
-      | f       | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_special_supplementalGroups.json |
+      | f       | pod_with_special_supplementalGroups.json |
     Then the step should fail
     And the output should contain:
       | Pod "hello-openshift" is invalid  |
@@ -81,8 +83,9 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     When the pod named "hello-pod" status becomes :running
 
+    Given I obtain test data file "pods/hello-pod.json"
     Given I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
     When I get project pods named "hello-pod"
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == cb.scc_limit
@@ -108,12 +111,14 @@ Feature: creating 'apps' with CLI
       | unable to validate against any security context constraint |
       | <%= cb.invalid_sgid %> is not an allowed group             |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510543/scc_tc510543.yaml
+    Given I obtain test data file "pods/tc510543/scc_tc510543.yaml"
+    Given the following scc policy is created: scc_tc510543.yaml
     Then the step should succeed
     Given SCC "scc-tc510543" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
+    Given I obtain test data file "pods/tc510543/special_fs_groupid.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510543/special_fs_groupid.json |
+      | f | special_fs_groupid.json |
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
     When I run the :exec client command with:
@@ -136,19 +141,22 @@ Feature: creating 'apps' with CLI
     Given scc policy "restricted" is restored after scenario
     Given as admin I replace resource "scc" named "restricted":
       | RunAsAny | MustRunAs |
+    Given I obtain test data file "pods/tc510546/tc510546_pod.json"
     Then I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510546/tc510546_pod.json |
+      | f | tc510546_pod.json |
     Then the step should fail
     And the output should contain:
       | unable to validate against any security context constraint |
       | 1000 is not an allowed group                               |
     # step 3 create new scc rule as cluster admin and add user to the new scc
-    Given the following scc policy is created: <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510546/scc_tc510546.yaml
+    Given I obtain test data file "pods/tc510546/scc_tc510546.yaml"
+    Given the following scc policy is created: scc_tc510546.yaml
     Then the step should succeed
     Given SCC "scc-tc510546" is added to the "first" user
     # step 4. create the pod again and it should succeed now with the new scc rule
+    Given I obtain test data file "pods/tc510546/tc510546_pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc510546/tc510546_pod.json |
+      | f | tc510546_pod.json |
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
     When I run the :exec client command with:
@@ -288,13 +296,15 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11577
   Scenario: Fail to create pod for podSpec.volumes if not in the volumes of matched scc
     Given I have a project
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/authorization/scc/pod_requests_hostdir.json |
+      | f | pod_requests_hostdir.json |
     Then the step should fail
     And the output should contain:
       | hostPath volumes are not allowed |
+    Given I obtain test data file "deployment/tc472859/hello-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc472859/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
 
 
@@ -305,9 +315,10 @@ Feature: creating 'apps' with CLI
     """
     {broken:}
     """
+    Given I obtain test data file "cli/OCP-11049/invalid.json"
     When I run the :create client command with:
       | _tool    | <tool>   |
-      | f        | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11049/invalid.json |
+      | f        | invalid.json |
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
@@ -328,9 +339,10 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     And the output should match:
       | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+    Given I obtain test data file "cli/OCP-11049/invalid.yaml"
     When I run the :create client command with:
       | _tool    | <tool>        |
-      | f        | <%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-11049/invalid.yaml |
+      | f        | invalid.yaml |
     Then the step should fail
     #And the output should match:
     #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
@@ -344,8 +356,9 @@ Feature: creating 'apps' with CLI
   Scenario: 3.7 User can expose the environment variables to pods
     Given the master version >= "3.7"
     Given I have a project
+    Given I obtain test data file "templates/tc467937/pod467937-new.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc467937/pod467937-new.yaml |
+      | f | pod467937-new.yaml |
     Then the step should succeed
     Given the pod named "kubernetes-metadata-volume-example" becomes ready
     When I execute on the pod:

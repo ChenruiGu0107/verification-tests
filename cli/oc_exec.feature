@@ -3,8 +3,9 @@ Feature: containers related features
   Scenario Outline: Choose container to execute command on with '-c' flag
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
+    Given I obtain test data file "pods/pod_with_two_containers.json|"
     When I run the :create client command with:
-      | filename | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_two_containers.json|
+      | filename | pod_with_two_containers.json|
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
     When I run the :exec client command with:
@@ -41,8 +42,9 @@ Feature: containers related features
   # @author xxing@redhat.com
   Scenario Outline: Dumps logs from a given Pod container
     Given I have a project
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
     When I run the :logs client command with:
@@ -61,8 +63,9 @@ Feature: containers related features
   # @case_id OCP-11704
   Scenario: Executing commands in a container that isn't running
     Given I have a project
+    Given I obtain test data file "deployment/tc472859/hello-pod.json|"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc472859/hello-pod.json|
+      | f | hello-pod.json|
     And the pod named "hello-openshift" status becomes :pending
     And I run the :exec client command with:
       | pod | hello-openshift |
@@ -76,8 +79,9 @@ Feature: containers related features
   # @case_id OCP-11451
   Scenario: Executing command in inexistent containers
     When I have a project
+    Given I obtain test data file "pods/hello-pod.json"
     And I run the :create client command with:
-      | filename |<%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
+      | filename |hello-pod.json |
     Then the step should succeed
     And the pod named "hello-openshift" becomes ready
     When I execute on the "hello-openshift_notexist" pod:

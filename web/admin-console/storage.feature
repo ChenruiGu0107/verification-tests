@@ -48,8 +48,9 @@ Feature: storage (storageclass, pv, pvc) related
       | pvc_size_unit      | Mi                      |
     Then the step should succeed
     # Create DC to consume PVC then it can become Bound
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
     When I run the :set_volume client command with:
       | resource      | dc                      |
@@ -118,23 +119,27 @@ Feature: storage (storageclass, pv, pvc) related
 
     # admin could create ResourceQuata and LimitRange
     Given I have a project
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
 
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota-pvc-storage.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
+    When I run oc create over "quota-pvc-storage.yaml" replacing paths:
       | ["spec"]["hard"]["persistentvolumeclaims"] | 4   |
       | ["spec"]["hard"]["requests.storage"]       | 2Gi |
     Then the step should succeed
+    Given I obtain test data file "limits/limits.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/limits/limits.yaml |
+      | f | limits.yaml |
       | n | <%= project.name %>                                                                   |
     Then the step should succeed
 
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -241,8 +246,9 @@ Feature: storage (storageclass, pv, pvc) related
   Scenario: Select container when attach/remove volume
     Given the master version >= "4.2"
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :create_persistent_volume_claims web action with:

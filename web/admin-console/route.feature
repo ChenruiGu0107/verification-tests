@@ -5,11 +5,13 @@ Feature: route related
   Scenario: Create Passthrough route from form
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
+    Given I obtain test data file "routing/passthrough/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
     Given I open admin console in a browser
 
@@ -45,11 +47,13 @@ Feature: route related
   Scenario: Create edge route from form
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/edge/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -61,6 +65,9 @@ Feature: route related
       | button_text | Create Route |
     Then the step should succeed
 
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
+    Given I obtain test data file "routing/ca.pem"
     When I perform the :create_route web action with:
       | route_name            | edgeroute            |
       | route_hostname        | edgetest.example.com |
@@ -70,9 +77,9 @@ Feature: route related
       | secure_route          | true                 |
       | tls_termination_type  | edge                 |
       | insecure_traffic_type | Allow                |
-      | certificate_path      | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
-      | private_key_path      | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
-      | ca_certificate_path   | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem                           |
+      | certificate_path      | route_edge-www.edge.com.crt |
+      | private_key_path      | route_edge-www.edge.com.key |
+      | ca_certificate_path   | ca.pem                           |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
@@ -96,11 +103,13 @@ Feature: route related
   Scenario: Create re-encrypt route from form
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/reencrypt/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -112,6 +121,10 @@ Feature: route related
       | button_text | Create Route |
     Then the step should succeed
 
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I perform the :create_route web action with:
       | route_name                 | reenroute            |
       | route_hostname             | reentest.example.com |
@@ -121,10 +134,10 @@ Feature: route related
       | secure_route               | true                 |
       | tls_termination_type       | reencrypt            |
       | insecure_traffic_type      | Redirect             |
-      | certificate_path           | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
-      | private_key_path           | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
-      | ca_certificate_path        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
-      | destination_ca_certificate | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
+      | certificate_path           | route_reencrypt-reen.example.com.crt |
+      | private_key_path           | route_reencrypt-reen.example.com.key |
+      | ca_certificate_path        | route_reencrypt.ca                   |
+      | destination_ca_certificate | route_reencrypt_dest.ca              |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
@@ -207,9 +220,11 @@ Feature: route related
   Scenario: Support create route with multiple services
     Given the master version >= "4.3"
     Given I have a project
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json   |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure.json   |
+      | f | service_unsecure-2.json |
     Then the step should succeed
 
     # create route with multiple services
@@ -296,9 +311,11 @@ Feature: route related
   Scenario: Check route list and detail page
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "routing/edge/service_unsecure.json"
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json          |
+      | f | service_unsecure.json |
+      | f | caddy-docker.json          |
     Then the step should succeed
 
     # create two routes, one is created from default YAML, the other is created by form
@@ -312,6 +329,9 @@ Feature: route related
     When I perform the :goto_route_creation_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    Given I obtain test data file "routing/tc/OCP-19608/example.crt"
+    Given I obtain test data file "routing/tc/OCP-19608/example.key"
+    Given I obtain test data file "routing/tc/OCP-19608/example.csr"
     When I perform the :create_route web action with:
       | route_name            | mytestroute      |
       | service_name          | service-unsecure |
@@ -319,9 +339,9 @@ Feature: route related
       | secure_route          | true             |
       | tls_termination_type  | edge             |
       | insecure_traffic_type | Redirect         |
-      | certificate_path      | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/tc/OCP-19608/example.crt |
-      | private_key_path      | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/tc/OCP-19608/example.key |
-      | ca_certificate_path   | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/tc/OCP-19608/example.csr |
+      | certificate_path      | example.crt |
+      | private_key_path      | example.key |
+      | ca_certificate_path   | example.csr |
     Then the step should succeed
     # to make sure all required routes are created
     Given I wait up to 10 seconds for the steps to pass:

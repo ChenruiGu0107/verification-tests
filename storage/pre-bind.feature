@@ -6,14 +6,16 @@ Feature: Testing for pv and pvc pre-bind feature
   @admin
   Scenario: Prebound pv is availabe due to mismatched volume size with requested pvc
     Given I have a project
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/preboundpv-rwo.yaml" where:
+    Given I obtain test data file "storage/nfs/preboundpv-rwo.yaml"
+    Given admin creates a PV from "preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | mypvc                  |
       | ["spec"]["storageClassName"]      | sc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                  |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
@@ -26,12 +28,14 @@ Feature: Testing for pv and pvc pre-bind feature
   @admin
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PVC pre-bind to PV
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/nfs.json" where:
+    Given I obtain test data file "storage/nfs/nfs.json"
+    When admin creates a PV from "nfs.json" where:
       | ["metadata"]["name"]         | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -42,11 +46,13 @@ Feature: Testing for pv and pvc pre-bind feature
   @admin
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV pre-bind to PVC
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/preboundpv-rwo.yaml" where:
+    Given I obtain test data file "storage/nfs/preboundpv-rwo.yaml"
+    When admin creates a PV from "preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | mypvc                  |
@@ -59,12 +65,14 @@ Feature: Testing for pv and pvc pre-bind feature
   @admin
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV/PVC pre-bind to each other
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeName"]       | pv-<%= project.name %> |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/preboundpv-rwo.yaml" where:
+    Given I obtain test data file "storage/nfs/preboundpv-rwo.yaml"
+    When admin creates a PV from "preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>    |
       | ["spec"]["claimRef"]["name"]      | mypvc                  |

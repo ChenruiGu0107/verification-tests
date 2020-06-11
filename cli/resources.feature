@@ -174,8 +174,9 @@ Feature: resouces related scenarios
   # @case_id OCP-11716
   Scenario: Templates could parameterize cpu and memory usage values for each container
     Given I have a project
+    Given I obtain test data file "templates/tc481680/application-template-with-resources.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc481680/application-template-with-resources.json |
+      | f | application-template-with-resources.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | template |

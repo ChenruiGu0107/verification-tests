@@ -7,8 +7,9 @@ Feature: The apb tool related scenarios
     Given I store master major version in the :master_version clipboard
     Given I create the serviceaccount "apbtoolsstage"
     Given SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:apbtoolsstage" service account
+    Given I obtain test data file "svc-catalog/apbtools.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/apbtools.yaml |
+      | f | apbtools.yaml |
       | p | IMAGE=registry.stage.redhat.io/openshift4/apb-tools:v<%= cb.master_version %> |
       | p | NAMESPACE=<%= project.name %> |
     Then the step should succeed

@@ -3,15 +3,18 @@ Feature: pod related features
   # @case_id OCP-13540
   Scenario: TolerationSeconds can only combine with NoExecute effect
     Given I have a project
+    Given I obtain test data file "pods/tolerations/tolerationSeconds.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds.yaml |
+      | f | tolerationSeconds.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/tolerationSeconds-invalid1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid1.yaml |
+      | f | tolerationSeconds-invalid1.yaml |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/tolerations/tolerationSeconds-invalid2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds-invalid2.yaml |
+      | f | tolerationSeconds-invalid2.yaml |
     Then the step should fail
     And the output should contain "Invalid value"
 
@@ -19,8 +22,9 @@ Feature: pod related features
   # @case_id OCP-12971
   Scenario: Pods creation is ordered in StatefulSet
     Given I have a project
+    Given I obtain test data file "statefulset/hello-statefulset-60sec-ready.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset-60sec-ready.yaml |
+      | f | hello-statefulset-60sec-ready.yaml |
     Then the step should succeed
 
     Given the pod named "hello-statefulset-0" becomes present
@@ -200,8 +204,9 @@ Feature: pod related features
       | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>               |
     Then the step should succeed
+    Given I obtain test data file "statefulset/hello-statefulset.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/hello-statefulset.yaml |
+      | f | hello-statefulset.yaml |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | statefulset       |
@@ -254,8 +259,9 @@ Feature: pod related features
       | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>               |
     Then the step should succeed
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     And I wait until number of replicas match "10" for deployment "hello-openshift"
     Given 10 pods become ready with labels:
@@ -304,8 +310,9 @@ Feature: pod related features
       | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>               |
     Then the step should succeed
+    Given I obtain test data file "replicaSet/tc533163/rs.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc533163/rs.yaml |
+      | f | rs.yaml |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | replicaset |
@@ -352,8 +359,9 @@ Feature: pod related features
   Scenario: SeLinuxOptions in pod should apply to container correctly
     Given I have a project
     Given SCC "privileged" is added to the "default" user
+    Given I obtain test data file "pods/securityContext/pod-selinux.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/securityContext/pod-selinux.yaml |
+      | f | pod-selinux.yaml |
     Then the step should succeed
     Given the pod named "selinux-pod" becomes ready
     When I run the :get client command with:

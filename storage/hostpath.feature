@@ -28,7 +28,8 @@ Feature: Storage of Hostpath plugin testing
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
-    Then I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/security/hostpath.yaml" replacing paths:
+    Given I obtain test data file "storage/hostpath/security/hostpath.yaml"
+    Then I run oc create over "hostpath.yaml" replacing paths:
       | ["metadata"]["name"]                                      | localpd-<%= cb.proj_name %>    |
       | ["spec"]["volumes"][0]["hostPath"]["path"]                | /etc/origin/<%= cb.hostpath %> |
       | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | 22222                          |
@@ -67,8 +68,9 @@ Feature: Storage of Hostpath plugin testing
   @admin
   Scenario: Setting mount options for volume plugins that doesn't support it
     Given I switch to cluster admin pseudo user
+    Given I obtain test data file "storage/hostpath/hostpath_invalid_mount_options.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/hostpath_invalid_mount_options.yaml |
+        | f | hostpath_invalid_mount_options.yaml |
     Then the step should fail
     And the output should contain:
       | may not specify mount options for this volume type |
@@ -80,8 +82,9 @@ Feature: Storage of Hostpath plugin testing
     Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
     And the "/mnt/disk" path is recursively removed on the host after scenario
+    Given I obtain test data file "storage/hostpath/propashare.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propashare.yaml |
+      | f | propashare.yaml |
       | n | <%= project.name %>                                                                                            |
     Then the step should succeed
     Given the pod named "propashare" becomes ready
@@ -98,8 +101,9 @@ Feature: Storage of Hostpath plugin testing
       | ls /mnt/disk/master |
     Then the output should contain:
       | masterdata |
+    Given I obtain test data file "storage/hostpath/propaslave.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propaslave.yaml |
+      | f | propaslave.yaml |
       | n | <%= project.name %>                                                                                            |
     Then the step should succeed
     Given the pod named "propaslave" becomes ready
@@ -146,12 +150,14 @@ Feature: Storage of Hostpath plugin testing
       | mkdir -p /mnt/<%= project.name %>                         |
       | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propashare.yaml" replacing paths:
+    Given I obtain test data file "storage/hostpath/propashare.yaml"
+    When I run oc create over "propashare.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false |
     Then the step should fail
     And the output should contain:
       | Bidirectional mount propagation is available only to privileged containers |
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/hostpath/propaslave.yaml" replacing paths:
+    Given I obtain test data file "storage/hostpath/propaslave.yaml"
+    When I run oc create over "propaslave.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false                    |
       | ["spec"]["volumes"][0]["hostPath"]["path"]                 | /mnt/<%= project.name %> |
     Then the step should succeed

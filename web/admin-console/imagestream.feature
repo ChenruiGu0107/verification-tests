@@ -5,7 +5,8 @@ Feature: imagestream related
   Scenario: Check improve for image stream tag detail page
     Given the master version >= "4.2"
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/image-streams/ui-netcore-is.json" replacing paths:
+    Given I obtain test data file "image-streams/ui-netcore-is.json"
+    When I run oc create over "ui-netcore-is.json" replacing paths:
       | ["spec"]["tags"][3]["from"]["name"] | testis |
     Then the step should succeed
 

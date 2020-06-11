@@ -122,8 +122,9 @@ Feature: operatorhub feature related
   Scenario: Check container security on console
     Given the master version >= "4.4"
     Given I have a project
+    Given I obtain test data file "deployment/vul_deployment.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/vul_deployment.yaml |
+      | f | vul_deployment.yaml |
     Then the step should succeed
     Given the first user is cluster-admin
     Given I open admin console in a browser
@@ -236,8 +237,9 @@ Feature: operatorhub feature related
     Given the master version >= "4.4"
     Given I have a project
     #check support link for template
+    Given I obtain test data file "image/language-image-templates/php-55-rhel7-stibuild.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/testdata/image/language-image-templates/php-55-rhel7-stibuild.json |
+      | f | php-55-rhel7-stibuild.json |
     Then the step should succeed
     Given I successfully merge patch resource "template/php-helloworld-sample" with:
       | {"metadata":{"annotations":{"openshift.io/support-url":"https://www.redhat.com"}}} |
@@ -374,8 +376,9 @@ Feature: operatorhub feature related
     Given the master version >= "4.5"
     Given the first user is cluster-admin
     Given admin ensures "custom-console-catalogsource-infrasubs" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given I obtain test data file "olm/catalogsource-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/testdata/olm/catalogsource-template.yaml |
+      | f | catalogsource-template.yaml |
       | p | NAME=custom-console-catalogsource-infrasubs                      |
       | p | IMAGE=quay.io/openshifttest/uitestoperators:infrasubs            |
       | p | DISPLAYNAME=Custom Console AUTO Testing                          |

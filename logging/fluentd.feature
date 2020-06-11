@@ -20,8 +20,9 @@ Feature: fluentd related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
@@ -43,8 +44,9 @@ Feature: fluentd related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/<file>"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/<file> |
+      | file | <file> |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
@@ -75,8 +77,9 @@ Feature: fluentd related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
@@ -238,8 +241,9 @@ Feature: fluentd related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |

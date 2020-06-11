@@ -4,8 +4,9 @@ Feature: volumeMounts should be able to use subPath
   @admin
   Scenario: Subpath should receive right permissions - emptyDir
     Given I have a project
+    Given I obtain test data file "storage/emptydir/subpath.yml"
     When I run the :create admin command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/emptydir/subpath.yml |
+        | f | subpath.yml |
         | n | <%= project.name %>                                                                                        |
     Then the step should succeed
     Given the pod named "subpath" becomes ready
@@ -27,13 +28,15 @@ Feature: volumeMounts should be able to use subPath
   # @case_id OCP-18302
   Scenario: Subpath with secret volume
     Given I have a project
+    Given I obtain test data file "storage/subpath/secret.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/secret.yaml |
+        | f | secret.yaml |
         | n | <%= project.name %>                                                               |
     Then the step should succeed
 
+    Given I obtain test data file "storage/subpath/secret-subpath.json"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/secret-subpath.json |
+        | f | secret-subpath.json |
         | n | <%= project.name %>                                                                       |
     Then the step should succeed
     And the pod named "subpath" becomes ready
@@ -42,13 +45,15 @@ Feature: volumeMounts should be able to use subPath
   # @case_id OCP-18303
   Scenario: Subpath with configmap volume
     Given I have a project
+    Given I obtain test data file "storage/subpath/configmap.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/configmap.yaml |
+        | f | configmap.yaml |
         | n | <%= project.name %>                                                                  |
     Then the step should succeed
 
+    Given I obtain test data file "storage/subpath/configmap-subpath.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/configmap-subpath.yaml |
+        | f | configmap-subpath.yaml |
         | n | <%= project.name %>                                                                          |
     Then the step should succeed
     And the pod named "configmap" becomes ready
@@ -57,8 +62,9 @@ Feature: volumeMounts should be able to use subPath
   # @case_id OCP-18304
   Scenario: Subpath with downwardAPI volume
     Given I have a project
+    Given I obtain test data file "storage/subpath/downwardApi-subpath.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/downwardApi-subpath.yaml |
+        | f | downwardApi-subpath.yaml |
         | n | <%= project.name %>                                                                                                    |
     Then the step should succeed
     And the pod named "pod-dapi-volume" becomes ready
@@ -67,17 +73,20 @@ Feature: volumeMounts should be able to use subPath
   # @case_id OCP-18305
   Scenario: Subpath with projected volume
     Given I have a project
+    Given I obtain test data file "storage/subpath/secret.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/secret.yaml |
+        | f | secret.yaml |
         | n | <%= project.name %>                                                               |
     Then the step should succeed
+    Given I obtain test data file "storage/subpath/configmap.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/configmap.yaml |
+        | f | configmap.yaml |
         | n | <%= project.name %>                                                                  |
     Then the step should succeed
 
+    Given I obtain test data file "storage/subpath/projected-subpath.yaml"
     When I run the :create client command with:
-        | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/projected-subpath.yaml |
+        | f | projected-subpath.yaml |
         | n | <%= project.name %>                                                                                                  |
     Then the step should succeed
     And the pod named "volume-test" becomes ready
@@ -90,13 +99,15 @@ Feature: volumeMounts should be able to use subPath
     Given I have a project
     And I have a NFS service in the project
 
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pv-template.json" where:
+    Given I obtain test data file "storage/nfs/auto/pv-template.json"
+    Given admin creates a PV from "pv-template.json" where:
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                | ReadWriteMany                    |
       | ["spec"]["capacity"]["storage"]           | 1Gi                              |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/auto/pvc-template.json" replacing paths:
+    Given I obtain test data file "storage/nfs/auto/pvc-template.json"
+    When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
@@ -104,7 +115,8 @@ Feature: volumeMounts should be able to use subPath
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/nfs-subpath.json" replacing paths:
+    Given I obtain test data file "storage/subpath/nfs-subpath.json"
+    When I run oc create over "nfs-subpath.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
@@ -142,7 +154,8 @@ Feature: volumeMounts should be able to use subPath
     # Create tester pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/iscsi-subpath.json" replacing paths:
+    Given I obtain test data file "storage/subpath/iscsi-subpath.json"
+    When I run oc create over "iscsi-subpath.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
     Then the step should succeed
@@ -179,13 +192,15 @@ Feature: volumeMounts should be able to use subPath
   Scenario Outline: Subpath with cloud volumes
     Given I have a project
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/common-subpath.yaml" replacing paths:
+    Given I obtain test data file "storage/subpath/common-subpath.yaml"
+    When I run oc create over "common-subpath.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
@@ -227,7 +242,8 @@ Feature: volumeMounts should be able to use subPath
       | python -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('/run/test.sock')" |
     Then the step should succeed
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/sock-subpath.json" replacing paths:
+    Given I obtain test data file "storage/subpath/sock-subpath.json"
+    When I run oc create over "sock-subpath.json" replacing paths:
       | ["metadata"]["name"]                                      | pod-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt/run/test.sock      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["subPath"]   | run/test.sock           |
@@ -245,15 +261,18 @@ Feature: volumeMounts should be able to use subPath
   Scenario: Subpath with azure-file
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass.yaml"
+    When admin creates a StorageClass from "storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>   |
       | ["provisioner"]      | kubernetes.io/azure-file |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/common-subpath.yaml" replacing paths:
+    Given I obtain test data file "storage/subpath/common-subpath.yaml"
+    When I run oc create over "common-subpath.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas |

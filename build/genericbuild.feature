@@ -3,8 +3,9 @@ Feature: genericbuild.feature
   # @case_id OCP-15353
   Scenario: Setting ports using parameter in template and set parameter value with string
     Given I have a project
+    Given I obtain test data file "build/tc15352_15353/service.yaml"
     And I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
+      | f | service.yaml |
       | p | PROTOCOL=UDP                                                                                        |
       | p | CONTAINER_PORT=abc                                                                                  |
       | p | EXT_PORT=efg                                                                                        |
@@ -16,8 +17,9 @@ Feature: genericbuild.feature
   # @case_id OCP-15352
   Scenario: Setting ports using parameter in template and set parameter value with number
     Given I have a project
+    Given I obtain test data file "build/tc15352_15353/service.yaml"
     And I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/tc15352_15353/service.yaml |
+      | f | service.yaml |
       | p | PROTOCOL=UDP                                                                     |
       | p | CONTAINER_PORT=888                                                               |
       | p | EXT_PORT=999                                                                     |
@@ -63,9 +65,10 @@ Feature: genericbuild.feature
       | binary | true            |
       | name   | multistage-test |
     Then the step should succeed
+    Given I obtain test data file "build/OCP-22575/olm-testing/"
     When I run the :start_build client command with:
       | buildconfig | multistage-test                                                              |
-      | from_dir    | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-22575/olm-testing/ |
+      | from_dir    |  |
     Then the step should succeed
     And the "multistage-test-1" build completed
 
@@ -73,8 +76,9 @@ Feature: genericbuild.feature
   # @case_id OCP-30289
   Scenario: Image triggers should work on v1 StatefulSets	
     Given I have a project
+    Given I obtain test data file "build/OCP-30289/statefulset-trigger.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30289/statefulset-trigger.yaml |
+      | f | statefulset-trigger.yaml |
     Then the step should succeed
     And the pod named "testtrigger-0" becomes ready
     And the expression should be true> stateful_set('testtrigger').abserve_generation == 2

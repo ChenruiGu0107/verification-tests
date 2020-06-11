@@ -3,15 +3,17 @@ Feature: route related features via cli
   # @case_id OCP-12559
   Scenario: Create a route without route's name named ---should be failed
     Given I have a project
+    Given I obtain test data file "routing/negative/route_with_nil_routename.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/negative/route_with_nil_routename.json |
+      | f | route_with_nil_routename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
     And the project is deleted
     Given I have a project
+    Given I obtain test data file "routing/negative/route_with_no_routename.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/negative/route_with_no_routename.json |
+      | f | route_with_no_routename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
@@ -20,14 +22,16 @@ Feature: route related features via cli
   # @case_id OCP-12560
   Scenario: Create a route without service named ---should be failed
     Given I have a project
+    Given I obtain test data file "routing/negative/route_with_nil_servicename.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/negative/route_with_nil_servicename.json |
+      | f | route_with_nil_servicename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
 
+    Given I obtain test data file "routing/negative/route_with_no_servicename.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/negative/route_with_no_servicename.json |
+      | f | route_with_no_servicename.json |
     Then the step should fail
     And the output should contain:
       | equired value |
@@ -36,8 +40,9 @@ Feature: route related features via cli
   # @case_id OCP-12551
   Scenario: Create a route with invalid host ---should be failed
     Given I have a project
+    Given I obtain test data file "routing/negative/route_with_invaid__host.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/negative/route_with_invaid__host.json |
+      | f | route_with_invaid__host.json |
     Then the step should fail
     And the output should contain:
       | DNS 952 subdomain |
@@ -84,19 +89,23 @@ Feature: route related features via cli
   Scenario: haproxy config information should be clean when changing the service to another route
     Given I have a project
     #Create PodA & serviceA
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
 
     #Create PodB & serviceB
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
 
     Given a pod becomes ready with labels:

@@ -60,8 +60,9 @@ Feature: Ansible-service-broker related scenarios
   Scenario Outline: [ASB] The serviceinstaces/servicebinddings should be deleted after deleted project
     Given I save the first service broker registry prefix to :prefix clipboard
     Given I have a project
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                               |
       | p | CLASS_EXTERNAL_NAME=<db_name>                         |
       | p | PLAN_EXTERNAL_NAME=<db_plan>                          |
@@ -70,8 +71,9 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
 
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<db_secret_name>                                                                                            |
       | p | INSTANCE_NAME=<db_name>                                                                                                 |
       | p | PARAMETERS=<db_parameters>                                                                                              |
@@ -95,8 +97,9 @@ Feature: Ansible-service-broker related scenarios
     """
 
    # Create servicebinding of DB apb
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
    When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<db_name>                                                                                      |
       | p | INSTANCE_NAME=<db_name>                                                                                     |
       | p | SECRET_NAME=<db_credentials>                                                                                |
@@ -196,8 +199,9 @@ Feature: Ansible-service-broker related scenarios
     #provision mariadb
     Given I have a project
     And evaluation of `project.name` is stored in the :project_1 clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                   |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mariadb-apb                                                             |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -206,8 +210,9 @@ Feature: Ansible-service-broker related scenarios
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mariadb-apb").uid` is stored in the :db_uid clipboard
     And evaluation of `service_instance.external_id` is stored in the :instance_id clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                         |
+      | f | serviceinstance-parameters-template.yaml                         |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-parameters                                                                                             |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                                                      |
       | p | PARAMETERS={"mariadb_database":"admin","mariadb_user":"admin","mariadb_version":"10.2","mariadb_root_password":"test","mariadb_password":"test"}|
@@ -219,8 +224,9 @@ Feature: Ansible-service-broker related scenarios
     And a pod becomes ready with labels:
       | deployment=<%= cb.db.first.name %>-1 |
     # Create servicebinding of DB apb
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-1                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-1                                                      |
@@ -240,16 +246,18 @@ Feature: Ansible-service-broker related scenarios
     #create another 2 bindings
     Given I switch to the first user
     And I use the "<%= cb.project_1 %>" project
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-2                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-2                                                      |
       | n | <%= project.name %>    |
     And I wait for the "<%= cb.prefix %>-mariadb-apb-binding-2" service_binding to become ready up to 120 seconds
     And evaluation of `service_binding.external_id` is stored in the :binding_id_2 clipboard
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-mariadb-apb-binding-3                                                         |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mariadb-apb                                                                  |
       | p | SECRET_NAME=<%= cb.prefix %>-mariadb-apb-credentials-3                                                      |
@@ -402,16 +410,18 @@ Feature: Ansible-service-broker related scenarios
     Then the output should match "Cannot be.*same.*as Admin User Password"
 
     # Provision mediawiki apb
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                 |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mediawiki-apb                                                           |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                        |
       | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance(cb.prefix + "-mediawiki-apb").uid` is stored in the :mediawiki_uid clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                                                 |
+      | f | serviceinstance-parameters-template.yaml                                                 |
       | p | SECRET_NAME=<%= cb.prefix %>-mediawiki-apb-parameters                                                                                                                   |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mediawiki-apb                                                                                                                            |
       | p | PARAMETERS={"mediawiki_admin_user":"test","mediawiki_db_schema":"mediawiki","mediawiki_site_lang":"en","mediawiki_site_name":"MediaWiki","mediawiki_admin_pass":"test"} |

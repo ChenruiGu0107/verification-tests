@@ -8,33 +8,43 @@ Feature: Testing haproxy router
     And evaluation of `project.name` is stored in the :project clipboard
 
     # create two routes which will contain cert files
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
+    Given I obtain test data file "routing/reencrypt/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | route-reen                                                                                             |
       | hostname   | <%= rand_str(5, :dns) %>.reen.com                                                                      |
       | service    | service-secure                                                                                         |
-      | cert       | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
-      | key        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
-      | cacert     | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
-      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
+      | cert       | route_reencrypt-reen.example.com.crt |
+      | key        | route_reencrypt-reen.example.com.key |
+      | cacert     | route_reencrypt.ca                   |
+      | destcacert | route_reencrypt_dest.ca              |
     Then the step should succeed
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
+    Given I obtain test data file "routing/ca.pem"
     When I run the :create_route_edge client command with:
       | name     | route-edge                                                                               |
       | hostname | <%= rand_str(5, :dns) %>.edge.com                                                        |
       | service  | service-unsecure                                                                         |
-      | cert     | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
-      | key      | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
-      | cacert   | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem                           |
+      | cert     | route_edge-www.edge.com.crt |
+      | key      | route_edge-www.edge.com.key |
+      | cacert   | ca.pem                           |
     Then the step should succeed
 
     # get the cert files creation time on router pod
@@ -120,14 +130,17 @@ Feature: Testing haproxy router
   # @case_id OCP-10207
   Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
+    Given I obtain test data file "routing/edge/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name            | route-edge              |
@@ -215,8 +228,9 @@ Feature: Testing haproxy router
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/list_for_caddy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json |
+      | f | list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=caddy-pods |
@@ -254,17 +268,19 @@ Feature: Testing haproxy router
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/list_for_caddy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json |
+      | f | list_for_caddy.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=caddy-pods |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
 
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route     |
       | service    | service-secure |
-      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca |
+      | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
@@ -288,15 +304,18 @@ Feature: Testing haproxy router
   # @case_id OCP-11728
   Scenario: haproxy hash based sticky session for tcp mode passthrough routes
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/passthrough/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/passthrough/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
@@ -326,15 +345,18 @@ Feature: Testing haproxy router
   # @case_id OCP-11042
   Scenario: Disable haproxy hash based sticky session for edge termination routes
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
+    Given I obtain test data file "routing/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |
@@ -367,12 +389,14 @@ Feature: Testing haproxy router
   # @case_id OCP-10914
   Scenario: Protect from ddos by limiting TCP concurrent connection for route
     Given I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -404,8 +428,9 @@ Feature: Testing haproxy router
     #create route and service which has two endpoints
     Given the master version >= "3.7"
     Given I have a project
+    Given I obtain test data file "routing/reencrypt/two-caddy-with-serving-cert.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/two-caddy-with-serving-cert.yaml |
+      | f | two-caddy-with-serving-cert.yaml |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create_route_reencrypt client command with:
@@ -443,7 +468,8 @@ Feature: Testing haproxy router
   Scenario: No health check when there is only one endpoint for a route
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -491,21 +517,25 @@ Feature: Testing haproxy router
   @admin
   Scenario: Health check when there are multi service and each service has one backend
     Given I have a project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=caddy-docker |
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready

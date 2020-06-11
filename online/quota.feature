@@ -13,7 +13,8 @@ Feature: ONLY ONLINE Quota related scripts in this file
     And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['defaultRequest']['cpu'].split(/\D/)[0]` is stored in the :request_cpu clipboard
     And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['defaultRequest']['memory'].split(/\D/)[0]` is stored in the :request_memory clipboard
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/online/<paths>" replacing paths:
+    Given I obtain test data file "online/<paths>"
+    When I run oc create over "<paths>" replacing paths:
       | ["spec"]["containers"][0]["resources"] | <memory> |
     Then the step should succeed
 
@@ -40,19 +41,22 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the step should succeed
     And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["max"]["storage"] == "1Gi"
     And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["min"]["storage"] == "1Gi"
+    Given I obtain test data file "online/dynamic_persistent_volumes/pvc-less.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-less.yaml |
+      | f | pvc-less.yaml |
     Then the step should fail
     And the output should match:
       | persistentvolumeclaims.*is forbidden:   |
       | minimum .* PersistentVolumeClaim is 1Gi |
       | but request is 600Mi                    |
+    Given I obtain test data file "online/dynamic_persistent_volumes/pvc-equal.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml |
+      | f | pvc-equal.yaml |
     Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
+    Given I obtain test data file "online/dynamic_persistent_volumes/pvc-over.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-over.yaml |
+      | f | pvc-over.yaml |
     Then the step should fail
     And the output should match:
       | persistentvolumeclaims.*is forbidden:   |
@@ -69,11 +73,13 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | o             | json          |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["spec"]["hard"]["persistentvolumeclaims"] == "1"
+    Given I obtain test data file "online/dynamic_persistent_volumes/pvc-equal.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml |
+      | f | pvc-equal.yaml |
     Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound within 300 seconds
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/pvc-equal.yaml" replacing paths:
+    Given I obtain test data file "online/dynamic_persistent_volumes/pvc-equal.yaml"
+    When I run oc create over "pvc-equal.yaml" replacing paths:
       | ["metadata"]["name"] | claim-equal-limit1 |
     Then the step should fail
     And the output should match:

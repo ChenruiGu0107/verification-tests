@@ -8,8 +8,9 @@ Feature: Features of daemonset
       | resource      | namespace                                                       |
       | resource_name | <%=project.name%>                                               |
       | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+    Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     And <%= env.nodes.count %> pods become ready with labels:
@@ -37,8 +38,9 @@ Feature: Features of daemonset
     Then the step should succeed
     And the expression should be true> @result[:response].strip == "<%= cb.allpods %>"
 
+    Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     Given all pods in the project are ready
@@ -67,8 +69,9 @@ Feature: Features of daemonset
       | resource_name | <%=project.name%> |
       | p | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
     Then the step should succeed
+    Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     And the step should succeed
     Given all pods in the project are ready

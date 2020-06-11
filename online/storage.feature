@@ -88,8 +88,9 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |
 
+    Given I obtain test data file "storage/ebs/dynamic-provisioning/storageclass-io1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/ebs/dynamic-provisioning/storageclass-io1.yaml |
+      | f | storageclass-io1.yaml |
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |
@@ -145,8 +146,9 @@ Feature: ONLY ONLINE Storage related scripts in this file
   # @case_id OCP-19480
   Scenario Outline: create pvc with annotation in aws using dedicated env
     Given I have a project
+    Given I obtain test data file "online/dynamic_persistent_volumes/<pvc-name>.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/online/dynamic_persistent_volumes/<pvc-name>.json |
+      | f | <pvc-name>.json |
     Then the step should succeed
     And the "<pvc-name>" PVC becomes :<status>
     When I run the :describe client command with:

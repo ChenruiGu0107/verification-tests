@@ -29,8 +29,9 @@ Feature: negative tests
   # @case_id OCP-10190
   Scenario: Check output for resource idle command and negative commands
     Given I have a project
+    Given I obtain test data file "rc/idle-rc-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rc/idle-rc-1.yaml |
+      | f | idle-rc-1.yaml |
     Then the step should succeed
     When I run the :idle client command with:
       | svc_name | svc/hello-idle |

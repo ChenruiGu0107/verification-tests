@@ -4,8 +4,9 @@ Feature: service related scenarios
   @admin
   Scenario: Create clusterip service
     Given I have a project
+    Given I obtain test data file "services/hello-openshift.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/hello-openshift.json |
+      | f | hello-openshift.json |
     Then the step should succeed
     When I run the :create client command with:
       | help |  |
@@ -63,8 +64,9 @@ Feature: service related scenarios
   # @case_id OCP-11364
   Scenario: Create nodeport service
     Given I have a project
+    Given I obtain test data file "services/hello-openshift.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/hello-openshift.json |
+      | f | hello-openshift.json |
     Then the step should succeed
     And evaluation of `pod('hello-openshift').node_ip(user: user)` is stored in the :hostip clipboard
     And evaluation of `rand(6000..9000)` is stored in the :hostport clipboard
@@ -103,8 +105,9 @@ Feature: service related scenarios
   # @case_id OCP-10970
   Scenario: Create service with multiports
     Given I have a project
+    Given I obtain test data file "services/pod_with_multi_ports.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/pod_with_multi_ports.yaml |
+      | f | pod_with_multi_ports.yaml |
     Then the step should succeed
     And evaluation of `pod('hello-openshift').node_ip(user: user)` is stored in the :hostip clipboard
     And evaluation of `rand(6000..9000)` is stored in the :hostport clipboard
@@ -163,8 +166,9 @@ Feature: service related scenarios
       | ping -c 1 www.example.com 2>/dev/null \| head -1 \| cut -d \( -f2 \| cut -d \) -f1 |
     Then the step should succeed
     Given evaluation of `@result[:response].strip` is stored in the :address clipboard
+    Given I obtain test data file "services/ExternalSvc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/ExternalSvc.yaml |
+      | f | ExternalSvc.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | endpoints |
@@ -199,15 +203,18 @@ Feature: service related scenarios
   # @case_id OCP-12376
   Scenario: Negative test for ExternalName Service type		
     Given I have a project
+    Given I obtain test data file "services/ExternalSvc-with-IP.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/ExternalSvc-with-IP.yaml |
+      | f | ExternalSvc-with-IP.yaml |
     Then the step should fail
     And the output should match "must be empty for ExternalName services"
+    Given I obtain test data file "services/ExternalSvc-with-port.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/ExternalSvc-with-port.yaml |
+      | f | ExternalSvc-with-port.yaml |
     Then the step should succeed
+    Given I obtain test data file "services/ExternalSvc-cannot-resolve.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/services/ExternalSvc-cannot-resolve.yaml |
+      | f | ExternalSvc-cannot-resolve.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | endpoints |

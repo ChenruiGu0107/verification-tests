@@ -24,7 +24,6 @@ Feature: buildconfig.feature
     When I get project is named "ruby" as YAML
     Then the output should match "name:\s+ruby"
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
-   # When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/build/ruby22rhel7-template-sti.json"
     When I run the :new_app client command with:
       | image_stream | ruby                                    |
       | app_repo     | https://github.com/openshift-qe/ruby-ex |
@@ -76,8 +75,9 @@ Feature: buildconfig.feature
   # @case_id OCP-11172
   Scenario: Add ENV to DockerStrategy buildConfig and Dockerfile when do docker build
     Given I have a project
+    Given I obtain test data file "image/language-image-templates/ruby-rhel7-multivars.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/image/language-image-templates/ruby-rhel7-multivars.json |
+      | file | ruby-rhel7-multivars.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -170,24 +170,28 @@ Feature: buildconfig.feature
   # @case_id OCP-23639
   Scenario: Do incremental builds for binary build
     Given I have a project
+    Given I obtain test data file "build/OCP-23639/imagestream.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
+      | f | imagestream.yaml |
     Then the step should succeed
+    Given I obtain test data file "build/OCP-23639/build_config.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/build_config.yaml |
+      | f | build_config.yaml |
     Then the step should succeed
+    Given I obtain test data file "build/OCP-23639/sti-app.tar"
     When I run the :start_build client command with:
       | buildconfig  | sti-bc                                                                            |
-      | from_archive | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
+      | from_archive | sti-app.tar |
     Then the step should succeed
     And the "sti-bc-2" build was created
     Given the "sti-bc-2" build completed
     When I run the :logs client command with:
       | resource_name | build/sti-bc-2 |
     And the output should contain "Downloading"
+    Given I obtain test data file "build/OCP-23639/sti-app.tar"
     When I run the :start_build client command with:
       | buildconfig  | sti-bc                                                                            |
-      | from_archive | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/sti-app.tar |
+      | from_archive | sti-app.tar |
     Then the step should succeed
     And the "sti-bc-3" build was created
     Given the "sti-bc-3" build completed
@@ -202,11 +206,13 @@ Feature: buildconfig.feature
   # @case_id OCP-23781
   Scenario: Use shell variable in build config environment variable section
     Given I have a project
+    Given I obtain test data file "build/OCP-23639/imagestream.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23639/imagestream.yaml |
+      | f | imagestream.yaml |
     Then the step should succeed
+    Given I obtain test data file "build/OCP-23781/build_config.yaml"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23781/build_config.yaml |
+      | f | build_config.yaml |
     Then the step should succeed
     And the "env-var-bc-1" build was created
     Given the "env-var-bc-1" build completed

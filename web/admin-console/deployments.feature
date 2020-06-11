@@ -5,8 +5,9 @@ Feature: deployment/dc related features via web
   Scenario: Check deployment page
     Given the master version >= "3.11"		
     Given I have a project
+    Given I obtain test data file "storage/nfs/claim-rwo-ui.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo-ui.json |
+      | f | claim-rwo-ui.json |
     Then the step should succeed
     And I open admin console in a browser
     When I perform the :goto_deployment_page web action with:
@@ -97,8 +98,9 @@ Feature: deployment/dc related features via web
   # @case_id OCP-19653
   Scenario: Pause and resume Deployment support
     Given I have a project
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:
     """
@@ -146,8 +148,9 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.2"
     Given I have a project
     And I open admin console in a browser
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json  |
+      | f | deployment1.json  |
     Then the step should succeed
     When I run the :scale client command with:
       | resource | deploymentconfig |
@@ -243,8 +246,9 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.3"
     Given I open admin console in a browser
     Given I have a project
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
     Given a pod is present with labels:
       | deployment=hooks-1 |
@@ -280,8 +284,9 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.3"
     Given I open admin console in a browser
     Given I have a project
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
     Given a pod is present with labels:
       | deployment=hooks-1 |
@@ -302,8 +307,9 @@ Feature: deployment/dc related features via web
       | created_at | |
       | owner      | hooks |
     Then the step should succeed
+    Given I obtain test data file "deployment/tc536590/k8s-deployment.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc536590/k8s-deployment.yaml |
+      | f | k8s-deployment.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | rs   |
@@ -349,8 +355,9 @@ Feature: deployment/dc related features via web
     Given the master version >= "4.2"
     Given I have a project
     And I open admin console in a browser
+    Given I obtain test data file "pods/two_container_sleep.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/two_container_sleep.yaml |
+      | f | two_container_sleep.yaml |
     Then the step should succeed
     Given the pod named "sleeppod" status becomes :running
     When I perform the :goto_project_pods_list_page web action with:
@@ -368,7 +375,8 @@ Feature: deployment/dc related features via web
       | pod_name | sleeppod |
     Then the step should succeed
 
-    When I run oc create with "<%= BushSlicer::HOME %>/features/tierN/testdata/pods/two_container_sleep.yaml" replacing paths:
+    Given I obtain test data file "pods/two_container_sleep.yaml"
+    When I run oc create with "two_container_sleep.yaml" replacing paths:
       | ["metadata"]["name"]               | podtest               |
       | ["spec"]["containers"][0]["image"] | docker.io/busybox_non |
     Then the step should succeed

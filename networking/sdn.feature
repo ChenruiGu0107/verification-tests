@@ -5,13 +5,15 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
     Given I have a project
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=caddy-docker |
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I run the :get client command with:
       | resource | svc |
@@ -131,7 +133,8 @@ Feature: SDN related networking scenarios
     Given the master version >= "3.6"
     Given I have a project
     # create target pod and services for ping or curl
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/list_for_caddy.json" replacing paths:
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -205,8 +208,9 @@ Feature: SDN related networking scenarios
 
     # apply the EgressNetworkPolicy to drop all external traffic
     Given I switch to cluster admin pseudo user
+    Given I obtain test data file "networking/egressnetworkpolicy/internal-policy.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/egressnetworkpolicy/internal-policy.json |
+      | f | internal-policy.json |
       | n | <%= project.name %> |
     Then the step should succeed
 
@@ -365,7 +369,8 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     Then the expression should be true> cb.pod_ip == cb.ping_pod.ip(cached: false)
     #Create another pod and check the above pod if work well
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:

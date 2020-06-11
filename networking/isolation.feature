@@ -8,7 +8,8 @@ Feature: networking isolation related scenarios
     Given the env is using multitenant network
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -20,7 +21,8 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -31,7 +33,8 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-3 |
     Then the step should succeed
@@ -71,7 +74,8 @@ Feature: networking isolation related scenarios
     Given I switch to the first user
     # Create another new pod and service in each project
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -84,7 +88,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-1").ip(user: user)` is stored in the :proj1s2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -98,7 +103,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-2").ip(user: user)` is stored in the :proj2s2 clipboard
 
     Given I use the "<%= cb.proj3 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -150,7 +156,8 @@ Feature: networking isolation related scenarios
     Given the env is using multitenant network
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -162,7 +169,8 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -173,7 +181,8 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-3 |
     Then the step should succeed
@@ -202,7 +211,8 @@ Feature: networking isolation related scenarios
     Given I switch to the first user
     # Create another new pod and service in each project
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -215,7 +225,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-1").ip(user: user)` is stored in the :proj1s2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -229,7 +240,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-2").ip(user: user)` is stored in the :proj2s2 clipboard
 
     Given I use the "<%= cb.proj3 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -288,7 +300,8 @@ Feature: networking isolation related scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -298,7 +311,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("test-service-1").ip(user: user)` is stored in the :proj1s1 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -330,7 +344,8 @@ Feature: networking isolation related scenarios
     And the expression should be true> "<%= cb.proj1netid %>" != "<%= cb.proj2netid %>"
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -342,7 +357,8 @@ Feature: networking isolation related scenarios
     And evaluation of `pod.ip` is stored in the :proj1p2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -389,7 +405,8 @@ Feature: networking isolation related scenarios
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -399,7 +416,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("test-service-1").ip(user: user)` is stored in the :proj1s1 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -442,7 +460,8 @@ Feature: networking isolation related scenarios
 
     Given I switch to the first user
     And I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -454,7 +473,8 @@ Feature: networking isolation related scenarios
     And evaluation of `pod.ip` is stored in the :proj1p2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -511,7 +531,8 @@ Feature: networking isolation related scenarios
 
     Given I switch to the first user
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -521,7 +542,8 @@ Feature: networking isolation related scenarios
     And evaluation of `service("test-service-1").ip(user: user)` is stored in the :proj1s1 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -546,7 +568,8 @@ Feature: networking isolation related scenarios
     And the expression should be true> @result[:response] != 0
 
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -558,7 +581,8 @@ Feature: networking isolation related scenarios
     And evaluation of `pod.ip` is stored in the :proj1p2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |

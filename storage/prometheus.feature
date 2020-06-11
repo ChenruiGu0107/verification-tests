@@ -8,16 +8,19 @@ Feature: Prometheus test for Storage
 
     Given I create a project with non-leading digit name
     And evaluation of `project.name` is stored in the :project clipboard
+    Given I obtain test data file "logging_metrics/default_inventory_prometheus"
     And metrics service is installed with ansible using:
-      | inventory | <%= BushSlicer::HOME %>/features/tierN/testdata/logging_metrics/default_inventory_prometheus |
+      | inventory | default_inventory_prometheus |
 
     Given I use the "<%= cb.project %>" project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"] | prometheus-pvc-<%= cb.project %> |
     Then the step should succeed
     And the "prometheus-pvc-<%= cb.project %>" PVC becomes :bound
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | <%= pvc.name %> |
       | ["metadata"]["name"]                                         | mypod           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/prometheus |

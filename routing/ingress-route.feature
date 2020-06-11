@@ -8,14 +8,17 @@ Feature: Testing ingress to route object
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
 
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
+    Given I obtain test data file "routing/ingress/path-ingress.json"
+    When I run oc create over "path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
     Then the step should succeed
     When I run the :get client command with:
@@ -43,22 +46,27 @@ Feature: Testing ingress to route object
     Given the master version >= "3.10"
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
 
     # create secret and TLS ingress
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
     When I run the :create_secret client command with:
       | secret_type | tls                                                                                      |
       | name        | mysecret                                                                                 |
-      | cert        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
-      | key         | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | cert        | route_edge-www.edge.com.crt |
+      | key         | route_edge-www.edge.com.key |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/tls-ingress.json" replacing paths:
+    Given I obtain test data file "routing/ingress/tls-ingress.json"
+    When I run oc create over "tls-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"]  | zhao-ingress.example.com |
       | ["spec"]["tls"][0]["hosts"][0] | zhao-ingress.example.com |
     Then the step should succeed
@@ -88,14 +96,17 @@ Feature: Testing ingress to route object
     And evaluation of `project.name` is stored in the :proj_name clipboard
     And I store default router subdomain in the :subdomain clipboard
 
+    Given I obtain test data file "routing/caddy-docker.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/caddy-docker.json |
+      | f | caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    Given I obtain test data file "routing/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/ingress/path-ingress.json" replacing paths:
+    Given I obtain test data file "routing/ingress/path-ingress.json"
+    When I run oc create over "path-ingress.json" replacing paths:
       | ["spec"]["rules"][0]["host"] | "<%= cb.proj_name %>.<%= cb.subdomain %>"   |
     Then the step should succeed
     When I run the :get client command with:
@@ -105,12 +116,14 @@ Feature: Testing ingress to route object
     And the output should contain "<%= cb.proj_name %>.<%= cb.subdomain %>"
 
     # create another pod and service for updating service later
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/caddy-docker-2.json |
+      | f | caddy-docker-2.json |
     Then the step should succeed
     And the pod named "caddy-docker-2" becomes ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/abrouting/unseucre/service_unsecure-2.json |
+      | f | service_unsecure-2.json |
     Then the step should succeed
 
     # updating the path

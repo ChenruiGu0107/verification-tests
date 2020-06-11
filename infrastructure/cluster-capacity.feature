@@ -210,14 +210,16 @@ Feature: cluster-capacity related features
     Given I have a project
     Given I store master major version in the :master_version clipboard
     Given I create the serviceaccount "cluster-capacity-sa"
+    Given I obtain test data file "infrastructure/cluster-capacity-cluster-role.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/cluster-capacity-cluster-role.yaml |
+      | f | cluster-capacity-cluster-role.yaml |
     Then the step should succeed
     When admin ensures "cluster-capacity-role" clusterrole is deleted after scenario
     And cluster role "cluster-capacity-role" is added to the "system:serviceaccount:<%= project.name %>:cluster-capacity-sa" service account
     Then the step should succeed
+    Given I obtain test data file "infrastructure/cluster-capacity/cluster-capacity-configmap.yaml"
     Given I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/testdata/infrastructure/cluster-capacity/cluster-capacity-configmap.yaml |
+      | f | cluster-capacity-configmap.yaml |
     Then the step should succeed
     Given I obtain test data file "infrastructure/cluster-capacity-rc.yaml"
     When I process and create:

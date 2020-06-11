@@ -8,7 +8,8 @@ Feature: oc credential related scenarios
     And evaluation of `image_stream("cli", project("openshift")).tags.first.from.name` is stored in the :oc_cli clipboard
     Given I have a project
     Given cluster role "system:image-pruner" is added to the "default" service account
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/cli/OCP-29365/cli-29365.yaml" replacing paths:
+    Given I obtain test data file "cli/OCP-29365/cli-29365.yaml"
+    When I run oc create over "cli-29365.yaml" replacing paths:
       | ["spec"]["containers"][0]["image"] | <%= cb.oc_cli %> |
     Then the step should succeed
     Given the pod named "cli" status becomes :succeeded

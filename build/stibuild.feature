@@ -85,8 +85,9 @@ Feature: stibuild.feature
   # @case_id OCP-15974
   Scenario: Create an application with no host value in template
     Given I have a project
+    Given I obtain test data file "templates/application-template-stibuild.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/application-template-stibuild.json |
+      | file | application-template-stibuild.json |
     Then the step should succeed
     And the output should match:
       | Access your application via route 'route-edge[-a-zA-Z0-9_.]+' |
@@ -197,36 +198,41 @@ Feature: stibuild.feature
   # @case_id OCP-23174
   Scenario: Image source extraction w/ symlink should success when running a build	
     Given I have a project
+    Given I obtain test data file "build/OCP-23174/symlink-rel-both.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-both.yaml |
+      | f | symlink-rel-both.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-both |
     Then the step should succeed
     And the "symlink-rel-both-1" build completed
+    Given I obtain test data file "build/OCP-23174/symlink-rel-link.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-link.yaml |
+      | f | symlink-rel-link.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-link |
     Then the step should succeed
     And the "symlink-rel-link-1" build failed
+    Given I obtain test data file "build/OCP-23174/symlink-abs-both.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-abs-both.yaml |
+      | f | symlink-abs-both.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-abs-both |
     Then the step should succeed
     And the "symlink-abs-both-1" build failed
+    Given I obtain test data file "build/OCP-23174/symlink-abs-link.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-abs-link.yaml |
+      | f | symlink-abs-link.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-abs-link |
     Then the step should succeed
     And the "symlink-abs-link-1" build failed
+    Given I obtain test data file "build/OCP-23174/symlink-rel-single.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-23174/symlink-rel-single.yaml |
+      | f | symlink-rel-single.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | symlink-rel-single |
@@ -375,8 +381,9 @@ Feature: stibuild.feature
   # @case_id OCP-18926
   Scenario: Setting Paused boolean in buildconfig when images are changed	
     Given I have a project
+    Given I obtain test data file "build/OCP-18926/paused-build.json"
     When I run the :new_app client command with:
-      | app_repo | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-18926/paused-build.json |
+      | app_repo | paused-build.json |
       | name     | paused-build |
     Then the step should succeed
     And the "paused-build-1" build completed
@@ -431,8 +438,9 @@ Feature: stibuild.feature
   # @case_id OCP-30239
   Scenario: use an image from registry.redhat.io as source during a build	
   When I have a project
+    Given I obtain test data file "build/OCP-30239/bc_imagesource.yaml"
   Then I run the :create client command with:
-    | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30239/bc_imagesource.yaml |
+    | f | bc_imagesource.yaml |
   And the step should succeed
   When I run the :start_build client command with:
     | buildconfig | imagesourcebuildconfig |
@@ -447,10 +455,11 @@ Feature: stibuild.feature
     | app_repo | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
   Then the step should succeed
   And the "ruby-hello-world-1" build completed
+    Given I obtain test data file "build/OCP-30238/invaildsecret.json"
   When I run the :create_secret client command with:
     | name        | invalid-secret |
     | secret_type | generic        |
-    | from_file   | .dockercfgjson=<%= BushSlicer::HOME %>/features/tierN/testdata/build/OCP-30238/invaildsecret.json |
+    | from_file   | .dockercfgjson=invaildsecret.json |
     | type        | kubernetes.io/dockercfgjson                                                                       |
   Then the step should succeed 
   When I run the :set_build_secret client command with:

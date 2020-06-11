@@ -5,9 +5,10 @@ Feature: elasticsearch operator related tests
   @admin
   @destructive
   Scenario Outline: Redundancy policy testing
+    Given I obtain test data file "logging/clusterlogging/<file>"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                           |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/<file>  |
+      | crd_yaml            | <file>  |
       | check_status        | false                                                                          |
     Then the step should succeed
     Given I wait for the "elasticsearch" config_map to appear
@@ -77,9 +78,10 @@ Feature: elasticsearch operator related tests
   @admin
   @destructive
   Scenario: The prometheus-rules can be created by elasticsearch operator
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     Given I wait for the "elasticsearch-prometheus-rules" prometheus_rule to appear
     And evaluation of `prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rules` is stored in the :es_alert_rules_1 clipboard
@@ -122,9 +124,10 @@ Feature: elasticsearch operator related tests
   @destructive
   Scenario: The shard number should be same with the node number
     Given the master version < "4.5"
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     Given evaluation of `cluster_logging('instance').logstore_node_count` is stored in the :es_node_count_1 clipboard
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
@@ -166,8 +169,9 @@ Feature: elasticsearch operator related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
@@ -191,16 +195,18 @@ Feature: elasticsearch operator related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :org_project clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example_indexmanagement.yaml |
+      | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
@@ -250,16 +256,18 @@ Feature: elasticsearch operator related tests
     Given I switch to the first user
     Given I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | run=centos-logtest,test=centos-logtest |
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example_indexmanagement.yaml |
+      | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
@@ -303,4 +311,4 @@ Feature: elasticsearch operator related tests
     And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health(cached: false)
     And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health(cached: false)
     """
- 
+

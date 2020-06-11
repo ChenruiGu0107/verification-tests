@@ -4,8 +4,9 @@ Feature: replicaSet related tests
   # @case_id OCP-11327
   Scenario: Support to scale up/down with ReplicaSets in OpenShift
     Given I have a project
+    Given I obtain test data file "replicaSet/tc533163/rs.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/replicaSet/tc533163/rs.yaml |
+      | f | rs.yaml |
     Then the step should succeed
     And I run the :scale client command with:
       | resource | replicaset |

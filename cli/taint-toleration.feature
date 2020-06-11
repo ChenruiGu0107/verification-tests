@@ -3,8 +3,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13532
   Scenario: [Taint Toleration] pod with toleration can be scheduled as normal pod
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-toleration.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-toleration.yaml |
+      | f | pod-toleration.yaml |
     Then the step should succeed
     Given the pod named "toleration" becomes ready
     When I run the :describe client command with:
@@ -18,8 +19,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13773
   Scenario: [Taint Toleration] 'operator' only support "Equal", "Exists"
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-toleration-fail-operator.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-toleration-fail-operator.yaml |
+      | f | pod-toleration-fail-operator.yaml |
     Then the step should fail
     And the output should match:
       | The Pod "toleration-fail-operator" is invalid |
@@ -34,8 +36,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13774
   Scenario: [Taint Toleration] Invalid value effect "PreferNoSchedule" when 'tolerationSeconds' is set
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-toleration-fail-second-prefer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-toleration-fail-second-prefer.yaml |
+      | f | pod-toleration-fail-second-prefer.yaml |
     Then the step should fail
     And the output should contain:
       | The Pod "toleration-fail-second-prefer" is invalid         |
@@ -50,8 +53,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13775
   Scenario: [Taint Toleration] Invalid value effect "NoSchedule" when 'tolerationSeconds' is set
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-toleration-fail-second-no.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-toleration-fail-second-no.yaml |
+      | f | pod-toleration-fail-second-no.yaml |
     Then the step should fail
     And the output should contain:
       | The Pod "toleration-fail-second-no" is invalid             |
@@ -66,8 +70,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13776
   Scenario: [Taint Toleration] effect supported values are NoSchedule, PreferNoSchedule, NoExecute, all others are unsupported
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-toleration-fail-effect.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-toleration-fail-effect.yaml |
+      | f | pod-toleration-fail-effect.yaml |
     Then the step should fail
     And the output should match:
       | The Pod "toleration-fail-effect" is invalid               |
@@ -85,11 +90,13 @@ Feature: taint toleration related scenarios
   Scenario: pods will be evicted from the node immediately if there's un-ignored taint
     Given I have a project
     Given I store the schedulable nodes in the :nodes clipboard
+    Given I obtain test data file "pods/pod-pull-by-tag.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod-pull-by-tag.yaml |
+      | f | pod-pull-by-tag.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/toleration-noexecute.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/toleration-noexecute.yaml |
+      | f | toleration-noexecute.yaml |
     Then the step should succeed
     Given the pod named "pod-pull-by-tag" becomes ready
     Given the pod named "toleration-1" becomes ready
@@ -109,8 +116,9 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: pods that do tolerate the taint will never be evicted
     Given I have a project
+    Given I obtain test data file "pods/tolerations/toleration-noexecute.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/toleration-noexecute.yaml |
+      | f | toleration-noexecute.yaml |
     Then the step should succeed
     Given the pod named "toleration-1" becomes ready
     Given evaluation of `pod("toleration-1").node_name(user: user)` is stored in the :pod_node1 clipboard
@@ -142,8 +150,9 @@ Feature: taint toleration related scenarios
     Then the step should succeed
     And the output should match:
       | Taints:\\s+key2=value2:NoExecute |
+    Given I obtain test data file "pods/tolerations/toleration-noexecute.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/toleration-noexecute.yaml |
+      | f | toleration-noexecute.yaml |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -185,8 +194,9 @@ Feature: taint toleration related scenarios
       | node_name | <%= cb.nodes[0].name %>           |
       | key_val   | dedicated=special-user:NoSchedule |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-dedicated-nodes.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-dedicated-nodes.yaml |
+      | f | pod-dedicated-nodes.yaml |
     Then the step should succeed
     Given the pod named "dedicated-nodes" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -209,8 +219,9 @@ Feature: taint toleration related scenarios
       | node_name | <%= cb.nodes[0].name %> |
       | key_val   | size-                   |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration.yaml |
+      | f | pod-with-toleration.yaml |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -222,8 +233,9 @@ Feature: taint toleration related scenarios
       | FailedScheduling   |
     """
     Given I ensure "pod-toleration" pod is deleted
+    Given I obtain test data file "pods/tolerations/pod-with-2tolerations.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-2tolerations.yaml |
+      | f | pod-with-2tolerations.yaml |
     Then the step should succeed
     Given the pod named "pod-2tolerations" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -250,8 +262,9 @@ Feature: taint toleration related scenarios
       | node_name | <%= cb.nodes[0].name %> |
       | key_val   | size-                   |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-no-toleration.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-no-toleration.yaml |
+      | f | pod-no-toleration.yaml |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -263,8 +276,9 @@ Feature: taint toleration related scenarios
       | FailedScheduling   |
     """
     Given I ensure "hello-pod1" pod is deleted
+    Given I obtain test data file "pods/tolerations/pod-with-toleration1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration1.yaml |
+      | f | pod-with-toleration1.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -286,8 +300,9 @@ Feature: taint toleration related scenarios
       | node_name | <%= cb.nodes[0].name %> |
       | key_val   | size-                   |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-no-toleration1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-no-toleration1.yaml |
+      | f | pod-no-toleration1.yaml |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -299,8 +314,9 @@ Feature: taint toleration related scenarios
       | FailedScheduling   |
     """
     Given I ensure "hello-pod1" pod is deleted
+    Given I obtain test data file "pods/tolerations/pod-with-wildcard-toleration.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-wildcard-toleration.yaml |
+      | f | pod-with-wildcard-toleration.yaml |
     Then the step should succeed
     Given the pod named "wildcard-toleration" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -328,8 +344,9 @@ Feature: taint toleration related scenarios
       | key_val   | dedicated=special-user:NoSchedule |
       | key_val   | additional-                       |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-dedicated.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-dedicated.yaml |
+      | f | pod-with-toleration-dedicated.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -338,8 +355,9 @@ Feature: taint toleration related scenarios
       | key_val   | color=red:PreferNoSchedule |
       | key_val   | additional-                |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-red-prefer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-red-prefer.yaml |
+      | f | pod-with-toleration-red-prefer.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-red-prefer" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
@@ -367,8 +385,9 @@ Feature: taint toleration related scenarios
       | key_val   | dedicated=special-user:NoSchedule |
       | key_val   | additional-                       |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-dedicated.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-dedicated.yaml |
+      | f | pod-with-toleration-dedicated.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -377,8 +396,9 @@ Feature: taint toleration related scenarios
       | key_val   | color=red:NoSchedule    |
       | key_val   | additional-             |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-red.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-red.yaml |
+      | f | pod-with-toleration-red.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-red" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
@@ -406,8 +426,9 @@ Feature: taint toleration related scenarios
       | key_val   | dedicated=special-user:PreferNoSchedule |
       | key_val   | additional-                             |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-dedicated-prefer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-dedicated-prefer.yaml |
+      | f | pod-with-toleration-dedicated-prefer.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-dedicated-prefer" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
@@ -416,8 +437,9 @@ Feature: taint toleration related scenarios
       | key_val   | color=red:PreferNoSchedule |
       | key_val   | additional-                |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-red-prefer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-red-prefer.yaml |
+      | f | pod-with-toleration-red-prefer.yaml |
     Then the step should succeed
     Given the pod named "pod-toleration-red-prefer" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
@@ -426,8 +448,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13660
   Scenario: Taint Toleration - value must be empty when 'operator' is 'Exists'
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-with-toleration-fail.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-with-toleration-fail.yaml |
+      | f | pod-with-toleration-fail.yaml |
     Then the step should fail
     And the output should contain:
       | The Pod "pod-toleration-fail" is invalid        |
@@ -441,8 +464,9 @@ Feature: taint toleration related scenarios
   # @case_id OCP-13772
   Scenario: Taint Toleration - key must be provided when 'operator' is 'Equal'
     Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-with-toleration-fail-no-key.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/taint-toleration/pod-with-toleration-fail-no-key.yaml |
+      | f | pod-with-toleration-fail-no-key.yaml |
     Then the step should fail
     And the output should contain:
       | The Pod "pod-toleration-fail-no-key" is invalid |
@@ -458,8 +482,9 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: pods will be bound to the node for tolerationSeconds even there's matched taint
     Given I have a project
+    Given I obtain test data file "pods/tolerations/tolerationSeconds.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/tolerationSeconds.yaml |
+      | f | tolerationSeconds.yaml |
     Then the step should succeed
     Given the pod named "tolerationseconds-1" becomes ready
     Given evaluation of `pod("tolerationseconds-1").node_name(user: user)` is stored in the :pod_node1 clipboard
@@ -513,8 +538,9 @@ Feature: taint toleration related scenarios
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | daemonset.yaml |
       | n | <%= project.name %>                                                                      |
     Then the step should succeed
     Given I wait for the steps to pass:
@@ -545,8 +571,9 @@ Feature: taint toleration related scenarios
       | node_name | <%= cb.nodes[0].name %>           |
       | key_val   | dedicated=special-user:NoSchedule |
     Then the step should succeed
+    Given I obtain test data file "pods/tolerations/pod-with-toleration-empty-operator.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tolerations/pod-with-toleration-empty-operator.yaml |
+      | f | pod-with-toleration-empty-operator.yaml |
     Then the step should succeed
     Given the pod named "empty-operator-pod" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name

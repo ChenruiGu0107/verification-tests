@@ -14,12 +14,14 @@ Feature: Storage stage tests
       | local-pv- |
 
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc            |
       | ["spec"]["storageClassName"]                 | local-storage-sc |
       | ["spec"]["resources"]["requests"]["storage"] | 100Mi            |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/testdata/storage/misc/deployment.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/deployment.yaml"
+    When I run oc create over "deployment.yaml" replacing paths:
       | ["metadata"]["name"]                                                             | mydeploy            |
       | ["spec"]["template"]["metadata"]["labels"]["id"]                                 | <%= project.name %> |
       | ["spec"]["template"]["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc               |

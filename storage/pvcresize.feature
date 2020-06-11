@@ -6,13 +6,15 @@ Feature: PVC resizing Test
     And I have a project
     And admin clones storage class "sc-<%= project.name %>" from "<sc_name>" with volume expansion enabled
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
     Then the step should succeed
@@ -34,7 +36,8 @@ Feature: PVC resizing Test
     # re-create the pod
     Given I ensures "mypod-<%= project.name %>" pod is deleted
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>   |
     And the pod named "mypod-<%= project.name %>" status becomes :running
@@ -66,19 +69,22 @@ Feature: PVC resizing Test
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota-pvc-storage.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
+    When I run oc create over "quota-pvc-storage.yaml" replacing paths:
       | ["spec"]["hard"]["persistentvolumeclaims"] | 5   |
       | ["spec"]["hard"]["requests.storage"]       | 1Gi |
     Then the step should succeed
 
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod                   |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/pvcresize          |
@@ -100,13 +106,15 @@ Feature: PVC resizing Test
     Given I have a project
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota_for_storageclass.yml" replacing paths:
+    Given I obtain test data file "storage/misc/quota_for_storageclass.yml"
+    When I run oc create over "quota_for_storageclass.yml" replacing paths:
       | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/requests.storage"]       | 1Gi |
       | ["spec"]["hard"]["sc-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 1   |
     Then the step should succeed
 
     Given admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -127,10 +135,12 @@ Feature: PVC resizing Test
   Scenario: Resize a static PVC
     Given I have a project
 
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/pv-retain-rwo.json" where:
+    Given I obtain test data file "storage/gluster/pv-retain-rwo.json"
+    When admin creates a PV from "pv-retain-rwo.json" where:
       | ["metadata"]["name"] | gluster-<%= project.name %> |
     Then the step should succeed
-    When I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/gluster/claim-rwo.json" replacing paths:
+    Given I obtain test data file "storage/gluster/claim-rwo.json"
+    When I create a manual pvc from "claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | glusterc |
     Then the step should succeed
     And the PV becomes :bound
@@ -149,7 +159,8 @@ Feature: PVC resizing Test
     Given I have a project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -175,7 +186,8 @@ Feature: PVC resizing Test
     And I use the "<%= project.name %>" project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota_for_storageclass.yml" replacing paths:
+    Given I obtain test data file "storage/misc/quota_for_storageclass.yml"
+    When I run oc create over "quota_for_storageclass.yml" replacing paths:
       | ["metadata"]["name"]                                                                         | sc-quota |
       | ["spec"]["hard"]["sc-<%= project.name%>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 5        |
       | ["spec"]["hard"]["sc-<%= project.name%>.storageclass.storage.k8s.io/requests.storage"]       | 10Gi     |
@@ -186,7 +198,8 @@ Feature: PVC resizing Test
     Given I run the steps 3 times:
     """
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -212,13 +225,15 @@ Feature: PVC resizing Test
     And I use the "<%= project.name %>" project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota-pvc-storage.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
+    When I run oc create over "quota-pvc-storage.yaml" replacing paths:
       | ["metadata"]["name"]                       | project-quota |
       | ["spec"]["hard"]["persistentvolumeclaims"] | 5             |
       | ["spec"]["hard"]["requests.storage"]       | 10Gi          |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -250,13 +265,15 @@ Feature: PVC resizing Test
     And I use the "<%= project.name %>" project
     And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/quota-pvc-storage.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/quota-pvc-storage.yaml"
+    When I run oc create over "quota-pvc-storage.yaml" replacing paths:
       | ["metadata"]["name"]                       | project-quota |
       | ["spec"]["hard"]["persistentvolumeclaims"] | 5             |
       | ["spec"]["hard"]["requests.storage"]       | 10Gi          |
     Then the step should succeed
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -288,7 +305,8 @@ Feature: PVC resizing Test
 
     And I run the steps 5 times:
     """
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-#{cb.i}            |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |
@@ -340,7 +358,8 @@ Feature: PVC resizing Test
       | ["allowVolumeExpansion"] | false     |
       | ["volumeBindingMode"]    | Immediate |
 
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -363,7 +382,8 @@ Feature: PVC resizing Test
 
     And I run the steps 5 times:
     """
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-#{cb.i}            |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                    |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %> |

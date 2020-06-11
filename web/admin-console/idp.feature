@@ -13,12 +13,15 @@ Feature: add idp from console
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
 
+    Given I obtain test data file "routing/ca.pem"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.crt"
+    Given I obtain test data file "routing/edge/route_edge-www.edge.com.key"
     When I perform the :add_basicauth_idp web action with:
       | idp_name   | ui_basicauth_test            |
       | remote_url | https://www.openshift.com    |
-      | ca_path    | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem                           |
-      | crt_path   | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.crt |
-      | key_path   | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/edge/route_edge-www.edge.com.key |
+      | ca_path    | ca.pem                           |
+      | crt_path   | route_edge-www.edge.com.crt |
+      | key_path   | route_edge-www.edge.com.key |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_basicauth_test |
@@ -176,6 +179,7 @@ Feature: add idp from console
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
 
+    Given I obtain test data file "routing/ca.pem"
     When I perform the :add_ldap_idp web action with:
       | idp_name           | ui_ldap_test                 |
       | remote_url         | ldap://www.openshift.com    |
@@ -183,7 +187,7 @@ Feature: add idp from console
       | bind_passwd        | testpasswd                   |
       | preferred_username | testuid                      |
       | attr_email         | test@redhat.com              |
-      | ca_path            | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem |
+      | ca_path            | ca.pem |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_ldap_test |
@@ -270,13 +274,14 @@ Feature: add idp from console
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
 
+    Given I obtain test data file "routing/ca.pem"
     When I perform the :add_openid_idp web action with:
       | idp_name           | ui_openid_test               |
       | issuer_url         | https://gitlab.com           |
       | client_id          | testid                       |
       | client_secret      | testsecret                   |
       | preferred_username | nickname                     |
-      | ca_path            | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem |
+      | ca_path            | ca.pem |
     Then the step should succeed
     When I perform the :check_idp_in_table_list web action with:
       | idp_name | ui_openid_test |
@@ -318,10 +323,11 @@ Feature: add idp from console
     When I run the :goto_cluster_oauth_configuration_page web action
     Then the step should succeed
 
+    Given I obtain test data file "routing/ca.pem"
     When I perform the :add_requestheader_idp web action with:
       | idp_name                   | ui_requestheader_test        |
       | login_url                  | https://www.example.com/login-proxy/oauth/authorize?${query} |
-      | ca_path                    | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/ca.pem |
+      | ca_path                    | ca.pem |
       | headers                    | X-Remote-User                |
       | more_headers               | SSO-User                     |
       | preferred_username_headers | X-Remote-User-Login          |

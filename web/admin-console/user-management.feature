@@ -161,8 +161,9 @@ Feature: User management related
     Given a pod becomes ready with labels:
       | deployment=ruby-ex-1 |
     Then evaluation of `pod.name` is stored in the :test_pod clipboard
+    Given I obtain test data file "rbac/list_pod_role.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/list_pod_role.yaml |
+      | f | list_pod_role.yaml |
     Then the step should succeed
     When I run the :create_rolebinding admin command with:
       | name  | list-pod                            |
@@ -235,12 +236,14 @@ Feature: User management related
     Given admin ensures "uiautoocp19727-rb" cluster_role_binding is deleted after scenario
 
     # create project role and cluster role in case we had destructive changes for existing roles
+    Given I obtain test data file "rbac/list_pod_role.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/list_pod_role.yaml |
+      | f | list_pod_role.yaml |
       | n | default |
     Then the step should succeed
+    Given I obtain test data file "rbac/metrics-reader-cluster-role.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/rbac/metrics-reader-cluster-role.yaml |
+      | f | metrics-reader-cluster-role.yaml |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -321,8 +324,9 @@ Feature: User management related
     Given the master version >= "4.2"
     Given I have a project
     Then evaluation of `project.name` is stored in the :project1_name clipboard
+    Given I obtain test data file "deployment/simpledc.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
+      | f | simpledc.json |
     Then the step should succeed
     Given I give project view role to the second user
 

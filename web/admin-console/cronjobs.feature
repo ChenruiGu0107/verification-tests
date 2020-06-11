@@ -4,8 +4,9 @@ Feature: cronjob related
   Scenario: Check cronjob on console
     Given the master version >= "3.11"
     Given I have a project
+    Given I obtain test data file "job/cronjob_3.9_with_startingDeadlineSeconds.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/job/cronjob_3.9_with_startingDeadlineSeconds.yaml |
+      | f | cronjob_3.9_with_startingDeadlineSeconds.yaml |
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:
     """

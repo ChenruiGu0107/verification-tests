@@ -5,8 +5,9 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<db_name>                                                                                      |
       | p | CLASS_EXTERNAL_NAME=<db_name>                                                                                |
       | p | PLAN_EXTERNAL_NAME=<db_plan_1>                                                                               |
@@ -14,8 +15,9 @@ Feature: Update sql apb related feature
       | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<db_name>").uid` is stored in the :db_uid clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml                 |
+      | f | serviceinstance-parameters-template.yaml                 |
       | p | SECRET_NAME=<secret_name>                                                                                                               |
       | p | INSTANCE_NAME=<db_name>                                                                                                                 |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"<db_version>","postgresql_password":"test"}   |
@@ -99,8 +101,9 @@ Feature: Update sql apb related feature
   Scenario: UpdateRequests in serviceinstance will cause instance update
     Given I save the first service broker registry prefix to :prefix clipboard
     And I have a project
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -108,8 +111,9 @@ Feature: Update sql apb related feature
       | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -124,8 +128,9 @@ Feature: Update sql apb related feature
     #update the secret,
     #delete then create a new
     Given I ensures "<%= cb.prefix %>-postgresql-apb-parameters" secret is deleted from the project
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.4","postgresql_password":"test"} |
@@ -155,8 +160,9 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision postgresql
     And I have a project
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-postgresql-apb                                                          |
       | p | PLAN_EXTERNAL_NAME=dev                                                                                       |
@@ -164,8 +170,9 @@ Feature: Update sql apb related feature
       | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-postgresql-apb").uid` is stored in the :db_uid clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml      |
+      | f | serviceinstance-parameters-template.yaml      |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                                                |
       | p | PARAMETERS={"postgresql_database":"admin","postgresql_user":"admin","postgresql_version":"9.5","postgresql_password":"test"} |
@@ -178,8 +185,9 @@ Feature: Update sql apb related feature
       | deploymentconfig=<%= cb.dc_1.first.name %> |
 
     # Create servicebinding of DB apb
+    Given I obtain test data file "svc-catalog/servicebinding-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/servicebinding-template.yaml |
+      | f | servicebinding-template.yaml |
       | p | BINDING_NAME=<%= cb.prefix %>-postgresql-apb                                                                |
       | p | INSTANCE_NAME=<%= cb.prefix %>-postgresql-apb                                                               |
       | p | SECRET_NAME=<%= cb.prefix %>-postgresql-apb-credentials                                                     |
@@ -222,8 +230,9 @@ Feature: Update sql apb related feature
     Given I save the first service broker registry prefix to :prefix clipboard
     #provision database
     And I have a project
+    Given I obtain test data file "svc-catalog/serviceinstance-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-template.yaml |
+      | f | serviceinstance-template.yaml |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                     |
       | p | CLASS_EXTERNAL_NAME=<%= cb.prefix %>-mysql-apb                                                               |
       | p | PLAN_EXTERNAL_NAME=prod                                                                                      |
@@ -231,8 +240,9 @@ Feature: Update sql apb related feature
       | p | INSTANCE_NAMESPACE=<%= project.name %>                                                                       |
     Then the step should succeed
     And evaluation of `service_instance("<%= cb.prefix %>-mysql-apb").uid` is stored in the :db_uid clipboard
+    Given I obtain test data file "svc-catalog/serviceinstance-parameters-template.yaml"
     When I process and create:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/svc-catalog/serviceinstance-parameters-template.yaml |
+      | f | serviceinstance-parameters-template.yaml |
       | p | SECRET_NAME=<%= cb.prefix %>-mysql-apb-parameters                                                                       |
       | p | INSTANCE_NAME=<%= cb.prefix %>-mysql-apb                                                                                |
       | p | PARAMETERS={"mysql_database":"devel","mysql_user":"devel","mysql_version":"5.6","mysql_password":"test"}                |

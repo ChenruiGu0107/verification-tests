@@ -7,8 +7,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -19,8 +20,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -71,8 +73,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -80,8 +83,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -93,16 +97,18 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-local.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
+      | f | allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -194,8 +200,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -203,8 +210,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -227,16 +235,18 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
+      | f | allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods with label blue
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -333,8 +343,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -342,8 +353,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -355,16 +367,18 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-all.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
+      | f | allow-all.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -455,7 +469,8 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -473,7 +488,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods and add label to 1 pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -490,8 +506,9 @@ Feature: Network policy plugin scenarios
     # add annotation and apply network policy to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-from-label.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
+      | f | allow-from-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -586,7 +603,8 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -605,7 +623,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -615,8 +634,9 @@ Feature: Network policy plugin scenarios
     # add annotation and apply network policy to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-to-label.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-to-label.yaml |
+      | f | allow-to-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -704,7 +724,8 @@ Feature: Network policy plugin scenarios
     # create project and pods and add label to 1 pod
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -727,8 +748,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -738,8 +760,9 @@ Feature: Network policy plugin scenarios
     # add annotation and apply network policy to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-from-red-to-blue.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-from-red-to-blue.yaml |
+      | f | allow-from-red-to-blue.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -775,8 +798,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -786,7 +810,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -796,7 +821,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -806,12 +832,14 @@ Feature: Network policy plugin scenarios
     # add annotation to project 1 and apply the network policies to project 1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-local.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
+      | f | allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
+      | f | allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
     # add team=blue label to project 2
@@ -846,7 +874,8 @@ Feature: Network policy plugin scenarios
     # create project and pods with label added
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 4 |
     Then the step should succeed
     Given 4 pods become ready with labels:
@@ -870,7 +899,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods with label added
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 2 |
     Then the step should succeed
     Given 2 pods become ready with labels:
@@ -886,12 +916,14 @@ Feature: Network policy plugin scenarios
     # add annotation to project 1 and apply the network policies to project 1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-from-label.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
+      | f | allow-from-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-to-label.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-to-label.yaml |
+      | f | allow-to-label.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -931,15 +963,17 @@ Feature: Network policy plugin scenarios
     # create project and pods for tcp and udp
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(0).ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    Given I obtain test data file "networking/networkpolicy/udp8888-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/udp8888-pod.json |
+      | f | udp8888-pod.json |
     Then the step should succeed
     And the pod named "udp-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :p1udppodip clipboard
@@ -947,7 +981,8 @@ Feature: Network policy plugin scenarios
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -957,8 +992,9 @@ Feature: Network policy plugin scenarios
     # add annotation to project 1 and apply the network policy for pod to project 1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-port.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-port.yaml |
+      | f | allow-port.yaml |
       | n | <%= cb.proj1 %>                                                                                             |
     Then the step should succeed
 
@@ -999,8 +1035,9 @@ Feature: Network policy plugin scenarios
     And the output should not contain "UDP-TEST-2"
 
     # add another network policy to allow project 2
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
+      | f | allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                                |
     Then the step should succeed
     When I run the :label admin command with:
@@ -1061,7 +1098,8 @@ Feature: Network policy plugin scenarios
     # create another project and pod
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -1099,7 +1137,8 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1109,7 +1148,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1122,15 +1162,17 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-local.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-local.yaml |
+      | f | allow-local.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1203,7 +1245,8 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1213,7 +1256,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1237,15 +1281,17 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-project.yaml |
+      | f | allow-project.yaml |
       | n | <%= cb.proj1 %>                                                                                              |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1335,7 +1381,8 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1345,7 +1392,8 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1358,15 +1406,17 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-all.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
+      | f | allow-all.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given 1 pods become ready with labels:
@@ -1443,8 +1493,9 @@ Feature: Network policy plugin scenarios
 
     # create project and networkpolicy
     Given I have a project
+    Given I obtain test data file "networking/networkpolicy/defaultdeny-v1-semantic.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+      | f | defaultdeny-v1-semantic.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | networkpolicy |
@@ -1469,8 +1520,9 @@ Feature: Network policy plugin scenarios
 
     # second user try to create networkpolicy in first user's project
     Given I switch to the second user
+    Given I obtain test data file "networking/networkpolicy/defaultdeny-v1-semantic.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+      | f | defaultdeny-v1-semantic.yaml |
       | namespace | <%= cb.proj1 %> |
     Then the step should fail
     And the output should match "User "<%= user.name %>" cannot create"
@@ -1484,8 +1536,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1495,8 +1548,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1504,8 +1558,9 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
 
     # create network policy with only egress policy in project 1
+    Given I obtain test data file "networking/networkpolicy/egress-default-deny.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/egress-default-deny.yaml |
+      | f | egress-default-deny.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -1537,8 +1592,9 @@ Feature: Network policy plugin scenarios
     # create project and pods
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1555,8 +1611,9 @@ Feature: Network policy plugin scenarios
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1570,8 +1627,9 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
 
     # create network policy with ingress.from.ipBlock element in project 1
+    Given I obtain test data file "networking/networkpolicy/ipblock.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/ipblock.yaml |
+      | f | ipblock.yaml |
       | n | <%= cb.proj1 %>                                                                                            |
     Then the step should succeed
 
@@ -1613,11 +1671,13 @@ Feature: Network policy plugin scenarios
     Given I store the masters in the :masters clipboard
     # Create project via user and create invalid networkpolicy in it
     Given I have a project
+    Given I obtain test data file "networking/networkpolicy/incorrect-structure.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/incorrect-structure.yaml |
+      | f | incorrect-structure.yaml |
     Then the step should succeed
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1634,22 +1694,25 @@ Feature: Network policy plugin scenarios
   Scenario: Use networkpolicy plugin with allow connections from specific project and pod at same policy for service
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.ip` is stored in the :p1podip clipboard
     #Add the namespace and pod policy for project1 to make the matched namespaces and matched pods can access project1 pod
+    Given I obtain test data file "networking/networkpolicy/allow-namespace-and-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-namespace-and-pod.yaml |
+      | f | allow-namespace-and-pod.yaml |
     Then the step should succeed
 
     # create another project and pods
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1708,8 +1771,9 @@ Feature: Network policy plugin scenarios
   Scenario: The old and new created networkpolicy should work well when the sdn pod is recreated
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1732,8 +1796,9 @@ Feature: Network policy plugin scenarios
     #Add one policy to make sure the pod can ping each other
 
     Given I use the "<%= cb.proj1 %>" project
+    Given I obtain test data file "networking/networkpolicy/allow-all.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
+      | f | allow-all.yaml |
     Then the step should succeed
 
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -1746,8 +1811,9 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     And the output should contain "Hello"
 
+    Given I obtain test data file "networking/networkpolicy/allow-all.yaml"
     When I run the :delete client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-all.yaml |
+      | f | allow-all.yaml |
     Then the step should succeed
 
     When I execute on the "<%= cb.p1pod1 %>" pod:
@@ -1767,7 +1833,8 @@ Feature: Network policy plugin scenarios
   Scenario: A network policy with ingress rule with "ipBlock"
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -1816,8 +1883,9 @@ Feature: Network policy plugin scenarios
     Given I switch to the first user
     And I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
+    Given I obtain test data file "networking/list_for_pods.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json |
+      | f | list_for_pods.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | name=test-pods |
@@ -1865,12 +1933,14 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: Network policy should work for newly created pods
     Given I have a project
+    Given I obtain test data file "networking/networkpolicy/allow-from-label.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/allow-from-label.yaml |
+      | f | allow-from-label.yaml |
       | n | <%= project.name %>                                                                            |
     Then the step should succeed
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -1903,7 +1973,8 @@ Feature: Network policy plugin scenarios
   @admin
   Scenario: A network policy with an ipBlock and an except clause, ipBlock will be ignored
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 3 |
     Then the step should succeed
     Given 3 pods become ready with labels:
@@ -1914,7 +1985,8 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
 
     #Apply network policy
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/networkpolicy/nw_ipblock_except.yaml" replacing paths:
+    Given I obtain test data file "networking/networkpolicy/nw_ipblock_except.yaml"
+    When I run oc create over "nw_ipblock_except.yaml" replacing paths:
       | ["spec"]["ingress"][0]["from"][0]["ipBlock"]["cidr"]      | 10.128.0.0/14         |
       | ["spec"]["ingress"][0]["from"][0]["ipBlock"]["except"][0] | <%= cb.pod0_ip %>/32  |
     Then the step should succeed

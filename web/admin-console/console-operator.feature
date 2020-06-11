@@ -32,8 +32,9 @@ Feature: console-operator related
       | component=ui |
     And evaluation of `pod.name` is stored in the :pod_name clipboard
 
+    Given I obtain test data file "cases/console-operator-role.yaml"
     When I run the :apply client command with:
-      | f          | <%= BushSlicer::HOME %>/features/tierN/testdata/cases/console-operator-role.yaml |
+      | f          | console-operator-role.yaml |
       | overwrite  | true |
     Then the step should succeed
     Given I ensure "console" deployments is deleted

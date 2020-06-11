@@ -4,8 +4,9 @@ Feature: deployment related steps
   # @case_id OCP-11599
   Scenario: Cleanup policy - Cleanup all previous RSs older than the latest N replica sets in pause
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -118,8 +119,9 @@ Feature: deployment related steps
   # @case_id OCP-12073
   Scenario: Proportionally scale - Rollout deployment succeed in unpause and pause
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -241,8 +243,9 @@ Feature: deployment related steps
   Scenario: Proportionally scale - Scale down deployment succeed in unpause and pause
     Given I have a project
 
+    Given I obtain test data file "deployment/hello-deployment-2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-2.yaml |
+      | f | hello-deployment-2.yaml |
     Then the step should succeed
 
     Given 60 pods become ready with labels:
@@ -392,8 +395,9 @@ Feature: deployment related steps
   # @case_id OCP-11802
   Scenario: Proportionally scale - Mixture of surging, scaling and rollout
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -507,8 +511,9 @@ Feature: deployment related steps
   # @case_id OCP-11966
   Scenario: Proportionally scale - Rolling back succeed after scale up deployment
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -579,8 +584,9 @@ Feature: deployment related steps
   # @case_id OCP-12266
   Scenario: Proportionally scale - Special value test for proportional scaling
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
@@ -645,8 +651,9 @@ Feature: deployment related steps
   # @case_id OCP-14348
   Scenario: Proportionally scale - [OSO]deployment of scaling and rollout
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-oso.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
+      | f | hello-deployment-oso.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-openshift |
@@ -701,8 +708,9 @@ Feature: deployment related steps
   # @case_id OCP-19922
   Scenario: Terminating pod should removed from endpoints list for service
     Given I have a project
+    Given I obtain test data file "deployment/deployment-with-shutdown-gracefully.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-with-shutdown-gracefully.json |
+      | f | deployment-with-shutdown-gracefully.json |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfigs |

@@ -453,8 +453,9 @@ Feature: ServiceAccount and Policy Managerment
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
+    Given I obtain test data file "deployment/deployments_nobc_cpulimit.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployments_nobc_cpulimit.json |
+      | f | deployments_nobc_cpulimit.json |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role      | admin                                  |

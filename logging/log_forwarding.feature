@@ -11,13 +11,15 @@ Feature: log forwarding related tests
     And fluentd receiver is deployed as insecure in the "openshift-logging" project
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/fluentd/insecure/<status>/logforwarding.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/insecure/<status>/logforwarding.yaml |
+      | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
+    Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                      |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | crd_yaml            | clusterlogging.yaml |
       | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -28,8 +30,9 @@ Feature: log forwarding related tests
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -57,13 +60,15 @@ Feature: log forwarding related tests
     And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as insecure
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/elasticsearch/insecure/<status>/logforwarding.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/insecure/<status>/logforwarding.yaml |
+      | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
+    Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                      |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | crd_yaml            | clusterlogging.yaml |
       | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -74,8 +79,9 @@ Feature: log forwarding related tests
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -120,13 +126,15 @@ Feature: log forwarding related tests
     And I use the "openshift-logging" project
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/fluentd/secure/<status>/logforwarding.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/fluentd/secure/<status>/logforwarding.yaml |
+      | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
+    Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                      |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | crd_yaml            | clusterlogging.yaml |
       | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -137,8 +145,9 @@ Feature: log forwarding related tests
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -182,13 +191,15 @@ Feature: log forwarding related tests
     """
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/elasticsearch/secure/<status>/logforwarding.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/elasticsearch/secure/<status>/logforwarding.yaml |
+      | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
+    Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                      |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging.yaml |
+      | crd_yaml            | clusterlogging.yaml |
       | check_status        | false                                                                                     |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -199,8 +210,9 @@ Feature: log forwarding related tests
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -254,22 +266,25 @@ Feature: log forwarding related tests
       | secret_type  | generic                  |
       | from_file    | ca-bundle.crt=ca.crt     |
     Then the step should succeed
+    Given I obtain test data file "logging/logforwarding/forward_plugin/secure-forward-cm.yaml"
     Given I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/forward_plugin/secure-forward-cm.yaml |
+      | f | secure-forward-cm.yaml |
     Then the step should succeed
     And I wait for the "secure-forward" config_map to appear
 
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
 
     # create project to generate logs
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -314,23 +329,26 @@ Feature: log forwarding related tests
 
     #Given I obtain test data file "logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     When I run the :create_configmap client command with:
       | name      | syslog                                                                                                        |
-      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf |
+      | from_file | syslog.conf |
     Then the step should succeed
     And I wait for the "syslog" config_map to appear
 
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
 
     # create project to generate logs
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
 
     Given I switch to cluster admin pseudo user
@@ -377,20 +395,23 @@ Feature: log forwarding related tests
     Given I switch to the first user
     And I create a project with non-leading digit name
     And evaluation of `project` is stored in the :proj clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
     When I run the :new_app client command with:
-      | file | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/loggen/container_json_log_template.json |
+      | file | container_json_log_template.json |
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     Given I use the "openshift-logging" project
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
+    Given I obtain test data file "logging/logforwarding/multiple_receiver/logforwarding.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/multiple_receiver/logforwarding.yaml |
+      | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
+    Given I obtain test data file "logging/logforwarding/clusterlogging_retentionpolicy.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                      |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/logforwarding/clusterlogging_retentionpolicy.yaml |
+      | crd_yaml            | clusterlogging_retentionpolicy.yaml |
       | check_status        | true                                                                                                      |
     Then the step should succeed
     Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"

@@ -3,8 +3,9 @@ Feature: oc set image related tests
   # @author cryan@redhat.com
   Scenario Outline: oc set image to update pod with certain label
     Given I have a project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     When I run the :scale client command with:
       | _tool    | <tool> |
@@ -75,8 +76,9 @@ Feature: oc set image related tests
   Scenario: oc set image to update existed image for container with --source
     Given I have a project
     ## 1.  Create pod container(s) and ISs for project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     ## 2. oc set image with --source=imagestreamtag
     When I run the :set_image client command with:
@@ -113,8 +115,9 @@ Feature: oc set image related tests
   Scenario: oc set image to update existed image for all resource using local file without and with apply
     Given I have a project
     ## 1.  Create pod container(s) and dc,rc for project
+    Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/dc-with-two-containers.yaml |
+      | f | dc-with-two-containers.yaml |
     Then the step should succeed
     ## 2. set image with keywork python for compatibility between 3.6 and 3.7
     When I run the :set_image client command with:

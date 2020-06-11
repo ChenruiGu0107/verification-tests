@@ -13,8 +13,9 @@ Feature: pods related scenarios
     Then I run the :create client command with:
       | f | hostpid_true.json |
     Then the step should succeed
+    Given I obtain test data file "pods/tc509108/hostpid_true_admin.json"
     Then I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/tc509108/hostpid_true_admin.json |
+      | f | hostpid_true_admin.json |
       | n | <%= project.name %>                                                                                      |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -51,44 +52,53 @@ Feature: pods related scenarios
   @admin
   Scenario: PDB create with beta1
     Given I have a project
+    Given I obtain test data file "pods/ocp12897/pdb_negative_absolute_number.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_negative_absolute_number.yaml |
+      | f | pdb_negative_absolute_number.yaml |
       | n | <%= project.name %>                                                                                                |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/ocp12897/pdb_negative_percentage.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_negative_percentage.yaml |
+      | f | pdb_negative_percentage.yaml |
       | n | <%= project.name %>                                                                                           |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/ocp12897/pdb_zero_number.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_zero_number.yaml |
+      | f | pdb_zero_number.yaml |
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
+    Given I obtain test data file "pods/ocp12897/pdb_zero_percentage.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_zero_percentage.yaml |
+      | f | pdb_zero_percentage.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
+    Given I obtain test data file "pods/ocp12897/pdb_non_absolute_number.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_non_absolute_number.yaml |
+      | f | pdb_non_absolute_number.yaml |
       | n | <%= project.name %>                                                                                           |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/ocp12897/pdb_non_number_percentage.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_non_number_percentage.yaml |
+      | f | pdb_non_number_percentage.yaml |
       | n | <%= project.name %>                                                                                             |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/ocp12897/pdb_more_than_full_percentage.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_more_than_full_percentage.yaml |
+      | f | pdb_more_than_full_percentage.yaml |
       | n | <%= project.name %>                                                                                                 |
     Then the step should fail
     And the output should contain "Invalid value"
+    Given I obtain test data file "pods/ocp12897/pdb_positive_absolute_number.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_positive_absolute_number.yaml |
+      | f | pdb_positive_absolute_number.yaml |
       | n | <%= project.name %>                                                                                                |
     Then the step should succeed
+    Given I obtain test data file "pods/ocp12897/pdb_reasonable_percentage.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/ocp12897/pdb_reasonable_percentage.yaml |
+      | f | pdb_reasonable_percentage.yaml |
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed

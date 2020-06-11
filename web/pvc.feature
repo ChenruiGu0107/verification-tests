@@ -4,7 +4,8 @@ Feature: Add pvc to pod from web related
   @destructive
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/storageClass.yaml" where:
+    Given I obtain test data file "storage/misc/storageClass.yaml"
+    When admin creates a StorageClass from "storageClass.yaml" where:
       | ["metadata"]["name"] | <%= project.name %>         |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed

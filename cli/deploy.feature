@@ -4,11 +4,13 @@ Feature: deployment related features
   # @case_id OCP-11072
   Scenario: CLI rollback dry run
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
+    Given I obtain test data file "deployment/updatev1.json"
     When I run the :replace client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/updatev1.json |
+      | f | updatev1.json |
     Then the step should succeed
     When I get project dc named "hooks"
     Then the output should match:
@@ -138,8 +140,9 @@ Feature: deployment related features
   # @case_id OCP-10633
   Scenario: Deployment is automatically stopped when running time is more than ActiveDeadlineSeconds
     Given I have a project
+    Given I obtain test data file "deployment/sleepv1.json|"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/sleepv1.json|
+      | f | sleepv1.json|
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
     When I get project pod named "hooks-1-deploy" as YAML
@@ -226,8 +229,9 @@ Feature: deployment related features
   # @case_id OCP-12452, OCP-12460
   Scenario Outline: Failure handler of pre-post deployment hook
     Given I have a project
+    Given I obtain test data file "deployment/<file_name>|"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/<file_name>|
+      | f | <file_name>|
     Then the step should succeed
     When the pod named "<pod_name>" becomes present
     And I wait up to 300 seconds for the steps to pass:
@@ -245,8 +249,9 @@ Feature: deployment related features
   # @case_id OCP-9768
   Scenario: Could edit the deployer pod during deployment
     Given I have a project
+    Given I obtain test data file "templates/tc515805/tc515805.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc515805/tc515805.json |
+      | f | tc515805.json |
     Then the step should succeed
     Given the pod named "database-1-deploy" becomes ready
     When I replace resource "pod" named "database-1-deploy":
@@ -260,8 +265,9 @@ Feature: deployment related features
   # @case_id OCP-11203
   Scenario: deployment hook volume inheritance -- that volume names which are not found
     Given I have a project
+    Given I obtain test data file "deployment/tc510607/hooks-unexist-volume.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc510607/hooks-unexist-volume.json |
+      | f | hooks-unexist-volume.json |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -295,8 +301,9 @@ Feature: deployment related features
   # @case_id OCP-9829
   Scenario: Check the deployments in a completed state on test deployment configs
     Given I have a project
+    Given I obtain test data file "deployment/test-deployment.json"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/test-deployment.json |
+      | f | test-deployment.json |
     Then the step should succeed
     And I run the :logs client command with:
       | f | true |
@@ -319,8 +326,9 @@ Feature: deployment related features
       | name     | hooks                 |
       | as_test  | true                  |
     Then the step should succeed
+    Given I obtain test data file "deployment/test-deployment.json"
     #And I run the :create client command with:
-    #  | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/test-deployment.json |
+    #  | f | test-deployment.json |
     #Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :running
     Given I successfully patch resource "pod/hooks-1-deploy" with:
@@ -343,8 +351,9 @@ Feature: deployment related features
   # @case_id OCP-9831
   Scenario: Scale the deployments will failed on test deployment config
     Given I have a project
+    Given I obtain test data file "deployment/tc518650/test.json"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/tc518650/test.json |
+      | f | test.json |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     Then I run the :scale client command with:
@@ -359,7 +368,8 @@ Feature: deployment related features
   # @case_id OCP-11586
   Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
     Given I have a project
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-11384/application-template-stibuild.json"
+    Given I obtain test data file "deployment/OCP-11384/application-template-stibuild.json"
+    When I process and create "application-template-stibuild.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait until the status of deployment "frontend" becomes :complete
@@ -418,7 +428,8 @@ Feature: deployment related features
   # @case_id OCP-11790
   Scenario: Automatic set to true without ConfigChangeController on the DeploymentConfig
     Given I have a project
-    Given I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/build-deploy-without-configchange.json"
+    Given I obtain test data file "deployment/build-deploy-without-configchange.json"
+    Given I process and create "build-deploy-without-configchange.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait for the steps to pass:
@@ -446,8 +457,9 @@ Feature: deployment related features
   # @case_id OCP-11611
   Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :set_env client command with:
@@ -486,8 +498,9 @@ Feature: deployment related features
   # @case_id OCP-11313
   Scenario: Check the status for deployment configs
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
@@ -527,8 +540,9 @@ Feature: deployment related features
   # @case_id OCP-11812
   Scenario: Pausing and Resuming a Deployment
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
     When I run the :rollout_pause client command with:
       | resource | dc    |
@@ -566,8 +580,9 @@ Feature: deployment related features
   # @case_id OCP-9973 OCP-9974
   Scenario Outline: custom deployment for Recreate/Rolling strategy
     Given I have a project
+    Given I obtain test data file "deployment/<file>"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/<file> |
+      | f | <file> |
     Then the step should succeed
     And I run the :logs client command with:
       | f             | true                 |
@@ -651,8 +666,9 @@ Feature: deployment related features
   Scenario: Show deployment conditions correctly
     Given the master version >= "3.6"
     Given I have a project
+    Given I obtain test data file "deployment/deployment-ignores-deployer.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment-ignores-deployer.yaml |
+      | f | deployment-ignores-deployer.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                                       |
@@ -660,8 +676,9 @@ Feature: deployment related features
       | template      | {{(index .status.conditions 1).reason }} |
     Then the step should succeed
     And the output should match "NewReplicationControllerCreated"
+    Given I obtain test data file "deployment/testhook.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/testhook.json |
+      | f | testhook.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
@@ -709,8 +726,9 @@ Feature: deployment related features
   Scenario: Proportionally scale - Scale up deployment succeed in unpause and pause
     Given I have a project
 
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml |
+      | f | hello-deployment-1.yaml |
     Then the step should succeed
 
     Given number of replicas of "hello-openshift" deployment becomes:
@@ -834,8 +852,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15167/example-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | example-pod.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -846,8 +865,9 @@ Feature: deployment related features
     When I run the :set_image_lookup client command with:
       | image_stream | app |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15167/example-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | example-pod.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-pod |
@@ -861,8 +881,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15167/example-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod.yaml |
+      | f | example-pod.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -870,8 +891,9 @@ Feature: deployment related features
     Then the output should contain "ErrImagePull"
     """
     Given I ensure "example-pod" pod is deleted
+    Given I obtain test data file "deployment/OCP-15167/example-pod-annotation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15167/example-pod-annotation.yaml |
+      | f | example-pod-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-pod |
@@ -885,8 +907,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15168/example-job.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | example-job.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -897,8 +920,9 @@ Feature: deployment related features
     When I run the :set_image_lookup client command with:
       | image_stream | app |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15168/example-job.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | example-job.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-job |
@@ -912,8 +936,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15168/example-job.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job.yaml |
+      | f | example-job.yaml |
     Then the step should succeed
     And I wait up to 240 seconds for the steps to pass:
     """
@@ -921,8 +946,9 @@ Feature: deployment related features
     Then the output should contain "ErrImagePull"
     """
     Given I ensure "example-job" job is deleted
+    Given I obtain test data file "deployment/OCP-15168/example-job-annotation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15168/example-job-annotation.yaml |
+      | f | example-job-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-job |
@@ -936,8 +962,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15169/example-rs.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | example-rs.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -948,8 +975,9 @@ Feature: deployment related features
     When I run the :set_image_lookup client command with:
       | image_stream | app |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15169/example-rs.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | example-rs.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-rs |
@@ -963,8 +991,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15169/example-rs.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs.yaml |
+      | f | example-rs.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -972,8 +1001,9 @@ Feature: deployment related features
     Then the output should contain "ErrImagePull"
     """
     Given I ensure "example-rs" replicaset is deleted
+    Given I obtain test data file "deployment/OCP-15169/example-rs-annotation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15169/example-rs-annotation.yaml |
+      | f | example-rs-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | app=example-rs |
@@ -987,8 +1017,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15170/example-rc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | example-rc.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -999,8 +1030,9 @@ Feature: deployment related features
     When I run the :set_image_lookup client command with:
       | image_stream | app |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15170/example-rc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | example-rc.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | name=example-rc |
@@ -1014,8 +1046,9 @@ Feature: deployment related features
       | source      | openshift/deployment-example:v1 |
       | dest        | app:v1                          |
     Then the step should succeed
+    Given I obtain test data file "deployment/OCP-15170/example-rc.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc.yaml |
+      | f | example-rc.yaml |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1023,8 +1056,9 @@ Feature: deployment related features
     Then the output should contain "ErrImagePull"
     """
     Given I ensure "example-rc" replicationcontroller is deleted
+    Given I obtain test data file "deployment/OCP-15170/example-rc-annotation.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15170/example-rc-annotation.yaml |
+      | f | example-rc-annotation.yaml |
     Then the step should succeed
     Given status becomes :running of 1 pods labeled:
       | name=example-rc |
@@ -1033,8 +1067,9 @@ Feature: deployment related features
   # @case_id OCP-15153
   Scenario: Imagestream updates triggering on Kubernetes Deployment
     Given I have a project
+    Given I obtain test data file "deployment/OCP-15153/deployment-example.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/OCP-15153/deployment-example.yaml |
+      | f | deployment-example.yaml |
     Then the step should succeed
     When I run the :tag client command with:
       | source_type | docker                          |
@@ -1137,8 +1172,9 @@ Feature: deployment related features
   # @case_id OCP-14211
   Scenario: Mock a hash collision
     Given I have a project
+    Given I obtain test data file "deployment/hello-deployment-oso.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-oso.yaml |
+      | f | hello-deployment-oso.yaml |
     Then the step should succeed
     Given 2 pods become ready with labels:
       | app=hello-openshift |

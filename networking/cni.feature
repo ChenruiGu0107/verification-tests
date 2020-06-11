@@ -5,8 +5,9 @@ Feature: CNI related features
   Scenario: Will not log error when deleting the docker container of hostnetwork pod
     Given I have a project
     And SCC "privileged" is added to the "default" service account
+    Given I obtain test data file "networking/hostnetwork-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/networking/hostnetwork-pod.json |
+      | f | hostnetwork-pod.json |
     Then the step should succeed
     And the pod named "hostnetwork-pod" becomes ready
     And evaluation of `pod.node_name` is stored in the :node_name clipboard

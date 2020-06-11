@@ -4,13 +4,15 @@ Feature: Testing timeout route
   # @case_id OCP-11982
   Scenario: Set timeout server for unsecure route
     Given I have a project
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
     When I run the :create client command with:
-      | f  |  <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f  |  httpbin-pod.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
+    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | service_unsecure.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     When I expose the "service-unsecure" service
@@ -37,13 +39,15 @@ Feature: Testing timeout route
   Scenario: Set timeout server for edge route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
     When I run the :create client command with:
-      | f  |  <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f  |  httpbin-pod.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
+    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | service_unsecure.json |
     Then the step should succeed
     Given I wait for the "service-unsecure" service to become ready
     When I run the :create_route_edge client command with:
@@ -80,23 +84,29 @@ Feature: Testing timeout route
   Scenario: Set timeout server for reencrypt route
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
+    Given I obtain test data file "routing/routetimeout/httpbin-pod-2.json"
     When I run the :create client command with:
-      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod-2.json |
+      | f  | httpbin-pod-2.json |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=httpbin-pod |
+    Given I obtain test data file "routing/routetimeout/reencrypt/service_secure.json"
     When I run the :create client command with:
-      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/reencrypt/service_secure.json |
+      | f  | service_secure.json |
     Then the step should succeed
     Given I wait for the "service-secure" service to become ready
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt.ca"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route                                                                                             |
       | hostname   | <%= rand_str(5, :dns) %>-reen.example.com                                                              |
       | service    | service-secure                                                                                         |
-      | cert       | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.crt |
-      | key        | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt-reen.example.com.key |
-      | cacert     | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt.ca                   |
-      | destcacert | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/reencrypt/route_reencrypt_dest.ca              |
+      | cert       | route_reencrypt-reen.example.com.crt |
+      | key        | route_reencrypt-reen.example.com.key |
+      | cacert     | route_reencrypt.ca                   |
+      | destcacert | route_reencrypt_dest.ca              |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource         | route                                  |
@@ -127,8 +137,9 @@ Feature: Testing timeout route
   @admin
   Scenario: Set invalid timeout server for route
     Given I have a project
+    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f  | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f  | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed

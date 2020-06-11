@@ -89,10 +89,12 @@ Feature: overview cases
     Given I have a project
 
     # check deployment error on overview
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/deployment/hello-deployment-1.yaml" replacing paths:
+    Given I obtain test data file "deployment/hello-deployment-1.yaml"
+    When I run oc create over "hello-deployment-1.yaml" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-with-storageClassName.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
+    When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
@@ -201,8 +203,9 @@ Feature: overview cases
   Scenario: Check stateful set on overview page
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "statefulset/statefulset-hello.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/statefulset/statefulset-hello.yaml |
+      | f | statefulset-hello.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=hello |
@@ -409,9 +412,11 @@ Feature: overview cases
     Then the step should succeed
 
     # add non-app resources
+    Given I obtain test data file "deployment/simpledc.json"
+    Given I obtain test data file "deployment/simple-deployment.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simpledc.json |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml |
+      | f | simpledc.json |
+      | f | simple-deployment.yaml |
     Then the step should succeed
 
     # Group by: Application
@@ -515,8 +520,9 @@ Feature: overview cases
   Scenario: Check daemon set on Home Overview page
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/daemon/daemonset.yaml |
+      | f | daemonset.yaml |
     Then the step should succeed
     And "hello-daemonset" daemonset becomes ready in the "<%= project.name %>" project
     And evaluation of `daemon_set("hello-daemonset").desired_replicas(cached: false)` is stored in the :ds_disired_replicas clipboard
@@ -566,8 +572,9 @@ Feature: overview cases
   Scenario: Check k8s deployment on Home Overview page
     Given the master version >= "4.1"
     Given I have a project
+    Given I obtain test data file "deployment/simple-deployment.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/simple-deployment.yaml |
+      | f | simple-deployment.yaml |
     Then the step should succeed
     When a pod becomes ready with labels:
       | app=hello-openshift |

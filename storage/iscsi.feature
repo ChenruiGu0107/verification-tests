@@ -25,7 +25,8 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod                         |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>            |
       | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
@@ -41,31 +42,36 @@ Feature: ISCSI volume plugin testing
     And I have a project
 
     # Create RW PV/PVC for LUN 0
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pv-read-write.json" where:
+    Given I obtain test data file "storage/iscsi/pv-read-write.json"
+    Given admin creates a PV from "pv-read-write.json" where:
       | ["metadata"]["name"]                      | iscsi-rw-<%= project.name %>  |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["iscsi"]["initiatorName"]        | iqn.2016-04.test.com:test.img |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                        |
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pvc-read-write.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pvc-read-write.json"
+    And I create a manual pvc from "pvc-read-write.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-rw                     |
       | ["spec"]["volumeName"] | iscsi-rw-<%= project.name %> |
     Then the step should succeed
     And the "iscsi-rw" PVC becomes bound to the "iscsi-rw-<%= project.name %>" PV
 
     # Create RO PV/PVC for LUN 1
-    Given admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pv-read-only.json" where:
+    Given I obtain test data file "storage/iscsi/pv-read-only.json"
+    Given admin creates a PV from "pv-read-only.json" where:
       | ["metadata"]["name"]                      | iscsi-ro-<%= project.name %>  |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["iscsi"]["initiatorName"]        | iqn.2016-04.test.com:test.img |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                        |
-    And I create a manual pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pvc-read-only.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pvc-read-only.json"
+    And I create a manual pvc from "pvc-read-only.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-ro                     |
       | ["spec"]["volumeName"] | iscsi-ro-<%= project.name %> |
     Then the step should succeed
     And the "iscsi-ro" PVC becomes bound to the "iscsi-ro-<%= project.name %>" PV
 
     # Create the pod with 2 containers mounting RW and RO PVCs
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-two-luns.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-two-luns.json"
+    When I run oc create over "pod-two-luns.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | iscsi-rw |
       | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | iscsi-ro |
     Then the step should succeed
@@ -128,13 +134,15 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the "pvc2" PVC becomes bound to the "pv2-<%= project.name %>" PV
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod1 |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1   |
     Then the step should succeed
     And the pod named "mypod1" becomes ready
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod2 |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc2   |
     Then the step should succeed
@@ -160,7 +168,8 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod                                                  |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip_2 %>:3260                              |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"] |
@@ -203,7 +212,8 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod1                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -212,7 +222,8 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the pod named "mypod1" becomes ready
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod2                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -251,7 +262,8 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod1                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -260,7 +272,8 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the pod named "mypod1" becomes ready
 
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pod-direct.json" replacing paths:
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod2                        |
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
@@ -288,12 +301,14 @@ Feature: ISCSI volume plugin testing
     # Create a namespace to store the secret
     Given I have a project
     And evaluation of `project.name` is stored in the :prj clipboard
+    Given I obtain test data file "storage/iscsi/chap-secret-auto.yml"
     When I run the :create client command with:
-      | filename  | <%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/chap-secret-auto.yml |
+      | filename  | chap-secret-auto.yml |
     Then the step should succeed
 
     Given I create a new project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/iscsi/pv-chap.json" where:
+    Given I obtain test data file "storage/iscsi/pv-chap.json"
+    When admin creates a PV from "pv-chap.json" where:
       | ["metadata"]["name"]                        | pv-<%= project.name %>        |
       | ["spec"]["iscsi"]["targetPortal"]           | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["iscsi"]["secretRef"]["name"]      | chap-secret                   |
@@ -307,7 +322,8 @@ Feature: ISCSI volume plugin testing
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     # Create tester pod
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
     Then the step should succeed
@@ -333,7 +349,8 @@ Feature: ISCSI volume plugin testing
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     # Create tester pod
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-with-block-volume.yaml"
+    When I run oc create over "pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/dpath |
@@ -364,7 +381,8 @@ Feature: ISCSI volume plugin testing
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     # Create tester pod
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-with-block-volume.yaml"
+    When I run oc create over "pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/dpath |

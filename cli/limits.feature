@@ -31,8 +31,9 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Check the openshift.io/imagestreams of quota in the project after build image
     Given I have a project
+    Given I obtain test data file "quota/openshift-object-counts.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/openshift-object-counts.yaml |
+      | f | openshift-object-counts.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -72,8 +73,9 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Check the quota after import-image with --all option
     Given I have a project
+    Given I obtain test data file "quota/openshift-object-counts.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/openshift-object-counts.yaml |
+      | f | openshift-object-counts.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:

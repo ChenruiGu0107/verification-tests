@@ -6,9 +6,10 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: The logging cluster operator shoud recreate the damonset
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     And the expression should be true> cluster_logging('instance').management_state == "Managed"
     Given evaluation of `daemon_set('fluentd').creation_time_stamp` is stored in the :timestamp_1 clipboard
@@ -26,9 +27,10 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: Deploy logging via customized pod resource in clusterlogging
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml  |
+      | crd_yaml            | customresource-fluentd.yaml  |
       | check_status        | false                                                                                               |
     Then the step should succeed
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -71,9 +73,10 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: The clusterlogging handle the nodeSelector
+    Given I obtain test data file "logging/clusterlogging/nodeSelector.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                     |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/nodeSelector.yaml |
+      | crd_yaml            | nodeSelector.yaml |
       | check_status        | false                                                                                    |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
@@ -86,8 +89,9 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> daemon_set('fluentd').node_selector['fluentd'] == 'deploy'
     And the expression should be true> deployment('kibana').node_selector['kibana'] == 'deploy'
     And the expression should be true> cron_job('curator').node_selector['curator'] == 'deploy'
+    Given I obtain test data file "logging/clusterlogging/nodeSelector_change.yaml"
     When I run the :apply client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/nodeSelector_change.yaml |
+      | f | nodeSelector_change.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -107,9 +111,10 @@ Feature: cluster-logging-operator related cases
   @destructive
   Scenario: The operator append kubernetes.io/os: linux
     Given the master version >= "4.2"
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
       | check_status        | false                                                                               |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
@@ -122,8 +127,9 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> daemon_set('fluentd').node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> deployment('kibana').node_selector['kubernetes.io/os'] == 'linux'
     And the expression should be true> cron_job('curator').node_selector['kubernetes.io/os'] == 'linux'
+    Given I obtain test data file "logging/clusterlogging/nodeSelector.yaml"
     When I run the :apply client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/nodeSelector.yaml |
+      | f | nodeSelector.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -140,8 +146,9 @@ Feature: cluster-logging-operator related cases
       And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").node_selector(user: user, cached: false, quiet: true)['kubernetes.io/os'] == 'linux'
       And the expression should be true> deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').node_selector(user: user, cached: false, quiet: true)['es'] == 'deploy'
       """
+    Given I obtain test data file "logging/clusterlogging/nodeSelector_override.yaml"
     When I run the :apply client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/nodeSelector_override.yaml |
+      | f | nodeSelector_override.yaml |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
       """
@@ -166,9 +173,10 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: Add Management Spec field to CRs.
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     And the expression should be true> cluster_logging('instance').management_state == "Managed"
     And the expression should be true> elasticsearch('elasticsearch').management_state == "Managed"
@@ -244,9 +252,10 @@ Feature: cluster-logging-operator related cases
   @destructive
   Scenario: Fluentd alert rules check.
     Given the master version >= "4.2"
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" prometheus_rule to appear up to 300 seconds
 
@@ -290,17 +299,19 @@ Feature: cluster-logging-operator related cases
   @destructive
   Scenario: The tolerations for cluster logging
     Given the master version >= "4.2"
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/example.yaml |
+      | crd_yaml            | example.yaml |
     Then the step should succeed
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
     And the expression should be true> deployment('kibana').tolerations == nil
     And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
     And the expression should be true> cron_job('curator').tolerations == nil
     And the expression should be true> (daemon_set('fluentd').tolerations - [{"effect"=>"NoSchedule", "key"=>"node-role.kubernetes.io/master", "operator"=>"Exists"}, {"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd.yaml"
     When I run the :apply client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml |
+      | f | customresource-fluentd.yaml |
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -315,9 +326,10 @@ Feature: cluster-logging-operator related cases
   @admin
   @destructive
   Scenario: The logging are redeployed when resource changed
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd.yaml"
     Given I create clusterlogging instance with:
       | remove_logging_pods | true                                                                                               |
-      | crd_yaml            | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd.yaml |
+      | crd_yaml            | customresource-fluentd.yaml |
       | check_status        | false                                                                                              |
     Then the step should succeed
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -338,8 +350,9 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'elasticsearch').cpu_request_raw == "100m"
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').memory_request_raw == "64Mi"
     And the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").container_spec(user: user, name: 'proxy').cpu_request_raw == "100m"
+    Given I obtain test data file "logging/clusterlogging/customresource-fluentd_change.yaml"
     When I run the :apply client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/logging/clusterlogging/customresource-fluentd_change.yaml |
+      | f | customresource-fluentd_change.yaml |
     Then the step should succeed
 
     And I wait up to 600 seconds for the steps to pass:

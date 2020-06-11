@@ -4,8 +4,9 @@ Feature: oc_set_env.feature
   @smoke
   Scenario: Set pod env vars from configmap
     Given I have a project
+    Given I obtain test data file "configmap/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/configmap/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | configmap |
@@ -50,8 +51,9 @@ Feature: oc_set_env.feature
   # @case_id OCP-11305
   Scenario: Set pod env vars from secrets
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | secret |
@@ -96,8 +98,9 @@ Feature: oc_set_env.feature
   # @case_id OCP-11607
   Scenario: Special test for set pod env vars
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :get client command with:
       | resource | secret      |

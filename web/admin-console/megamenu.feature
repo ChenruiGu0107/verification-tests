@@ -89,11 +89,15 @@ Feature: mega menu on console
     When I run the :new_project client command with:
       | project_name | autotest-pipeline-tutorial |
     Then the step should succeed
+    Given I obtain test data file "pipeline/apply_manifest_task.yaml"
+    Given I obtain test data file "pipeline/update_deployment_task.yaml"
+    Given I obtain test data file "pipeline/pipeline_resource.yaml"
+    Given I obtain test data file "pipeline/pipeline.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/apply_manifest_task.yaml    |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/update_deployment_task.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/pipeline_resource.yaml      |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pipeline/pipeline.yaml               |
+      | f | apply_manifest_task.yaml    |
+      | f | update_deployment_task.yaml |
+      | f | pipeline_resource.yaml      |
+      | f | pipeline.yaml               |
       | n | autotest-pipeline-tutorial                                                           |
     Then the step should succeed
 

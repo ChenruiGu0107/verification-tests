@@ -4,8 +4,9 @@ Feature: oc_label.feature
   # @case_id OCP-12505
   Scenario: Add or update the openshift resource label
     Given I have a project
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
     When I run the :label client command with:
       | resource | pods            |
@@ -38,8 +39,9 @@ Feature: oc_label.feature
     Then the step should succeed
     And the output should match:
       | Labels:\\s+name=hello-openshift[\s,]+status=unhealthy |
+    Given I obtain test data file "templates/tc482217/hello-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/templates/tc482217/hello-pod.json |
+      | f | hello-pod.json |
     Then the step should succeed
     When I run the :label client command with:
       | resource  | pods           |

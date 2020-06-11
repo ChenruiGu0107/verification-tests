@@ -33,11 +33,13 @@ Feature: NodeSelector related tests
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    Given I obtain test data file "admission/podnodeselector/ns1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
+      | f | ns1.yaml |
     Then the step should succeed
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | pod-nodeSelector1.yaml |
       | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
@@ -87,8 +89,9 @@ Feature: NodeSelector related tests
     When I run the :new_project admin command with:
       | project_name | ns1 |
     Then the step should succeed
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | pod-nodeSelector1.yaml |
       | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
@@ -99,8 +102,9 @@ Feature: NodeSelector related tests
       | "env": "test"    |
       | "os": "fedora"   |
       | "region": "west" |
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector2.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
+      | f | pod-nodeSelector2.yaml |
       | n | ns1 |
     Then the step should fail
     And the output should match:
@@ -137,11 +141,13 @@ Feature: NodeSelector related tests
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    Given I obtain test data file "admission/podnodeselector/ns1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
+      | f | ns1.yaml |
     Then the step should succeed
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector1.yaml |
+      | f | pod-nodeSelector1.yaml |
       | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
@@ -152,8 +158,9 @@ Feature: NodeSelector related tests
       | "env": "test"     |
       | "infra": "fedora" |
       | "os": "fedora"    |
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector2.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector2.yaml |
+      | f | pod-nodeSelector2.yaml |
       | n | ns1 |
     Then the step should fail
     And the output should match:
@@ -193,8 +200,9 @@ Feature: NodeSelector related tests
     """
     And the master service is restarted on all master nodes
     Given I have a project
+    Given I obtain test data file "admission/podnodeselector/ns1.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/ns1.yaml |
+      | f | ns1.yaml |
     Then the step should succeed
    When I run the :get admin command with:
       | resource      | namespace |
@@ -202,8 +210,9 @@ Feature: NodeSelector related tests
       | o             | json      |
     Then the output should match:
       | "scheduler.alpha.kubernetes.io/node-selector": "env=test,infra=fedora" |
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector3.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector3.yaml |
+      | f | pod-nodeSelector3.yaml |
       | n | ns1 |
     Then the step should succeed
     When I run the :get admin command with:
@@ -214,8 +223,9 @@ Feature: NodeSelector related tests
       | "env": "test"     |
       | "infra": "fedora" |
       | "role": "vm"      |
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector4.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/admission/podnodeselector/pod-nodeSelector4.yaml |
+      | f | pod-nodeSelector4.yaml |
       | n | ns1 |
     Then the step should fail
     And the output should match:
@@ -227,7 +237,8 @@ Feature: NodeSelector related tests
   Scenario: Create namespace with node selector
     Given evaluation of `rand_str(5, :dns)` is stored in the :project1 clipboard
     And admin ensures "<%= cb.project1 %>" project is deleted after scenario
-    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/projects/valid-namesapce.yaml" replacing paths:
+    Given I obtain test data file "projects/valid-namesapce.yaml"
+    When I run oc create as admin over "valid-namesapce.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project1 %> |
     Then the step should succeed
     When I run the :get admin command with:
@@ -238,7 +249,8 @@ Feature: NodeSelector related tests
       | "scheduler.alpha.kubernetes.io/node-selector": "region=east,country=china" |
     Given evaluation of `rand_str(5, :dns)` is stored in the :project2 clipboard
     And admin ensures "<%= cb.project2 %>" project is deleted after scenario
-    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/projects/invalid-namespace.yaml" replacing paths:
+    Given I obtain test data file "projects/invalid-namespace.yaml"
+    When I run oc create as admin over "invalid-namespace.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project2 %> |
     Then the step should succeed
 
@@ -248,7 +260,8 @@ Feature: NodeSelector related tests
   Scenario: Shouldn't update node-selector after create namespace
     Given evaluation of `rand_str(5, :dns)` is stored in the :project clipboard
     And admin ensures "<%= cb.project %>" project is deleted after scenario
-    When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/projects/ns1.yaml" replacing paths:
+    Given I obtain test data file "projects/ns1.yaml"
+    When I run oc create as admin over "ns1.yaml" replacing paths:
       | ["metadata"]["name"] | <%= cb.project %> |
     Then the step should succeed
     When I run the :patch admin command with:

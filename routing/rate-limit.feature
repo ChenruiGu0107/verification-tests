@@ -5,12 +5,14 @@ Feature: Testing haproxy rate limit related features
   Scenario Outline: set negative value for the max concurrent connections a pod can receive
     Given I have a project
     And I store an available router IP in the :router_ip clipboard
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
+    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
@@ -46,13 +48,15 @@ Feature: Testing haproxy rate limit related features
 
     Given I switch to the first user
     And I have a project
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I obtain test data file "routing/routetimeout/passthough/service_secure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/passthough/service_secure.json |
+      | f | service_secure.json |
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
@@ -87,17 +91,20 @@ Feature: Testing haproxy rate limit related features
     Given I switch to the first user
     And I have a project
     # create two httpbin pods which have same labels
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json |
+      | f | httpbin-pod.json |
     Then the step should succeed
     And the pod named "httpbin-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/httpbin-pod.json" replacing paths:
+    Given I obtain test data file "routing/routetimeout/httpbin-pod.json"
+    When I run oc create over "httpbin-pod.json" replacing paths:
       | ["metadata"]["name"] | "httpbin-pod2" |
     Then the step should succeed
 
+    Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/routing/routetimeout/unsecure/service_unsecure.json |
+      | f | service_unsecure.json |
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name    | route-edge       |

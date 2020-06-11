@@ -4,8 +4,9 @@ Feature: oc_set_resources.feature
   # @case_id OCP-10999
   Scenario: Set CPU and memory limits by oc set resources
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
     And the pod named "hooks-1-deploy" becomes ready
     Given I wait for the pod named "hooks-1-deploy" to die
@@ -119,7 +120,8 @@ Feature: oc_set_resources.feature
   # @case_id OCP-11388
   Scenario: Set invalid vlaue for CPU and memory limits
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/networking/list_for_pods.json" replacing paths:
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -171,8 +173,9 @@ Feature: oc_set_resources.feature
   # @case_id OCP-11659
   Scenario: Set limits on a local file without talking to the server
     Given I have a project
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :set_resources client command with:
-      | f            | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f            | deployment1.json |
       | limits       | cpu=200m,memory=512Mi |
       | requests     | cpu=100m,memory=256Mi |
       | o            | yaml                  |
@@ -186,8 +189,9 @@ Feature: oc_set_resources.feature
       | requests:     |
       | cpu: 100m     |
       | memory: 256Mi |
+    Given I obtain test data file "deployment/deployment1.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/deployment1.json |
+      | f | deployment1.json |
     Then the step should succeed
     And the pod named "hooks-1-deploy" becomes ready
     Given I wait for the pod named "hooks-1-deploy" to die

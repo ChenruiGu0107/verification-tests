@@ -5,7 +5,8 @@ Feature: negative testing
   Scenario: PVC creation negative testing
     # apiVersion
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
+    Given I obtain test data file "storage/nfs/claim-rwo.json"
+    When I run oc create over "claim-rwo.json" replacing paths:
       | ["apiVersion"] | invalidVersion |
     Then the step should fail
     And the output should match:
@@ -14,7 +15,8 @@ Feature: negative testing
     And the project is deleted
     # metadata.name
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
+    Given I obtain test data file "storage/nfs/claim-rwo.json"
+    When I run oc create over "claim-rwo.json" replacing paths:
       | ["metadata"]["name"] | abc@#$$#@cba |
     Then the step should fail
     And the output should match:
@@ -23,7 +25,8 @@ Feature: negative testing
     And the project is deleted
     # spec.accessModes
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
+    Given I obtain test data file "storage/nfs/claim-rwo.json"
+    When I run oc create over "claim-rwo.json" replacing paths:
       | ["spec"]["accessModes"][0] | invalidMode |
     Then the step should fail
     And the output should match:
@@ -32,7 +35,8 @@ Feature: negative testing
     And the project is deleted
     # spec.resources.Size
     Given I have a project
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/nfs/claim-rwo.json" replacing paths:
+    Given I obtain test data file "storage/nfs/claim-rwo.json"
+    When I run oc create over "claim-rwo.json" replacing paths:
       | ["spec"]["resources"]["requests"]["storage"] | invalidSizw |
     Then the step should fail
     And the output should contain:

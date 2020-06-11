@@ -15,11 +15,13 @@ Feature: Evacuate
     Given I store the schedulable nodes in the :nodes clipboard
     And label "env=dev" is added to the "<%= cb.nodes[0].name %>" node
     And label "env=qe" is added to the "<%= cb.nodes[1].name %>" node
+    Given I obtain test data file "infrastructure/nodeselector/hello-pod-env-dev.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-dev.yaml |
+      | f | hello-pod-env-dev.yaml |
     Then the step should succeed
+    Given I obtain test data file "infrastructure/nodeselector/hello-pod-env-qe.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/infrastructure/nodeselector/hello-pod-env-qe.yaml |
+      | f | hello-pod-env-qe.yaml |
     Then the step should succeed
     #oadm manage-node <nodes> \--evacuate \--pod-selector=[selector] --dry-run
     When I run the :oadm_manage_node_evacuate admin command with:

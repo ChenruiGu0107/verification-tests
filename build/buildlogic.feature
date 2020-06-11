@@ -5,12 +5,14 @@ Feature: buildlogic.feature
   @admin
   Scenario: if build fails to schedule because of quota, after the quota increase, the build should start
     Given I have a project
+    Given I obtain test data file "build/quota_pods.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/quota_pods.yaml |
+      | f | quota_pods.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given I obtain test data file "build/test-buildconfig.json"
     And I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/build/test-buildconfig.json |
+      | f | test-buildconfig.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     When I get project build
@@ -38,7 +40,8 @@ Feature: buildlogic.feature
       | n             | openshift   |
     Then the step should succeed
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/build/forcePull/<template>" replacing paths:
+    Given I obtain test data file "build/forcePull/<template>"
+    When I run oc create over "<template>" replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created

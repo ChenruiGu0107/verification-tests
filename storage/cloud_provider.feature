@@ -34,11 +34,13 @@ Feature: kubelet restart and node restart
   # @author lxia@redhat.com
   Scenario Outline: Dynamic provisioning with raw block volume
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-without-annotations.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-without-annotations.json"
+    When I create a dynamic pvc from "pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"]   | mypvc |
       | ["spec"]["volumeMode"] | Block |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod-with-block-volume.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod-with-block-volume.yaml"
+    When I run oc create over "pod-with-block-volume.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod        |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc        |
       | ["spec"]["containers"][0]["volumeDevices"][0]["devicePath"]  | /dev/myblock |
@@ -59,11 +61,13 @@ Feature: kubelet restart and node restart
   # @author lxia@redhat.com
   Scenario Outline: Dynamic provisioning with file system volume
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-without-annotations.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-without-annotations.json"
+    When I create a dynamic pvc from "pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"]   | mypvc      |
       | ["spec"]["volumeMode"] | Filesystem |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod     |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc     |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/mypd |
@@ -81,7 +85,8 @@ Feature: kubelet restart and node restart
   # @author lxia@redhat.com
   Scenario Outline: Dynamic provisioning with invalid volume mode
     Given I have a project
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-without-annotations.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-without-annotations.json"
+    When I create a dynamic pvc from "pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"]   | mypvc  |
       | ["spec"]["volumeMode"] | <mode> |
     Then the step should fail

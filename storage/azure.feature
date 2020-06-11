@@ -9,12 +9,14 @@ Feature: Azure disk and Azure file specific scenarios
       | ["parameters"]["cachingMode"] | <cachingMode> |
       | ["parameters"]["fsType"]      | xfs           |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I create a dynamic pvc from "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                   |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -49,15 +51,18 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario: azureDisk volume with RWO access mode and Delete policy
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-NOPAR.yaml" where:
+    Given I obtain test data file "storage/azure/azsc-NOPAR.yaml"
+    When admin creates a StorageClass from "azsc-NOPAR.yaml" where:
       | ["metadata"]["name"]  | sc-<%= project.name %> |
       | ["volumeBindingMode"] | WaitForFirstConsumer   |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -85,19 +90,22 @@ Feature: Azure disk and Azure file specific scenarios
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azf-pv.yml" where:
+    Given I obtain test data file "storage/azure-file/azf-pv.yml"
+    When admin creates a PV from "azf-pv.yml" where:
       | ["metadata"]["name"]                | pv-<%= project.name %> |
       | ["spec"]["azureFile"]["secretName"] | <%= cb.secretName %>   |
       | ["spec"]["azureFile"]["shareName"]  | noexist                |
       | ["spec"]["storageClassName"]        | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -123,20 +131,23 @@ Feature: Azure disk and Azure file specific scenarios
     And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
     Given I create a new project
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azf-pv.yml" where:
+    Given I obtain test data file "storage/azure-file/azf-pv.yml"
+    When admin creates a PV from "azf-pv.yml" where:
       | ["metadata"]["name"]                     | pv-<%= project.name %> |
       | ["spec"]["azureFile"]["secretName"]      | <%= cb.secretName %>   |
       | ["spec"]["azureFile"]["shareName"]       | <%= cb.shareName %>    |
       | ["spec"]["storageClassName"]             | sc-<%= project.name %> |
       | ["spec"]["azureFile"]["secretNamespace"] | <%= cb.proj1 %>        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -154,19 +165,22 @@ Feature: Azure disk and Azure file specific scenarios
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
     And the azure file secret name and key are stored to the clipboard
-    When admin creates a PV from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azf-pv.yml" where:
+    Given I obtain test data file "storage/azure-file/azf-pv.yml"
+    When admin creates a PV from "azf-pv.yml" where:
       | ["metadata"]["name"]                | pv-<%= project.name %> |
       | ["spec"]["azureFile"]["secretName"] | <%= cb.secretName %>   |
       | ["spec"]["azureFile"]["shareName"]  | <%= cb.shareName %>    |
       | ["spec"]["storageClassName"]        | sc-<%= project.name %> |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -181,16 +195,19 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario Outline: azureFile dynamic provisioning with storage class
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azfsc-<sctype>.yaml" where:
+    Given I obtain test data file "storage/azure-file/azfsc-<sctype>.yaml"
+    When admin creates a StorageClass from "azfsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I run oc create over "pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["accessModes"][0]   | ReadWriteMany          |
     Then the step should succeed
     And the "mypvc" PVC becomes :bound within 120 seconds
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -218,18 +235,21 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario Outline: AzureDisk dynamic provisioning with managed storage class for storageaccounttype in OCP4.x
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-MANAGED.yaml" where:
+    Given I obtain test data file "storage/azure/azsc-MANAGED.yaml"
+    When admin creates a StorageClass from "azsc-MANAGED.yaml" where:
       | ["metadata"]["name"]                 | sc-<%= project.name %> |
       | ["parameters"]["storageaccounttype"] | <storageaccounttype>   |
       | ["volumeBindingMode"]                | WaitForFirstConsumer   |
       | ["reclaimPolicy"]                    | Delete                 |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc-storageClass.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc-storageClass.json"
+    When I create a dynamic pvc from "pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi   |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -263,16 +283,19 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: AzureDisk dynamic provisioning with managed storage class for resourceGroup
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-MANAGED.yaml" where:
+    Given I obtain test data file "storage/azure/azsc-MANAGED.yaml"
+    When admin creates a StorageClass from "azsc-MANAGED.yaml" where:
       | ["metadata"]["name"]            | sc-<%= project.name %>      |
       | ["parameters"]["resourceGroup"] | <%= cb.vid.split("/")[4] %> |
       | ["volumeBindingMode"]           | WaitForFirstConsumer        |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]            | mypvc                  |
       | ["spec"]["storageClassName"]    | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pod.yaml" replacing paths:
+    Given I obtain test data file "storage/misc/pod.yaml"
+    When I run oc create over "pod.yaml" replacing paths:
       | ["metadata"]["name"]                                         | mypod      |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | mypvc      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/azure |
@@ -294,12 +317,14 @@ Feature: Azure disk and Azure file specific scenarios
   @admin
   Scenario: AzureDisk dynamic provisioning with managed storage class for invalid resourceGroup
     Given I have a project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure/azsc-MANAGED.yaml" where:
+    Given I obtain test data file "storage/azure/azsc-MANAGED.yaml"
+    When admin creates a StorageClass from "azsc-MANAGED.yaml" where:
       | ["metadata"]["name"]            | sc-<%= project.name %> |
       | ["parameters"]["resourceGroup"] | invalid                |
       | ["volumeBindingMode"]           | Immediate              |
     Then the step should succeed
-    When I create a dynamic pvc from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -331,11 +356,13 @@ Feature: Azure disk and Azure file specific scenarios
   Scenario: Azure file can not dynamic provision block volume
     Given I have a project
     And azure file dynamic provisioning is enabled in the project
-    When admin creates a StorageClass from "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/azure-file/azfsc-NOPAR.yaml" where:
+    Given I obtain test data file "storage/azure-file/azfsc-NOPAR.yaml"
+    When admin creates a StorageClass from "azfsc-NOPAR.yaml" where:
       | ["metadata"]["name"]  | sc-<%= project.name %> |
       | ["volumeBindingMode"] | Immediate              |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/misc/pvc.json" replacing paths:
+    Given I obtain test data file "storage/misc/pvc.json"
+    When I run oc create over "pvc.json" replacing paths:
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
       | ["metadata"]["name"]         | mypvc                  |
       | ["spec"]["volumeMode"]       | Block                  |

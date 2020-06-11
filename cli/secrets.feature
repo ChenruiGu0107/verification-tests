@@ -57,8 +57,9 @@ Feature: secrets related scenarios
     Then the output should match:
       | secrets.*1 |
     """
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should not succeed
     And the output should contain:
       |  limit |
@@ -204,8 +205,9 @@ Feature: secrets related scenarios
   # @case_id OCP-10170
   Scenario: Consume secret via volume plugin with multiple volumes
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -213,8 +215,9 @@ Feature: secrets related scenarios
     Then the output should match:
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
+    Given I obtain test data file "secrets/pod-multi-volume.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/pod-multi-volume.yaml |
+      | f | pod-multi-volume.yaml |
     Then the step should succeed
     And the pod named "multiv-secret-pod" status becomes :running
     When I run the :logs client command with:
@@ -235,8 +238,9 @@ Feature: secrets related scenarios
   # @case_id OCP-10169
   Scenario: Consume same name secretes via volume plugin in different namespaces
     Given I have a project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -244,8 +248,9 @@ Feature: secrets related scenarios
     Then the output should match:
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
+    Given I obtain test data file "secrets/secret-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret-pod.yaml |
+      | f | secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -255,8 +260,9 @@ Feature: secrets related scenarios
       | value-1              |
       | secret-volume/data-1 |
     Given I create a new project
+    Given I obtain test data file "secrets/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -264,8 +270,9 @@ Feature: secrets related scenarios
     Then the output should match:
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
+    Given I obtain test data file "secrets/secret-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/secrets/secret-pod.yaml |
+      | f | secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:

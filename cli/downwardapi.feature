@@ -5,8 +5,9 @@ Feature: Downward API
   @admin
   Scenario: Could expose resouces limits and requests via ENV from Downward APIs by passing containerName
     Given I have a project
+    Given I obtain test data file "downwardapi/dapi-resources-env-containername-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod.yaml |
+      | f | dapi-resources-env-containername-pod.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -19,8 +20,9 @@ Feature: Downward API
       | MY_CPU_REQUEST=1      |
     # Test file without requests, use limits as requests by default
     Given I ensure "dapi-resources-env-containername-pod" pod is deleted
+    Given I obtain test data file "downwardapi/dapi-resources-env-containername-pod-without-requests.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-requests.yaml |
+      | f | dapi-resources-env-containername-pod-without-requests.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-requests" status becomes :succeeded
     When I run the :logs client command with:
@@ -33,8 +35,9 @@ Feature: Downward API
       | MY_CPU_REQUEST=1      |
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-containername-pod-without-requests" pod is deleted
+    Given I obtain test data file "downwardapi/dapi-resources-env-containername-pod-without-limits.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml |
+      | f | dapi-resources-env-containername-pod-without-limits.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-containername-pod-without-limits" status becomes :succeeded
     Given evaluation of `pod("dapi-resources-env-containername-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
@@ -69,8 +72,9 @@ Feature: Downward API
   @admin
   Scenario: Could expose resouces limits and requests via ENV from Downward APIs with magic keys
     Given I have a project
+    Given I obtain test data file "downwardapi/dapi-resources-env-magic-keys-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod.yaml |
+      | f | dapi-resources-env-magic-keys-pod.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
@@ -83,8 +87,9 @@ Feature: Downward API
       | MY_CPU_REQUEST=1      |
     # Test file without requests, use limits as requests by default
     Given I ensure "dapi-resources-env-magic-keys-pod" pod is deleted
+    Given I obtain test data file "downwardapi/dapi-resources-env-magic-keys-pod-without-requests.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod-without-requests.yaml |
+      | f | dapi-resources-env-magic-keys-pod-without-requests.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod-without-requests" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
@@ -97,8 +102,9 @@ Feature: Downward API
       | MY_CPU_REQUEST=1      |
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-magic-keys-pod-without-requests" pod is deleted
+    Given I obtain test data file "downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml |
+      | f | dapi-resources-env-magic-keys-pod-without-limits.yaml |
     Then the step should succeed
     And the pod named "dapi-resources-env-magic-keys-pod-without-limits" status becomes :succeeded within 300 seconds
     Given evaluation of `pod("dapi-resources-env-magic-keys-pod-without-limits").node_name(user: user)` is stored in the :node clipboard

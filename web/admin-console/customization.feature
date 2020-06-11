@@ -182,8 +182,9 @@ Feature: customize console related
     Then the step should succeed
 
     Given admin ensures "clidownloadtest" console_cli_download_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/clidownload.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/clidownload.yaml |
+      | f | clidownload.yaml |
     Then the step should succeed
     When I run the :goto_cli_tools_page web action
     Then the step should succeed
@@ -197,8 +198,9 @@ Feature: customize console related
     Given I open admin console in a browser
     Given the first user is cluster-admin
     Given admin ensures "notification3" console_notifications_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/console-notification.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/console-notification.yaml |
+      | f | console-notification.yaml |
     Then the step should succeed
 
     When I perform the :check_console_notification web action with:
@@ -242,9 +244,10 @@ Feature: customize console related
       | p        | {"spec":{"customization": null}} |
     Then the step should succeed
     """
+    Given I obtain test data file "customresource/mypic.jpg"
     When I run the :create_configmap admin command with:
       | name      | myconfig         |
-      | from_file | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/mypic.jpg |
+      | from_file | mypic.jpg |
       | namespace | openshift-config |
     Then the step should succeed
 
@@ -305,9 +308,11 @@ Feature: customize console related
     Given the master version >= "4.3"
     Given admin ensures "link-for-some-ns" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "link-for-all-ns" console_links_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/namespace-consolelink-1.yaml"
+    Given I obtain test data file "customresource/namespace-consolelink-2.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/namespace-consolelink-1.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/namespace-consolelink-2.yaml |
+      | f | namespace-consolelink-1.yaml |
+      | f | namespace-consolelink-2.yaml |
     Then the step should succeed
 
     Given I open admin console in a browser
@@ -365,10 +370,13 @@ Feature: customize console related
     Given admin ensures "exampleone" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "exampletwo" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "examplethree" console_links_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/namespace-label-consolelink-1.yaml"
+    Given I obtain test data file "customresource/namespace-label-consolelink-2.yaml"
+    Given I obtain test data file "customresource/namespace-label-consolelink-3.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/namespace-label-consolelink-1.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/namespace-label-consolelink-2.yaml |
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/namespace-label-consolelink-3.yaml |
+      | f | namespace-label-consolelink-1.yaml |
+      | f | namespace-label-consolelink-2.yaml |
+      | f | namespace-label-consolelink-3.yaml |
     Then the step should succeed
 
     # add label to some projects
@@ -442,11 +450,13 @@ Feature: customize console related
     Given admin ensures "consolelog1" console_external_log_link_console_openshift_io is deleted after scenario
     Given admin ensures "consolelog2" console_external_log_link_console_openshift_io is deleted after scenario
     Given admin ensures "consolelog3" console_external_log_link_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/consoleExternalLogLink.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/consoleExternalLogLink.yaml |
+      | f | consoleExternalLogLink.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/hello-pod.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/hello-pod.json |
+      | f | hello-pod.json |
       | n | <%= project.name %> |
     Then the step should succeed
     Given I open admin console in a browser
@@ -483,8 +493,9 @@ Feature: customize console related
     Given admin ensures "applicationmenu1" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "helpmenu1" console_links_console_openshift_io is deleted after scenario
     Given admin ensures "usermenu1" console_links_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/console-link.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/console-link.yaml |
+      | f | console-link.yaml |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :check_consolelink web action with:
@@ -518,14 +529,16 @@ Feature: customize console related
   Scenario: Check projectUID in external logging link on pod log tab
     Given the master version >= "4.3"
     Given admin ensures "example" console_external_log_link_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/console-external-log-link.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/console-external-log-link.yaml |
+      | f | console-external-log-link.yaml |
     Then the step should succeed
 
     # Given I open admin console in a browser
     Given I have a project
+    Given I obtain test data file "pods/pod_with_two_containers.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/pod_with_two_containers.json |
+      | f | pod_with_two_containers.json |
     Then the step should succeed
     Given I open admin console in a browser
     When I perform the :goto_one_pod_log_page web action with:
@@ -583,8 +596,9 @@ Feature: customize console related
 
     # create ConsoleYAMLSample instance
     Given admin ensures "example" console_yaml_samples_console_openshift_io is deleted after scenario
+    Given I obtain test data file "customresource/console-yaml-sample.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/customresource/console-yaml-sample.yaml |
+      | f | console-yaml-sample.yaml |
     Then the step should succeed
 
     Given the first user is cluster-admin

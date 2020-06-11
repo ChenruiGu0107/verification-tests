@@ -4,14 +4,17 @@ Feature: All in one volume
   # @case_id OCP-12395
   Scenario: Collisions when one path is explicit and the other is automatically projected
     Given I have a project
+    Given I obtain test data file "pods/allinone-volume/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/allinone-collisions-pod-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-1.yaml |
+      | f | allinone-collisions-pod-1.yaml |
     Then the step should succeed
     Given the pod named "allinone-collisions-1" becomes ready
     When I execute on the pod:
@@ -27,8 +30,9 @@ Feature: All in one volume
       | ^2755$  |
       | charm   |
       | ^644$   |
+    Given I obtain test data file "pods/allinone-volume/allinone-collisions-pod-2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-collisions-pod-2.yaml |
+      | f | allinone-collisions-pod-2.yaml |
     Then the step should succeed
     Given the pod named "allinone-collisions-2" becomes ready
     When I execute on the pod:
@@ -49,14 +53,17 @@ Feature: All in one volume
   # @case_id OCP-12438
   Scenario: Project secrets, configmap not explicitly defining keys for pathing within a volume
     Given I have a project
+    Given I obtain test data file "pods/allinone-volume/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/allinone-no-keypath-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
+      | f | allinone-no-keypath-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-no-keypath" becomes ready
     When I execute on the pod:
@@ -78,11 +85,13 @@ Feature: All in one volume
       | object_name_or_id | special-config |
     Then the step should succeed
     Given I ensure "allinone-no-keypath" pod is deleted
+    Given I obtain test data file "pods/allinone-volume/configmap-with-samekey.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap-with-samekey.yaml |
+      | f | configmap-with-samekey.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/allinone-no-keypath-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-no-keypath-pod.yaml |
+      | f | allinone-no-keypath-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-no-keypath" becomes ready
     When I execute on the pod:
@@ -102,14 +111,17 @@ Feature: All in one volume
   # @case_id OCP-12447
   Scenario: Project secrets, configmap with a same path of keys within a volume
     Given I have a project
+    Given I obtain test data file "pods/allinone-volume/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/allinone-same-path-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-same-path-pod.yaml |
+      | f | allinone-same-path-pod.yaml |
     Then the step should fail
     And the output should match:
       | projected: Invalid value: "special-config": conflicting duplicate paths |
@@ -119,20 +131,24 @@ Feature: All in one volume
   # @case_id OCP-12456
   Scenario: using invalid volume name
     Given I have a project
+    Given I obtain test data file "pods/allinone-volume/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/allinone-negative-pod-1.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-1.yaml |
+      | f | allinone-negative-pod-1.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value: "all-in-one abc" |
       | Not found: "all-in-one abc"     |
+    Given I obtain test data file "pods/allinone-volume/allinone-negative-pod-2.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-negative-pod-2.yaml |
+      | f | allinone-negative-pod-2.yaml |
     Then the step should fail
     And the output should match:
       | Invalid value.*<%= Regexp.escape("all-in-one!@$#$%^&") %> |
@@ -143,15 +159,18 @@ Feature: All in one volume
   @admin
   Scenario: Permission mode work well in whole volume and individual resources
     Given I have a project
+    Given I obtain test data file "pods/allinone-volume/configmap.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/configmap.yaml |
+      | f | configmap.yaml |
     Then the step should succeed
+    Given I obtain test data file "pods/allinone-volume/secret.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/secret.yaml |
+      | f | secret.yaml |
     Then the step should succeed
     Given SCC "anyuid" is added to the "default" user
+    Given I obtain test data file "pods/allinone-volume/allinone-permission-mode-pod.yaml"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/pods/allinone-volume/allinone-permission-mode-pod.yaml |
+      | f | allinone-permission-mode-pod.yaml |
     Then the step should succeed
     Given the pod named "allinone-permission-mode" becomes ready
     When I execute on the pod:

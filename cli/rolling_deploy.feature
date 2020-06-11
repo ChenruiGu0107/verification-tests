@@ -3,8 +3,9 @@ Feature: rolling deployment related scenarios
   # @case_id OCP-11516
   Scenario: Rolling-update pods with set maxSurge to 0
     Given I have a project
+    Given I obtain test data file "deployment/rolling.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/rolling.json |
+      | f | rolling.json |
     #And I wait until replicationController "hooks-1" is ready
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
@@ -52,8 +53,9 @@ Feature: rolling deployment related scenarios
   # @case_id OCP-10686
   Scenario: Rolling-update an invalid value of pods - Negative test
     Given I have a project
+    Given I obtain test data file "deployment/rolling.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/rolling.json |
+      | f | rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -71,8 +73,9 @@ Feature: rolling deployment related scenarios
   # @case_id OCP-11744
   Scenario: Rolling-update pods with set maxUnavabilable to 0
     Given I have a project
+    Given I obtain test data file "deployment/rolling.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/deployment/rolling.json |
+      | f | rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | dc    |

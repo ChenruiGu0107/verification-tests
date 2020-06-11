@@ -8,9 +8,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
+    Given I obtain test data file "scheduler/policy_hostname.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                          |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_hostname.json |
+      | from_file | policy.cfg=policy_hostname.json |
       | namespace | openshift-config                                                                          |
       Then the step should succeed
 
@@ -32,7 +33,8 @@ Feature: Testing Scheduler Operator related scenarios
     """
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_with_nodename.json" replacing paths:
+    Given I obtain test data file "scheduler/pod_with_nodename.json"
+    When I run oc create over "pod_with_nodename.json" replacing paths:
       | ["spec"]["nodeName"] | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -48,9 +50,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
 
+    Given I obtain test data file "scheduler/policy_servicespreadingpriority.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                                          |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_servicespreadingpriority.json |
+      | from_file | policy.cfg=policy_servicespreadingpriority.json |
       | namespace | openshift-config                                                                                          |
     Then the step should succeed
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -68,8 +71,9 @@ Feature: Testing Scheduler Operator related scenarios
     """
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
+    Given I obtain test data file "scheduler/list_for_servicespreading.json"
     When I run the :create client command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/list_for_servicespreading.json |
+      | f | list_for_servicespreading.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :get client command with:
@@ -115,9 +119,10 @@ Feature: Testing Scheduler Operator related scenarios
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Degraded')['status'] == "False"
     And the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
+    Given I obtain test data file "scheduler/policy_empty.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                       |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_empty.json |
+      | from_file | policy.cfg=policy_empty.json |
       | namespace | openshift-config                                                                       |
     Then the step should succeed
 
@@ -151,9 +156,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
 
+    Given I obtain test data file "scheduler/policy_leastrequestedpriority.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                                        |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_leastrequestedpriority.json |
+      | from_file | policy.cfg=policy_leastrequestedpriority.json |
       | namespace | openshift-config                                                                                        |
     Then the step should succeed
 
@@ -181,7 +187,8 @@ Feature: Testing Scheduler Operator related scenarios
     Then the step should succeed
     Given I have a project
     And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_memory clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+    Given I obtain test data file "scheduler/pod_ocp12489.yaml"
+    When I run oc create over "pod_ocp12489.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
@@ -189,7 +196,8 @@ Feature: Testing Scheduler Operator related scenarios
     When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+    Given I obtain test data file "scheduler/pod_ocp12489.yaml"
+    When I run oc create over "pod_ocp12489.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-request1 |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
     Then the step should succeed
@@ -203,9 +211,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "my-scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
+    Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | my-scheduler-policy                                                             |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
+      | from_file | policy.cfg=<filename> |
       | namespace | openshift-config                                                                |
     Then the step should succeed
     When I run the :patch admin command with:
@@ -263,9 +272,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
     Given node schedulable status should be restored after scenario
+    Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
+      | from_file | policy.cfg=<filename> |
       | namespace | openshift-config                                                                |
     Then the step should succeed
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -298,7 +308,8 @@ Feature: Testing Scheduler Operator related scenarios
     And label "ocpaffregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "ocpaffzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<podfilename>"
+    Given I obtain test data file "scheduler/<podfilename>"
+    When I process and create "<podfilename>"
     Then the step should succeed
     Given status becomes :running of 3 pods labeled:
       | deploymentconfig=database |
@@ -323,9 +334,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the master version >= "4.1"
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project after scenario
     Given the "cluster" scheduler CR is restored after scenario
+    Given I obtain test data file "scheduler/policy_weightattribute.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                                 |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_weightattribute.json |
+      | from_file | policy.cfg=policy_weightattribute.json |
       | namespace | openshift-config                                                                                 |
     Then the step should succeed
 
@@ -356,7 +368,8 @@ Feature: Testing Scheduler Operator related scenarios
     # Test for ServiceSpreadingPriority weight attribute
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/list_for_servicespreading.json" replacing paths:
+    Given I obtain test data file "scheduler/list_for_servicespreading.json"
+    When I run oc create over "list_for_servicespreading.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
     Given I successfully patch resource "replicationcontroller/service-spreading" with:
@@ -369,9 +382,10 @@ Feature: Testing Scheduler Operator related scenarios
     Then the expression should be true> cb.podnodename != cb.nodename
     # Edit weight attribute for leastrequestpriority
     Given admin ensures "scheduler-policy" configmap is deleted from the "openshift-config" project
+    Given I obtain test data file "scheduler/policy_weightattributeone.json"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                                    |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/policy_weightattributeone.json |
+      | from_file | policy.cfg=policy_weightattributeone.json |
       | namespace | openshift-config                                                                                    |
     Then the step should succeed
 
@@ -393,7 +407,8 @@ Feature: Testing Scheduler Operator related scenarios
       | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
     And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_memory clipboard
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+    Given I obtain test data file "scheduler/pod_ocp12489.yaml"
+    When I run oc create over "pod_ocp12489.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_memory %> |
     Then the step should succeed
     Given the pod named "pod-request" status becomes :running within 60 seconds
@@ -401,7 +416,8 @@ Feature: Testing Scheduler Operator related scenarios
     When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
-    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/pod_ocp12489.yaml" replacing paths:
+    Given I obtain test data file "scheduler/pod_ocp12489.yaml"
+    When I run oc create over "pod_ocp12489.yaml" replacing paths:
       | ["metadata"]["name"]                                         | pod-request5 |
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | 200Mi        |
     Then the step should succeed
@@ -419,9 +435,10 @@ Feature: Testing Scheduler Operator related scenarios
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
     Given node schedulable status should be restored after scenario
+    Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
       | name      | scheduler-policy                                                                |
-      | from_file | policy.cfg=<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<filename> |
+      | from_file | policy.cfg=<filename> |
       | namespace | openshift-config                                                                |
     Then the step should succeed
     Given as admin I successfully merge patch resource "Scheduler/cluster" with:
@@ -454,7 +471,8 @@ Feature: Testing Scheduler Operator related scenarios
     And label "ocpaffregion=r2" is added to the "<%= cb.nodes[1].name %>" node
     And label "ocpaffzone=z21" is added to the "<%= cb.nodes[1].name %>" node
     Given I have a project
-    When I process and create "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/<podfilename>"
+    Given I obtain test data file "scheduler/<podfilename>"
+    When I process and create "<podfilename>"
     Then the step should succeed
     Given status becomes :running of 3 pods labeled:
       | deploymentconfig=database |

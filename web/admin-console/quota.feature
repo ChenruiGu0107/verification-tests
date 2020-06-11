@@ -54,12 +54,14 @@ Feature: quota related feature
     Then the step should succeed
 
     # create other types of quota with specific scopes
+    Given I obtain test data file "quota/quota-terminating.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-terminating.yaml |
+      | f | quota-terminating.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given I obtain test data file "quota/quota-notbesteffort.yaml"
     When I run the :create admin command with:
-      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/quota/quota-notbesteffort.yaml |
+      | f | quota-notbesteffort.yaml |
       | n | <%= project.name %> |
     Then the step should succeed
 
