@@ -748,3 +748,96 @@ Feature: Install and configuration related scenarios
       | KubePodNotReady |
       | requests_total  |
       | ocp-28961-proj  |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-25925
+  @admin
+  @destructive
+  Scenario: Expose configuration to enable the service monitoring extension
+    Given the master version >= "4.5"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "ocp-25925-proj" project is deleted after scenario
+
+    When I run the :get client command with:
+      | resource | all                                |
+      | n        | openshift-user-workload-monitoring |
+    Then the step should succeed
+    And the output should contain:
+      | No resources found |
+    #enable techPreviewUserWorkload
+    Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                           |
+    Then the step should succeed
+
+    #Check resources are created under openshift-user-workload-monitoring namespaces
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | all                                |
+      | n        | openshift-user-workload-monitoring |
+    Then the step should succeed
+    And the output should contain:
+      | pod/prometheus-operator-                  |
+      | pod/prometheus-user-workload-             |
+      | service/prometheus-operated               |
+      | service/prometheus-operator               |
+      | service/prometheus-user-workload          |
+      | deployment.apps/prometheus-operator       |
+      | replicaset.apps/prometheus-operator       |
+      | statefulset.apps/prometheus-user-workload |
+    """
+    #Create one namespace, create resources in the namespace
+    When I run the :new_project client command with:
+      | project_name | ocp-25925-proj |
+    Then the step should succeed
+    Given I obtain test data file "monitoring/prometheus-example-app.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus-example-app.yaml |
+      | overwrite | true                        |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod            |
+      | n        | ocp-25925-proj |
+    Then the step should succeed
+    Then the output should match 1 times:
+      | prometheus |
+    And the output should not contain:
+      | alertmanager |
+    
+    When I use the "openshift-monitoring" project
+    And evaluation of `route('thanos-querier').spec.host` is stored in the :thanos_querier_route clipboard
+    # get sa/prometheus-k8s token
+    And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    #Check thanos querier from svc to wait for some time
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=version |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-example-app |
+      | ocp-25925-proj         |
+    """ 
+
+    When I run the :delete client command with:
+      | object_type       | configmap                 |
+      | object_name_or_id | cluster-monitoring-config |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | all                                |
+      | n        | openshift-user-workload-monitoring |
+    Then the step should succeed
+    And the output should contain:
+      | No resources found |
+    """
