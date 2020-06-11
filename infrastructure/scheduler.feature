@@ -344,7 +344,7 @@ Feature: Scheduler predicates and priority test suites
     Given the taints of the nodes in the clipboard are restored after scenario
     # Creation of priority classes
     When I run the :create admin command with:
-      | f | /<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
     When I run oc create as admin over "<%= BushSlicer::HOME %>/features/tierN/testdata/scheduler/priority-preemptionscheduling/priorityl.yaml" replacing paths:
