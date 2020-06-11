@@ -13,6 +13,8 @@ Feature: GCE specific scenarios
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     And the "pvc" PVC becomes :pending
     When I run the :describe client command with:
       | resource | pvc/pvc |
@@ -20,6 +22,7 @@ Feature: GCE specific scenarios
     And the output should contain:
       | ProvisioningFailed        |
       | must not contain an empty |
+    """
 
   # @author lxia@redhat.com
   # @case_id OCP-11063
