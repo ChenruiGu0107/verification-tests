@@ -24,6 +24,11 @@ Feature: oc_volume.feature
       | name      | myrc1                 |
       | image     | aosqe/hello-openshift |
     Then the step should succeed
+    Given number of replicas of "myrc1" deployment config becomes:
+      | desired   | 1 |
+      | current   | 1 |
+      | updated   | 1 |
+      | available | 1 |
     When I run the :set_resources client command with:
       | resource      | rc                    |
       | resourcename  | myrc1-1               |
@@ -35,6 +40,11 @@ Feature: oc_volume.feature
       | name      | myrc2                 |
       | image     | aosqe/hello-openshift |
     Then the step should succeed
+    Given number of replicas of "myrc2" deployment config becomes:
+      | desired   | 1 |
+      | current   | 1 |
+      | updated   | 1 |
+      | available | 1 |
     When I run the :set_resources client command with:
       | resource      | rc                    |
       | resourcename  | myrc2-1               |
