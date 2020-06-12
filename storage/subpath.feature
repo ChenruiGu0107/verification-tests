@@ -237,19 +237,27 @@ Feature: volumeMounts should be able to use subPath
   @admin
   Scenario: Subpath with sock file
     Given SCC "privileged" is added to the "default" user
-    When I run commands on all nodes:
-      | rm -f /run/test.sock                                                                    |
-      | python -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('/run/test.sock')" |
+    And I store the schedulable workers in the :nodes clipboard
+    And I use the "<%= cb.nodes[0].name %>" node
+    And label "subpath=socket" is added to the "<%=node.name%>" node
+    When I run commands on the host:
+      | rm -rf /run/test.sock    |
+      | nc -vklU /run/test.sock& |
     Then the step should succeed
+
     Given I have a project
-    Given I obtain test data file "storage/subpath/sock-subpath.json"
-    When I run oc create over "sock-subpath.json" replacing paths:
+    And I run the :patch admin command with:
+      | resource      | namespace                                                                      |
+      | resource_name | <%=project.name%>                                                              |
+      | p             | {"metadata":{"annotations": {"openshift.io/node-selector": "subpath=socket"}}} |
+    Then the step should succeed
+    When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/sock-subpath.json" replacing paths:
       | ["metadata"]["name"]                                      | pod-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt/run/test.sock      |
       | ["spec"]["containers"][0]["volumeMounts"][0]["subPath"]   | run/test.sock           |
     Then the step should succeed
-    Given the pod named "pod-<%= project.name %>" becomes ready
 
+    Given the pod named "pod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | stat | /mnt/run/test.sock |
     Then the step should succeed
