@@ -291,3 +291,47 @@ Feature: Testing registry
       | resource_set | resource   |
       | daemon_set   | daemonset  | # @case_id OCP-21510
       | deployment   | deployment | # @case_id OCP-29435
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-21988
+  @admin
+  Scenario: Registry can use AdditionalTrustedCA to trust an external secured registry 
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource  | configmap        |
+      | namespace | openshift-config |
+    Then the step should succeed
+    Then the output should contain:
+      | registry-config |
+    Then I run the :describe admin command with:
+      | resource | image.config.openshift.io |
+      | name     | cluster                   |
+    Then the step should succeed
+    And the output should contain:
+      | Additional Trusted CA |
+      | registry-config       |
+    When I run the :import_image client command with:
+      | image_name | ruby:latest |
+      | namespace  | openshift   |
+    Then the step should succeed
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-31767
+  @admin
+  @destructive
+  Scenario: Warning appears when registry use invalid AdditionalTrustedCA	
+    Given I switch to cluster admin pseudo user
+    And I successfully merge patch resource "image.config.openshift.io/cluster" with:
+     | {"spec": {"additionalTrustedCA": {"name": "registry-config-invalid"}}} |
+    And I register clean-up steps:
+    """
+    And I successfully merge patch resource "image.config.openshift.io/cluster" with:
+      | {"spec": {"additionalTrustedCA": {"name": "registry-config"}}} |
+    """
+    When I run the :logs admin command with:
+      | resource_name | deployments/cluster-image-registry-operator |
+      | c             | cluster-image-registry-operator             |
+      | namespace     | openshift-image-registry                    |
+    And the output should contain:
+      | configmap "registry-config-invalid" not found |
+      
