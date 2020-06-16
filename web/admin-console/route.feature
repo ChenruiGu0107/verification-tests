@@ -77,9 +77,9 @@ Feature: route related
       | secure_route          | true                 |
       | tls_termination_type  | edge                 |
       | insecure_traffic_type | Allow                |
-      | certificate_path      | route_edge-www.edge.com.crt |
-      | private_key_path      | route_edge-www.edge.com.key |
-      | ca_certificate_path   | ca.pem                           |
+      | certificate_path      | <%= localhost.absolutize("route_edge-www.edge.com.crt") %> |
+      | private_key_path      | <%= localhost.absolutize("route_edge-www.edge.com.key") %> |
+      | ca_certificate_path   | <%= localhost.absolutize("ca.pem") %>                      |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
@@ -134,10 +134,10 @@ Feature: route related
       | secure_route               | true                 |
       | tls_termination_type       | reencrypt            |
       | insecure_traffic_type      | Redirect             |
-      | certificate_path           | route_reencrypt-reen.example.com.crt |
-      | private_key_path           | route_reencrypt-reen.example.com.key |
-      | ca_certificate_path        | route_reencrypt.ca                   |
-      | destination_ca_certificate | route_reencrypt_dest.ca              |
+      | certificate_path           | <%= localhost.absolutize("route_reencrypt-reen.example.com.crt") %> |
+      | private_key_path           | <%= localhost.absolutize("route_reencrypt-reen.example.com.key") %> |
+      | ca_certificate_path        | <%= localhost.absolutize("route_reencrypt.ca") %>                   |
+      | destination_ca_certificate | <%= localhost.absolutize("route_reencrypt_dest.ca") %>              |
     Then the step should succeed
 
     When I perform the :check_resource_details web action with:
@@ -329,6 +329,7 @@ Feature: route related
     When I perform the :goto_route_creation_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+
     Given I obtain test data file "routing/tc/OCP-19608/example.crt"
     Given I obtain test data file "routing/tc/OCP-19608/example.key"
     Given I obtain test data file "routing/tc/OCP-19608/example.csr"
@@ -339,9 +340,9 @@ Feature: route related
       | secure_route          | true             |
       | tls_termination_type  | edge             |
       | insecure_traffic_type | Redirect         |
-      | certificate_path      | example.crt |
-      | private_key_path      | example.key |
-      | ca_certificate_path   | example.csr |
+      | certificate_path      | <%= localhost.absolutize("example.crt") %> |
+      | private_key_path      | <%= localhost.absolutize("example.key") %> |
+      | ca_certificate_path   | <%= localhost.absolutize("example.csr") %> |
     Then the step should succeed
     # to make sure all required routes are created
     Given I wait up to 10 seconds for the steps to pass:
