@@ -31,12 +31,12 @@ Feature: build related
       | link_url  | /k8s/cluster/namespaces/<%= project.name %> |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
-      | text      | python:latest                                   |
-      | link_url  | /k8s/ns/openshift/imagestreamtags/python:latest |
+      | text      | python:latest                            |
+      | link_url  | /k8s/ns/openshift/imagestreamtags/python |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
-      | text      | python-sample:latest                                             |
-      | link_url  | /k8s/ns/<%= project.name %>/imagestreamtags/python-sample:latest |
+      | text      | python-sample:latest                                       |
+      | link_url  | /k8s/ns/<%= project.name %>/imagestreamtags/python-sample  |
     Then the step should succeed
     # bug 1664574
     # When I get the html of the web page
