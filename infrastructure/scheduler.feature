@@ -228,7 +228,7 @@ Feature: Scheduler predicates and priority test suites
     Given admin ensures "my-scheduler" deployment is deleted from the "kube-system" project after scenario
     Given admin ensures "my-scheduler" service_account is deleted from the "kube-system" project after scenario
     Given admin ensures "my-scheduler-as-kube-scheduler" clusterrolebinding is deleted after scenario
-    Given I obtain test data file "customscheduler/my-scheduler-<%="
+    Given I obtain test data file "customscheduler/my-scheduler-<%= cb.master_version %>.yaml"
     When I run the :create admin command with:
       | f | my-scheduler-<%= cb.master_version %>.yaml |
     Then the step should succeed
