@@ -554,3 +554,79 @@ Feature: Cluster Autoscaler Tests
       | invalid_value             | machineset_name        |
       | "instanceType": "invalid" | machineset-clone-30377 | # @case_id OCP-30377
 
+  # @author zhsun@redhat.com
+  # @case_id OCP-30387
+  @admin
+  @destructive
+  Scenario: Autoscaler should work even machinesets miss replicas
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+
+    And I pick a random machineset to scale
+    When I get project machineset named "<%= machine_set.name %>" as YAML
+    And I save the output to file> machineset.yaml
+
+    # Create a machineset with replicas is nil
+    And I replace content in "machineset.yaml":
+      | <%= machine_set.name %> | machineset-clone-30387 |
+      | /replicas.*/            |                        |
+    When I run the :create admin command with:
+      | f | machineset.yaml |
+    Then the step should succeed
+    And admin ensures "machineset-clone-30387" machineset is deleted after scenario
+
+    # Create clusterautoscaler
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
+    When I run the :create admin command with:
+      | f | cluster-autoscaler.yml |
+    Then the step should succeed
+    And admin ensures "default" clusterautoscaler is deleted after scenario
+    And 1 pods become ready with labels:
+      | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
+
+    # Create machineautoscaler
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
+      | ["metadata"]["name"]               | maotest                |
+      | ["spec"]["minReplicas"]            | 0                      |
+      | ["spec"]["maxReplicas"]            | 2                      |
+      | ["spec"]["scaleTargetRef"]["name"] | machineset-clone-30387 |
+    Then the step should succeed
+    And admin ensures "maotest" machineautoscaler is deleted after scenario
+
+    # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
+    When I run the :create admin command with:
+      | f | autoscaler-auto-tmpl.yml |
+    Then the step should succeed
+    And admin ensures "workload" job is deleted after scenario
+
+    # Verify machineset has scaled
+    Given I wait for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MachineSet "machineset-clone-30387" has nil spec.replicas |
+      | Final scale-up plan                                       |
+    """
+
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 2
+    """
+    Then the machineset should have expected number of running machines
+
+    # Delete workload
+    Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
+
+    # Check cluster auto scales down
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set.desired_replicas(cached: false) == 0
+    """
+    Then the machineset should have expected number of running machines
+
