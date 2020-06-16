@@ -37,7 +37,7 @@ Feature: genericbuild.feature
   Scenario: Using file for Environment Variables in Build Configs
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo    | openshift/ruby:2.3~https://github.com/sclorg/ruby-ex.git |
+      | app_repo    | openshift/ruby:latest~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build completed
     When I run the :patch client command with:
@@ -81,10 +81,13 @@ Feature: genericbuild.feature
       | f | statefulset-trigger.yaml |
     Then the step should succeed
     And the pod named "testtrigger-0" becomes ready
-    And the expression should be true> stateful_set('testtrigger').abserve_generation == 2
+    And the expression should be true> stateful_set('testtrigger').abserve_generation(cached: false) == 2
     When I run the :tag client command with:
       | source | centos/ruby-25-centos7 |
       | dest   | rubytest:latest        |
     Then the step should succeed
     And the pod named "testtrigger-0" becomes ready 
-    And the expression should be true> stateful_set('testtrigger').abserve_generation == 3
+    And I wait for the steps to pass:
+    """
+    And the expression should be true> stateful_set('testtrigger').abserve_generation(cached: false) == 3
+    """
