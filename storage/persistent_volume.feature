@@ -252,7 +252,7 @@ Feature: Persistent Volume Claim binding policies
 
     Given I ensure "<%= project.name %>" project is deleted
 
-    And I wait up to 30 seconds for the steps to pass:
+    And I wait up to 60 seconds for the steps to pass:
     """
     Given I use the "<%= pod.node_name %>" node
     When I run commands on the host:
