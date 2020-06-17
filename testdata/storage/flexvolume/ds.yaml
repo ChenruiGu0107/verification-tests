@@ -1,0 +1,29 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: flex-deploy
+spec:
+  selector:
+    matchLabels:
+      app: flex-deploy
+  template:
+    metadata:
+      labels:
+        app: flex-deploy
+    spec:
+      serviceAccount: flex-deployer
+      containers:
+        - name: flex-deploy
+          image: quay.io/openshifttest/flexvolume:latest
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: mountpoint-dir
+              mountPath: /flexmnt
+      volumes:
+        - name: mountpoint-dir
+          hostPath:
+            path: /etc/kubernetes/kubelet-plugins/volume/exec/
