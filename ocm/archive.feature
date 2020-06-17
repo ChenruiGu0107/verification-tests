@@ -17,14 +17,13 @@ Feature: only about page related to cluster archive
     When I perform the :archive_cluster_from_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
-    When I perform the :go_to_archived_clusters_from_archived_cluster_detail_page web action with:
-      | from_page | archived_cluster_detail |
+    When I run the :go_to_archived_clusters_from_archived_cluster_detail_page web action
     Then the step should succeed
     When I perform the :unarchive_cluster_from_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
     When I perform the :wait_cluster_status_on_detail_page web action with:
-      |cluster_status|disconnected|
+      | cluster_status | disconnected |
     Then the step should succeed
 
   # @author xueli@redhat.com
@@ -32,28 +31,28 @@ Feature: only about page related to cluster archive
   Scenario: Archived cluster list page can display and work well
     Given I open ocm portal as an regularUser user
     When I perform the :go_to_archived_cluster_page web action with:
-      |from_page| cluster_list|
+      | from_page | cluster_list |
     Then the step should succeed
     When I perform the :check_archived_cluster_list_page web action with:
-      |empty_list|true|
+      | empty_list | true |
     Then the step should succeed
     When I perform the :click_show_active_clusters_link web action with:
-      |from_page| archived_clusters|
+      | from_page | archived_clusters |
     Then the step should succeed
     When I perform the :cluster_list_page_loaded web action with:
-      |from_page| archived_clusters|
+      | from_page | archived_clusters |
     Then the step should succeed
     When I perform the :archive_cluster_from_cluster_list_page web action with:
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
     When I perform the :go_to_archived_cluster_page web action with:
-      |from_page| cluster_list|
+      | from_page | cluster_list |
     Then the step should succeed
     When I perform the :check_archived_cluster_list_page web action with:
-      |archived_list|true|
+      | archived_list | true |
     Then the step should succeed
     When I perform the :go_to_cluster_list_page web action with:
-      |from_page| archived_clusters|
+      | from_page | archived_clusters |
     Then the step should succeed
     When I perform the :unarchive_cluster_from_cluster_list_page web action with:
       | cluster_name | sdqe-ui-archive |
@@ -96,17 +95,16 @@ Feature: only about page related to cluster archive
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :click_archive_button_on_cluster_list_page web action with:
-      |cluster_name|sdaqe-ui-disconnected-adminowned|
+      |cluster_name | sdaqe-ui-disconnected-adminowned |
     Then the step should fail
     When I perform the :go_to_cluster_detail_page web action with:
-      |cluster_name|sdaqe-ui-disconnected-adminowned|
+      | cluster_name | sdaqe-ui-disconnected-adminowned |
     Then the step should succeed
     When I perform the :click_archive_button_on_cluster_detail_page web action with:
-      |cluster_name|sdaqe-ui-disconnected-adminowned|
+      | cluster_name | sdaqe-ui-disconnected-adminowned |
     Then the step should fail
     # Add a successful step to make sure browser close action will succeed
-    When I perform the :go_to_cluster_list_page web action with:
-      |parameter_needed|no|
+    When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     Given I close the current browser
     Then the step should succeed
@@ -127,8 +125,7 @@ Feature: only about page related to cluster archive
       """
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I perform the :go_to_archived_cluster_page web action with:
-      | parameter_needed | no |
+    When I run the :go_to_archived_cluster_page web action
     Then the step should succeed
     When I perform the :click_unarchive_cluster_button_on_archived_cluster_list_page web action with:
       |cluster_name|sdaqe-ui-disconnected-adminowned|
@@ -136,12 +133,10 @@ Feature: only about page related to cluster archive
     When I perform the :go_to_archived_cluster_detail_page web action with:
       |cluster_name|sdaqe-ui-disconnected-adminowned|
     Then the step should succeed
-    When I perform the :click_detail_page_unarchive_cluster_button web action with:
-      |parameter_needed|no|
+    When I run the :click_detail_page_unarchive_cluster_button web action
     Then the step should fail
     # Add this step to make sure close browser can be excute successfully
-    When I perform the :go_to_cluster_list_page web action with:
-      |parameter_needed|no|
+    When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     Given I close the current browser
     Then the step should succeed
@@ -166,25 +161,20 @@ Feature: only about page related to cluster archive
     When I perform the :filter_name_or_id web action with:
       | filter_keyword | sdaqe-ui-disconnected-adminowned |
     Then the step should succeed
-    When I perform the :check_filter_no_result_message web action with:
-      |parameter_needed|no|
+    When I run the :check_filter_no_result_message web action
     Then the step should succeed
     # When I perform the :clear_filter_name_or_id web action with:
     #     | parameter_needed | no |
     # Then the step should succeed
-    When I perform the :go_to_archived_cluster_page web action with:
-      |parameter_needed|no|
+    When I run the :go_to_archived_cluster_page web action
     Then the step should succeed
-    When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdaqe-ui-default |
+    When I run the :filter_name_or_id web action
     Then the step should succeed
-    When I perform the :empty_table_loaded web action with:
-      |parameter_needed|no|
+    When I run the :empty_table_loaded web action
     Then the step should succeed
-    When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdaqe-ui-disconnected-adminowned |
+    When I run the :filter_name_or_id web action
     Then the step should succeed
     When I perform the :check_filter_cluster_existed web action with:
-      |coloumn_number|1|
+      | coloumn_number | 1                                |
       | filter_keyword | sdaqe-ui-disconnected-adminowned |
     Then the step should succeed
