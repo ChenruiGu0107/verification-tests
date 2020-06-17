@@ -488,3 +488,37 @@ Feature: oc run related scenarios
       | tool     |
       | oc       | # @case_id OCP-30884
       | kubectl  | # @case_id OCP-30898
+
+  # @author knarra@redhat.com
+  # @case_id OCP-29657
+  Scenario: Should show error info when --override with wrong format json
+    Given the master version >= "4.5"
+    Given I have a project
+    When I run the :run client command with:
+      | name      | test-override                                                                                                                |
+      | image     | registry.redhat.io/rhel7                                                                                                     |
+      | overrides | {"spec":{"dnsPolicy": "None", "dnsConfig":{"nameservers":["10.72.17.5"], "searches":["svc.cluster.local","cluster.local"]}}} |
+    Then the step should succeed
+    And the output should contain:
+      | pod/test-override created |
+    When I run the :run client command with:
+      | name      | test-override                                                                                                               |
+      | image     | registry.redhat.io/rhel7                                                                                                    |
+      | overrides | {"spec":{"dnsPolicy": "None","dnsConfig":{"nameservers":["'10.72.17.5'"],"searches":["svc.cluster.local","cluster.local"]}} |
+    Then the step should fail
+    And the output should contain:
+      | error: Invalid JSON Patch |
+    When I run the :run client command with:
+      | name      | test-override                                      |
+      | image     | registry.redhat.io/rhel7                           |
+      | overrides | {"apiVersion": "v1","spec": {"dnsPolicy": "none"}} |
+    Then the step should fail
+    And the output should contain:
+      | invalid: spec.dnsPolicy: Unsupported value: "none" |
+    When I run the :run client command with:
+      | name      | test-override                                      |
+      | image     | registry.redhat.io/rhel7                           |
+      | overrides | {"apiVersion": "v1","spec": {"dnsPolicy": "None"}} |
+    Then the step should fail
+    And the output should contain:
+      | invalid: spec.dnsConfig: Required value: must provide `dnsConfig` when `dnsPolicy` is None |
