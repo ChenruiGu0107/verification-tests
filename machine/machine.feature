@@ -55,6 +55,7 @@ Feature: Machine features testing
       | /instanceType:.*/ | instanceType: invalid | # @case_id OCP-28817
       | /vmSize:.*/       | vmSize: invalid       | # @case_id OCP-28818
       | /flavor:.*/       | flavor: invalid       | # @case_id OCP-28916
+      | /folder:.*/       | folder: invalid       | # @case_id OCP-28971
 
   # @author zhsun@redhat.com
   # @case_id OCP-29351
