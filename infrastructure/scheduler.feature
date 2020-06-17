@@ -367,7 +367,7 @@ Feature: Scheduler predicates and priority test suites
     # Creation of priority classes
     Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"
     When I run the :create admin command with:
-      | f | /priorityl.yaml |
+      | f | priorityl.yaml |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityl created"
     Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"

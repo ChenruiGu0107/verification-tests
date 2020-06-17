@@ -140,9 +140,9 @@ Feature: deployment related features
   # @case_id OCP-10633
   Scenario: Deployment is automatically stopped when running time is more than ActiveDeadlineSeconds
     Given I have a project
-    Given I obtain test data file "deployment/sleepv1.json|"
+    Given I obtain test data file "deployment/sleepv1.json"
     When I run the :create client command with:
-      | f | sleepv1.json|
+      | f | sleepv1.json |
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
     When I get project pod named "hooks-1-deploy" as YAML
@@ -229,9 +229,9 @@ Feature: deployment related features
   # @case_id OCP-12452, OCP-12460
   Scenario Outline: Failure handler of pre-post deployment hook
     Given I have a project
-    Given I obtain test data file "deployment/<file_name>|"
+    Given I obtain test data file "deployment/<file_name>"
     When I run the :create client command with:
-      | f | <file_name>|
+      | f | <file_name> |
     Then the step should succeed
     When the pod named "<pod_name>" becomes present
     And I wait up to 300 seconds for the steps to pass:

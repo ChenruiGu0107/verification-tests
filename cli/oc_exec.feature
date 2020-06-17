@@ -3,9 +3,9 @@ Feature: containers related features
   Scenario Outline: Choose container to execute command on with '-c' flag
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
-    Given I obtain test data file "pods/pod_with_two_containers.json|"
+    Given I obtain test data file "pods/pod_with_two_containers.json"
     When I run the :create client command with:
-      | filename | pod_with_two_containers.json|
+      | filename | pod_with_two_containers.json |
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
     When I run the :exec client command with:
