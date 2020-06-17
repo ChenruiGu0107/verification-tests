@@ -24,8 +24,8 @@ Feature: Alerting for machine-api
     Given I store the number of machines in the :machine_count clipboard
     And evaluation of `cb.machine_count + 101` is stored in the :pending_csr clipboard
 
-    Given I run the steps <%= cb.pending_csr %> times:
     Given I obtain test data file "cloud/machine-approver/csr.yml"
+    Given I run the steps <%= cb.pending_csr %> times:
     """
     When I run the :create admin command with:
       | f | csr.yml |
