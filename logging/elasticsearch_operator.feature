@@ -266,7 +266,7 @@ Feature: elasticsearch operator related tests
     Given I use the "openshift-logging" project
     Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                |
+      | remove_logging_pods | true                         |
       | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
@@ -278,18 +278,12 @@ Feature: elasticsearch operator related tests
     And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health
     # make the cluster unhealth
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | _cluster/settings' -d '{"transient" : {"cluster.routing.allocation.enable" : "none"}} |
-      | op           | PUT                                                                                   |
+      | relative_url | test-index-001 |
+      | op           | PUT            |
     Then the step should succeed
     And the output should contain:
       | "acknowledged":true |
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | app-*  |
-      | op           | DELETE |
-    Then the step should succeed
-    And the output should contain:
-      | "acknowledged":true |
-    # wait for the new index app-0000x to appear, the index should be red
+    # wait for the new index test-index-001 to appear
     Given I wait up to 300 seconds for the steps to pass:
     """
     When I perform the HTTP request on the ES pod with labels "es-node-master=true":
@@ -297,9 +291,7 @@ Feature: elasticsearch operator related tests
       | op           | GET                      |
     Then the step should succeed
     And the output should contain:
-      | app-0000 |
-    Given evaluation of `@result[:parsed].find {|e| e['index'].start_with? 'app'}` is stored in the :res_app clipboard
-    And the expression should be true> cb.res_app['health'] == 'red'
+      | test-index-001 |
     """
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -307,8 +299,9 @@ Feature: elasticsearch operator related tests
       | relative_url | _cluster/health?format=JSON |
       | op           | GET                         |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]['status'] == 'red'
-    And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health(cached: false)
-    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health(cached: false)
+    And the expression should be true> @result[:parsed]['status'] == elasticsearch('elasticsearch').cluster_health
+    And the expression should be true> @result[:parsed]['status'] == cluster_logging('instance').es_cluster_health
+    And the expression should be true> @result[:parsed]['active_primary_shards'] == elasticsearch('elasticsearch').active_primary_shards
+    And the expression should be true> @result[:parsed]['unassigned_shards'] == elasticsearch('elasticsearch').unassigned_shards
     """
 
