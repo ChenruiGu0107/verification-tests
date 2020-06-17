@@ -8,30 +8,32 @@ Feature: Group sync related scenarios
     Given I have LDAP service in my project
 
     Given I switch to cluster admin pseudo user
-    When I download a file from "<file>"
+    Given I obtain test data file "<file>"
     Then the step should succeed
     Given admin ensures "<group1>" group is deleted after scenario
     Given admin ensures "<group2>" group is deleted after scenario
     Given admin ensures "<group3>" group is deleted after scenario
     And I replace lines in "<file_name>":
-      |LDAP_SERVICE_IP:389|127.0.0.1:<%= cb.ldap_port %>|
+      | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
+    Given I wait for the steps to pass:
+    """
     When I run the :oadm_groups_sync admin command with:
-      |sync_config  |<file_name>	|
-      |confirm      |		        |
+      | sync_config | <file_name> |
+      | confirm     |		          | 
     Then the step should succeed
     And the output should match:
-      |<sync_regex>	|
+      | <sync_regex> |
+    """
     When I run the :get admin command with:
-      |resource| groups |
+      | resource | groups |
     Then the step should succeed
     And the output should match:
-      |<get_regex>	|
+      | <get_regex> |
     Examples:
-      |file                                                                                                     |group1         |group2         |group3         |file_name          |sync_regex                                                         |get_regex                                                  |
-      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/ad/sync-config.yaml            |tc509126group1 |tc509126group2 |tc509126group3 |sync-config.yaml   |group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3   |tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s   |
-      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/rfc2307/sync-config.yaml       |tc509125group1 |tc509125group2 |tc509125group3 |sync-config.yaml   |group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3   |tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s   |
-      |<%= ENV['BUSHSLICER_HOME'] %>/features/tierN/testdata/groups/augmented-ad/sync-config.yaml  |tc509127group1 |tc509127group2 |tc509127group3 |sync-config.yaml   |group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3   |tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s   |
-
+      | file                                 | group1         | group2         | group3         | file_name        | sync_regex                                                       | get_regex                                               |
+      | groups/ad/sync-config.yaml           | tc509126group1 | tc509126group2 | tc509126group3 | sync-config.yaml | group/tc509126group1\sgroup/tc509126group2\sgroup/tc509126group3 |tc509126group1\s.*\stc509126group2\s.*\stc509126group3\s |
+      | groups/rfc2307/sync-config.yaml      | tc509125group1 | tc509125group2 | tc509125group3 | sync-config.yaml | group/tc509125group1\sgroup/tc509125group2\sgroup/tc509125group3 |tc509125group1\s.*\stc509125group2\s.*\stc509125group3\s |
+      | groups/augmented-ad/sync-config.yaml | tc509127group1 | tc509127group2 | tc509127group3 | sync-config.yaml | group/tc509127group1\sgroup/tc509127group2\sgroup/tc509127group3 |tc509127group1\s.*\stc509127group2\s.*\stc509127group3\s |      
 
   # @author wjiang@redhat.com
   # @case_id OCP-11757
