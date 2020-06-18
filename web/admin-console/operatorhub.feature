@@ -376,6 +376,7 @@ Feature: operatorhub feature related
     Given the master version >= "4.5"
     Given the first user is cluster-admin
     Given admin ensures "custom-console-catalogsource-infrasubs" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given I use the "openshift-marketplace" project
     Given I obtain test data file "olm/catalogsource-template.yaml"
     When I process and create:
       | f | catalogsource-template.yaml |
@@ -383,10 +384,9 @@ Feature: operatorhub feature related
       | p | IMAGE=quay.io/openshifttest/uitestoperators:infrasubs            |
       | p | DISPLAYNAME=Custom Console AUTO Testing                          |
     Then the step should succeed
-    Given I use the "openshift-marketplace" project
     And a pod becomes ready with labels:
       | olm.catalogSource=custom-console-catalogsource-infrasubs |
-    Given I wait up to 30 seconds for the steps to pass:
+    Given I wait up to 60 seconds for the steps to pass:
     """
     When I get project packagemanifests
     Then the output should match 5 times:
