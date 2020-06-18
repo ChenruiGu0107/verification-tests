@@ -4,8 +4,8 @@ Feature: storageClass related feature
   Scenario Outline: pre-bound still works with storage class
     Given I have a project
     And I have a 1 GB volume from provisioner "<provisioner>" and save volume id in the :vid clipboard
-    Given I obtain test data file "storage/<path_to_file>"
-    When admin creates a PV from "<path_to_file>" where:
+    Given I obtain test data file "storage/<dir>/<file>"
+    When admin creates a PV from "<file>" where:
       | ["metadata"]["name"]                        | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]             | 1Gi                    |
       | ["spec"]["accessModes"][0]                  | ReadWriteOnce          |
@@ -22,10 +22,10 @@ Feature: storageClass related feature
     And the "mypvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     Examples:
-      | provisioner | storage_type         | volume_name | path_to_file               |
-      | gce-pd      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    | # @case_id OCP-10470
-      | aws-ebs     | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            | # @case_id OCP-10473
-      | cinder      | cinder               | volumeID    | cinder/pv-rwx-default.json | # @case_id OCP-10474
+      | provisioner | storage_type         | volume_name | dir    | file                |
+      | gce-pd      | gcePersistentDisk    | pdName      | gce    | pv-default-rwo.json | # @case_id OCP-10470
+      | aws-ebs     | awsElasticBlockStore | volumeID    | ebs    | pv-rwo.yaml         | # @case_id OCP-10473
+      | cinder      | cinder               | volumeID    | cinder | pv-rwx-default.json | # @case_id OCP-10474
 
   # @author lxia@redhat.com
   # @case_id OCP-10469
