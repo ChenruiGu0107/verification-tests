@@ -95,13 +95,13 @@ Feature: oc observe related tests
     Given I obtain test data file "cli/oc_observe_scripts/remove_from_inventory.sh"
     Given I obtain test data file "cli/oc_observe_scripts/add_to_inventory.sh"
     When I run the :observe client command with:
-      | resource      | dc                                                                                              |
-      | resync_period | 10s                                                                                             |
-      | names         | known_resources.sh       |
-      | delete        | remove_from_inventory.sh |
-      | oc_opts_end   |                                                                                                 |
-      | command       | add_to_inventory.sh      |
-      | _timeout      | 25                                                                                              |
+      | resource      | dc                                                      |
+      | resync_period | 10s                                                     |
+      | names         | <%= localhost.absolutize("known_resources.sh") %>       |
+      | delete        | <%= localhost.absolutize("remove_from_inventory.sh") %> |
+      | oc_opts_end   |                                                         |
+      | command       | <%= localhost.absolutize("add_to_inventory.sh") %>      |
+      | _timeout      | 25                                                      |
     Then the output should match 3 times:
       | ync.*./add_to_inventory.sh <%= project.name %> database |
       | ync.*./add_to_inventory.sh <%= project.name %> frontend |
@@ -120,11 +120,11 @@ Feature: oc observe related tests
     Given I obtain test data file "cli/oc_observe_scripts/remove_from_inventory.<%= cb.ext %>"
     Given I obtain test data file "cli/oc_observe_scripts/add_to_inventory.<%= cb.ext %>"
     When I run the :observe background client command with:
-      | resource    | service                                                                                                    |
-      | a           | {.spec.clusterIP}                                                                                          |
+      | resource    | service                             |
+      | a           | {.spec.clusterIP}                   |
       | names       | known_resources.<%= cb.ext %>       |
       | delete      | remove_from_inventory.<%= cb.ext %> |
-      | oc_opts_end |                                                                                                            |
+      | oc_opts_end |                                     |
       | command     | add_to_inventory.<%= cb.ext %>      |
     Then the step should succeed
     When I run the :label client command with:
