@@ -81,7 +81,7 @@ Feature: genericbuild.feature
       | f | statefulset-trigger.yaml |
     Then the step should succeed
     And the pod named "testtrigger-0" becomes ready
-    And the expression should be true> stateful_set('testtrigger').abserve_generation(cached: false) == 2
+    And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :before_change clipboard
     When I run the :tag client command with:
       | source | centos/ruby-25-centos7 |
       | dest   | rubytest:latest        |
@@ -89,5 +89,6 @@ Feature: genericbuild.feature
     And the pod named "testtrigger-0" becomes ready 
     And I wait for the steps to pass:
     """
-    And the expression should be true> stateful_set('testtrigger').abserve_generation(cached: false) == 3
+    And evaluation of `stateful_set('testtrigger').abserve_generation(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
     """
