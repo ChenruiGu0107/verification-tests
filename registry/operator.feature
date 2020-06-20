@@ -436,3 +436,52 @@ Feature: Testing image registry operator
     When I run the :logs client command with:
       | resource_name | bc/ruby-ex |
     Then the output should contain "Too Many Requests"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-30266
+  @admin
+  @destructive
+  Scenario: Image-registry pods could be running when add infra node nodeAffinity scheduler but no infra node land 
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} | 
+    And I register clean-up steps:
+    """
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"affinity":null}} |
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
+    """
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-30419
+  @admin
+  @destructive
+  Scenario: Image-registry pods could be running in infra nodes when add infra node nodeAffinity scheduler 
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    Given I store the schedulable workers in the :nodes clipboard
+    And label "node-role.kubernetes.io/infra=" is added to the "<%= cb.nodes[0].name %>" node
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} | 
+    And I register clean-up steps:
+    """
+    And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"affinity":null}} |
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+    """
