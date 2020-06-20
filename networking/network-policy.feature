@@ -1841,7 +1841,8 @@ Feature: Network policy plugin scenarios
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
     And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
-    And evaluation of `pod(0).ip_url` is stored in the :pod0_ip clipboard
+    # pod0 we need the raw ip
+    And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
     And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
 
     #Apply networpolicy with ipBlock as pod0 ip
@@ -1890,7 +1891,8 @@ Feature: Network policy plugin scenarios
     Given 2 pods become ready with labels:
       | name=test-pods |
     And evaluation of `pod(3).name` is stored in the :pod3_name clipboard
-    And evaluation of `pod(3).ip_url` is stored in the :pod3_ip clipboard
+    # pod3 we need the raw ip
+    And evaluation of `pod(3).ip` is stored in the :pod3_ip clipboard
     And evaluation of `pod(4).name` is stored in the :pod4_name clipboard
 
     #Apply networkpoicy to project 1 with ipBlock is pod3 ip
@@ -1981,7 +1983,8 @@ Feature: Network policy plugin scenarios
       | name=test-pods |
     And evaluation of `pod(0).name` is stored in the :pod0_name clipboard
     And evaluation of `pod(1).name` is stored in the :pod1_name clipboard
-    And evaluation of `pod(0).ip_url` is stored in the :pod0_ip clipboard
+    # pod0 we need the raw ip
+    And evaluation of `pod(0).ip` is stored in the :pod0_ip clipboard
     And evaluation of `pod(2).ip_url` is stored in the :pod2_ip clipboard
 
     #Apply network policy
