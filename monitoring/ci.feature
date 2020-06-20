@@ -768,7 +768,7 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: Expose configuration to enable the service monitoring extension
-    Given the master version >= "4.5"
+    Given the master version >= "4.3"
     And I switch to cluster admin pseudo user
     Given admin ensures "ocp-25925-proj" project is deleted after scenario
 

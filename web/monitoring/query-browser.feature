@@ -22,7 +22,8 @@ Feature: query browser
       | text  | Run Queries |
       | class | pf-c-button |
     Then I perform the :check_button_text web action with:
-      | text | Insert Example Query |
+      | button_text | Insert Example Query |
+    And the step should succeed
     #check Prometheus UI link
     When I click the following "a" element:
       | text  | Prometheus UI    |
@@ -212,5 +213,118 @@ Feature: query browser
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | Watchdog |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24760
+  @admin
+  Scenario: [Bug MON-743]Query Browser UI should show the `__name__` column inside the result table
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+    #search in Query Browser
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics | sum({job="node-exporter"}) by (__name__) |
+    Then the step should succeed
+    When I perform the :check_result_page web action with:
+      | table_text | count:up1 |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24097
+  @admin
+  Scenario: Single query in metrics query browser
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+    #check selected query from dropdown list
+    When I perform the :perform_metric_query_drop_down_admin web action with:
+      | metrics_name | :kube_pod_info_node_count: |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #check query by filter metrics
+    When I perform the :perform_filter_query web action with:
+      | metrics     | cluster:capacity_cpu_cores:sum |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #delete query
+    When I run the :perform_query_cog_action_delete_query web action
+    Then the step should succeed
+    When I run the :check_query_input_text_area_no_value web action
+    Then the step should succeed
+    When I perform the :check_button_text web action with:
+      | button_text | Insert Example Query |
+    Then the step should succeed
+    #verify function
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics | irate(node_disk_io_time_seconds_total{job="node-exporter"}[1m]) |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #hide/show table
+    When I run the :perform_hide_table web action
+    Then the step should succeed
+    When I perform the :check_metric_query_table_text_not_exist web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should fail
+    When I run the :perform_show_table web action
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #disable/enable query
+    When I run the :perform_disable_query web action
+    Then the step should succeed
+    When I perform the :check_metric_query_result_not_exit web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should fail
+    When I perform the :check_button_text web action with:
+      | button_text | Insert Example Query |
+    Then the step should succeed
+    When I run the :perform_enable_query web action
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | openshift-monitoring/k8s |
+    Then the step should succeed
+    #Hide/Show all queries
+    When I run the :perform_query_cog_action_hide_all_query web action
+    Then the step should succeed
+    When I run the :check_all_series_show web action
+    Then the step should succeed
+    When I run the :perform_query_cog_action_show_all_query web action
+    Then the step should succeed
+    When I run the :check_all_series_hide web action
+    Then the step should succeed
+    #zoom in/out test
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 2h |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 2h |
+    Then the step should succeed
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 1w |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 1w |
+    Then the step should succeed
+    When I run the :click_reset_zoom_button web action
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should succeed
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics | ALERTS45 |
+    Then the step should succeed
+    When I perform the :check_text_on_page web action with:
+      | text | No datapoints found |
     Then the step should succeed
     
