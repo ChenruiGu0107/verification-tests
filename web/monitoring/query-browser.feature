@@ -324,7 +324,7 @@ Feature: query browser
     When I perform the :perform_metric_query_textarea web action with:
       | metrics | ALERTS45 |
     Then the step should succeed
-    When I perform the :check_text_on_page web action with:
-      | text | No datapoints found |
+    When I perform the :check_page_contains web action with:
+      | content | No datapoints found |
     Then the step should succeed
     
