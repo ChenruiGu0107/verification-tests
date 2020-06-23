@@ -1,6 +1,83 @@
 Feature: Cluster Autoscaler Tests
 
   # @author zhsun@redhat.com
+  # @case_id OCP-20854
+  @admin
+  @destructive
+  Scenario: Some special pods can prevent CA from removing a node
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+
+    Given I clone a machineset and name it "machineset-clone-20854"
+
+    # Create clusterautoscaler
+    Given I obtain test data file "cloud/cluster-autoscaler.yml"
+    When I run the :create admin command with:
+      | f | cluster-autoscaler.yml |
+    Then the step should succeed
+    And admin ensures "default" clusterautoscaler is deleted after scenario
+
+    # Create machineautoscaler
+    Given I obtain test data file "cloud/machine-autoscaler.yml"
+    When I run oc create over "machine-autoscaler.yml" replacing paths:
+      | ["metadata"]["name"]               | maotest                |
+      | ["spec"]["minReplicas"]            | 1                      |
+      | ["spec"]["maxReplicas"]            | 3                      |
+      | ["spec"]["scaleTargetRef"]["name"] | machineset-clone-20854 |
+    Then the step should succeed
+    And admin ensures "maotest" machineautoscaler is deleted after scenario
+
+    # Create workload
+    Given I obtain test data file "cloud/autoscaler-auto-tmpl.yml"
+    When I run the :create admin command with:
+      | f | autoscaler-auto-tmpl.yml |
+    Then the step should succeed
+    And admin ensures "workload" job is deleted after scenario
+
+    # Verify machineset has scaled
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set("machineset-clone-20854").desired_replicas(cached: false) == 3
+    """
+    Then the machineset should have expected number of running machines
+
+    # Create workload with "safe-to-evict" annotation
+    Given I store the last provisioned machine in the :machine clipboard
+    And evaluation of `machine(cb.machine).node_name` is stored in the :noderef_name clipboard
+    Given I obtain test data file "cloud/safe-to-evict-pod.yml"
+    When I run oc create over "safe-to-evict-pod.yml" replacing paths:
+      | ["spec"]["nodeName"] | <%= cb.noderef_name %> |
+    Then the step should succeed
+    And admin ensures "safe-to-evict" pod is deleted after scenario
+
+    # Delete workload manually to scale down the cluster
+    Given admin ensures "workload" job is deleted from the "openshift-machine-api" project
+
+    Given 1 pods become ready with labels:
+      | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs admin command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | 1 nodes found to be unremovable in simulation                         |
+      | Scale-down calculation: ignoring 1 nodes unremovable in the last 5m0s |
+    """
+
+    # Check cluster auto scales down
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine_set("machineset-clone-20854").desired_replicas(cached: false) == 1
+    """
+    Then the machineset should have expected number of running machines
+
+    # Check special pods can prevent CA from removing a node
+    And I check that the "<%= cb.noderef_name %>" node exists
+
+  # @author zhsun@redhat.com
   # @case_id OCP-20108
   @admin
   @destructive
@@ -14,7 +91,6 @@ Feature: Cluster Autoscaler Tests
     Given I clone a machineset and name it "machineset-clone-20108-2"
 
     # Create clusterautoscaler
-    Given I use the "openshift-machine-api" project
     Given I obtain test data file "cloud/cluster-autoscaler.yml"
     When I run oc create over "cluster-autoscaler.yml" replacing paths:
       | ["spec"]["balanceSimilarNodeGroups"] | true |
