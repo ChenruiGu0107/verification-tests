@@ -651,3 +651,39 @@ Feature: operatorhub feature related
       | name     | openshift-storage |
     Then the output should contain:
       | openshift.io/cluster-monitoring=true |
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-24478
+  @admin
+  Scenario: Configure Knative Serving from Cluster Settings
+    Given the master version >= "4.2"
+
+    Given the first user is cluster-admin
+    Given admin ensures "serverless-operator" subscription is deleted from the "openshift-operators" project after scenario
+    Given I open admin console in a browser
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | serverless-operator |
+      | catalog_name     | redhat-operators    |
+      | target_namespace | openshift-operators |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    Given I use the "openshift-operators" project
+    Given I wait for the "serverless-operator" subscriptions to appear
+    Given admin waits for the "serverless-operator" subscriptions to become ready in the "openshift-operators" project up to 240 seconds
+    And evaluation of `subscription("serverless-operator").current_csv` is stored in the :current_csv clipboard
+    Given admin ensures "<%= cb.current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
+
+    Given admin ensures "knative-serving" project is deleted after scenario
+    # create knative-serving namespace and instance
+    When I run the :create admin command with:
+      | f | <%= BushSlicer::HOME %>/features/tierN/testdata/knative-serving/serving.yaml |
+    Then the step should succeed
+    When I run the :goto_global_configuration_page web action
+    Then the step should succeed
+    When I perform the :click_link_with_text web action with:
+      | text     | KnativeServing |
+      | link_url | operator.knative.dev~v1alpha1~KnativeServing/knative-serving |
+    Then the step should succeed
+    When I run the :check_edit_yaml_enabled web action
+    Then the step should succeed
