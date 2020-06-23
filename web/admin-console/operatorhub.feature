@@ -559,3 +559,95 @@ Feature: operatorhub feature related
     When I run the :check_Hazelcastjet_default_action_and_remote_workflow web action
     Then the step should succeed
 
+  # @author hasha@redhat.com
+  # @case_id OCP-27631
+  @admin
+  Scenario: check operator install process when operator bundle pre-defined namespace/installplan/monitoring
+    Given the master version >= "4.4"
+    Given I have a project
+    Given the first user is cluster-admin
+    And admin ensures "openshift-storage" project is deleted after scenario
+    And I open admin console in a browser
+
+    #The operators that pre-defined the install mode is not recommending an install namespace
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | amq7-cert-manager   |
+      | catalog_name     | redhat-operators    |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    """
+    When I run the :check_all_namespace_installation_mode_without_recommended_ns web action
+    Then the step should succeed
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | amq7-interconnect-operator |
+      | catalog_name     | redhat-operators           |
+      | target_namespace | <%= project.name %>        |
+    Then the step should succeed
+    """
+    When I run the :check_specific_namespace_installation_mode_without_recommended_ns web action
+    Then the step should succeed
+    When I perform the :select_installed_namespace web action with:
+      | project_name | openshift-operators |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Namespace does not support installation mode |
+    Then the step should succeed
+
+    #The operator is recommending an install namespace
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | elasticsearch-operator |
+      | catalog_name     | redhat-operators       |
+      | target_namespace | <%= project.name %>    |
+    Then the step should succeed
+    """
+    When I perform the :check_all_namespace_installation_mode_with_recommended_ns web action with:
+      | recommended_ns | openshift-operators-redhat |
+    Then the step should succeed
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | kubevirt-hyperconverged |
+      | catalog_name     | redhat-operators        |
+      | target_namespace | <%= project.name %>     |
+    Then the step should succeed
+    """
+    When I perform the :check_specific_namespace_installation_mode_with_recommended_ns web action with:
+      | recommended_ns | openshift-cnv |
+    Then the step should succeed
+
+    When I run the :click_radio_to_pick_ns web action
+    Then the step should succeed
+    When I perform the :select_installed_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    Given I wait for the "kubevirt-hyperconverged" subscription to appear in the "<%= project.name %>" project up to 30 seconds
+
+    #enable metrics service discovery
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | ocs-operator        |
+      | catalog_name     | redhat-operators    |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    """
+    When I run the :enable_cluster_monitoring web action
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    And I wait for the "openshift-storage" projects to appear
+    When I run the :describe admin command with:
+      | resource | project           |
+      | name     | openshift-storage |
+    Then the output should contain:
+      | openshift.io/cluster-monitoring=true |
