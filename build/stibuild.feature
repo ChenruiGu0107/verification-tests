@@ -527,3 +527,53 @@ Feature: stibuild.feature
     Then the output should match:
       | ruby-hello-world-2.*Git@refs/pull/73/head:master.*FetchSourceFailed |
       | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30237
+  @admin
+  Scenario: Build pod always mounts pull secrets that are available on the node
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:latest                         |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I get project pod named "ruby-hello-world-1-build" as YAML
+    And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "node-pullsecrets"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/var/lib/kubelet/config.json"}
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build |
+      | oc_opts_end      |                              |
+      | exec_command     | cat                          | 
+      | exec_command_arg | /var/lib/kubelet/config.json |
+      | n                | <%= project.name %>          |
+    Then the step should succeed
+    And the output should contain:
+      | registry.redhat.io |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-30236
+  @admin
+  Scenario: Create build using node credentials to pull image
+    Given I have a project
+    When I run the :tag client command with:
+      | source | registry.redhat.io/rhscl/ruby-25-rhel7:latest |
+      | dest   | <%= project.name %>/ruby:latest               |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | image_stream | <%= project.name %>/ruby:latest               |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I get project pod named "ruby-hello-world-1-build" as YAML
+    And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "node-pullsecrets"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/var/lib/kubelet/config.json"}
+    When I run the :debug admin command with:
+      | resource         | pod/ruby-hello-world-1-build |
+      | oc_opts_end      |                              |
+      | exec_command     | cat                          |
+      | exec_command_arg | /var/lib/kubelet/config.json |
+      | n                | <%= project.name %>          |
+    Then the step should succeed
+    And the output should contain:
+      | registry.redhat.io |
