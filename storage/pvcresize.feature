@@ -157,7 +157,8 @@ Feature: PVC resizing Test
   @admin
   Scenario: Resize PVC to a very large size
     Given I have a project
-    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]  | Immediate |
 
     Given I obtain test data file "storage/misc/pvc-with-storageClassName.json"
     When I create a dynamic pvc from "pvc-with-storageClassName.json" replacing paths:
@@ -165,7 +166,7 @@ Feature: PVC resizing Test
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
       | ["spec"]["storageClassName"]                 | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 240 seconds
+    And the "pvc-<%= project.name %>" PVC becomes :bound
 
     When I run the :patch client command with:
       | resource      | pvc                                                              |
