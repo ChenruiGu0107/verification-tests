@@ -31,7 +31,7 @@ Feature: imagestream related
 
     When I perform the :check_link_and_text web action with:
       | text     | testdotnet:1.1 |
-      | link_url | /k8s/ns/<%= project.name %>/imagestreamtags/testdotnet:1.1 |
+      | link_url | /k8s/ns/<%= project.name %>/imagestreamtags/testdotnet |
     Then the step should succeed
 
     When I perform the :goto_one_imagestream_page web action with:

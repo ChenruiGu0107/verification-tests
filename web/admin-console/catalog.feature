@@ -49,9 +49,6 @@ Feature: tests on catalog page
     When I run the :filter_by_serviceclass_type web action
     Then the step should succeed
     And the expression should be true>  browser.url =~ /category=languages&keyword=php&kind=.*ClusterServiceClass/
-    When I run the :clear_filter_by_keyword web action
-    Then the step should succeed
-    And the expression should be true>  browser.url !~ /category=languages&keyword=php.*/
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-23615
