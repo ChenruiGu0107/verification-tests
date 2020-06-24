@@ -143,9 +143,14 @@ Feature: containers related features
     Then the step should succeed
     Given I wait up to 120 seconds for the steps to pass:
     """
-    When I open web server via the "127.0.0.1:<%= cb[:port2] %>" url
-    Then the step should succeed
-    And the output should contain "Hello OpenShift"
+    | When I perform the HTTP request:                |
+    | """                                             |
+    | :url: http://127.0.0.1:<%= cb[:port2] %>        |
+    | :method: :get                                   |
+    | :proxy: ""                                      |
+    | """                                             |
+    | Then the step should succeed                    |
+    | And the output should contain "Hello OpenShift" |
     """
     Then I terminate last background process
 
