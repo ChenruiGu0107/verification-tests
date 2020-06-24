@@ -101,6 +101,7 @@ Feature: Testing haproxy rate limit related features
     When I run oc create over "httpbin-pod.json" replacing paths:
       | ["metadata"]["name"] | "httpbin-pod2" |
     Then the step should succeed
+    And the pod named "httpbin-pod2" becomes ready
 
     Given I obtain test data file "routing/routetimeout/unsecure/service_unsecure.json"
     When I run the :create client command with:
