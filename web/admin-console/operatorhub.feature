@@ -687,3 +687,110 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :check_edit_yaml_enabled web action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-29724
+  @admin
+  Scenario: Check Installed Operators list page
+    Given the master version >= "4.5"
+    # prepare an operator for current namespace
+    Given I have a project
+    Given the first user is cluster-admin
+    When I open admin console in a browser
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | spark-gcp           |
+      | catalog_name     | community-operators |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    """
+    Given I wait for the "spark-gcp" subscriptions to become ready up to 360 seconds
+    And evaluation of `subscription("spark-gcp").current_csv` is stored in the :spark_csv clipboard
+    And evaluation of `project.name` is stored in the :project_name clipboard
+
+    # prepare an operator for all namespaces
+    When I use the "openshift-operators" project
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | container-security-operator |
+      | catalog_name     | community-operators         |
+      | target_namespace |                             |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    """
+    Given admin ensures "container-security-operator" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given I wait for the "container-security-operator" subscriptions to become ready up to 360 seconds
+    Given admin ensures "<%= subscription('container-security-operator').current_csv %>" clusterserviceversions is deleted from the "openshift-operators" project after scenario
+
+    ## project selector: one project
+    #check column: Managed Namespaces
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= cb.project_name %> |
+    Then the step should succeed
+    When I run the :check_column_header_for_one_namespace web action
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_one_ns web action with:
+      | operator_name | Spark Operator         |
+      | project_name  | <%= cb.project_name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_all_ns web action with:
+      | operator_name | Container Security |
+    Then the step should succeed
+
+    ## project selector: all projects
+    #check column: Namespace
+    When I run the :goto_all_installed_operators_page web action
+    Then the step should succeed
+    When I perform the :check_namespace_column_installed_for_one_ns_under_all_projects web action with:
+      | operator_name | Spark Operator         |
+      | project_name  | <%= cb.project_name %> |
+    Then the step should succeed
+    When I perform the :check_namespace_column_installed_for_all_ns_under_all_projects web action with:
+      | operator_name | Container Security |
+    Then the step should succeed
+    #check column: Managed Namespaces
+    When I perform the :check_managed_namespace_column_installed_for_one_ns_under_all_projects web action with:
+      | operator_name | Spark Operator         |
+      | project_name  | <%= cb.project_name %> |
+    Then the step should succeed
+    When I perform the :check_managed_namespace_column_installed_for_all_ns_under_all_projects web action with:
+      | operator_name | Container Security |
+    Then the step should succeed
+
+    ## check operators detail page and subscription page
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | <%= cb.project_name %> |
+      | csv_name     | <%= cb.spark_csv %>    |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | namespace         | <%= cb.project_name %> |
+      | managed_namespace | <%= cb.project_name %> |
+    Then the step should succeed
+    When I perform the :goto_csv_subscription_page web action with:
+      | project_name | <%= cb.project_name %> |
+      | csv_name     | <%= cb.spark_csv %>    |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | namespace | <%= cb.project_name %> |
+    Then the step should succeed
+
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | openshift-operators                                            |
+      | csv_name     | <%= subscription("container-security-operator").current_csv %> |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | namespace         | openshift-operators |
+      | managed_namespace | All Namespaces      |
+    Then the step should succeed
+    When I perform the :goto_csv_subscription_page web action with:
+      | project_name | openshift-operators                                            |
+      | csv_name     | <%= subscription("container-security-operator").current_csv %> |
+    Then the step should succeed
+    When I perform the :check_resource_details web action with:
+      | namespace | openshift-operators |
+    Then the step should succeed
