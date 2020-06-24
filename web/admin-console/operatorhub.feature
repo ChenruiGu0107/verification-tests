@@ -794,3 +794,151 @@ Feature: operatorhub feature related
     When I perform the :check_resource_details web action with:
       | namespace | openshift-operators |
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-26917
+  @admin
+  Scenario: Custom Resource List view updates	
+    Given the master version >= "4.4"
+    Given I have a project
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | etcd                |
+      | catalog_name     | community-operators |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    """
+    Given a pod becomes ready with labels:
+      | name=etcd-operator-alm-owned |
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_custom_resource web action with:
+      | api | etcd Cluster |
+    Then the step should succeed
+    When I run the :open_edit_form_view web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | postgresql          |
+      | catalog_name     | community-operators |
+      | target_namespace | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    """
+    Given a pod becomes ready with labels:
+      | name=postgres-operator |
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_custom_resource web action with:
+      | api | Postgres Primary Cluster Member |
+    Then the step should succeed
+    When I run the :open_edit_form_view web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | anaconda-team-edition |
+      | catalog_name     | certified-operators   |
+      | target_namespace | <%= project.name %>   |
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    """
+    Given a pod becomes ready with labels:
+      | name=anaconda-team-edition |
+    When I perform the :goto_installed_operators_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_custom_resource web action with:
+      | api | Anaconda Team Edition |
+    Then the step should succeed
+    When I run the :open_edit_form_view web action
+    Then the step should succeed
+    When I run the :click_create_button web action
+    Then the step should succeed
+    
+    #check phase status
+    When I run the :get admin command with:
+      | resource      | etcdcluster         |
+      | resource_name | example             |
+      | n             | <%= project.name %> |
+      | output        | yaml                |
+    Then the step should succeed
+    Given evaluation of `@result[:parsed]["status"]["phase"]` is stored in the :etcd_phase clipboard
+    And evaluation of `subscription("etcd").current_csv` is stored in the :etcd_csv clipboard
+    When I perform the :goto_operand_list_page web action with:
+      | project_name | <%= project.name %>                          |
+      | csv_name     | <%= cb.etcd_csv %>                           |
+      | operand_name | etcd.database.coreos.com~v1beta2~EtcdCluster |
+    Then the step should succeed
+    When I perform the :check_phase_status web action with:
+      | status | <%= cb.etcd_phase %> |
+    Then the step should succeed
+    #check state status
+    When I run the :get admin command with:
+      | resource      | pgcluster           |
+      | resource_name | example             |
+      | n             | <%= project.name %> |
+      | output        | yaml                |
+    Then the step should succeed
+    Given evaluation of `@result[:parsed]["status"]["state"]` is stored in the :postgresql_state clipboard
+    And evaluation of `subscription("postgresql").current_csv` is stored in the :postgresql_csv clipboard
+    When I perform the :goto_operand_list_page web action with:
+      | project_name | <%= project.name %>          |
+      | csv_name     | <%= cb.postgresql_csv %>     |
+      | operand_name | crunchydata.com~v1~Pgcluster |
+    Then the step should succeed
+    When I perform the :check_state_status web action with:
+      | status | <%= cb.postgresql_state %> |
+    Then the step should succeed
+    # check condition status
+    When I run the :get admin command with:
+      | resource      | anaconda            |
+      | resource_name | example-anaconda    |
+      | n             | <%= project.name %> |
+      | output        | yaml                |
+    Then the step should succeed
+    Given evaluation of `@result[:parsed]["status"]["conditions"][0]["type"]` is stored in the :anaconda_condition1 clipboard
+    Given evaluation of `@result[:parsed]["status"]["conditions"][1]["type"]` is stored in the :anaconda_condition2 clipboard
+    And evaluation of `subscription("anaconda-team-edition").current_csv` is stored in the :anaconda_csv clipboard
+    When I perform the :goto_operand_list_page web action with:
+      | project_name | <%= project.name %>            |
+      | csv_name     | <%= cb.anaconda_csv %>         |
+      | operand_name | anaconda.com~v1alpha1~Anaconda |
+    Then the step should succeed
+    When I perform the :check_condition_status web action with:
+      | status | <%= cb.anaconda_condition1 %>, <%= cb.anaconda_condition2 %> |
+    Then the step should succeed
+    #check all instance page   
+    When I perform the :goto_operator_all_instance_page web action with:
+      | project_name | <%= project.name %> |
+      | csv_name     | <%= cb.etcd_csv %>  |
+    Then the step should succeed
+    When I perform the :check_column_in_table web action with:
+      | field | Status |
+    Then the step should succeed
+
