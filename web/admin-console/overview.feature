@@ -641,3 +641,67 @@ Feature: overview cases
     Then the step should succeed
     When I run the :check_network_out_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-27582
+  @admin
+  @destructive
+  Scenario: Add Operators health in Status card
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    Given I register clean-up steps:
+    """
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster         |
+      | type     | merge                            |
+      | p        | {"spec":{"customization": null}} |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | csv                 |
+      | object_name_or_id | etcdoperator.v0.9.4 |
+      | n                 | default             |
+    """
+
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :check_view_all_for_operators web action
+    Then the step should succeed
+    """
+    And the expression should be true> browser.url.end_with? "ClusterServiceVersion"
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :check_view_all_for_cluster_operators web action
+    Then the step should succeed
+    """
+    And the expression should be true> browser.url.end_with? "clusteroperators"
+
+    Given I obtain test data file "cases/ocp-27582/etcd-testcsv.yaml"
+    Given I use the "default" project
+    When I run the :create client command with:
+      | f | etcd-testcsv.yaml |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"customProductName":"my-custom-name","customLogoFile":{"name":"myconfig","key":"mypic.jpg"}}}} |
+    Then the step should succeed
+
+    And I wait up to 200 seconds for the steps to pass:
+    """
+    When I perform the :check_operator_status_on_status_card web action with:
+      | operator_type | Operators        |
+      | operator_name | etcd             |
+      | status        | 1 project failed |
+    Then the step should succeed
+    """
+    And the expression should be true> browser.url.end_with? "/default/operators.coreos.com~v1alpha1~ClusterServiceVersion/etcdoperator.v0.9.4"
+
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I perform the :check_cluster_operator_status_on_status_card web action with:
+      | operator_name | console           |
+      | status        | Degraded          |
+    Then the step should succeed
+    """
+    And the expression should be true> browser.url.end_with? "config.openshift.io~v1~ClusterOperator/console"

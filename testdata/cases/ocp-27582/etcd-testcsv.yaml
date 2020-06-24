@@ -1,0 +1,159 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |
+      [
+        {
+          "apiVersion": "etcd.database.coreos.com/v1beta2",
+          "kind": "EtcdCluster",
+          "metadata": {
+            "name": "example"
+          },
+          "spec": {
+            "size": 3,
+            "version": "3.2.13"
+          }
+        }
+      ]
+    capabilities: Full Lifecycle
+    categories: Database
+    containerImage: quay.io/coreos/etcd-operator@sha256:66a37fd61a06a43969854ee6d3e21087a98b93838e284a6086b13917f96b0d9b
+    description: Create and maintain highly-available etcd clusters on Kubernetes
+    olm.operatorNamespace: default
+    olm.targetNamespaces: default
+    repository: https://github.com/coreos/etcd-operator
+    tectonic-visibility: ocs
+  labels:
+    olm.api.2c1e6f7e17c07035: provided
+    olm.api.2fdc3540750c4d2b: provided
+    olm.api.c571d720f17289d3: provided
+  name: etcdoperator.v0.9.4
+spec:
+  customresourcedefinitions:
+    owned:
+    - description: Represents a cluster of etcd nodes.
+      displayName: etcd Cluster
+      kind: EtcdCluster
+      name: etcdclusters.etcd.database.coreos.com
+      resources:
+      - kind: Service
+        name: ""
+        version: v1
+      - kind: Pod
+        name: ""
+        version: v1
+      specDescriptors:
+      - description: The desired number of member Pods for the etcd cluster.
+        displayName: Size
+        path: size
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Resource Requirements
+        path: pod.resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: The status of each of the member Pods for the etcd cluster.
+        displayName: Member Status
+        path: members
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podStatuses
+      - description: The service at which the running etcd cluster can be accessed.
+        displayName: Service
+        path: serviceName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Service
+      - description: The current size of the etcd cluster.
+        displayName: Cluster Size
+        path: size
+      - description: The current version of the etcd cluster.
+        displayName: Current Version
+        path: currentVersion
+      - description: The target version of the etcd cluster, after upgrading.
+        displayName: Target Version
+        path: targetVersion
+      - description: The current status of the etcd cluster.
+        displayName: Status
+        path: phase
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.phase
+      - description: Explanation for the current status of the cluster.
+        displayName: Status Details
+        path: reason
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.phase:reason
+      version: v1beta2
+  description: |
+    The etcd Operater creates and maintains highly-available etcd clusters on Kubernetes, allowing engineers to easily deploy and manage etcd clusters for their applications.
+  displayName: etcd
+  install:
+    spec:
+      deployments:
+      - name: etcd-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: etcd-operator-alm-owned
+          template:
+            metadata:
+              labels:
+                name: etcd-operator-alm-owned
+              name: etcd-operator-alm-owned
+            spec:
+              containers:
+              - command:
+                - etcd-operator
+                - --create-crd=false
+                env:
+                - name: MY_POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: MY_POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                image: quay.io/coreos/etcd-operator@sha256:66a37fd61a06a43969854ee6d3e21087a98b93838e284a6086b13917f96b0d9b
+                name: etcd-operator
+              serviceAccountName: etcd-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: false
+    type: AllNamespaces
+  keywords:
+  - etcd
+  - key value
+  - database
+  - coreos
+  - open source
+  labels:
+    alm-owner-etcd: etcdoperator
+    operated-by: etcdoperator
+  links:
+  - name: Blog
+    url: https://coreos.com/etcd
+  - name: Documentation
+    url: https://coreos.com/operators/etcd/docs/latest/
+  - name: etcd Operator Source Code
+    url: https://github.com/coreos/etcd-operator
+  maintainers:
+  - email: etcd-dev@googlegroups.com
+    name: etcd Community
+  maturity: alpha
+  provider:
+    name: CNCF
+  selector:
+    matchLabels:
+      alm-owner-etcd: etcdoperator
+      operated-by: etcdoperator
+  version: 0.9.4
