@@ -174,3 +174,64 @@ Feature: machineconfig/machineconfig pool related
     When I run the :submit_changes web action
     Then the step should succeed
     And I check that there are no machinehealthcheck in the project
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-21399
+  @admin
+  @destructive
+  Scenario: Check MachineSet on console
+    Given the master version >= "4.1"
+    Given the first user is cluster-admin
+    Given I use the "openshift-machine-api" project
+    And I open admin console in a browser
+    When I run the :goto_machine_sets_page web action
+    Then the step should succeed
+    When I run the :wait_table_loaded web action
+    Then the step should succeed
+    Given admin ensures "example" machineset is deleted from the "openshift-machine-api" project after scenario
+    # create "example" machineset
+    When I run the :create_resource_by_default_yaml web action
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | machine               |
+      | n        | openshift-machine-api |
+      | l        | foo=bar               |
+    Then the step should succeed
+    And the output should contain 3 times:
+      | example |
+    """
+    When I perform the :check_desired_count_on_machineset_page web action with:
+      | machine_count | 3 machines |
+    Then the step should succeed
+    When I run the :click_machine_tab web action
+    Then the step should succeed
+    # check machine number
+    When I perform the :check_table_line_count web action with:
+      | line_count | 3 |
+    Then the step should succeed
+
+    When I perform the :edit_machine_count web action with:
+      | resource_count | 2 |
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I perform the :check_table_line_count web action with:
+      | line_count | 2 |
+    Then the step should succeed
+    """
+
+    When I run the :delete_machineset_from_action web action
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | machine               |
+      | n        | openshift-machine-api |
+    Then the output should not contain:
+      | example |
+    """
+    When I perform the :check_page_not_match web action with:
+      | content | example |
+    Then the step should succeed
