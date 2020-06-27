@@ -31,10 +31,10 @@ Feature: reports related scenarios
   Scenario: verify PV ReportGenerationQuery are supported and be able to generate a report
     Given metering service has been installed successfully
     And I use the "<%= cb.metering_namespace.name %>" project
-    Given I get the "persistentvolumeclaim-request" report and store it in the :res_json clipboard using:
-      | query_type | persistentvolumeclaim-request |
+    Given I get the "persistentvolumeclaim-usage" report and store it in the :res_json clipboard using:
+      | query_type | persistentvolumeclaim-usage |
     Then the step should succeed
-    And the expression should be true> (report_query('persistentvolumeclaim-request').column_names - cb.res_json['results'].first['values'].map {|e| e['name']}).empty?
+    And the expression should be true> (report_query('persistentvolumeclaim-usage').column_names - cb.res_json['results'].first['values'].map {|e| e['name']}).empty?
 
 
   # @author pruan@redhat.com
