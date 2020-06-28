@@ -45,3 +45,66 @@ Feature: dashboards related cases
       | alert_name | AlertmanagerReceiversNotConfigured |
     Then the step should succeed
 
+  # @author yapei@redhat.com
+  # @case_id OCP-28297
+  @admin
+  Scenario: Cluster Inventory block has a full list of required items
+    Given the master version >= "4.4"
+    Given I have a project
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+
+    # Check all required items such as Pods, Nodes, Storage Classes, PVCs are shown in Cluster Inventory
+    When I run the :check_cluster_inventory_items web action
+    Then the step should succeed
+
+    Given I stores all nodes to the :cluster_total_nodes clipboard
+    Given I stores all storageclasses to the :cluster_total_storageclasses clipboard
+    Given I stores all persistentvolumeclaims to the :cluster_total_pvcs clipboard
+
+    # Check matched counter for resources
+    When I perform the :check_matched_number_of_nodes web action with:
+      | number_of_nodes | <%= cb.cluster_total_nodes.length %> |
+    Then the step should succeed
+    When I perform the :check_matched_number_of_pvcs web action with:
+      | number_of_pvcs | <%= cb.cluster_total_pvcs.length %> |
+    Then the step should succeed
+    When I perform the :check_matched_number_of_storageclasses web action with:
+      | number_of_storageclasses | <%= cb.cluster_total_storageclasses.length %> |
+    Then the step should succeed
+
+    # create a Pending pod
+    Given I obtain test data file "pods/pod-invalid.yaml"
+    When I run the :create client command with:
+      | f | pod-invalid.yaml    |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given the pod named "hello-openshift-invalid" status becomes :pending within 300 seconds
+
+    # create a Failed pod
+    Given I obtain test data file "networking/failed-pod.json"
+    When I run the :create client command with:
+      | f | failed-pod.json     |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given the pod named "fail-pod" status becomes :failed within 300 seconds
+
+    When I run the :click_failed_icon_link_in_cluster_inventory web action
+    Then the step should succeed
+    When I run the :wait_table_loaded web action
+    Then the step should succeed
+    When I perform the :check_resource_pod_name_and_link web action with:
+      | pod_name     | fail-pod            |
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :click_progressing_icon_link_in_cluster_inventory web action
+    Then the step should succeed
+    When I run the :wait_table_loaded web action
+    Then the step should succeed
+    When I perform the :check_resource_pod_name_and_link web action with:
+      | pod_name     | hello-openshift-invalid |
+      | project_name | <%= project.name %>     |
+    Then the step should succeed    
