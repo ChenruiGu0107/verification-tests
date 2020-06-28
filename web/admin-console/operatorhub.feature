@@ -566,7 +566,6 @@ Feature: operatorhub feature related
     Given the master version >= "4.4"
     Given I have a project
     Given the first user is cluster-admin
-    And admin ensures "openshift-storage" project is deleted after scenario
     And I open admin console in a browser
 
     #The operators that pre-defined the install mode is not recommending an install namespace
@@ -645,6 +644,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
+    And admin ensures "openshift-storage" project is deleted after scenario
     And I wait for the "openshift-storage" projects to appear
     When I run the :describe admin command with:
       | resource | project           |
