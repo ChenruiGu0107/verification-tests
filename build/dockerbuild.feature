@@ -18,7 +18,7 @@ Feature: dockerbuild.feature
 
     Examples:
       | warning                                      |
-      | '123' does not appear to be a git repository |  # @case_id OCP-17382
+      | '123' does not appear to be a git repository | # @case_id OCP-17382
 
   # @author haowang@redhat.com
   # @case_id OCP-10693

@@ -35,18 +35,3 @@ Feature: CephFS storage plugin testing
     When I execute on the "cephfs-<%= project.name %>" pod:
       | ls | -l | /mnt/cephfs/cephfs_testfile |
     Then the step should succeed
-
-  # @author jhou@redhat.com
-  # @case_id 507222
-  @admin
-  Scenario: Create CephFS pod which reference the server directly from pod template
-    # Prepare CephFS server
-    Given I have a project
-    And I have a CephFS pod in the project
-
-    Given I switch to cluster admin pseudo user
-    And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/pod-direct.json" replacing paths:
-      | ["spec"]["volumes"][0]["cephfs"]["monitors"][0] | <%= pod("cephfs-server").ip(user: user) %>:6789 |
-    Then the step should succeed
-    And the pod named "cephfs" becomes ready

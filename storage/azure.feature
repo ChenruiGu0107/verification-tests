@@ -272,9 +272,9 @@ Feature: Azure disk and Azure file specific scenarios
 
     Examples:
       | storageaccounttype |
-      | Standard_LRS       |    # @case_id OCP-26094
-      | Premium_LRS        |    # @case_id OCP-26095
-      | StandardSSD_LRS    |    # @case_id OCP-26096
+      | Standard_LRS       | # @case_id OCP-26094
+      | Premium_LRS        | # @case_id OCP-26095
+      | StandardSSD_LRS    | # @case_id OCP-26096
 
 
   # @author wduan@redhat.com

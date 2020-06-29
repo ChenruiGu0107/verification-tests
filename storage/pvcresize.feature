@@ -57,8 +57,8 @@ Feature: PVC resizing Test
 
     Examples:
       | sc_name  |
-      | gp2      |  # @case_id OCP-17487
-      | standard |  # @case_id OCP-18395
+      | gp2      | # @case_id OCP-17487
+      | standard | # @case_id OCP-18395
 
 
   # @author jhou@redhat.com
