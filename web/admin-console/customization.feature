@@ -247,11 +247,35 @@ Feature: customize console related
     Given I obtain test data file "customresource/mypic.jpg"
     When I run the :create_configmap admin command with:
       | name      | myconfig         |
-      | from_file | mypic.jpg |
+      | from_file | mypic.jpg        |
       | namespace | openshift-config |
     Then the step should succeed
 
+    # negative tests
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"brand":"test"}}} |
+    Then the step should fail
+    When I run the :patch admin command with:
+      | resource | console.operator/cluster |
+      | type     | merge                    |
+      | p        | {"spec":{"customization": {"customLogoFile":{"name":"myconfig","key":"nonexist.jpg"}}}} |
+    Then the step should succeed
     Given I switch to cluster admin pseudo user
+    And I use the "openshift-console-operator" project
+    Given status becomes :running of 1 pods labeled:
+      | name=console-operator |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | custom logo file exists but no image provided |
+    """
+
+    # positive test
     And I use the "openshift-console" project
     Given evaluation of `deployment("console").annotation("deployment.kubernetes.io/revision", user: admin).to_i` is stored in the :version_before_deploy clipboard
     When I run the :patch admin command with:
@@ -268,6 +292,16 @@ Feature: customize console related
       | desired  | 2 |
       | current  | 2 |
       | ready    | 2 |
+    And current replica set name of "console" deployment stored into :console_rs clipboard
+    Given evaluation of `replica_set("<%= cb.console_rs %>").labels(user: admin)["pod-template-hash"]` is stored in the :pod_label clipboard
+    Given status becomes :running of 1 pods labeled:
+      | pod-template-hash=<%= cb.pod_label %> |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | ls | /var/logo/mypic.jpg |
+    Then the step should succeed
+    """
 
     Given I switch to the first user
     And I open admin console in a browser
@@ -275,31 +309,6 @@ Feature: customize console related
       | logo_source  | custom-logo    |
       | product_name | my-custom-name |
     Then the step should succeed
-
-    When I run the :patch admin command with:
-      | resource | console.operator/cluster |
-      | type     | merge                    |
-      | p        | {"spec":{"customization": {"brand":"test"}}} |
-    Then the step should fail
-    When I run the :patch admin command with:
-      | resource | console.operator/cluster |
-      | type     | merge                    |
-      | p        | {"spec":{"customization": {"customLogoFile":{"name":"myconfig","key":"nonexist.jpg"}}}} |
-    Then the step should succeed
-    Given I switch to cluster admin pseudo user
-    And current replica set name of "console" deployment stored into :console_rs clipboard
-    Given evaluation of `replica_set("<%= cb.console_rs %>").labels(user: admin)["pod-template-hash"]` is stored in the :pod_label clipboard
-    Given status becomes :running of 1 pods labeled:
-      | pod-template-hash=<%= cb.pod_label %> |
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :logs client command with:
-      | resource_name | pod/<%= pod.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | could not read logo file  |
-      | no such file or directory |
-    """
 
   # @author yapei@redhat.com
   # @case_id OCP-25791
