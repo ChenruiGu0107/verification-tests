@@ -7,9 +7,9 @@ Feature: elasticsearch operator related tests
   Scenario Outline: Redundancy policy testing
     Given I obtain test data file "logging/clusterlogging/<file>"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                           |
-      | crd_yaml            | <file>  |
-      | check_status        | false                                                                          |
+      | remove_logging_pods | true   |
+      | crd_yaml            | <file> |
+      | check_status        | false  |
     Then the step should succeed
     Given I wait for the "elasticsearch" config_map to appear
     Then the expression should be true> elasticsearch('elasticsearch').redundancy_policy == <redundancy_policy>
@@ -80,7 +80,7 @@ Feature: elasticsearch operator related tests
   Scenario: The prometheus-rules can be created by elasticsearch operator
     Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                |
+      | remove_logging_pods | true         |
       | crd_yaml            | example.yaml |
     Then the step should succeed
     Given I wait for the "elasticsearch-prometheus-rules" prometheus_rule to appear
@@ -126,7 +126,7 @@ Feature: elasticsearch operator related tests
     Given the master version < "4.5"
     Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                |
+      | remove_logging_pods | true         |
       | crd_yaml            | example.yaml |
     Then the step should succeed
     Given evaluation of `cluster_logging('instance').logstore_node_count` is stored in the :es_node_count_1 clipboard
@@ -205,7 +205,7 @@ Feature: elasticsearch operator related tests
     Given I use the "openshift-logging" project
     Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                |
+      | remove_logging_pods | true                         |
       | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
@@ -305,3 +305,96 @@ Feature: elasticsearch operator related tests
     And the expression should be true> @result[:parsed]['unassigned_shards'] == elasticsearch('elasticsearch').unassigned_shards
     """
 
+  # @author qitang@redhat.com
+  # @case_id OCP-23116
+  @admin
+  @destructive
+  Scenario: The EO should update the ES cluster status in the Elasticsearch CR timely.
+    Given I obtain test data file "logging/clusterlogging/invalid_setting.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true                 |
+      | crd_yaml            | invalid_setting.yaml |
+      | check_status        | false                |
+    Then the step should succeed
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given the expression should be true> cluster_logging('instance').es_cluster_conditions.first['message'].include? "Wrong RedundancyPolicy selected."
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.first['message'].include? "Wrong RedundancyPolicy selected."
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.first['reason'] == "Invalid Settings"
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.first['type'] == "InvalidRedundancy"
+    """
+    When I run the :patch client command with:
+      | resource      | clusterlogging                                                                |
+      | resource_name | instance                                                                      |
+      | p             | {"spec":{"logStore":{"elasticsearch":{"redundancyPolicy":"ZeroRedundancy"}}}} |
+      | type          | merge                                                                         |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | es-node-master=true |
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given the expression should be true> cluster_logging('instance').es_cluster_conditions.nil?
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.empty?
+    """
+    Given I delete the clusterlogging instance
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
+    And I register clean-up steps:
+    """
+    Given I run the :delete client command with:
+      | object_type | pvc               |
+      | all         | true              |
+      | n           | openshift-logging |
+    Then the step should succeed
+    """
+    When I process and create:
+      | f | clusterlogging-storage-template.yaml |
+      | p | STORAGE_CLASS=test-es                |
+      | p | PVC_SIZE=10Gi                        |
+    Then the step should succeed
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given the expression should be true> cluster_logging('instance').es_node_conditions.to_s.include? "pod has unbound immediate PersistentVolumeClaims"
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.first['message'].include? "pod has unbound immediate PersistentVolumeClaims"
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.first['reason'] == "Unschedulable"
+    And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.first['type'] == "Unschedulable"
+    """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-32064
+  @admin
+  @destructive
+  Scenario: New ES pod should reconnect the cluster successfully
+    Given I obtain test data file "logging/clusterlogging/singleredundancy.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true                  |
+      | crd_yaml            | singleredundancy.yaml |
+    Then the step should succeed
+    Given evaluation of `elasticsearch('elasticsearch').es_master_ready_pod_names` is stored in the :es_pods_1 clipboard
+    And I repeat the following steps for each :es_pod in cb.es_pods_1:
+    """
+      Given the expression should be true> pod('#{cb.es_pod}').exists?
+    """
+    When I run the :delete client command with:
+     | object_type       | pod                       |
+     | object_name_or_id | <%= cb.es_pods_1.first %> |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.es_pods_1.first %>" to disappear
+    Given evaluation of `cluster_logging('instance').logstore_node_count.to_i` is stored in the :es_node_count clipboard
+    And <%= cb.es_node_count %> pods become ready with labels:
+      | cluster-name=elasticsearch |
+    And I wait until ES cluster is ready
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+      Given evaluation of `elasticsearch('elasticsearch').es_master_ready_pod_names` is stored in the :es_pods_2 clipboard
+      Then the expression should be true>  (cb.es_pods_1 - cb.es_pods_2).empty? == false
+    """
+    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
+      | relative_url | _cluster/health?format=JSON |
+      | op           | GET                         |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['number_of_nodes'] == cb.es_node_count
+    And I repeat the following steps for each :es_pod in cb.es_pods_2:
+    """
+      Given the expression should be true> pod('#{cb.es_pod}').exists?
+    """
+    
