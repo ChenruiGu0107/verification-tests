@@ -1093,7 +1093,7 @@ Feature: Network policy plugin scenarios
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Given I have a pod-for-ping in the project
-    And evaluation of `pod.ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod.ip_url` is stored in the :p1pod1ip clipboard
     And evaluation of `pod.node_name` is stored in the :podnodename clipboard
     # create another project and pod
     Given I create a new project
@@ -1104,7 +1104,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=test-pods |
-    And evaluation of `pod.ip` is stored in the :p2pod1ip clipboard
+    And evaluation of `pod.ip_url` is stored in the :p2pod1ip clipboard
 
     # add defaultdeny annotation to the project1
     Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
