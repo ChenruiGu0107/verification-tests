@@ -381,3 +381,107 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> elasticsearch('elasticsearch').nodes_conditions.to_s.include? "Insufficient memory"
     And the expression should be true> cluster_logging('instance').fluentd_cluster_condition.to_s.include? "Insufficient memory"
     """
+
+  # @author qitang@redhat.com
+  # @case_id OCP-21977
+  @admin
+  @destructive
+  Scenario: Logging should work as usual when secrets deleted or regenerated.
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true         |
+      | crd_yaml            | example.yaml |
+    Then the step should succeed
+    Given evaluation of `secret('master-certs').raw_resource` is stored in the :master_certs_before clipboard
+    And evaluation of `secret('elasticsearch').raw_resource` is stored in the :elasticsearch_before clipboard
+    And evaluation of `secret('kibana').raw_resource` is stored in the :kibana_before clipboard
+    And evaluation of `secret('fluentd').raw_resource` is stored in the :fluentd_before clipboard
+    Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    When I run the :delete client command with:
+      | object_type       | secret        |
+      | object_name_or_id | master-certs  |
+      | object_name_or_id | elasticsearch |
+    Then the step should succeed
+    # CLO should recreate the secrets without changes
+    Given I wait for the "master-certs" secrets to appear
+    Given I wait for the "elasticsearch" secrets to appear
+    Then the expression should be true> cb.master_certs_before['data']['masterca'] ==  secret('master-certs').raw_value_of('masterca', cached: false)
+    And the expression should be true> cb.master_certs_before['data']['masterkey'] ==  secret('master-certs').raw_value_of('masterkey')
+    And the expression should be true> cb.elasticsearch_before['data']['logging-es.crt'] == secret('elasticsearch').raw_value_of('logging-es.crt', cached: false)
+    And the expression should be true> cb.elasticsearch_before['data']['logging-es.key'] == secret('elasticsearch').raw_value_of('logging-es.key')
+    And the expression should be true> cb.elasticsearch_before['data']['elasticsearch.key'] == secret('elasticsearch').raw_value_of('elasticsearch.key')
+
+    Given I register clean-up steps:
+    """
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    When I run the :delete client command with:
+      | object_type        | deployments              |
+      | object_name_or_id  | cluster-logging-operator |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    """
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 0                        |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | name=cluster-logging-operator |
+    Then the step should succeed
+    Given I ensure "master-certs" secret is deleted
+    When I run the :scale client command with:
+      | resource | deployments              |
+      | name     | cluster-logging-operator |
+      | replicas | 1                        |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=cluster-logging-operator |
+    Given I wait for the "master-certs" secrets to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given the expression should be true> cb.master_certs_before['data']['masterca'] !=  secret('master-certs').raw_value_of('masterca')
+    And the expression should be true> cb.master_certs_before['data']['masterkey'] !=  secret('master-certs').raw_value_of('masterkey')
+    And the expression should be true> cb.elasticsearch_before['data']['logging-es.crt'] != secret('elasticsearch').raw_value_of('logging-es.crt', cached: false)
+    And the expression should be true> cb.elasticsearch_before['data']['logging-es.key'] != secret('elasticsearch').raw_value_of('logging-es.key')
+    And the expression should be true> cb.elasticsearch_before['data']['elasticsearch.key'] != secret('elasticsearch').raw_value_of('elasticsearch.key')
+    And the expression should be true> cb.kibana_before['data']['cert'] != secret('kibana').raw_value_of('cert', cached: false)
+    And the expression should be true> cb.kibana_before['data']['key'] != secret('kibana').raw_value_of('key')
+    And the expression should be true> cb.kibana_before['data']['ca'] != secret('kibana').raw_value_of('ca')
+    And the expression should be true> cb.fluentd_before['data']['tls.crt'] != secret('fluentd').raw_value_of('tls.crt', cached: false)
+    And the expression should be true> cb.fluentd_before['data']['ca-bundle.crt'] != secret('fluentd').raw_value_of('ca-bundle.crt')
+    And the expression should be true> cb.fluentd_before['data']['tls.key'] != secret('fluentd').raw_value_of('tls.key')
+    """
+    # wait for the EO to remove all ES pods
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given all existing pods die with labels:
+      | es-node-master=true |
+    """
+    # wait for the EO to redeploy ES pods
+    Given I wait up to 600 seconds for the steps to pass:
+    """
+    Given the expression should be true> deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:desired] == deployment("elasticsearch-cdm-<%= cb.es_genuuid %>-1").replica_counters[:updated]
+    And a pod becomes ready with labels:
+      | es-node-master=true |
+    And a pod becomes ready with labels:
+      | component=kibana |
+    """
+    Given I switch to the first user
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I obtain test data file "logging/loggen/container_json_log_template.json"
+    When I run the :new_app client command with:
+      | file | container_json_log_template.json |
+    Then the step should succeed
+    # to check the fluentd could connet to the ES
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-logging" project
+    And I wait for the project "<%= cb.proj_name %>" logs to appear in the ES pod
+    # to check the Kibana console is accessible
+    Given I switch to the first user
+    Given I login to kibana logging web console
+    Then the step should succeed
+    When I run the :check_kibana_status web action
+    Then the step should succeed
