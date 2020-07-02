@@ -108,3 +108,46 @@ Feature: dashboards related cases
       | pod_name     | hello-openshift-invalid |
       | project_name | <%= project.name %>     |
     Then the step should succeed    
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-26557
+  @admin
+  Scenario: System events streaming
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :click_view_events_button web action
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    And the expression should be true> browser.url.end_with? "/k8s/all-namespaces/events"
+    """
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :click_events_pause_button web action
+    Then the step should succeed
+    Given I create a new project
+    Given I obtain test data file "pods/pod-invalid.yaml"
+    When I run the :create client command with:
+      | f | pod-invalid.yaml    |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_event_message_on_dashboard_page web action with:
+      | event_message | Pulling image "wrong" |
+    Then the step should fail
+    When I run the :click_events_resume_button web action
+    Then the step should succeed
+    When I perform the :check_event_message_on_dashboard_page web action with:
+      | event_message | Pulling image "wrong" |
+    Then the step should succeed
+
+    Given I obtain test data file "networking/failed-pod.json"
+    When I run oc create over "failed-pod.json" replacing paths:
+      | ["spec"]["containers"][0]["image"] | uitest/hello-openshift |
+    Then the step should succeed
+    When I perform the :check_event_message_on_dashboard_page web action with:
+      | event_message | Pulling image "uitest/hello-openshift" |
+    Then the step should succeed
