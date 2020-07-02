@@ -1,0 +1,39 @@
+{
+  "spec": {
+    "identityProviders": [
+      {
+        "ldap": {
+          "attributes": {
+            "email": [
+              "mail"
+            ],
+            "id": [
+              "dn"
+            ],
+            "name": [
+              "uid"
+            ],
+            "preferredUsername": [
+              "uid"
+            ]
+          },
+          "insecure": true,
+          "url": "ldap://0.0.0.0:386/ou=People,dc=my-domain,dc=com?uid"
+        },
+        "mappingMethod": "add",
+        "name": "openldapidp",
+        "type": "LDAP"
+      },
+      {
+        "htpasswd": {
+          "fileData": {
+            "name": "htpass-secret-ocp29916"
+          }
+        },
+        "mappingMethod": "add",
+        "name": "htpassidp-29916",
+        "type": "HTPasswd"
+      }
+    ]
+  }
+}

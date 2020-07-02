@@ -223,3 +223,59 @@ Feature: idp feature
       | skip_tls_verify  | true                |
     Then the step should fail
 
+
+  # @author pmali@redhat.com
+  # @case_id OCP-29916
+  @admin
+  @destructive
+  Scenario: [BUG: 1814898] User should able to login when ldap query times out when htpasswd IDP credentials are used.	
+    Given the "cluster" oauth CRD is restored after scenario
+    Given a "htpasswd" file is created with the following lines:
+    """
+    newton:$2y$05$i1Q2aEoyGGMEVscWl9rGlO5ELMf3gmfea7oZ/eI0Qe0LkdB.Nn75q
+    """
+    When I run the :create_secret admin command with:
+      | name        | htpass-secret-ocp29916 |
+      | secret_type | generic                |
+      | from_file   | htpasswd               |
+      | n           | openshift-config       |
+    Then the step should succeed
+    And admin ensure "htpass-secret-ocp29916" secret is deleted from the "openshift-config" project after scenario
+    Given I obtain test data file "authorization/idp/OCP-29916/OCP-29916_idp_spec.json"
+    Given as admin I successfully merge patch resource "oauth/cluster" with:
+      | <%= File.read("OCP-29916_idp_spec.json") %> |
+    Given I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "True"
+    """
+    And I wait for the steps to pass:
+    """
+    Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
+    And  the expression should be true> cluster_operator("authentication").condition(type: 'Available')['status'] == "True"
+    """
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | newton                      |
+      | password | password                    |
+      | config   | newton.config               |
+      | skip_tls_verify  | true                |
+    Then the step should succeed
+    And admin ensures "newton" user is deleted after scenario
+    And admin ensures "htpassidp-29916:newton" identity is deleted after scenario
+    When I run the :get admin command with:
+      | resource | user/newton |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pods                               |
+      | n        | openshift-authentication           |
+      | o        | jsonpath={.items[0].metadata.name} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :auth_pod_name clipboard
+    Given I run the :logs admin command with:
+      | resource_name | <%= cb.auth_pod_name %>  |
+      | n             | openshift-authentication |
+    Then the step should succeed
+    And the output should match:
+      | Error.*login.*newton.*LDAP.*Network Error.*0.0.0.0:386.*connection refused | 
+      
