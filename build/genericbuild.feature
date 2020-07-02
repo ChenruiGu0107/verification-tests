@@ -65,10 +65,10 @@ Feature: genericbuild.feature
       | binary | true            |
       | name   | multistage-test |
     Then the step should succeed
-    Given I obtain test data file "build/OCP-22575/olm-testing/"
+    Given I obtain test data dir "build/OCP-22575/olm-testing/"
     When I run the :start_build client command with:
-      | buildconfig | multistage-test                                                              |
-      | from_dir    |  |
+      | buildconfig | multistage-test |
+      | from_dir    |  olm-testing    |
     Then the step should succeed
     And the "multistage-test-1" build completed
 
