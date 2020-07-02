@@ -383,3 +383,41 @@ Feature: Node management
     And the output should contain "quay.io/openshifttest/hello-pod:latest"
     And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod:latest'
 
+  # @author minmli@redhat.com
+  # @case_id OCP-26948
+  @admin
+  @destructive
+  Scenario: Should show image digests in node status - 4.x
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
+    Given I run commands on the host:
+      | podman pull quay.io/openshifttest/caddy-docker-2:latest                                                                    |
+      | podman pull quay.io/openshifttest/nginx:latest                                                                             |
+      | podman pull quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |
+      | podman images --digests \| grep -E "caddy-docker-2\|nginx\|mysql-56-centos7"                                               |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | no                      |
+      | resource_name | <%= cb.nodes[0].name %> |
+      | o             | yaml                    |
+    Then the output should contain:
+      | quay.io/openshifttest/caddy-docker-2:latest                                                                    |
+      | quay.io/openshifttest/nginx:latest                                                                             |
+      | quay.io/openshifttest/mysql-56-centos7@sha256:a9fb44bd6753a8053516567a0416db84844e10989140ea2b19ed1d2d8bafc75f |         
+    """
+    Given I use the "<%= cb.nodes[0].name %>" node
+    Given I run commands on the host:
+      | podman image rm  quay.io/openshifttest/nginx:latest |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get admin command with:
+      | resource      | no                      |
+      | resource_name | <%= cb.nodes[0].name %> |
+      | o             | yaml                    |
+    Then the output should not contain:
+      | quay.io/openshifttest/nginx:latest |
+    """
+
