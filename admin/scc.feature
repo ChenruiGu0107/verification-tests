@@ -188,35 +188,35 @@ Feature: SCC policy related scenarios
   Scenario: [platformmanagement_public_586] Check if the capabilities work in pods
     Given I have a project
     When I run the :run client command with:
-      |name |busybox                      |
-      |image|aosqe/busybox-http-app:latest|
+      | name  | busybox                       |
+      | image | aosqe/busybox-http-app:latest |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      |deploymentconfig=busybox|
+      | run=busybox |
     When I execute on the pod:
-      |sh|
-      |-c|
-      |mknod /tmp/sda b 8 0|
+      | sh                   |
+      | -c                   |
+      | mknod /tmp/sda b 8 0 |
     Then the output should match "Operation not permitted"
     When I execute on the pod:
-      |sh|
-      |-c|
-      |touch /tmp/random && chown :$RANDOM /tmp/random|
+      | sh                                              |
+      | -c                                              |
+      | touch /tmp/random && chown :$RANDOM /tmp/random |
     Then the output should match "Operation not permitted"
     When I execute on the pod:
-      |sh|
-      |-c|
-      |touch /tmp/random && chown 0 /tmp/random|
+      | sh                                       |
+      | -c                                       |
+      | touch /tmp/random && chown 0 /tmp/random |
     Then the output should match "Operation not permitted"
     When I execute on the pod:
-      |sh|
-      |-c|
-      |chroot /tmp|
+      | sh          |
+      | -c          |
+      | chroot /tmp |
     Then the output should match "Operation not permitted"
     When I execute on the pod:
-      |sh|
-      |-c|
-      |kill -9 1 && [ ! -d /proc/1 ] && echo ok \|\| echo "not ok"|
+      | sh                                         |
+      | -c                                         |
+      | kill -9 1 && [ ! -d /proc/1 ] && echo ok \|\| echo "not ok" |
     Then the output should match "not ok"
 
   # @author mcurlej@redhat.com
