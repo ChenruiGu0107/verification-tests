@@ -92,7 +92,7 @@ Feature: imagestream related
     When I run the :patch admin command with:
       | resource | configs.imageregistry.operator.openshift.io/cluster |
       | type     | merge                                               |
-      | p        | {"spec":{"defaultRoute": <%= cb.defaultroute %>}}   |
+      | p        | {"spec":{"defaultRoute": null}}                     |
     Then the step should succeed
     """
 
