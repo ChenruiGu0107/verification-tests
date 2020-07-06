@@ -386,7 +386,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     And a pod becomes ready with labels:
       | olm.catalogSource=custom-console-catalogsource-infrasubs |
-    Given I wait up to 60 seconds for the steps to pass:
+    Given I wait up to 120 seconds for the steps to pass:
     """
     When I get project packagemanifests
     Then the output should match 5 times:
