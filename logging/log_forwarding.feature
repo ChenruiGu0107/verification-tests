@@ -2,25 +2,26 @@
 Feature: log forwarding related tests
 
   # @author qitang@redhat.com
+  # @case_id OCP-25938
   @admin
   @destructive
-  Scenario Outline: Forward logs to fluentd as unsecure
+  Scenario: Forward logs to fluentd as unsecure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     And fluentd receiver is deployed as insecure in the "openshift-logging" project
 
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
-    Given I obtain test data file "logging/logforwarding/fluentd/insecure/<status>/logforwarding.yaml"
+    Given I obtain test data file "logging/logforwarding/fluentd/insecure/logforwarding.yaml"
     When I run the :create client command with:
       | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false                                                                                     |
+      | check_status        | false               |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -46,30 +47,27 @@ Feature: log forwarding related tests
       | audit.log |
       | infra.log |
     """
-    Examples:
-      | status |
-      | tp     | # @case_id OCP-25938
-      | ga     | # @case_id OCP-29843
 
   # @author qitang@redhat.com
+  # @case_id OCP-26141
   @admin
   @destructive
-  Scenario Outline: Forward logs to non-clusterlogging-managed elasticsearch as unsecure
+  Scenario: Forward logs to non-clusterlogging-managed elasticsearch as unsecure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as insecure
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
-    Given I obtain test data file "logging/logforwarding/elasticsearch/insecure/<status>/logforwarding.yaml"
+    Given I obtain test data file "logging/logforwarding/elasticsearch/insecure/logforwarding.yaml"
     When I run the :create client command with:
       | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false                                                                                     |
+      | check_status        | false               |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -112,30 +110,27 @@ Feature: log forwarding related tests
     Then the step should succeed
     And the expression should be true> JSON.parse(@result[:response])['count'] > 0
     """
-    Examples:
-      | status |
-      | tp     | # @case_id OCP-26141
-      | ga     | # @case_id OCP-29846
 
   # @author qitang@redhat.com
+  # @case_id OCP-25939
   @admin
   @destructive
-  Scenario Outline: Forward logs to fluentd as secure
+  Scenario: Forward logs to fluentd as secure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
-    Given I obtain test data file "logging/logforwarding/fluentd/secure/<status>/logforwarding.yaml"
+    Given I obtain test data file "logging/logforwarding/fluentd/secure/logforwarding.yaml"
     When I run the :create client command with:
       | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false                                                                                     |
+      | check_status        | false               |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -161,46 +156,27 @@ Feature: log forwarding related tests
       | audit.log |
       | infra.log |
     """
-    Examples:
-      | status |
-      | tp     | # @case_id OCP-25939
-      | ga     | # @case_id OCP-29844
 
   # @author qitang@redhat.com
+  # @case_id OCP-25990
   @admin
   @destructive
-  Scenario Outline: Forward logs to non-clusterlogging-managed elasticsearch as secure
+  Scenario: Forward logs to non-clusterlogging-managed elasticsearch as secure
     Given the master version >= "4.3"
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given elasticsearch receiver is deployed as secure
-    Given I wait up to 180 seconds for the steps to pass:
-    """
-    And I execute on the "<%= cb.log_receiver.name %>" pod:
-      | curl                                                                                                      |
-      | -XPOST                                                                                                    |
-      | -ks                                                                                                       |
-      | https://localhost:9200/_xpack/security/user/fluentd                                                       |
-      | -H                                                                                                        |
-      | Content-Type: application/json                                                                            |
-      | -d                                                                                                        |
-      | {"password":"changeme","full_name":"Fluentd","email":"fluentd@clusterlogging.com","roles":["super_user"]} |
-    Then the step should succeed
-    And the output should contain:
-      | "created":true |
-    """
-
     Given admin ensures "instance" log_forwarding is deleted from the "openshift-logging" project after scenario
-    Given I obtain test data file "logging/logforwarding/elasticsearch/secure/<status>/logforwarding.yaml"
+    Given I obtain test data file "logging/logforwarding/elasticsearch/secure/logforwarding.yaml"
     When I run the :create client command with:
       | f | logforwarding.yaml |
     Then the step should succeed
     Given I wait for the "instance" log_forwarding to appear
     Given I obtain test data file "logging/logforwarding/clusterlogging.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                      |
+      | remove_logging_pods | true                |
       | crd_yaml            | clusterlogging.yaml |
-      | check_status        | false                                                                                     |
+      | check_status        | false               |
     Then the step should succeed
     Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
     And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
@@ -243,10 +219,6 @@ Feature: log forwarding related tests
     Then the step should succeed
     And the expression should be true> JSON.parse(@result[:response])['count'] > 0
     """
-    Examples:
-      | status |
-      | tp     | # @case_id OCP-25990
-      | ga     | # @case_id OCP-29845
 
   # @author qitang@redhat.com
   # @case_id OCP-26622
@@ -274,7 +246,7 @@ Feature: log forwarding related tests
 
     Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                |
+      | remove_logging_pods | true         |
       | crd_yaml            | example.yaml |
     Then the step should succeed
 
@@ -331,14 +303,14 @@ Feature: log forwarding related tests
     Given admin ensures "syslog" config_map is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/logforwarding/rsyslog/insecure/<protocal>/syslog.conf"
     When I run the :create_configmap client command with:
-      | name      | syslog                                                                                                        |
+      | name      | syslog      |
       | from_file | syslog.conf |
     Then the step should succeed
     And I wait for the "syslog" config_map to appear
 
     Given I obtain test data file "logging/clusterlogging/example.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                |
+      | remove_logging_pods | true         |
       | crd_yaml            | example.yaml |
     Then the step should succeed
 
@@ -410,9 +382,9 @@ Feature: log forwarding related tests
     Given I wait for the "instance" log_forwarding to appear
     Given I obtain test data file "logging/logforwarding/clusterlogging_retentionpolicy.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true                                                                                                      |
+      | remove_logging_pods | true                                |
       | crd_yaml            | clusterlogging_retentionpolicy.yaml |
-      | check_status        | true                                                                                                      |
+      | check_status        | true                                |
     Then the step should succeed
     Given I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
     And I wait for the project "<%= cb.proj.name %>" logs to appear in the ES pod
