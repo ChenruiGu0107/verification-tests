@@ -82,7 +82,7 @@ Feature: oc tag related scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Then I run the :new_build client command with:
       | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
-      | name     | origin-ruby-sample                                              |
+      | name     | origin-ruby-sample                                           |
     Then the step should succeed
     Given the "origin-ruby-sample-1" build was created
     And the "origin-ruby-sample-1" build completed
@@ -90,7 +90,7 @@ Feature: oc tag related scenarios
     Then the step should succeed
     And I run the :tag client command with:
       | source | <%= cb.proj1 %>/origin-ruby-sample:latest |
-      | dest   | <%= project.name %>/deadbeef533103:tag1         |
+      | dest   | <%= project.name %>/deadbeef533103:tag1   |
     Then the step should succeed
     Then I run the :get client command with:
       | resource      | is             |
@@ -101,4 +101,4 @@ Feature: oc tag related scenarios
       | app_repo | deadbeef533103:tag1 |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | deploymentconfig=deadbeef533103 |
+      | deployment=deadbeef533103 |

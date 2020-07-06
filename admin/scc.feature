@@ -12,58 +12,52 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
     When I run the :oadm_policy_add_scc_to_user admin command with:
-      | scc   | <%= cb.scc_name %>  |
-      | user_name  | <%= user(0, switch: false).name %>  |
+      | scc       | <%= cb.scc_name %>                 |
+      | user_name | <%= user(0, switch: false).name %> |
     And I run the :oadm_policy_add_scc_to_user admin command with:
-      | scc   | <%= cb.scc_name %>  |
-      | user_name  | <%= user(1, switch: false).name %>  |
+      | scc            | <%= cb.scc_name %> |
+      | serviceaccount | builder            |
     And I run the :oadm_policy_add_scc_to_user admin command with:
-      | scc       | <%= cb.scc_name %>  |
-      | user_name |             |
-      | serviceaccount | system:serviceaccount:default:default |
-    And I run the :oadm_policy_add_scc_to_user admin command with:
-      | scc       | <%= cb.scc_name %>  |
-      | user_name | system:admin |
+      | scc       | <%= cb.scc_name %> |
+      | user_name | system:admin       |
     And I run the :oadm_policy_add_scc_to_group admin command with:
-      | scc       | <%= cb.scc_name %>  |
+      | scc        | <%= cb.scc_name %>   |
       | group_name | system:authenticated |
     When I run the :get admin command with:
-      | resource | scc |
-      | resource_name | <%= cb.scc_name %>  |
-      | o        | yaml |
+      | resource      | ClusterRoleBinding                      |
+      | resource_name | system:openshift:scc:<%= cb.scc_name %> |
+      | o             | yaml                                    |
     Then the output should contain:
-      |  <%= user(0, switch: false).name %>     |
-      |  <%= user(1, switch: false).name %>     |
-      |  system:serviceaccount:default:default  |
-      |  system:admin  |
-      |  system:authenticated |
+      | <%= user(0, switch: false).name %> |
+      | builder                            |
+      | system:admin                       |
+      | system:authenticated               |
 
     When I run the :oadm_policy_remove_scc_from_user admin command with:
-      | scc        | <%= cb.scc_name %>  |
-      | user_name  | <%= user(0, switch: false).name %>  |
+      | scc       | <%= cb.scc_name %>                 |
+      | user_name | <%= user(0, switch: false).name %> |
     And I run the :oadm_policy_remove_scc_from_user admin command with:
-      | scc        | <%= cb.scc_name %>  |
-      | user_name  | <%= user(1, switch: false).name %>  |
+      | scc       | <%= cb.scc_name %>                 |
+      | user_name | <%= user(1, switch: false).name %> |
     And I run the :oadm_policy_remove_scc_from_user admin command with:
-      | scc        | <%= cb.scc_name %>  |
-      | user_name  |             |
-      | serviceaccount | system:serviceaccount:default:default |
+      | scc            | <%= cb.scc_name %> |
+      | serviceaccount | builder            |
     And I run the :oadm_policy_remove_scc_from_user admin command with:
-      | scc        | <%= cb.scc_name %>  |
-      | user_name  | system:admin |
+      | scc       | <%= cb.scc_name %> |
+      | user_name | system:admin       |
     And I run the :oadm_policy_remove_scc_from_group admin command with:
-      | scc        | <%= cb.scc_name %>  |
+      | scc        | <%= cb.scc_name %>   |
       | group_name | system:authenticated |
     When I run the :get admin command with:
-      | resource | scc |
-      | resource_name | <%= cb.scc_name %>  |
-      | o        | yaml |
+      | resource      | ClusterRoleBinding                      |
+      | resource_name | system:openshift:scc:<%= cb.scc_name %> |
+      | o             | yaml                                    |
     Then the output should not contain:
-      |  <%= user(0, switch: false).name %>  |
-      |  <%= user(1, switch: false).name %>  |
-      |  system:serviceaccount:default:default  |
-      |  system:admin  |
-      |  system:authenticated  |
+      | <%= user(0, switch: false).name %>    |
+      | <%= user(1, switch: false).name %>    |
+      | system:serviceaccount:default:default |
+      | system:admin                          |
+      | system:authenticated                  |
 
   # @author bmeng@redhat.com
   # @case_id OCP-10647
