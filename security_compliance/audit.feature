@@ -64,22 +64,22 @@ Feature: Audit logs related scenarios
 
     # Verify whatever action takes by normal user, the log entry captures in kube-apiserver audit logs
     When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep hello-openshift.*<%= cb.users_uid %> \| tail -5 |
+      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep deploymentconfigs/hello-openshift.*<%= cb.users_uid %>.*hello-openshift \| tail -5 |
     Then the step should succeed
     And the output should contain:
-      | "namespace":"<%= project.name %>","name":"hello-openshift" |
+      | "resource":"deploymentconfigs","namespace":"<%= project.name %>","name":"hello-openshift" |
     When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs.*<%= project.name %>.*409 \| tail |
+      | bash  | -c | oc adm node-logs --role=master --path=openshift-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs.*<%= project.name %>.*AlreadyExists \| tail |
     Then the step should succeed
     And the output should contain:
-      | "responseStatus":{"metadata":{},"code":409} |
+      | "status":"Failure","reason":"AlreadyExists","code":409 |
     When admin executes on the pod:
       | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep openshift/scale.*<%= cb.users_uid %> \| tail -5 |
     Then the step should succeed
     And the output should contain:
       | "subresource":"scale" |
     When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*replicationcontrollers \| tail -5 |
+      | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep <%= cb.users_uid %>.*replicationcontrollers.*hello-openshift-1 \| tail -5 |
     Then the step should succeed
     And the output should contain:
       | "resource":"replicationcontrollers","namespace":"<%= project.name %>" |
