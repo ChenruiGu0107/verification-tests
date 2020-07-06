@@ -409,7 +409,7 @@ Feature: Install and configuration related scenarios
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
 
     # query Watchdog alerts
-    And I wait up to 180 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring |
@@ -855,3 +855,58 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | No resources found |
     """
+  # @author hongyli@redhat.com
+  # @case_id OCP-32058
+  @admin
+  Scenario: only allow 32 hexadecimal digits for the avatar hash
+    Given the master version >= "4.4"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    And evaluation of `route('grafana').spec.host` is stored in the :grafana_route clipboard
+
+    When I perform the HTTP request:
+      """
+      :url: https://<%= cb.grafana_route %>/avatar/%0a
+      :method: get
+      :headers:
+         :Authorization: Bearer <%= cb.sa_token %> 
+      """
+    Then the step should fail
+    And the output should contain:
+      | Avatar not found |
+  
+  # @author hongyli@redhat.com
+  # @case_id OCP-31989
+  @admin
+  Scenario: Export Thanos Querier metrics and alerts
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    #Check thanos-querier servicemonitor/prometheusrules
+    Given I check that the "thanos-querier" service_monitor exists
+    And I check that the "thanos-querier" prometheusrule exists
+    #check thanos-querier endpoints scheme
+    When I run the :get client command with:
+      | resource      | ServiceMonitor |
+      | resource_name | thanos-querier |
+      | o             | yaml           |
+    Then the step should succeed
+    Then the expression should be true> YAML.load(@result[:stdout])["spec"]["endpoints"][0]["scheme"] == "https"
+    #curl the thanos-querier target
+    When evaluation of `endpoints('thanos-querier').subsets.first.addresses.first.ip.to_s` is stored in the :thanosquery_endpoint_ip clipboard
+    And evaluation of `endpoints('thanos-querier').subsets.first.ports[1].port.to_s` is stored in the :thanosquery_endpoint_port clipboard
+    And evaluation of `cb.thanosquery_endpoint_ip + ':' +cb.thanosquery_endpoint_port` is stored in the :thanosquery_endpoint clipboard
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                   |
+      | pod              | prometheus-k8s-0                                       |
+      | c                | prometheus                                             |
+      | oc_opts_end      |                                                        |
+      | exec_command     | sh                                                     |
+      | exec_command_arg | -c                                                     |
+      | exec_command_arg | curl -k https://<%= cb.thanosquery_endpoint %>/metrics |
+    Then the step should succeed
+    And the output should contain:
+      | thanos_status |
