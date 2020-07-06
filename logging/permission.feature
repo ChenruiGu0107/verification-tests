@@ -158,7 +158,9 @@ Feature: logging permission related tests
     And I perform the :kibana_find_index_pattern web action with:
       | index_pattern_name | project.<%= cb.proj_name %>.<%= cb.proj_uid_2 %> |
     Then the step should fail
-    Then I log out kibana logging web console
+    When I run the :logout_kibana web action
+    Then the step should succeed
+    And I close the current browser
 
     Given I switch to the second user
     Given I login to kibana logging web console

@@ -46,8 +46,9 @@ Feature: kibana web UI related cases for logging
     Given evaluation of `route('kibana', service('kibana',project('openshift-logging', switch: false))).dns(by: admin)` is stored in the :kibana_route clipboard
     Given I login to kibana logging web console
     Then the step should succeed
-    And I log out kibana logging web console
+    When I run the :logout_kibana web action
     Then the step should succeed
+    And I close the current browser
     Given I open admin console in a browser
     When I perform the :click_kibana_link_in_console web action with:
       | kibana_route   | https://<%= cb.kibana_route %> |
@@ -57,9 +58,6 @@ Feature: kibana web UI related cases for logging
       | password   | <%= user.password %>           |
       | kibana_url | https://<%= cb.kibana_route %> |
       | idp        | <%= env.idp %>                 |
-    Then the step should succeed
-    And I perform the :logout_kibana web action in ":url=>https://<%= cb.kibana_route %>" window with:
-      | kibana_url | https://<%= cb.kibana_route %> |
     Then the step should succeed
 
   # @author qitang@redhat.com
