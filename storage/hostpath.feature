@@ -80,12 +80,9 @@ Feature: Storage of Hostpath plugin testing
   @admin
   Scenario: Mount propagation test of HostToContainer and Bidirectional
     Given admin creates a project with a random schedulable node selector
-    And I use the "<%= node.name %>" node
-    And the "/mnt/disk" path is recursively removed on the host after scenario
     Given I obtain test data file "storage/hostpath/propashare.yaml"
-    When I run the :create client command with:
-      | f | propashare.yaml |
-      | n | <%= project.name %>                                                                                            |
+    When I run oc create over "propashare.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["hostPath"]["path"] | /mnt/<%= project.name %> |
     Then the step should succeed
     Given the pod named "propashare" becomes ready
     When I execute on the pod:
@@ -97,14 +94,10 @@ Feature: Storage of Hostpath plugin testing
     When I execute on the pod:
       | touch | /mnt/local/master/masterdata |
     Then the step should succeed
-    When I run commands on the host:
-      | ls /mnt/disk/master |
-    Then the output should contain:
-      | masterdata |
-    Given I obtain test data file "storage/hostpath/propaslave.yaml"
-    When I run the :create client command with:
-      | f | propaslave.yaml |
-      | n | <%= project.name %>                                                                                            |
+    Given I use the "<%= project.name %>" project
+    And I obtain test data file "storage/hostpath/propaslave.yaml"
+    When I run oc create over "propaslave.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["hostPath"]["path"] | /mnt/<%= project.name %> |
     Then the step should succeed
     Given the pod named "propaslave" becomes ready
     When I execute on the pod:
@@ -124,20 +117,7 @@ Feature: Storage of Hostpath plugin testing
       | ls | /mnt/local/slave/ |
     Then the output should not contain:
       | slavedata |
-    When I run commands on the host:
-      | mkdir -p /mnt/disk/slave1                       |
-      | mount -t tmpfs HostToContainer /mnt/disk/slave1 |
-      | touch /mnt/disk/slave1/slavedata                |
-    Then the step should succeed
-    When I execute on the "propaslave" pod:
-      | ls | /mnt/local/slave1 |
-    Then the output should contain:
-      | slavedata |
-    When I run commands on the host:
-      | umount master          |
-      | umount slave           |
-      | umount HostToContainer |
-    Then the step should succeed
+
 
   # @author wehe@redhat.com
   # @case_id OCP-14673
@@ -145,12 +125,12 @@ Feature: Storage of Hostpath plugin testing
   Scenario: Bidirectional and HostoContainer mount propagation with unpriviledged pod
     Given admin creates a project with a random schedulable node selector
     And I use the "<%= node.name %>" node
-    And the "/mnt/<%= project.name %>" path is recursively removed on the host after scenario
     And I run commands on the host:
       | mkdir -p /mnt/<%= project.name %>                         |
       | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %> |
     Then the step should succeed
-    Given I obtain test data file "storage/hostpath/propashare.yaml"
+    Given I use the "<%= project.name %>" project
+    And I obtain test data file "storage/hostpath/propashare.yaml"
     When I run oc create over "propashare.yaml" replacing paths:
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false |
     Then the step should fail
@@ -161,19 +141,12 @@ Feature: Storage of Hostpath plugin testing
       | ["spec"]["containers"][0]["securityContext"]["privileged"] | false                    |
       | ["spec"]["volumes"][0]["hostPath"]["path"]                 | /mnt/<%= project.name %> |
     Then the step should succeed
-    Given the pod named "propaslave" becomes ready
+    And the pod named "propaslave" becomes ready
     When I run commands on the host:
-      | mkdir -p /mnt/<%= project.name %>/slave                         |
-      | mount -t tmpfs HostToContainer /mnt/<%= project.name %>/slave   |
-      | chcon -R -t svirt_sandbox_file_t /mnt/<%= project.name %>/slave |
-      | touch /mnt/<%= project.name %>/slave/slavedata                  |
+      | mkdir -p /mnt/<%= project.name %>/slave           |
+      | touch /mnt/<%= project.name %>/slave/slavedata    |
     Then the step should succeed
     When I execute on the "propaslave" pod:
       | ls | /mnt/local/slave |
     Then the output should contain:
       | slavedata |
-    When I run commands on the host:
-      | umount master          |
-      | umount slave           |
-      | umount HostToContainer |
-    Then the step should succeed
