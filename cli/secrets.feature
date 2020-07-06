@@ -109,7 +109,7 @@ Feature: secrets related scenarios
 
     Given the "test-1" build completed
     # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
-    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
+    Then evaluation of `image_stream("test").docker_image_repository` is stored in the :user1_image clipboard
 
     Given I switch to the second user
     And I create a new project
@@ -124,11 +124,11 @@ Feature: secrets related scenarios
       | docker_password    | <%= user(0, switch: false).cached_tokens.first %> |
     Then the step should succeed
 
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | name      | frontend   |
       | image     | <%= cb.user1_image %>   |
-      | dry_run   |            |
-      | -o        | yaml       |
+      | dry_run   | client     |
+      | o         | yaml       |
     Then the step should succeed
     And I save the output to file> dc.yaml
 
@@ -151,16 +151,16 @@ Feature: secrets related scenarios
 
     Given the "test-1" build completed
     # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
-    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
+    Then evaluation of `image_stream("test").docker_image_repository` is stored in the :user1_image clipboard
 
     Given I switch to the second user
     And I create a new project
 
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | name      | frontend   |
       | image     | <%= cb.user1_image %>   |
-      | dry_run   |            |
-      | -o        | yaml       |
+      | dry_run   | client     |
+      | o         | yaml       |
     Then the step should succeed
     And I save the output to file> dc.yaml
 
@@ -293,16 +293,16 @@ Feature: secrets related scenarios
 
     Given the "test-1" build completed
     # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
-    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
+    Then evaluation of `image_stream("test").docker_image_repository` is stored in the :user1_image clipboard
 
     Given I switch to the second user
     And I create a new project
 
-    When I run the :run client command with:
+    When I run the :create_deploymentconfig client command with:
       | name      | frontend   |
       | image     | <%= cb.user1_image %>   |
-      | dry_run   |            |
-      | -o        | yaml       |
+      | dry_run   | client     |
+      | o         | yaml       |
     Then the step should succeed
     And I save the output to file> dc.yaml
 
