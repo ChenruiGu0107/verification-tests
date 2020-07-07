@@ -151,3 +151,63 @@ Feature: dashboards related cases
     When I perform the :check_event_message_on_dashboard_page web action with:
       | event_message | Pulling image "uitest/hello-openshift" |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-27586
+  @admin
+  Scenario: Add network and pod count to overview
+    Given the master version >= "4.4"
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+
+    # check Cluster Utilization card has CPU, Memory, Filesystem, Network Transfer and Pod count
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I run the :check_cluster_utilization_items web action
+    Then the step should succeed
+
+    # check Cluster Utilization - CPU breakdown info
+    When I run the :check_cpu_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_cpu_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    When I run the :check_cpu_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
+
+    # check Cluster Utilization - Memory breakdown info
+    When I run the :check_memory_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_memory_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    When I run the :check_memory_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
+
+    # check Cluster Utilization - Filesystem breakdown info
+    When I run the :check_filesystem_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_filesystem_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    When I run the :check_filesystem_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
+
+    # check Cluster Utilization - Pod count breakdown info
+    When I run the :check_pod_count_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_pod_count_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+
+    # check Cluster Utilization -  Network in breakdown info
+    When I run the :check_network_in_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_network_in_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    When I run the :check_network_in_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
+
+    # check Cluster Utilization -  Network out breakdown info
+    When I run the :check_network_out_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+    When I run the :check_network_out_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    When I run the :check_network_out_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
