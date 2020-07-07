@@ -124,3 +124,23 @@ Feature: Node related
     When I perform the :check_item_in_table web action with:
       | item | <%= cb.schedule_workers[2].name %> |
     Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-19722
+  @admin
+  Scenario: Check nodes list columns and terminal tab
+    Given the master version >= "4.3"
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I run the :browse_to_nodes_page web action
+    Then the step should succeed
+    When I run the :check_node_list_column_headers web action
+    Then the step should succeed
+    
+    # check pod has terminal tab page
+    When I run the :click_first_item_in_grid_cell_list web action
+    Then the step should succeed
+    # below check points only for cluster >= 4.5
+    When I run the :check_terminal_tab_on_node_page web action
+    Then the step should succeed
+
