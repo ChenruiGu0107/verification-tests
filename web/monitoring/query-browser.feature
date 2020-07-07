@@ -189,12 +189,12 @@ Feature: query browser
     #check metrics from prometheus
     #https://<prom_route>/api/v1/label/__name__/values
     When I perform the HTTP request:
-    """
-    :url: https://<%= cb.prom_route %>/api/v1/label/__name__/values
-    :method: get
-    :headers:
+      """
+      :url: https://<%= cb.prom_route %>/api/v1/label/__name__/values
+      :method: get
+      :headers:
       :Authorization: Bearer <%= cb.sa_token %>
-    """
+      """
     Then the step should succeed
     And the output should contain:
       | :kube_pod_info_node_count: |
@@ -252,7 +252,7 @@ Feature: query browser
     Then the step should succeed
     #check query by filter metrics
     When I perform the :perform_filter_query web action with:
-      | metrics     | cluster:capacity_cpu_cores:sum |
+      | metrics | cluster:capacity_cpu_cores:sum |
     Then the step should succeed
     When I perform the :check_metric_query_result web action with:
       | table_text | openshift-monitoring/k8s |
@@ -327,4 +327,63 @@ Feature: query browser
     When I perform the :check_page_contains web action with:
       | content | No datapoints found |
     Then the step should succeed
-    
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21263
+  @admin
+  Scenario: Show correct and same CPU/Memory/Filesystem usage both in prometheus and Grafana UI
+    Given the master version >= "4.4"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+    #Workloads -> Pods
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | openshift-monitoring |
+      | resource_name | alertmanager-main-0  |
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :click_pod_chart_link web action with:
+      | chart_name | Memory Usage |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | alertmanager-main-0 |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | openshift-monitoring |
+      | resource_name | alertmanager-main-0  |
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :click_pod_chart_link web action with:
+      | chart_name | CPU Usage |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | alertmanager-main-0 |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | openshift-monitoring |
+      | resource_name | alertmanager-main-0  |
+    Then the step should succeed
+    When I run the :wait_box_loaded web action
+    Then the step should succeed
+    When I perform the :click_pod_chart_link web action with:
+      | chart_name | Filesystem |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | alertmanager-main-0 |
+    Then the step should succeed
+    #go to monitoring/dashboards/grafana-dashboard-k8s-resources-pod, Kubernetes/Compute Resources/Pod is selected for DB
+    When I run the :goto_monitoring_db_k8s_resource_pod web action
+    #choose namespace openshift-monitoring and alertmanager-main-0 is selected
+    When I perform the :choose_dropdown_item_text web action with:
+      | dropdown_field | namespace            |
+      | dropdown_item  | openshift-monitoring |
+    Then the step should succeed
+    When I perform the :check_data_diplayed_db web action with:
+      | data_name   | CPU Usage |
+      | legend_name | requests  |
+    Then the step should succeed
+    When I perform the :check_data_diplayed_db web action with:
+      | data_name   | Memory Usage |
+      | legend_name | requests     |
+    Then the step should succeed

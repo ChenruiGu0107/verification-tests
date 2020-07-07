@@ -476,11 +476,141 @@ Feature: alerts browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
-    #Prepare a silenced alert
+    #open alert detail page
     When I perform the :open_alert_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :open_alert_rule_from_detail web action
     Then the step should succeed
     When I run the :check_alert_rule_details web action
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24604
+  @admin
+  Scenario: Alert graph is added to alert rule details page
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #open alert detail page
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :open_alert_rule_from_detail web action
+    Then the step should succeed
+    #hide/show graph
+    When I run the :hide_alert_graph web action
+    Then the step should succeed
+    When I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should fail
+    When I run the :show_alert_graph web action
+    Then the step should succeed
+    When I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should succeed
+    #zoom in/out test
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 2h |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 2h |
+    Then the step should succeed
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 1w |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 1w |
+    Then the step should succeed
+    When I run the :click_reset_zoom_button web action
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should succeed
+    #Click the "View in Metrics" link
+    When I run the :click_view_metrics web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | vector(1) |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21124
+  @admin
+  Scenario: Show a detailed and complete view of an Alert
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #open alert detail page
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | alertname=Watchdog |
+    Then the step should succeed
+    #check prometheus
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    #alerts page
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/alerts
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And the output should contain:
+      | Watchdog |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24601
+  @admin
+  Scenario: Alert graph is added to alert details page
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+    And the first user is cluster-admin
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #open alert detail page
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    #hide/show graph
+    When I run the :hide_alert_graph web action
+    Then the step should succeed
+    When I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should fail
+    When I run the :show_alert_graph web action
+    Then the step should succeed
+    When I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should succeed
+    #zoom in/out test
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 2h |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 2h |
+    Then the step should succeed
+    When I perform the :choose_zoom_value web action with:
+      | zoom_value | 1w |
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 1w |
+    Then the step should succeed
+    When I run the :click_reset_zoom_button web action
+    And I perform the :check_zoom_value web action with:
+      | zoom_value | 30m |
+    Then the step should succeed
+    #Click the "View in Metrics" link
+    When I run the :click_view_metrics web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | vector(1) |
     Then the step should succeed
