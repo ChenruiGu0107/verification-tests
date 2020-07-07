@@ -134,9 +134,12 @@ Feature: idp feature
       | skip_tls_verify  | true                |
     Then the step should succeed
     And admin ensures "new-htpassidp-23514:ocp23514_user" identity is deleted after scenario
+    Then I wait for the steps to pass:
+    """
     When I run the :get admin command with:
       | resource | user/ocp23514_user |
     Then the step should succeed
+    """
     And the output should contain:
       | htpassidp-23514:ocp23514_user, new-htpassidp-23514:ocp23514_user |
 
