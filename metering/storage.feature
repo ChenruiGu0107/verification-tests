@@ -39,3 +39,13 @@ Feature: install metering with various backend storage configurations
     Given I get the "node-cpu-capacity" report and store it in the :res_tabular clipboard using:
       | query_type | namespace-cpu-usage |
     Then the step should succeed
+
+  # @author pruan@redhat.com
+  # @case_id OCP-32387
+  @admin
+  @destructive
+  Scenario: install metering with HDFS as storage for hive-metastore
+    Given the master version >= "4.1"
+    Given I install metering service using:
+      | storage_type | HDFS |
+
