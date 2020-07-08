@@ -66,7 +66,7 @@ Feature: SCC policy related scenarios
     Given I have a project
 
     # Create pod without SCC allowed
-    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json"
     When I run the :create client command with:
       |f|pod_requests_cap_kill.json|
     Then the step should fail
@@ -80,11 +80,11 @@ Feature: SCC policy related scenarios
     Given the following scc policy is created: scc_capabilities.yaml
 
     # Create pod which match the allowed capability or not
-    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_cap_kill.json"
     When I run the :create client command with:
       |f|pod_requests_cap_kill.json|
     Then the step should succeed
-    Given I obtain test data file "authorization/scc/pod_requests_cap_chown.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_cap_chown.json"
     When I run the :create client command with:
       |f|pod_requests_cap_chown.json|
     Then the step should fail
@@ -105,11 +105,11 @@ Feature: SCC policy related scenarios
       |scc-selinux-mustrunas|<%= rand_str(6, :dns) %>|
     And the following scc policy is created: scc_selinux_mustrunas.yaml
 
-    Given I obtain test data file "authorization/scc/pod_requests_selinux.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_selinux.json"
     When I run the :create client command with:
       |f|pod_requests_selinux.json|
     Then the step should fail
-    Given I obtain test data file "authorization/scc/pod_requests_nothing.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_nothing.json"
     When I run the :create client command with:
       |f|pod_requests_nothing.json|
     Then the step should succeed
@@ -120,7 +120,7 @@ Feature: SCC policy related scenarios
       |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
       |scc-runasany|<%= rand_str(6, :dns) %>|
     And the following scc policy is created: scc_runasany.yaml
-    Given I obtain test data file "authorization/scc/pod_requests_selinux.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_selinux.json"
     When I run the :create client command with:
       |f|pod_requests_selinux.json|
     Then the step should succeed
@@ -131,7 +131,7 @@ Feature: SCC policy related scenarios
   Scenario: The container with requests privileged in SC can be created only when the SCC allowed
     # Create privileged pod with default SCC
     Given I have a project
-    Given I obtain test data file "authorization/scc/pod_requests_privileged.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_privileged.json"
     When I run the :create client command with:
       |f|pod_requests_privileged.json|
     Then the step should fail
@@ -145,7 +145,7 @@ Feature: SCC policy related scenarios
     And the following scc policy is created: scc_privileged.yaml
 
     # Create privileged pod again with new SCC
-    Given I obtain test data file "authorization/scc/pod_requests_privileged.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_privileged.json"
     When I run the :create client command with:
       |f|pod_requests_privileged.json|
     Then the step should succeed
@@ -156,7 +156,7 @@ Feature: SCC policy related scenarios
   Scenario: Limit the created container to access the hostdir via SCC
     # Create pod which request hostdir mount permission with default SCC
     Given I have a project
-    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json"
     When I run the :create client command with:
       |f|pod_requests_hostdir.json|
     Then the step should fail
@@ -172,7 +172,7 @@ Feature: SCC policy related scenarios
     And the following scc policy is created: scc_hostdir.yaml
 
     # Create hostdir pod again with new SCC
-    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json"
     When I run the :create client command with:
       |f|pod_requests_hostdir.json|
     Then the step should succeed
