@@ -3,7 +3,7 @@ Feature: oc exports related scenarios
   # @author pruan@redhat.com
   Scenario Outline: Export resource as json or yaml format by cli
     Given I have a project
-    Given I obtain test data file "build/sample-php-centos7.json|"
+    Given I obtain test data file "build/sample-php-centos7.json"
     When I run the :new_app client command with:
       | file | sample-php-centos7.json|
     Then the step should succeed
@@ -90,7 +90,7 @@ Feature: oc exports related scenarios
   # @case_id OCP-12594
   Scenario: Negative test for oc export
     Given I have a project
-    Given I obtain test data file "build/sample-php-centos7.json|"
+    Given I obtain test data file "build/sample-php-centos7.json"
     When I run the :new_app client command with:
       | file | sample-php-centos7.json|
     Then the step should succeed
