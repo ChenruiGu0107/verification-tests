@@ -21,8 +21,11 @@ Feature: Install and uninstall related scenarios
   @admin
   @destructive
   Scenario: install metering using Openshift webconsole via Operator Hub link
+    # must make sure we don't have an existing project.
+    Given the "openshift-metering" metering service is uninstalled using OLM
     Given I set operator channel
     And evaluation of `project('openshift-metering')` is stored in the :metering_namespace clipboard
+    Given I switch to the first user
     Given the first user is cluster-admin
     Given I run the :create_namespace client command with:
       | name | openshift-metering |
