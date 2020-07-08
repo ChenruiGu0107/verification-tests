@@ -379,3 +379,112 @@ Feature: SDN related networking scenarios
     When I execute on the "<%= cb.p1pod1 %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.pod_ip %>:8080 |
     And the output should contain "Hello"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23213
+  @admin
+  @destructive
+  Scenario: SDN pod should be working well after the node reboot
+    Given I have a project
+    #Create pod before node reboot
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `service("test-service").url` is stored in the :svc_url clipboard
+    And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
+    Given I use the "<%= cb.node_name %>" node
+    And the host is rebooted and I wait it up to 600 seconds to become available
+    And the node network is verified
+
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
+    When I run oc create over "aosqe-pod-for-ping.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= cb.node_name %> |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=hello-pod |
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.svc_url %> |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23215
+  @admin
+  @destructive
+  Scenario: SDN pod should be working well after the node service is restarted
+    Given I have a project
+    #Create pod before node service restarted
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `service("test-service").url` is stored in the :svc_url clipboard
+    And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
+    Given I use the "<%= cb.node_name %>" node
+    And the node service is restarted on the host
+    And the node network is verified
+
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
+    When I run oc create over "aosqe-pod-for-ping.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= cb.node_name %> |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=hello-pod |
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.svc_url %> |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23249
+  @admin
+  @destructive
+  Scenario: SDN pod should be working well after the crio service is reboot
+    Given I have a project
+    #Create pod before node service restarted
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `service("test-service").url` is stored in the :svc_url clipboard
+    And evaluation of `pod(0).node_name` is stored in the :node_name clipboard
+    Given I use the "<%= cb.node_name %>" node
+    When I run commands on the host:
+      | systemctl restart crio |
+    Then the step should succeed
+    And the node network is verified
+
+    Given I obtain test data file "networking/aosqe-pod-for-ping.json"
+    When I run oc create over "aosqe-pod-for-ping.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= cb.node_name %> |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=hello-pod |
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.svc_url %> |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-23274
+  @admin
+  Scenario: warn message to user when idling service for networkpolicy mode
+    Given I have a project
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    When I run the :idle admin command with:
+      | svc_name | test-service        |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain "WARNING: idling when network policies are in place may cause connections to bypass network policy entirely"
