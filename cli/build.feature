@@ -9,7 +9,7 @@ Feature: build 'apps' with CLI
      | from_file   | .dockercfg=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
      | type        | kubernetes.io/dockercfg                                                         |
     Then the step should succeed
-    Given I obtain test data file "templates/<template_file>"
+    Given I obtain test data file "templates/tc476356/<template_file>"
     When I run the :new_app client command with:
       | file            | <template_file> |
     Given the "ruby-sample-build-1" build was created
@@ -22,8 +22,8 @@ Feature: build 'apps' with CLI
       | Push Secret:.*sec\-push               |
 
     Examples:
-      | template_file                                  |
-      | tc476356/application-template-dockerbuild.json | # @case_id OCP-11463
+      | template_file                         |
+      | application-template-dockerbuild.json | # @case_id OCP-11463
 
   # @author xxing@redhat.com
   # @case_id OCP-12243
@@ -917,9 +917,11 @@ Feature: build 'apps' with CLI
       | strategy | source                                        |
       | env_file | test1.env                                     |
     And the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
     When I run the :set_env client command with:
       | resource | po/ruby-hello-world-1-build |
       | list     | true                        |
+    And the step should succeed
     And the output should match:
       | MYSQL_DATABASE |
       | test           |
@@ -937,9 +939,12 @@ Feature: build 'apps' with CLI
       | name     | test                                          |
       | env_file | -                                             |
       | _stdin   | <%= File.read("test2.env") %>                 |
+    And the step should succeed
+    And the "test-1" build becomes :running
     When I run the :set_env client command with:
       | resource | po/test-1-build |
       | list     | true                        |
+    And the step should succeed
     And the output should match:
       | APPLE      |
       | CLEMENTINE |

@@ -83,6 +83,7 @@ Feature: env.feature
       | app_repo  | ruby:latest~https://github.com/openshift/ruby-hello-world |
       | build_env | DB_USER=test                                              |
     Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
@@ -92,6 +93,7 @@ Feature: env.feature
       | app_repo  | ruby:latest~https://github.com/openshift/ruby-hello-world |
       | build_env | RACK_ENV=development                                      |
     Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
@@ -105,6 +107,7 @@ Feature: env.feature
       | app_repo       | ruby:latest~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                      |
     Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
@@ -118,6 +121,7 @@ Feature: env.feature
       | app_repo       | ruby:latest~https://github.com/openshift/ruby-hello-world |
       | build_env_file | test                                                      |
     Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
     When I run the :set_env client command with:
       | resource | pods/ruby-hello-world-1-build |
       | list     | true                          |
