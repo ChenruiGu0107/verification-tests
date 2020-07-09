@@ -14,6 +14,7 @@ Feature: install metering with various backend storage configurations
   @admin
   @destructive
   Scenario: Use MySQL for the Hive Metastore database
+    Given I remove metering service from the "openshift-metering" project
     And I setup a metering project
     And evaluation of `"qe"` is stored in the :db_username clipboard
     And evaluation of `"test"` is stored in the :db_password clipboard
