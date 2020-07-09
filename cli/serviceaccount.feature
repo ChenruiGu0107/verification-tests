@@ -432,7 +432,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11135
-  Scenario: Could grant admin permission for the service account username to access to its own project
+  Scenario: Could grant admin permission for the service account username to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
     When I run the :new_project client command with:
