@@ -56,7 +56,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I find a bearer token of the default service account
     And I switch to the default service account
     When I run the :get client command with:
-      | resource | dc                  |
+      | resource | service             |
       | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
@@ -67,9 +67,9 @@ Feature: ServiceAccount and Policy Managerment
       | n            | <%= project.name %> |
     Then the step should fail
     When I run the :delete client command with:
-      | object_type       | dc        |
-      | all               |           |
-      | n                 | <%= project.name %> |
+      | object_type | pod                 |
+      | all         |                     |
+      | n           | <%= project.name %> |
     Then the step should fail
     When I give project admin role to the deployer service account
     Then the step should fail
@@ -352,7 +352,7 @@ Feature: ServiceAccount and Policy Managerment
       | name         | myapp         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
-    When I replace resource "dc" named "myapp" saving edit to "tmp_out.yaml":
+    When I replace resource "deployment" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
     Then the step should succeed
     When I run the :delete client command with:
@@ -656,6 +656,8 @@ Feature: ServiceAccount and Policy Managerment
       | user_name     | system:serviceaccount:<%= cb.original_proj %>:default  |
     Then the step should succeed
     Given I switch to the first user
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | projects |
     Then the output should contain "<%= cb.original_proj %>"
@@ -663,7 +665,10 @@ Feature: ServiceAccount and Policy Managerment
       | resource | projects                                              |
       | as       | system:serviceaccount:<%= cb.original_proj %>:default |
     Then the output should contain "<%= cb.proj2_name %>"
+    """
     Given I switch to the second user
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | projects |
     Then the output should contain "<%= cb.original_proj %>"
@@ -671,7 +676,10 @@ Feature: ServiceAccount and Policy Managerment
       | resource | projects |
       | as       | system:serviceaccount:<%= cb.original_proj %>:default |
     Then the output should contain "<%= cb.proj2_name %>"
+    """
     Given I switch to the third user
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | projects |
     Then the output should contain "<%= cb.original_proj %>"
@@ -680,3 +688,4 @@ Feature: ServiceAccount and Policy Managerment
       | as       | system:serviceaccount:<%= cb.original_proj %>:default |
     Then the step should fail
     Then the output should contain "impersonate"
+    """

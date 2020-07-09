@@ -156,7 +156,7 @@ Feature: SCC policy related scenarios
   Scenario: Limit the created container to access the hostdir via SCC
     # Create pod which request hostdir mount permission with default SCC
     Given I have a project
-    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json"
     When I run the :create client command with:
       |f|pod_requests_hostdir.json|
     Then the step should fail
@@ -172,7 +172,7 @@ Feature: SCC policy related scenarios
     And the following scc policy is created: scc_hostdir.yaml
 
     # Create hostdir pod again with new SCC
-    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json|"
+    Given I obtain test data file "authorization/scc/pod_requests_hostdir.json"
     When I run the :create client command with:
       |f|pod_requests_hostdir.json|
     Then the step should succeed

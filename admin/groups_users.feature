@@ -77,12 +77,15 @@ Feature: groups and users related features
       | n    | <%= cb.project1 %> |
     Then the step should fail
     And the output should match "cannot create .* in (project|the namespace).*<%= cb.project1 %>"
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
-      | resource | all                |
+      | resource | service            |
       | n        | <%= cb.project1 %> |
     Then the step should succeed
+    """
     When I run the :get client command with:
-      | resource | all                |
+      | resource | service            |
       | n        | <%= cb.project2 %> |
     Then the step should fail
     And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
@@ -92,10 +95,13 @@ Feature: groups and users related features
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
       | n          | <%= cb.project2 %>                          |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
-      | resource | all                |
+      | resource | service            |
       | n        | <%= cb.project2 %> |
     Then the step should succeed
+    """
 
     When I run the :policy_remove_role_from_group admin command with:
       | role       | view                                        |
@@ -107,12 +113,12 @@ Feature: groups and users related features
       | n          | <%= cb.project2 %>                          |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | all                |
+      | resource | service            |
       | n        | <%= cb.project1 %> |
     Then the step should fail
     And the output should match "cannot list .* in (project|the namespace).*<%= cb.project1 %>"
     When I run the :get client command with:
-      | resource | all                |
+      | resource | service            |
       | n        | <%= cb.project2 %> |
     Then the step should fail
     And the output should match "cannot list .* in (project|the namespace).*<%= cb.project2 %>"
