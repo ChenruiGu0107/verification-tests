@@ -175,7 +175,7 @@ Feature: PVC resizing Test
     Then the step should succeed
     When I get project events
     Then the output should match:
-      | VolumeSizeExceedsAvailableQuota |
+      | quantity.* is too great, overflows int64 |
 
   # @author piqin@redhat.com
   # @case_id OCP-16656
