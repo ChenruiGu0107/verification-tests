@@ -34,7 +34,11 @@ Feature: cluster-logging-operator related cases
       | check_status        | false                       |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     And I wait for the "kibana" deployment to appear up to 300 seconds
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -79,7 +83,11 @@ Feature: cluster-logging-operator related cases
       | check_status        | false             |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     And I wait for the "kibana" deployment to appear up to 300 seconds
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -122,7 +130,11 @@ Feature: cluster-logging-operator related cases
       | check_status        | false        |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     And I wait for the "kibana" deployment to appear up to 300 seconds
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -307,7 +319,11 @@ Feature: cluster-logging-operator related cases
       | remove_logging_pods | true         |
       | crd_yaml            | example.yaml |
     Then the step should succeed
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And the expression should be true> deployment('kibana').tolerations == nil
     And the expression should be true> (deployment('elasticsearch-cdm-<%= cb.es_genuuid %>-1').tolerations - [{"effect"=>"NoSchedule", "key"=>"node.kubernetes.io/disk-pressure", "operator"=>"Exists"}]).empty?
     And the expression should be true> cron_job('curator').tolerations == nil
@@ -336,7 +352,11 @@ Feature: cluster-logging-operator related cases
       | check_status        | false                       |
     Then the step should succeed
     And I wait for the "elasticsearch" elasticsearch to appear up to 300 seconds
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And I wait for the "elasticsearch-cdm-<%= cb.es_genuuid %>-1" deployment to appear
     And I wait for the "kibana" deployment to appear up to 300 seconds
     And I wait for the "fluentd" daemon_set to appear up to 300 seconds
@@ -396,7 +416,11 @@ Feature: cluster-logging-operator related cases
     And evaluation of `secret('elasticsearch').raw_resource` is stored in the :elasticsearch_before clipboard
     And evaluation of `secret('kibana').raw_resource` is stored in the :kibana_before clipboard
     And evaluation of `secret('fluentd').raw_resource` is stored in the :fluentd_before clipboard
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     When I run the :delete client command with:
       | object_type       | secret        |
       | object_name_or_id | master-certs  |

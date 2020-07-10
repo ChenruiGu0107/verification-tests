@@ -130,7 +130,11 @@ Feature: elasticsearch operator related tests
       | crd_yaml            | example.yaml |
     Then the step should succeed
     Given evaluation of `cluster_logging('instance').logstore_node_count` is stored in the :es_node_count_1 clipboard
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     #A workaround to https://bugzilla.redhat.com/show_bug.cgi?id=1776594
     And I wait for the ".operations" index to appear in the ES pod with labels "es-node-master=true"
     Given evaluation of `%w(project .operations)` is stored in the :index_names clipboard
@@ -208,7 +212,11 @@ Feature: elasticsearch operator related tests
       | remove_logging_pods | true                         |
       | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     Given evaluation of `elasticsearch('elasticsearch').nodes[0]['genUUID']` is stored in the :es_genuuid clipboard
+    And the expression should be true> cb.es_genuuid != nil
+    """
     And I wait for the "app" index to appear in the ES pod with labels "es-node-master=true"
     Then the expression should be true> cb.index_data['pri'].to_i == 1
     And I wait for the "infra" index to appear in the ES pod with labels "es-node-master=true"
