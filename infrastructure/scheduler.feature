@@ -353,6 +353,7 @@ Feature: Scheduler predicates and priority test suites
     Given the pod named "<%= cb.podm %>" status becomes :running
     Then the expression should be true> pod.node_name == cb.nodethree
 
+  # @author knarra@redhat.com
   # @case_id OCP-19892
   @admin
   @destructive
