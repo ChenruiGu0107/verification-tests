@@ -71,3 +71,39 @@ Feature: admin console api related
     Then the step should succeed
     When I run the :check_dashboard_dropdown_items web action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-23012
+  Scenario: Copy login command from console
+    Given the master version >= "4.2"
+    Given I open admin console in a browser
+
+    When I run the :goto_command_line_tools web action
+    Then the step should succeed
+    When I run the :browse_to_copy_login_command web action
+    Then the step should succeed
+    # This step is to store the redirecting url of new window, does not check anything
+    And I wait up to 15 seconds for the steps to pass:
+    """
+    When I perform the :check_page_contains web action in ":url=>oauth" window with:
+      | content | |
+    Then the step should succeed
+    And evaluation of `@result[:url]` is stored in the :oauth_login clipboard
+    """
+    When I perform the :login_if_need web action in ":url=>oauth" window with:
+      | username    | <%= user.auth_name %> |
+      | password    | <%= user.password  %> |
+      | idp         | <%= env.idp  %>       |
+      | console_url | <%= cb.oauth_login %> |
+    Then the step should succeed
+    When I perform the :display_token web action in ":url=>oauth" window with:
+      | button_text | Display |
+    Then the step should succeed
+    And evaluation of `@result[:text].split('--token=')[1].split()[0]` is stored in the :token clipboard
+    And evaluation of `@result[:text].split('--server=')[1].split()[0]` is stored in the :server clipboard
+
+    Given I have a project
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl | -kH | Authorization: Bearer <%= cb.token %> | <%= cb.server %>/apis/user.openshift.io/v1/users/~ |
+    Then the step should succeed
