@@ -50,9 +50,12 @@ Feature: podAffinity
     Given the master version >= "3.6"
     Given I have a project
     Given I obtain test data file "pods/podAffinity/pod-pod-affinity-invalid-topologykey-empty.yaml"
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | pod-pod-affinity-invalid-topologykey-empty.yaml |
     Then the step should fail
+    """
     And the output should match:
       | ([Rr]equired value.*can only be empty for PreferredDuringScheduling pod anti affinity\|[Rr]equired value:\s+can not be empty) |
     When I run the :get client command with:
@@ -83,9 +86,12 @@ Feature: podAffinity
   Scenario: pod will be scheduled on the node which meets pod affinity - In
     Given I have a project
     Given I obtain test data file "scheduler/pod-affinity/pod-s1.yaml"
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :create client command with:
       | f | pod-s1.yaml |
     Then the step should succeed
+    """
     Given the pod named "security-s1" status becomes :running within 60 seconds
     And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
     Given I obtain test data file "scheduler/pod-affinity/pod-pod-affinity-s1.yaml"
