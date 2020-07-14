@@ -21,8 +21,8 @@ Feature: security and compliance related scenarios
     When I run commands on the host:
       | cat /etc/system-fips |
     Then the step should succeed
-    And the output should contain:
-      | RHCOS FIPS mode installation complete |
+    And the output should match:
+      | FIPS mod.*installation complete |
 
     # check whether fips mode enabled or not for worker node
     Given I store the workers in the :workers clipboard
@@ -78,8 +78,8 @@ Feature: security and compliance related scenarios
     When I run commands on the host:
       | cat /etc/system-fips |
     Then the step should succeed
-    And the output should contain:
-      | RHCOS FIPS mode installation complete |
+    And the output should match:
+      | FIPS mod.*installation complete |
 
     Given the host is rebooted and I wait it to become available
 
@@ -97,8 +97,8 @@ Feature: security and compliance related scenarios
     When I run commands on the host:
       | cat /etc/system-fips |
     Then the step should succeed
-    And the output should contain:
-      | RHCOS FIPS mode installation complete |
+    And the output should match:
+      | FIPS mod.*installation complete |
 
     # Verify if the fips is enable on RHCOS and RHEL worker node
     Given I store the workers in the :workers clipboard
