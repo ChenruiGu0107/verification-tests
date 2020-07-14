@@ -910,3 +910,135 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | thanos_status |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-32324
+  @admin
+  @destructive
+  Scenario: Replace atomic roll out of gRPC TLS secrets with an overlapping scheme
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "test-grpc-tls-rotation" project is deleted after scenario
+
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+    #Check resources are created under openshift-user-workload-monitoring namespaces
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | all                                |
+      | n        | openshift-user-workload-monitoring |
+    Then the step should succeed
+    And the output should contain:
+      | pod/prometheus-operator-                  |
+      | pod/prometheus-user-workload-             |
+    """
+    #Create one namespace, create resources in the namespace
+    When I run the :new_project client command with:
+      | project_name | test-grpc-tls-rotation |
+    Then the step should succeed
+    Given I obtain test data file "monitoring/prometheus-example-app-grpc.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus-example-app-grpc.yaml |
+      | overwrite | true                             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod                    |
+      | n        | test-grpc-tls-rotation |
+    Then the step should succeed
+    Then the output should match 1 times:
+      | prometheus-example-app |
+
+    When I use the "openshift-monitoring" project
+    # get sa/prometheus-k8s token
+    And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    #trigger grpc-tls rotation by adding annotation
+    When I run the :get client command with:
+      | resource      | secret               |
+      | resource_name | grpc-tls             |
+      | n             | openshift-monitoring |
+      | o             | yaml                 |
+    Then the step should succeed
+    And I save the output to file> grpc-tls.yaml
+    When evaluation of `"metadata:\n  annotations:\n    monitoring.openshift.io/grpc-tls-forced-rotate: \"true\""` is stored in the :str_annotaion clipboard
+    And I replace lines in "grpc-tls.yaml":
+      | metadata: | <%= cb.str_annotaion %> |
+    When I run the :apply client command with:
+      | f         | grpc-tls.yaml |
+      | overwrite | true          |
+    Then the step should succeed
+
+    #check thanos querier can access prometheus in stack
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                 |
+      | pod              | alertmanager-main-0                                                                                                                  |
+      | c                | alertmanager                                                                                                                         |
+      | oc_opts_end      |                                                                                                                                      |
+      | exec_command     | sh                                                                                                                                   |
+      | exec_command_arg | -c                                                                                                                                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=ALERTS |
+    Then the step should succeed
+    And the output should contain:
+      | Watchdog |
+    """
+    #check thanos querier can access prometheus in UWM
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                  |
+      | pod              | alertmanager-main-0                                                                                                                   |
+      | c                | alertmanager                                                                                                                          |
+      | oc_opts_end      |                                                                                                                                       |
+      | exec_command     | sh                                                                                                                                    |
+      | exec_command_arg | -c                                                                                                                                    |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=version |
+    Then the step should succeed
+    And the output should contain:
+      | prometheus-example-app |
+      | test-grpc-tls-rotation |
+    """
+    #check thanos querier can access thanos ruler
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                    |
+      | pod              | alertmanager-main-0                                                                                                     |
+      | c                | alertmanager                                                                                                            |
+      | oc_opts_end      |                                                                                                                         |
+      | exec_command     | sh                                                                                                                      |
+      | exec_command_arg | -c                                                                                                                      |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/rules |
+    Then the step should succeed
+    And the output should contain:
+      | VersionAlert |
+    """
+    #check annotatin is deleted after rotation
+    When I run the :get client command with:
+      | resource      | secret               |
+      | resource_name | grpc-tls             |
+      | n             | openshift-monitoring |
+    Then the step should succeed
+    Then the output should not contain:
+      | monitoring.openshift.io/grpc-tls-forced-rotate: "true" |
+    #check correct thanos exists
+    When I run the :get client command with:
+      | resource | secret               |
+      | n        | openshift-monitoring |
+    Then the step should succeed
+    Then the output should match 1 times:
+      | prometheus-k8s-grpc-tls |
+      | thanos-querier-grpc     |
+    When I run the :get client command with:
+      | resource | secret                             |
+      | n        | openshift-user-workload-monitoring |
+    Then the step should succeed
+    Then the output should match 1 times:
+      | prometheus-user-workload-grpc-tls |
+      | thanos-ruler-grpc-tls             |
