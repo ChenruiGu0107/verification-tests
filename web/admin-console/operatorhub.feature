@@ -249,6 +249,10 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :filter_by_template_type web action
     Then the step should succeed
+    When I perform the :filter_by_keyword web action with:
+      | keyword | php |
+    Then the step should succeed
+
     When I perform the :click_catalog_item web action with:
       | catalog_item | php-helloworld-sample |
     Then the step should succeed
@@ -717,7 +721,7 @@ Feature: operatorhub feature related
     """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | container-security-operator |
-      | catalog_name     | community-operators         |
+      | catalog_name     | redhat-operators            |
       | target_namespace |                             |
     Then the step should succeed
     When I run the :click_subscribe_button web action
