@@ -1,0 +1,40 @@
+apiVersion: metering.openshift.io/v1
+kind: MeteringConfig
+metadata:
+  name: openshift-metering
+  namespace: openshift-metering
+spec:
+  storage:
+    hive:
+      type: "sharedPVC"
+      sharedPVC:
+        createPVC: true
+        storageClass: "<%= cb.sc_name %>"
+        size: "5Gi"
+    type: hive
+  hive:
+    spec:
+      config:
+        db:
+          url: "jdbc:postgresql://<%= cb.postgresql_svc_ip %>/hive"
+          driver: "org.postgresql.Driver"
+          username: "<%= cb.db_username %>"
+          password: "<%= cb.db_password %>"
+      metastore:
+        storage:
+          create: false
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 650Mi
+      server:
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
