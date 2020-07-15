@@ -435,7 +435,7 @@ Feature: Testing image registry operator
     And the "ruby-ex-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/ruby-ex |
-    Then the output should contain "Too Many Requests"
+    Then the output should match "[Tt]oo [Mm]any [Rr]equests"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-30266
