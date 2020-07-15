@@ -114,7 +114,7 @@ Feature: Testing registry
       | confirm    | true                                                          |
     Then the step should succeed
     And the output should match:
-      | Import failed.*File not found |
+      | Import failed |
     When I run the :patch client command with:
       | resource      | imagestream                                               |
       | resource_name | jenkins                                                   |

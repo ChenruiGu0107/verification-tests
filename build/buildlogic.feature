@@ -328,6 +328,7 @@ Feature: buildlogic.feature
       | strategy | docker                                           |
       | l        | app=newbuild1                                    |
     Then the step should succeed
+    Then the "ruby-hello-world-1" build was created
     When I run the :patch client command with:
       | resource      | bc               |
       | resource_name | ruby-hello-world |
