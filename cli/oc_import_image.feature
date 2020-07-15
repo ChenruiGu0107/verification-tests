@@ -119,7 +119,8 @@ Feature: oc import-image related feature
       | resource_name | deployment-example-1                                                                   |
       | p             | {"metadata": {"labels":{"openshift.io/deployment-config.name": "deployment-example"}}} |
     Then the step should succeed
-
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource_name   | deployment-example-1          |
       | resource        | rc                            |
@@ -127,7 +128,7 @@ Feature: oc import-image related feature
       | template        | {{.metadata.ownerReferences}} |
     Then the output should match:
       | \bdeployment-example\b |
-
+    """
     Given number of replicas of "deployment-example" deployment config becomes:
       | desired | 1 |
       | current | 1 |
