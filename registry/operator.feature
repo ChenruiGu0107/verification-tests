@@ -298,7 +298,7 @@ Feature: Testing image registry operator
   Scenario: CronJob is added to automate image prune	
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project 
-    When I get project imagepruners_imageregistry_operator_openshift_io named “cluster” as YAML                                            |
+    When I get project imagepruners_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
       | failedJobsHistoryLimit: 3     |
       | keepTagRevisions: 3           |
