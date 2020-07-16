@@ -380,10 +380,10 @@ Feature: query browser
       | dropdown_item  | openshift-monitoring |
     Then the step should succeed
     When I perform the :check_data_diplayed_db web action with:
-      | data_name   | CPU Usage |
-      | legend_name | requests  |
+      | data_name   | CPU Usage       |
+      | legend_name | config-reloader |
     Then the step should succeed
     When I perform the :check_data_diplayed_db web action with:
-      | data_name   | Memory Usage |
-      | legend_name | requests     |
+      | data_name   | Memory Usage    |
+      | legend_name | config-reloader |
     Then the step should succeed
