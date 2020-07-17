@@ -578,3 +578,110 @@ Feature: taint toleration related scenarios
     Given the pod named "empty-operator-pod" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
 
+  # @author knarra@redhat.com
+  # @case_id OCP-31847
+  Scenario: Allow mutiple toleration values with the same key, testa
+    Given the master version >= "3.11"
+    Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-allowtesta.yaml"
+    When I run the :create client command with:
+      | f | pod-allowtesta.yaml |
+    Then the step should succeed
+    And the pod named "pod-allow" becomes ready
+    When I run the :describe client command with:
+      | resource | pods      |
+      | name     | pod-allow |
+    Then the step should succeed
+    Then the output should match:
+      | Tolerations:\\s+mytolerations/mykey=abcd-default |
+      |             \\s+mytolerations/mykey=pqrs-default |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-32016
+  Scenario: Allow multiple toleration values with the same key, testb
+    Given the master version >= "3.11"
+    Given I have a project
+    Given I obtain test data file "scheduler/taint-toleration/pod-allowtestb.yaml"
+    When I run the :create client command with:
+      | f | pod-allowtestb.yaml |
+    Then the step should succeed
+    And the pod named "pod-allow" becomes ready
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | pod-allow |
+    Then the step should succeed
+    Then the output should match:
+      | Tolerations:\\s+k=v1 |
+    When I run the :patch client command with:
+      | resource      | pod                                                                                 |
+      | resource_name | pod-allow                                                                           |
+      | p             | [{"op": "add", "path": "/spec/tolerations/-", "value":{"key": "k", "value": "v2"}}] |
+      | type          | json                                                                                |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | pod-allow |
+    Then the step should succeed
+    Then the output should match:
+      | Tolerations:\\s+k=v1 |
+      |             \\s+k=v2 |
+
+  # @author knarra@redhat.com
+  # @author OCP-32017
+  @admin
+  Scenario: Allow multiple toleration values with the same key, testc
+    Given the master version >= "3.11"
+    Given I have a project
+    And I obtain test data file "scheduler/taint-toleration/mem-cpu-limit.yaml"
+    When I run the :create admin command with:
+      | f | mem-cpu-limit.yaml  |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I obtain test data file "scheduler/taint-toleration/pod-allowtestc.yaml"
+    When I run the :create client command with:
+      | f | pod-allowtestc.yaml |
+    Then the step should succeed
+    And the pod named "pod-allow" becomes ready
+    When I run the :patch client command with:
+      | resource      | pod                                                                                 |
+      | resource_name | pod-allow                                                                           |
+      | p             | [{"op": "add", "path": "/spec/tolerations/-", "value":{"key": "k", "value": "v1"}}] |
+      | type          | json                                                                                |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pod                                                                                 |
+      | resource_name | pod-allow                                                                           |
+      | p             | [{"op": "add", "path": "/spec/tolerations/-", "value":{"key": "k", "value": "v2"}}] |
+      | type          | json                                                                                |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | pod-allow |
+    Then the step should succeed
+    Then the output should match:
+      | Tolerations:\\s+k=v1 |
+      |             \\s+k=v2 |
+
+  # @author knarra@redhat.com
+  # @author OCP-32018
+  @admin
+  Scenario: Allow multiple toleration values with the same key, testd
+    Given the master version >= "3.11"
+    Given I have a project
+    And I obtain test data file "scheduler/taint-toleration/mem-cpu-limit.yaml"
+    When I run the :create admin command with:
+      | f | mem-cpu-limit.yaml  |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I obtain test data file "scheduler/taint-toleration/pod-allowtestd.yaml"
+    When I run the :create client command with:
+      | f | pod-allowtestd.yaml |
+    Then the step should succeed
+    And the pod named "pod-allow" becomes ready
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | pod-allow |
+    Then the step should succeed
+    Then the output should match:
+      | Tolerations:\\s+k=v1 |
+      |             \\s+k=v2 |

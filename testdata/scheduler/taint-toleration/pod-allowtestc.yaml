@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-allow
+  labels:
+    app: pod-allow
+spec:
+  containers:
+  - name: hw1
+    image: quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7
+    command: ['sh', '-c', 'sleep 100000']
+  restartPolicy: Never
+  tolerations:
+  - key: k1
+
