@@ -627,7 +627,7 @@ Feature: taint toleration related scenarios
       |             \\s+k=v2 |
 
   # @author knarra@redhat.com
-  # @author OCP-32017
+  # @case_id OCP-32017
   @admin
   Scenario: Allow multiple toleration values with the same key, testc
     Given the master version >= "3.11"
@@ -663,7 +663,7 @@ Feature: taint toleration related scenarios
       |             \\s+k=v2 |
 
   # @author knarra@redhat.com
-  # @author OCP-32018
+  # @case_id OCP-32018
   @admin
   Scenario: Allow multiple toleration values with the same key, testd
     Given the master version >= "3.11"
