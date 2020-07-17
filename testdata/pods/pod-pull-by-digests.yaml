@@ -7,6 +7,6 @@ metadata:
 spec:
   containers:
   - name: hello-pod
-    image: quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615
+    image: quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7
     ports:
     - containerPort: 80

@@ -350,14 +350,17 @@ Feature: Node management
       | podman images --digests \| grep hello-pod |
     Then the step should succeed
     And the output should match:
-      | quay.io/openshifttest/hello-pod.*sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615 |
+      | quay.io/openshifttest/hello-pod.*sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7 |
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     When I run the :get admin command with:
       | resource      | node                 |
       | resource_name | <%= pod.node_name %> |
       | o             | yaml                 |
     Then the step should succeed
-    And the output should contain "quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615"
-    And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod@sha256:fd771a64c32e77eda0901d6c4c2d05b0dd1a5a79d9f29b25ae0b1b66d9149615'
+    And the output should contain "quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7"
+    """
+    And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod@sha256:04b6af86b03c1836211be2589db870dba09b7811c197c47c07fbbe33c7f80ef7'
   
   # @author minmli@redhat.com
   # @case_id OCP-29679
@@ -375,12 +378,15 @@ Feature: Node management
     Then the step should succeed
     And the output should match:
       | quay.io/openshifttest/hello-pod.*latest |
+    And I wait up to 300 seconds for the steps to pass:
+    """
     When I run the :get admin command with:
       | resource      | node                 |
       | resource_name | <%= pod.node_name %> |
       | o             | yaml                 |
     Then the step should succeed
     And the output should contain "quay.io/openshifttest/hello-pod:latest"
+    """
     And the expression should be true> pod.container_specs.first.image == 'quay.io/openshifttest/hello-pod:latest'
 
   # @author minmli@redhat.com
