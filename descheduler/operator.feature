@@ -25,6 +25,7 @@ Feature: Descheduler related scenarios
   # @author knarra@redhat.com
   # @case_id OCP-17202
   @admin
+  @destructive
   Scenario: Basic Descheduler - Descheduler should not violate PodDisruptionBudget
     Given the master version >= "4.4"
     Given I have a project
