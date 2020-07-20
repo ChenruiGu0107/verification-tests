@@ -86,6 +86,32 @@ Feature: Testing Ingress Operator related scenarios
 
 
   # @author hongli@redhat.com
+  # @case_id OCP-22633
+  @admin
+  Scenario: the nodeSelector of router is controlled by ingresscontroller
+    Given the master version >= "4.1"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # create custom ingresscontroller with specified nodeSelector
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-22633" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingresscontroller-test.yaml"
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
+      | ["metadata"]["name"]                                     | test-22633                                    |
+      | ["spec"]["domain"]                                       | <%= cb.subdomain.gsub("apps","test-22633") %> |
+      | ["spec"]["defaultCertificate"]["name"]                   | router-certs-default                          |
+      | ["spec"]["nodePlacement"]["nodeSelector"]["matchLabels"] | node.openshift.io/os_id: rhcos                |
+    Then the step should succeed
+
+    # ensure the custom router pod is running on the matched node
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-22633 |
+    And the expression should be true> pod.nodeselector['node.openshift.io/os_id'] == 'rhcos'
+
+
+  # @author hongli@redhat.com
   # @case_id OCP-22636
   @admin
   Scenario: the namespaceSelector of router is controlled by ingresscontroller
@@ -194,6 +220,30 @@ Feature: Testing Ingress Operator related scenarios
       | grep | nbthread | haproxy.config |
     Then the step should succeed
     And the output should contain "nbthread 4"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-23169
+  @admin
+  Scenario: the tolerations of router is controlled by ingresscontroller
+    Given the master version >= "4.1"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # create custom ingresscontroller with specified tolerations
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-23169" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingresscontroller-test.yaml"
+    When I run oc create over "ingresscontroller-test.yaml" replacing paths:
+      | ["metadata"]["name"]                   | test-23169                                    |
+      | ["spec"]["domain"]                     | <%= cb.subdomain.gsub("apps","test-23169") %> |
+      | ["spec"]["defaultCertificate"]["name"] | router-certs-default                          |
+    Then the step should succeed
+
+    # ensure the custom router pod has the tolerations
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-23169 |
+    And the expression should be true> deployment('router-test-23169').tolerations == [{"effect"=>"NoSchedule", "operator"=>"Exists"}]
 
   # @author hongli@redhat.com
   @admin
