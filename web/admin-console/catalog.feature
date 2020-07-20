@@ -68,6 +68,7 @@ Feature: tests on catalog page
       | project_name  | <%= project.name %> |
       | template_name | dotnet-example      |
     Then the step should succeed
+
     Given I wait up to 20 seconds for the steps to pass:
     """
     When I get project templateinstance
@@ -75,6 +76,11 @@ Feature: tests on catalog page
     """
     When I get project templateinstance as YAML
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :templateinstance clipboard
+
+    When I perform the :goto_one_templateinstance_page web action with:
+      | project_name          | <%= project.name %>        |
+      | templateinstance_name | <%= cb.templateinstance %> |
+    Then the step should succeed
 
     When I perform the :check_templateinstance_name_and_icon web action with:
       | resource_name | <%= cb.templateinstance %> |

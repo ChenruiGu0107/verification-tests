@@ -80,8 +80,11 @@ Feature: search page related
       | item | console-operator |
     Then the step should succeed
 
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :clear_all_filters web action
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | No resources selected |
     Then the step should succeed
+    """
