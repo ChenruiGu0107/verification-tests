@@ -240,10 +240,6 @@ Feature: volumeMounts should be able to use subPath
     And I store the schedulable workers in the :nodes clipboard
     And I use the "<%= cb.nodes[0].name %>" node
     And label "subpath=socket" is added to the "<%=node.name%>" node
-    When I run commands on the host:
-      | rm -rf /run/test.sock    |
-      | nc -vklU /run/test.sock& |
-    Then the step should succeed
 
     Given I have a project
     And I run the :patch admin command with:
@@ -251,6 +247,14 @@ Feature: volumeMounts should be able to use subPath
       | resource_name | <%=project.name%>                                                              |
       | p             | {"metadata":{"annotations": {"openshift.io/node-selector": "subpath=socket"}}} |
     Then the step should succeed
+
+    Given I obtain test data file "storage/hostpath/propaslave.yaml"
+    When I run oc create over "propaslave.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["hostPath"]["path"] | /                                                                                        |
+      | ["spec"]["containers"][0]["command"]       | [ "chroot", "/mnt/local", "sh", "-c", "rm -rf /run/test.sock; nc -vklU /run/test.sock" ] |
+    Then the step should succeed
+    Given the pod named "propaslave" becomes ready
+
     When I run oc create over "<%= BushSlicer::HOME %>/features/tierN/testdata/storage/subpath/sock-subpath.json" replacing paths:
       | ["metadata"]["name"]                                      | pod-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt/run/test.sock      |
