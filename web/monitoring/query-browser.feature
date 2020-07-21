@@ -5,8 +5,8 @@ Feature: query browser
   @admin
   Scenario: navigate to the query browser via the left side OpenShift console menu
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
@@ -109,8 +109,8 @@ Feature: query browser
   @admin
   Scenario: Developer query browser feature - cluster admin
     Given the master version >= "4.4"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     #Go to developer mode, select the project
     When I run the :navigate_to_dev_console web action
@@ -177,8 +177,8 @@ Feature: query browser
   @admin
   Scenario: a list of all available metrics in the drop-down list
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
 
@@ -220,8 +220,8 @@ Feature: query browser
   @admin
   Scenario: [Bug MON-743]Query Browser UI should show the `__name__` column inside the result table
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
@@ -238,8 +238,8 @@ Feature: query browser
   @admin
   Scenario: Single query in metrics query browser
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_metrics_page web action
     Then the step should succeed
@@ -333,8 +333,8 @@ Feature: query browser
   @admin
   Scenario: Show correct and same CPU/Memory/Filesystem usage both in prometheus and Grafana UI
     Given the master version >= "4.4"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     #Workloads -> Pods
     When I perform the :goto_one_pod_page web action with:
       | project_name  | openshift-monitoring |

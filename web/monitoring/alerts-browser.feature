@@ -5,8 +5,8 @@ Feature: alerts browser
   @admin
   Scenario: Expire silence from alert details page
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -47,8 +47,8 @@ Feature: alerts browser
   @admin
   Scenario: Edit Alertmanager Silence - Invalid matcher
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -88,8 +88,8 @@ Feature: alerts browser
   @admin
   Scenario: Edit Alertmanager Silence - Invalid End time
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -128,8 +128,8 @@ Feature: alerts browser
   @admin
   Scenario: List all alerts and could filter alerts by state
     Given the master version >= "4.0"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -184,12 +184,100 @@ Feature: alerts browser
     Then the step should succeed
 
   # @author hongyli@redhat.com
+  # @case_id OCP-32857
+  @admin
+  Scenario: List all alerts and could filter alerts by state and severity
+    Given the master version >= "4.6"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #Prepare a silenced alert
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :silence_alert_from_detail web action
+    Then the step should succeed
+    #Go back to alert page
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #By default, only firing alerts display
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should fail
+    #Filter alerts with status silence
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | silenced |
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should succeed
+    #Filter alerts with status firing
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | firing |
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should fail
+    #Filter alerts with severity none
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | none |
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should succeed
+    #Filter alerts with severity critical
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | critical |
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should fail
+    #Filter alerts with status silence and severity none
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | silenced |
+    Then the step should succeed
+    When I perform the :list_alerts_by_filters web action with:
+      | filter_item | none |
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should succeed
+    #Go to alert rule page, and come back, filter come back to default status
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    When I perform the :status_specific_alert web action with:
+      | alert_name | Watchdog |
+      | status     | Silenced |
+    Then the step should fail
+    #Open Silence page, open the detail page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    #Expire silence to restore environment
+    When I run the :expire_alert_from_actions web action
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
   # @case_id OCP-21131
   @admin
   Scenario: List all silences and could filter silences by state
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -276,12 +364,110 @@ Feature: alerts browser
     Then the step should succeed
 
   # @author hongyli@redhat.com
+  # @case_id OCP-32858
+  @admin
+  Scenario: List all silences and could filter silences by state
+    Given the master version >= "4.6"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #Prepare a silenced alert
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :silence_alert_from_detail web action
+    Then the step should succeed
+    #Open Silence page, open the detail page
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    #Expire silence to prepare Expired status silence
+    When I run the :expire_alert_from_actions web action
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+    When I run the :check_silence_detail web action
+    Then the step should succeed
+    When I perform the :check_page_not_match web action with:
+      | content | Silenced |
+    Then the step should succeed
+    #Prepare a silenced alert again
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :silence_alert_from_detail web action
+    Then the step should succeed
+    #Filter silence alerts by status
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    #By default, Active/pending enabled and Expired disabled
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Active |
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Expired |
+    Then the step should fail
+    #Enable Active/pending/Expired filters
+    When I perform the :list_alerts_by_filters web action with:
+      | filter_item | expired |
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Active   |
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Expired  |
+    Then the step should succeed
+    #Disable Active and Enable Expired
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | expired |
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Active   |
+    Then the step should fail
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Expired |
+    Then the step should succeed
+    #Go to alert rule page, and come back, filter come back to default status
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Active |
+    Then the step should succeed
+    When I perform the :status_specific_silence web action with:
+      | alert_name | Watchdog |
+      | status     | Expired |
+    Then the step should fail
+    #Expire silence to restore environment
+    When I perform the :open_alert_detail web action with:
+      | alert_name | Watchdog |
+    Then the step should succeed
+    When I run the :expire_alert_from_actions web action
+    And I click the following "button" element:
+      | text | Expire Silence |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
   # @case_id OCP-29061
   @admin
   Scenario: Check alerting rules list page
     Given the master version >= "4.5"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alertrules_page web action
     Then the step should succeed
@@ -297,8 +483,8 @@ Feature: alerts browser
   @admin
   Scenario: fields of silence alert
     Given the master version >= "4.5"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -326,8 +512,8 @@ Feature: alerts browser
   @admin
   Scenario: Create, edit, expire Alertmanager Silence
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     #Create new Alertmanager Silence
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
@@ -366,8 +552,8 @@ Feature: alerts browser
   @admin
   Scenario: alert should not be silenced if the silence does not satisfy specified label constraints
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     #Create new Alertmanager Silence
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
@@ -401,8 +587,8 @@ Feature: alerts browser
   @admin
   Scenario: When Silence matcher is a regex, the Firing Alerts list should be populated correctly
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     #Create new Alertmanager Silence
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
@@ -439,8 +625,8 @@ Feature: alerts browser
   @admin
   Scenario: Show a detailed and complete view of Alertmanager Silence, "Firing Alerts" list is in Silence details page
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
     #Create new Alertmanager Silence
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
@@ -471,8 +657,8 @@ Feature: alerts browser
   @admin
   Scenario: Show a detailed and complete view of an alerting rule
     Given the master version >= "4.1"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -490,8 +676,8 @@ Feature: alerts browser
   @admin
   Scenario: Alert graph is added to alert rule details page
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -539,8 +725,8 @@ Feature: alerts browser
   @admin
   Scenario: Show a detailed and complete view of an Alert
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -573,8 +759,8 @@ Feature: alerts browser
   @admin
   Scenario: Alert graph is added to alert details page
     Given the master version >= "4.2"
-    Given I open admin console in a browser
     And the first user is cluster-admin
+    Given I open admin console in a browser
 
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -613,4 +799,68 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | vector(1) |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-32859
+  @admin
+  Scenario: List all alerting rules and could filter rules by severity and state
+    Given the master version >= "4.6"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #Open alert rule page
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    #Filter silence alerts by state
+    #By default, Active/Inactive disabled, all display
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
+    Then the step should succeed
+    #Enable Active
+    When I perform the :list_alerts_by_filters web action with:
+      | filter_item | true |
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
+    Then the step should succeed
+    #Enable inactive and diable active
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | false |
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
+    Then the step should fail
+    #Enable severity info
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | none |
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
+    Then the step should succeed
+    #Enable severity critical and state inactive
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | critical |
+    Then the step should succeed
+    When I perform the :list_alerts_by_filters web action with:
+      | filter_item | false |
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
+    Then the step should fail
+    #Go to Silence page, and come back, filter come back to default status
+    When I run the :goto_monitoring_silences_page web action
+    Then the step should succeed
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule web action with:
+      | alert_name | Watchdog |
+      | table_text | Watchdog |
     Then the step should succeed
