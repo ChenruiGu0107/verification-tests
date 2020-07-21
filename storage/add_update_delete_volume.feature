@@ -143,7 +143,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
 
     # new-app
-    When I run the :new_app client command with:
+    When I run the :new_app_as_dc client command with:
       | image_stream | openshift/postgresql:latest|
       | env          | POSTGRESQL_USER=tester     |
       | env          | POSTGRESQL_PASSWORD=xxx    |
@@ -170,11 +170,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I run the :set_volume client command with:
       | resource      | dc     |
       | resource_name | mydb   |
-      | action        | --list |
     Then the step should succeed
-    Then the output should contain:
-      | nfsc-<%= project.name %> |
-      | mounted at /opt111       |
 
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
