@@ -458,7 +458,6 @@ Feature: SDN related networking scenarios
     Given I use the "<%= cb.node_name %>" node
     When I run commands on the host:
       | systemctl restart crio |
-    Then the step should succeed
     And the node network is verified
 
     Given I obtain test data file "networking/aosqe-pod-for-ping.json"
