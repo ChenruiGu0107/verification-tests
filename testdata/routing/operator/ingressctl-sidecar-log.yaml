@@ -1,0 +1,23 @@
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: internalapps
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: test-certs
+  domain: internalapps.example.com
+  endpointPublishingStrategy:
+    type: NodePortService
+  nodePlacement:
+    nodeSelector:
+      matchLabels:
+        beta.kubernetes.io/os: linux
+    tolerations:
+    - effect: NoSchedule
+      operator: Exists
+  replicas: 1
+  logging:
+    access:
+      destination:
+        type: Container
