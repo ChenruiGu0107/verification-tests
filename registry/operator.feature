@@ -485,3 +485,30 @@ Feature: Testing image registry operator
       | docker-registry=default |
     Then the expression should be true> pod.node_name == cb.nodes[0].name
     """
+
+  # @author wzheng@redhat.com  
+  # @case_id OCP-27562
+  @admin
+  @destructive
+  Scenario: Warning appears with use spec.rolloutStrategy for image registry configure
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    Then the output should contain:
+      | RollingUpdate |
+    When I run the :patch client command with:
+      | resource      | configs.imageregistry.operator.openshift.io |
+      | resource_name | cluster                                     |
+      | p             | {"spec":{"rolloutStrategy":123}}            |
+      | type          | merge                                       |
+    And the output should contain:
+      | invalid |
+      | integer |
+    When I run the :patch client command with:
+      | resource      | configs.imageregistry.operator.openshift.io |
+      | resource_name | cluster                                     |
+      | p             | {"spec":{"rolloutStrategy":"test"}}         |
+      | type          | merge                                       |
+    And the output should contain:
+      | invalid                 |
+      | RollingUpdate\|Recreate |
