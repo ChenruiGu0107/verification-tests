@@ -233,15 +233,17 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   @admin
   Scenario Outline: oc set volume with claim-class parameter test
     Given I have a project
-    When I run the :new_app client command with:
-      | template | postgresql-persistent |
+    When I run the :new_app_as_dc client command with:
+      | docker_image | quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40 |
+      | name         | storage                                                                                               |
+      | labels       | app=storage                                                                                           |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=postgresql |
+      | app=storage |
 
     When I run the :set_volume client command with:
       | resource      | dc                   |
-      | resource_name | postgresql           |
+      | resource_name | storage              |
       | action        | --add                |
       | type          | pvc                  |
       | claim-mode    | rwo                  |
@@ -253,7 +255,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     When I run the :set_volume client command with:
       | resource      | dc         |
-      | resource_name | postgresql |
+      | resource_name | storage    |
       | action        | --all      |
     Then the step should succeed
     Then the output should contain:
@@ -262,7 +264,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
-      | name=postgresql |
+      | app=storage |
     And the "pvcsc" PVC becomes :bound
     And the expression should be true> pvc.storage_class == "<storage-class-name>"
     And the expression should be true> pvc.access_modes[0] == "ReadWriteOnce"
