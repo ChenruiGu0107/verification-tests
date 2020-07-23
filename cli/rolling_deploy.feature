@@ -25,7 +25,7 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-2-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-2-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 2 pods available, don't exceed 3 pods |
     And I replace resource "dc" named "hooks":
@@ -35,7 +35,7 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-3-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-3-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 2 pods available|
     And I replace resource "dc" named "hooks":
@@ -45,7 +45,7 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-4-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-4-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 1 pods available |
 
@@ -91,7 +91,7 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-2-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-2-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 3 pods available, don't exceed 4 pods |
     And I replace resource "dc" named "hooks":
@@ -101,7 +101,7 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-3-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-3-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 3 pods available, don't exceed 4 pods |
     And I replace resource "dc" named "hooks":
@@ -111,6 +111,6 @@ Feature: rolling deployment related scenarios
       | resource | dc/hooks |
     Then the step should succeed
     And the pod named "hooks-4-deploy" becomes ready
-    Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
+    Given I collect the deployment log for pod "hooks-4-deploy" until it becomes :succeeded
     And the output should contain:
       | keep 3 pods available, don't exceed 5 pods |
