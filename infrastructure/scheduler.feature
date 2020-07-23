@@ -362,9 +362,6 @@ Feature: Scheduler predicates and priority test suites
     Given admin ensures "priorityl" priority_class is deleted after scenario
     Given admin ensures "prioritym" priority_class is deleted after scenario
     Given admin ensures "priorityh" priority_class is deleted after scenario
-    Given I store the schedulable workers in the :nodes clipboard
-    And the expression should be true> cb.nodes.delete(node)
-    Given the taints of the nodes in the clipboard are restored after scenario
     # Creation of priority classes
     Given I obtain test data file "scheduler/priority-preemptionscheduling/priorityl.yaml"
     When I run the :create admin command with:
@@ -383,14 +380,17 @@ Feature: Scheduler predicates and priority test suites
       | ["value"]            | 100       |
     Then the step should succeed
     And the output should contain "priorityclass.scheduling.k8s.io/priorityh created"
-    # Mark two nodes as unschedulable
-     When I run the :oadm_taint_nodes admin command with:
+    Given I store the schedulable workers in the :nodes clipboard
+    And node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     # Test runs
     Given I have a project
-    And evaluation of `node.remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
+    And evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :node_allocate_memory clipboard
     Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
     When I run oc create over "podl.yaml" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.node_allocate_memory %> |
@@ -398,7 +398,7 @@ Feature: Scheduler predicates and priority test suites
     Given a pod becomes ready with labels:
       | env=test |
     And evaluation of `pod.name` is stored in the :podl clipboard
-    Then the expression should be true> pod.node_name == node.name
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
     Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
     When I run oc create over "podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | prioritym                      |
@@ -409,11 +409,11 @@ Feature: Scheduler predicates and priority test suites
     Given status becomes :pending of 1 pods labeled:
       | env=testm |
     And evaluation of `pod.name` is stored in the :podm clipboard
-    Then the expression should be true> pod.nominated_node_name == node.name
+    Then the expression should be true> pod.nominated_node_name == cb.nodes[0].name
     And the pod named "<%= cb.podl %>" becomes terminating
     Given a pod becomes ready with labels:
       | env=testm |
-    Then the expression should be true> pod.node_name == node.name
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
     Given I obtain test data file "scheduler/priority-preemptionscheduling/podl.yaml"
     When I run oc create over "podl.yaml" replacing paths:
       | ["metadata"]["generateName"]                                 | priorityh                      |
@@ -424,8 +424,8 @@ Feature: Scheduler predicates and priority test suites
     Given status becomes :pending of 1 pods labeled:
       | env=testh |
     And evaluation of `pod.name` is stored in the :podh clipboard
-    Then the expression should be true> pod.nominated_node_name == node.name
+    Then the expression should be true> pod.nominated_node_name == cb.nodes[0].name
     And the pod named "<%= cb.podm %>" becomes terminating
     Given a pod becomes ready with labels:
       | env=testh |
-    Then the expression should be true> pod.node_name == node.name
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
