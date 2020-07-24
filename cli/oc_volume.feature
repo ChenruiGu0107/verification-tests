@@ -194,12 +194,12 @@ Feature: oc_volume.feature
 
     When I run the :set_volume client command with:
       | resource | dc/database |
-      | action   | --list      |
+      | action   | --all       |
     Then the output should contain "emptyvol"
 
     When I run the :set_volume client command with:
       | resource | rc/database-1 |
-      | action   | --list        |
+      | action   | --all         |
     Then the output should contain "emptyvol"
 
     # Remove multiple volumes without giving volume name and '--confirm' option
@@ -222,5 +222,5 @@ Feature: oc_volume.feature
     When I run the :set_volume client command with:
       | resource | rc/database-1 |
       | resource | dc/database   |
-      | action   | --list        |
+      | action   | --all         |
     Then the output should not contain "emptyvol"
