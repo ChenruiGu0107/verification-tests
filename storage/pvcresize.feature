@@ -173,9 +173,12 @@ Feature: PVC resizing Test
       | resource_name | pvc-<%= project.name %>                                          |
       | p             | {"spec":{"resources":{"requests":{"storage":"100000000000Gi"}}}} |
     Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I get project events
     Then the output should match:
       | quantity.* is too great, overflows int64 |
+    """
 
   # @author piqin@redhat.com
   # @case_id OCP-16656
