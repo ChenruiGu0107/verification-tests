@@ -58,16 +58,7 @@ Feature: mega menu on console
     Then the step should succeed
 
     # first subscription will be created
-    Given admin waits for the "openshift-pipelines-operator-rh" subscription to appear in the "openshift-operators" project up to 120 seconds
-
-    # make clusterserviceversion is created before runnning subscription('x').csv
-    Given I use the "openshift-operators" project
-    Given I wait up to 120 seconds for the steps to pass:
-    """
-    When I get project clusterserviceversions
-    Then the output should contain "openshift-pipelines-operator.v"
-    """
-
+    Given admin waits for the "openshift-pipelines-operator-rh" subscriptions to become ready in the "openshift-operators" project up to 360 seconds
     # get exact CSV name
     And evaluation of `subscription("openshift-pipelines-operator-rh").current_csv` is stored in the :current_csv clipboard
 
