@@ -13,4 +13,149 @@ Feature: etcd related features
       | bash| -c | etcdctl member list |
     Then the output should contain 3 times:
       | , started, |
- 
+
+  # @author geliu@redhat.com
+  # @case_id OCP-19980
+  @admin
+  @destructive
+  Scenario: etcd operator subscription and destroy
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "openshift-operators" project after scenario
+    And I obtain test data file "admin/subscription.yaml"
+    When I run the :create client command with:
+      | f | subscription.yaml |
+    When I use the "openshift-operators" project
+    And status becomes :running of 1 pods labeled:
+      | name=etcd-operator-alm-owned |
+    When I obtain test data file "admin/etcd-cluster.yaml"
+    And I replace lines in "etcd-cluster.yaml":
+      | namespace: default | namespace: openshift-operators |
+    Given admin ensures "example" etcd_cluster is deleted from the "openshift-operators" project after scenario
+    When I run the :create client command with:
+      | f | etcd-cluster.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | etcd_cluster=example |
+    And status becomes :running of 3 pods labeled:
+      | app=etcd | 
+
+  # @author geliu@redhat.com
+  # @case_id OCP-19981
+  @admin
+  @destructive
+  Scenario: Resize an etcd cluster
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario 
+    And I obtain test data file "admin/subscription.yaml"
+    When I run the :create client command with:
+      | f | subscription.yaml |
+    When I use the "openshift-operators" project
+    And status becomes :running of 1 pods labeled:
+      | name=etcd-operator-alm-owned |
+    Given admin ensures "example" etcd_cluster is deleted from the "openshift-operators" project after scenario
+    When I use the "default" project
+    When I obtain test data file "admin/etcd-cluster.yaml"
+    When I run the :create client command with:
+      | f | etcd-cluster.yaml | 
+    Given a pod becomes ready with labels:
+      | etcd_cluster=example |
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    When I replace lines in "etcd-cluster.yaml":
+      | size: 3 | size: 4 |
+    Then I run the :apply client command with:
+      | f | etcd-cluster.yaml |
+    Then the step should succeed
+    And status becomes :running of 4 pods labeled:
+      | app=etcd |
+
+  # @author geliu@redhat.com
+  # @case_id OCP-19982
+  @admin
+  @destructive
+  Scenario: etcd operator automatically recover failure
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario
+    And I obtain test data file "admin/subscription.yaml"
+    When I run the :create client command with:
+      | f | subscription.yaml |
+    When I use the "openshift-operators" project
+    And status becomes :running of 1 pods labeled:
+      | name=etcd-operator-alm-owned |
+    Given admin ensures "example" etcd_cluster is deleted from the "openshift-operators" project after scenario
+    When I use the "default" project
+    When I obtain test data file "admin/etcd-cluster.yaml"
+    When I run the :create client command with:
+      | f | etcd-cluster.yaml |
+    Given a pod becomes ready with labels:
+      | etcd_cluster=example |
+    And evaluation of `pod.name` is stored in the :pod1 clipboard
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    Given I ensure "<%= cb.pod1 %>" pod is deleted
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+
+  # @author geliu@redhat.com
+  # @case_id OCP-19986
+  @admin
+  @destructive
+  Scenario: upgrade an etcd cluster
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario 
+    And I obtain test data file "admin/subscription.yaml"
+    When I run the :create client command with:
+      | f | subscription.yaml | 
+    When I use the "openshift-operators" project
+    And status becomes :running of 1 pods labeled:
+      | name=etcd-operator-alm-owned |
+    Given admin ensures "example" etcd_cluster is deleted from the "openshift-operators" project after scenario
+    When I use the "default" project
+    When I obtain test data file "admin/etcd-cluster.yaml"
+    When I run the :create client command with:
+      | f | etcd-cluster.yaml |
+    Given a pod becomes ready with labels:
+      | etcd_cluster=example |
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    When I replace lines in "etcd-cluster.yaml":
+      | 3.2.13 | 3.2.3 |
+    Then I run the :apply client command with:
+      | f | etcd-cluster.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:	    
+      | resource | po       |
+      | l        | app=etcd |
+    Then the output should match:
+      | etcd.version: 3.2.3 |
+    """
+
+  # @author geliu@redhat.com
+  # @case_id OCP-20141
+  @admin
+  @destructive
+  Scenario: etcd clusters could be managed in all namespaces
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "etcd-9.2-test" subscriptions is deleted from the "openshift-operators" project after scenario
+    Given admin ensures "etcdoperator.v0.9.4-clusterwide" csv is deleted from the "default" project after scenario
+    And I obtain test data file "admin/subscription.yaml"
+    When I run the :create client command with:
+      | f | subscription.yaml |
+    When I use the "openshift-operators" project
+    And status becomes :running of 1 pods labeled:
+      | name=etcd-operator-alm-owned |
+    Given admin ensures "example" etcd_cluster is deleted from the "openshift-operators" project after scenario
+    When I use the "default" project
+    When I obtain test data file "admin/etcd-cluster.yaml"
+    When I run the :create client command with:
+      | f | etcd-cluster.yaml |
+    Given a pod becomes ready with labels:
+      | etcd_cluster=example |
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
