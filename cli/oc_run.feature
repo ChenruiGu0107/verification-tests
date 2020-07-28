@@ -459,7 +459,7 @@ Feature: oc run related scenarios
       | image   | openshift/origin |
       | restart | Never            |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass: 
+    And I wait for the steps to pass:
     """
     When I run the :get client command with:
       | _tool         | <tool>                                               |
