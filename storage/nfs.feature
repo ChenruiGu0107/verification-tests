@@ -231,6 +231,9 @@ Feature: NFS Persistent Volume
       | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
     Then the step should succeed
 
+    # flush the data to nfs server
+    And I ensure "pod1" pod is deleted
+
     When I execute on the "pod2" pod:
       | id |
     Then the output should contain:
@@ -297,6 +300,9 @@ Feature: NFS Persistent Volume
       | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
     Then the step should succeed
 
+    # flush the data to nfs server
+    And I ensure "pod1" pod is deleted
+
     When I execute on the "pod2" pod:
       | id |
     Then the output should contain:
@@ -306,7 +312,7 @@ Feature: NFS Persistent Volume
     Then the output should contain:
       | d---rwx--- |
     When I execute on the "pod2" pod:
-      | cp | /proc/cpuinfo | /mnt/nfs/from-pod1 |
+      | cp | /proc/cpuinfo | /mnt/nfs/from-pod2 |
     Then the step should fail
 
     When I execute on the "nfs-server" pod:
@@ -377,18 +383,21 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
+      | mount |
+    Then the output should contain:
+      | ro     |
+      | vers=4 |
+    When I execute on the pod:
       | ls | /mnt |
     Then the step should succeed
+    Then I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | touch | /mnt/test_file |
     Then the step should fail
     And the output should contain:
       | Read-only file system |
-    When I execute on the pod:
-      | mount |
-    Then the output should contain:
-      | ro     |
-      | vers=4 |
+    """
 
   # @author jhou@redhat.com
   # @case_id OCP-14282
