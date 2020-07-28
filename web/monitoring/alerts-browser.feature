@@ -366,7 +366,7 @@ Feature: alerts browser
   # @author hongyli@redhat.com
   # @case_id OCP-32858
   @admin
-  Scenario: List all silences and could filter silences by state
+  Scenario: Filter silences by state
     Given the master version >= "4.6"
     And the first user is cluster-admin
     Given I open admin console in a browser
