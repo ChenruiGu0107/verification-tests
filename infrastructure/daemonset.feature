@@ -1,19 +1,22 @@
 Feature: Features of daemonset
   # @author dma@redhat.com
+  # @author weinliu@redhat.com
   # @case_id OCP-11525
   @admin
   Scenario: Deleting a DaemonSet will delete its pods as well
     Given I have a project
     Given I run the :patch admin command with:
-      | resource      | namespace                                                       |
-      | resource_name | <%=project.name%>                                               |
-      | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}}|
+      | resource      | namespace                                                        |
+      | resource_name | <%=project.name%>                                                |
+      | p             | {"metadata":{"annotations": {"openshift.io/node-selector": ""}}} |
     Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | daemonset.yaml |
-      | n | <%= project.name %>                                                                      |
+      | f | daemonset.yaml      |
+      | n | <%= project.name %> |
     Then the step should succeed
-    And <%= env.nodes.count %> pods become ready with labels:
+    And I store the number of worker nodes to the :num_workers clipboard
+    Given I store the workers in the :workers clipboard
+    And <%= cb.num_workers %> pods become ready with labels:
       | name=hello-daemonset |
     Then I run the :get client command with:
       | resource | pod  |
@@ -22,9 +25,8 @@ Feature: Features of daemonset
     Given evaluation of `@result[:response].strip` is stored in the :allpods clipboard
     Given I store in the clipboard the pods labeled:
       | name=hello-daemonset |
-    Then the expression should be true> env.nodes.count == cb.pods.count
-    And the expression should be true> (env.nodes.map(&:name) - cb.pods.map(&:node_name)).empty?
-
+    Then the expression should be true> cb.num_workers == cb.pods.count
+    And the expression should be true> (cb.workers.map(&:name) - cb.pods.map(&:node_name)).empty?
     When I run the :delete admin command with:
       | object_type       | daemonset           |
       | object_name_or_id | hello-daemonset     |
@@ -37,17 +39,16 @@ Feature: Features of daemonset
        | o        | name |
     Then the step should succeed
     And the expression should be true> @result[:response].strip == "<%= cb.allpods %>"
-
     Given I obtain test data file "daemon/daemonset.yaml"
     When I run the :create admin command with:
-      | f | daemonset.yaml |
-      | n | <%= project.name %>                                                                      |
+      | f | daemonset.yaml      |
+      | n | <%= project.name %> |
     Then the step should succeed
     Given all pods in the project are ready
     And I store in the clipboard the pods labeled:
       | name=hello-daemonset |
-    Then the expression should be true> env.nodes.count == cb.pods.count
-    And the expression should be true> (env.nodes.map(&:name) - cb.pods.map(&:node_name)).empty?
+    Then the expression should be true> cb.num_workers == cb.pods.count
+    And the expression should be true> (cb.workers.map(&:name) - cb.pods.map(&:node_name)).empty?
     When I run the :delete admin command with:
       | object_type       | daemonset           |
       | object_name_or_id | hello-daemonset     |
