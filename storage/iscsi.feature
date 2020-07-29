@@ -212,16 +212,7 @@ Feature: ISCSI volume plugin testing
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    Given I obtain test data file "storage/iscsi/pod-direct.json"
-    When I run oc create over "pod-direct.json" replacing paths:
-      | ["metadata"]["name"]                             | mypod1                        |
-      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
-      | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
-      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]      | true                          |
-      | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
-    Then the step should succeed
-    And the pod named "mypod1" becomes ready
-
+    # Create the pod with not read-only volume first, so the filesystem can be created
     Given I obtain test data file "storage/iscsi/pod-direct.json"
     When I run oc create over "pod-direct.json" replacing paths:
       | ["metadata"]["name"]                             | mypod2                        |
@@ -231,6 +222,16 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
     Then the step should succeed
     And the pod named "mypod2" becomes ready
+
+    Given I obtain test data file "storage/iscsi/pod-direct.json"
+    When I run oc create over "pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                             | mypod1                        |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"]  | <%= cb.iscsi_ip %>:3260       |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]       | ["<%= cb.iscsi_ip%>:3260"]    |
+      | ["spec"]["volumes"][0]["iscsi"]["readOnly"]      | true                          |
+      | ["spec"]["volumes"][0]["iscsi"]["initiatorName"] | iqn.2016-04.test.com:test.img |
+    Then the step should succeed
+    And the pod named "mypod1" becomes ready
 
     When I execute on the "mypod1" pod:
       | grep | iscsi | /proc/mounts |
