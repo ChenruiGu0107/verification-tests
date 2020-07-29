@@ -163,6 +163,7 @@ Feature: route related
   Scenario: Check monitoring routes on console
     Given the master version >= "4.1"
     Given the first user is cluster-admin
+    And I use the "openshift-monitoring" project
     Given I open admin console in a browser
     When I run the :goto_node_page web action
     Then the step should succeed
