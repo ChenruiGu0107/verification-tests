@@ -89,18 +89,18 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: Scheduler should use "allocatable" for pod scheduling
     Given I have a project
-    Given environment has at least 2 schedulable nodes
     Given I store the schedulable workers in the :nodes clipboard
-    And the expression should be true> cb.nodes.delete(node)
-    Given the taints of the nodes in the clipboard are restored after scenario
+    And node schedulable status should be restored after scenario
     # make sure only one node can be scheduled for testing pod,
     # since this scenario need calculate the requests for specific node
-    When I run the :oadm_taint_nodes admin command with:
+    When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     # calculate the memory leave to new pods
-    Given evaluation of `node.remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
+    Given evaluation of `cb.nodes[0].remaining_resources[:memory]` is stored in the :pod_request_memory clipboard
     Given I obtain test data file "scheduler/pod_with_more_than_remanent_memory.json"
     When I run oc create over "pod_with_more_than_remanent_memory.json" replacing paths:
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.pod_request_memory + 1%> |
@@ -117,7 +117,7 @@ Feature: Scheduler predicates and priority test suites
       | ["spec"]["containers"][0]["resources"]["requests"]["memory"] | <%= cb.pod_request_memory %> |
     Then the step should succeed
     And the pod named "pod-with-remanent-memory" becomes ready
-    Then the expression should be true> pod.node_name == node.name
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
 
   # @author knarra@redhat.com
   # @case_id OCP-24240
