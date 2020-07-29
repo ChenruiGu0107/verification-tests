@@ -226,8 +226,7 @@ Feature: nodeAffinity
       | key_val   | key14488=valuenot14488  |
       | overwrite | true                    |
     Then the step should succeed
-    Given 30 seconds have passed
-    Given the pod named "node-affinity-required-case14488" status becomes :running within 1 seconds
+    And the pod named "node-affinity-required-case14488" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
   # @author wmeng@redhat.com
