@@ -454,3 +454,15 @@ Feature: Testing image registry operator
     Then the step should fail
     And the output should contain:
       | invalid |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-25886
+  @admin
+  Scenario: Set image registry operator default to Removed in Bare metal platform 
+    When I run the :logs admin command with:
+      | resource_name | deployment/cluster-image-registry-operator |
+      | namespace     | openshift-image-registry                   |
+      | c             | cluster-image-registry-operator            |
+    And the output should contain:
+      | The registry is removed            |
+      | All registry resources are removed | 
