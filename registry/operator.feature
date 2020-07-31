@@ -512,3 +512,34 @@ Feature: Testing image registry operator
     And the output should contain:
       | invalid                 |
       | RollingUpdate\|Recreate |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-32329
+  @admin
+  @destructive
+  Scenario: keepYoungerThanDuration can be defined for image-pruner
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    Given as admin I successfully merge patch resource "imagepruners.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"keepYoungerThan": 60}} |
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "imagepruners.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"keepYoungerThan":null ,"keepYoungerThanDuration":null}} |
+    """
+    When I run the :describe admin command with:
+      | resource  | cronjob.batch            |
+      | name      | image-pruner             |
+      | namespace | openshift-image-registry |
+    Then the step should succeed
+    Then the output should contain:
+      | --keep-younger-than=60ns |
+    Given as admin I successfully merge patch resource "imagepruners.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"keepYoungerThanDuration": "90s"}} |
+    When I run the :describe admin command with:
+      | resource  | cronjob.batch            |
+      | name      | image-pruner             |
+      | namespace | openshift-image-registry |
+    Then the step should succeed
+    Then the output should contain:
+      | --keep-younger-than=1m30s |
