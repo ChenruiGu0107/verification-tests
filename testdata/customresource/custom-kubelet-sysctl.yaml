@@ -1,0 +1,15 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: custom-kubelet-sysctl
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      custom-kubelet: sysctl
+  kubeletConfig:
+    allowedUnsafeSysctls:
+      - "kernel.msg*"
+      - "kernel.shm*"
+      - "fs.mqueue.*"
+      - "net.*"
+      - "kernel.sem"
