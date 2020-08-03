@@ -427,3 +427,16 @@ Feature: Node management
       | quay.io/openshifttest/nginx:latest |
     """
 
+  # @author minmli@redhat.com
+  # @case_id OCP-32402
+  @admin
+  Scenario: check hooks_dir in crio conf file
+    Given I store the schedulable nodes in the :nodes clipboard
+    And I use the "<%= cb.nodes[0].name %>" node
+    Given I run commands on the host:
+      | grep -i hooks /etc/crio/crio.conf.d/00-default |
+    Then the step should succeed
+    And the output should contain:
+      | hooks_dir = [               |
+      | /etc/containers/oci/hooks.d |
+
