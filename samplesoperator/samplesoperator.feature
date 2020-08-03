@@ -35,7 +35,11 @@ Feature: samplesoperator
   Scenario: Can't recreate/update/delete imagestream/template after defined skippedImagestreams and skippedTemplates
     Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
       | {"spec":{"skippedImagestreams":["jenkins","perl","mysql"],"skippedTemplates":["rails-pgsql-persistent","httpd-example"]}} |
-    And admin ensures "cluster" config_samples_operator_openshift_io is deleted after scenario
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
+      | {"spec":{"skippedImagestreams": null,"skippedTemplates": null,"samplesRegistry": null}} |
+    """
     And I switch to cluster admin pseudo user
     And I use the "openshift" project
     When I run the :get client command with:
@@ -116,7 +120,7 @@ Feature: samplesoperator
     Given as admin I successfully merge patch resource "config.samples.operator.openshift.io/cluster" with:
      | {"spec":{"samplesRegistry": null}} |
     """
-    Then I wait up to 60 seconds for the steps to pass:
+    Then I wait up to 120 seconds for the steps to pass:
     """
     Then the expression should be true> image_stream("ruby", project("openshift")).tag_statuses(cached: false, user: admin).first.imageref.uri.include? "registry.access.redhat.com"
     """
@@ -163,3 +167,27 @@ Feature: samplesoperator
     And the output should contain:
       | test connection to registry.redhat.io failed                                                     |
       | unable to establish HTTPS connection to registry.redhat.io after 3 minutes, bootstrap to Removed |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-21527
+  @admin
+  @destructive
+  Scenario: openshift-samples co status update
+    Given admin updated the operator crd "config.samples" managementstate operand to Unmanaged
+    And I register clean-up steps:
+    """
+    admin updated the operator crd "config.samples" managementstate operand to Managed
+    """
+    Then I wait up to 120 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Available')['reason'] == "CurrentlyUnmanaged"
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Progressing')['reason'] == "CurrentlyUnmanaged"
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Degraded')['reason'] == "CurrentlyUnmanaged"
+    """
+    Given admin updated the operator crd "config.samples" managementstate operand to Removed
+    Then I wait up to 120 seconds for the steps to pass:
+    """
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Available')['reason'] == "CurrentlyRemoved"
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Progressing')['reason'] == "CurrentlyRemoved"
+    And the expression should be true> cluster_operator('openshift-samples').condition(cached: false, type: 'Degraded')['reason'] == "CurrentlyRemoved"
+    """
