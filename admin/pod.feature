@@ -167,28 +167,24 @@ Feature: pod related features
       | overwrite | true                                |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
-    Given a pod becomes ready with labels:
+    Given I store in the clipboard the pods labeled:
       | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod clipboard
     Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
-      | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
-      | "name": "",                      |"name": "<%= cb.pod %>",           |
-      | "namespace": ""                  |"namespace": "<%= project.name %>" |
+      | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
+      | "name": "",                      | "name": "<%= cb.pods[0].name %>",  |
+      | "namespace": ""                  | "namespace": "<%= project.name %>" |
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod %>       |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[0].name %> |
+      | payload_file | Eviction.json          |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod2 clipboard
     And I replace lines in "Eviction.json":
-      | "name": "<%= cb.pod %>",|"name": "<%= cb.pod2 %>",|
+      | "name": "<%= cb.pods[0].name %>",|"name": "<%= cb.pods[1].name %>",|
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod2 %>      |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[1].name %> |
+      | payload_file | Eviction.json          |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
@@ -222,28 +218,24 @@ Feature: pod related features
       | overwrite | true     |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
-    Given a pod becomes ready with labels:
+    Given I store in the clipboard the pods labeled:
       | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod clipboard
     Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
-      | "name": "",                      | "name": "<%= cb.pod %>",           |
+      | "name": "",                      | "name": "<%= cb.pods[0].name %>",  |
       | "namespace": ""                  | "namespace": "<%= project.name %>" |
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod %>       |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[0].name %> |
+      | payload_file | Eviction.json          |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod2 clipboard
     And I replace lines in "Eviction.json":
-      | "name": "<%= cb.pod %>",|"name": "<%= cb.pod2 %>",|
+      | "name": "<%= cb.pods[0].name %>",|"name": "<%= cb.pods[1].name %>",|
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod2 %>      |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[1].name %> |
+      | payload_file | Eviction.json          |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
@@ -273,28 +265,24 @@ Feature: pod related features
       | overwrite | true     |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
-    Given a pod becomes ready with labels:
+    Given I store in the clipboard the pods labeled:
       | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod clipboard
     Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
       | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
-      | "name": "",                      | "name": "<%= cb.pod %>",           |
+      | "name": "",                      | "name": "<%= cb.pods[0].name %>",  |
       | "namespace": ""                  | "namespace": "<%= project.name %>" |
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod %>       |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[0].name %> |
+      | payload_file | Eviction.json          |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod2 clipboard
     And I replace lines in "Eviction.json":
-      | "name": "<%= cb.pod %>",|"name": "<%= cb.pod2 %>",|
+      | "name": "<%= cb.pods[0].name %>",|"name": "<%= cb.pods[1].name %>",|
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod2 %>      |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[1].name %> |
+      | payload_file | Eviction.json          |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
@@ -328,28 +316,24 @@ Feature: pod related features
       | overwrite | true     |
     Then the step should succeed
     Given cluster role "cluster-admin" is added to the "first" user
-    Given a pod becomes ready with labels:
+    Given I store in the clipboard the pods labeled:
       | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod clipboard
     Given I obtain test data file "admin/Eviction.json"
     And I replace lines in "Eviction.json":
-      | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",   |
-      | "name": "",                      |"name": "<%= cb.pod %>",           |
-      | "namespace": ""                  |"namespace": "<%= project.name %>" |
+      | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
+      | "name": "",                      | "name": "<%= cb.pods[0].name %>",  |
+      | "namespace": ""                  | "namespace": "<%= project.name %>" |
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod %>       |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[0].name %> |
+      | payload_file | Eviction.json          |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | foo8=bar |
-    And evaluation of `pod.name` is stored in the :pod2 clipboard
     And I replace lines in "Eviction.json":
-      | "name": "<%= cb.pod %>",|"name": "<%= cb.pod2 %>",|
+      | "name": "<%= cb.pods[0].name %>",|"name": "<%= cb.pods[1].name %>",|
     When I perform the :create_pod_eviction rest request with:
-      | project_name | <%= project.name %> |
-      | pod_name     | <%= cb.pod2 %>      |
-      | payload_file | Eviction.json       |
+      | project_name | <%= project.name %>    |
+      | pod_name     | <%= cb.pods[1].name %> |
+      | payload_file | Eviction.json          |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
