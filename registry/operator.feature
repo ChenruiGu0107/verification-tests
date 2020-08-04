@@ -71,7 +71,7 @@ Feature: Testing image registry operator
     And I register clean-up steps:
     """
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"resources":null}} | 
+      | {"spec":{"resources":null}} |
     """
     And I wait for the steps to pass:
     """
@@ -275,7 +275,7 @@ Feature: Testing image registry operator
   # @case_id OCP-24100
   @admin
   @destructive
-  Scenario: Registry OpenStack Storage - UPI	
+  Scenario: Registry OpenStack Storage - UPI
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
@@ -343,7 +343,7 @@ Feature: Testing image registry operator
     And I register clean-up steps:
     """
     Given as admin I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec": {"requests": {"read": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"},"write": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"}}} } | 
+      | {"spec": {"requests": {"read": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"},"write": {"maxInQueue": null,"maxRunning": null,"maxWaitInQueue": "0s"}}} } |
     """
     And I wait for the steps to pass:
     """
@@ -367,12 +367,12 @@ Feature: Testing image registry operator
   # @case_id OCP-30266
   @admin
   @destructive
-  Scenario: Image-registry pods could be running when add infra node nodeAffinity scheduler but no infra node land 
+  Scenario: Image-registry pods could be running when add infra node nodeAffinity scheduler but no infra node land
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} | 
+      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} |
     And I register clean-up steps:
     """
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
@@ -389,14 +389,14 @@ Feature: Testing image registry operator
   # @case_id OCP-30419
   @admin
   @destructive
-  Scenario: Image-registry pods could be running in infra nodes when add infra node nodeAffinity scheduler 
+  Scenario: Image-registry pods could be running in infra nodes when add infra node nodeAffinity scheduler
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
     Given I store the schedulable workers in the :nodes clipboard
     And label "node-role.kubernetes.io/infra=" is added to the "<%= cb.nodes[0].name %>" node
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} | 
+      | {"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/infra","operator":"Exists"}]},"weight":1}]}}}} |
     And I register clean-up steps:
     """
     And I successfully merge patch resource "config.imageregistry.operator.openshift.io/cluster" with:
@@ -412,7 +412,7 @@ Feature: Testing image registry operator
     Then the expression should be true> pod.node_name == cb.nodes[0].name
     """
 
-  # @author wzheng@redhat.com  
+  # @author wzheng@redhat.com
   # @case_id OCP-27562
   @admin
   @destructive
@@ -448,9 +448,9 @@ Feature: Testing image registry operator
     When I use the "openshift-image-registry" project
     When I run the :patch client command with:
       | resource      | configs.imageregistry.operator.openshift.io                  |
-      | resource_name | cluster                                                      |  
+      | resource_name | cluster                                                      |
       | p             | {"spec":{"storage":{"s3":{"virtualHostedStyle":"invalid"}}}} |
       | type          | merge                                                        |
     Then the step should fail
-    Add the output should contain:
+    And the output should contain:
       | invalid |
