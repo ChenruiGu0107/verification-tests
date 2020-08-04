@@ -769,3 +769,74 @@ Feature: SCC policy related scenarios
       | payload_file | PodSecurityPolicyReview.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
+
+  # @author minmli@redhat.com
+  # @case_id OCP-20316
+  @admin
+  @destructive
+  Scenario: sysctl can be controlled by scc
+    Given I switch to cluster admin pseudo user
+    When I run the :label admin command with:
+      | resource | machineconfigpool     |
+      | name     | worker                |
+      | key_val  | custom-kubelet=sysctl |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    Given I switch to cluster admin pseudo user
+    When I run the :label admin command with:
+      | resource | machineconfigpool |
+      | name     | worker            |
+      | key_val  | custom-kubelet-   |
+    Then the step should succeed
+    """
+    Given I obtain test data file "customresource/custom-kubelet-sysctl.yaml"
+    When I run the :create client command with:
+      | f | custom-kubelet-sysctl.yaml |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    Given evaluation of `machine_config_pool('worker').condition(type: 'Updating', cached: false)` is stored in the :mcp clipboard
+    Then the expression should be true> cb.mcp["status"] == "True"
+    """
+    And I wait up to 1800 seconds for the steps to pass:
+    """
+    Given evaluation of `machine_config_pool('worker').condition(type: 'Updating', cached: false)` is stored in the :mcp clipboard
+    Then the expression should be true> cb.mcp["status"] == "False"
+    """
+
+    Given as admin I successfully merge patch resource "scc/restricted" with:
+      | {"forbiddenSysctls":["kernel.shm_rmid_forced", "net.ipv4.ip_local_port_range"]} |
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "scc/restricted" with:
+      | {"forbiddenSysctls":null} |
+    """
+    Given I switch to the first user
+    Given I have a project
+    Given I obtain test data file "sysctls/safe-sysctl.yaml"
+    When I run the :create client command with:
+      | f | safe-sysctl.yaml |
+    Then the step should fail
+    And the output should match:
+      | .*sysctl "kernel.shm_rmid_forced" is not allowed.*sysctl "net.ipv4.ip_local_port_range" is not allowed |
+    Given I obtain test data file "sysctls/unsafe-sysctl.yaml"
+    When I run the :create client command with:
+      | f | unsafe-sysctl.yaml |
+    Then the step should fail
+    And the output should match:
+      | .*sysctl "net.ipv4.ip_forward" is not allowed.*sysctl "kernel.msgmax" is not allowed |
+    Given as admin I successfully merge patch resource "scc/restricted" with:
+      | {"allowedUnsafeSysctls":["kernel.msg*", "net.ipv4*"],"forbiddenSysctls":null} |
+    And I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "scc/restricted" with:
+      | {"allowedUnsafeSysctls":null} |
+    """
+    Given I switch to the first user
+    Given I obtain test data file "sysctls/unsafe-sysctl.yaml"
+    When I run the :create client command with:
+      | f | unsafe-sysctl.yaml |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+
