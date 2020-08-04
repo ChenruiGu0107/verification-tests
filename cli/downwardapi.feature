@@ -1,6 +1,7 @@
 Feature: Downward API
 
   # @author qwang@redhat.com
+  # @author weinliu@redhat.com
   # @case_id OCP-10913
   @admin
   Scenario: Could expose resouces limits and requests via ENV from Downward APIs by passing containerName
@@ -46,7 +47,7 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
     And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I run the :logs client command with:
       | resource_name | dapi-resources-env-containername-pod-without-limits |
