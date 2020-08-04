@@ -20,9 +20,9 @@ Feature: oc inspect related scenarios
     Given cluster role "cluster-admin" is added to the "first" user
     Given I switch to the first user
     When I run the :oadm_inspect client command with:
-      | resource_type | co  |
-      | resource_name | dns |
-      | loglevel      | 1   |
+      | resource_type | namespaces                                 |
+      | resource_name | openshift-kube-controller-manager-operator |
+      | loglevel      | 1                                          |
     Then the step should succeed
     And the output should match:
       | Using token authentication |
