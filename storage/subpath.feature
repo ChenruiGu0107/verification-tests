@@ -59,15 +59,44 @@ Feature: volumeMounts should be able to use subPath
     And the pod named "configmap" becomes ready
 
   # @author jhou@redhat.com
+  # @author wduan@redhat.com
   # @case_id OCP-18304
   Scenario: Subpath with downwardAPI volume
     Given I have a project
+    # only annotations, name, labels are defined in subpath
     Given I obtain test data file "storage/subpath/downwardApi-subpath.yaml"
     When I run the :create client command with:
         | f | downwardApi-subpath.yaml |
-        | n | <%= project.name %>                                                                                                    |
     Then the step should succeed
     And the pod named "pod-dapi-volume" becomes ready
+    When I execute on the pod:
+      | ls | -l | /var/tmp/podinfo |
+    And the output should not contain:
+      | namespace   |
+    When I execute on the pod:
+      | cat | /var/tmp/podinfo/annotations |
+    Then the output should contain:
+      | build="one"      |
+      | builder="qe-one" |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/name |
+    Then the output should contain:
+      | pod-dapi-volume |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/labels |
+    Then the output should contain:
+      | rack="a111" |
+      | region="r1" |
+      | zone="z11"  |
+
+    # check realonly
+    When I execute on the pod:
+      | sh | -c | mount \| grep ro |
+    Then the output should contain:
+      | /var/tmp/podinfo/annotations |
+      | /var/tmp/podinfo/name        |
+      | /var/tmp/podinfo/labels      |
+
 
   # @author jhou@redhat.com
   # @case_id OCP-18305

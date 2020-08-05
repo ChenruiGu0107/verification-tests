@@ -12,14 +12,19 @@ metadata:
 spec:
   containers:
     - name: client-container
-      image: aosqe/hello-openshift
+      image: quay.io/openshifttest/storage@sha256:a05b96d373be86f46e76817487027a7f5b8b5f87c0ac18a246b018df11529b40
       securityContext:
         privileged: false
       volumeMounts:
         - name: podinfo
-          mountPath: /var/tmp/podinfo
-          subPath: subpath
-          readOnly: false
+          mountPath: /var/tmp/podinfo/labels
+          subPath: labels
+        - name: podinfo
+          mountPath: /var/tmp/podinfo/annotations
+          subPath: annotations
+        - name: podinfo
+          mountPath: /var/tmp/podinfo/name
+          subPath: name
   volumes:
     - name: podinfo
       downwardAPI:
