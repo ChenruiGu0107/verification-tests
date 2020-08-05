@@ -6,6 +6,8 @@ Feature: projects related features via web
     #Now we have to check project page from v4.1 since it has big changes about project overview page compared with v3.11.
     Given the master version >= "4.1"
     Given I open admin console in a browser
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
     Given an 8 character random string of type :dns is stored into the :pro_name clipboard
     When I perform the :create_project web action with:
       | project_name    | <%= cb.pro_name %> |
