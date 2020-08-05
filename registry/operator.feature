@@ -442,7 +442,6 @@ Feature: Testing image registry operator
   # @author wzheng@redhat.com
   # @case_id OCP-30231
   @admin
-  @destructive
   Scenario: Warning appears if use invalid value for image registry virtual-hosted buckets
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project

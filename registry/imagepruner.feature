@@ -12,11 +12,7 @@ Feature: Testing image pruner
       | namespace | openshift-image-registry |
     Then the step should succeed
     Then the output should contain:
-      | -certificate-authority  |
-      | --keep-tag-revisions=3  |
-      | --keep-younger-than=60m |
-      | --prune-registry=true   |
-      | --confirm=true          |
+      | --prune-registry=true     |
     Given admin updated the operator crd "configs.imageregistry" managementstate operand to Unmanaged
     And I register clean-up steps:
     """
@@ -45,31 +41,46 @@ Feature: Testing image pruner
   # @author wzheng@redhat.com
   # @case_id OCP-27576
   @admin
+  @destructive
   Scenario: CronJob is added to automate image prune	
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project 
     When I get project image_pruner_imageregistry_operator_openshift_io named "cluster" as YAML
     Then the output should contain:
-      | failedJobsHistoryLimit: 3     |
-      | keepTagRevisions: 3           |
-      | schedule: ""                  |
-      | successfulJobsHistoryLimit: 3 |
-      | suspend: false                |
+      | failedJobsHistoryLimit: 3          |
+      | ignoreInvalidImageReferences: true |
+      | keepTagRevisions: 3                |
+      | schedule: ""                       |
+      | successfulJobsHistoryLimit: 3      |
+      | suspend: false                     |
     Given I save the output to file> imagepruners.yaml
     And I replace lines in "imagepruners.yaml":
-      | keepTagRevisions: 3       | keepTagRevisions: 1       |
-      | failedJobsHistoryLimit: 3 | failedJobsHistoryLimit: 1 |
-      | schedule: ""              |  schedule: "* * * * *"    | 
+      | keepTagRevisions: 3                 | keepTagRevisions: 1                 |
+      | failedJobsHistoryLimit: 3           | failedJobsHistoryLimit: 1           |
+      | ignoreInvalidImageReferences: true  | ignoreInvalidImageReferences: false |
+      | schedule: ""                        | schedule: "* * * * *"               | 
+      | successfulJobsHistoryLimit: 3       | successfulJobsHistoryLimit: 1       |
+      | suspend: false                      | suspend: true                       |
     When I run the :apply client command with:
       | f | imagepruners.yaml |
     Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type       | imagepruners.imageregistry.operator.openshift.io |
+      | object_name_or_id | cluster                                          |
+    Then the step should succeed
+    """
     When I run the :describe client command with:
       | resource | imagepruners.imageregistry.operator.openshift.io |
       | name     | cluster                                          |
     Then the output should contain:
-      | Failed Jobs History Limit:      1         |
-      | Keep Tag Revisions:             1         |
-      | Schedule:                       * * * * * |
+      | Failed Jobs History Limit:        1         |
+      | Ignore Invalid Image References:  false     |
+      | Keep Tag Revisions:               1         |
+      | Schedule:                         * * * * * |
+      | Successful Jobs History Limit:    1         |
+      | Suspend:                          true      |
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
@@ -106,3 +117,18 @@ Feature: Testing image pruner
     Then the step should succeed
     Then the output should contain:
       | --keep-younger-than=1m30s |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-33708
+  @admin
+  Scenario: Verify spec.ignoreInvalidImageReference with invalid image reference
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I run the :patch client command with:
+      | resource      | imagepruners.imageregistry.operator.openshift.io    |
+      | resource_name | cluster                                             |
+      | p             | {"spec":{"ignoreInvalidImageReferences":"invalid"}} |
+      | type          | merge                                               |
+    Then the step should fail
+    And the output should contain:
+      | invalid |
