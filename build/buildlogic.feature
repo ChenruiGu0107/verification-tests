@@ -69,7 +69,7 @@ Feature: buildlogic.feature
     When I run the :new_build client command with:
       | app_repo     | https://github.com/sclorg/s2i-ruby-container |
       | context_dir  | 2.5/test/puma-test-app/                      |
-      | image_stream | openshift/ruby:latest                        |
+      | image_stream | openshift/ruby:2.5                           |
       | name         | ruby-hello-world                             |
     Then the step should succeed
     Then the "ruby-hello-world-1" build was created
@@ -288,7 +288,7 @@ Feature: buildlogic.feature
   Scenario: Check the events for started/completed/failed builds
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:latest                  |
+      | image_stream | openshift/ruby:2.5                |
       | app_repo     | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     Given the "ruby-ex-1" build completed

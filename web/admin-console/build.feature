@@ -120,7 +120,7 @@ Feature: build related
     Given I have a project
     Given I open admin console in a browser
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby:latest                 |
+      | image_stream | openshift/ruby:2.5                    |
       | code         | https://github.com/sclorg/ruby-ex.git |
       | name         | ruby-sample                           |
     Then the step should succeed

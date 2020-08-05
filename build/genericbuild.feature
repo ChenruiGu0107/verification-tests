@@ -37,7 +37,7 @@ Feature: genericbuild.feature
   Scenario: Using file for Environment Variables in Build Configs
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo    | openshift/ruby:latest~https://github.com/sclorg/ruby-ex.git |
+      | app_repo    | openshift/ruby:2.5~https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     And the "ruby-ex-1" build completed
     When I run the :patch client command with:

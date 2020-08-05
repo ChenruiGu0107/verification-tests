@@ -49,7 +49,7 @@ Feature: oc new-app related scenarios
       | name     | ruby-hello-world |
     Then the output should match "ImageStreamTag openshift/ruby:latest"
     When I run the :new_build client command with:
-      | image_stream | ruby:latest                   |
+      | image_stream | ruby:2.5                      |
       | app_repo | https://github.com/sclorg/ruby-ex |
     Then the step should succeed
     When I run the :describe client command with:

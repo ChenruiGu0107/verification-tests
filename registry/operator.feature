@@ -355,7 +355,7 @@ Feature: Testing image registry operator
     And I switch to the first user
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | openshift/ruby:latest~https://github.com/sclorg/ruby-ex.git |
+      | app_repo | openshift/ruby:2.5~https://github.com/sclorg/ruby-ex.git |
     And the step should succeed
     And the "ruby-ex-1" build was created
     And the "ruby-ex-1" build failed

@@ -80,7 +80,7 @@ Feature: Configuration of environment variables check
     """
     Examples:
       | imagestream        |
-      | openshift/ruby:2.2 | # @case_id OCP-11784
+      | openshift/ruby:2.5 | # @case_id OCP-11784
 
   # @author haowang@redhat.com
   # @case_id OCP-13141
