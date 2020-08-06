@@ -9,7 +9,7 @@ spec:
       type: elasticsearch
       endpoint: 'elasticsearch-server.openshift-logging.svc:9200'
       secret:
-        name: piplinesecret
+        name: pipelinesecret
   pipelines:
     - name: app-pipeline
       inputSource: logs.app

@@ -43,9 +43,10 @@ Feature: log forwarding related tests
     And I execute on the "<%= cb.log_receiver.name %>" pod:
       | ls | -l | /fluentd/log |
     Then the output should contain:
-      | app.log   |
-      | audit.log |
-      | infra.log |
+      | app.log             |
+      | audit.log           |
+      | infra.log           |
+      | infra-container.log |
     """
 
   # @author qitang@redhat.com
@@ -152,9 +153,10 @@ Feature: log forwarding related tests
     And I execute on the "<%= cb.log_receiver.name %>" pod:
       | ls | -l | /fluentd/log |
     Then the output should contain:
-      | app.log   |
-      | audit.log |
-      | infra.log |
+      | app.log             |
+      | audit.log           |
+      | infra.log           |
+      | infra-container.log |
     """
 
   # @author qitang@redhat.com
@@ -285,8 +287,9 @@ Feature: log forwarding related tests
     And I execute on the "<%= cb.log_receiver.name %>" pod:
       | ls | -l | /fluentd/log |
     Then the output should contain:
-      | app.log   |
-      | infra.log |
+      | app.log             |
+      | infra.log           |
+      | infra-container.log |
     """
 
   # @author qitang@redhat.com
@@ -403,8 +406,9 @@ Feature: log forwarding related tests
     And I execute on the "<%= cb.log_receiver.name %>" pod:
       | ls | -l | /fluentd/log |
     Then the output should contain:
-      | audit.log |
-      | infra.log |
+      | audit.log           |
+      | infra.log           |
+      | infra-container.log |
     And the output should not contain:
       | app.log |
     """
