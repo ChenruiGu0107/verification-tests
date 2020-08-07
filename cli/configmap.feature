@@ -33,6 +33,11 @@ Feature: configMap
     Then the step should succeed
     And the output should contain:
       | value-1 |
+    When I execute on the pod:
+      | sh | -c | mount \| grep ro |
+    Then the output should contain:
+      | /etc/configmap-volume |
+      | /opt/qe-storage       |
 
   # @author wehe@redhat.com
   # @case_id OCP-10167

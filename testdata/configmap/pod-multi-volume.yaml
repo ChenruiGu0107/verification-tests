@@ -9,10 +9,8 @@ spec:
       volumeMounts:
       - name: qe-storage-map
         mountPath: /etc/configmap-volume
-        readOnly: true
       - name: volume-config-map
         mountPath: /opt/qe-storage
-        readOnly: true
   volumes:
     - name: qe-storage-map
       configMap:
