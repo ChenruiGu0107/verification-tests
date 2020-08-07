@@ -21,6 +21,8 @@ Feature: Home related pages via admin console
   Scenario: Check user guide on console
     Given the master version >= "4.1"
     Given I open admin console in a browser
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
     Given an 5 character random string of type :dns is stored into the :pro_name clipboard
     And I wait up to 60 seconds for the steps to pass:
     """

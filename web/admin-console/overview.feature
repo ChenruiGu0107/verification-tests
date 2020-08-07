@@ -258,6 +258,8 @@ Feature: overview cases
     Given I open admin console in a browser
     Given I have a project
     Given the first user is cluster-admin
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
     # check Installed Operator and Install Plan page
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | etcd                   |
