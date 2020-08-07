@@ -51,12 +51,12 @@ Feature: Update emptyDir volumes via command: oc set volumes
     And a pod becomes ready with labels:
       | name=jenkins |
 
-    When I get project deploymentconfig named "jenkins" as YAML
+    When I run the :get client command with:
+      | resource | dc/jenkins                           |
+      | o        | custom-columns=volume:..volumeMounts |
     Then the step should succeed
     And the output should not contain:
       | /var/lib/jenkins |
-      | volumeMounts     |
-      | mountPath        |
     When I execute on the pod:
       | mount |
     Then the step should succeed
