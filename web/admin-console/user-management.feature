@@ -14,6 +14,8 @@ Feature: User management related
     Given I switch to the second user
     And I open admin console in a browser
     And the second user is cluster-admin
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
     When I perform the :check_user_in_users_page web action with:
       | text     | <%= user(0, switch: false).name %> |
       | link_url | k8s/cluster/user.openshift.io~v1~User/<%= user(0, switch: false).name %> |
