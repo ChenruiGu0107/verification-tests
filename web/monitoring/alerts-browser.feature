@@ -111,9 +111,6 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :perform_silence web action
     And the step should succeed
-    When I perform the :check_div_text web action with:
-      | text | be in the past |
-    Then the step should succeed
     When I click the following "button" element:
       | text | Cancel |
     Then the step should succeed
@@ -127,6 +124,7 @@ Feature: alerts browser
   # @case_id OCP-21108
   @admin
   Scenario: List all alerts and could filter alerts by state
+    #<=4.5
     Given the master version >= "4.0"
     And the first user is cluster-admin
     Given I open admin console in a browser
@@ -203,7 +201,7 @@ Feature: alerts browser
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
     #By default, only firing alerts display
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should fail
@@ -211,7 +209,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | silenced |
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should succeed
@@ -219,7 +217,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | firing |
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should fail
@@ -227,7 +225,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | none |
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should succeed
@@ -235,7 +233,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | critical |
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should fail
@@ -246,7 +244,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters web action with:
       | filter_item | none |
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should succeed
@@ -255,7 +253,7 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
-    When I perform the :status_specific_alert web action with:
+    When I perform the :status_specific_alert_no_clear web action with:
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should fail
@@ -275,6 +273,7 @@ Feature: alerts browser
   # @case_id OCP-21131
   @admin
   Scenario: List all silences and could filter silences by state
+    #<=4.5
     Given the master version >= "4.1"
     And the first user is cluster-admin
     Given I open admin console in a browser
@@ -734,8 +733,7 @@ Feature: alerts browser
     When I perform the :open_alert_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | alertname=Watchdog |
+    When I run the :check_alert_detail web action
     Then the step should succeed
     #check prometheus
     And I use the "openshift-monitoring" project
@@ -816,7 +814,7 @@ Feature: alerts browser
     Then the step should succeed
     #Filter silence alerts by state
     #By default, Active/Inactive disabled, all display
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
@@ -824,7 +822,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters web action with:
       | filter_item | true |
     Then the step should succeed
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
@@ -832,7 +830,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | false |
     Then the step should succeed
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should fail
@@ -840,7 +838,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | none |
     Then the step should succeed
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
@@ -851,7 +849,7 @@ Feature: alerts browser
     When I perform the :list_alerts_by_filters web action with:
       | filter_item | false |
     Then the step should succeed
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should fail
@@ -860,7 +858,7 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :goto_monitoring_alertrules_page web action
     Then the step should succeed
-    When I perform the :status_specific_alert_rule web action with:
+    When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed

@@ -13,8 +13,8 @@ Feature: query browser
     #perform example query
     When I click the following "button" element:
       | text | Insert Example Query |
-    Then I get the "class" attribute of the "textarea" web element:
-      | text | sum(sort_desc(sum_over_time(ALERTS{alertstate="firing"}[24h]))) by (alertname) |
+    Then I run the :check_sample_query_area web action
+    Then the step should succeed
     #clear query
     When I click the following "button" element:
       | aria-label | Clear Query |
@@ -64,16 +64,12 @@ Feature: query browser
       | tab_name | Metrics |
     Then the step should succeed
 
-    #check custom query
-    When I perform the :perform_cutomer_query web action with:
-      | metrics     | pod:container_memory_usage_bytes:sum |
-      | press_enter | :enter                               |
-    Then the step should succeed
-    When I perform the :check_metric_query_result web action with:
-      | table_text | <%= cb.proj_name %> |
-    Then the step should succeed
-
     #check selected query from dropdown list
+    When I run the :click_metrics_query_dropdown web action
+    And I perform the :choose_metrics_query web action with:
+      | metrics_name | Memory Usage |
+    Then the step should succeed
+    #same code execute twice to workaround automation no data issue
     When I run the :click_metrics_query_dropdown web action
     And I perform the :choose_metrics_query web action with:
       | metrics_name | Memory Usage |

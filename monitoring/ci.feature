@@ -897,8 +897,7 @@ Feature: Install and configuration related scenarios
     Then the expression should be true> YAML.load(@result[:stdout])["spec"]["endpoints"][0]["scheme"] == "https"
     #curl the thanos-querier target
     When evaluation of `endpoints('thanos-querier').subsets.first.addresses.first.ip.to_s` is stored in the :thanosquery_endpoint_ip clipboard
-    And evaluation of `endpoints('thanos-querier').subsets.first.ports[1].port.to_s` is stored in the :thanosquery_endpoint_port clipboard
-    And evaluation of `cb.thanosquery_endpoint_ip + ':' +cb.thanosquery_endpoint_port` is stored in the :thanosquery_endpoint clipboard
+    And evaluation of `cb.thanosquery_endpoint_ip + ':9091'` is stored in the :thanosquery_endpoint clipboard
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                   |
       | pod              | prometheus-k8s-0                                       |
