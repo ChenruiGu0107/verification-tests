@@ -75,12 +75,12 @@ Feature: Testing image pruner
       | resource | imagepruners.imageregistry.operator.openshift.io |
       | name     | cluster                                          |
     Then the output should contain:
-      | Failed Jobs History Limit:        1         |
-      | Ignore Invalid Image References:  false     |
-      | Keep Tag Revisions:               1         |
-      | Schedule:                         * * * * * |
-      | Successful Jobs History Limit:    1         |
-      | Suspend:                          true      |
+      | Failed Jobs History Limit:\\s+1           |
+      | Ignore Invalid Image References:\\s+false |
+      | Keep Tag Revisions:\\s+1                  |
+      | Schedule:\\s+* * * * *                    |
+      | Successful Jobs History Limit:\\s+1       |
+      | Suspend:\\s+true                          |
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
@@ -132,3 +132,29 @@ Feature: Testing image pruner
     Then the step should fail
     And the output should contain:
       | invalid |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-33705
+  @admin
+  @destructive
+  Scenario: spec.ignoreInvalidImageReference has default value when resource has changes
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    Given as admin I successfully merge patch resource "imagepruners.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec": {"ignoreInvalidImageReferences":null}} |
+    When I run the :describe admin command with:
+      | resource  | cronjob.batch            |
+      | name      | image-pruner             |
+      | namespace | openshift-image-registry |
+    Then the step should succeed
+    Then the output should contain:
+      | --ignore-invalid-refs=false |
+    When I run the :delete client command with:
+      | object_type       | imagepruners.imageregistry.operator.openshift.io |
+      | object_name_or_id | cluster                                          |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | imagepruners.imageregistry.operator.openshift.io |
+      | name     | cluster                                          |
+    Then the output should contain:
+      | Ignore Invalid Image References:\\s+true     |
