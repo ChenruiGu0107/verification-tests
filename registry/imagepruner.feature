@@ -74,7 +74,7 @@ Feature: Testing image pruner
     When I run the :describe client command with:
       | resource | imagepruners.imageregistry.operator.openshift.io |
       | name     | cluster                                          |
-    Then the output should contain:
+    Then the output should match:
       | Failed Jobs History Limit:\\s+1           |
       | Ignore Invalid Image References:\\s+false |
       | Keep Tag Revisions:\\s+1                  |
@@ -156,5 +156,5 @@ Feature: Testing image pruner
     When I run the :describe client command with:
       | resource | imagepruners.imageregistry.operator.openshift.io |
       | name     | cluster                                          |
-    Then the output should contain:
+    Then the output should match:
       | Ignore Invalid Image References:\\s+true     |
