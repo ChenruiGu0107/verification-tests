@@ -159,3 +159,23 @@ Feature: etcd related features
       | etcd_cluster=example |
     And status becomes :running of 3 pods labeled:
       | app=etcd |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-32124
+  @admin
+  Scenario: etcd-memeber-pod should have working etcdctl
+    Given the master version >= "4.4"
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    When I execute on the pod:
+      | bash | -c | etcdctl |
+    Then the output should contain:
+      | NAME:                                             |
+      | etcdctl - A simple command line client for etcd3. |
+      | USAGE:                                            |
+      | VERSION:                                          |
+      | API VERSION:                                      |
+      | COMMANDS:                                         |
+      | OPTIONS:                                          |
