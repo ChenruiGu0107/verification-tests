@@ -118,12 +118,15 @@ Feature: SDN related networking scenarios
       | object_name_or_id | hello-pod |
     Then the step should succeed
     Then I wait for the resource "pod" named "hello-pod" to disappear within 20 seconds
+    And I wait up to 100 seconds for the steps to pass:
+    """
     When I run command on the "<%= cb.node_name %>" node's sdn pod:
       | bash | -c | ip a |
     Then the output should not contain "<%= cb.veth_index %>"
     When I run command on the "<%= cb.node_name %>" node's sdn pod:
       | bash | -c | ovs-ofctl -O openflow13 show br0 |
     Then the output should not contain "<%= cb.veth_index %>"
+    """
 
   # @author hongli@redhat.com
   # @case_id OCP-14271
