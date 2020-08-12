@@ -230,6 +230,12 @@ Feature: operatorhub feature related
     When I run the :check_community_operator_description_on_overlay web action
     Then the step should succeed
 
+    When I perform the :filter_by_keyword web action with:
+      | keyword | kibana |
+    Then the step should succeed
+    When I run the :check_logging_operator_filtered_out web action
+    Then the step should succeed
+
   # @author hasha@redhat.com
   # @case_id OCP-27666
   @admin
