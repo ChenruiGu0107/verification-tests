@@ -55,7 +55,7 @@ Feature: oc new-app related scenarios
     When I run the :describe client command with:
       | resource | bc      |
       | name     | ruby-ex |
-    Then the output should match "ImageStreamTag openshift/ruby:latest"
+    Then the output should match "ImageStreamTag openshift/ruby:2.5"
 
   # @author wewang@redhat.com
   # @case_id OCP-18190
