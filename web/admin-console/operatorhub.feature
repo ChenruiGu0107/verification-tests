@@ -476,6 +476,13 @@ Feature: operatorhub feature related
       | olm.catalogSource=custom-cs-keycloak |
     And a pod becomes ready with labels:
       | olm.catalogSource=custom-cs-akka |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project packagemanifests
+    Then the output should match:
+      | keycloak-operator.*custom-cs-keycloak |
+      | akka-cluster-operator.*custom-cs-akka |
+    """
 
     # check the filter with displayname of catalogsource
     When I run the :goto_operator_hub_page web action
