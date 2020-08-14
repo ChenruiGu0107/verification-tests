@@ -1041,3 +1041,61 @@ Feature: Install and configuration related scenarios
     Then the output should match 1 times:
       | prometheus-user-workload-grpc-tls |
       | thanos-ruler-grpc-tls             |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-33446
+  @admin
+  Scenario: Node CPU stats should be accurate
+    Given the master version >= "4.3"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    When I run the :get client command with:
+      | resource | node |
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}[1]` is stored in the :node_name clipboard
+    When I run the :oadm_top_node admin command with:
+      | node_name | <%= cb.node_name %> |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s+/)}[1][2].chop` is stored in the :top_cpu_usage clipboard
+    #query an metric
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/api/v1/query?query=100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle",instance="<%= cb.node_name %>"}[10m])) * 100)
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    When evaluation of `@result[:parsed]["data"]["result"][0]["value"][1]` is stored in the :metric_cpu_usage clipboard
+    And evaluation of `cb.top_cpu_usage.to_f-cb.metric_cpu_usage.to_f` is stored in the :metric_cpu_usage_diff clipboard
+    Then the expression should be true> cb.metric_cpu_usage_diff <= 4 && cb.metric_cpu_usage_diff >= -4
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-33244
+  @admin
+  Scenario: [BZ 1846805] kubelet_running_pod_count shouldn't take into account completed pods
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-monitoring" project
+    And evaluation of `route('prometheus-k8s').spec.host` is stored in the :prom_route clipboard
+    # get sa/prometheus-k8s token
+    When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+    When I run the :get admin command with:
+      | resource       | pod  |
+      | all_namespaces | true |
+      | o              | wide |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.match(/.*Running.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :running_pods clipboard
+    #query an metric
+    When I perform the HTTP request:
+    """
+    :url: https://<%= cb.prom_route %>/api/v1/query?query=kubelet_running_pods
+    :method: get
+    :headers:
+      :Authorization: Bearer <%= cb.sa_token %>
+    """
+    Then the step should succeed
+    And evaluation of `@result[:parsed]["data"]["result"].map{|n| n["value"][1].to_i}.sum` is stored in the :metric_running_pods clipboard
+    Then the expression should be true> cb.running_pods == cb.metric_running_pods
