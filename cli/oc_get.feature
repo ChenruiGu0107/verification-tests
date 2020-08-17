@@ -143,3 +143,45 @@ Feature: oc get related command
       | resource | events |
     Then the step should succeed
     And the output should not contain "<unknown>"
+
+  # @author knarra@redhat.com
+  # @case_id OCP-34129
+  @admin
+  Scenario: List of SecurityContextConstraints should list all columns, not just Name & Age
+    Given the master version >= "4.5"
+    Given I switch to cluster admin pseudo user
+    When I run the :get admin command with:
+      | resource | securitycontextconstraints.security.openshift.io |
+    Then the step should succeed
+    And the output should match:
+      | NAME\\s+PRIV\\s+CAPS\\s+SELINUX\\s+RUNASUSER\\s+FSGROUP\\s+SUPGROUP\\s+PRIORITY\\s+READONLYROOTFS\\s+VOLUMES |
+    When I run the :get admin command with:
+      | resource | securitycontextconstraints.security.openshift.io |
+      | o        | wide                                             |
+    Then the step should succeed
+    And the output should match:
+      | NAME\\s+PRIV\\s+CAPS\\s+SELINUX\\s+RUNASUSER\\s+FSGROUP\\s+SUPGROUP\\s+PRIORITY\\s+READONLYROOTFS\\s+VOLUMES |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-34139
+  @admin
+  Scenario Outline: oc get rolebinding and clusterrolebinding should work well
+    Given the master version >= "4.5"
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-kube-scheduler" project
+    When I run the :get admin command with:
+      | resource | <resourcename> |
+    Then the step should succeed
+    And the output should match:
+      | NAME\\s+ROLE\\s+AGE |
+    When I run the :get admin command with:
+      | resource | <resourcename> |
+      | o        | wide           |
+    Then the step should succeed
+    And the output should match:
+      | NAME\\s+ROLE\\s+AGE\\s+USERS\\s+GROUPS\\s+SERVICEACCOUNTS |
+
+    Examples:
+      | resourcename       |
+      | rolebinding        |
+      | clusterrolebinding |
