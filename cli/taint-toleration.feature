@@ -488,7 +488,7 @@ Feature: taint toleration related scenarios
     Then the step should succeed
     Given the pod named "tolerationseconds-1" becomes ready
     Given evaluation of `pod("tolerationseconds-1").node_name(user: user)` is stored in the :pod_node1 clipboard
-    Given I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
       | node_name | <%= cb.pod_node1 %>   |
