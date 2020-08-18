@@ -1,5 +1,6 @@
 Feature: emptyDir specific scenarios
   # @author qwang@redhat.com
+  # @author weinliu@redhat.com
   # @case_id OCP-14350
   @admin
   Scenario: EmptyDir won't lead to memory exhaustion
@@ -23,7 +24,7 @@ Feature: emptyDir specific scenarios
     Then the step should succeed
     And the output should contain "myvol"
     When I run commands on the host:
-      | cd /var/lib/origin/openshift.local.volumes/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol; ls -alh |
+      | ls -alh /var/lib/kubelet/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol |
     Then the output should contain:
       | 200M  |
       | zero  |
@@ -46,7 +47,6 @@ Feature: emptyDir specific scenarios
     Then the step should succeed
     And the output should contain "myvol"
     When I run commands on the host:
-      | cd /var/lib/origin/openshift.local.volumes/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol; ls -alh |
-    Then the output should contain:
-      | 1023M |
-      | zero  |
+      | ls -alh /var/lib/kubelet/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol \| grep zero \| awk '{print $5}' |
+    And the output should match:
+      | (1015M\|1013M\|1011M) |
