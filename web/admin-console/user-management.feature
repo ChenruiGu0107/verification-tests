@@ -120,6 +120,18 @@ Feature: User management related
     Then the step should succeed
     Given I wait for the resource "group" named "example" to disappear
 
+    # check group with special characters
+    Given admin ensures "_UO.Sistemas_(50000374)" group is deleted after scenario
+    When I run the :oadm_groups_new admin command with:
+      | group_name | _UO.Sistemas_(50000374) |
+    Then the step should succeed
+    When I run the :goto_groups_page web action
+    Then the step should succeed
+    When I perform the :check_resource_item_name web action with:
+      | resource_name | _UO.Sistemas_(50000374) |
+    Then the step should succeed
+
+
   # @author xiaocwan@redhat.com
   # @case_id OCP-25763
   @admin
