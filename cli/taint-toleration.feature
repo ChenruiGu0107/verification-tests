@@ -89,7 +89,7 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: pods will be evicted from the node immediately if there's un-ignored taint
     Given I have a project
-    Given I store the schedulable nodes in the :nodes clipboard
+    Given I store the schedulable workers in the :nodes clipboard
     Given I obtain test data file "pods/pod-pull-by-tag.yaml"
     When I run the :create client command with:
       | f | pod-pull-by-tag.yaml |
