@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test
+  name: ocp-34019
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ocp-34019
+  template:
+    metadata:
+      labels:
+        app: ocp-34019
+        foo: bar
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: node
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            foo: bar
+      containers:
+      - image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
+        name: hello-openshift

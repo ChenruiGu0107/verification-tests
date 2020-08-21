@@ -269,17 +269,17 @@ Feature: operatorhub feature related
     #check support link for operators
     Given the first user is cluster-admin
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | cockroachdb-certified-rhmp |
-      | catalog_name     | redhat-marketplace         |
-      | target_namespace | <%= project.name %>        |
+      | package_name     | cockroachdb         |
+      | catalog_name     | community-operators |
+      | target_namespace | <%= project.name %> |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    And I wait for the "cockroachdb-certified-rhmp" subscriptions to become ready
-    And evaluation of `subscription("cockroachdb-certified-rhmp").current_csv` is stored in the :cockroachdb_csv clipboard
+    And I wait for the "cockroachdb" subscriptions to become ready
+    And evaluation of `subscription("cockroachdb").current_csv` is stored in the :cockroachdb_csv clipboard
     Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
       | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |
     When I perform the :goto_csv_detail_page web action with:
