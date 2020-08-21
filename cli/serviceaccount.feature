@@ -86,7 +86,7 @@ Feature: ServiceAccount and Policy Managerment
       | project_name | <%= cb.project2 %> |
     Then the step should succeed
     When I run the :policy_add_role_to_group client command with:
-      | role | edit     |
+      | role       | edit                                      |
       | group_name | system:serviceaccounts:<%= cb.project1 %> |
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
@@ -94,23 +94,23 @@ Feature: ServiceAccount and Policy Managerment
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+      | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     When I run the :delete client command with:
-      | object_type       | service    |
-      | object_name_or_id | myapp  |
-      | cascade           | true  |
+      | object_type       | service |
+      | object_name_or_id | myapp   |
+      | cascade           | true    |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
-      | user_name |  <%= user(1, switch: false).name %> |
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | role      | edit                              |
+      | user_name | %= user(0, switch: false).name %> |
     Then the step should fail
 
   # @author anli@redhat.com
@@ -125,14 +125,14 @@ Feature: ServiceAccount and Policy Managerment
       | project_name | <%= cb.project2 %> |
     Then the step should succeed
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+      | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then the output should contain:
       | service "myapp" created |
     When I run the :policy_add_role_to_group client command with:
-      | role | view     |
+      | role       | view                                      |
       | group_name | system:serviceaccounts:<%= cb.project1 %> |
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
@@ -143,22 +143,22 @@ Feature: ServiceAccount and Policy Managerment
       | resource | service |
     Then the step should succeed
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | ruby                                          |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp2         |
+      | name         | myapp2                                        |
     Then the step should fail
     When I run the :delete client command with:
-      | object_type       | service    |
-      | object_name_or_id | myapp  |
-      | cascade           | true  |
+      | object_type       | service |
+      | object_name_or_id | myapp   |
+      | cascade           | true    |
     Then the step should fail
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
-      | user_name |  <%= user(1, switch: false).name %> |
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | role      | edit                              |
+      | user_name | %= user(0, switch: false).name %> |
     Then the step should fail
 
   # @author anli@redhat.com
@@ -166,40 +166,40 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant edit permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+      | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
-      | role | edit     |
+      | role       | edit                                       |
       | group_name | system:serviceaccounts:<%= project.name %> |
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     And I use the "<%= project.name %>" project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp2         |
+      | name         | myapp2                                        |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp2" service to be created
     When I run the :get client command with:
       | resource | service |
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type       | service    |
-      | object_name_or_id | myapp  |
-      | cascade           | true  |
+      | object_type       | service |
+      | object_name_or_id | myapp   |
+      | cascade           | true    |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
-      | user_name |  <%= user(1, switch: false).name %> |
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | role      | edit                              |
+      | user_name | %= user(0, switch: false).name %> |
     Then the step should fail
 
   # @author anli@redhat.com
@@ -207,39 +207,39 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant view permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+      | name         | myapp                                         |
     # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
-      | role | view     |
+      | role       | view                                       |
       | group_name | system:serviceaccounts:<%= project.name %> |
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     And I use the "<%= project.name %>" project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | ruby                                          |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp2         |
+      | name         | myapp2                                        |
     Then the step should fail
     When I run the :get client command with:
       | resource | service |
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type       | service    |
-      | object_name_or_id | myapp  |
-      | cascade           | true  |
+      | object_type       | service |
+      | object_name_or_id | myapp   |
+      | cascade           | true    |
     Then the step should fail
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
-      | user_name |  <%= user(1, switch: false).name %> |
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | role      | edit                              |
+      | user_name | %= user(0, switch: false).name %> |
     Then the step should fail
 
   # @author anli@redhat.com
@@ -340,32 +340,32 @@ Feature: ServiceAccount and Policy Managerment
     Given I have a project
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_user client command with:
-      | role | edit     |
+      | role      | edit                                            |
       | user_name | system:serviceaccount:<%= project.name %>:test1 |
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     And I use the "<%= project.name %>" project
     When I create a new application with:
-      | image_stream | ruby         |
+      | image_stream | openshift/ruby:2.5                            |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+      | name         | myapp                                         |
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     When I replace resource "deployment" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
     Then the step should succeed
     When I run the :delete client command with:
-      | object_type       | pod    |
-      | l                 | deploymentconfig=myapp  |
+      | object_type | pod                    |
+      | l           | deploymentconfig=myapp |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
-      | user_name |  <%= user(1, switch: false).name %> |
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
-      | user_name |  %= user(0, switch: false).name %> |
+      | role      | edit                              |
+      | user_name | %= user(0, switch: false).name %> |
     Then the step should fail
 
   # @author xiaocwan@redhat.com

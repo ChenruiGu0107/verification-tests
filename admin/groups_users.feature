@@ -149,14 +149,20 @@ Feature: groups and users related features
     When I switch to the first user
     And I wait for the "<%= cb.project1 %>" projects to appear
     And I wait for the resource "project" named "<%= cb.project2 %>" to disappear
+    And I wait for the steps to pass:
+    """
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | n          | <%= cb.project1 %>                          |
+      | n    | <%= cb.project1 %>                                                                                               |
     Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project1 %> |
     Then the step should succeed
+    """
     When I run the :policy_add_role_to_user client command with:
       | role       | edit                                        |
       | user_name  | <%= user(1, switch: false).name %>          |

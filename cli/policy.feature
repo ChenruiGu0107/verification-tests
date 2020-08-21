@@ -42,9 +42,10 @@ Feature: change the policy of user/service account
     And the output should not contain:
       | system:serviceaccount:<%= cb.proj1 %>:builder  |
     When I run the :oadm_policy_who_can admin command with:
-      | verb     |  get                        |
-      | resource |  imagestreams               |
-      | all_namespaces | false                 |
+      | verb           | get          |
+      | resource       | imagestreams |
+      | all_namespaces | false        |
+      | n              | default      |
     Then the step should succeed
     And the output should contain:
       | Namespace: default  |
