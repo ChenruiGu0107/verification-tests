@@ -1,0 +1,15 @@
+apiVersion: metering.openshift.io/v1
+kind: MeteringConfig
+metadata:
+  name: openshift-metering
+  namespace: openshift-metering
+spec:
+  storage:
+    type: "hive"
+    hive:
+      type: "s3"
+      s3:
+        bucket: "qe-pruan-metering-mac"
+        region: "us-west-1"
+        secretName: "my-aws-secret"
+        createBucket: false
