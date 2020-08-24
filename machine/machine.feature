@@ -193,3 +193,40 @@ Feature: Machine features testing
     """
     Then the expression should be true> machine(cb.win_machine).phase(cached: false) == "Provisioned"
     """
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-34313
+  @admin
+  Scenario Outline: Warning appears when creating windows VM using invalid values
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And I pick a random machineset to scale
+
+    # Either resourceID or [Offer, Publisher, SKU, Version] must be set
+    When I get project machineset named "<%= machine_set.name %>" as YAML 
+    And I save the output to file> machineset-clone-34313.yaml
+    And I replace content in "machineset-clone-34313.yaml":
+      | <%= machine_set.name %> | win-34313                |
+      | /osType.*/              | osType: Windows          |
+      | /replicas.*/            | replicas: 0              |
+      | /offer.*/               | offer: <offer>           |
+      | /publisher.*/           | publisher: <publisher>   |
+      | /sku.*/                 | sku: <sku>               |
+      | /version.*/             | version: <version>       |
+      | /resourceID.*/          | resourceID: <resourceID> |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-34313.yaml |
+    Then the step should fail
+    And the output should contain:
+      | <output> |
+
+    Examples:
+      | offer         | publisher              | sku             | version | resourceID | output                          |
+      | WindowsServer | MicrosoftWindowsServer | 2019-Datacenter | latest  | resourceID | resourceID is already specified |
+      | ""            | MicrosoftWindowsServer | 2019-Datacenter | latest  | ""         | Offer must be provided          |
+      | WindowsServer | ""                     | 2019-Datacenter | latest  | ""         | Publisher must be provided      |
+      | WindowsServer | MicrosoftWindowsServer | ""              | latest  | ""         | SKU must be provided            |
+      | WindowsServer | MicrosoftWindowsServer | 2019-Datacenter | ""      | ""         | Version must be provided        |
+
