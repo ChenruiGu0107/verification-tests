@@ -6,7 +6,7 @@ Feature: HPA related
     Given I have a project
     Given the master version >= "4.1"
     When I run the :new_app_as_dc client command with:
-      | app_repo | centos/ruby-22-centos7~https://github.com/sclorg/ruby-ex.git |
+      | app_repo | https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | deploymentconfig=ruby-ex |
@@ -49,7 +49,6 @@ Feature: HPA related
       | scale_target     | ruby-ex |
       | min_replicas     | 1       |
       | max_replicas     | 5       |
-      | desired_replicas | 0       |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text      | ruby-ex                                               |

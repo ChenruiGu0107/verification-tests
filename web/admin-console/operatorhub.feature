@@ -820,8 +820,6 @@ Feature: operatorhub feature related
     Given I have a project
     Given the first user is cluster-admin
     And I open admin console in a browser
-    And I wait up to 30 seconds for the steps to pass:
-    """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | etcd                |
       | catalog_name     | community-operators |
@@ -832,7 +830,6 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    """
     Given a pod becomes ready with labels:
       | name=etcd-operator-alm-owned |
     When I perform the :goto_installed_operators_page web action with:
@@ -845,9 +842,8 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
+    Given admin checks that the "example" etcdcluster exists in the "<%= project.name %>" project
 
-    And I wait up to 30 seconds for the steps to pass:
-    """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | postgresql          |
       | catalog_name     | community-operators |
@@ -858,7 +854,6 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    """
     Given a pod becomes ready with labels:
       | name=postgres-operator |
     When I perform the :goto_installed_operators_page web action with:
@@ -871,12 +866,11 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
+    Given admin checks that the "example" pgcluster exists in the "<%= project.name %>" project
 
-    And I wait up to 30 seconds for the steps to pass:
-    """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | anaconda-team-edition |
-      | catalog_name     | certified-operators   |
+      | package_name     | kiali                 |
+      | catalog_name     | community-operators   |
       | target_namespace | <%= project.name %>   |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -884,19 +878,19 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
-    """
     Given a pod becomes ready with labels:
-      | name=anaconda-team-edition |
+      | app=kiali-operator |
     When I perform the :goto_installed_operators_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :create_custom_resource web action with:
-      | api | Anaconda Team Edition |
+      | api | Kiali |
     Then the step should succeed
     When I run the :open_edit_form_view web action
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
+    Given admin checks that the "kiali" kiali exists in the "<%= project.name %>" project  
     
     #check phase status
     When I run the :get admin command with:
@@ -915,6 +909,7 @@ Feature: operatorhub feature related
     When I perform the :check_phase_status web action with:
       | status | <%= cb.etcd_phase %> |
     Then the step should succeed
+    
     #check state status
     When I run the :get admin command with:
       | resource      | pgcluster           |
@@ -932,25 +927,26 @@ Feature: operatorhub feature related
     When I perform the :check_state_status web action with:
       | status | <%= cb.postgresql_state %> |
     Then the step should succeed
+    
     # check condition status
     When I run the :get admin command with:
-      | resource      | anaconda            |
-      | resource_name | example-anaconda    |
+      | resource      | kiali               |
+      | resource_name | kiali               |
       | n             | <%= project.name %> |
       | output        | yaml                |
     Then the step should succeed
-    Given evaluation of `@result[:parsed]["status"]["conditions"][0]["type"]` is stored in the :anaconda_condition1 clipboard
-    Given evaluation of `@result[:parsed]["status"]["conditions"][1]["type"]` is stored in the :anaconda_condition2 clipboard
-    And evaluation of `subscription("anaconda-team-edition").current_csv` is stored in the :anaconda_csv clipboard
+    Given evaluation of `@result[:parsed]["status"]["conditions"][-1]["type"]` is stored in the :kiali_condition clipboard
+    And evaluation of `subscription("kiali").current_csv` is stored in the :kiali_csv clipboard
     When I perform the :goto_operand_list_page web action with:
-      | project_name | <%= project.name %>            |
-      | csv_name     | <%= cb.anaconda_csv %>         |
-      | operand_name | anaconda.com~v1alpha1~Anaconda |
+      | project_name | <%= project.name %>        |
+      | csv_name     | <%= cb.kiali_csv %>        |
+      | operand_name | kiali.io~v1alpha1~Kiali    |
     Then the step should succeed
     When I perform the :check_condition_status web action with:
-      | status | <%= cb.anaconda_condition1 %>, <%= cb.anaconda_condition2 %> |
+      | status | <%= cb.kiali_condition %> |
     Then the step should succeed
-    #check all instance page   
+    
+    #check all instance page
     When I perform the :goto_operator_all_instance_page web action with:
       | project_name | <%= project.name %> |
       | csv_name     | <%= cb.etcd_csv %>  |
@@ -958,4 +954,3 @@ Feature: operatorhub feature related
     When I perform the :check_column_in_table web action with:
       | field | Status |
     Then the step should succeed
-
