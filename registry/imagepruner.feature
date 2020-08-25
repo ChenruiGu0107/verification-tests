@@ -60,7 +60,6 @@ Feature: Testing image pruner
       | ignoreInvalidImageReferences: true  | ignoreInvalidImageReferences: false |
       | schedule: ""                        | schedule: "* * * * *"               | 
       | successfulJobsHistoryLimit: 3       | successfulJobsHistoryLimit: 1       |
-      | suspend: false                      | suspend: true                       |
     When I run the :apply client command with:
       | f | imagepruners.yaml |
     Then the step should succeed
@@ -80,11 +79,13 @@ Feature: Testing image pruner
       | Keep Tag Revisions:\\s+1                  |
       | Schedule:\\s+* * * * *                    |
       | Successful Jobs History Limit:\\s+1       |
-      | Suspend:\\s+true                          |
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
       | image-pruner |
+    """
 
 
   # @author wzheng@redhat.com
