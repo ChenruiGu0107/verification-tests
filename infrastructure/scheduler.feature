@@ -125,8 +125,6 @@ Feature: Scheduler predicates and priority test suites
   @destructive
   Scenario: Configure master nodes schedulable
     Given the master version >= "4.1"
-    Given I set all worker nodes status to unschedulable
-    Given node schedulable status should be restored after scenario
     Given the "cluster" scheduler CR is restored after scenario
     When I run the :patch admin command with:
       | resource      | Scheduler                            |
