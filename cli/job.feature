@@ -152,16 +152,19 @@ Feature: job.feature
 
   # @author yinzhou@redhat.com
   # @case_id OCP-29654
+  @admin
   Scenario: Create job from exist cronjob
-    Given the master version >= "4.2"
+    Given the master version >= "4.5"
     Given I have a project
-    When I run the :create_cronjob client command with:
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run the :create_cronjob admin command with:
       | name     | cronjob-29654                                                                                                 |
       | image    | quay.io/openshifttest/hello-openshift@sha256:aaea76ff622d2f8bcb32e538e7b3cd0ef6d291953f3e7c9f556c1ba5baf47e2e |
       | schedule | * 5 * * ?                                                                                                     |
     Then the step should succeed
     And I check that the "cronjob-29654" cronjob exists in the project
-    When I run the :create_job client command with:
+    When I run the :create_job admin command with:
       | name | hello-job             |
       | from | cronjob/cronjob-29654 |
     Then the step should succeed
