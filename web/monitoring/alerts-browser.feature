@@ -20,7 +20,7 @@ Feature: alerts browser
     #Open Silence page, expire alert from alert detail page
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_detail web action
@@ -61,7 +61,7 @@ Feature: alerts browser
     #Open Silence page, edit silence and set empty matcher
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :edit_silence_alert web action
@@ -102,7 +102,7 @@ Feature: alerts browser
     #Open Silence page, edit silence and set invalid end time
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :edit_silence_alert web action
@@ -172,7 +172,7 @@ Feature: alerts browser
     #Open Silence page, open the detail page
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     #Expire silence to restore environment
@@ -260,7 +260,7 @@ Feature: alerts browser
     #Open Silence page, open the detail page
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     #Expire silence to restore environment
@@ -289,7 +289,7 @@ Feature: alerts browser
     #Open Silence page, open the detail page
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     #Expire silence to prepare Expired status alert
@@ -354,7 +354,7 @@ Feature: alerts browser
       | text | Expired |
     Then the step should succeed
     #Expire silence to restore environment
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_actions web action
@@ -381,7 +381,7 @@ Feature: alerts browser
     #Open Silence page, open the detail page
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     #Expire silence to prepare Expired status silence
@@ -452,7 +452,7 @@ Feature: alerts browser
       | status     | Expired |
     Then the step should fail
     #Expire silence to restore environment
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdog |
     Then the step should succeed
     When I run the :expire_alert_from_actions web action
@@ -528,7 +528,7 @@ Feature: alerts browser
     #Open Silence page, edit silence
     When I run the :goto_monitoring_silences_page web action
     Then the step should succeed
-    When I perform the :open_alert_detail web action with:
+    When I perform the :open_silence_detail web action with:
       | alert_name | Watchdo.* |
     Then the step should succeed
     When I run the :edit_silence_alert web action

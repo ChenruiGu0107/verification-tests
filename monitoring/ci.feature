@@ -1019,6 +1019,8 @@ Feature: Install and configuration related scenarios
       | VersionAlert |
     """
     #check annotatin is deleted after rotation
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | secret               |
       | resource_name | grpc-tls             |
@@ -1026,7 +1028,10 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     Then the output should not contain:
       | monitoring.openshift.io/grpc-tls-forced-rotate: "true" |
+    """
     #check correct thanos exists
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | secret               |
       | n        | openshift-monitoring |
@@ -1041,7 +1046,7 @@ Feature: Install and configuration related scenarios
     Then the output should match 1 times:
       | prometheus-user-workload-grpc-tls |
       | thanos-ruler-grpc-tls             |
-
+    """
   # @author hongyli@redhat.com
   # @case_id OCP-33446
   @admin
@@ -1087,7 +1092,15 @@ Feature: Install and configuration related scenarios
       | all_namespaces | true |
       | o              | wide |
     Then the step should succeed
-    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.match(/.*Running.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :running_pods clipboard
+    And evaluation of `@result[:stdout].split(/\n/)` is stored in the :output_pods clipboard
+    And evaluation of `cb.output_pods.map{|n| n.match(/.*Completed.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :completed_pods clipboard
+    When I run the :get admin command with:
+      | resource       | pod  |
+      | all_namespaces | true |
+      | o              | wide |
+    Then the step should succeed
+    And evaluation of `cb.output_pods.length-1` is stored in the :all_pods clipboard
+    And evaluation of `cb.all_pods - cb.completed_pods` is stored in the :running_pods clipboard
     #query an metric
     When I perform the HTTP request:
     """
