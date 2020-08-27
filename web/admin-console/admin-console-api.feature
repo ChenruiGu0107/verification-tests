@@ -107,3 +107,20 @@ Feature: admin console api related
     When I execute on the pod:
       | curl | -kH | Authorization: Bearer <%= cb.token %> | <%= cb.server %>/apis/user.openshift.io/v1/users/~ |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-20748
+  Scenario: Restrict XSS Vulnerability in K8s API proxy
+    Given I have a project
+    Given I obtain test data file "templates/ui/httpd-example.yaml"
+    When I run the :new_app client command with:
+      | file | httpd-example.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=httpd-example |
+    Given I open admin console in a browser
+    When I access the "<%= browser.base_url %>api/kubernetes/api/v1/namespaces/<%= project.name %>/services/httpd-example:8080/proxy/" url in the web browser
+    Then the step should succeed
+    When I perform the :check_page_match web action with:
+      | content | Welcome to your static httpd application |
+    Then the step should succeed

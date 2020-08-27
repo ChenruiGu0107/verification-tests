@@ -211,3 +211,54 @@ Feature: dashboards related cases
     Then the step should succeed
     When I run the :check_network_out_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-19817
+  Scenario: Check metrics charts
+    Given the master version >= "4.3"
+    Given I have a project
+    When I run the :new_app_as_dc client command with:
+      | app_repo | centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deploymentconfig=ruby-ex |
+    When I run the :expose client command with:
+      | resource      | service |
+      | resource_name | ruby-ex |
+    Then the step should succeed
+    Given I wait for the "ruby-ex" service to become ready
+    When I run the :exec background client command with:
+      | pod              | <%= pod.name %>                                                           |
+      | oc_opts_end      |                                                                           |
+      | exec_command     | sh                                                                        |
+      | exec_command_arg | -c                                                                        |
+      | exec_command_arg | for i in {1..100};do curl -sS http://<%= service.url %> &> /dev/null;done |
+    Then the step should succeed
+
+    Given I open admin console in a browser
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_charts_in_project_utilization web action
+    Then the step should succeed
+    When I run the :check_no_errors_in_charts web action
+    Then the step should succeed
+    When I run the :click_filesystem_chart web action
+    Then the step should succeed
+    When I perform the :check_on_dev_monitoring_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    When I perform the :goto_one_pod_page web action with:
+      | project_name  | <%= project.name %> |
+      | resource_name | <%= pod.name %>     |
+    Then the step should succeed
+    When I run the :check_charts_on_pod_page web action
+    Then the step should succeed
+    When I run the :check_no_errors_in_charts web action
+    Then the step should succeed
+    When I run the :click_memory_usage_chart web action
+    Then the step should succeed
+    When I perform the :check_on_dev_monitoring_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
