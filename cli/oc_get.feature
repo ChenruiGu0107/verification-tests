@@ -126,3 +126,20 @@ Feature: oc get related command
     Then the step should succeed
     And the output should match:
       | NAME\\s+ROLE\\s+AGE\\s+USERS\\s+GROUPS\\s+SERVICEACCOUNTS |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-29478
+  @admin
+  Scenario: Events should always have timestamps
+    Given I have a project
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    Given I obtain test data file "storage/hostpath/security/hostpath.yaml"
+    When I run the :create admin command with:
+      | f | hostpath.yaml |
+    Then the step should succeed
+    Given the pod named "hostpathpd" status becomes :running
+    When I run the :get client command with:
+      | resource | events |
+    Then the step should succeed
+    And the output should not contain "<unknown>"
