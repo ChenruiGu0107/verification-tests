@@ -2008,3 +2008,117 @@ Feature: Network policy plugin scenarios
     Given I select a random node's host
     And I get the networking components logs of the node since "120s" ago
     Then the output should contain "IPBlocks with except rules are not supported"
+
+  # @author anusaxen@redhat.com
+  # @case_id OCP-29337
+  @admin
+  Scenario: [Bug 1816394] Pod IP rules should be accurately populated when multiple network policies gets triggered at a time
+    Given I have a project
+    Given I obtain test data file "networking/list_for_pods.json"
+    When I run the :create client command with:
+      | f | list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).ip_url` is stored in the :test_pod1_ip clipboard
+    And evaluation of `pod(1).ip_url` is stored in the :test_pod2_ip clipboard
+    Given the DefaultDeny policy is applied to the "<%= project.name %>" namespace
+    Then the step should succeed
+    #Add more network policies
+    Given I obtain test data file "networking/networkpolicy/allow-testpods-from-blue-black-Bug1816394.yaml"
+    When I run the :create client command with:
+      | f | allow-testpods-from-blue-black-Bug1816394.yaml|
+    Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-black-from-blue-Bug1816394.yaml"
+    When I run the :create client command with:
+      | f | allow-black-from-blue-Bug1816394.yaml|
+    Then the step should succeed
+    Given I obtain test data file "networking/networkpolicy/allow-from-all-pods-Bug1816394.yaml"
+    When I run the :create client command with:
+      | f | allow-from-all-pods-Bug1816394.yaml|
+    Then the step should succeed
+    #Creating other pods in loop
+    Given evaluation of `%w{black allowall blue}` is stored in the :pods clipboard
+    And I run the steps 3 times:
+    """
+    Given I obtain test data file "networking/pod-for-ping.json"
+    When I run oc create over "pod-for-ping.json" replacing paths:
+      | ["metadata"]["name"]           | #{cb.pods[cb.i-1]}-pod |
+      | ["metadata"]["labels"]["name"] | #{cb.pods[cb.i-1]}     |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=#{cb.pods[cb.i-1]} |
+    And evaluation of `pod.ip_url` is stored in the :<%=cb.pods[cb.i-1]%>_ip clipboard
+    """
+    #As Blue-pod is the pod which will refresh all network policies created above we need to make sure every other pod is curl'able via it which proves that ovs rules are populated correct
+    #5-10 seconds are more than enough to make sure rules to get populated in OVS table post above pods creation
+    Given 10 seconds have passed
+    When I execute on the "blue-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.test_pod1_ip %>:8080 |
+    Then the step should succeed
+    When I execute on the "blue-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.test_pod2_ip %>:8080 |
+    Then the step should succeed
+    When I execute on the "blue-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.black_ip %>:8080     |
+    Then the step should succeed
+    When I execute on the "blue-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.allowall_ip %>:8080  |
+    Then the step should succeed
+    When I execute on the "black-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.blue_ip %>:8080      |
+    Then the step should fail
+	
+  # @author anusaxen@redhat.com
+  # @case_id OCP-30881
+  @admin
+  Scenario: Repeatability testing - Create various Network Policies and confirm their recreation in NB db post db crash too
+    Given the env is using "OVNKubernetes" networkType
+    And I have a project
+    #Creating Policies in loop
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
+    Given I run the steps 10 times:
+    """
+    When I run oc create over "allow-project.yaml" replacing paths:
+      | ["metadata"]["name"] | allow-from-blue-#{cb.i} |
+    Then the step should succeed
+    """
+    Given I store the ovnkube-master "north" leader pod in the clipboard
+    And evaluation of `pod.node_name` is stored in the :ovn_nb_leader_node clipboard
+    Given I use the "<%= cb.ovn_nb_leader_node %>" node
+    And I run commands on the host:
+      | pkill -f OVN_Northbound |
+    And admin waits for all pods in the "openshift-ovn-kubernetes" project to become ready up to 120 seconds
+    #Making sure the policy entries are synced again when NB db is re-created
+    Given I store the ovnkube-master "north" leader pod in the clipboard
+    And evaluation of `pod.ip_url` is stored in the :new_ovn_nb_leader_ip clipboard
+    Given admin executes on the pod:
+      | bash | -c | ovn-nbctl list ACL |
+    Then the step should succeed
+    And the output should contain 10 times:
+      | allow-from-blue |
+    
+    Given I have a project
+    #Creating Policies in loop again
+    Given I obtain test data file "networking/networkpolicy/allow-project.yaml"
+    And I run the steps 10 times:
+    """
+    When I run oc create over "allow-project.yaml" replacing paths:
+      | ["metadata"]["name"] | allow-from-red-#{cb.i} |
+    Then the step should succeed
+    """
+    Given I store the ovnkube-master "north" leader pod in the clipboard
+    And evaluation of `pod.node_name` is stored in the :ovn_nb_leader_node clipboard
+    Given I use the "<%= cb.ovn_nb_leader_node %>" node
+    And I run commands on the host:
+      | pkill -f OVN_Northbound |
+    And admin waits for all pods in the "openshift-ovn-kubernetes" project to become ready up to 120 seconds
+    #Making sure the policy entries are synced again when NB db is re-created
+    Given I store the ovnkube-master "north" leader pod in the clipboard
+    And evaluation of `pod.ip_url` is stored in the :new_ovn_nb_leader_ip clipboard
+    Given admin executes on the pod:
+      | bash | -c | ovn-nbctl list ACL |
+    Then the step should succeed
+    And the output should contain 10 times:
+      | allow-from-red  |
+      | allow-from-blue |
