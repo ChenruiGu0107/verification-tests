@@ -153,3 +153,43 @@ Feature: Machine features testing
     Then the output should contain "Wrote inspect data to inspect.local"
     """
     
+  # @author zhsun@redhat.com
+  # @case_id OCP-30836
+  @admin
+  @destructive
+  Scenario: Create windows VM using machineset on Azure
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+    And I pick a random machineset to scale
+
+    # Create a machineset 
+    Given I run the :get admin command with:
+      | resource      | machineset              |
+      | resource_name | <%= machine_set.name %> |
+      | namespace     | openshift-machine-api   |
+      | o             | yaml                    |
+    Then the step should succeed
+    And I save the output to file> machineset-clone-30836.yaml
+    And I replace content in "machineset-clone-30836.yaml":
+      | <%= machine_set.name %> | win-30836                         |
+      | /osType.*/              | osType: Windows                   |
+      | /offer.*/               | offer: WindowsServer              |
+      | /publisher.*/           | publisher: MicrosoftWindowsServer |
+      | /sku.*/                 | sku: 2019-Datacenter              |
+      | /version.*/             | version: latest                   |
+      | /resourceID.*/          | resourceID: ""                    |
+      | /replicas.*/            | replicas: 1                       |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-30836.yaml |
+    Then the step should succeed
+    And admin ensures "win-30836" machineset is deleted after scenario
+
+    # Verify machine could be created successful
+    Given I store the last provisioned machine in the :win_machine clipboard
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine(cb.win_machine).phase(cached: false) == "Provisioned"
+    """
