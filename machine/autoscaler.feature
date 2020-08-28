@@ -449,26 +449,6 @@ Feature: Cluster Autoscaler Tests
       | <machineset_name>-invalid.*ReconcileError |
     """
 
-    # Create a machineset with no instanceType set
-    And I replace content in "machineset.yaml":
-      | <%= machine_set.name %> | <machineset_name>-no |
-      | <re_type_field>         | <no_value>           |
-      | /replicas:.*/           | replicas: 1          |
-
-    When I run the :create admin command with:
-      | f | machineset.yaml |
-    Then the step should succeed
-    And admin ensures "<machineset_name>-no" machineset is deleted after scenario
-    And I wait for the steps to pass:
-    """
-    When I run the :logs admin command with:
-      | resource_name | <%= pod.name %>    |
-      | c             | machine-controller |
-    Then the step should succeed
-    And the output should match:
-      | <machineset_name>-no.*ReconcileError |
-    """
-
     Examples:
       | re_type_field     | valid_value                | invalid_value         | no_value      | machineset_name  |
       | /machineType:.*/  | machineType: n1-standard-2 | machineType: invalid  | machineType:  | machineset-28778 | # @case_id OCP-28778
