@@ -14,7 +14,7 @@ spec:
       serviceAccount: flex-deployer
       containers:
         - name: flex-deploy
-          image: quay.io/openshifttest/flexvolume:latest
+          image: quay.io/openshifttest/flexvolume@sha256:5abab5e2f3cb8879e8cce80b0746d55ab28f8f07cb0612da8da8cf0ec4e6b046
           securityContext:
             privileged: true
             capabilities:
