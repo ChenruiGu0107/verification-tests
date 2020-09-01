@@ -19,52 +19,57 @@ Feature: Only about install page
     When I run the :check_install_page web action
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | AWS                             |
-    | provider_context | Run on Amazon Web Services      |
-    | provider_href    | aws                             |
+      | provider         | AWS                        |
+      | provider_context | Run on Amazon Web Services |
+      | provider_href    | aws                        |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | Azure                           |
-    | provider_context | Run on Microsoft Azure          |
-    | provider_href    | azure/installer-provisioned     |
+      | provider         | Azure                  |
+      | provider_context | Run on Microsoft Azure |
+      | provider_href    | azure                  |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | GCP                             |
-    | provider_context | Run on Google Cloud Platform    |
-    | provider_href    | gcp/installer-provisioned       |
+      | provider         | GCP                          |
+      | provider_context | Run on Google Cloud Platform |
+      | provider_href    | gcp                          |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | vSphere                         |
-    | provider_context | Run on VMware vSphere           |
-    | provider_href    | vsphere/user-provisioned        |
+      | provider         | vSphere                  |
+      | provider_context | Run on VMware vSphere    |
+      | provider_href    | vsphere/user-provisioned |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | OpenStack                       |
-    | provider_context | Run on Red Hat OpenStack        |
-    | provider_href    | openstack/installer-provisioned |
+      | provider         | OpenStack                |
+      | provider_context | Run on Red Hat OpenStack |
+      | provider_href    | openstack                |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | Red Hat Virtualization          |
-    | provider_context | Run on Red Hat Virtualization   |
-    | provider_href    | rhv/installer-provisioned       |
+      | provider         | Red Hat Virtualization        |
+      | provider_context | Run on Red Hat Virtualization |
+      | provider_href    | rhv/installer-provisioned     |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | Bare Metal                      |
-    | provider_context | Run on Bare Metal               |
-    | provider_href    | metal/user-provisioned          |
+      | provider         | Bare Metal        |
+      | provider_context | Run on Bare Metal |
+      | provider_href    | metal             |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | IBM                             |
-    | provider_context | Run on IBM Z                    |
-    | provider_href    | ibmz/user-provisioned           |
+      | provider         | IBM                   |
+      | provider_context | Run on IBM Z          |
+      | provider_href    | ibmz/user-provisioned |
     Then the step should succeed
     When I perform the :check_provider_card web action with:
-    | provider         | CRC                             |
-    | provider_context | Run on Laptop                   |
-    | provider_href    | crc/installer-provisioned       |
+      | provider         | Power Systems          |
+      | provider_context | Run on Power           |
+      | provider_href    | power/user-provisioned |
     Then the step should succeed
-    When I run the :check_preview_bar web action
+    When I perform the :check_provider_card web action with:
+      | provider         | CRC                       |
+      | provider_context | Run on Laptop             |
+      | provider_href    | crc/installer-provisioned |
     Then the step should succeed
+    # When I run the :check_preview_bar web action
+    # Then the step should succeed
 
   # @author tzhou@redhat.com
   # @case_id OCP-24068
@@ -73,9 +78,15 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :go_to_aws_ipi_install_page web action
     Then the step should succeed
-    When I run the :check_aws_ipi_install_page web action
+    When I perform the :check_aws_ipi_install_page web action with:
+      | title | Install OpenShift on AWS with installer-provisioned infrastructure |
     Then the step should succeed
-
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | aws                                  |
+      | provider_name  | Amazon Web Services                  |
+      | infrastructure | Installer-provisioned infrastructure |
+    Then the step should succeed
+  
   # @author tzhou@redhat.com
   # @case_id OCP-24069
   Scenario: Check elements on the OCP install page - AWS UPI - UI
@@ -83,7 +94,13 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :go_to_aws_upi_install_page web action
     Then the step should succeed
-    When I run the :check_aws_upi_install_page web action
+    When I perform the :check_aws_upi_install_page web action with:
+      | title | Install OpenShift on AWS with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | aws                             |
+      | provider_name  | Amazon Web Services             |
+      | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -91,27 +108,65 @@ Feature: Only about install page
   Scenario: Check elements on the OCP install page - Azure - UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I run the :go_to_azure_install_page web action
+    When I run the :go_to_azure_ipi_install_page web action
     Then the step should succeed
-    When I run the :check_azure_install_page web action
+    When I perform the :check_azure_ipi_install_page web action with:
+      | title | Install OpenShift on Azure with installer-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Microsoft Azure |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | azure                                |
+      | provider_name  | Microsoft Azure                      |
+      | infrastructure | Installer-provisioned infrastructure |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-28794
+  Scenario: Check elements on the OCP install page - Azure UPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_azure_upi_install_page web action
+    Then the step should succeed
+    When I perform the :check_azure_upi_install_page web action with:
+      | title | Install OpenShift on Azure with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | azure                           |
+      | provider_name  | Microsoft Azure                 |
+      | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
   # @case_id OCP-25176
-  Scenario: Check elements on the OCP install page - Google Cloud - UI
+  Scenario: Check elements on the OCP install page - GCP IPI - UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I run the :go_to_gcp_install_page web action
+    When I run the :go_to_gcp_ipi_install_page web action
     Then the step should succeed
-    When I run the :check_gcp_install_page web action
+    When I perform the :check_gcp_ipi_install_page web action with:
+      | title | Install OpenShift on GCP with installer-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Google Cloud Platform |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | gcp                                  |
+      | provider_name  | Google Cloud Platform                |
+      | infrastructure | Installer-provisioned infrastructure |
     Then the step should succeed
 
+  # @author tzhou@redhat.com
+  # @case_id OCP-28796
+  Scenario: Check elements on the OCP install page - GCP UPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_gcp_upi_install_page web action
+    Then the step should succeed
+    When I perform the :check_gcp_upi_install_page web action with:
+      | title | Install OpenShift on GCP with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | gcp                             |
+      | provider_name  | Google Cloud Platform           |
+      | infrastructure | User-provisioned infrastructure |
+    Then the step should succeed
+  
   # @author tzhou@redhat.com
   # @case_id OCP-24072
   Scenario: Check elements on the OCP install page - vSphere - UI
@@ -119,36 +174,11 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :go_to_vsphere_install_page web action
     Then the step should succeed
-    When I run the :check_vsphere_install_page web action
+    When I perform the :check_vsphere_install_page web action with:
+      | title | Install OpenShift on vSphere with user-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | VMware vSphere |
-    Then the step should succeed
-
-  # @author tzhou@redhat.com
-  # @case_id OCP-24070
-  Scenario: Check elements on the OCP install page - Bare Metal - UI
-    Given I open ocm portal as an regularUser user
-    Then the step should succeed
-    When I run the :go_to_bare_metal_install_page web action
-    Then the step should succeed
-    When I run the :check_bare_metal_install_page web action
-    Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Bare Metal |
-    Then the step should succeed
-
-  # @author tzhou@redhat.com
-  # @case_id OCP-26297
-  Scenario: Check elements on the OCP install page - IBM Z - UI
-    Given I open ocm portal as an regularUser user
-    Then the step should succeed
-    When I run the :go_to_ibm_z_install_page web action
-    Then the step should succeed
-    When I run the :check_ibm_z_install_page web action
-    Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | IBM Z |
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | VMware vSphere |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -156,12 +186,31 @@ Feature: Only about install page
   Scenario: Check elements on the OCP install page - Openstack - UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
-    When I run the :go_to_openstack_install_page web action
+    When I run the :go_to_openstack_ipi_install_page web action
     Then the step should succeed
-    When I run the :check_openstack_install_page web action
+    When I perform the :check_openstack_ipi_install_page web action with:
+      | title | Install OpenShift on Red Hat OpenStack Platform with installer-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Red Hat OpenStack Platform |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | openstack                            |
+      | provider_name  | Red Hat OpenStack Platform           |
+      | infrastructure | Installer-provisioned infrastructure |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-28795
+  Scenario: Check elements on the OCP install page - Openstack UPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_openstack_upi_install_page web action
+    Then the step should succeed
+    When I perform the :check_openstack_upi_install_page web action with:
+      | title | Install OpenShift on Red Hat OpenStack Platform with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | openstack                       |
+      | provider_name  | Red Hat OpenStack Platform      |
+      | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -171,10 +220,53 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :go_to_rhv_install_page web action
     Then the step should succeed
-    When I run the :check_rhv_install_page web action
+    When I perform the :check_rhv_install_page web action with:
+      | title | Install OpenShift on Red Hat Virtualization with installer-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Red Hat Virtualization |
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | Red Hat Virtualization |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-24070
+  Scenario: Check elements on the OCP install page - Bare Metal - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_bare_metal_install_page web action
+    Then the step should succeed
+    When I perform the :check_bare_metal_install_page web action with:
+      | title | Install OpenShift on Bare Metal with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | Bare Metal |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-26297
+  Scenario: Check elements on the OCP install page - IBM Z - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_ibm_z_install_page web action
+    Then the step should succeed
+    When I perform the :check_ibm_z_install_page web action with:
+      | title | Install OpenShift on IBM Z with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | IBM Z |
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-30121
+  Scenario: Check elements on the OCP install page - Power UPI - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_power_upi_install_page web action
+    Then the step should succeed
+    When I perform the :check_power_upi_install_page web action with:
+      | title | Install OpenShift on Power with user-provisioned infrastructure |
+    Then the step should succeed
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | Power |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -186,8 +278,8 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :check_codeready_install_page web action
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Code Ready Containers |
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | Code Ready Containers |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -199,6 +291,26 @@ Feature: Only about install page
     Then the step should succeed
     When I run the :check_pre_release_page web action
     Then the step should succeed
-    When I perform the :check_breadcrumbs_in_install_page web action with:
-    | provider_name | Pre-Release Builds |
+    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
+      | provider_name | Pre-Release Builds |
     Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-29426
+  Scenario: Check elements on ARO pull secret page - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_aro_pull_secret_page web action
+    Then the step should succeed
+    When I run the :check_aro_pull_secret_page web action
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-29428
+  Scenario: Check elements on pull secret page - UI
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I run the :go_to_pull_secret_page web action
+    Then the step should succeed
+    When I run the :check_pull_secret_page web action
+    Then the step should succeed 

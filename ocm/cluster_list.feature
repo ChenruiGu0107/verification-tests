@@ -26,40 +26,43 @@ Feature: About cluster list page
     When I run the :check_cluster_list_page web action
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdqe-ui-ocp                      |
-    | cluster_status | disconnected                     |
-    | cluster_type   | OCP                              |
+      | cluster_name   | sdqe-ui-ocp |
+      | cluster_status | ready       |
+      | cluster_type   | OCP         |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdqe-ui-disconn-vcpu-type        |
-    | cluster_status | disconnected                     |
-    | cluster_type   | OCP                              |
+      | cluster_name   | sdqe-ui-archive |
+      | cluster_status | disconnected    |
+      | cluster_type   | OCP             |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdqe-ui-disconnected             |
-    | cluster_status | disconnected                     |
-    | cluster_type   | OCP                              |
+      | cluster_name   | sdqe-ui-disconnected |
+      | cluster_status | disconnected         |
+      | cluster_type   | OCP                  |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdqe-ui-default                  |
-    | cluster_status | ready                            |
-    | cluster_type   | OSD                              |
+      | cluster_name   | sdqe-ui-adminowned-disconnected  |
+      | cluster_status | disconnected                     |
+      | cluster_type   | OCP                              |
+    Then the step should succeed
+    When I perform the :check_clusters_list_info_include_provider web action with:
+      | cluster_name   | sdqe-ui-default      |
+      | cluster_status | ready                |
+      | cluster_type   | OSD                  |
+      | provider       | AWS                  |
+      | location       | US East, N. Virginia |
     Then the step should succeed
     When I perform the :check_clusters_list_info web action with:
-    # known issue: https://issues.redhat.com/browse/SDB-825
-    | cluster_name   | sdqe-ui-archive                  |
-    | cluster_status | disconnected                     |
-    | cluster_type   | OCP                              |
+      | cluster_name   | sdqe-orgadmin-ui-default |
+      | cluster_status | ready                    |
+      | cluster_type   | OSD                      |
     Then the step should succeed
-    When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdqe-ui-advanced                 |
-    | cluster_status | ready                            |
-    | cluster_type   | OSD                              |
-    Then the step should succeed
-    When I perform the :check_clusters_list_info web action with:
-    | cluster_name   | sdaqe-ui-disconnected-adminowned |
-    | cluster_status | disconnected                     |
-    | cluster_type   | OCP                              |
+    When I perform the :check_clusters_list_info_include_provider web action with:
+      | cluster_name   | sdqe-ui-gcp                        |
+      | cluster_status | ready                              |
+      | cluster_type   | OSD                                |
+      | provider       | GCP                                |
+      | location       | Moncks Corner, South Carolina, USA |
     Then the step should succeed
     When I run the :check_hover_in_cluster_list web action
     Then the step should succeed

@@ -20,9 +20,9 @@ Feature: Only for case related to disconnected cluster register page
       | cluster_name | sdqe-ui-disconnected |
     Then the step should succeed
     When I perform the :check_disconnected_cluster_overview_information web action with:
-      | cluster_name    | sdqe-ui-disconnected          |
-      | operating_system|Red Hat Enterprise Linux CoreOS|
-      | sockets_type    ||
+      | cluster_name     | sdqe-ui-disconnected          |
+      | operating_system |Red Hat Enterprise Linux CoreOS|
+      | sockets_type     ||
     Then the step should succeed
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed

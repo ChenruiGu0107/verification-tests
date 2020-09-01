@@ -2,31 +2,54 @@ Feature: Only for case related to cluster detail page
 
   # @author xueli@redhat.com
   # @case_id OCP-23050
-  Scenario: User with right access can see logs view on UI for OSD/OCP clusters
-    Given I open ocm portal as a srepUser user
+  Scenario: Users can see logs on UI for installing or uninstalling OSD clusters
+    Given I open ocm portal as a orgAdmin user
     Then the step should succeed
-    When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-default |
+    When I perform the :create_osd_cluster web action with:
+      | product_id     | osd                 |
+      | cloud_provider | aws                 |
+      | cluster_name   | sdqe-ui-logs-view01 |
     Then the step should succeed
-    When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-default |
+    When I perform the :check_cluster_logs web action with:
+      | installation ||
     Then the step should succeed
-    When I perform the :check_logs_tab web action with:
-      | cluster_type | OSD |
+    Given I close the current browser
     Then the step should succeed
-    When I perform the :go_to_cluster_list_page web action with:
-      | from_page | cluster_detail_page |
-    Then the step should succeed
-    When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-ocp |
+    Given I open ocm portal as a regularUser user
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-ocp |
+      | cluster_name | sdqe-ui-logs-view01 |
     Then the step should succeed
-    When I perform the :check_logs_tab web action with:
-      | cluster_type | OCP |
-    Then the step should fail
-     # Add a successful step to make sure browser close action will succeed
+    When I perform the :check_osd_usage_in_detail_page web action with:
+      | installing ||
+    Then the step should succeed
+    Given I close the current browser
+    Then the step should succeed
+    Given I open ocm portal as a orgAdmin user
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-logs-view01 |
+    Then the step should succeed
+    When I perform the :delete_osd_cluster_from_detail_page web action with:
+      | cluster_name | sdqe-ui-logs-view01 |
+      | input_text   | sdqe-ui-logs-view01 |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-logs-view01 |
+    Then the step should succeed
+    When I perform the :check_cluster_logs web action with:
+      | uninstallation ||
+    Then the step should succeed
+    Given I close the current browser
+    Then the step should succeed
+    Given I open ocm portal as a regularUser user
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-logs-view01 |
+    Then the step should succeed
+    When I perform the :check_osd_usage_in_detail_page web action with:
+      | uninstalling ||
+    
+    # Add a successful step to make sure browser close action will succeed
     When I run the :go_to_cluster_list_page web action
     Then the step should succeed
     Given I close the current browser
@@ -35,7 +58,7 @@ Feature: Only for case related to cluster detail page
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-default |
     Then the step should succeed
-    When I perform the :check_logs_tab web action with:
+    When I perform the :check_cluster_logs web action with:
       | cluster_type | OSD |
     Then the step should fail
     When I perform the :go_to_cluster_list_page web action with:
@@ -44,7 +67,7 @@ Feature: Only for case related to cluster detail page
     When I perform the :go_to_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-ocp |
     Then the step should succeed
-    When I perform the :check_logs_tab web action with:
+    When I perform the :check_cluster_logs web action with:
       | cluster_type | OCP |
     Then the step should fail
 
@@ -55,61 +78,18 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     Given I saved following keys to list in :clusters clipboard:
       | sdqe-ui-default ||
-     #| sdqe-ui-ocp ||
     When I repeat the following steps for each :cluster_name in cb.clusters:
-      """
-      When I perform the :go_to_cluster_detail_page web action with:
-          | cluster_name | #{cb.cluster_name} |
-      Then the step should succeed
-      When I perform the :check_monitoring_tab web action with:
-          | issue_number| No |
-      Then the step should succeed
-      When I perform the :go_to_cluster_list_page web action with:
-          | from_page | cluster_detail_page |
-      Then the step should succeed
-      """
-
-  # @author xueli@redhat.com
-  # @case_id OCP-25348
-  Scenario: Monitoring tab should show correct message for cluster in installing/disconnected status and no metrics data from telemetry
-    Given I open ocm portal as a regularUser user
-    When  I perform the :create_osd_cluster web action with:
-      | cluster_name | xueli-1 |
-    Then the step should succeed
-    Then I wait up to 600 seconds for the steps to pass:
-      """
-      When I perform the :wait_cluster_status_on_detail_page web action with:
-          | cluster_status | installing |
-      Then the step should succeed
-      """
-    When I run the :click_monitoring_tab web action
-    Then the step should succeed
-    When I run the :check_installing_cluster_monitoring_tab web action
-    Then the step should succeed
-    # Delete the cluster to clean the env
-    When I perform the :delete_osd_cluster_from_detail_page web action with:
-      | cluster_name | xueli-1 |
-      | input_text   | xueli-1 |
-    Then the step should succeed
+    """
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-disconnected |
+      | cluster_name | #{cb.cluster_name}  |
     Then the step should succeed
-    When I run the :click_monitoring_tab web action
+    When I perform the :check_monitoring_tab web action with:
+      | issue_number | No |
     Then the step should succeed
-    When I run the :check_disconnected_cluster_monitoring_tab web action
+    When I perform the :go_to_cluster_list_page web action with:
+      | from_page | cluster_detail_page |
     Then the step should succeed
-
-  # @author yuwan@redhat.com
-  # @case_id OCP-23864
-  Scenario: Check the layout of the Users tab on the cluster detail page
-    Given I open ocm portal as an regularUser user
-    Then the step should succeed
-    When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name | sdqe-ui-default |
-    Then the step should succeed
-    When I run the :click_access_control_tab web action
-    Then the step should succeed
-    When I run the :check_elements_on_user_card web action
+    """
     Then the step should succeed
 
   # @author yuwan@redhat.com
@@ -119,6 +99,8 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I perform the :go_to_access_control_tab web action with:
       | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :click_add_user_button_on_page web action
     Then the step should succeed
     When I perform the :input_user_in_tab web action with:
       | user_id | test:test |
@@ -179,11 +161,13 @@ Feature: Only for case related to cluster detail page
 
   # @author yuwan@redhat.com
   # @case_id OCP-23866
-  Scenario: Add/delete users for the cluster on the UHC portal
+  Scenario: Add/delete users for the cluster on the UHC portal 
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :go_to_access_control_tab web action with:
       | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :click_add_user_button_on_page web action
     Then the step should succeed
     When I perform the :add_user web action with:
       | user_id    | test_user_1      |
@@ -193,12 +177,16 @@ Feature: Only for case related to cluster detail page
       | user_id    | test_user_1      |
       | user_group | dedicated-admins |
     Then the step should succeed
+    When I run the :click_add_user_button_on_page web action
+    Then the step should succeed
     When I perform the :add_user web action with:
       | user_id    | test_user_1      |
       | user_group | dedicated-admins |
     Then the step should succeed
     When I perform the :check_danger_alert_box_in_user_tab web action with:
       | error_massage | already exists on group  |
+    Then the step should succeed
+    When I run the :click_cancel_add_user_button web action
     Then the step should succeed
     When I perform the :delete_user web action with:
       | user_id | test_user_1 |
@@ -211,19 +199,113 @@ Feature: Only for case related to cluster detail page
     Then the step should fail
     """
 
+  # @author xueli@redhat.com
+  # @case_id OCP-29668
+  Scenario: Check all of the elements on Networking tab
+    Given I open ocm portal as a regularUser user
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-default |
+    Then the step should succeed
+    When I perform the :check_network_configuration web action with:
+      | trimed_cluster_name | sdqe-ui-default |
+      | machine_cidr        | 10.0.0.0/16     |
+      | service_cidr        | 172.30.0.0/16   |
+      | pod_cidr            | 10.128.0.0/14   |
+      | host_prefix         | /23             |
+    Then the step should succeed
+    When I run the :click_enable_additional_route web action
+    Given I saved following keys to list in :labels clipboard:
+      | abcd                                                                   ||
+      | a=b,                                                                   ||
+      | a=b,c                                                                  ||
+      | longerthan63characterslongerthan63characterslongerthan63characte=value ||
+      | key=longerthan63characterslongerthan63characterslongerthan63characte   ||
+    When I repeat the following steps for each :label in cb.labels:
+    """
+    When I perform the :check_invalid_label_error_message web action with:
+      | label        | #{cb.label}                               |
+      | error_message| Comma separated pairs in key=value format |
+    Then the step should succeed
+    """
+    When I perform the :clear_input web action with:
+      | locator_id | labels_additional_router |
+    Then the step should succeed
+    When I run the :click_change_settings_button_on_page web action
+    Then the step should succeed
+    When I perform the :check_change_cluster_privacy_settings_dialog web action with:
+      | cancel_dialog ||
+    Then the step should succeed
+    When I run the :click_default_route_private_checkbox web action
+    Then the step should succeed
+    When I run the :click_change_settings_button_on_page web action
+    Then the step should succeed
+    When I run the :check_change_cluster_privacy_settings_with_warning_dialog web action
+    Then the step should succeed
+    When I run the :click_cancel_button web action
+    Then the step should succeed
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-orgadmin-ui-default |
+    Then the step should succeed
+    When I run the :click_networking_tab web action
+    Then the step should succeed
+    When I perform the :check_disabled_buttons_on_networking_tab web action with:
+      | trimed_cluster_name | sdqe-orgadmin-u |
+      | machine_cidr        | 10.0.0.0/16     |
+      | service_cidr        | 172.30.0.0/16   |
+      | pod_cidr            | 10.128.0.0/14   |
+      | host_prefix         | /23             |
+    Then the step should succeed
+    When I run the :go_to_cluster_list_page web action
+    Then the step should succeed
+
+  # @author xueli@redhat.com
+  # @case_id OCP-25348
+  Scenario: Monitoring tab should show correct message for cluster in installing/disconnected status and no metrics data from telemetry
+    Given I open ocm portal as a regularUser user
+    When  I perform the :create_osd_cluster web action with:
+      | cluster_name   | sdqe-ui-metric-temp |
+      | product_id     | osd                 |
+      | cloud_provider | aws                 |
+    Then the step should succeed
+    Then I wait up to 600 seconds for the steps to pass:
+    """
+    When I perform the :wait_cluster_status_on_detail_page web action with:
+        | cluster_status | installing |
+    Then the step should succeed
+    """
+    When I run the :click_monitoring_tab web action
+    Then the step should succeed
+    When I run the :check_installing_cluster_monitoring_tab web action
+    Then the step should succeed
+    # Delete the cluster to clean the env
+    When I perform the :delete_osd_cluster_from_detail_page web action with:
+      | cluster_name | sdqe-ui-metric-temp |
+      | input_text   | sdqe-ui-metric-temp |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name | sdqe-ui-disconnected |
+    Then the step should succeed
+    When I run the :click_monitoring_tab web action
+    Then the step should succeed
+    When I run the :check_disconnected_cluster_monitoring_tab web action
+    Then the step should succeed
+
   # @author tzhou@redhat.com
   # @case_id OCP-22101
   Scenario: Check the cluster detail for the registered OCP cluster on UI
     Given I open ocm portal as an regularUser user
     Then the step should succeed
     When I perform the :filter_name_or_id web action with:
-      | filter_keyword | sdqe-ui-ocp |
+      | filter_keyword | sdqe-ui-archive |
     Then the step should succeed
     When I perform the :go_to_cluster_detail_page web action with:
-      | cluster_name   | sdqe-ui-ocp |
+      | cluster_name   | sdqe-ui-archive |
     Then the step should succeed
     When I perform the :check_ocp_in_detail_page web action with:
-      | cluster_name   | sdqe-ui-ocp |
+      | cluster_name   | sdqe-ui-archive |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -239,6 +321,7 @@ Feature: Only for case related to cluster detail page
     Then the step should succeed
     When I perform the :check_osd_in_detail_page web action with:
       | cluster_name   | sdqe-ui-default |
+      | ready          |                 |
     Then the step should succeed
 
   # @author tzhou@redhat.com
@@ -267,3 +350,52 @@ Feature: Only for case related to cluster detail page
     When I perform the :unarchive_cluster_from_cluster_detail_page web action with:
       | cluster_name | sdqe-ui-archive |
     Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-28797
+  Scenario: Check the elements for cluster history part in detail page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-default |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-default |
+    Then the step should succeed
+    When I run the :check_cluster_history_section_common_part web action
+    Then the step should succeed
+    When I run the :check_default_osd_cluster_history web action
+    Then the step should succeed
+
+  # @author tzhou@redhat.com
+  # @case_id OCP-28797
+  Scenario: Check the function for cluster history part in detail page
+    Given I open ocm portal as an regularUser user
+    Then the step should succeed
+    When I perform the :filter_name_or_id web action with:
+      | filter_keyword | sdqe-ui-default |
+    Then the step should succeed
+    When I perform the :go_to_cluster_detail_page web action with:
+      | cluster_name   | sdqe-ui-default |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | Cluster installed and registered successfully |
+      | result_keyword | Cluster installed and registered successfully |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | cluster |
+      | result_keyword | cluster |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | cluster%success |
+      | result_keyword | success         |
+    Then the step should succeed
+    When I perform the :search_cluster_history_by_description web action with:
+      | filter_keyword | aaa              |
+      | result_keyword | No results found |
+    Then the step should succeed
+    When I perform the :select_cluster_history_by_severity web action with:
+      | filter_item    | Info |
+      | result_keyword | Info |
+    Then the step should succeed
+    
