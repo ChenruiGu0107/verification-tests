@@ -283,3 +283,17 @@ Feature: dockerbuild.feature
     Then the step should succeed
     And the "disconnect-build-2" build was created
     And the "disconnect-build-2" build completed
+
+  # @author wewang@redhat.com
+  # @case_id OCP-34471
+  Scenario: When build should not have about image operating system mismatch info
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo  | openshift/ruby:2.5~https://github.com/openshift/ruby-hello-world |
+      | strategy  | docker                                                           |
+    And the "ruby-hello-world-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-hello-world-1 |
+    Then the output should not contain:
+      | Image operating system mismatch |
+      | Image architecture mismatch     |
