@@ -1,0 +1,11 @@
+---
+apiVersion: test.tectonic.com/v1
+kind: MockK8sDropdownResource
+metadata:
+  name: mock-k8s-dropdown-resource-instance-1
+---
+apiVersion: test.tectonic.com/v1
+kind: MockK8sDropdownResource
+metadata:
+  name: mock-k8s-dropdown-resource-instance-2
+

@@ -1,0 +1,45 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: mock-k8s-resource-dropdown-operator
+  labels:
+    automatedTestName: uiautotest
+  annotations:
+    alm-examples: '[{"apiVersion":"test.tectonic.com/v1","kind":"MockK8sDropdownResource","metadata":{"name":"mock-k8s-dropdown-resource-instance", namespace: "uiautotest"}}]'
+spec:
+  displayName: Mock K8sResourcePrefixOperator
+  install:
+    strategy: deployment
+    spec:
+      permissions: []
+      deployments:
+        - name: test-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                name: test-operator-alm-owned
+            template:
+              metadata:
+                name: test-operator-alm-owned
+                labels:
+                  name: test-operator-alm-owned
+              spec:
+                serviceAccountName: test-operator
+                containers:
+                  - name: test-operator
+                    image: nginx
+  customresourcedefinitions:
+    owned:
+      - name: mock-k8s-dropdown-resources.test.tectonic.com
+        version: v1
+        kind: MockK8sDropdownResource
+        displayName: Mock Resource
+        description: Mock resource instance for testing descriptors
+        resources: []
+        specDescriptors:
+          - path: k8sResourcePrefix
+            description: Spec descriptor for k8sResourcePrefix
+            displayName: Descriptor Generated K8s Resource Prefix
+            x-descriptors:
+              - "urn:alm:descriptor:io.kubernetes:test.tectonic.com:v1:MockK8sDropdownResource"

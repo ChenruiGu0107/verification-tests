@@ -954,3 +954,39 @@ Feature: operatorhub feature related
     When I perform the :check_column_in_table web action with:
       | field | Status |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-32151
+  @admin
+  Scenario: k8sResourcePrefix specDescriptor supports CRD instance
+    Given the master version >= "4.4"
+    Given I obtain test data file "customresource/mock-k8s-crd.yaml"
+    Given I obtain test data file "customresource/mock-k8s-operator-csv.yaml"
+    Given I obtain test data file "customresource/mock-k8s-cr.yaml"
+    Given admin ensures "mock-k8s-dropdown-resources.test.tectonic.com" customresourcedefinitions is deleted after scenario
+    When I run the :create admin command with:
+      | f | mock-k8s-crd.yaml |
+    Then the step should succeed
+    Given I have a project
+    When I run the :create admin command with:
+      | f | mock-k8s-operator-csv.yaml |
+      | f | mock-k8s-cr.yaml           |
+      | n | <%= project.name %>        |
+    Then the step should succeed    
+    Given the first user is cluster-admin
+    And I open admin console in a browser
+    When I perform the :goto_operand_list_page web action with:
+      | project_name | <%= project.name %>                          |
+      | csv_name     | mock-k8s-resource-dropdown-operator          |
+      | operand_name | test.tectonic.com~v1~MockK8sDropdownResource |
+    Then the step should succeed
+    When I run the :click_create_mockk8sdropdownresouce web action
+    Then the step should succeed
+    When I run the :open_k8sresource_dropdown web action
+    Then the step should succeed
+    When I perform the :check_k8sresource_dropdown_items web action with:
+      | item | mock-k8s-dropdown-resource-instance-1 |
+    Then the step should succeed
+    When I perform the :check_k8sresource_dropdown_items web action with:
+      | item | mock-k8s-dropdown-resource-instance-2 |
+    Then the step should succeed

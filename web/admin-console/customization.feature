@@ -772,3 +772,79 @@ Feature: customize console related
     Then the step should succeed
     When I run the :check_azure_logo web action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-29784
+  @admin
+  Scenario: Negative tests for custom console URL and Certificate
+    Given the master version >= "4.5"
+    Given I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route": null}} |
+    """
+    Given the first user is cluster-admin
+    And I use the "openshift-console-operator" project
+    And a pod becomes ready with labels:
+      | name=console-operator |
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com"}}} |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | CustomRouteSyncDegraded.*secret.*custom route TLS secret.*not defined |
+
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "test-generic-secret"}}}} |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | CustomRouteSyncDegraded.*secret.*test-generic-secret.*not found |
+
+    Given I obtain test data file "secrets/secret.yaml"
+    Given admin ensures "test-secret" secret is deleted from the "openshift-config" project after scenario
+    When I run the :create admin command with:
+      | f | secret.yaml      |
+      | n | openshift-config |
+    Then the step should succeed
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "test-secret"}}}} |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | CustomRouteSyncDegraded.*InvalidCustomTLSSecret.*not.*kubernetes.io/tls.*type |
+
+    Given I obtain test data file "secrets/invalid-tls-secret.yaml"
+    Given admin ensures "tls-invalid-format" secret is deleted from the "openshift-config" project after scenario
+    When I run the :create admin command with:
+      | f | invalid-tls-secret.yaml  |
+      | n | openshift-config         |
+    Then the step should succeed
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "tls-invalid-format"}}}} |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | CustomRouteSyncDegraded.*InvalidCustomTLSSecret.*fail.*to decode certificate PEM |
+
+    Given I obtain test data file "secrets/OCP-29784/tls.crt"
+    Given I obtain test data file "secrets/OCP-29784/tls.key"
+    Given admin ensures "custom-tls-secret" secret is deleted from the "openshift-config" project after scenario
+    When I run the :create_secret admin command with:
+      | name        | custom-tls-secret   |
+      | secret_type | tls                 |
+      | cert        | tls.crt             |
+      | key         | tls.key             |
+      | n           | openshift-config    |
+    Then the step should succeed
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route":{"hostname": "https://qe-uiauto-custom-console.com","secret":{"name": "custom-tls-secret"}}}} |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    Then the step should succeed
+    And the output should match:
+      | CustomRouteSyncDegraded.*FailedCustomRouteApply.*must conform to DNS 952 subdomain convention |
