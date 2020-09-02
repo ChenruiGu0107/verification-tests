@@ -509,3 +509,68 @@ Feature: cluster-logging-operator related cases
     Then the step should succeed
     When I run the :check_kibana_status web action
     Then the step should succeed
+
+  # @author gkarager@redhat.com
+  # @case_id OCP-34128
+  @admin
+  @destructive
+  Scenario: Fluentd alert rules check >= 4.6.
+    Given the master version >= "4.6"
+    Given I obtain test data file "logging/clusterlogging/example.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true         |
+      | crd_yaml            | example.yaml |
+    Then the step should succeed
+    Given I wait for the "fluentd" prometheus_rule to appear up to 300 seconds
+
+    Then the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "critical"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthBurst').severity == "warning"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdQueueLengthIncreasing').severity == "critical"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentDHighErrorRate').severity == "warning"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentDVeryHighErrorRate').severity == "critical"
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['name'] == "logging_fluentd.alerts"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "critical"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthBurst'}['labels']['severity'] == "warning"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdQueueLengthIncreasing'}['labels']['severity'] == "critical"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDHighErrorRate'}['labels']['severity'] == "warning"
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDVeryHighErrorRate'}['labels']['severity'] == "critical"
+    """
+
+    Given I run the :patch client command with:
+      | resource      | prometheusrule                                                                                                                                                                  |
+      | resource_name | fluentd                                                                                                                                                                         |
+      | p             | {"spec": {"groups": [{"name": "logging_fluentd.alerts", "rules": [{"alert": "FluentdNodeDown","expr": "absent(up{job='fluentd'} == 1)", "labels": {"severity": "warning"}}]}]}} |
+      | type          | merge                                                                                                                                                                           |
+    Then the step should succeed
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rule_spec(alert: 'FluentdNodeDown').severity == "warning"
+    And the expression should be true> prometheus_rule('fluentd').prometheus_rule_group_spec(name: "logging_fluentd.alerts").rules.count == 1
+
+    Given I wait up to 300 seconds for the steps to pass:
+    """
+    Given I check the "fluentd" prometheus rule in the "openshift-logging" project on the prometheus server
+    And the output should not contain:
+      | FluentdQueueLengthBurst      |
+      | FluentdQueueLengthIncreasing |
+      | FluentDHighErrorRate         |
+      | FluentDVeryHighErrorRate     |
+    And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentdNodeDown'}['labels']['severity'] == "warning"
+    """
+
+  # @author gkarager@redhat.com
+  # @case_id OCP-33981
+  @admin
+  @destructive
+  Scenario: logStore stanza is not required to deploy fluentd standalone	
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-fluentd-no-logStore.yaml"
+    Given I create clusterlogging instance with:
+      | remove_logging_pods | true                                    |
+      | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
+      | check_status        | false                                   |
+    Then the step should succeed
+    And I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
+      | logging-infra=fluentd |
