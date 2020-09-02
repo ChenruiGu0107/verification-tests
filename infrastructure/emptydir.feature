@@ -12,7 +12,6 @@ Feature: emptyDir specific scenarios
     Given I wait for the "pod-emptydir" pod to appear in the project
     And evaluation of `pod.node_name` is stored in the :pod_node clipboard
     And evaluation of `pod.uid` is stored in the :pod_uid clipboard
-
     When the pod named "pod-emptydir" status becomes :pending
     Then I wait for the steps to pass:
     """
@@ -33,7 +32,6 @@ Feature: emptyDir specific scenarios
     When I run the :create client command with:
       | filename  | pod-emptydir-oom.yaml |
     Then the step should succeed
-
     Given I wait for the "pod-emptydir-oom" pod to appear in the project
     And evaluation of `pod.node_name` is stored in the :pod_node clipboard
     And evaluation of `pod.uid` is stored in the :pod_uid clipboard
@@ -47,6 +45,6 @@ Feature: emptyDir specific scenarios
     Then the step should succeed
     And the output should contain "myvol"
     When I run commands on the host:
-      | ls -alh /var/lib/kubelet/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol \| grep zero \| awk '{print $5}' |
-    And the output should match:
-      | (1015M\|1013M\|1011M) |
+      | ls -alh /var/lib/kubelet/pods/<%= cb.pod_uid %>/volumes/kubernetes.io~empty-dir/myvol \| grep zero \| awk '{print $4}' |
+    Then the step should succeed
+    And the expression should be true> @result[:response].to_i > 1000000000
