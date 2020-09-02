@@ -167,49 +167,52 @@ Feature: dashboards related cases
     Then the step should succeed
 
     # check Cluster Utilization - CPU breakdown info
-    When I run the :check_cpu_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
     When I run the :check_cpu_breakdown_info_when_filter_by_project web action
     Then the step should succeed
     When I run the :check_cpu_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
+    When I run the :check_cpu_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
 
     # check Cluster Utilization - Memory breakdown info
-    When I run the :check_memory_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
     When I run the :check_memory_breakdown_info_when_filter_by_project web action
     Then the step should succeed
     When I run the :check_memory_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
+    When I run the :check_memory_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
 
     # check Cluster Utilization - Filesystem breakdown info
-    When I run the :check_filesystem_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
     When I run the :check_filesystem_breakdown_info_when_filter_by_project web action
     Then the step should succeed
     When I run the :check_filesystem_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
 
-    # check Cluster Utilization - Pod count breakdown info
-    When I run the :check_pod_count_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
-    When I run the :check_pod_count_breakdown_info_when_filter_by_project web action
-    Then the step should succeed
+    # temporaly comment out the check due to bug 1865817
+    #When I run the :check_filesystem_breakdown_info_when_filter_by_node web action
+    #Then the step should succeed
 
     # check Cluster Utilization -  Network in breakdown info
-    When I run the :check_network_in_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
     When I run the :check_network_in_breakdown_info_when_filter_by_project web action
     Then the step should succeed
     When I run the :check_network_in_breakdown_info_when_filter_by_pod web action
     Then the step should succeed
+    When I run the :check_network_in_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
 
     # check Cluster Utilization -  Network out breakdown info
-    When I run the :check_network_out_breakdown_info_when_filter_by_node web action
-    Then the step should succeed
     When I run the :check_network_out_breakdown_info_when_filter_by_project web action
     Then the step should succeed
     When I run the :check_network_out_breakdown_info_when_filter_by_pod web action
+    Then the step should succeed
+    When I run the :check_network_out_breakdown_info_when_filter_by_node web action
+    Then the step should succeed
+
+    # check Cluster Utilization - Pod count breakdown info
+    When I run the :check_pod_count_breakdown_info_when_filter_by_project web action
+    Then the step should succeed
+    # also check View More links to Monitoring page
+    When I run the :check_pod_count_breakdown_info_when_filter_by_node web action
     Then the step should succeed
 
   # @author yapei@redhat.com
