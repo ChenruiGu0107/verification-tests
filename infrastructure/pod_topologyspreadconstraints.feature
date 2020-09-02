@@ -344,3 +344,73 @@ Feature: podTopologySpreadConstraints
     Then the step should succeed
     And the pod named "pod-ocp34086-2" status becomes :running
     And the expression should be true> pod.node_name == cb.nodes[1].name
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-33765
+  @admin
+  @destructive
+  Scenario: Validate mutiple TopologySpreadConstraints with whenUnsatisfiable policy
+    Given the master version >= "4.6"
+    Given I store the schedulable workers in the :nodes clipboard
+    # Add labels to the nodes
+    Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[2].name %>" node labels are restored after scenario
+    And label "zone=zoneA" is added to the "<%= cb.nodes[0].name %>" node
+    And label "node=node1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "zone=zoneA" is added to the "<%= cb.nodes[1].name %>" node
+    And label "node=node2" is added to the "<%= cb.nodes[1].name %>" node
+    And label "zone=zoneB" is added to the "<%= cb.nodes[2].name %>" node
+    And label "node=node3" is added to the "<%= cb.nodes[2].name %>" node
+    # Test runs here
+    Given I have a project
+    And I obtain test data file "scheduler/pod-topology-spread-constraints/depoy-ocp33765.yaml"
+    When I run the :create client command with:
+      | f | depoy-ocp33765.yaml |
+    Then the step should succeed
+    # check pods of deploy33765 running on node1
+    Given status becomes :running of 2 pods labeled:
+      | app=deploy33765 |
+    And the expression should be true> pod(0).node_name == cb.nodes[0].name
+    And the expression should be true> pod(1).node_name == cb.nodes[0].name
+    When I run oc create over "depoy-ocp33765.yaml" replacing paths:
+      | ["metadata"]["name"]                                 | deploy-ocp33765-2 |
+      | ["metadata"]["labels"]["app"]                        | deploy-ocp33765-2 |
+      | ["spec"]["replicas"]                                 | 1                 |
+      | ["spec"]["selector"]["matchLabels"]["app"]           | deploy-ocp33765-2 |
+      | ["spec"]["template"]["metadata"]["labels"]["app"]    | deploy-ocp33765-2 |
+      | ["spec"]["template"]["spec"]["nodeSelector"]["node"] | node2             |
+    Then the step should succeed
+    # check pods of deploy-ocp33765-2 running on node2
+    Given status becomes :running of 1 pods labeled:
+      | app=deploy-ocp33765-2 |
+    And the expression should be true> pod.node_name == cb.nodes[1].name
+    When I run oc create over "depoy-ocp33765.yaml" replacing paths:
+      | ["metadata"]["name"]                                 | deploy-ocp33765-3 |
+      | ["metadata"]["labels"]["app"]                        | deploy-ocp33765-3 |
+      | ["spec"]["replicas"]                                 | 2                 |
+      | ["spec"]["selector"]["matchLabels"]["app"]           | deploy-ocp33765-3 |
+      | ["spec"]["template"]["metadata"]["labels"]["app"]    | deploy-ocp33765-3 |
+      | ["spec"]["template"]["spec"]["nodeSelector"]["node"] | node3             |
+    Then the step should succeed
+    # check pods of deploy-ocp33765-3 running on node3
+    Given status becomes :running of 2 pods labeled:
+      | app=deploy-ocp33765-3 |
+    When I run the :get client command with:
+      | resource | pod                   |
+      | l        | app=deploy-ocp33765-3 |
+      | o        | wide                  |
+    Then the step should succeed
+    And the output should contain 2 times:
+      | <%= cb.nodes[2].name %> |
+    And I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp33765.yaml"
+    When I run the :create client command with:
+      | f | pod_ocp33765.yaml |
+    Then the step should succeed
+    And the pod named "pod-ocp33765" status becomes :pending
+    When I run oc create over "pod_ocp33765.yaml" replacing paths:
+      | ["metadata"]["name"]                                          | pod-ocp33765-2 |
+      | ["spec"]["topologySpreadConstraints"][1]["whenUnsatisfiable"] | ScheduleAnyway |
+    Then the step should succeed
+    And the pod named "pod-ocp33765-2" status becomes :running
+    And the expression should be true> pod.node_name == cb.nodes[2].name
