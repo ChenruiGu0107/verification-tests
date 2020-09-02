@@ -87,3 +87,27 @@ Feature: Testing openshift-controller-manager-operator
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Available')['status'] == "Unknown"
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Progressing')['status'] == "Unknown"
     And the expression should be true> cluster_operator('openshift-controller-manager').condition(type: 'Degraded')['status'] == "Unknown"
+
+  # @author wewang@redhat.com
+  # @case_id OCP-34642
+  @admin
+  Scenario: ocm-o properly handles intermittent issues retrieving deployments from api server 
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-controller-manager-operator" project
+    And a pod becomes ready with labels:
+      | app=openshift-controller-manager-operator |
+    And I run the :logs client command with:
+      | resource_name | <%= pod.name %> |
+    And the step should succeed
+    And the output should not contain "rpc error: code = Unavailable desc = transport is closing"
+    When I use the "openshift-apiserver" project
+    Then I store in the :pods clipboard the pods labeled:
+      | app=openshift-apiserver-a |
+    And I repeat the following steps for each :pod in cb.pods:
+    """
+    And I run the :logs client command with:
+      | resource_name | #{cb.pod.name}      |
+      | c             | openshift-apiserver |
+    Then the step should succeed
+    And the output should not contain "no error like:runtime error: invalid memory address"
+    """
