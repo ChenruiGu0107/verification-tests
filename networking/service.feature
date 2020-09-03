@@ -6,7 +6,7 @@ Feature: Service related networking scenarios
     Given I have a project
     And I have a pod-for-ping in the project
     When I execute on the "hello-pod" pod:
-      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -A5 '^Name: *www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
     Given I obtain test data file "networking/external_service.json"
@@ -14,14 +14,15 @@ Feature: Service related networking scenarios
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.google_ip %> |
     Then the step should succeed
     Given I use the "external-http" service
-    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    And evaluation of `service.url(user: user)` is stored in the :service_url clipboard
     When I run the :get client command with:
       | resource      | endpoints  |
       | resource_name | external-http |
-    Then the output should contain:
+    # For IPv6 ENDPOINTS will be in brackets
+    Then the output should match:
       | <%= cb.google_ip %>:80 |
     When I execute on the "hello-pod" pod:
-      | /usr/bin/curl | <%= cb.service_ip %>:10086 |
+      | /usr/bin/curl | <%= cb.service_url %> |
     Then the output should contain "www.google.com"
 
   # @author zzhao@redhat.com
