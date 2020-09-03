@@ -123,3 +123,56 @@ Feature: podTopologySpreadConstraints
       | pod_ocp33767.yaml | pod-ocp33767 | pod-ocp33767-1 | # @case_id OCP-33767
       | pod-ocp34014.yaml | pod-ocp34014 | pod-ocp34014-1 | # @case_id OCP-34014
 
+  # @author yinzhou@redhat.com
+  # @case_id OCP-33824
+  @admin
+  @destructive
+  Scenario: Validate TopologySpreadConstraint with podAffinity/podAntiAffinity
+    Given the master version >= "4.6"
+    Given I store the schedulable workers in the :nodes clipboard
+    # Add labels to the nodes
+    Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[2].name %>" node labels are restored after scenario
+    And label "zone=zoneA" is added to the "<%= cb.nodes[0].name %>" node
+    And label "node=node1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "zone=zoneB" is added to the "<%= cb.nodes[1].name %>" node
+    And label "node=node2" is added to the "<%= cb.nodes[1].name %>" node
+    And label "zone=zoneB" is added to the "<%= cb.nodes[2].name %>" node
+    And label "node=node3" is added to the "<%= cb.nodes[2].name %>" node
+    # Test runs here
+    Given I have a project
+    And I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp34017.yaml"
+    When I run oc create over "pod_ocp34017.yaml" replacing paths:
+      | ["metadata"]["name"] | pod-ocp33824-1 |
+    Then the step should succeed
+    And the pod named "pod-ocp33824-1" status becomes :running
+    And the expression should be true> pod.node_name == cb.nodes[0].name
+    When I run oc create over "pod_ocp34017.yaml" replacing paths:
+      | ["metadata"]["name"]             | pod-ocp33824-2 |
+      | ["metadata"]["labels"]           | security: S1   |
+      | ["spec"]["nodeSelector"]["node"] | node3          |
+    Then the step should succeed
+    And the pod named "pod-ocp33824-2" status becomes :running
+    And the expression should be true> pod.node_name == cb.nodes[2].name
+    Given I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp33824.yaml"
+    When I run the :create client command with:
+      | f | pod_ocp33824.yaml |
+    Then the step should succeed
+    And the pod named "pod-ocp33824-3" status becomes :running
+    And the expression should be true> pod.node_name == cb.nodes[1].name
+    Given I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp33824-2.yaml"
+    When I run the :create client command with:
+      | f | pod_ocp33824-2.yaml |
+    Then the step should succeed
+    And the pod named "pod-ocp33824-4" status becomes :running
+    And the expression should be true> pod.node_name == cb.nodes[2].name
+    When I run oc create over "pod_ocp33824-2.yaml" replacing paths:
+      | ["metadata"]["name"] | pod-ocp33824-5 |
+    Then the step should succeed
+    And the pod named "pod-ocp33824-5" status becomes :pending
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-ocp33824-5 |
+    Then the output should match:
+      | FailedScheduling |
