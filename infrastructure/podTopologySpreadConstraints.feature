@@ -90,7 +90,7 @@ Feature: podTopologySpreadConstraints
   # @case_id OCP-33767
   @admin
   @destructive
-  Scenario: Validate TopologySpreadConstraints with nodeSelector
+  Scenario Outline: Validate TopologySpreadConstraints with nodeSelector/NodeAffinity
     Given the master version >= "4.6"
     Given I store the schedulable workers in the :nodes clipboard
     # Add labels to the nodes
@@ -105,15 +105,21 @@ Feature: podTopologySpreadConstraints
     And label "node=node3" is added to the "<%= cb.nodes[2].name %>" node
     # Test runs here
     Given I have a project
-    And I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp33767.yaml"
+    And I obtain test data file "scheduler/pod-topology-spread-constraints/<filename>"
     When I run the :create client command with:
-      | f | pod_ocp33767.yaml |
+      | f | <filename> |
     Then the step should succeed
-    And the pod named "pod-ocp33767" status becomes :running
+    And the pod named "<pod1name>" status becomes :running
     And the expression should be true> pod.node_name == cb.nodes[0].name || cb.nodes[1].name
     Given evaluation of `pod.node_name` is stored in the :pod1node clipboard
-    When I run oc create over "pod_ocp33767.yaml" replacing paths:
-      | ["metadata"]["name"] | pod-ocp33767-1 |
+    When I run oc create over "<filename>" replacing paths:
+      | ["metadata"]["name"] | <pod2name> |
     Then the step should succeed
-    And the pod named "pod-ocp33767-1" status becomes :running
+    And the pod named "<pod2name>" status becomes :running
     And the expression should be true> pod.node_name != cb.pod1node
+
+    Examples:
+      | filename          | pod1name     | pod2name       |
+      | pod_ocp33767.yaml | pod-ocp33767 | pod-ocp33767-1 | # @case_id OCP-33767
+      | pod-ocp34014.yaml | pod-ocp34014 | pod-ocp34014-1 | # @case_id OCP-34014
+
