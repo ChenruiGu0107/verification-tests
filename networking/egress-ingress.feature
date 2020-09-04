@@ -647,7 +647,7 @@ Feature: Egress-ingress related networking scenarios
     And I have a pod-for-ping in the project
     And evaluation of `pod.node_name` is stored in the :node_name clipboard
     When I execute on the "hello-pod" pod:
-      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep "Address 1" \| tail -1 \| awk '{print $3}' |
+      | bash | -c | nslookup www.google.com 172.30.0.10 \| grep -A5 '^Name: *www.google.com' \|  grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :google_ip clipboard
 
@@ -659,11 +659,11 @@ Feature: Egress-ingress related networking scenarios
       | ["items"][0]["spec"]["ports"][0]["targetPort"]   |  80                  |
     Then the step should succeed
     Given I use the "selector-less-service" service
-    And evaluation of `service.ip` is stored in the :service_ip clipboard
+    And evaluation of `service.url` is stored in the :service_url clipboard
 
     #Enter the pod and curl the service should succeed
     When I execute on the "hello-pod" pod:
-      | /usr/bin/curl | <%= cb.service_ip %>:10086 |
+      | /usr/bin/curl | <%= cb.service_url %> |
     Then the step should succeed
     And the output should contain "www.google.com"
 
@@ -678,7 +678,7 @@ Feature: Egress-ingress related networking scenarios
 
     #Enter the pod and curl the service should fail
     When I execute on the "hello-pod" pod:
-      | curl | --connect-timeout | 5 | <%= cb.service_ip %>:10086 |
+      | curl | --connect-timeout | 5 | <%= cb.service_url %> |
     Then the step should fail
     And the output should contain "Connection timed out"
     # Check sdn logs
