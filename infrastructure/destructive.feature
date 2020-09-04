@@ -1,21 +1,27 @@
 Feature: relate with destructive features
 
   # @author chezhang@redhat.com
+  # @author weinliu@redhat.com
   # @case_id OCP-9712
   @admin
   @destructive
   Scenario: Creating project with template with quota/limit range
-    Given I have a project
-    Given I obtain test data file "templates/create-bootstrap-quota-limit-template.yaml"
-    When I run the :create client command with:
+    Given admin ensures "project-request" templates is deleted from the "openshift-config" project after scenario
+    Given I register clean-up steps:
+    """
+    Given as admin I successfully merge patch resource "project.config.openshift.io/cluster" with:
+      | { "spec": { "projectRequestTemplate": {"name": null}}} |
+    """
+    #Using merge patch to update cluster setting
+    Given as admin I successfully merge patch resource "project.config.openshift.io/cluster" with:
+      | { "spec": { "projectRequestTemplate": {"name": "project-request" }}} |
+    And I obtain test data file "templates/create-bootstrap-quota-limit-template.yaml"
+    When I run the :create admin command with:
       | f | create-bootstrap-quota-limit-template.yaml |
+      | n | openshift-config                           |
     Then the step should succeed
-    Given master config is merged with the following hash:
-    """
-    projectConfig:
-      projectRequestTemplate: "<%= project.name %>/project-request"
-    """
-    And the master service is restarted on all master nodes
+    # After cluster updated, it requires around 2min to take effect
+    Given 120 seconds have passed
     When I run the :new_project client command with:
       | project_name | demo                                             |
       | description  | This is the first demo project with OpenShift v3 |
@@ -37,5 +43,5 @@ Feature: relate with destructive features
       | resourcequotas.*1                                                |
       | secrets.*10                                                      |
       | services.*5                                                      |
-      | Container\\s+memory\\s+-\\s+-\\s+512Mi                           |
-      | Container\\s+cpu\\s+-\\s+-\\s+200m                               |
+      | Container\\s+memory\\s+-\\s+-\\s+256Mi\\s+512Mi                  |
+      | Container\\s+cpu\\s+-\\s+-\\s+100m\\s+200m                       |
