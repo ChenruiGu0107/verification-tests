@@ -291,14 +291,16 @@ Feature: taint toleration related scenarios
     Given I have a project
     Given I store the schedulable workers in the :nodes clipboard
     Given the taints of the nodes in the clipboard are restored after scenario
-    When I run the :oadm_taint_nodes admin command with:
+    Given node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
-      | key_val   | dedicated=special-user:NoSchedule               |
-      | key_val   | size=large:NoSchedule                           |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
     Then the step should succeed
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[0].name %> |
-      | key_val   | size-                   |
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
     Then the step should succeed
     Given I obtain test data file "pods/tolerations/pod-no-toleration1.yaml"
     When I run the :create client command with:
