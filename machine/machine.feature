@@ -154,7 +154,7 @@ Feature: Machine features testing
     """
     
   # @author zhsun@redhat.com
-  # @case_id OCP-30836
+  # @case_id OCP-32392
   @admin
   @destructive
   Scenario: Create windows VM using machineset on Azure
@@ -171,9 +171,9 @@ Feature: Machine features testing
       | namespace     | openshift-machine-api   |
       | o             | yaml                    |
     Then the step should succeed
-    And I save the output to file> machineset-clone-30836.yaml
-    And I replace content in "machineset-clone-30836.yaml":
-      | <%= machine_set.name %> | win-30836                         |
+    And I save the output to file> machineset-clone-32392.yaml
+    And I replace content in "machineset-clone-32392.yaml":
+      | <%= machine_set.name %> | win-32392                         |
       | /osType.*/              | osType: Windows                   |
       | /offer.*/               | offer: WindowsServer              |
       | /publisher.*/           | publisher: MicrosoftWindowsServer |
@@ -183,9 +183,9 @@ Feature: Machine features testing
       | /replicas.*/            | replicas: 1                       |
 
     When I run the :create admin command with:
-      | f | machineset-clone-30836.yaml |
+      | f | machineset-clone-32392.yaml |
     Then the step should succeed
-    And admin ensures "win-30836" machineset is deleted after scenario
+    And admin ensures "win-32392" machineset is deleted after scenario
 
     # Verify machine could be created successful
     Given I store the last provisioned machine in the :win_machine clipboard
