@@ -7,16 +7,10 @@ Feature: customize console related
     Given the master version >= "4.1"
     Given I register clean-up steps:
     """
-    When I run the :patch admin command with:
-      | resource | console.operator/cluster         |
-      | type     | merge                            |
-      | p        | {"spec":{"customization": null}} |
-    Then the step should succeed
-    When I run the :patch admin command with:
-      | resource | console.config/cluster            |
-      | type     | merge                             |
-      | p        | {"spec":{"authentication": null}} |
-    Then the step should succeed
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"customization": null}} |
+    Given as admin I successfully merge patch resource "console.config/cluster" with:
+      | {"spec":{"authentication": null}} |
     """
 
     When I run the :get admin command with:
@@ -62,8 +56,7 @@ Feature: customize console related
       | logo_source  | okd-logo |
       | product_name | OKD      |
     Then the step should succeed
-    When I perform the :check_link_and_text web action with:
-      | text     | documentation               |
+    When I perform the :check_customized_documentation_link_in_helpmenu web action with:
       | link_url | https://docs.okd.io/latest/ |
     Then the step should succeed
 
