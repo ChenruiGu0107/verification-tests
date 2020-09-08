@@ -167,27 +167,27 @@ Feature: Testing registry
     Given I switch to cluster admin pseudo user
     When I use the "openshift-image-registry" project
     Given current generation number of "image-registry" deployment is stored into :before_change clipboard
-    And all existing pods are ready with labels:
+    Then I store in the :podas clipboard the pods labeled:
       | docker-registry=default |
     And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
-      | {"spec":{"replicas": 1,"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]}} |
+      | {"spec":{"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Exists"}]}} |
     And I register clean-up steps:
     """
-    When I run the :delete client command with:
-      | object_type       | configs.imageregistry.operator.openshift.io |
-      | object_name_or_id | cluster                                     |
-      | wait              | false                                       |
-    Then the step should succeed
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+      | {"spec":{"tolerations":null}} |
     """
     And I wait for the steps to pass:
     """
     Given current generation number of "image-registry" deployment is stored into :after_change clipboard
     And the expression should be true> cb.after_change - cb.before_change >=1
     """
-    And I wait for the pod to die regardless of current status
-    And a pod becomes ready with labels:
+    And I repeat the following steps for each :poda in cb.podas:
+    """
+    And I wait for the pod named "#{cb.poda.name}" to die regardless of current status
+    """
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
+    Then I store in the :podbs clipboard the pods labeled:
       | docker-registry=default |
-    Then the expression should be true> node(pod.node_name).is_master?
     Given I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
       | {"spec":{"tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal","value": "myvalue"}]}} |
     And I wait for the steps to pass:
@@ -195,10 +195,17 @@ Feature: Testing registry
     Given current generation number of "image-registry" deployment is stored into :change_twice clipboard
     And the expression should be true> cb.change_twice - cb.after_change >=1
     """
-    And I wait for the pod to die regardless of current status
-    And a pod becomes ready with labels:
+    And I repeat the following steps for each :podb in cb.podbs:
+    """
+    And I wait for the pod named "#{cb.podb.name}" to die regardless of current status
+    """
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
+    Then I store in the :podcs clipboard the pods labeled:
       | docker-registry=default |
-    Then the expression should be true> node(pod.node_name).is_worker?
+    And I repeat the following steps for each :podc in cb.podcs:
+    """
+    Then the expression should be true> node(cb.podc.node_name).is_worker?
+    """
 
   # @author xiuwang@redhat.com
   # @case_id OCP-21482

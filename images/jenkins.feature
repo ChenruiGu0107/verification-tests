@@ -127,7 +127,7 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | jenkins/nodejs=true |
+      | jenkins=slave |
     Given the "sample-pipeline-1" build completes
 
     Examples:
