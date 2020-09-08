@@ -1,8 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: ocp-28961-story-rules
-  namespace: ocp-28961-proj
+  name: story-rules
 spec:
   groups:
   - name: recording.rules
@@ -15,20 +14,21 @@ spec:
     rules:
     - alert: KubePodNotReady
       expr: sum by(namespace, pod) (max by(namespace, pod) (kube_pod_status_phase{job="kube-state-metrics",namespace=~"(test.*)",phase=~"Pending|Unknown"}) * on(namespace, pod) group_left(owner_kind) max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})) > 0
-      for: 1m
+      for: 5m
       labels:
         severity: critical
       annotations:
-        message: Pod {{ $labels.namespace }}/{{ $labels.pod }} has been in a non-ready state for longer than 1 minute.
+        message: Pod {{ $labels.namespace }}/{{ $labels.pod }} has been in a non-ready state for longer than 5 minutes.
     - alert: Watchdog
       expr: vector(1)
       labels:
         severity: none
-      message:
-        This is an alert meant to ensure that the entire alerting pipeline is functional.
+      annotations:
+        message: This is an alert meant to ensure that the entire alerting pipeline is functional.
     - alert: TargetDown
       expr: 100 * (count by(job, namespace, service) (up == 0) / count by(job, namespace, service) (up)) > 10
       for: 1m
       labels:
         severity: warning
-      message: '{{ printf "%.4g" $value }}% of the {{ $labels.job }}/{{ $labels.service }} targets in {{ $labels.namespace }} namespace are down.'
+      annotations:
+        message: '{{ printf "%.4g" $value }}% of the {{ $labels.job }}/{{ $labels.service }} targets in {{ $labels.namespace }} namespace are down.'

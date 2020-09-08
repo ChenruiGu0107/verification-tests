@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: watchdog.rules
+  namespace: ocp-29824-proj
+spec:
+  groups:
+  - name: alerting rules
+    rules:
+    - alert: Watchdog
+      expr: vector(1)
+      labels:
+        severity: none
+      message:
+        This is an alert meant to ensure that the entire alerting pipeline is functional.

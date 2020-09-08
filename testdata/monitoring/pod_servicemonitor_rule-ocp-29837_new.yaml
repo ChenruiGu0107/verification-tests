@@ -1,0 +1,46 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: drill.rules
+  namespace: ocp-29837-proj
+spec:
+  groups:
+  - name: alerting rules
+    rules:
+    - alert: Drill
+      expr: vector(100)
+      labels:
+        severity: none
+      annotations:
+        message: vector(100)
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  labels:
+    app: prometheus-example-app
+  name: new-podmonitor
+  namespace: ocp-29837-proj
+spec:
+  podMetricsEndpoints:
+  - interval: 30s
+    port: web
+  selector:
+    matchLabels:
+      app: prometheus-example-app
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: prometheus-example-monitor
+  name: new-servicemonitor
+  namespace: ocp-29837-proj
+spec:
+  endpoints:
+  - interval: 30s
+    port: web
+    scheme: http
+  selector:
+    matchLabels:
+      app: prometheus-example-app
