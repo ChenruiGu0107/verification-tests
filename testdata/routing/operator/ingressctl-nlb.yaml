@@ -1,0 +1,18 @@
+kind: IngressController
+apiVersion: operator.openshift.io/v1
+metadata:
+  name: nlb
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: router-certs-default
+  domain: nlb.example.com
+  replicas: 1
+  endpointPublishingStrategy:
+    loadBalancer:
+      providerParameters:
+        aws:
+          type: NLB
+        type: AWS
+      scope: Internal
+    type: LoadBalancerService
