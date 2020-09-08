@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-ocp34018
+  name: app-ocp34018
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-ocp34018
+  template:
+    metadata:
+      labels:
+        app: app-ocp34018
+        foo: bar
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            foo: bar
+      containers:
+      - image: quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105
+        name: pause
