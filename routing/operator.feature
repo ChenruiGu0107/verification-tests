@@ -520,3 +520,26 @@ Feature: Testing Ingress Operator related scenarios
     Then the step should fail
     And the output should contain "invalid"
 
+  # @author hongli@redhat.com
+  # @case_id OCP-33763
+  @admin
+  Scenario: ingresscontroller supports AWS NLB
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-33763" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctl-nlb.yaml"
+    When I run oc create over "ingressctl-nlb.yaml" replacing paths:
+      | ["metadata"]["name"] | test-33763                                    |
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-33763") %> |
+    Then the step should succeed
+
+    # ensure the NLB service is created
+    Given I use the "openshift-ingress" project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-33763 |
+    Then the expression should be true> service('router-test-33763').exists?
+    And the expression should be true> service('router-test-33763').annotation("service.beta.kubernetes.io/aws-load-balancer-type") == "nlb"
+    And the expression should be true> service('router-test-33763').annotation("service.beta.kubernetes.io/aws-load-balancer-internal") == "0.0.0.0/0"
+
