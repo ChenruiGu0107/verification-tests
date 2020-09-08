@@ -812,15 +812,15 @@ Feature: alerts browser
     #Open alert rule page
     When I run the :goto_monitoring_alertrules_page web action
     Then the step should succeed
-    #Filter silence alerts by state
-    #By default, Active/Inactive disabled, all display
+    #Filter alerting rules by state
+    #By default, all alerting rules from platform are displayed
     When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
-    #Enable Active
+    #Enable Firing
     When I perform the :list_alerts_by_filters web action with:
-      | filter_item | true |
+      | filter_item | firing |
     Then the step should succeed
     When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
@@ -828,7 +828,7 @@ Feature: alerts browser
     Then the step should succeed
     #Enable inactive and diable active
     When I perform the :list_alerts_by_filters_clear web action with:
-      | filter_item | false |
+      | filter_item | pending |
     Then the step should succeed
     When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |
@@ -842,12 +842,12 @@ Feature: alerts browser
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
-    #Enable severity critical and state inactive
+    #Enable severity critical and state pending
     When I perform the :list_alerts_by_filters_clear web action with:
       | filter_item | critical |
     Then the step should succeed
     When I perform the :list_alerts_by_filters web action with:
-      | filter_item | false |
+      | filter_item | pending |
     Then the step should succeed
     When I perform the :status_specific_alert_rule_no_clear web action with:
       | alert_name | Watchdog |

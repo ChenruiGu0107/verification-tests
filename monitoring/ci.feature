@@ -1047,6 +1047,7 @@ Feature: Install and configuration related scenarios
       | prometheus-user-workload-grpc-tls |
       | thanos-ruler-grpc-tls             |
     """
+  
   # @author hongyli@redhat.com
   # @case_id OCP-33446
   @admin
@@ -1060,10 +1061,7 @@ Feature: Install and configuration related scenarios
     When I run the :get client command with:
       | resource | node |
     And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}[1]` is stored in the :node_name clipboard
-    When I run the :oadm_top_node admin command with:
-      | node_name | <%= cb.node_name %> |
-    Then the step should succeed
-    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s+/)}[1][2].chop` is stored in the :top_cpu_usage clipboard
+
     #query an metric
     When I perform the HTTP request:
     """
@@ -1074,8 +1072,14 @@ Feature: Install and configuration related scenarios
     """
     Then the step should succeed
     When evaluation of `@result[:parsed]["data"]["result"][0]["value"][1]` is stored in the :metric_cpu_usage clipboard
+
+    When I run the :oadm_top_node admin command with:
+      | node_name | <%= cb.node_name %> |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s+/)}[1][2].chop` is stored in the :top_cpu_usage clipboard
+
     And evaluation of `cb.top_cpu_usage.to_f-cb.metric_cpu_usage.to_f` is stored in the :metric_cpu_usage_diff clipboard
-    Then the expression should be true> cb.metric_cpu_usage_diff <= 4 && cb.metric_cpu_usage_diff >= -4
+    Then the expression should be true> cb.metric_cpu_usage_diff <= 6 && cb.metric_cpu_usage_diff >= -6
 
   # @author hongyli@redhat.com
   # @case_id OCP-33244
