@@ -237,8 +237,10 @@ Feature: Only about install page
     When I perform the :check_bare_metal_install_page web action with:
       | title | Install OpenShift on Bare Metal with user-provisioned infrastructure |
     Then the step should succeed
-    When I perform the :check_breadcrumbs_exclude_infrastructure_in_install_page web action with:
-      | provider_name | Bare Metal |
+    When I perform the :check_breadcrumbs_include_infrastructure_in_install_page web action with:
+      | provider_link  | metal                           |
+      | provider_name  | Bare Metal                      |
+      | infrastructure | User-provisioned infrastructure |
     Then the step should succeed
 
   # @author tzhou@redhat.com
