@@ -13,12 +13,6 @@ Feature: Audit logs related scenarios
     Then the step should succeed
     And the pod named "hello-openshift-1-deploy" becomes present
 
-    # Repeat the same step and it should fail
-    When I run the :create_deploymentconfig client command with:
-      | image | quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073 |
-      | name  | hello-openshift                                                                                               |
-    Then the step should fail
-
     # Scale deploymentconfig
     When I run the :scale client command with:
       | resource | dc                  |
@@ -68,11 +62,6 @@ Feature: Audit logs related scenarios
     Then the step should succeed
     And the output should contain:
       | "resource":"deploymentconfigs","namespace":"<%= project.name %>","name":"hello-openshift" |
-    When admin executes on the pod:
-      | bash  | -c | oc adm node-logs --role=master --path=openshift-apiserver/audit.log \| grep <%= cb.users_uid %>.*deploymentconfigs.*<%= project.name %>.*AlreadyExists \| tail |
-    Then the step should succeed
-    And the output should contain:
-      | "status":"Failure","reason":"AlreadyExists","code":409 |
     When admin executes on the pod:
       | bash  | -c | oc adm node-logs --role=master --path=kube-apiserver/audit.log \| grep openshift/scale.*<%= cb.users_uid %> \| tail -5 |
     Then the step should succeed
