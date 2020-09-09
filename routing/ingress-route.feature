@@ -153,3 +153,120 @@ Feature: Testing ingress to route object
     Then the step should succeed
     And the output should contain "Hello-OpenShift-2"
     """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-33960
+  Scenario: Setting "route.openshift.io/termination" annotation to "Edge" in ingress resource deploys "Edge" terminated route object
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Create secret certificate for ingress edge termination in the project 
+    Given I obtain test data file "routing/ingress/ingress-secret.yaml"
+    When I run the :create client command with:
+      | f | ingress-secret.yaml |
+    Then the step should succeed
+   
+    # Create pods and backend service
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+
+    # create ingress resource with edge termination and check the reachability of the route
+    Given I obtain test data file "routing/ingress/ingress-resource.yaml"
+    And I run oc create over "ingress-resource.yaml" replacing paths:
+      | ["spec"]["rules"][0]["host"]   | ingress-edge-<%= project.name %>.<%= cb.subdomain %> |
+      | ["spec"]["tls"][0]["hosts"][0] | ingress-edge-<%= project.name %>.<%= cb.subdomain %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the output should contain "edge/Redirect"
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "https://ingress-edge-<%= project.name %>.<%= cb.subdomain %>" url
+    And the output should contain "Hello-OpenShift-1"
+    """
+
+    
+  # @author aiyengar@redhat.com
+  # @case_id OCP-33962
+  Scenario: Setting "route.openshift.io/termination" annotation to "Reencrypt" in ingress resource deploys "reen" terminated route object
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy secure service with signed secret annotation
+    Given I obtain test data file "routing/ingress/signed-service.json"
+    When I run the :create client command with:
+      | f | signed-service.json |
+    And the step should succeed
+    And I check that the "service-secret" secret exists
+
+    # Create secret certificate for ingress reencypt termination in the project 
+    Given I obtain test data file "routing/ingress/ingress-secret.yaml"
+    When I run the :create client command with:
+      | f | ingress-secret.yaml |
+    Then the step should succeed
+
+    # Deploy a pod with secret volume and mountpaths
+    Given I obtain test data file "routing/ingress/caddy-secure.yaml"
+    When I run the :create client command with:
+      | f | caddy-secure.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+
+    # create ingress resource with reencrypt termination and check the routes
+    Given I obtain test data file "routing/ingress/ingress-resource.yaml"
+    And I run oc create over "ingress-resource.yaml" replacing paths:
+      | ["metadata"]["name"]                                                             | ingress-reencrypt                                         |
+      | ["spec"]["rules"][0]["host"]                                                     | ingress-reencrypt-<%= project.name %>.<%= cb.subdomain %> |
+      | ["spec"]["tls"][0]["hosts"][0]                                                   | ingress-reencrypt-<%= project.name %>.<%= cb.subdomain %> |
+      | ["metadata"]["annotations"]["route.openshift.io/termination"]                    | reencrypt                                                 |
+      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["service"]["name"]           | service-secure                                            |
+      | ["spec"]["rules"][0]["http"]["paths"][0]["backend"]["service"]["port"]["number"] | 27443                                                     |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the output should contain "reencrypt/Redirect"
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "https://ingress-reencrypt-<%= project.name %>.<%= cb.subdomain %>" url
+    And the output should contain "Hello-OpenShift-1"
+    """
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-33986
+  Scenario: Setting values other than "edge/passthrough/reencrypt" for "route.openshift.io/termination" annotation are ignored by ingress object
+    Given the master version >= "4.6"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard 
+
+    # Create secret certificate for ingress edge termination in the project 
+    Given I obtain test data file "routing/ingress/ingress-secret.yaml"
+    When I run the :create client command with:
+      | f | ingress-secret.yaml |
+    Then the step should succeed
+
+    # Create pods and backend service
+    Given I obtain test data file "routing/list_for_caddy.json"
+    When I run oc create over "list_for_caddy.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+
+    # create ingress resource with edge termination and check the routes
+    Given I obtain test data file "routing/ingress/ingress-resource.yaml"
+    And I run oc create over "ingress-resource.yaml" replacing paths:
+      | ["spec"]["rules"][0]["host"]                                  | 33986-<%= project.name %>.example.com |
+      | ["spec"]["tls"][0]["hosts"][0]                                | 33986-<%= project.name %>.example.com |
+      | ["metadata"]["annotations"]["route.openshift.io/termination"] | abcd                                  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the output should contain "edge/Redirect"
