@@ -87,7 +87,6 @@ Feature: podTopologySpreadConstraints
      And the output should not contain "<%= cb.nodes[2].name %>"
 
   # @author knarra@redhat.com
-  # @case_id OCP-33767
   @admin
   @destructive
   Scenario Outline: Validate TopologySpreadConstraints with nodeSelector/NodeAffinity
