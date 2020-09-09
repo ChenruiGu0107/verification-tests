@@ -898,7 +898,7 @@ Feature: operatorhub feature related
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed
-    Given admin checks that the "example" etcdcluster exists in the "<%= project.name %>" project
+    Given admin checks that the "example" etcd_cluster exists in the "<%= project.name %>" project
 
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | postgresql          |
@@ -947,7 +947,7 @@ Feature: operatorhub feature related
     When I run the :click_create_button web action
     Then the step should succeed
     Given admin checks that the "kiali" kiali exists in the "<%= project.name %>" project  
-    
+   
     #check phase status
     When I run the :get admin command with:
       | resource      | etcdcluster         |
