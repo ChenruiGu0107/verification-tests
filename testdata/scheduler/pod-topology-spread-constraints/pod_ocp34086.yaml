@@ -1,0 +1,23 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: pod-ocp34086-2
+  labels:
+    foo: bar
+spec:
+  topologySpreadConstraints:
+  - maxSkew: 2
+    topologyKey: zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        foo: bar
+  - maxSkew: 2
+    topologyKey: node
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        foo: bar
+  containers:
+  - name: pause
+    image: quay.io/openshifttest/pause@sha256:b31bfb4d0213f254d361e0079deaaebefa4f82ba7aa76ef82e90b4935ad5b105
