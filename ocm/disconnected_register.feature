@@ -21,7 +21,7 @@ Feature: Only for case related to disconnected cluster register page
     Then the step should succeed
     When I perform the :check_disconnected_cluster_overview_information web action with:
       | cluster_name     | sdqe-ui-disconnected          |
-      | operating_system |Red Hat Enterprise Linux CoreOS|
+      | operating_system | N/A                           |
       | sockets_type     ||
     Then the step should succeed
     When I run the :go_to_cluster_list_page web action
@@ -30,7 +30,7 @@ Feature: Only for case related to disconnected cluster register page
       | cluster_name | sdqe-ui-disconn-vcpu-type |
     Then the step should succeed
     When I perform the :check_disconnected_cluster_overview_information web action with:
-      | cluster_name     | sdqe-ui-disconn-vcpu-type       |
-      | operating_system | Red Hat Enterprise Linux CoreOS |
+      | cluster_name     | sdqe-ui-disconn-vcpu-type |
+      | operating_system | N/A                       |
       | vcpu_type        ||
     Then the step should succeed
