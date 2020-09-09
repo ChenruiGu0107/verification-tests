@@ -414,3 +414,43 @@ Feature: podTopologySpreadConstraints
     Then the step should succeed
     And the pod named "pod-ocp33765-2" status becomes :running
     And the expression should be true> pod.node_name == cb.nodes[2].name
+
+  # @author knarra@redhat.com
+    # @case_id OCP-34085
+    @admin
+    @destructive
+    Scenario: Validate multiple TopologySpreadConstraints with NodeAffinity
+      Given the master version >= "4.6"
+      Given I store the schedulable workers in the :nodes clipboard
+      # Add labels to the nodes
+      Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+      Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
+      Given the "<%= cb.nodes[2].name %>" node labels are restored after scenario
+      Given the "<%= cb.nodes[3].name %>" node labels are restored after scenario
+      And label "zone=zoneA" is added to the "<%= cb.nodes[0].name %>" node
+      And label "node=node1" is added to the "<%= cb.nodes[0].name %>" node
+      And label "zone=zoneA" is added to the "<%= cb.nodes[1].name %>" node
+      And label "node=node2" is added to the "<%= cb.nodes[1].name %>" node
+      And label "zone=zoneB" is added to the "<%= cb.nodes[2].name %>" node
+      And label "node=node3" is added to the "<%= cb.nodes[2].name %>" node
+      And label "node=node4" is added to the "<%= cb.nodes[3].name %>" node
+      And label "zone=zoneC" is added to the "<%= cb.nodes[3].name %>" node
+      # Test runs here
+      Given I have a project
+      And I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp34017.yaml"
+      When I run oc create over "pod_ocp34017.yaml" replacing paths:
+        | ["metadata"]["name"] | pod-ocp34085-1 |
+      Then the step should succeed
+      And the pod named "pod-ocp34085-1" status becomes :running
+      And the expression should be true> pod.node_name == cb.nodes[0].name
+      Given I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp34085.yaml"
+      When I run the :create client command with:
+        | f | pod_ocp34085.yaml |
+      Then the step should succeed
+      And the pod named "pod-ocp34085-2" status becomes :running
+      And the expression should be true> pod.node_name == cb.nodes[2].name
+      When I run oc create over "pod_ocp34085.yaml" replacing paths:
+        | ["metadata"]["name"] | pod-ocp34085-3 |
+      Then the step should succeed
+      And the pod named "pod-ocp34085-3" status becomes :running
+      And the expression should be true> pod.node_name == cb.nodes[1].name
