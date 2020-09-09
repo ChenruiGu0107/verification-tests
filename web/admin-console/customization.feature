@@ -13,38 +13,35 @@ Feature: customize console related
       | {"spec":{"authentication": null}} |
     """
 
-    When I run the :get admin command with:
-      | resource      | deployment        |
-      | resource_name | console           |
-      | o             | yaml              |
-      | namespace     | openshift-console |
-    Then the step should succeed
-    And evaluation of `@result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i` is stored in the :version_before_deploy clipboard
-
-    When I run the :patch admin command with:
-      | resource | console.operator/cluster |
-      | type     | merge                    |
-      | p        | {"spec":{"customization": {"brand":"okd","documentationBaseURL":"https://docs.okd.io/latest/"}}} |
-    Then the step should succeed
-    When I run the :patch admin command with:
-      | resource | console.config/cluster |
-      | type     | merge                  |
-      | p        | {"spec":{"authentication": {"logoutRedirect":"https://www.openshift.com"}}} |
-    Then the step should succeed
-
-    Given I wait for the steps to pass:
-    """
-    When I run the :get admin command with:
-      | resource      | deployment        |
-      | resource_name | console           |
-      | o             | yaml              |
-      | namespace     | openshift-console |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]["metadata"]["annotations"]["deployment.kubernetes.io/revision"].to_i > <%= cb.version_before_deploy %>
-    """
-
     Given I switch to cluster admin pseudo user
     And I use the "openshift-console" project
+    And evaluation of `deployment("console").generation_number(cached: false)` is stored in the :before_change clipboard
+    Given as admin I successfully merge patch resource "console.config/cluster" with:
+      | {"spec":{"authentication": {"logoutRedirect":"https://www.openshift.com"}}} |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I get project configmap named "console-config" as JSON
+    Then the output should match:
+      | logoutRedirect: https://www.openshift.com |
+    """
+
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    And the expression should be true> deployment("console").generation_number(cached: false) > <%= cb.before_change %>
+    Given number of replicas of the current replica set for the "console" deployment becomes:
+      | desired  | 2 |
+      | current  | 2 |
+      | ready    | 2 |
+    """
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"customization": {"brand":"okd","documentationBaseURL":"https://docs.okd.io/latest/"}}} |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I get project configmap named "console-config" as JSON
+    Then the output should match:
+      | documentationBaseURL: https://docs.okd.io/latest/ |
+    """
+    And the expression should be true> deployment("console").generation_number(cached: false) > <%= cb.before_change %> + 1
     Given number of replicas of the current replica set for the "console" deployment becomes:
       | desired  | 2 |
       | current  | 2 |
@@ -62,6 +59,7 @@ Feature: customize console related
 
     When I run the :click_logout web action
     Then the step should succeed
+
     And I wait up to 60 seconds for the steps to pass:
     """
     Given the expression should be true> browser.url.match("https://www.openshift.com")
