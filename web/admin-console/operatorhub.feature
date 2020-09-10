@@ -599,22 +599,33 @@ Feature: operatorhub feature related
   @admin
   Scenario: Check marketplace operator annotations
     Given the master version >= "4.4"
-    Given I have a project
+    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
     Given the first user is cluster-admin
-    When I open admin console in a browser
+    Given I use the "openshift-marketplace" project
+    Given I obtain test data file "olm/catalogsource-template.yaml"
+    When I process and create:
+      | f | catalogsource-template.yaml                        |
+      | p | NAME=uiauto-operators                              |
+      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:0908 | 
+      | p | DISPLAYNAME=UI Auto Test Catalog                   |
     Then the step should succeed
+    Given a pod becomes ready with labels:
+      | olm.catalogSource=uiauto-operators |
     When I run the :get client command with:
       | resource      | packagemanifests      |
-      | resource_name | tigera-operator       |
+      | resource_name | argocd-operator       |
       | n             | openshift-marketplace |
       | output        | yaml                  |
     Then the step should succeed
     Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/action-text"]` is stored in the :actiontext clipboard
     Given evaluation of `@result[:parsed]["status"]["channels"][0]["currentCSVDesc"]["annotations"]["marketplace.openshift.io/remote-workflow"]` is stored in the :remoteworkflow clipboard
+    
+    When I open admin console in a browser
+    Then the step should succeed
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
     When I perform the :open_operator_modal web action with:
-      | operator_name | Tigera |
+      | operator_name | Argo CD ui test |
     Then the step should succeed
     When I perform the :check_link_and_text web action with:
       | text     | <%= cb.actiontext %>     |
@@ -624,12 +635,12 @@ Feature: operatorhub feature related
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
     When I perform the :click_checkbox_from_provider_type web action with:
-      | text | Marketplace |
+      | text | UI Auto Test Catalog |
     Then the step should succeed
     When I perform the :open_operator_modal web action with:
-      | operator_name | Hazelcast Jet |
+      | operator_name | Teiid |
     Then the step should succeed
-    When I run the :check_Hazelcastjet_default_action_and_remote_workflow web action
+    When I run the :check_operator_purchase_link web action
     Then the step should succeed
 
   # @author hasha@redhat.com
