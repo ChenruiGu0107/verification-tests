@@ -347,8 +347,26 @@ Feature: only about page related to cluster login page
     Then the step should succeed
     When I run the :check_no_input_errors_to_required_aws_items web action
     Then the step should succeed
-    When I run the :check_invalid_aws_credential_error_message web action
+    When I perform the :check_invalid_aws_credential_error_message web action with:
+      | account_id     | 111111111111                               |
+      | aws_access_key | invalidaccesskey                           |
+      | aws_secret     | invalidawssecret                           |
+      | error_reason   | The provided AWS credentials are not valid |
+      | cluster_name   | aws-test                                   |
+      | machine_type   | m5.xlarge                                  |
     Then the step should succeed
+    Given I saved following keys to list in :accountids clipboard:
+      | aaa                  ||
+      | 111                  ||
+      | abcd.abcd.abcd       ||
+      | 1222000000222aaa     ||
+    When I repeat the following steps for each :accountid in cb.accountids:
+    """
+    When I perform the :check_aws_account_id_error_message web action with:
+      | account_id    | #{cb.accountid}                                    |
+      | error_message | AWS account ID must be a 12 digits positive number.|
+    Then the step should succeed
+    """
 
   # @author xueli@redhat.com
   # @case_id OCP-21801
@@ -366,7 +384,8 @@ Feature: only about page related to cluster login page
     When I repeat the following steps for each :region in cb.regions:
     """
     When I perform the :check_non_support_multi_az_region_error_message web action with:
-      | region_id | #{cb.region} |
+      | no_regions ||
+      | region_id  | #{cb.region} |
     Then the step should succeed
     """
   
