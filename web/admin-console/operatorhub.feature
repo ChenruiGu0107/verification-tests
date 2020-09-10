@@ -141,17 +141,37 @@ Feature: operatorhub feature related
   Scenario: Check container security on console
     Given the master version >= "4.4"
     Given I have a project
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     Given I obtain test data file "deployment/vul_deployment.yaml"
     When I run the :create client command with:
       | f | vul_deployment.yaml |
     Then the step should succeed
+
+    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
     Given the first user is cluster-admin
-    Given I open admin console in a browser
+    Given I use the "openshift-marketplace" project
+    Given I obtain test data file "olm/catalogsource-template.yaml"
+    When I process and create:
+      | f | catalogsource-template.yaml                            |
+      | p | NAME=uiauto-operators                                  |
+      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:latest   |
+      | p | DISPLAYNAME=UI Auto Test Catalog                       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | olm.catalogSource=uiauto-operators |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project packagemanifests
+    Then the output should match:
+      | container-security-operator.*UI Auto Test Catalog |
+    """
+    Given I use the "<%= cb.userproject_name %>" project
 
     # install container security operator
+    Given I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | container-security-operator |
-      | catalog_name     | community-operators         |
+      | catalog_name     | uiauto-operators            |
       | target_namespace | <%= project.name %>         |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -161,7 +181,6 @@ Feature: operatorhub feature related
     Then the step should succeed
 
     # wait until container security operator is successfully installed
-    Given I use the "<%= project.name %>" project
     Given a pod becomes ready with labels:
       | name=container-security-operator-alm-owned |
     Then I wait for the "sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d" image_manifest_vuln to appear in the "<%= project.name %>" project up to 30 seconds
@@ -209,13 +228,12 @@ Feature: operatorhub feature related
     When I perform the :goto_installed_operators_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    Given I wait up to 40 seconds for the steps to pass:
+    Given I wait up to 20 seconds for the steps to pass:
     """
     When I perform the :uninstall_operator_on_console web action with:
-      | resource_name | Container Security |
+      | resource_name | Quay Container Security |
     Then the step should succeed
     """
-    Given I use the "<%= project.name %>" project
     And I wait for the resource "subscription" named "container-security-operator" to disappear within 30 seconds
 
   # @author xiaocwan@redhat.com
