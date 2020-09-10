@@ -440,3 +440,46 @@ Feature: Node management
       | hooks_dir = [               |
       | /etc/containers/oci/hooks.d |
 
+  # @author weinliu@redhat.com
+  # @case_id OCP-12808
+  @admin
+  Scenario: Kubelet should remove configmap volumes when pod is terminated
+    Given I have a project
+    And I obtain test data file "configmap/OCP-12808/terminatedpods-configmap.yaml"
+    When I run the :create client command with:
+      | f | terminatedpods-configmap.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod-1" status becomes :succeeded
+    And evaluation of `pod.node_name` is stored in the :pod1_node clipboard
+    And evaluation of `pod.uid(user: user)` is stored in the :pod1_uid clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/hello-pod-1 |
+    Then the step should succeed
+    And the output should contain:
+      | verycharm |
+    Given I use the "<%= cb.pod1_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~configmap/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~configmap/configmap-volume |
+    Then the output should contain:
+      | No such file or directory |
+    Given the pod named "hello-pod-2" status becomes :failed
+    And evaluation of `pod.node_name` is stored in the :pod2_node clipboard
+    And evaluation of `pod.uid(user: user)` is stored in the :pod2_uid clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/hello-pod-2 |
+    Then the step should succeed
+    And the output should contain:
+      | verycharm |
+    Given I use the "<%= cb.pod2_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~configmap/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~configmap/configmap-volume |
+    Then the output should contain:
+      | No such file or directory |
