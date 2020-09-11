@@ -1075,3 +1075,49 @@ Feature: operatorhub feature related
     When I perform the :check_k8sresource_dropdown_items web action with:
       | item | mock-k8s-dropdown-resource-instance-2 |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-33743
+  @admin
+  Scenario: Add button to operator install workflow to direct user to create operand based on annotation
+    Given the master version >= "4.6"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+
+    # check required badge and button during operator installation phase
+    Given I switch to the first user
+    Given I have a project
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :goto_operator_subscription_page web action with:
+      | package_name     | portworx-essentials    |
+      | catalog_name     | ui-auto-operators      |
+      | target_namespace | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :check_required_badge_on_operator_installation_page web action
+    Then the step should succeed
+    When I perform the :select_target_namespace web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_subscribe_button web action
+    Then the step should succeed
+    When I run the :check_create_operand_button_and_requied_badge_when_ready web action
+    Then the step should succeed
+    When I perform the :check_operand_button_link web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+
+    # check required badge and button on CSV details page
+    When I perform the :goto_csv_detail_page web action with:
+      | project_name | <%= project.name %>        |
+      | csv_name     | portworx-essentials.v1.3.4 |
+    Then the step should succeed
+    When I perform the :check_create_operand_button_and_requied_badge_on_csv_details web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :click_create_storagecluster_button web action
+    Then the step should succeed
+    When I run the :switch_to_yaml_view web action
+    Then the step should succeed
+    When I perform the :check_content_in_yaml_editor web action with:
+      | yaml_content | autotest |
+    Then the step should succeed
