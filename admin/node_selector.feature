@@ -257,7 +257,7 @@ Feature: NodeSelector related tests
   # @author chezhang@redhat.com
   # @case_id OCP-12795
   @admin
-  Scenario: Shouldn't update node-selector after create namespace
+  Scenario: Should update node-selector after create namespace
     Given evaluation of `rand_str(5, :dns)` is stored in the :project clipboard
     And admin ensures "<%= cb.project %>" project is deleted after scenario
     Given I obtain test data file "projects/ns1.yaml"
@@ -269,3 +269,87 @@ Feature: NodeSelector related tests
       | resource_name | <%= cb.project %> |
       | p             | {"metadata":{"annotations":{"scheduler.alpha.kubernetes.io/node-selector":"env=#=xyz%\|=\|"}}} |
     Then the step should succeed
+
+  # @author minmli@redhat.com
+  # @case_id OCP-33818
+  @admin
+  @destructive
+  Scenario: ClusterDefaultNodeSelector will be ignored if namespace nodeSelector exist - 4.x
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-kube-apiserver" project
+    Given 3 pods become ready with labels:
+      | app=openshift-kube-apiserver |
+    Given I store in the clipboard the pods labeled:
+      | app=openshift-kube-apiserver |
+    And I register clean-up steps:
+    """
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-kube-apiserver" project
+    Given 3 pods become ready with labels:
+      | app=openshift-kube-apiserver |
+    Given I store in the clipboard the pods labeled:
+      | app=openshift-kube-apiserver |
+    Given as admin I successfully merge patch resource "scheduler/cluster" with:
+      | {"spec":{"defaultNodeSelector":null}} |
+    And I wait up to 1200 seconds for the steps to pass:
+      | When I run the :get client command with:                                            |
+      |   \| resource     \| pod                           \|                               |
+      |   \|resource_name \| <%= cb.pods[0].name %>        \|                               |
+      |   \|template      \| {{.metadata.resourceVersion}} \|                               |
+      | Then the step should succeed                                                        |
+      | Then the expression should be true> @result[:response] > cb.pods[0].resourceVersion |
+      | When I run the :get client command with:                                            |
+      |   \| resource     \| pod                           \|                               |
+      |   \|resource_name \| <%= cb.pods[1].name %>        \|                               |
+      |   \|template      \| {{.metadata.resourceVersion}} \|                               |
+      | Then the step should succeed                                                        |
+      | Then the expression should be true> @result[:response] > cb.pods[1].resourceVersion |
+      | When I run the :get client command with:                                            |
+      |   \| resource     \| pod                           \|                               |
+      |   \|resource_name \| <%= cb.pods[2].name %>        \|                               |
+      |   \|template      \| {{.metadata.resourceVersion}} \|                               |
+      | Then the step should succeed                                                        |
+      | Then the expression should be true> @result[:response] > cb.pods[2].resourceVersion |
+    """
+    Given as admin I successfully merge patch resource "scheduler/cluster" with:
+      | {"spec":{"defaultNodeSelector":"region=west"}} |
+    And I wait up to 1200 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod                           |
+      | resource_name | <%= cb.pods[0].name %>        |
+      | template      | {{.metadata.resourceVersion}} |
+    Then the step should succeed
+    Then the expression should be true> @result[:response] > cb.pods[0].resourceVersion
+    When I run the :get client command with:
+      | resource      | pod                           |
+      | resource_name | <%= cb.pods[1].name %>        |
+      | template      | {{.metadata.resourceVersion}} |
+    Then the step should succeed
+    Then the expression should be true> @result[:response] > cb.pods[1].resourceVersion
+    When I run the :get client command with:
+      | resource      | pod                           |
+      | resource_name | <%= cb.pods[2].name %>        |
+      | template      | {{.metadata.resourceVersion}} |
+    Then the step should succeed
+    Then the expression should be true> @result[:response] > cb.pods[2].resourceVersion
+    """
+    Given I switch to the first user
+    Given I have a project
+    Given I run the :patch admin command with:
+      | resource      | namespace                                                                                              |
+      | resource_name | <%=project.name%>                                                                                      |
+      | p             | {"metadata":{"annotations": {"scheduler.alpha.kubernetes.io/node-selector": "env=test,infra=fedora"}}} |
+    Then the step should succeed
+    Given I obtain test data file "admission/podnodeselector/pod-nodeSelector1.yaml"
+    When I run the :create client command with:
+      | f | pod-nodeSelector1.yaml |
+    Then the step should succeed
+    When I get project pod named "hello-pod" as JSON
+    Then the output should match:
+      | "env": "test"     |
+      | "infra": "fedora" |
+      | "os": "fedora"    |
+    And the output should not match:
+      | "region": "west" |
+
