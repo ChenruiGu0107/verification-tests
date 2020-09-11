@@ -604,16 +604,6 @@ Feature: Cluster Autoscaler Tests
     And admin ensures "workload" job is deleted after scenario
 
     # Verify machineset has scaled
-    Given I wait for the steps to pass:
-    """
-    When I run the :logs admin command with:
-      | resource_name | <%= pod.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | MachineSet "machineset-clone-30387" has nil spec.replicas |
-      | Final scale-up plan                                       |
-    """
-
     And I wait up to 300 seconds for the steps to pass:
     """
     Then the expression should be true> machine_set.desired_replicas(cached: false) == 2
