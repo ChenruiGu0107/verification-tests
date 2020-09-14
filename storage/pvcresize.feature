@@ -305,7 +305,8 @@ Feature: PVC resizing Test
   @admin
   Scenario: Resize many PVCs in the same time
     Given I have a project
-    And admin clones storage class "sc-<%= project.name %>" from ":default" with volume expansion enabled
+    And admin clones storage class "sc-<%= project.name %>" from ":default" with:
+      | ["volumeBindingMode"]    | Immediate |
 
     And I run the steps 5 times:
     """
