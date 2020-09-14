@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: example-alert
+spec:
+  groups:
+  - name: example
+    rules:
+    - alert: HighErrors
+      expr: (sum(rate(http_requests_total{code!~"2.."}[5m])) / sum(rate(http_requests_total[5m])))
+        * 100 > 10
+    - alert: TestAlert
+      expr: vector(1)
+      labels:
+        severity: none
+      annotations:
+        message: This is an alert meant to ensure that the entire alerting pipeline is functional.

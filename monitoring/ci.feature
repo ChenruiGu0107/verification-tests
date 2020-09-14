@@ -1092,11 +1092,6 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And evaluation of `@result[:stdout].split(/\n/)` is stored in the :output_pods clipboard
     And evaluation of `cb.output_pods.map{|n| n.match(/.*Completed.*/)}.compact!.map{|n| n.to_a}.length` is stored in the :completed_pods clipboard
-    When I run the :get admin command with:
-      | resource       | pod  |
-      | all_namespaces | true |
-      | o              | wide |
-    Then the step should succeed
     And evaluation of `cb.output_pods.length-1` is stored in the :all_pods clipboard
     And evaluation of `cb.all_pods - cb.completed_pods` is stored in the :running_pods clipboard
     #query an metric
@@ -1112,6 +1107,36 @@ Feature: Install and configuration related scenarios
     Then the expression should be true> cb.running_pods == cb.metric_running_pods
 
   # @author hongyli@redhat.com
+  # @case_id OCP-33141
+  @admin
+  @destructive
+  Scenario: Apply limits of ingested samples
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "user-workload-monitoring-config" configmap is deleted from the "openshift-user-workload-monitoring" project after scenario
+    And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+
+    #set enforcedSampleLimit
+    Given I obtain test data file "monitoring/config_map_user-workload-monitoring-config.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_user-workload-monitoring-config.yaml |
+      | overwrite | true                                            |
+    Then the step should succeed
+
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait for the "user-workload" prometheus to appear up to 120 seconds
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then the expression should be true> prometheus.enforced_sample_limit(cached: false) == 1
+    """
+
   # @case_id OCP-32623
   @admin
   Scenario: expose thanos-querier rules endpoint
@@ -1133,13 +1158,6 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | ThanosQueryRangeLatencyHigh |
-
-    #enable UserWorkload
-    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_enableUserWorkload.yaml |
-      | overwrite | true                               |
-    Then the step should succeed
 
     #Create one project and prometheus rules under it
     When I run the :new_project client command with:
@@ -1289,6 +1307,22 @@ Feature: Install and configuration related scenarios
       | new-podmonitor |
 
   # @author hongyli@redhat.com
+  # @case_id OCP-33059
+  @admin
+  Scenario: Manage CRDs independently from prometheus-operator in CMO
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    # oc get ClusterRole/prometheus-operator -oyaml
+    When I run the :get client command with:
+      | resource      | ClusterRole         |
+      | resource_name | prometheus-operator |
+      | o             | yaml                |
+    Then the step should succeed
+    And the output should not contain:
+      | apiextensions.k8s.io   |
+      | .monitoring.coreos.com |
+
+  # @author hongyli@redhat.com
   # @case_id OCP-33426
   @admin
   Scenario: Tighten permissions related to CRD create/update
@@ -1308,6 +1342,75 @@ Feature: Install and configuration related scenarios
       | prometheusrules.monitoring.coreos.com |
       | servicemonitors.monitoring.coreos.com |
       | thanosrulers.monitoring.coreos.com    |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-31684
+  @admin
+  Scenario: Add validation webhook for prometheus rules
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    And admin ensures "ocp-31684-proj" project is deleted after scenario
+    Given I check that the "prometheusrules.openshift.io" validating_webhook_configuration exists
+
+    When I run the :new_project client command with:
+      | project_name | ocp-31684-proj |
+    Then the step should succeed
+    Given I obtain test data file "monitoring/prometheus_rule_invalid.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus_rule_invalid.yaml |
+      | overwrite | true                         |
+    Then the step should fail
+    And the output should contain:
+      | The PrometheusRule "story-rules" is invalid: spec.groups.rules.expr: Required value |
+    # oc -n ocp-31684-proj get PrometheusRule story-rules
+    And the prometheusrules named "story-rules" does not exist in the "ocp-31684-proj" project
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-32216
+  @admin
+  @destructive
+  Scenario: Allow setting the log level for Prometheus, Prometheus Operator and Thanos Ruler
+    Given the master version >= "4.6"
+    And I switch to cluster admin pseudo user
+    Given admin ensures "user-workload-monitoring-config" configmap is deleted from the "openshift-user-workload-monitoring" project after scenario
+    And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+   #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+
+    Given I use the "openshift-user-workload-monitoring" project
+    And I wait for the "prometheus-user-workload-0" pod to appear up to 180 seconds
+    And I wait for the "prometheus-user-workload" service to appear up to 120 seconds
+    And I wait for the "thanos-ruler" route to appear up to 180 seconds
+    And I wait for the "user-workload" prometheus to appear up to 120 seconds
+    And I wait for the "user-workload" thanos_ruler to appear up to 120 seconds
+
+    #set log level
+    Given I obtain test data file "monitoring/config_map_user-workload-monitoring-config.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_user-workload-monitoring-config.yaml |
+      | overwrite | true                                            |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Then the expression should be true> thanos_ruler("user-workload").log_level(cached: false) == "debug"
+    And the expression should be true> prometheus("user-workload").log_level(cached: false) == "warn"
+    And the expression should be true> deployment("prometheus-operator").containers_spec(cached: false).first.args.include?("--log-level=error")
+    """
+
+    #disable UserWorkload
+    Given I obtain test data file "monitoring/config_map_disableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_disableUserWorkload.yaml |
+      | overwrite | true                                |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    Then the project should be empty
+    """
 
   # @author hongyli@redhat.com
   # @case_id OCP-29824
@@ -1388,13 +1491,6 @@ Feature: Install and configuration related scenarios
     Then the output should contain:
       | monitoring-rules-view |
 
-    #enable UserWorkload
-    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_enableUserWorkload.yaml |
-      | overwrite | true                               |
-    Then the step should succeed
-
     #Create one project with PrometheusRule
     When I run the :new_project client command with:
       | project_name | ocp-29823-proj |
@@ -1430,4 +1526,3 @@ Feature: Install and configuration related scenarios
       | n                 | ocp-29823-proj |
     Then the output should contain:
       | Error from server (Forbidden) |
-  

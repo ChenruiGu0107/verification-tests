@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: story-rules
+spec:
+  groups:
+  - name: recording.rules
+    rules:
+    - record: requests_total
+      expr: http_requests_total{code="200" > 0
+  - name: alerting rules
+    rules:
+    - Alert: Watchdog
+      Expr: vector(1)
+      labels:
+        severity: warning
+      annotations:
+        message: This is an alert meant to ensure that the entire alerting pipeline is functional.

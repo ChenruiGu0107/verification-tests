@@ -862,3 +862,52 @@ Feature: alerts browser
       | alert_name | Watchdog |
       | table_text | Watchdog |
     Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-33769
+  @admin
+  @destructive
+  Scenario: Admin can see alerts from both sources "Platform" and "User"
+    Given the master version >= "4.6"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+    And admin ensures "ocp-32216-proj" project is deleted after scenario
+
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | ocp-32216-proj |
+    Then the step should succeed
+    Given I obtain test data file "monitoring/prometheus_rules_example_alert.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus_rules_example_alert.yaml |
+      | overwrite | true                                |
+    Then the step should succeed
+    Given I open admin console in a browser
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | user |
+    Then the step should succeed
+    When I perform the :status_specific_alert_no_clear web action with:
+      | alert_name | TestAlert |
+      | status     | Firing    |
+    Then the step should succeed
+  
+    #Go to alert rule page, and come back, filter come back to default status
+    When I run the :goto_monitoring_alertrules_page web action
+    Then the step should succeed
+    #Enable inactive and diable active
+    When I perform the :list_alerts_by_filters_clear web action with:
+      | filter_item | user |
+    Then the step should succeed
+    When I perform the :status_specific_alert_rule_no_clear web action with:
+      | alert_name | HighErrors |
+      | table_text | HighErrors |
+    Then the step should succeed
+   
