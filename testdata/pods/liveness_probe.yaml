@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: rhel-ubi
+  name: rhel-ubi
+spec:
+  restartPolicy: Always
+  containers:
+  - name: rhel-ubi
+    stdin: true
+    tty: true
+    image: registry.access.redhat.com/ubi7/ubi@sha256:25904f0dbbbe259dffa87838304aa6634af7a6cec9f69574e545939603b73c36
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 600m
+        memory: 200Mi
+      requests:
+        cpu: 600m
+        memory: 200Mi
+    livenessProbe:
+      exec:
+        command:
+        - sh
+        - -c
+        - echo hello world
+      initialDelaySeconds: 5
+      timeoutSeconds: 5
+      periodSeconds: 5

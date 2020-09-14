@@ -440,6 +440,24 @@ Feature: Node management
       | hooks_dir = [               |
       | /etc/containers/oci/hooks.d |
 
+  # @author minmli@redhat.com
+  # @case_id OCP-32529
+  Scenario: [BZ1817568]Liveness probe exec check should succeed
+    Given I have a project
+    Given I obtain test data file "pods/liveness_probe.yaml"
+    When I run the :create client command with:
+      | f | liveness_probe.yaml |
+    Then the step should succeed
+    And the pod named "rhel-ubi" becomes ready
+    When I run the :describe client command with:
+      | resource | pod      |
+      | name     | rhel-ubi |
+    Then the step should succeed
+    And the output should not contain:
+      | Liveness probe failed                    |
+      | Container rhel-ubi failed liveness probe |
+      | Liveness probe errored                   |
+
   # @author weinliu@redhat.com
   # @case_id OCP-12808
   @admin
