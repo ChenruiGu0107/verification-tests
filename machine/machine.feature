@@ -83,6 +83,8 @@ Feature: Machine features testing
   Scenario Outline: Cluster-reader should be able to view machine resources	
     Given cluster role "cluster-reader" is added to the "first" user 
     Given I switch to the first user
+    Then I use the "openshift-machine-api" project
+
     When I run the :get client command with:
       | resource | <resource> |
     Then the step should succeed
