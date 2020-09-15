@@ -15,7 +15,10 @@ Feature: customize console related
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-console" project
-    And evaluation of `deployment("console").generation_number(cached: false)` is stored in the :before_change clipboard
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+
     Given as admin I successfully merge patch resource "console.config/cluster" with:
       | {"spec":{"authentication": {"logoutRedirect":"https://www.openshift.com"}}} |
     Given I wait up to 30 seconds for the steps to pass:
@@ -24,15 +27,14 @@ Feature: customize console related
     Then the output should match:
       | logoutRedirect: https://www.openshift.com |
     """
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    And current replica set name of "console" deployment stored into :rs1 clipboard
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 2 |
+    Given a pod becomes ready with labels:
+      | component=ui |
+    And evaluation of `pod.name` is stored in the :pod_name2 clipboard
 
-    Given I wait up to 180 seconds for the steps to pass:
-    """
-    And the expression should be true> deployment("console").generation_number(cached: false) > <%= cb.before_change %>
-    Given number of replicas of the current replica set for the "console" deployment becomes:
-      | desired  | 2 |
-      | current  | 2 |
-      | ready    | 2 |
-    """
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"customization": {"brand":"okd","documentationBaseURL":"https://docs.okd.io/latest/"}}} |
     Given I wait up to 30 seconds for the steps to pass:
@@ -41,11 +43,10 @@ Feature: customize console related
     Then the output should match:
       | documentationBaseURL: https://docs.okd.io/latest/ |
     """
-    And the expression should be true> deployment("console").generation_number(cached: false) > <%= cb.before_change %> + 1
-    Given number of replicas of the current replica set for the "console" deployment becomes:
-      | desired  | 2 |
-      | current  | 2 |
-      | ready    | 2 |
+    And I wait for the resource "pod" named "<%= cb.pod_name2 %>" to disappear
+    And current replica set name of "console" deployment stored into :rs2 clipboard
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 2 |
 
     Given I switch to the first user
     And I open admin console in a browser

@@ -226,8 +226,7 @@ Feature: User management related
 
     #clusteradmin user
     Given the second user is cluster-admin
-    When I perform the :goto_rolebinding_list_page web action with:
-      | project_name | <%= project.name %> |
+    When I run the :goto_allnamespaces_rolebinding_list_page web action
     Then the step should succeed
     When I run the :click_create_button web action
     Then the step should succeed

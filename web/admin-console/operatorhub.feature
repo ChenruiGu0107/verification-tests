@@ -5,31 +5,15 @@ Feature: operatorhub feature related
   @admin
   Scenario: Add "custom form" vs "YAML editor" on "Create Custom Resource" page	
     Given the master version >= "4.3"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given I have a project
-
-    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
     Given the first user is cluster-admin
-    Given I use the "openshift-marketplace" project
-    Given I obtain test data file "olm/catalogsource-template.yaml"
-    When I process and create:
-      | f | catalogsource-template.yaml                            |
-      | p | NAME=uiauto-operators                                  |
-      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:latest   |
-      | p | DISPLAYNAME=UI Auto Test Catalog                       |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | olm.catalogSource=uiauto-operators |
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project packagemanifests
-    Then the output should match:
-      | etcd.*UI Auto Test Catalog |
-    """
 
     And I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | etcd                   |
-      | catalog_name     | uiauto-operators       |
+      | catalog_name     | ui-auto-operators      |
       | target_namespace | <%= project.name %>    |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -147,31 +131,16 @@ Feature: operatorhub feature related
       | f | vul_deployment.yaml |
     Then the step should succeed
 
-    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given the first user is cluster-admin
-    Given I use the "openshift-marketplace" project
-    Given I obtain test data file "olm/catalogsource-template.yaml"
-    When I process and create:
-      | f | catalogsource-template.yaml                            |
-      | p | NAME=uiauto-operators                                  |
-      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:latest   |
-      | p | DISPLAYNAME=UI Auto Test Catalog                       |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | olm.catalogSource=uiauto-operators |
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project packagemanifests
-    Then the output should match:
-      | container-security-operator.*UI Auto Test Catalog |
-    """
     Given I use the "<%= cb.userproject_name %>" project
 
     # install container security operator
     Given I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | container-security-operator |
-      | catalog_name     | uiauto-operators            |
+      | catalog_name     | ui-auto-operators           |
       | target_namespace | <%= project.name %>         |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -304,27 +273,12 @@ Feature: operatorhub feature related
     Then the step should succeed
 
     #check support link for operators
-    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given the first user is cluster-admin
-    Given I use the "openshift-marketplace" project
-    Given I obtain test data file "olm/catalogsource-template.yaml"
-    When I process and create:
-      | f | catalogsource-template.yaml                            |
-      | p | NAME=uiauto-operators                                  |
-      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:latest   |
-      | p | DISPLAYNAME=UI Auto Test Catalog                       |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | olm.catalogSource=uiauto-operators |
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project packagemanifests
-    Then the output should match:
-      | cockroachdb.*UI Auto Test Catalog |
-    """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | cockroachdb         |
-      | catalog_name     | uiauto-operators    |
+      | catalog_name     | ui-auto-operators   |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -363,30 +317,15 @@ Feature: operatorhub feature related
     Given the master version >= "4.5"
     Given I have a project
 
-    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given the first user is cluster-admin
-    Given I use the "openshift-marketplace" project
-    Given I obtain test data file "olm/catalogsource-template.yaml"
-    When I process and create:
-      | f | catalogsource-template.yaml                            |
-      | p | NAME=uiauto-operators                                  |
-      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:latest   |
-      | p | DISPLAYNAME=UI Auto Test Catalog                       |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | olm.catalogSource=uiauto-operators |
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I get project packagemanifests
-    Then the output should match:
-      | radanalytics.*UI Auto Test Catalog |
-    """
 
     When I open admin console in a browser
     Then the step should succeed
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | radanalytics-spark  |
-      | catalog_name     | uiauto-operators    |
+      | catalog_name     | ui-auto-operators   |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
@@ -617,18 +556,9 @@ Feature: operatorhub feature related
   @admin
   Scenario: Check marketplace operator annotations
     Given the master version >= "4.4"
-    Given admin ensures "uiauto-operators" catalog_source is deleted from the "openshift-marketplace" project after scenario
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given the first user is cluster-admin
-    Given I use the "openshift-marketplace" project
-    Given I obtain test data file "olm/catalogsource-template.yaml"
-    When I process and create:
-      | f | catalogsource-template.yaml                        |
-      | p | NAME=uiauto-operators                              |
-      | p | IMAGE=quay.io/openshifttest/ui-auto-operators:0908 | 
-      | p | DISPLAYNAME=UI Auto Test Catalog                   |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | olm.catalogSource=uiauto-operators |
     When I run the :get client command with:
       | resource      | packagemanifests      |
       | resource_name | argocd-operator       |
