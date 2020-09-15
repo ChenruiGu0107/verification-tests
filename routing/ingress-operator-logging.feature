@@ -53,7 +53,7 @@ Feature: Test Ingress API logging options
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | curl | --resolve | <%= cb.proj_name %>.30059.example.com:80:<%= cb.router_ip %> | --max-time | 10 |  http://<%= cb.proj_name %>.30059.example.com |
+      | curl | -sS | --resolve | <%= cb.proj_name %>.30059.example.com:80:<%= cb.router_ip %> | --max-time | 10 |  http://<%= cb.proj_name %>.30059.example.com |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
     """
@@ -67,7 +67,7 @@ Feature: Test Ingress API logging options
       | tail          | 15                       |
     Then the step should succeed
     And the output should match:
-      | service-unsecure:<%= cb.caddy_pod_ip %>:8080 |
+      | <%= cb.caddy_pod_ip %>:8080 |
  
 
    # @author aiyengar@redhat.com
@@ -160,7 +160,7 @@ Feature: Test Ingress API logging options
      And I wait up to 30 seconds for the steps to pass:
      """
      When I execute on the pod:
-       | curl | --resolve | <%= cb.proj_name %>.30060.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.30060.example.com |
+       | curl | -sS | --resolve | <%= cb.proj_name %>.30060.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.30060.example.com |
      Then the step should succeed
      And the output should contain "Hello-OpenShift-1"
      """
@@ -172,6 +172,6 @@ Feature: Test Ingress API logging options
        | resource_name | pod/<%= cb.rsyslog_pod %> |
        | tail          | 10                        |
      Then the output should contain:
-       | service-unsecure:<%= cb.caddy_pod_ip %>:8080 |
+       | <%= cb.caddy_pod_ip %>:8080 |
      """
 
