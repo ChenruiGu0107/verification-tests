@@ -1244,7 +1244,7 @@ Feature: deployment related features
       | p             | {"spec":{"template":{"spec":{"dnsPolicy": "None", "dnsConfig":{"nameservers":["8.8.8.8"], "searches":["svc.cluster.local","cluster.local"]}}}}} |
     Then the step should succeed
     And I wait until the status of deployment "hello-openshift" becomes :complete
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | deploymentconfig=hello-openshift |
     When I run the :get client command with:
       | resource      | pod                 |

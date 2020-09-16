@@ -214,7 +214,7 @@ Feature: resouces related scenarios
       | o             | json |
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"150Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"150Mi"}}
 
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | deploymentconfig=database |
     When I run the :get client command with:
       | resource      | pod |

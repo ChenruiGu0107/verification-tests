@@ -111,7 +111,7 @@ Feature: events and logs related
     Given I obtain test data file "deployment/dc-with-two-containers.yaml"
     And I run the :create client command with:
       | f | dc-with-two-containers.yaml |
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | deploymentconfig=dctest,deployment=dctest-1 |
     And I open admin console in a browser
 

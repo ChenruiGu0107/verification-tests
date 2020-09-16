@@ -114,7 +114,7 @@ Feature: HPA relate features
     When I run the :create client command with:
       | f | hpa-v2beta1-rc.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | run=hello-openshift |
     When I run the :expose client command with:
       | resource      | rc              |
@@ -165,7 +165,7 @@ Feature: HPA relate features
     When I run the :create client command with:
       | f | hello-hpa-memory-rc.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | run=hello-hpa-memory |
     When I run the :expose client command with:
       | resource      | rc               |

@@ -92,7 +92,7 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=rails-ex          |
       | deployment=rails-ex-1 |
     When I run the :set_env client command with:

@@ -109,7 +109,7 @@ Feature: testing multicast scenarios
     When I run oc create over "multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=mcast-pods |
     And evaluation of `pod.ip` is stored in the :proj1_podip clipboard
     And evaluation of `pod.name` is stored in the :proj1_pod clipboard
@@ -129,7 +129,7 @@ Feature: testing multicast scenarios
     When I run oc create over "multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=mcast-pods |
     And evaluation of `pod.ip` is stored in the :proj2_podip clipboard
     And evaluation of `pod.name` is stored in the :proj2_pod clipboard
@@ -192,7 +192,7 @@ Feature: testing multicast scenarios
     When I run oc create over "multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=mcast-pods |
     And evaluation of `pod.ip` is stored in the :proj1_podip clipboard
     And evaluation of `pod.name` is stored in the :proj1_pod clipboard
@@ -217,7 +217,7 @@ Feature: testing multicast scenarios
     When I run oc create over "multicast-rc.json" replacing paths:
       | ["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=mcast-pods |
     And evaluation of `pod.ip` is stored in the :proj2_podip clipboard
     And evaluation of `pod.name` is stored in the :proj2_pod clipboard

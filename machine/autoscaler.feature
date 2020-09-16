@@ -20,7 +20,7 @@ Feature: Cluster Autoscaler Tests
       | ["spec"]["balanceSimilarNodeGroups"] | true |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
@@ -103,7 +103,7 @@ Feature: Cluster Autoscaler Tests
       | ["spec"]["skipNodesWithLocalStorage"] | true |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
@@ -183,7 +183,7 @@ Feature: Cluster Autoscaler Tests
       | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
@@ -270,7 +270,7 @@ Feature: Cluster Autoscaler Tests
       | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
@@ -437,7 +437,7 @@ Feature: Cluster Autoscaler Tests
     Then the step should succeed
     And admin ensures "<machineset_name>-invalid" machineset is deleted after scenario
 
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | api=clusterapi,k8s-app=controller |
     And I wait for the steps to pass:
     """
@@ -481,7 +481,7 @@ Feature: Cluster Autoscaler Tests
       | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler
@@ -563,7 +563,7 @@ Feature: Cluster Autoscaler Tests
       | f | cluster-autoscaler.yml |
     Then the step should succeed
     And admin ensures "default" clusterautoscaler is deleted after scenario
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | cluster-autoscaler=default,k8s-app=cluster-autoscaler |
 
     # Create machineautoscaler

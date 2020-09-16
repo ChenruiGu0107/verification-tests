@@ -57,7 +57,7 @@ Feature: ONLY ONLINE Images related scripts in this file
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=rails-ex          |
       | deployment=rails-ex-1 |
     When I run the :logs client command with:
@@ -69,7 +69,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       | resource_name | rails-ex                                                                                                      |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"rails-ex","resources":{"limits":{"memory":"700Mi"}}}]}}}} |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=rails-ex          |
       | deployment=rails-ex-2 |
     When I run the :logs client command with:

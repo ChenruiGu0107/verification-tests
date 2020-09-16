@@ -14,7 +14,7 @@ Feature: oc run related scenarios
       | -l           | test=one        |
       | limits       | memory=256Mi    |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | test=one |
 
     When I run the :create_deployment client command with:

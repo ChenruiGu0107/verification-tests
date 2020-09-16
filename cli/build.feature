@@ -484,7 +484,7 @@ Feature: build 'apps' with CLI
       | from_repo   | nodejs-ex |
     Then the step should succeed
     And the "nodejs-ex-2" build completed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=nodejs-ex              |
       | deployment=nodejs-ex-2     |
     Then I wait for a web server to become available via the "nodejs-ex" route
@@ -500,7 +500,7 @@ Feature: build 'apps' with CLI
       | commit      | <%= cb.git_commit_id %> |
     Then the step should succeed
     And the "nodejs-ex-3" build completed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=nodejs-ex              |
       | deployment=nodejs-ex-3     |
     And I wait up to 20 seconds for the steps to pass:

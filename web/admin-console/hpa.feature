@@ -8,7 +8,7 @@ Feature: HPA related
     When I run the :new_app_as_dc client command with:
       | app_repo | https://github.com/sclorg/ruby-ex.git |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | deploymentconfig=ruby-ex |
     When I run the :expose client command with:
       | resource      | svc     |

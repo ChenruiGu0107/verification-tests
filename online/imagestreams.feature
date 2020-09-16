@@ -41,7 +41,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     Then the output should contain:
       | Starting S2I Java Build |
       | Push successful         |
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=openjdk18              |
       | deployment=openjdk18-1     |
       | deploymentconfig=openjdk18 |

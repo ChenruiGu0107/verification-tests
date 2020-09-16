@@ -21,5 +21,5 @@ Feature: Flexvolume plugin testing
       | f | deployment.yaml     |
       | n | <%= project.name %> |
     Then the step should succeed
-    And 1 pods become ready with labels:
+    And 1 pod becomes ready with labels:
       | app=hello-storage |

@@ -104,7 +104,7 @@ Feature: environment related
     When I run the :create client command with:
       | f | dc-with-two-containers.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | run=dctest |
 
     # add env var key/value
@@ -131,7 +131,7 @@ Feature: environment related
     When I run the :submit_changes web action
     Then the step should succeed
 
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | run=dctest          |
       | deployment=dctest-2 |
     When I run the :set_env client command with:
@@ -159,7 +159,7 @@ Feature: environment related
     When I run the :submit_changes web action
     Then the step should succeed
 
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | run=dctest          |
       | deployment=dctest-3 |
     When I run the :set_env client command with:
@@ -180,7 +180,7 @@ Feature: environment related
       | f | initcontainer.yaml    |
       | f | configmap-example.yaml |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=hello-openshift |
     Given evaluation of `pod.name` is stored in the :initpod clipboard
     And I open admin console in a browser
@@ -206,7 +206,7 @@ Feature: environment related
     When I run the :submit_changes web action
     Then the step should succeed
     And I wait for the resource "pod" named "<%= cb.initpod %>" to disappear
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       |  app=hello-openshift |
     When I run the :get client command with:
       | resource      | pod             |

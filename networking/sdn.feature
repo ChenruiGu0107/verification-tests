@@ -136,7 +136,7 @@ Feature: SDN related networking scenarios
     When I run oc create over "list_for_caddy.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=caddy-pods |
     And evaluation of `pod.ip` is stored in the :target_pod_ip clipboard
     And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_unsecure_ip clipboard

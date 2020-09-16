@@ -627,7 +627,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
 
@@ -814,7 +814,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
 
@@ -825,7 +825,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod(3).name` is stored in the :p3pod1 clipboard
 
@@ -985,7 +985,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
 
@@ -1141,7 +1141,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
@@ -1152,7 +1152,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
     And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
@@ -1175,7 +1175,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p3pod1 clipboard
 
@@ -1249,7 +1249,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
@@ -1260,7 +1260,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
     And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
@@ -1294,7 +1294,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p3pod1 clipboard
     And evaluation of `service("test-service").url` is stored in the :p3svc1url clipboard
@@ -1385,7 +1385,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `service("test-service").url` is stored in the :p1svc1url clipboard
 
@@ -1396,7 +1396,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
     And evaluation of `service("test-service").url` is stored in the :p2svc1url clipboard
@@ -1419,7 +1419,7 @@ Feature: Network policy plugin scenarios
     When I run oc create over "list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.name` is stored in the :p3pod1 clipboard
     And evaluation of `service("test-service").url` is stored in the :p3svc1url clipboard

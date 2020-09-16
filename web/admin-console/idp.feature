@@ -39,7 +39,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -105,7 +105,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -157,7 +157,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -210,7 +210,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -253,7 +253,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -302,7 +302,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -353,7 +353,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
@@ -393,7 +393,7 @@ Feature: add idp from console
     Given I use the "openshift-authentication" project
     Given I wait up to 300 seconds for the steps to pass:
     """
-    Given 1 pods become ready with labels:
+    Given 1 pod becomes ready with labels:
       | app=oauth-openshift |
     Then the expression should be true> cluster_operator("authentication").condition(cached: false, type: 'Progressing')['status'] == "False"
     And the expression should be true> cluster_operator("authentication").condition(type: 'Degraded')['status'] == "False"
