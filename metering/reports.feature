@@ -51,3 +51,13 @@ Feature: reports related scenarios
     And evaluation of `cb.res_json['results'].first['values'].map { |h| h['name'] }` is stored in the :golden_list clipboard
     # compare element by element between the two arrays and return those that don't match (should be 0)
     Then the expression should be true> cb.res_json['results'].all? { |r| r['values'].map{ |h| h['name'] } == cb.golden_list }
+
+  # @author pruan@redhat.com
+  # @case_id OCP-24001
+  @admin
+  @destructive
+  Scenario: test each valid reportdatasource can produce a report
+    Given metering service has been installed successfully
+    And I use the "<%= cb.metering_namespace.name %>" project
+    Given all reports can be generated via reportquery
+
