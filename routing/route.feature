@@ -1169,7 +1169,6 @@ Feature: Testing route
       | resource_name | <%= cb.router_pod %>  |
     Then the step should succeed
     And the output should not contain "error reloading router: exit status"
-
     Given I switch to the first user
     Given I have a project
     Given I obtain test data file "networking/list_for_pods.json"
@@ -1198,3 +1197,41 @@ Feature: Testing route
       | resource_name | <%= cb.router_pod %>  |
     Then the step should succeed
     And the output should not contain "error reloading router: exit status"
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-33897
+  Scenario: Route with "reencrypt" termination type can work with service signed certificate
+    Given the master version >= "4.1"
+    And I have a project
+    And I store default router subdomain in the :subdomain clipboard
+
+    # Deploy secure service with signed secret annotation
+    Given I obtain test data file "routing/ingress/signed-service.json"
+    When I run the :create client command with:
+      | f | signed-service.json |
+    And the step should succeed
+    And I check that the "service-secret" secret exists
+
+    # Deploy a pod with secret volume and mountpaths
+    Given I obtain test data file "routing/ingress/caddy-secure.yaml"
+    When I run the :create client command with:
+      | f | caddy-secure.yaml |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=caddy-pods |
+ 
+    # Create a a REEN terminated route
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    Given I obtain test data file "routing/reencrypt/route_reencrypt-reen.example.com.key"
+    When I run the :create_route_reencrypt client command with:
+      | name     | route-reencrypt                                         |
+      | service  | service-secure                                          |
+      | cert     | route_reencrypt-reen.example.com.crt                    |
+      | key      | route_reencrypt-reen.example.com.key                    |
+      | hostname | route-reencrypt-<%= project.name %>.<%= cb.subdomain %> |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "https://route-reencrypt-<%= project.name %>.<%= cb.subdomain %>" url
+    And the output should contain "Hello-OpenShift-1 https-8443"
+    """
