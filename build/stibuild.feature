@@ -560,6 +560,7 @@ Feature: stibuild.feature
       | source | registry.redhat.io/rhscl/ruby-25-rhel7:latest |
       | dest   | <%= project.name %>/ruby:latest               |
     Then the step should succeed
+    Given the "ruby" image stream was created
     When I run the :new_app client command with:
       | app_repo     | https://github.com/openshift/ruby-hello-world |
       | image_stream | <%= project.name %>/ruby:latest               |
