@@ -406,3 +406,40 @@ Feature: elasticsearch operator related tests
       Given the expression should be true> pod('#{cb.es_pod}').exists?
     """
     
+  # @author qitang@redhat.com
+  # @case_id OCP-34294
+  @admin
+  @destructive
+  Scenario: Should support dynamic redundancy policy change
+    Given I obtain test data file "logging/clusterlogging/singleredundancy.yaml"
+    When I create clusterlogging instance with:
+      | remove_logging_pods | true                  |
+      | crd_yaml            | singleredundancy.yaml |
+    Then the step should succeed
+    Given I wait for the "elasticsearch" config_map to appear
+    Then the expression should be true> elasticsearch('elasticsearch').redundancy_policy == "SingleRedundancy"
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('index_settings'))` is stored in the :data clipboard
+    And the expression should be true> cb.data == "PRIMARY_SHARDS=3 REPLICA_SHARDS=1"
+    When I get the "infra-000001" logging index information from a pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 3 && cb.index_data['rep'].to_i == 1
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"redundancyPolicy": "ZeroRedundancy"}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').redundancy_policy == "ZeroRedundancy"
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('index_settings', cached: false))` is stored in the :data clipboard
+    And the expression should be true> cb.data == "PRIMARY_SHARDS=3 REPLICA_SHARDS=0"
+    When I get the "infra-000001" logging index information from a pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 3 && cb.index_data['rep'].to_i == 0
+    """
+
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"logStore": {"elasticsearch": {"redundancyPolicy": "FullRedundancy"}}}} |
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    Given the expression should be true> elasticsearch('elasticsearch').redundancy_policy == "FullRedundancy"
+    Given evaluation of `YAML.load(config_map('elasticsearch').value_of('index_settings', cached: false))` is stored in the :data clipboard
+    And the expression should be true> cb.data == "PRIMARY_SHARDS=3 REPLICA_SHARDS=2"
+    When I get the "infra-000001" logging index information from a pod with labels "es-node-master=true"
+    Then the expression should be true> cb.index_data['pri'].to_i == 3 && cb.index_data['rep'].to_i == 2
+    """
