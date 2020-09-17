@@ -10,10 +10,10 @@ Feature: Regression testing cases
 
     Given I obtain test data file "storage/nfs/auto/pv-template.json"
     Given admin creates a PV from "pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | ReadOnlyMany                     |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                | ReadOnlyMany                           |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                                 |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>                |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |

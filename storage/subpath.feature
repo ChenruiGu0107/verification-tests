@@ -129,12 +129,12 @@ Feature: volumeMounts should be able to use subPath
 
     Given I obtain test data file "storage/nfs/auto/pv-template.json"
     Given admin creates a PV from "pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | ReadWriteMany                    |
-      | ["spec"]["capacity"]["storage"]           | 1Gi                              |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-      | ["spec"]["storageClassName"]              | sc-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]                 | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                | ReadWriteMany                          |
+      | ["spec"]["capacity"]["storage"]           | 1Gi                                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                                 |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>                |
+      | ["spec"]["storageClassName"]              | sc-<%= project.name %>                 |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a dynamic pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |

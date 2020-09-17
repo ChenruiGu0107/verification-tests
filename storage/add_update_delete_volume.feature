@@ -137,9 +137,9 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Creating PV
     Given I obtain test data file "storage/nfs/auto/pv.json"
     Given admin creates a PV from "pv.json" where:
-      | ["metadata"]["name"]         | pv-<%= project.name %>           |
-      | ["spec"]["nfs"]["server"]    | <%= service("nfs-service").ip %> |
-      | ["spec"]["storageClassName"] | sc-<%= project.name %>           |
+      | ["metadata"]["name"]         | pv-<%= project.name %>                 |
+      | ["spec"]["nfs"]["server"]    | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>                 |
     Then the step should succeed
 
     # new-app

@@ -11,12 +11,12 @@ Feature: NFS Persistent Volume
     # Creating PV and PVC
     Given I obtain test data file "storage/nfs/auto/pv-template.json"
     Given admin creates a PV from "pv-template.json" where:
-      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
-      | ["spec"]["nfs"]["path"]         | /non-exist-path                  |
-      | ["spec"]["capacity"]["storage"] | 5Gi                              |
-      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
-      | ["metadata"]["name"]            | nfs-<%= project.name %>          |
-      | ["spec"]["storageClassName"]    | sc-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]       | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["nfs"]["path"]         | /non-exist-path                        |
+      | ["spec"]["capacity"]["storage"] | 5Gi                                    |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                          |
+      | ["metadata"]["name"]            | nfs-<%= project.name %>                |
+      | ["spec"]["storageClassName"]    | sc-<%= project.name %>                 |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a dynamic pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
@@ -57,12 +57,12 @@ Feature: NFS Persistent Volume
     # Creating PV and PVC
     Given I obtain test data file "storage/nfs/auto/pv-template.json"
     Given admin creates a PV from "pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | <access_mode>                    |
-      | ["spec"]["capacity"]["storage"]           | 5Gi                              |
-      | ["spec"]["storageClassName"]              | sc-<%= project.name %>           |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                | <access_mode>                          |
+      | ["spec"]["capacity"]["storage"]           | 5Gi                                    |
+      | ["spec"]["storageClassName"]              | sc-<%= project.name %>                 |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                       |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>                |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a dynamic pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | mypvc                   |
@@ -120,8 +120,8 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "storage/nfs/auto/pv-retain.json"
     And admin creates a PV from "pv-retain.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>                |
+      | ["spec"]["nfs"]["server"] | "<%= service("nfs-service").ip_url %>" |
 
     Given I obtain test data file "storage/nfs/auto/pvc-rwx.json"
     When I create a manual pvc from "pvc-rwx.json" replacing paths:
@@ -161,9 +161,9 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "storage/nfs/auto-nfs-recycle-rwo.json"
     Given admin creates a PV from "auto-nfs-recycle-rwo.json" where:
-      | ["spec"]["nfs"]["server"]     | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]          | pv-<%= project.name %>           |
-      | ["spec"]["storageClassName"]  | sc-<%= project.name %>           |
+      | ["spec"]["nfs"]["server"]     | "<%= service("nfs-service").ip_url %>" |
+      | ["metadata"]["name"]          | pv-<%= project.name %>                 |
+      | ["spec"]["storageClassName"]  | sc-<%= project.name %>                 |
     Given I obtain test data file "storage/misc/pvc.json"
     When I create a dynamic pvc from "pvc.json" replacing paths:
       | ["metadata"]["name"]         | mypvc                  |
@@ -201,19 +201,19 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "cases/510532/pod.json"
     When I run oc create over "pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod1                             |
-      | ["spec"]["securityContext"]["runAsUser"]             | 1000100001                       |
-      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
-      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
-      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+      | ["metadata"]["name"]                                 | pod1                                   |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100001                             |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                             |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                      |
     Then the step should succeed
     Given I obtain test data file "cases/510532/pod.json"
     When I run oc create over "pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod2                             |
-      | ["spec"]["securityContext"]["runAsUser"]             | 1000100002                       |
-      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
-      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
-      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+      | ["metadata"]["name"]                                 | pod2                                   |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100002                             |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                             |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                      |
     Then the step should succeed
 
     Given 2 pods become ready with labels:
@@ -270,19 +270,19 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "cases/510690/pod.json"
     When I run oc create over "pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod1                             |
-      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
-      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100011                       |
-      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
-      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+      | ["metadata"]["name"]                                 | pod1                                   |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                             |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100011                             |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                      |
     Then the step should succeed
     Given I obtain test data file "cases/510532/pod.json"
     When I run oc create over "pod.json" replacing paths:
-      | ["metadata"]["name"]                                 | pod2                             |
-      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
-      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100022                       |
-      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
-      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+      | ["metadata"]["name"]                                 | pod2                                   |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                             |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100022                             |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                      |
     Then the step should succeed
 
     Given 2 pods become ready with labels:
@@ -331,8 +331,8 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
     Given I obtain test data file "image/db-templates/auto-nfs-pv.json"
     When admin creates a PV from "auto-nfs-pv.json" where:
-      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>             |
+      | ["spec"]["nfs"]["server"]  | "<%= service("nfs-service").ip_url %>" |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | mysql-persistent |
@@ -361,11 +361,11 @@ Feature: NFS Persistent Volume
     # Set read-only mount option
     Given I obtain test data file "storage/nfs/pv-mount-option.yaml"
     Given admin creates a PV from "pv-mount-option.yaml" where:
-      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
-      | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
-      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
+      | ["spec"]["nfs"]["server"]                                              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                          |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                                    |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>                |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                           |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
@@ -409,11 +409,11 @@ Feature: NFS Persistent Volume
     # Set read-only mount option
     Given I obtain test data file "storage/nfs/pv-mount-option.yaml"
     Given admin creates a PV from "pv-mount-option.yaml" where:
-      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
-      | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
-      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec              |
+      | ["spec"]["nfs"]["server"]                                              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                          |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                                    |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>                |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec                    |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
@@ -454,11 +454,11 @@ Feature: NFS Persistent Volume
     # Set read-only mount option
     Given I obtain test data file "storage/nfs/pv-mount-option.yaml"
     Given admin creates a PV from "pv-mount-option.yaml" where:
-      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %>     |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                        |
-      | ["spec"]["capacity"]["storage"]                                        | 1Gi                                  |
-      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2 |
+      | ["spec"]["nfs"]["server"]                                              | "<%= service("nfs-service").ip_url %>"     |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                              |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                                        |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>                    |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2       |
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
@@ -492,11 +492,11 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "storage/nfs/pv-mount-option.yaml"
     When admin creates a PV from "pv-mount-option.yaml" where:
-      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                                             | ReadOnlyMany                     |
-      | ["spec"]["capacity"]["storage"]                                        | 5Gi                              |
-      | ["metadata"]["name"]                                                   | ro-<%= project.name %>           |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
+      | ["spec"]["nfs"]["server"]                                              | "<%= service("nfs-service").ip_url %>" |
+      | ["spec"]["accessModes"][0]                                             | ReadOnlyMany                           |
+      | ["spec"]["capacity"]["storage"]                                        | 5Gi                                    |
+      | ["metadata"]["name"]                                                   | ro-<%= project.name %>                 |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                           |
     Then the step should succeed
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
@@ -513,7 +513,7 @@ Feature: NFS Persistent Volume
     Given the pod named "podname" becomes ready
 
     When I execute on the pod:
-      | grep | <%= service("nfs-service").ip %> | /proc/mounts |
+      | grep | /mnt/gce | /proc/mounts |
     Then the step should succeed
     And the output should contain "ro"
 
@@ -522,9 +522,9 @@ Feature: NFS Persistent Volume
 
     Given I obtain test data file "storage/nfs/auto/pv-template.json"
     When admin creates a PV from "pv-template.json" where:
-      | ["metadata"]["name"]       | rw-<%= project.name %>           |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]       | rw-<%= project.name %>                 |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                          |
+      | ["spec"]["nfs"]["server"]  | "<%= service("nfs-service").ip_url %>" |
     Then the step should succeed
     Given I obtain test data file "storage/nfs/auto/pvc-template.json"
     When I create a manual pvc from "pvc-template.json" replacing paths:
@@ -541,6 +541,6 @@ Feature: NFS Persistent Volume
     Given the pod named "podname" becomes ready
 
     When I execute on the pod:
-      | grep | <%= service("nfs-service").ip %> | /proc/mounts |
+      | grep | /mnt/gce | /proc/mounts |
     Then the step should succeed
     And the output should contain "rw"
