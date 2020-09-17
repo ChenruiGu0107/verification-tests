@@ -20,5 +20,18 @@ Feature: about cluster setting page
       | product_version | <%= cb.master_version %> |
     Then the step should succeed
 
+  # @author schituku@redhat.com
+  #@case_id OCP-25832
+  @admin
+  Scenario: Check the channels in the channel list drop down.
+    Given the master version >= "4.4"
+    Given I open admin console in a browser
+    Given the first user is cluster-admin
+    Given I store master major version in the :master_version clipboard
+    When I run the :goto_cluster_settings_details_page web action
+    And I perform the :check_list_of_channels_in_channel_modal web action with:
+      | product_version | <%= cb.master_version %> |
+    Then the step should succeed
+
 
 
