@@ -121,3 +121,64 @@ Feature: pods related feature
       | text           | Deployments                   |
       | link_url       | openshift-console/deployments |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id OCP-33568
+  @admin
+  Scenario: column management for resource tables
+    Given the master version >= "4.6"
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | httpd-example |
+    Then the step should succeed
+    Given a pod is present with labels:
+      | openshift.io/build.name=httpd-example-1 |
+
+    # column management on one Project Pods list page
+    Given I open admin console in a browser
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
+    When I perform the :check_default_columns_in_one_project_pods_list_table web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :change_one_project_pods_list_columns web action
+    Then the step should succeed
+    When I run the :check_changed_one_project_pods_list_columns web action
+    Then the step should succeed
+
+    # column management on Projects list page - normal user
+    When I run the :check_default_columns_in_projects_list_table web action
+    Then the step should succeed
+    When I run the :change_projects_list_columns web action
+    Then the step should succeed
+    When I run the :check_changed_projects_list_columns web action
+    Then the step should succeed
+
+    # column management on Namespaces list page
+    Given the first user is cluster-admin
+    When I run the :check_default_columns_in_namespaces_list_table web action
+    Then the step should succeed
+    When I run the :change_namespaces_list_columns web action
+    Then the step should succeed
+    When I run the :check_changed_namespaces_list_columns web action
+    Then the step should succeed
+
+    # column management on Nodes list page
+    When I run the :check_default_columns_in_nodes_list_table web action
+    Then the step should succeed
+    When I run the :change_nodes_list_columns web action
+    Then the step should succeed
+    When I run the :check_changed_nodes_list_columns web action
+    Then the step should succeed
+
+    # column management on All Projects Pods list page
+    When I run the :check_updated_columns_in_all_projects_pods_list_table web action
+    Then the step should succeed
+    When I run the :change_all_projects_pods_list_columns_but_reset web action
+    Then the step should succeed
+    When I run the :check_updated_columns_in_all_projects_pods_list_table web action
+    Then the step should succeed
+
+    # column management on All Projects list page - cluster-admin
+    When I run the :check_default_columns_in_all_projects_list_table web action
+    Then the step should succeed   
