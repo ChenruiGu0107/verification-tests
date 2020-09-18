@@ -55,6 +55,11 @@ Feature: tests on catalog page
   Scenario: Support template instance on catalog page
     Given the master version >= "4.2"
     Given I have a project
+    Given I obtain test data file "templates/ui/dotnet.json"
+    When I run the :create client command with:
+      | f | dotnet.json |
+    Then the step should succeed
+
     And I open admin console in a browser
     When I perform the :goto_catalog_page web action with:
       | project_name | <%= project.name %> |
@@ -65,8 +70,9 @@ Feature: tests on catalog page
     Then the step should succeed
     And the expression should be true>  browser.url =~ /kind=.*Template/
     When I perform the :create_app_from_template web action with:
-      | project_name  | <%= project.name %> |
-      | template_name | dotnet-example      |
+      | project_name       | <%= project.name %> |
+      | template_namespace | <%= project.name %> |
+      | template_name      | dotnet-example-test |
     Then the step should succeed
 
     Given I wait up to 20 seconds for the steps to pass:
