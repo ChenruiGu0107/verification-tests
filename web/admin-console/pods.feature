@@ -132,7 +132,7 @@ Feature: pods related feature
       | template | httpd-example |
     Then the step should succeed
     Given a pod is present with labels:
-      | openshift.io/build.name=httpd-example-1 |
+      | name=httpd-example |
 
     # column management on one Project Pods list page
     Given I open admin console in a browser
@@ -176,9 +176,9 @@ Feature: pods related feature
     Then the step should succeed
     When I run the :change_all_projects_pods_list_columns_but_reset web action
     Then the step should succeed
-    When I run the :check_updated_columns_in_all_projects_pods_list_table web action
+    When I run the :check_default_columns_in_all_projects_pods_list_table web action
     Then the step should succeed
 
     # column management on All Projects list page - cluster-admin
-    When I run the :check_default_columns_in_all_projects_list_table web action
+    When I run the :check_changed_columns_in_all_projects_list_table web action
     Then the step should succeed   
