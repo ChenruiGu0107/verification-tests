@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: allinone-collisions-1
-    image: docker.io/ocpqe/hello-pod:latest
+    image: quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073
     volumeMounts:
     - name: all-in-one
       mountPath: "/all-in-one"
