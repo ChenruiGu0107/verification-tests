@@ -1056,3 +1056,38 @@ Feature: operatorhub feature related
     When I perform the :check_content_in_yaml_editor web action with:
       | yaml_content | autotest |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-29690
+  @admin
+  Scenario: Show operator installation flow
+    Given the master version >= "4.6"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+
+    Given I switch to the first user
+    Given I have a project
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :subscribe_operator_to_namespace_with_manually_approval web action with:
+      | package_name     | strimzi-kafka-operator |
+      | catalog_name     | ui-auto-operators      |
+      | target_namespace | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :check_manual_approve_info web action
+    Then the step should succeed
+
+    When I run the :click_approve_button web action
+    Then the step should succeed
+    When I perform the :check_message_during_installing web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I get project csvs
+    And the output should match "strimzi-cluster-operator.*Failed"
+    """
+    When I run the :check_installation_failure_message web action
+    Then the step should succeed
+    When I perform the :check_view_error_button web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
