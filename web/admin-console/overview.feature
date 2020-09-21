@@ -189,14 +189,6 @@ Feature: overview cases
     When I perform the :check_popover_info web action with:
       | popover_item | Namespace |
     Then the step should succeed
-    # check secret page
-    When I perform the :goto_one_secret_page web action with:
-      | project_name | openshift-console    |
-      | secret_name  | console-serving-cert |
-    Then the step should succeed
-    When I perform the :check_popover_info web action with:
-      | popover_item | Labels |
-    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id OCP-21256
