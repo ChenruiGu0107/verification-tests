@@ -404,3 +404,34 @@ Feature: route related
       | route_name | mytestroute |
     Then the step should fail
 
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-33744
+  @admin
+  Scenario: Web Security checks 
+    Given the master version >= "4.6"
+    # check the oauthaccesstoken by web console
+    Given I open admin console in a browser
+    When I run the :get admin command with:
+      | resource | oauthaccesstoken                                                    |
+      | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
+    Then the step should succeed
+    And the output should match "<%= user.name %>.*console" 
+
+    # check the download route page
+    Given default admin-console downloads route is stored in the clipboard
+    When I access the "https://<%= cb.downloads_route %>" url in the web browser
+    When I run the :check_items_on_downloads_route_page web action
+    Then the step should succeed
+    When I get the html of the web page
+    And the output should not match "Directory listing"
+
+    When I perform the :goto_routes_page web action with:
+      | project_name | openshift-console |
+    Then the step should succeed
+    When I run the :click_logout web action
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | oauthaccesstoken                                                    |
+      | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
+    Then the step should succeed
+    And the output should not match "<%= user.name %>.*console" 
