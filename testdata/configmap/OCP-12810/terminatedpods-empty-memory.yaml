@@ -1,0 +1,65 @@
+piVersion: v1
+kind: List
+items:
+  #Succeeded pod
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      name: hello-pod-1
+    name: hello-pod-1
+  spec:
+    containers:
+      - image: "quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073"
+        command: ["sh", "-c", "exit 0"]
+        imagePullPolicy: IfNotPresent
+        name: hello-pod-1
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources: {}
+        securityContext:
+          capabilities: {}
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+    dnsPolicy: ClusterFirst
+    restartPolicy: Never
+    serviceAccount: ""
+    volumes:
+      - emptyDir:
+         medium: Memory
+        name: tmp
+  #Failed pod
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      name: hello-pod-2
+    name: hello-pod-2
+  spec:
+    containers:
+      - image: "quay.io/openshifttest/hello-openshift@sha256:424e57db1f2e8e8ac9087d2f5e8faea6d73811f0b6f96301bc94293680897073"
+        command: ["sh", "-c", "exit 1"]
+        imagePullPolicy: IfNotPresent
+        name: hello-pod-2
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources: {}
+        securityContext:
+          capabilities: {}
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+    dnsPolicy: ClusterFirst
+    restartPolicy: Never
+    serviceAccount: ""
+    volumes:
+      - emptyDir:
+         medium: Memory
+        name: tmp

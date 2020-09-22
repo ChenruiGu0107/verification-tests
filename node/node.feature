@@ -501,3 +501,84 @@ Feature: Node management
       | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~configmap/configmap-volume |
     Then the output should contain:
       | No such file or directory |
+
+  # @author weinliu@redhat.com
+  # @case_id OCP-12809
+  @admin
+  Scenario: Kubelet should remove secret volumes when pod is terminated
+    Given I have a project
+    And I obtain test data file "configmap/OCP-12809/terminatedpods-secret-volume.yaml"
+    When I run the :create client command with:
+      | f | terminatedpods-secret-volume.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod-1" status becomes :succeeded
+    And evaluation of `pod.node_name` is stored in the :pod1_node clipboard
+    And evaluation of `pod.uid` is stored in the :pod1_uid clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/hello-pod-1 |
+    Then the step should succeed
+    And the output should contain:
+      | value-1 |
+      | value-2 |
+    Given I use the "<%= cb.pod1_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~secret/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~secret/secret-volume-1 |
+    Then the output should contain:
+      | No such file or directory |
+    Given the pod named "hello-pod-2" status becomes :failed
+    And evaluation of `pod.node_name` is stored in the :pod2_node clipboard
+    And evaluation of `pod.uid` is stored in the :pod2_uid clipboard
+    When I run the :logs client command with:
+      | resource_name | pod/hello-pod-2 |
+    Then the step should succeed
+    And the output should contain:
+      | value-1 |
+      | value-2 |
+    Given I use the "<%= cb.pod2_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~secret/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~secret/secret-volume-2 |
+    Then the output should contain:
+      | No such file or directory |
+
+  # @author weinliu@redhat.com
+  # @case_id OCP-12810
+  @admin
+  Scenario: Kubelet should remove memory based emptydir volumes when pod is terminated
+    Given I have a project
+    And I obtain test data file "configmap/OCP-12810/terminatedpods-empty-memory.yaml"
+    When I run the :create client command with:
+      | f | terminatedpods-empty-memory.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod-1" status becomes :succeeded
+    And evaluation of `pod.node_name` is stored in the :pod1_node clipboard
+    And evaluation of `pod.uid` is stored in the :pod1_uid clipboard
+    Given I use the "<%= cb.pod1_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~empty-dir/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod1_uid %>/volumes/kubernetes.io~empty-dir/tmp |
+    Then the output should contain:
+      | No such file or directory |
+    Given the pod named "hello-pod-2" status becomes :failed
+    And evaluation of `pod.node_name` is stored in the :pod2_node clipboard
+    And evaluation of `pod.uid` is stored in the :pod2_uid clipboard
+    Given I use the "<%= cb.pod2_node %>" node
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~empty-dir/ |
+    Then the output should not contain:
+      | No such file or directory |
+    When I run commands on the host:
+      | ls -d /var/lib/kubelet/pods/<%= cb.pod2_uid %>/volumes/kubernetes.io~empty-dir/tmp |
+    Then the output should contain:
+      | No such file or directory |
+
