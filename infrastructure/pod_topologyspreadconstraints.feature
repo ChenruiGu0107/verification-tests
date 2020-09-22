@@ -314,7 +314,6 @@ Feature: podTopologySpreadConstraints
   Scenario: Validate multiple TopologySpreadConstraint and "maxSkew: 2"
     Given the master version >= "4.6"
     Given I store the schedulable workers in the :nodes clipboard
-    Given the taints of the nodes in the clipboard are restored after scenario
     # Add labels to the nodes
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
     Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
@@ -333,16 +332,16 @@ Feature: podTopologySpreadConstraints
     Then the step should succeed
     And the pod named "pod-ocp34086-1" status becomes :running
     And the expression should be true> pod.node_name == cb.nodes[0].name
-    When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.nodes[2].name %>           |
-      | key_val   | dedicated=special-user:NoSchedule |
+    And node schedulable status should be restored after scenario
+    When I run the :oadm_cordon_node admin command with:
+      | node_name | <%= cb.nodes[2].name %> |
     Then the step should succeed
     Given I obtain test data file "scheduler/pod-topology-spread-constraints/pod_ocp34086.yaml"
     When I run the :create client command with:
       | f | pod_ocp34086.yaml |
     Then the step should succeed
     And the pod named "pod-ocp34086-2" status becomes :running
-    And the expression should be true> pod.node_name == cb.nodes[1].name
+    And the expression should be true> pod.node_name == cb.nodes[1].name || cb.nodes[0].name
 
   # @author yinzhou@redhat.com
   # @case_id OCP-33765
