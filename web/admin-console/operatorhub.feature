@@ -1065,7 +1065,6 @@ Feature: operatorhub feature related
   Scenario: Show operator installation flow
     Given the master version >= "4.6"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
-
     Given I switch to the first user
     Given I have a project
     Given the first user is cluster-admin
@@ -1093,3 +1092,62 @@ Feature: operatorhub feature related
     When I perform the :check_view_error_button web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+  
+  # @author yapei@redhat.com
+  # @case_id OCP-33748
+  @admin
+  Scenario: schema grouping for specDescriptors and statusDescriptors
+    Given the master version >= "4.6"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
+    Given I have a project
+    Given the first user is cluster-admin
+    Given I open admin console in a browser
+    When I perform the :subscribe_operator_to_namespace web action with:
+      | package_name     | argocd-operator      |
+      | catalog_name     | ui-auto-operators    |
+      | target_namespace | <%= project.name %>  |
+    Then the step should succeed
+    Given admin waits for the "argocd-operator" subscriptions to become ready in the "<%= project.name %>" project up to 360 seconds
+    And evaluation of `subscription("argocd-operator").current_csv` is stored in the :argocd_csv clipboard
+    When I perform the :create_operand web action with:
+      | project_name | <%= project.name %>   |
+      | csv_name     | <%= cb.argocd_csv %>  |
+      | operand_api  | ArgoCD                |
+    Then the step should succeed
+    Given admin wait for the "example-argocd" argo_c_d to appear in the "<%= project.name %>" project up to 10 seconds
+    When I perform the :goto_operand_details_page web action with:
+      | project_name               | <%= project.name %>         |
+      | csv_name                   | <%= cb.argocd_csv %>        |
+      | operand_group_version_kind | argoproj.io~v1alpha1~ArgoCD |
+      | operand_name               | example-argocd              |
+    When I run the :check_status_descriptor_grouping web action
+    Then the step should succeed
+    When I run the :check_spec_descriptor_grouping web action
+    Then the step should succeed
+    When I perform the :set_controller_group_resource_limits web action with:
+      | cpu_cores_value | 500m |
+      | memory_value    | 50Mi |
+      | storage_value   | 50Mi |
+    Then the step should succeed
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I perform the :check_resource_requirement_values web action with:
+      | cpu_cores_value | 500m |
+      | memory_value    | 50Mi |
+      | storage_value   | 50Mi |
+    Then the step should succeed
+    """
+    When I perform the :set_controller_group_resource_requests web action with:
+      | cpu_cores_value | 300m |
+      | memory_value    | 30Mi |
+      | storage_value   | 30Mi |
+    Then the step should succeed
+    Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I perform the :check_resource_requirement_values web action with:
+      | cpu_cores_value | 300m |
+      | memory_value    | 30Mi |
+      | storage_value   | 30Mi |
+    Then the step should succeed
+    """
