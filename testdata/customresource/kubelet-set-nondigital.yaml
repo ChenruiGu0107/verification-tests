@@ -1,0 +1,16 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: kubelet-set-nondigital
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      custom-kubelet: set-reserved
+  kubeletConfig:
+    kubeReserved:
+      cpu: a$aaad
+      memory: o*9988&6
+    systemReserved:
+      cpu: a$aaad
+      memory: o*9988&6
+

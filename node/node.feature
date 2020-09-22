@@ -79,77 +79,40 @@ Feature: Node management
     And the output should match 2 times:
       | pods:\\s+"250" |
 
-  # @author chezhang@redhat.com
+  # @author minmli@redhat.com
   # @case_id OCP-11573
   @admin
   @destructive
-  Scenario: Set resource reservation for openshift-node with invalid value
-    Given I store the schedulable nodes in the :nodes clipboard
-    When I run the :get admin command with:
-      | resource      | node                    |
-      | resource_name | <%= cb.nodes[0].name %> |
-      | o             | yaml                    |
+  Scenario Outline: Set resource reservation for openshift-node with invalid value
+    Given I switch to cluster admin pseudo user
+    When I run the :label client command with:
+      | resource | machineconfigpool           |
+      | name     | worker                      |
+      | key_val  | custom-kubelet=set-reserved |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :node_capacity_cpu clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"]` is stored in the :node_capacity_memory clipboard
-    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :node_allocate_cpu clipboard
-    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"]` is stored in the :node_allocate_memory clipboard
-    Given config of all nodes is merged with the following hash:
+    And I register clean-up steps:
     """
-    kubeletArguments:
-      system-reserved:
-      - "cpu=0m,memory=0G"
-      kube-reserved:
-      - "cpu=0m,memory=0G"
-    """
-    And the node service is restarted on all nodes
-    When I run the :describe admin command with:
-      | resource | node   |
-      | name     | <%= cb.nodes[0].name %> |
+    When I run the :label client command with:
+      | resource | machineconfigpool |
+      | name     | worker            |
+      | key_val  | custom-kubelet-   |
     Then the step should succeed
-    Then the output by order should match:
-      | cpu:\\s+<%= cb.node_capacity_cpu %>       |
-      | memory:\\s+<%= cb.node_capacity_memory %> |
-      | cpu:\\s+<%= cb.node_allocate_cpu %>       |
-      | memory:\\s+<%= cb.node_allocate_memory %> |
-    Given config of all schedulable nodes is merged with the following hash:
     """
-    kubeletArguments:
-      system-reserved:
-      - "cpu=-200m,memory=-1G"
-      kube-reserved:
-      - "cpu=-200m,memory=-1G"
-    """
-    And I try to restart the node service on all schedulable nodes
-    Then the step should fail
-    Given config of all schedulable nodes is merged with the following hash:
-    """
-    kubeletArguments:
-      system-reserved:
-      - "cpu=-200km,memory=-1Gk"
-      kube-reserved:
-      - "cpu=-200km,memory=-1Gk"
-    """
-    And I try to restart the node service on all schedulable nodes
-    Then the step should fail
-    Given config of all nodes is merged with the following hash:
-    """
-    kubeletArguments:
-      system-reserved:
-      - "cpu=200,memory=1000G"
-      kube-reserved:
-      - "cpu=200,memory=1000G"
-    """
-    And the node service is restarted on all nodes
-    When I run the :describe admin command with:
-      | resource | node                    |
-      | name     | <%= cb.nodes[0].name %> |
+    Given I obtain test data file "customresource/<kubeletcfg-name>.yaml"
+    And I ensure "<kubeletcfg-name>" kubelet_config is deleted after scenario
+    When I run the :create client command with:
+      | f | <kubeletcfg-name>.yaml |
     Then the step should succeed
-    Then the output by order should match:
-      | cpu:\\s+<%= cb.node_capacity_cpu %>       |
-      | memory:\\s+<%= cb.node_capacity_memory %> |
-      | cpu:\\s+0                                 |
-      | memory:\\s+0                              |
+    When I run the :get client command with:
+      | resource      | kubeletconfig/<kubeletcfg-name> |
+      | o             | yaml                            |
+    Then the output should contain:
+      | <output> |
+
+    Examples: Set resource reservation for openshift-node with invalid value
+      | kubeletcfg-name        | output                                                                  |
+      | kubelet-set-negative   | Error: KubeletConfiguration: cpu reservation value cannot be negative    |
+      | kubelet-set-nondigital | Error: KubeletConfiguration: invalid value specified for cpu reservation |
 
   # @author chezhang@redhat.com
   # @case_id OCP-12218

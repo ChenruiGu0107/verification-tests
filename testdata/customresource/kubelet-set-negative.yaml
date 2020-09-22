@@ -1,0 +1,16 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: kubelet-set-negative
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      custom-kubelet: set-reserved
+  kubeletConfig:
+    kubeReserved:
+      cpu: -200m
+      memory: -20G
+    systemReserved:
+      cpu: -100m
+      memory: -100G
+
