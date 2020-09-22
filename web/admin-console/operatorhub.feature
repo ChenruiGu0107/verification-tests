@@ -5,31 +5,32 @@ Feature: operatorhub feature related
   @admin
   Scenario: Add "custom form" vs "YAML editor" on "Create Custom Resource" page	
     Given the master version >= "4.3"
+    Given I have a project
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
     Given I switch to the first user
-    Given I have a project
     Given the first user is cluster-admin
 
     And I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | etcd                   |
-      | catalog_name     | ui-auto-operators      |
-      | target_namespace | <%= project.name %>    |
+      | package_name     | etcd                        |
+      | catalog_name     | ui-auto-operators           |
+      | target_namespace | <%= cb.userproject_name %>  |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
 
     # wait until etcd operator is successfully installed
-    Given I use the "<%= project.name %>" project
+    Given I use the "<%= cb.userproject_name %>" project
     Given a pod becomes ready with labels:
       | name=etcd-operator-alm-owned |
 
     # create etcd Cluster via Edit Form
     When I perform the :goto_installed_operators_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :create_custom_resource web action with:
       | api      | etcd Cluster |
@@ -141,10 +142,10 @@ Feature: operatorhub feature related
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | container-security-operator |
       | catalog_name     | ui-auto-operators           |
-      | target_namespace | <%= project.name %>         |
+      | target_namespace | <%= cb.userproject_name %>  |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
@@ -152,7 +153,7 @@ Feature: operatorhub feature related
     # wait until container security operator is successfully installed
     Given a pod becomes ready with labels:
       | name=container-security-operator-alm-owned |
-    Then I wait for the "sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d" image_manifest_vuln to appear in the "<%= project.name %>" project up to 30 seconds
+    Then I wait for the "sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d" image_manifest_vuln to appear in the "<%= cb.userproject_name %>" project up to 30 seconds
 
 
     #check the display when have vulnerabilities in cluster
@@ -170,7 +171,7 @@ Feature: operatorhub feature related
 
     #check Image Manifest Vulnerabilities page for 4.4 and above
     When I perform the :goto_ImageManifestVuln_list_page web action with:
-      | project_name |  <%= project.name %> |
+      | project_name |  <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :check_column_in_table web action with:
       | field | Highest Severity  |
@@ -185,7 +186,7 @@ Feature: operatorhub feature related
       | field | Manifest  |
     Then the step should succeed
     When I perform the :goto_one_ImageManifestVuln_page web action with:
-      | project_name |  <%= project.name %> |
+      | project_name |  <%= cb.userproject_name %> |
       | manifest     | sha256.eb253bef954ea760b834e6d736ad40fa900a1b8b688d97aac5cc9487b91f1b6d |
     Then the step should succeed
     When I run the :wait_box_loaded web action
@@ -195,7 +196,7 @@ Feature: operatorhub feature related
 
     #uninstall the operator on web console
     When I perform the :goto_installed_operators_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     Given I wait up to 20 seconds for the steps to pass:
     """
@@ -248,6 +249,7 @@ Feature: operatorhub feature related
   Scenario: Add Special support link for template and operator
     Given the master version >= "4.4"
     Given I have a project
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     #check support link for template
     Given I obtain test data file "image/language-image-templates/php-55-rhel7-stibuild.json"
     When I run the :create client command with:
@@ -276,13 +278,14 @@ Feature: operatorhub feature related
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
     Given I switch to the first user
     Given the first user is cluster-admin
+    Given I use the "<%= cb.userproject_name %>" project
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | cockroachdb         |
-      | catalog_name     | ui-auto-operators   |
-      | target_namespace | <%= project.name %> |
+      | package_name     | cockroachdb                |
+      | catalog_name     | ui-auto-operators          |
+      | target_namespace | <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
@@ -292,8 +295,8 @@ Feature: operatorhub feature related
     Given I successfully merge patch resource "csv/<%= cb.cockroachdb_csv %>" with:
       | {"metadata":{"annotations":{"marketplace.openshift.io/support-workflow": "https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated"}}} |
     When I perform the :goto_csv_detail_page web action with:
-      | project_name | <%= project.name %>       |
-      | csv_name     | <%= cb.cockroachdb_csv %> |
+      | project_name | <%= cb.userproject_name %>  |
+      | csv_name     | <%= cb.cockroachdb_csv %>   |
     Then the step should succeed
     When I perform the :check_the_support_link web action with:
       | link_url | https://marketplace.redhat.com/en-us/operators/cockroachdb-certified-rhmp/support-updated |
@@ -301,7 +304,7 @@ Feature: operatorhub feature related
 
     #check support link for Operator Backed service
     When I perform the :goto_catalog_page web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :click_catalog_item web action with:
       | catalog_item | CockroachDB |
@@ -316,27 +319,28 @@ Feature: operatorhub feature related
   Scenario: Form & YAML Toggle Interactions for Create Operand
     Given the master version >= "4.5"
     Given I have a project
-
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
     Given I switch to the first user
     Given the first user is cluster-admin
+    Given I use the "<%= cb.userproject_name %>" project
 
     When I open admin console in a browser
     Then the step should succeed
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | radanalytics-spark  |
-      | catalog_name     | ui-auto-operators   |
-      | target_namespace | <%= project.name %> |
+      | package_name     | radanalytics-spark         |
+      | catalog_name     | ui-auto-operators          |
+      | target_namespace | <%= cb.userproject_name %> |
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
     And I wait for the "radanalytics-spark" subscriptions to become ready
     And evaluation of `subscription("radanalytics-spark").current_csv` is stored in the :spark_csv clipboard
     When I perform the :goto_operand_list_page web action with:
-      | project_name | <%= project.name %>              |
+      | project_name | <%= cb.userproject_name %>       |
       | csv_name     | <%= cb.spark_csv %>              |
       | operand_name | radanalytics.io~v1~SparkCluster  |
     Then the step should succeed
@@ -583,7 +587,7 @@ Feature: operatorhub feature related
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
     When I perform the :click_checkbox_from_provider_type web action with:
-      | text | UI Auto Test Catalog |
+      | text | OpenShift QE |
     Then the step should succeed
     When I perform the :open_operator_modal web action with:
       | operator_name | Teiid |
@@ -1011,38 +1015,40 @@ Feature: operatorhub feature related
   @admin
   Scenario: Add button to operator install workflow to direct user to create operand based on annotation
     Given the master version >= "4.6"
+    Given I have a project
+    Given evaluation of `project.name` is stored in the :userproject_name clipboard
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
 
     # check required badge and button during operator installation phase
     Given I switch to the first user
-    Given I have a project
+    Given I use the "<%= cb.userproject_name %>" project
     Given the first user is cluster-admin
     Given I open admin console in a browser
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | portworx-essentials    |
-      | catalog_name     | ui-auto-operators      |
-      | target_namespace | <%= project.name %>    |
+      | package_name     | portworx-essentials         |
+      | catalog_name     | ui-auto-operators           |
+      | target_namespace | <%= cb.userproject_name %>  |
     Then the step should succeed
     When I run the :check_required_badge_on_operator_installation_page web action
     Then the step should succeed
     When I perform the :select_target_namespace web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_subscribe_button web action
     Then the step should succeed
     When I run the :check_create_operand_button_and_requied_badge_when_ready web action
     Then the step should succeed
     When I perform the :check_operand_button_link web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
 
     # check required badge and button on CSV details page
     When I perform the :goto_csv_detail_page web action with:
-      | project_name | <%= project.name %>        |
-      | csv_name     | portworx-essentials.v1.3.4 |
+      | project_name | <%= cb.userproject_name %>  |
+      | csv_name     | portworx-essentials.v1.3.4  |
     Then the step should succeed
     When I perform the :check_create_operand_button_and_requied_badge_on_csv_details web action with:
-      | project_name | <%= project.name %> |
+      | project_name | <%= cb.userproject_name %> |
     Then the step should succeed
     When I run the :click_create_storagecluster_button web action
     Then the step should succeed
