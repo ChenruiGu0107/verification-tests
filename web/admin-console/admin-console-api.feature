@@ -63,13 +63,18 @@ Feature: admin console api related
 
     # normal user with metrics-reader role can view all Dashboards
     Given I open admin console in a browser
-    When I perform the :click_secondary_menu web action with:
-      | primary_menu   | Monitoring |
-      | secondary_menu | Dashboards |
-    Then the step should succeed
-    When I run the :check_grafana_dashboard_body_loaded web action
+    When I run the :nagivate_to_monitoring_dashboards_page web action
     Then the step should succeed
     When I run the :check_dashboard_dropdown_items web action
+    Then the step should succeed
+
+    # check grafana-dashboard-k8s-resources-workload dashboard
+    When I perform the :check_resources_workloads_dashboard web action with:
+      | namespace | openshift-console |
+      | workload  | downloads         |
+    Then the step should succeed
+    When I perform the :check_resources_pod_dashboard web action with:
+      | namespace | openshift-apiserver |
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
