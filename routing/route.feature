@@ -1210,7 +1210,10 @@ Feature: Testing route
     When I run the :create client command with:
       | f | signed-service.json |
     And the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
     And I check that the "service-secret" secret exists
+    """
 
     # Deploy a pod with secret volume and mountpaths
     Given I obtain test data file "routing/ingress/caddy-secure.yaml"
