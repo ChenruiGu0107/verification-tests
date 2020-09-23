@@ -586,13 +586,12 @@ Feature: operatorhub feature related
 
     When I run the :goto_operator_hub_page web action
     Then the step should succeed
-    When I perform the :click_checkbox_from_provider_type web action with:
-      | text | OpenShift QE |
+    When I run the :click_qe_customized_provider web action
     Then the step should succeed
     When I perform the :open_operator_modal web action with:
       | operator_name | Teiid |
     Then the step should succeed
-    When I run the :check_operator_purchase_link web action
+    When I run the :check_customized_operator_purchase_link web action
     Then the step should succeed
 
   # @author hasha@redhat.com
