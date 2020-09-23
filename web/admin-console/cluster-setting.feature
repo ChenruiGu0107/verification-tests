@@ -21,7 +21,7 @@ Feature: about cluster setting page
     Then the step should succeed
 
   # @author schituku@redhat.com
-  #@case_id OCP-25832
+  # @case_id OCP-25832
   @admin
   Scenario: Check the channels in the channel list drop down.
     Given the master version >= "4.4"
