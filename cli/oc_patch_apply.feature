@@ -424,13 +424,17 @@ Feature: oc patch/apply related scenarios
       | p             | [{"op": "add", "path": "/spec/template/metadata/labels/version", "value": "4.5"}] |
       | type          | json                                                                              |
     Then the step should succeed
+    And a pod becomes ready with labels:
+      | version=4.5 |
     When I run the :patch client command with:
       | _tool         | <tool>                                                                          |
       | resource      | deploy                                                                          |
       | resource_name | myapp                                                                           |
       | p             | [{"op": "add", "path": "/spec/template/metadata/labels/run", "value": "hello"}] |
       | type          | json                                                                            |
-    Then the step should succeed 
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=hello,version=4.5 |
     When I get project deployment named "myapp" as YAML
     And I save the output to file> myapp.yaml
     Then I replace lines in "myapp.yaml":
