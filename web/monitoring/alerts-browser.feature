@@ -153,7 +153,7 @@ Feature: alerts browser
       | alert_name | Watchdog |
       | status     | Silenced |
     Then the step should succeed
-       #Disable Firing and Silenced
+    #Disable Firing and Silenced
     When I perform the :click_link_with_text_only web action with:
       | text | Silenced |
     Then the step should succeed
@@ -316,11 +316,11 @@ Feature: alerts browser
     #By default, Active/pending enabled and Expired disabled
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Active |
+      | status     | Active   |
     Then the step should succeed
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Expired |
+      | status     | Expired  |
     Then the step should fail
     #Active enabled and Enable Expired
     When I perform the :click_link_with_text_only web action with:
@@ -344,7 +344,7 @@ Feature: alerts browser
     Then the step should fail
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Expired |
+      | status     | Expired  |
     Then the step should succeed
     #Enable Active and disable Expired to restore default status
     When I perform the :click_link_with_text_only web action with:
@@ -408,11 +408,11 @@ Feature: alerts browser
     #By default, Active/pending enabled and Expired disabled
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Active |
+      | status     | Active   |
     Then the step should succeed
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Expired |
+      | status     | Expired  |
     Then the step should fail
     #Enable Active/pending/Expired filters
     When I perform the :list_alerts_by_filters web action with:
@@ -436,7 +436,7 @@ Feature: alerts browser
     Then the step should fail
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Expired |
+      | status     | Expired  |
     Then the step should succeed
     #Go to alert rule page, and come back, filter come back to default status
     When I run the :goto_monitoring_alertrules_page web action
@@ -445,11 +445,11 @@ Feature: alerts browser
     Then the step should succeed
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Active |
+      | status     | Active   |
     Then the step should succeed
     When I perform the :status_specific_silence web action with:
       | alert_name | Watchdog |
-      | status     | Expired |
+      | status     | Expired  |
     Then the step should fail
     #Expire silence to restore environment
     When I perform the :open_silence_detail web action with:
@@ -505,7 +505,7 @@ Feature: alerts browser
     And I click the following "button" element:
       | text | Expire Silence |
     Then the step should succeed
-  
+
   # @author hongyli@redhat.com
   # @case_id OCP-21166
   @admin
@@ -601,7 +601,7 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :silence_alert_from_create_button web action
     Then the step should succeed
-    #When Silence matcher is a regex, the Firing Alerts list should be populated correctly	
+    #When Silence matcher is a regex, the Firing Alerts list should be populated correctly
     #Go back to alert page and filter with status
     When I run the :goto_monitoring_alerts_page web action
     Then the step should succeed
@@ -639,7 +639,7 @@ Feature: alerts browser
     Then the step should succeed
     When I run the :silence_alert_from_create_button web action
     Then the step should succeed
-    #Show a detailed and complete view of Alertmanager Silence, "Firing Alerts" list is in Silence details page	
+    #Show a detailed and complete view of Alertmanager Silence, "Firing Alerts" list is in Silence details page
     When I run the :check_info_of_silence_detail_reg web action
     Then the step should succeed
     #Expire silence from silences list page and silence details page
@@ -742,12 +742,12 @@ Feature: alerts browser
     When evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
     #alerts page
     When I perform the HTTP request:
-    """
-    :url: https://<%= cb.prom_route %>/alerts
-    :method: get
-    :headers:
+      """
+      :url: https://<%= cb.prom_route %>/alerts
+      :method: get
+      :headers:
       :Authorization: Bearer <%= cb.sa_token %>
-    """
+      """
     Then the step should succeed
     And the output should contain:
       | Watchdog |
@@ -879,9 +879,10 @@ Feature: alerts browser
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
-    When I run the :new_project client command with:
-      | project_name | ocp-32216-proj |
-    Then the step should succeed
+    #When I run the :new_project client command with:
+    #  | project_name | ocp-32216-proj |
+    #Then the step should succeed
+    And I use the "openshift-monitoring" project
     Given I obtain test data file "monitoring/prometheus_rules_example_alert.yaml"
     When I run the :apply client command with:
       | f         | prometheus_rules_example_alert.yaml |
@@ -910,4 +911,57 @@ Feature: alerts browser
       | alert_name | HighErrors |
       | table_text | HighErrors |
     Then the step should succeed
-   
+
+    #enable UserWorkload
+    Given I obtain test data file "monitoring/config_map_disableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_disableUserWorkload.yaml |
+      | overwrite | true                                |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24439
+  @admin
+  @destructive
+  Scenario: If alerts have the same name and labels, should take to the right alert page when clicking the name
+    Given the master version >= "4.3"
+    Given the first user is cluster-admin
+    Given admin ensures "ocp-24439-example" deployment is deleted from the "default" project after scenario
+
+    Given I obtain test data file "monitoring/pod_wrong_image-ocp-24439.yaml"
+    When I run the :apply client command with:
+      | f         | pod_wrong_image-ocp-24439.yaml |
+      | overwrite | true                           |
+    Then the step should succeed
+
+    Given I open admin console in a browser
+
+    When I run the :get admin command with:
+      | resource | pod     |
+      | n        | default |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split(/\n/).map{|n| n.split(/\s/)[0]}.map{|n| n[/(.*)ocp-24439-example(.*)/]}.compact!` is stored in the :example_pods clipboard
+
+    #check alert detail for both pods
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    #open alert detail page
+    When I perform the :open_alert_detail_href web action with:
+      | alert_name | KubePodNotReady           |
+      | text       | KubePodNotReady           |
+      | link_url   | <%= cb.example_pods[0] %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.example_pods[0]  %> |
+    Then the step should succeed
+    #check alert detail for both pods
+    When I run the :goto_monitoring_alerts_page web action
+    Then the step should succeed
+    When I perform the :open_alert_detail_href web action with:
+      | alert_name | KubePodNotReady           |
+      | text       | KubePodNotReady           |
+      | link_url   | <%= cb.example_pods[1] %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | <%= cb.example_pods[1]  %> |
+    Then the step should succeed

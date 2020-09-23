@@ -189,7 +189,7 @@ Feature: query browser
       :url: https://<%= cb.prom_route %>/api/v1/label/__name__/values
       :method: get
       :headers:
-        :Authorization: Bearer <%= cb.sa_token %>
+      :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should contain:
@@ -382,4 +382,151 @@ Feature: query browser
     When I perform the :check_data_diplayed_db web action with:
       | data_name   | Memory Usage    |
       | legend_name | config-reloader |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-27841
+  @admin
+  Scenario: Administrator console check for admin user
+    Given the master version >= "4.3"
+    When the first user is cluster-admin
+    And I open admin console in a browser
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    When I perform the :check_link_and_text web action with:
+      | text     | View alerts        |
+      | link_url | /monitoring/alerts |
+    When I perform the :click_utilization_graph_link web action with:
+      | metric_kind | memory |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) |
+    Then the step should succeed
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    #Click on the resource usage value link, then click the link from a random pod
+    When I perform the :click_link_from_uitilization_description web action with:
+      | metric_kind | Memory               |
+      | link_text   | openshift-monitoring |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | openshift-monitoring |
+    Then the step should succeed
+
+    When I run the :goto_cluster_dashboards_page web action
+    Then the step should succeed
+    #Click on the resource usage value link, then click the "View More" link
+    When I perform the :click_link_from_uitilization_description web action with:
+      | metric_kind | Memory    |
+      | link_text   | View more |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | topk(25, sort_desc(sum(avg_over_time(container_memory_working_set_bytes{container="",pod!=""}[5m])) BY (namespace))) |
+    Then the step should succeed
+
+    When I run the :goto_node_page web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | GiB |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-34901
+  Scenario: Administrator console check for common user
+    Given the master version >= "4.3"
+    Given I open admin console in a browser
+
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | openshift/deployment-example |
+    Then the step should succeed
+
+    #Go to admin console
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    When I perform the :click_utilization_graph_link web action with:
+      | metric_kind | memory |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | <%= cb.proj_name %> |
+    Then the step should succeed
+
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    #Click on the resource usage value link, then click the link from a random pod
+    When I perform the :click_link_from_uitilization_description web action with:
+      | metric_kind | Memory             |
+      | link_text   | deployment-example |
+    Then the step should succeed
+    When I run the :check_pod_detail web action
+    Then the step should succeed
+
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    #Click on the resource usage value link, then click the "View More" link
+    When I perform the :click_link_from_uitilization_description web action with:
+      | metric_kind | Memory    |
+      | link_text   | View more |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | <%= cb.proj_name %> |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21257
+  Scenario: Show Pod metrics in Console under multi-tenant environment
+    Given the master version >= "4.0"
+    Given I open admin console in a browser
+
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | openshift/deployment-example |
+    Then the step should succeed
+
+    #Go to admin console
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
+    When I perform the :goto_one_project_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    When I perform the :click_utilization_graph_link web action with:
+      | metric_kind | memory |
+    Then the step should succeed
+
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    When I perform the :click_link_with_text web action with:
+      | text     | deployment-example |
+      | link_url | pods               |
+    Then the step should succeed
+    When I run the :check_pod_detail web action
+    Then the step should succeed
+
+    Given I switch to the second user
+    And I open admin console in a browser
+    #Go to admin console
+    When I run the :navigate_to_admin_console web action
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | Welcome to OpenShift |
+    Then the step should succeed
+    When I perform the :goto_project_pods_list_page web action with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    When I perform the :check_page_contains web action with:
+      | content | No Pods Found |
     Then the step should succeed

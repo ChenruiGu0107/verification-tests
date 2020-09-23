@@ -102,8 +102,7 @@ Feature: Install and configuration related scenarios
 
     # get prometheus-operator endpoint
     And evaluation of `endpoints('prometheus-operator').subsets.first.addresses.first.ip.to_s` is stored in the :po_endpoint_ip clipboard
-    And evaluation of `endpoints('prometheus-operator').subsets.first.ports.first.port.to_s` is stored in the :po_endpoint_port clipboard
-    And evaluation of `cb.po_endpoint_ip + ':' +cb.po_endpoint_port` is stored in the :po_endpoint clipboard
+    And evaluation of `cb.po_endpoint_ip + ':8443'` is stored in the :po_endpoint clipboard
 
     # Get metrics from cluster-monitoring-operator endpoint without Authorization Bearer token
     When I run the :exec admin command with:
@@ -1176,7 +1175,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
 
     Given I switch to the second user
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec admin command with:
       | n                | openshift-monitoring                                                                                                                                          |
@@ -1196,18 +1195,11 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: Implement and deploy monitoring-edit role
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     And I switch to cluster admin pseudo user
     Given admin ensures "ocp-29837-proj" project is deleted after scenario
 
     Given I check that the "monitoring-edit" cluster_role exists
-
-    #enable UserWorkload
-    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_enableUserWorkload.yaml |
-      | overwrite | true                               |
-    Then the step should succeed
 
     #Create one project with PrometheusRule/ServiceMonitor/PodMonitor
     When I run the :new_project client command with:
@@ -1341,7 +1333,6 @@ Feature: Install and configuration related scenarios
       | prometheuses.monitoring.coreos.com    |
       | prometheusrules.monitoring.coreos.com |
       | servicemonitors.monitoring.coreos.com |
-      | thanosrulers.monitoring.coreos.com    |
 
   # @author hongyli@redhat.com
   # @case_id OCP-31684
@@ -1417,18 +1408,11 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: Implement and deploy monitoring-rules-edit role
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     And I switch to cluster admin pseudo user
     Given admin ensures "ocp-29824-proj" project is deleted after scenario
 
     Given I check that the "monitoring-rules-edit" cluster_role exists
-
-    #enable UserWorkload
-    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
-    When I run the :apply client command with:
-      | f         | config_map_enableUserWorkload.yaml |
-      | overwrite | true                               |
-    Then the step should succeed
 
     #Create one project with PrometheusRule
     When I run the :new_project client command with:
@@ -1482,7 +1466,7 @@ Feature: Install and configuration related scenarios
   @admin
   @destructive
   Scenario: Implement and deploy monitoring-rules-view role
-    Given the master version >= "4.6"
+    Given the master version >= "4.5"
     And I switch to cluster admin pseudo user
     Given admin ensures "ocp-29823-proj" project is deleted after scenario
 
@@ -1526,3 +1510,26 @@ Feature: Install and configuration related scenarios
       | n                 | ocp-29823-proj |
     Then the output should contain:
       | Error from server (Forbidden) |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-35061
+  @admin
+  @destructive
+  Scenario:  Disable grafana telemetry
+    Given the master version >= "4.5"
+    Given the first user is cluster-admin
+
+    Given I use the "openshift-monitoring" project
+    And a pod becomes ready with labels:
+      | app=grafana |
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring         |
+      | pod              | <%= pod.name %>              |
+      | c                | grafana                      |
+      | oc_opts_end      |                              |
+      | exec_command     | sh                           |
+      | exec_command_arg | -c                           |
+      | exec_command_arg | cat /etc/grafana/grafana.ini |
+    Then the step should succeed
+    And the output should contain:
+      | reporting_enabled = false |
