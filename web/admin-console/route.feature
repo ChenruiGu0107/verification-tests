@@ -344,6 +344,15 @@ Feature: route related
       | private_key_path      | <%= localhost.absolutize("example.key") %> |
       | ca_certificate_path   | <%= localhost.absolutize("example.csr") %> |
     Then the step should succeed
+    # create one more route by form to make 3 routes in total
+    When I perform the :goto_route_creation_page web action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_route web action with:
+      | route_name   | mybasicroute     |
+      | service_name | service-unsecure |
+      | target_port  | http             |
+    Then the step should succeed
     # to make sure all required routes are created
     Given I wait up to 10 seconds for the steps to pass:
     """
@@ -351,7 +360,13 @@ Feature: route related
     Then the output should contain:
       | example     |
       | mytestroute |
+      | mybasicroute|
     """
+
+    # check basic route is reachable.
+    Given I store default router subdomain in the :subdomain clipboard
+    When I open web server via the "http://mybasicroute-<%= project.name %>.<%= cb.subdomain %>" url
+    Then the output should contain "Hello-OpenShift-1 http-8080"
 
     # check Status, status icon and condition table on route details
     When I perform the :goto_one_route_page web action with:
@@ -407,7 +422,7 @@ Feature: route related
   # @author xiaocwan@redhat.com
   # @case_id OCP-33744
   @admin
-  Scenario: Web Security checks 
+  Scenario: Web Security checks
     Given the master version >= "4.6"
     # check the oauthaccesstoken by web console
     Given I open admin console in a browser
@@ -415,7 +430,7 @@ Feature: route related
       | resource | oauthaccesstoken                                                    |
       | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
     Then the step should succeed
-    And the output should match "<%= user.name %>.*console" 
+    And the output should match "<%= user.name %>.*console"
 
     # check the download route page
     Given default admin-console downloads route is stored in the clipboard
@@ -434,4 +449,4 @@ Feature: route related
       | resource | oauthaccesstoken                                                    |
       | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
     Then the step should succeed
-    And the output should not match "<%= user.name %>.*console" 
+    And the output should not match "<%= user.name %>.*console"
