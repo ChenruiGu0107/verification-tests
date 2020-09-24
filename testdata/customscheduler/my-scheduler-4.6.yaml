@@ -45,7 +45,7 @@ spec:
         - --address=0.0.0.0
         - --leader-elect=false
         - --scheduler-name=my-scheduler
-        image: quay.io/openshifttest/custom-scheduler@sha256:182a09bf3e0c47aec15babd80facf4fc16e5ab0b50ca77e988b376f0ac5f7082
+        image: quay.io/openshifttest/custom-scheduler@sha256:cae6b0eea7ce1b57aedfbf81eb0334acf79bd898ebf02aa16f55dc72cae1ca7a
         livenessProbe:
           httpGet:
             path: /healthz
