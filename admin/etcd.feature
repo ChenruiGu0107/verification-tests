@@ -179,3 +179,49 @@ Feature: etcd related features
       | API VERSION:                                      |
       | COMMANDS:                                         |
       | OPTIONS:                                          |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-33214
+  @admin
+  Scenario: Etcd metrics and defragment key metrics to monitor
+    Given the master version >= "4.6"
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-etcd" project
+    And status becomes :running of 3 pods labeled:
+      | app=etcd |
+    # get sa/prometheus-k8s token
+    Given I use the "openshift-monitoring" project
+    When I run the :serviceaccounts_get_token admin command with:
+      | serviceaccount_name | prometheus-k8s |
+    Then the step should succeed
+    And evaluation of `@result[:stdout]` is stored in the :sa_token clipboard
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                          |
+      | pod              | prometheus-k8s-0                                                                                                                                              |
+      | c                | prometheus                                                                                                                                                    |
+      | oc_opts_end      |                                                                                                                                                               |
+      | exec_command     | sh                                                                                                                                                            |
+      | exec_command_arg | -c                                                                                                                                                            |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=etcd_server_quota_backend_bytes |
+    Then the step should succeed
+    And the expression should be true> YAML.load(@result[:stdout])["data"]["result"][0]["value"][1] != nil
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                                  |
+      | pod              | prometheus-k8s-0                                                                                                                                                      |
+      | c                | prometheus                                                                                                                                                            |
+      | oc_opts_end      |                                                                                                                                                                       |
+      | exec_command     | sh                                                                                                                                                                    |
+      | exec_command_arg | -c                                                                                                                                                                    |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=etcd_mvcc_db_total_size_in_use_in_bytes |
+    Then the step should succeed
+    And the expression should be true> YAML.load(@result[:stdout])["data"]["result"][0]["value"][1] != nil
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring                                                                                                                                                     |
+      | pod              | prometheus-k8s-0                                                                                                                                                         |
+      | c                | prometheus                                                                                                                                                               |
+      | oc_opts_end      |                                                                                                                                                                          |
+      | exec_command     | sh                                                                                                                                                                       |
+      | exec_command_arg | -c                                                                                                                                                                       |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=etcd_debugging_mvcc_db_total_size_in_bytes |
+    Then the step should succeed
+    And the expression should be true> YAML.load(@result[:stdout])["data"]["result"][0]["value"][1] != nil
