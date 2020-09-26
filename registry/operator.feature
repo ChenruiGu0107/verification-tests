@@ -465,3 +465,22 @@ Feature: Testing image registry operator
     And the output should contain:
       | The registry is removed            |
       | All registry resources are removed | 
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-25813
+  @admin
+  Scenario: image-registry-operator-alerts appears if mist-configure to image registry storage
+    Given I switch to cluster admin pseudo user
+    And I use the "openshift-image-registry" project
+    Then the expression should be true> prometheus_rule('image-registry-operator-alerts').prometheus_rule_groups_spec.first.rules.first['alert'] == 'ImageRegistryStorageReconfigured'
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-33566
+  @admin
+  Scenario: leader lease log appears in operator log if new image-registry pod generated	
+    When I run the :logs admin command with:
+      | resource_name | deployment/cluster-image-registry-operator |
+      | namespace     | openshift-image-registry                   |
+      | c             | cluster-image-registry-operator            |
+    And the output should contain:
+      | leader lease |
