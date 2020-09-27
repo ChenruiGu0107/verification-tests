@@ -599,6 +599,8 @@ Feature: operatorhub feature related
   @admin
   Scenario: check operator install process when operator bundle pre-defined namespace/installplan/monitoring
     Given the master version >= "4.4"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given I have a project
     Given the first user is cluster-admin
     And I open admin console in a browser
@@ -607,8 +609,8 @@ Feature: operatorhub feature related
     And I wait up to 30 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | amq7-cert-manager   |
-      | catalog_name     | redhat-operators    |
+      | package_name     | serverless-operator |
+      | catalog_name     | ui-auto-operators   |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
     """
@@ -618,9 +620,9 @@ Feature: operatorhub feature related
     And I wait up to 30 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | amq7-interconnect-operator |
-      | catalog_name     | redhat-operators           |
-      | target_namespace | <%= project.name %>        |
+      | package_name     | spark-gcp           |
+      | catalog_name     | ui-auto-operators   |
+      | target_namespace | <%= project.name %> |
     Then the step should succeed
     """
     When I run the :check_specific_namespace_installation_mode_without_recommended_ns web action
@@ -636,13 +638,13 @@ Feature: operatorhub feature related
     And I wait up to 30 seconds for the steps to pass:
     """
     When I perform the :goto_operator_subscription_page web action with:
-      | package_name     | elasticsearch-operator |
-      | catalog_name     | redhat-operators       |
-      | target_namespace | <%= project.name %>    |
+      | package_name     | cluster-logging     |
+      | catalog_name     | qe-app-registry     |
+      | target_namespace | <%= project.name %> |
     Then the step should succeed
     """
     When I perform the :check_all_namespace_installation_mode_with_recommended_ns web action with:
-      | recommended_ns | openshift-operators-redhat |
+      | recommended_ns | openshift-logging |
     Then the step should succeed
 
     And I wait up to 30 seconds for the steps to pass:
@@ -671,7 +673,7 @@ Feature: operatorhub feature related
     """
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | ocs-operator        |
-      | catalog_name     | redhat-operators    |
+      | catalog_name     | ui-auto-operators   |
       | target_namespace | <%= project.name %> |
     Then the step should succeed
     """

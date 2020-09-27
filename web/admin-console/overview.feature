@@ -261,7 +261,7 @@ Feature: overview cases
     When I run the :click_subscribe_button web action
     Then the step should succeed
     Given I wait for the "etcd" subscriptions to appear
-    Given I wait up to 60 seconds for the steps to pass:
+    Given I wait up to 100 seconds for the steps to pass:
     """
     When I get project clusterserviceversions
     Then the output should contain "etcdoperator.v"
