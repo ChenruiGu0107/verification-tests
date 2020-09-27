@@ -365,14 +365,14 @@ Feature: SCC policy related scenarios
       | f | add_and_drop.json |
     Then the step should fail
     And the output should match:
-      | unable to validate against any security context constraint: \[capabilities.add |
+      | unable to validate against any security context constraint: \[.*capabilities.add |
 
     Given I obtain test data file "authorization/scc/tc518947/failure_to_add.json"
     When I run the :create client command with:
       | f | failure_to_add.json |
     Then the step should fail
     And the output should match:
-      | unable to validate against any security context constraint: \[capabilities.add |
+      | unable to validate against any security context constraint: \[.*capabilities.add |
 
   # @author pruan@redhat.com
   # @case_id OCP-10735
