@@ -551,3 +551,62 @@ Feature: podTopologySpreadConstraints
     Then the step should succeed
     And the pod named "pod-ocp33764-3" status becomes :running
     And the expression should be true> pod.node_name == cb.nodes[0].name || cb.nodes[1].name
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-34018
+  @admin
+  @destructive
+  Scenario: Scale up deploy/DC should validate TopologySpreadConstraints
+    Given the master version >= "4.6"
+    Given I store the schedulable workers in the :nodes clipboard
+    # Add labels to the nodes
+    Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[1].name %>" node labels are restored after scenario
+    Given the "<%= cb.nodes[2].name %>" node labels are restored after scenario
+    And label "zone=zoneA" is added to the "<%= cb.nodes[0].name %>" node
+    And label "node=node1" is added to the "<%= cb.nodes[0].name %>" node
+    And label "zone=zoneA" is added to the "<%= cb.nodes[1].name %>" node
+    And label "node=node2" is added to the "<%= cb.nodes[1].name %>" node
+    And label "zone=zoneB" is added to the "<%= cb.nodes[2].name %>" node
+    And label "node=node3" is added to the "<%= cb.nodes[2].name %>" node
+    # Test runs here
+    Given I have a project
+    And I obtain test data file "scheduler/pod-topology-spread-constraints/deploy_ocp34018.yaml"
+    When I run the :create client command with:
+      | f | deploy_ocp34018.yaml |
+    Then the step should succeed
+    Given status becomes :running of 2 pods labeled:
+      | app=app-ocp34018 |
+    When I run the :get client command with:
+      | resource | pod              |
+      | l        | app=app-ocp34018 |
+      | o        | wide             |
+    Then the step should succeed
+    And the output should contain 1 times:
+      | <%= cb.nodes[2].name %> |
+    When I run the :scale client command with:
+      | resource | deploy       |
+      | name     | app-ocp34018 |
+      | replicas | 5            |
+    Then the step should succeed
+    Given status becomes :running of 5 pods labeled:
+      | app=app-ocp34018 |
+    When I run the :get client command with:
+      | resource | pod              |
+      | l        | app=app-ocp34018 |
+      | o        | wide             |
+    Then the step should succeed
+    And the expression should be true> @result[:response].scan('<%= cb.nodes[2].name %>').count == 2 || 3
+    When I run the :scale client command with:
+      | resource | deploy       |
+      | name     | app-ocp34018 |
+      | replicas | 8            |
+    Then the step should succeed
+    Given status becomes :running of 8 pods labeled:
+      | app=app-ocp34018 |
+    When I run the :get client command with:
+      | resource | pod              |
+      | l        | app=app-ocp34018 |
+      | o        | wide             |
+    Then the step should succeed
+    And the expression should be true> @result[:response].scan('<%= cb.nodes[2].name %>').count == 4
