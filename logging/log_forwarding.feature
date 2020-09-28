@@ -246,11 +246,15 @@ Feature: log forwarding related tests
     Then the step should succeed
     And I wait for the "secure-forward" config_map to appear
 
-    Given I obtain test data file "logging/clusterlogging/example.yaml"
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-fluentd-no-logStore.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true         |
-      | crd_yaml            | example.yaml |
+      | remove_logging_pods | true                                    |
+      | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
+      | check_status        | false                                   |
     Then the step should succeed
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
+      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -263,24 +267,6 @@ Feature: log forwarding related tests
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given I wait up to 300 seconds for the steps to pass:
-    """
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
-      | op           | GET                                                                                             |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty'  -d '{"query": {"exists": {"field": "systemd"}}} |
-      | op           | GET                                                               |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty'  -d '{"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
-      | op           | GET                                                                                      |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    """
 
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -290,6 +276,7 @@ Feature: log forwarding related tests
       | app.log             |
       | infra.log           |
       | infra-container.log |
+      | audit.log           |
     """
 
   # @author qitang@redhat.com
@@ -311,11 +298,15 @@ Feature: log forwarding related tests
     Then the step should succeed
     And I wait for the "syslog" config_map to appear
 
-    Given I obtain test data file "logging/clusterlogging/example.yaml"
+    Given I obtain test data file "logging/clusterlogging/clusterlogging-fluentd-no-logStore.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true         |
-      | crd_yaml            | example.yaml |
+      | remove_logging_pods | true                                    |
+      | crd_yaml            | clusterlogging-fluentd-no-logStore.yaml |
+      | check_status        | false                                   |
     Then the step should succeed
+    Given I wait for the "fluentd" daemon_set to appear up to 300 seconds
+    And <%= daemon_set('fluentd').replica_counters[:desired] %> pods become ready with labels:
+      | logging-infra=fluentd |
 
     # create project to generate logs
     Given I switch to the first user
@@ -328,24 +319,6 @@ Feature: log forwarding related tests
 
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
-    Given I wait up to 300 seconds for the steps to pass:
-    """
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty' -d '{"query": {"match": {"kubernetes.namespace_name": "<%= cb.proj.name %>"}}} |
-      | op           | GET                                                                                             |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty'  -d '{"query": {"exists": {"field": "systemd"}}} |
-      | op           | GET                                                               |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    When I perform the HTTP request on the ES pod with labels "es-node-master=true":
-      | relative_url | */_count?pretty'  -d '{"query": {"regexp": {"kubernetes.namespace_name": "openshift@"}}} |
-      | op           | GET                                                                                      |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['count'] > 0
-    """
 
     Given I wait up to 300 seconds for the steps to pass:
     """
@@ -355,6 +328,7 @@ Feature: log forwarding related tests
       | app-container.log   |
       | infra-container.log |
       | infra.log           |
+      | audit.log           |
     """
 
     Examples:

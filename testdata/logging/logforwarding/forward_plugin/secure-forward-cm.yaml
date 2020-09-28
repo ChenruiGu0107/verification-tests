@@ -24,7 +24,7 @@ data:
         # the systemd journald 0.0.8 input plugin will just throw away records if the buffer
         # queue limit is hit - 'block' will halt further reads and keep retrying to flush the
         # buffer to the remote - default is 'exception' because in_tail handles that case
-        overflow_action "#{ENV['BUFFER_QUEUE_FULL_ACTION'] || 'exception'}"
+        overflow_action "#{ENV['BUFFER_QUEUE_FULL_ACTION'] || 'throw_exception'}"
       </buffer>
       <server>
         host fluentdserver.openshift-logging.svc  # or IP
