@@ -516,10 +516,10 @@ Feature: cluster-logging-operator related cases
   @destructive
   Scenario: Fluentd alert rules check >= 4.6.
     Given the master version >= "4.6"
-    Given I obtain test data file "logging/clusterlogging/example.yaml"
+    Given I obtain test data file "logging/clusterlogging/example_indexmanagement.yaml"
     Given I create clusterlogging instance with:
-      | remove_logging_pods | true         |
-      | crd_yaml            | example.yaml |
+      | remove_logging_pods | true                         |
+      | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     Given I wait for the "fluentd" prometheus_rule to appear up to 300 seconds
 
@@ -539,6 +539,9 @@ Feature: cluster-logging-operator related cases
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDHighErrorRate'}['labels']['severity'] == "warning"
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'FluentDVeryHighErrorRate'}['labels']['severity'] == "critical"
     """
+    # set managementState to Unmanaged before making changes
+    Given I successfully merge patch resource "clusterlogging/instance" with:
+      | {"spec": {"managementState": "Unmanaged"}} |
 
     Given I run the :patch client command with:
       | resource      | prometheusrule                                                                                                                                                                  |
