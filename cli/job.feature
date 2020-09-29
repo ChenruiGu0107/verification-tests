@@ -45,17 +45,18 @@ Feature: job.feature
     Then status becomes :running of 1 pods labeled:
       | run=sj3 |
     When I run the :patch client command with:
-      | resource      | cronjob                           |
-      | resource_name | sj3                                    |
-      | p             | {"spec":{"startingDeadlineSeconds":1}} |
+      | resource      | cronjob                                  |
+      | resource_name | sj3                                      |
+      | p             | {"spec":{"startingDeadlineSeconds":100}} |
     Then the step should succeed
     Given 70 seconds have passed
     When I run the :delete client command with:
-      | object_type | pod             |
-      | l           | run=sj3         |
+      | object_type | pod     |
+      | l           | run=sj3 |
     Then the step should succeed
     Given 70 seconds have passed
-    And I check that there are no pods in the project
+    Given status becomes :running of 1 pods labeled:
+      | run=sj3 |
 
   # @author geliu@redhat.com
   # @case_id OCP-17513
