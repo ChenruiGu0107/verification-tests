@@ -484,39 +484,46 @@ Feature: taint toleration related scenarios
   @destructive
   Scenario: pods will be bound to the node for tolerationSeconds even there's matched taint
     Given I have a project
+    Given I store the schedulable workers in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | additional=true:NoSchedule                      |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %>     |
+      | key_val   | additional=true:NoSchedule- |
+    Then the step should succeed
     Given I obtain test data file "pods/tolerations/tolerationSeconds.yaml"
     When I run the :create client command with:
       | f | tolerationSeconds.yaml |
     Then the step should succeed
     Given the pod named "tolerationseconds-1" becomes ready
-    Given evaluation of `pod("tolerationseconds-1").node_name(user: user)` is stored in the :pod_node1 clipboard
-    Given I store the schedulable workers in the :nodes clipboard
-    Given the taints of the nodes in the clipboard are restored after scenario
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.pod_node1 %>   |
-      | key_val   | key1=value1:NoExecute |
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | key1=value1:NoExecute   |
     Then the step should succeed
     When I run the :describe admin command with:
-      | resource | node                |
-      | name     | <%= cb.pod_node1 %> |
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And the output should match:
       | Taints:\\s+key1=value1:NoExecute |
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.pod_node1 %> |
-      | key_val   | key1:NoExecute-     |
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | key1:NoExecute-         |
     Then the step should succeed
     When I run the :describe admin command with:
-      | resource | node                |
-      | name     | <%= cb.pod_node1 %> |
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
     Then the step should succeed
     And the output should match:
       | Taints:\\s+<none> |
     Given 120 seconds have passed
     Given the pod named "tolerationseconds-1" becomes ready
     When I run the :oadm_taint_nodes admin command with:
-      | node_name | <%= cb.pod_node1 %>   |
-      | key_val   | key1=value1:NoExecute |
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | key1=value1:NoExecute   |
     Then the step should succeed
     Given 100 seconds have passed
     Given the pod named "tolerationseconds-1" becomes ready
