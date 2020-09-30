@@ -46,12 +46,14 @@ Feature: mega menu on console
   @admin
   Scenario: Pipelines resources are added into Admin perspective
     Given the master version >= "4.3"
+    Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
+    Given I switch to the first user
     Given the first user is cluster-admin
     And I open admin console in a browser
     Given admin ensures "openshift-pipelines-operator-rh" subscription is deleted from the "openshift-operators" project after scenario
     When I perform the :goto_operator_subscription_page web action with:
       | package_name     | openshift-pipelines-operator-rh  |
-      | catalog_name     | redhat-operators                 |
+      | catalog_name     | ui-auto-operators                |
       | target_namespace | openshift-operators              |
     Then the step should succeed
     When I run the :click_subscribe_button web action
