@@ -979,7 +979,7 @@ Feature: operatorhub feature related
   # @case_id OCP-32151
   @admin
   Scenario: k8sResourcePrefix specDescriptor supports CRD instance
-    Given the master version >= "4.4"
+    Given the master version >= "4.6"
     Given I obtain test data file "customresource/mock-k8s-crd.yaml"
     Given I obtain test data file "customresource/mock-k8s-operator-csv.yaml"
     Given I obtain test data file "customresource/mock-k8s-cr.yaml"
