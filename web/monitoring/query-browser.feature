@@ -189,7 +189,7 @@ Feature: query browser
       :url: https://<%= cb.prom_route %>/api/v1/label/__name__/values
       :method: get
       :headers:
-      :Authorization: Bearer <%= cb.sa_token %>
+        :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should contain:
@@ -426,10 +426,12 @@ Feature: query browser
       | content | topk(25, sort_desc(sum(avg_over_time(container_memory_working_set_bytes{container="",pod!=""}[5m])) BY (namespace))) |
     Then the step should succeed
 
-    When I run the :goto_node_page web action
+    # Node detail page
+    Given I select a random node's host
+    When I perform the :goto_one_node_page web action with:
+      | node_name | <%= node.name %> |
     Then the step should succeed
-    When I perform the :check_page_contains web action with:
-      | content | GiB |
+    When I run the :check_node_detail_page_charts_style web action
     Then the step should succeed
 
   # @author hongyli@redhat.com
@@ -529,4 +531,22 @@ Feature: query browser
     Then the step should succeed
     When I perform the :check_page_contains web action with:
       | content | No Pods Found |
+    Then the step should succeed
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-24173
+  @admin
+  Scenario: run query that returns several hundred metrics
+    Given the master version >= "4.2"
+    And the first user is cluster-admin
+    Given I open admin console in a browser
+
+    When I run the :goto_monitoring_metrics_page web action
+    Then the step should succeed
+    #search in Query Browser
+    When I perform the :perform_metric_query_textarea web action with:
+      | metrics | topk(500,cluster_quantile:apiserver_request_duration_seconds:histogram_quantile) |
+    Then the step should succeed
+    When I perform the :check_metric_query_result web action with:
+      | table_text | cluster_quantile:apiserver_request_duration_seconds:histogram_quantile |
     Then the step should succeed

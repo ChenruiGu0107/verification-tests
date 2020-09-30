@@ -746,7 +746,7 @@ Feature: alerts browser
       :url: https://<%= cb.prom_route %>/alerts
       :method: get
       :headers:
-      :Authorization: Bearer <%= cb.sa_token %>
+        :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should contain:

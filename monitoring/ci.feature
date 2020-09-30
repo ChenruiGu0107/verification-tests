@@ -607,8 +607,7 @@ Feature: Install and configuration related scenarios
     And I switch to cluster admin pseudo user
     Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     And admin ensures "ocp-28961-proj" project is deleted after scenario
-    And admin ensures "story-rules" prometheusrule is deleted from the "ocp-28961-proj" project after scenario
-    And admin ensures "ocp-28961-example" deployment is deleted from the "ocp-28961-proj" project after scenario
+
     #enable techPreviewUserWorkload
     Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
     When I run the :apply client command with:
@@ -617,7 +616,7 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     #ThanosRuler related resouces are created
     When I use the "openshift-user-workload-monitoring" project
-    And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 240 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource | statefulset |
@@ -681,7 +680,7 @@ Feature: Install and configuration related scenarios
       :url: https://<%= cb.thanos_ruler_route %>/rules
       :method: get
       :headers:
-         :Authorization: Bearer <%= cb.sa_token %>
+        :Authorization: Bearer <%= cb.sa_token %>
       """
     Then the step should succeed
     And the output should not contain:
@@ -696,7 +695,7 @@ Feature: Install and configuration related scenarios
       | oc_opts_end      |                      |
       | exec_command     | sh                   |
       | exec_command_arg | -c                   |
-      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/rules |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/rules |
     Then the step should succeed
     And the output should contain:
       | thanos-rule.rules |
@@ -918,6 +917,8 @@ Feature: Install and configuration related scenarios
       | f         | config_map_enableUserWorkload.yaml |
       | overwrite | true                               |
     Then the step should succeed
+    And admin ensures "grpc-tls" secret is deleted from the "openshift-monitoring" project
+
     #Check resources are created under openshift-user-workload-monitoring namespaces
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -1138,10 +1139,12 @@ Feature: Install and configuration related scenarios
 
   # @case_id OCP-32623
   @admin
+  @destructive
   Scenario: expose thanos-querier rules endpoint
     Given the master version >= "4.6"
     And I switch to cluster admin pseudo user
     Given admin ensures "ocp-32623-proj" project is deleted after scenario
+    And admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
     
     Given I use the "openshift-monitoring" project
     And evaluation of `secret(service_account('prometheus-k8s').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
@@ -1157,6 +1160,12 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | ThanosQueryRangeLatencyHigh |
+    
+    Given I obtain test data file "monitoring/config_map_enableUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enableUserWorkload.yaml |
+      | overwrite | true                               |
+    Then the step should succeed
 
     #Create one project and prometheus rules under it
     When I run the :new_project client command with:
@@ -1189,7 +1198,7 @@ Feature: Install and configuration related scenarios
     And the output should contain:
       | requests_total |
     """
-
+    
   # @author hongyli@redhat.com
   # @case_id OCP-29837
   @admin
@@ -1533,3 +1542,111 @@ Feature: Install and configuration related scenarios
     Then the step should succeed
     And the output should contain:
       | reporting_enabled = false |
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-21874
+  @admin
+  @destructive
+  Scenario: custom metrics API is usable
+    Given the master version >= "4.0"
+    And I switch to cluster admin pseudo user
+
+    Given I obtain test data file "monitoring/custome_metric-deploy.yaml"
+    When I run the :apply client command with:
+      | f         | custome_metric-deploy.yaml |
+      | overwrite | true                       |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | --raw=/apis/custom.metrics.k8s.io/v1beta1 |
+    Then the output should contain:
+      | "groupVersion":"custom.metrics.k8s.io/v1beta1" |
+    """
+
+  # @author hongyli@redhat.com
+  # @case_id OCP-26042
+  @admin
+  @destructive
+  Scenario: Account for multi tenant clusters by adding enforcedNamespaceLabel
+    #case only apply to 4.3 and 4.4
+    Given the master version >= "4.3"
+    And the first user is cluster-admin
+    Given admin ensures "cluster-monitoring-config" configmap is deleted from the "openshift-monitoring" project after scenario
+   
+    #enable techPreviewUserWorkload
+    Given I obtain test data file "monitoring/config_map_enable_techPreviewUserWorkload.yaml"
+    When I run the :apply client command with:
+      | f         | config_map_enable_techPreviewUserWorkload.yaml |
+      | overwrite | true                                           |
+    Then the step should succeed
+    #Check enforcedNamespaceLabel
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | prometheus                         |
+      | resource_name | user-workload                      |
+      | o             | yaml                               |
+      | n             | openshift-user-workload-monitoring |
+    Then the output should contain:
+      | enforcedNamespaceLabel: namespace |
+    """
+    #create project and deploy pod
+    Given I create a project with non-leading digit name
+    Given evaluation of `project.name` is stored in the :proj_name clipboard
+    Then the step should succeed
+
+    Given I obtain test data file "monitoring/prometheus_rules_OCP-26042.yaml"
+    When I run the :apply client command with:
+      | f         | prometheus_rules_OCP-26042.yaml |
+      | overwrite | true                            |
+    Then the step should succeed
+
+    Given I use the "openshift-user-workload-monitoring" project
+    And evaluation of `secret(service_account('prometheus-user-workload').get_secret_names.find {|s| s.match('token')}).token` is stored in the :sa_token clipboard
+
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-user-workload-monitoring                                                              |
+      | pod              | prometheus-user-workload-0                                                                      |
+      | c                | prometheus                                                                                      |
+      | oc_opts_end      |                                                                                                 |
+      | exec_command     | cat                                                                                             |
+      | exec_command_arg | /etc/prometheus/rules/prometheus-user-workload-rulefiles-0/<%= cb.proj_name %>-story-rules.yaml |
+    Then the step should succeed
+    And the output should contain:
+      | CCOTargetNamespaceMissing |
+    """
+    
+    # query Watchdog alerts
+    And I wait up to 240 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://alertmanager-main.openshift-monitoring.svc:9094/api/v2/alerts?filter={alertname="Watchdog"} |
+
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.proj_name %> |
+    """
+    #Check thanos querier from svc to wait for some time
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | alertmanager-main-0  |
+      | c                | alertmanager         |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://thanos-querier.openshift-monitoring.svc:9091/api/v1/query?query=ALERTS%7Balertname%3D%22Watchdog%22%7D |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.proj_name %> |
+    """ 
