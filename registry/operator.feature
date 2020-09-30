@@ -467,6 +467,68 @@ Feature: Testing image registry operator
       | All registry resources are removed | 
 
   # @author wzheng@redhat.com
+  # @case_id OCP-34991
+  @admin
+  @destructive
+  Scenario: Add logLevel to registry config object
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I get project config_imageregistry_operator_openshift_io named "cluster" as YAML
+    Then the output should contain:
+      | logLevel: Normal         |
+      | operatorLogLevel: Normal |
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :before_change clipboard
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+     | {"spec": {"logLevel": "Debug"}} |
+    And I register clean-up steps:
+    """
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+     | {"spec": {"logLevel": "Normal"}} |
+    """
+    And I wait for the steps to pass:
+    """
+    And evaluation of `deployment("image-registry").generation_number(cached: false)` is stored in the :after_change clipboard
+    And the expression should be true> cb.after_change - cb.before_change >=1
+    And "image-registry" deployment becomes ready in the "openshift-image-registry" project
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    And I run the :logs admin command with:
+      | resource_name | deployment/image-registry |
+    And the output should contain:
+      | level=debug |
+    """
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+     | {"spec": {"logLevel": "Trace"}} |
+    Then the step should succeed
+    And I run the :logs admin command with:
+      | resource_name | deployment/image-registry |
+    And the output should contain:
+      | level=debug |
+    And I successfully merge patch resource "configs.imageregistry.operator.openshift.io/cluster" with:
+     | {"spec": {"logLevel": "TraceAll"}} |
+    Then the step should succeed
+    And I run the :logs admin command with:
+      | resource_name | deployment/image-registry |
+    And the output should contain:
+      | level=debug |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-34685
+  @admin
+  @destructive
+  Scenario: Warning appears when set spec.storage.managementState to invalid value
+    Given I switch to cluster admin pseudo user
+    When I use the "openshift-image-registry" project
+    When I run the :patch client command with:
+      | resource      | configs.imageregistry.operator.openshift.io    |
+      | resource_name | cluster                                        |
+      | p             | {"spec":{"storage":{"managementState":"abc"}}} |
+      | type          | merge                                          |
+    And the output should match:
+      | [Ii]nvalid         |
+      | Managed\|Unmanaged |
+  
+  # @author wzheng@redhat.com
   # @case_id OCP-25813
   @admin
   Scenario: image-registry-operator-alerts appears if mist-configure to image registry storage
