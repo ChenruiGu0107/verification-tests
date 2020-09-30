@@ -663,3 +663,55 @@ Feature: overview cases
     Then the step should succeed
     """
     And the expression should be true> browser.url.end_with? "config.openshift.io~v1~ClusterOperator/console"
+
+  # @author schituku@redhat.com
+  # @case_id OCP-23609
+  Scenario: Check the short cuts on the workloads tab
+    Given the master version >= "4.2"
+    And I have a project
+    # create a dc and deployment
+    And I obtain test data file "deployment/simpledc.json"
+    And I obtain test data file "deployment/simple-deployment.yaml"
+    When I run the :create client command with:
+      | f | simple-deployment.yaml |
+      | f | simpledc.json |
+    Then the step should succeed
+    # Go to the workloads tab on project details page.
+    Given I open admin console in a browser
+    When I perform the :goto_project_resources_page web action with:
+      | project_name | <%= project.name %> |
+    # check short cut "down arrow" and check the highlighted workload.
+    And I perform the :check_shortcuts_on_workloads web action with:
+      | workload      | Deployment  |
+      | workload_name | example     |
+      | key           | :arrow_down |
+    Then the step should succeed
+    # check short cut "up arrow" and check the highlighted workload.
+    And I perform the :check_shortcuts_on_workloads web action with:
+      | workload      | DeploymentConfig |
+      | workload_name | hooks            |
+      | key           | :arrow_up        |
+    Then the step should succeed
+    # check short cut "esc" and check the overview close.
+    And I perform the :check_escape_on_workloads web action with:
+      | key | :escape |
+    Then the step should succeed
+    # check short cut "j" and check the highlighted workload.
+    And I perform the :check_shortcuts_on_workloads web action with:
+      | workload      | Deployment   |
+      | workload_name | example      |
+      | key           | j            |
+    Then the step should succeed
+    # check short cut "k" and check the highlighted workload.
+    And I perform the :check_shortcuts_on_workloads web action with:
+      | workload      | DeploymentConfig |
+      | workload_name | hooks            |
+      | key           | k                |
+    Then the step should succeed
+    # check short cut "/" highlights the filter input field and the hint inside becomes invisible.
+    And I perform the :check_filter_on_workloads web action with:
+      | workload      | Deployment   |
+      # the name of the workload here should be of the missing workload.
+      | workload_name | hooks        |
+      | key           | /            |
+    Then the step should succeed
