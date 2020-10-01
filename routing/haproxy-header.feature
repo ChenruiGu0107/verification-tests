@@ -336,6 +336,7 @@ Feature: Testing HTTP Headers related scenarios
       | foobar-<%= cb.proj_name %> |
     """
 
+
   # @author aiyengar@redhat.com
   # @case_id OCP-34189
   @admin
@@ -473,3 +474,347 @@ Feature: Testing HTTP Headers related scenarios
       | be_http:<%= cb.proj_name %>:route-unsecure |
     """
 
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34231
+  @admin
+  Scenario: Configure Ingresscontroller to preserve existing header with "forwardedHeaderPolicy" set to Append
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-34231" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctrl-x_forwarded.yaml"
+    And I run oc create over "ingressctrl-x_forwarded.yaml" replacing paths:
+      | ["spec"]["domain"]   | <%= cb.subdomain.gsub("apps","test-34231") %> |
+      | ["metadata"]["name"] | test-34231                                    |
+    Then the step should succeed
+
+    # Ensure the router gets spawned and the vital info is saved in the cb and check if the env has the "append" value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-34231 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-34231').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w "ROUTER_SET_FORWARDED_HEADERS=append" | -q |
+    Then the step should succeed
+    """
+
+    # Deploy backend pods/services
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/header-test/dc.json"
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/header-test/insecure-service.json"
+    When I run the :create client command with:
+      | f | insecure-service.json |
+    Then the step should succeed
+
+    # Deploy route
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.34231.example.com |
+      | ["metadata"]["name"]   | route-unsecure                        |
+      | ["spec"]["to"]["name"] | header-test-insecure                  |
+    Then the step should succeed
+
+    # Generate app traffic and verify if the headers match the set value of "append"
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip` is stored in the :hello_pod_ip clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | --resolve | <%= cb.proj_name %>.34231.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34231.example.com/ |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.hello_pod_ip %>                                                           |
+      | <%= cb.proj_name %>.34231.example.com                                            |
+      | for=<%= cb.hello_pod_ip %>;host=<%= cb.proj_name %>.34231.example.com;proto=http |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34233
+  @admin
+  Scenario: Configure Ingresscontroller to replace any existing Forwarded header with "forwardedHeaderPolicy" set to Replace
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-34233" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctrl-x_forwarded.yaml"
+    And I run oc create over "ingressctrl-x_forwarded.yaml" replacing paths:
+      | ["spec"]["domain"]                               | <%= cb.subdomain.gsub("apps","test-34233") %> |
+      | ["metadata"]["name"]                             | test-34233                                    |
+      | ["spec"]["httpHeaders"]["forwardedHeaderPolicy"] | Replace                                       |
+    Then the step should succeed
+
+    # Ensure the router gets spawned and the vital info is saved in the cb and check if the env has the "replace" value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-34233 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-34233').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w "ROUTER_SET_FORWARDED_HEADERS=replace" | -q |
+    Then the step should succeed
+    """
+
+    # Deploy backend pods/services
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/header-test/dc.json"
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/header-test/insecure-service.json"
+    When I run the :create client command with:
+      | f | insecure-service.json |
+    Then the step should succeed
+
+    # Deploy route
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.34233.example.com |
+      | ["metadata"]["name"]   | route-unsecure                        |
+      | ["spec"]["to"]["name"] | header-test-insecure                  |
+    Then the step should succeed
+
+    # Generate app traffic and verify if the headers match the set value of "Replace"
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip` is stored in the :hello_pod_ip clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | --resolve | <%= cb.proj_name %>.34233.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34233.example.com/ |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.hello_pod_ip %>                                                           |
+      | <%= cb.proj_name %>.34233.example.com                                            |
+      | for=<%= cb.hello_pod_ip %>;host=<%= cb.proj_name %>.34233.example.com;proto=http |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34234
+  @admin
+  Scenario: Configure Ingresscontroller to set the headers if they are not already set with "forwardedHeaderPolicy" set to Ifnone
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    Given I switch to cluster admin pseudo user
+    And admin ensures "test-34234" ingresscontroller is deleted from the "openshift-ingress-operator" project after scenario
+    Given I obtain test data file "routing/operator/ingressctrl-x_forwarded.yaml"
+    And I run oc create over "ingressctrl-x_forwarded.yaml" replacing paths:
+      | ["spec"]["domain"]                               | <%= cb.subdomain.gsub("apps","test-34234") %> |
+      | ["metadata"]["name"]                             | test-34234                                    |
+      | ["spec"]["httpHeaders"]["forwardedHeaderPolicy"] | IfNone                                        |
+    Then the step should succeed
+
+    # Ensure the router gets spawned and the vital info is saved in the cb and check if the env has the "Ifnone" value set
+    Given I use the router project
+    And a pod becomes ready with labels:
+      | ingresscontroller.operator.openshift.io/deployment-ingresscontroller=test-34234 |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+    Then the expression should be true> deployment('router-test-34234').exists?
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w "ROUTER_SET_FORWARDED_HEADERS=if-none" | -q |
+    Then the step should succeed
+    """
+
+    # Deploy backend pods/services
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/header-test/dc.json"
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/header-test/insecure-service.json"
+    When I run the :create client command with:
+      | f | insecure-service.json |
+    Then the step should succeed
+
+    # Deploy route
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.34234.example.com |
+      | ["metadata"]["name"]   | route-unsecure                        |
+      | ["spec"]["to"]["name"] | header-test-insecure                  |
+    Then the step should succeed
+
+    # Generate app traffic and verify if the headers match the set value of "if-none"
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod.ip` is stored in the :hello_pod_ip clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -sS | --resolve | <%= cb.proj_name %>.34234.example.com:80:<%= cb.router_ip %> | --max-time | 10 | http://<%= cb.proj_name %>.34234.example.com/ |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.hello_pod_ip %>                                                           |
+      | <%= cb.proj_name %>.34234.example.com                                            |
+      | for=<%= cb.hello_pod_ip %>;host=<%= cb.proj_name %>.34234.example.com;proto=http |
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34236
+  @admin
+  Scenario: "forwardedHeaderPolicy" option defaults to "Append" if none is defined in the ingresscontroller configuration
+    Given the master version >= "4.6"
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    Given all default router pods become ready
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w "ROUTER_SET_FORWARDED_HEADERS=append" | -q |
+    Then the step should succeed
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34246
+  @admin
+  Scenario: Configure a different header policy for the route with "haproxy.router.openshift.io/set-forwarded-headers" annotations
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    Given all default router pods become ready
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    # Check the default header policy for the router
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep  -w "ROUTER_SET_FORWARDED_HEADERS=append" | -q |
+    Then the step should succeed
+    """
+
+    # Deploy pods/service in a project
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/header-test/dc.json"
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/header-test/insecure-service.json"
+    When I run the :create client command with:
+      | f | insecure-service.json |
+    Then the step should succeed
+
+    # Deploy route and add forwarded annotation to the route
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.34247.example.com |
+      | ["metadata"]["name"]   | route-unsecure                        |
+      | ["spec"]["to"]["name"] | header-test-insecure                  |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                     |
+      | resourcename | route-unsecure                                            |
+      | keyval       | haproxy.router.openshift.io/set-forwarded-headers=if-none |
+    Then the step should succeed
+
+    # switch to router project to verify the configurations inside proxy pods.
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | grep -w "route-unsecure" haproxy.config -A3 \|grep "if-none" -q |
+    Then the step should succeed
+    """
+
+
+  # @author aiyengar@redhat.com
+  # @case_id OCP-34247
+  @admin
+  Scenario: Different Routes can have different policy with "haproxy.router.openshift.io/set-forwarded-headers" annotations
+    Given the master version >= "4.6"
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    Given all default router pods become ready
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    # Check the default header option for the router
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | env \|grep -w "ROUTER_SET_FORWARDED_HEADERS=append" | -q |
+    Then the step should succeed
+    """
+
+    # Deploy 2 pods/services in a project
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    Given I obtain test data file "routing/abrouting/caddy-docker.json"
+    When I run the :create client command with:
+      | f | caddy-docker.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/abrouting/caddy-docker-2.json"
+    When I run the :create client command with:
+      | f | caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure.json"
+    When I run the :create client command with:
+      | f | service_unsecure.json |
+    Then the step should succeed
+    Given I obtain test data file "routing/abrouting/unseucre/service_unsecure-2.json"
+    When I run the :create client command with:
+      | f | service_unsecure-2.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+
+    # Deploy two routes with independent/different annotations
+    Given I obtain test data file "routing/unsecure/route_unsecure.json"
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]     | <%= cb.proj_name %>.route-1.34247.example.com |
+      | ["metadata"]["name"] | route-unsecure-1                              |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                     |
+      | resourcename | route-unsecure-1                                          |
+      | keyval       | haproxy.router.openshift.io/set-forwarded-headers=if-none |
+    Then the step should succeed
+    When I run oc create over "route_unsecure.json" replacing paths:
+      | ["spec"]["host"]       | <%= cb.proj_name %>.route-2.34247.example.com |
+      | ["metadata"]["name"]   | route-unsecure-2                              |
+      | ["spec"]["to"]["name"] | service-unsecure-2                            |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                   |
+      | resourcename | route-unsecure-2                                        |
+      | keyval       | haproxy.router.openshift.io/set-forwarded-headers=never |
+    Then the step should succeed
+
+    # Check the state in the haproxy configuration
+    Given I switch to cluster admin pseudo user
+    And I use the router project
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash | -lc | grep -w "route-unsecure-1" haproxy.config -A3 \|grep "if-none" -q |
+      | bash | -lc | grep -w "route-unsecure-2" haproxy.config -A3 \|grep "never" -q   |
+    Then the step should succeed
+    """
