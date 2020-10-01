@@ -185,3 +185,24 @@ Feature: oc get related command
       | resourcename       |
       | rolebinding        |
       | clusterrolebinding |
+
+  # @author knarra@redhat.com
+  # @case_id OCP-34701
+  @admin
+  Scenario: oc diff should not apply changes to cluster
+    Given the master version >= "4.5"
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource      | project  |
+      | resource_name | ocp34701 |
+    Then the output should contain:
+      | Error from server (NotFound): namespaces "ocp34701" not found |
+    Given I obtain test data file "cli/project34701.yaml"
+    When I run the :diff client command with:
+      | f | project34701.yaml  |
+    Then the step should fail
+    When I run the :get client command with:
+      | resource      | project  |
+      | resource_name | ocp34701 |
+    Then the output should contain:
+      | Error from server (NotFound): namespaces "ocp34701" not found |
