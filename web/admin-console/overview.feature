@@ -674,7 +674,7 @@ Feature: overview cases
     And I obtain test data file "deployment/simple-deployment.yaml"
     When I run the :create client command with:
       | f | simple-deployment.yaml |
-      | f | simpledc.json |
+      | f | simpledc.json          |
     Then the step should succeed
     # Go to the workloads tab on project details page.
     Given I open admin console in a browser
@@ -687,7 +687,7 @@ Feature: overview cases
       | key           | :arrow_down |
     Then the step should succeed
     # check short cut "up arrow" and check the highlighted workload.
-    And I perform the :check_shortcuts_on_workloads web action with:
+    And I perform the :check_next_shortcut_on_workloads web action with:
       | workload      | DeploymentConfig |
       | workload_name | hooks            |
       | key           | :arrow_up        |
@@ -698,20 +698,20 @@ Feature: overview cases
     Then the step should succeed
     # check short cut "j" and check the highlighted workload.
     And I perform the :check_shortcuts_on_workloads web action with:
-      | workload      | Deployment   |
-      | workload_name | example      |
-      | key           | j            |
+      | workload      | Deployment |
+      | workload_name | example    |
+      | key           | j          |
     Then the step should succeed
     # check short cut "k" and check the highlighted workload.
-    And I perform the :check_shortcuts_on_workloads web action with:
+    And I perform the :check_next_shortcut_on_workloads web action with:
       | workload      | DeploymentConfig |
       | workload_name | hooks            |
       | key           | k                |
     Then the step should succeed
     # check short cut "/" highlights the filter input field and the hint inside becomes invisible.
     And I perform the :check_filter_on_workloads web action with:
-      | workload      | Deployment   |
+      | workload      | Deployment |
       # the name of the workload here should be of the missing workload.
-      | workload_name | hooks        |
-      | key           | /            |
+      | workload_name | hooks      |
+      | key           | /          |
     Then the step should succeed
