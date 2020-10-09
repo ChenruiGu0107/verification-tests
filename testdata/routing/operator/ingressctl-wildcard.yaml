@@ -1,0 +1,14 @@
+kind: IngressController
+apiVersion: operator.openshift.io/v1
+metadata:
+  name: wildcard
+  namespace: openshift-ingress-operator
+spec:
+  defaultCertificate:
+    name: router-certs-default
+  domain: wildcard.example.com
+  replicas: 1
+  endpointPublishingStrategy:
+    type: NodePortService
+  routeAdmission:
+    wildcardPolicy: WildcardsAllowed
