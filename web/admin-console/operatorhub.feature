@@ -3,6 +3,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-24340
   @admin
+  @destructive
   Scenario: Add "custom form" vs "YAML editor" on "Create Custom Resource" page	
     Given the master version >= "4.3"
     Given I have a project
@@ -246,6 +247,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-27666
   @admin
+  @destructive
   Scenario: Add Special support link for template and operator
     Given the master version >= "4.4"
     Given I have a project
@@ -316,6 +318,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-28954
   @admin
+  @destructive
   Scenario: Form & YAML Toggle Interactions for Create Operand
     Given the master version >= "4.5"
     Given I have a project
@@ -558,6 +561,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-27646
   @admin
+  @destructive
   Scenario: Check marketplace operator annotations
     Given the master version >= "4.4"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
@@ -597,6 +601,7 @@ Feature: operatorhub feature related
   # @author hasha@redhat.com
   # @case_id OCP-27631
   @admin
+  @destructive
   Scenario: check operator install process when operator bundle pre-defined namespace/installplan/monitoring
     Given the master version >= "4.4"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
@@ -1014,6 +1019,7 @@ Feature: operatorhub feature related
   # @author yapei@redhat.com
   # @case_id OCP-33743
   @admin
+  @destructive
   Scenario: Add button to operator install workflow to direct user to create operand based on annotation
     Given the master version >= "4.6"
     Given I have a project
@@ -1062,6 +1068,7 @@ Feature: operatorhub feature related
   # @author yanpzhan@redhat.com
   # @case_id OCP-29690
   @admin
+  @destructive
   Scenario: Show operator installation flow
     Given the master version >= "4.6"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
@@ -1096,6 +1103,7 @@ Feature: operatorhub feature related
   # @author yapei@redhat.com
   # @case_id OCP-33748
   @admin
+  @destructive
   Scenario: schema grouping for specDescriptors and statusDescriptors
     Given the master version >= "4.6"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"

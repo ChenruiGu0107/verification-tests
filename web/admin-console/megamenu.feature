@@ -44,6 +44,7 @@ Feature: mega menu on console
   # @author yapei@redhat.com
   # @case_id OCP-25803
   @admin
+  @destructive
   Scenario: Pipelines resources are added into Admin perspective
     Given the master version >= "4.3"
     Given admin creates "ui-auto-operators" catalog source with image "quay.io/openshifttest/ui-auto-operators:latest"
