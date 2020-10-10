@@ -1,0 +1,17 @@
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+spec:
+  pipelines:
+    - name: test-app
+      inputRefs:
+      - inputest
+      outputRefs:
+      - default
+  inputs:
+    - name: inputest
+      application:
+        namespaces:
+        - logging-test-project1
+        - logging-test-project2
