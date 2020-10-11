@@ -1154,7 +1154,17 @@ Feature: operatorhub feature related
       | memory_value    | 30Mi |
       | storage_value   | 30Mi |
     Then the step should succeed
+    # wait for changes updated in YAML
     Given I wait up to 10 seconds for the steps to pass:
+    """
+    When I get project argo_c_d as YAML
+    And the output should match:
+      | cpu.*300m               |
+      | ephemeral-storage.*30Mi |
+      | memory.*30Mi            |  
+    """
+    # then check on console
+    Given I wait up to 5 seconds for the steps to pass:
     """
     When I perform the :check_resource_requirement_values web action with:
       | cpu_cores_value | 300m |

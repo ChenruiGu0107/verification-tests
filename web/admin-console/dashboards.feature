@@ -217,6 +217,7 @@ Feature: dashboards related cases
 
   # @author yapei@redhat.com
   # @case_id OCP-19817
+  @admin
   Scenario: Check metrics charts
     Given the master version >= "4.3"
     Given I have a project
@@ -242,6 +243,28 @@ Feature: dashboards related cases
     When I perform the :goto_one_project_page web action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+
+    # query metrics by CLI - get sa/prometheus-k8s token
+    When I run the :serviceaccounts_get_token admin command with:
+      | serviceaccount_name | prometheus-k8s       |
+      | n                   | openshift-monitoring |
+    Then the step should succeed
+    And evaluation of `@result[:stdout]` is stored in the :sa_token clipboard
+
+    # query metrics by CLI - check cpu usage data is generated
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=namespace%3Acontainer_cpu_usage%3Asum%7Bnamespace%3D%22<%= project.name %>%22%7D |
+    Then the step should succeed
+    And the expression should be true> @result[:stdout] =~ /value.*[\d+,\d+]/
+    """
     When I run the :check_charts_in_project_utilization web action
     Then the step should succeed
     When I run the :check_no_errors_in_charts web action
@@ -256,6 +279,20 @@ Feature: dashboards related cases
       | project_name  | <%= project.name %> |
       | resource_name | <%= pod.name %>     |
     Then the step should succeed
+    # query metrics by CLI - check cpu usage data is generated
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :exec admin command with:
+      | n                | openshift-monitoring |
+      | pod              | prometheus-k8s-0     |
+      | c                | prometheus           |
+      | oc_opts_end      |                      |
+      | exec_command     | sh                   |
+      | exec_command_arg | -c                   |
+      | exec_command_arg | curl -k -H "Authorization: Bearer <%= cb.sa_token %>" https://prometheus-k8s.openshift-monitoring.svc:9091/api/v1/query?query=pod%3Acontainer_cpu_usage%3Asum%7Bpod%3D%27<%= pod.name %>%27%2Cnamespace%3D%27<%= project.name %>%27%7D |
+    Then the step should succeed
+    And the expression should be true> @result[:stdout] =~ /value.*[\d+,\d+]/
+    """
     When I run the :check_charts_on_pod_page web action
     Then the step should succeed
     When I run the :check_no_errors_in_charts web action

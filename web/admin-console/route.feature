@@ -431,6 +431,7 @@ Feature: route related
       | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
     Then the step should succeed
     And the output should match "<%= user.name %>.*console"
+    Given evaluation of `user.cached_tokens.first` is stored in the :user_token clipboard
 
     # check the download route page
     Given default admin-console downloads route is stored in the clipboard
@@ -449,4 +450,4 @@ Feature: route related
       | resource | oauthaccesstoken                                                    |
       | o        | custom-columns=user:.userName,client:.clientName,name:metadata.name |
     Then the step should succeed
-    And the output should not match "<%= user.name %>.*console"
+    And the output should not match "<%= user.name %>.*console.*<%= cb.user_token %>"
