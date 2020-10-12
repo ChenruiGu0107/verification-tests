@@ -273,3 +273,41 @@ Feature: Machine features testing
     Then the step should succeed
     And the output should match 3 times:
       | 120G |
+
+  # @author zhsun@redhat.com
+  # @case_id OCP-35513
+  @admin
+  @destructive
+  Scenario: Windows machine should successfully provision for aws
+    Given I have an IPI deployment
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-machine-api" project
+    And admin ensures machine number is restored after scenario
+    And I pick a random machineset to scale
+
+    # Create a machineset 
+    Given I run the :get admin command with:
+      | resource      | machineset              |
+      | resource_name | <%= machine_set.name %> |
+      | o             | yaml                    |
+    Then the step should succeed
+    And I save the output to file> machineset-clone-35513.yaml
+    And I replace content in "machineset-clone-35513.yaml":
+      | <%= machine_set.name %> | win-35513                 |
+      | /id: ami.*/             | id: ami-0c7a9c9d17f8a5b64 |
+      | /replicas.*/            | replicas: 0               |
+
+    When I run the :create admin command with:
+      | f | machineset-clone-35513.yaml |
+    Then the step should succeed
+    And admin ensures "win-35513" machineset is deleted after scenario
+
+    Given as admin I successfully merge patch resource "machineset/win-35513" with:
+      | {"spec":{"replicas": 1,"template":{"metadata":{"labels":{"machine.openshift.io/os-id": "Windows"}}}}} |
+
+    # Verify machine could be created successful
+    Given I store the last provisioned machine in the :win_machine clipboard
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    Then the expression should be true> machine(cb.win_machine).phase(cached: false) == "Provisioned"
+    """
