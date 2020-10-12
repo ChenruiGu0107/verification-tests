@@ -781,20 +781,28 @@ Feature: customize console related
       | name=console-operator |
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com"}}} |
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     And I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
       | CustomRouteSyncDegraded.*secret.*custom route TLS secret.*not defined |
+    """
 
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "test-generic-secret"}}}} |
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     And I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
       | CustomRouteSyncDegraded.*secret.*test-generic-secret.*not found |
+    """
 
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route": null}} |
     Given I obtain test data file "secrets/secret.yaml"
     Given admin ensures "test-secret" secret is deleted from the "openshift-config" project after scenario
     When I run the :create admin command with:
@@ -803,12 +811,17 @@ Feature: customize console related
     Then the step should succeed
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "test-secret"}}}} |
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     And I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
       | CustomRouteSyncDegraded.*InvalidCustomTLSSecret.*not.*kubernetes.io/tls.*type |
+    """
 
+    Given as admin I successfully merge patch resource "console.operator/cluster" with:
+      | {"spec":{"route": null}} |
     Given I obtain test data file "secrets/invalid-tls-secret.yaml"
     Given admin ensures "tls-invalid-format" secret is deleted from the "openshift-config" project after scenario
     When I run the :create admin command with:
@@ -817,11 +830,14 @@ Feature: customize console related
     Then the step should succeed
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"route":{"hostname": "https://uiautocustomconsoletest.com","secret":{"name": "tls-invalid-format"}}}} |
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     And I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
       | CustomRouteSyncDegraded.*InvalidCustomTLSSecret.*fail.*to decode certificate PEM |
+    """
 
     Given I obtain test data file "secrets/OCP-29784/tls.crt"
     Given I obtain test data file "secrets/OCP-29784/tls.key"
@@ -835,8 +851,11 @@ Feature: customize console related
     Then the step should succeed
     Given as admin I successfully merge patch resource "console.operator/cluster" with:
       | {"spec":{"route":{"hostname": "https://qe-uiauto-custom-console.com","secret":{"name": "custom-tls-secret"}}}} |
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     And I run the :logs client command with:
       | resource_name | <%= pod.name %> |
     Then the step should succeed
     And the output should match:
       | CustomRouteSyncDegraded.*FailedCustomRouteApply.*must conform to DNS 952 subdomain convention |
+    """
