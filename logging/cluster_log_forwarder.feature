@@ -33,7 +33,7 @@ Feature: cluster log forwarder testing
       | crd_yaml            | example_indexmanagement.yaml |
     Then the step should succeed
     Given fluentd receiver is deployed as secure in the "openshift-logging" project
-    Given admin ensures "instance" cluster_log_forwarder is deleted after scenario
+    Given admin ensures "instance" cluster_log_forwarder is deleted from the "openshift-logging" project after scenario
     Given I obtain test data file "logging/clusterlogforwarder/clf-invalid-output-name.yaml"
     When I run the :create client command with:
       | f | clf-invalid-output-name.yaml |
@@ -51,7 +51,7 @@ Feature: cluster log forwarder testing
     Given I switch to cluster admin pseudo user
     And I use the "openshift-logging" project
     Given I obtain test data file "logging/clusterlogforwarder/clf-forward-with-pre-defined-namespaces.yaml"
-    And admin ensures "instance" cluster_log_forwarder is deleted after scenario
+    And admin ensures "instance" cluster_log_forwarder is deleted from the "openshift-logging" project after scenario
     When I run the :create client command with:
       | f | clf-forward-with-pre-defined-namespaces.yaml |
     Then the step should succeed
