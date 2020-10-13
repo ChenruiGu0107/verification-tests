@@ -648,7 +648,7 @@ Feature: operatorhub feature related
       | target_namespace | <%= project.name %> |
     Then the step should succeed
     """
-    When I perform the :check_all_namespace_installation_mode_with_recommended_ns web action with:
+    When I perform the :check_specific_namespace_installation_mode_with_recommended_ns web action with:
       | recommended_ns | openshift-logging |
     Then the step should succeed
 
