@@ -213,9 +213,9 @@ Feature: Testing Scheduler Operator related scenarios
     Given the "cluster" scheduler CR is restored after scenario
     Given I obtain test data file "scheduler/<filename>"
     When I run the :create_configmap admin command with:
-      | name      | my-scheduler-policy                                                             |
+      | name      | my-scheduler-policy   |
       | from_file | policy.cfg=<filename> |
-      | namespace | openshift-config                                                                |
+      | namespace | openshift-config      |
     Then the step should succeed
     When I run the :patch admin command with:
       | resource      | scheduler                                          |
@@ -234,13 +234,15 @@ Feature: Testing Scheduler Operator related scenarios
     And  the expression should be true> cluster_operator("kube-scheduler").condition(type: 'Available')['status'] == "True"
     """
     Given I store the schedulable workers in the :nodes clipboard
-    And the expression should be true> cb.nodes.delete(node)
     Given node schedulable status should be restored after scenario
     When I run the :oadm_cordon_node admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
     Then the step should succeed
     When I run the :oadm_uncordon_node admin command with:
       | node_name | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    When I run the :oadm_uncordon_node admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
     Then the step should succeed
     Given I store the schedulable workers in the :nodes clipboard
     Given the "<%= cb.nodes[0].name %>" node labels are restored after scenario
