@@ -57,12 +57,12 @@ Feature: Machine features testing
     And the expression should be true> @result[:parsed]["data"]["result"][0]["metric"]["__name__"] == "mapi_instance_create_failed"
 
     Examples:
-      | valid_field       | invalid_value         |
-      | /machineType:.*/  | machineType: invalid  | # @case_id OCP-25927
-      | /instanceType:.*/ | instanceType: invalid | # @case_id OCP-28817
-      | /vmSize:.*/       | vmSize: invalid       | # @case_id OCP-28818
-      | /flavor:.*/       | flavor: invalid       | # @case_id OCP-28916
-      | /folder:.*/       | folder: invalid       | # @case_id OCP-28971
+      | valid_field       | invalid_value          |
+      | /machineType:.*/  | machineType: invalid   | # @case_id OCP-25927
+      | /instanceType:.*/ | instanceType: invalid  | # @case_id OCP-28817
+      | /vmSize:.*/       | vmSize: invalid        | # @case_id OCP-28818
+      | /flavor:.*/       | flavor: invalid        | # @case_id OCP-28916
+      | /folder:.*/       | folder: /dc1/vm/invalid| # @case_id OCP-28971
 
   # @author zhsun@redhat.com
   # @case_id OCP-29351
