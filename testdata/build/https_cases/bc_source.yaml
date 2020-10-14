@@ -1,0 +1,14 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: ca-test-source
+spec:
+  source:
+    dockerfile: |
+      FROM registry.redhat.io/ubi8/ubi:latest
+  strategy:
+    sourceStrategy: 
+      from: 
+        kind: ImageStreamTag
+        name: ruby:latest
+        namespace : openshift

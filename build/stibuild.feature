@@ -578,3 +578,47 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should contain:
       | registry.redhat.io |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-24931
+  @admin
+  Scenario: Mount trusted CA for cluster proxies to source build pod
+  Given I run the :get admin command with:
+    | resource      | configmap                          |
+    | resource_name | user-ca-bundle                     |
+    | template      | '{{index .data "ca-bundle.crt" }}' | 
+    | namespace     | openshift-config                   |
+  And the step should succeed
+  And I save the output to file> user_ca
+  And I replace lines in "user_ca":
+    | '-----BEGIN CERTIFICATE----- | -----BEGIN CERTIFICATE----- |
+  And the step should succeed
+  When I delete matching lines from "user_ca":
+    | ' |
+  Then the step should succeed
+  And evaluation of `File.read("user_ca")` is stored in the :userca clipboard
+  Given I have a project
+  When I obtain test data file "build/https_cases/bc_source.yaml"
+  When I run the :create client command with:
+    | f | bc_source.yaml |
+  Then the step should succeed
+  When I run the :start_build client command with:
+    | buildconfig | ca-test-source |
+  Then the step should succeed
+  And the "ca-test-source-1" build completed
+  When I get project configmaps named "ca-test-1-global-ca"
+  Then the step should succeed
+  And I run the :describe client command with:
+    | resource | pods                   |
+    | name     | ca-test-source-1-build |
+  And the step should succeed
+  And the output should contain "/var/run/configs/openshift.io/pki"
+  When I run the :debug admin command with:
+    | resource         | pod/ca-test-source-1-build                          |
+    | oc_opts_end      |                                                     |
+    | exec_command     | cat                                                 |
+    | exec_command_arg | /var/run/configs/openshift.io/pki/tls-ca-bundle.pem |
+    | n                | <%= project.name %>                                 |
+  Then the step should succeed
+  And evaluation of `@result[:stdout]` is stored in the :buildca clipboard
+  And the expression should be true> cb.userca == cb.buildca
