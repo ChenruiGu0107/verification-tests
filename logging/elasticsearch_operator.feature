@@ -342,7 +342,7 @@ Feature: elasticsearch operator related tests
     Given I wait up to 300 seconds for the steps to pass:
     """
     Given the expression should be true> cluster_logging('instance').es_cluster_conditions.nil?
-    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.empty?
+    And the expression should be true> elasticsearch('elasticsearch').cluster_conditions.nil? || elasticsearch('elasticsearch').cluster_conditions.empty?
     """
     Given I delete the clusterlogging instance
     Given I obtain test data file "logging/clusterlogging/clusterlogging-storage-template.yaml"
@@ -461,7 +461,7 @@ Feature: elasticsearch operator related tests
     And evaluation of `cb.es_alert_rules_1.select {|e| e['alert'].start_with? 'ElasticsearchNodeDiskWatermarkReached'}` is stored in the :es_node_disk_watermare_alerts clipboard
     Then the expression should be true> cb.es_cluster_not_healthy_alerts.find {|e| e['for'] == "2m"}["labels"]["severity"] == "critical"
     And the expression should be true> cb.es_cluster_not_healthy_alerts.find {|e| e['for'] == "20m"}["labels"]["severity"] == "warning"
-    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchBulkRequestsRejectionJumps').severity == "warning"
+    And the expression should be true> prometheus_rule('elasticsearch-prometheus-rules').prometheus_rule_group_spec(name: "logging_elasticsearch.alerts").rule_spec(alert: 'ElasticsearchWriteRequestsRejectionJumps').severity == "warning"
     And the expression should be true> cb.es_node_disk_watermare_alerts.find {|e| e['annotations']['message'].start_with? 'Disk Low Watermark Reached'}['labels']['severity'] == "info"
     And the expression should be true> cb.es_node_disk_watermare_alerts.find {|e| e['annotations']['message'].start_with? 'Disk High Watermark Reached'}['labels']['severity'] == "warning"
     And the expression should be true> cb.es_node_disk_watermare_alerts.find {|e| e['annotations']['message'].start_with? 'Disk Flood Stage Watermark Reached'}['labels']['severity'] == "critical"
@@ -485,13 +485,13 @@ Feature: elasticsearch operator related tests
     """
     Given I check the "elasticsearch-prometheus-rules" prometheus rule in the "openshift-logging" project on the prometheus server
     And the output should not contain:
-      | ElasticsearchNodeDiskWatermarkReached   |
-      | ElasticsearchBulkRequestsRejectionJumps |
-      | ElasticsearchJVMHeapUseHigh             |
-      | AggregatedLoggingSystemCPUHigh          |
-      | ElasticsearchProcessCPUHigh             |
-      | ElasticsearchDiskSpaceRunningLow        |
-      | ElasticsearchHighFileDescriptorUsage    |
+      | ElasticsearchNodeDiskWatermarkReached    |
+      | ElasticsearchWriteRequestsRejectionJumps |
+      | ElasticsearchJVMHeapUseHigh              |
+      | AggregatedLoggingSystemCPUHigh           |
+      | ElasticsearchProcessCPUHigh              |
+      | ElasticsearchDiskSpaceRunningLow         |
+      | ElasticsearchHighFileDescriptorUsage     |
     And the expression should be true> YAML.load(@result[:response])['groups'][0]['rules'].find {|e| e['alert'].start_with? 'ElasticsearchClusterNotHealthy'}['for'] == "5m"
     """
 
